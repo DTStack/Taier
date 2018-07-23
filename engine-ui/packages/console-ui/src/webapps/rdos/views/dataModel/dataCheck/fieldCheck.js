@@ -1,33 +1,39 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 
 import {
-    Table, Row, Col, Select, Form, 
-    Card, Button, message, Checkbox,
+    Table, Select, Form, 
+    Card, message, Checkbox,
     DatePicker, Input,
 } from 'antd';
-
+import moment from "moment"
 import utils from 'utils';
+
 import Api from '../../../api/dataModel';
-import { FieldNameCheck } from '../../../components/display'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
-const RangePicker = DatePicker.RangePicker;
+const { RangePicker } = DatePicker;
 
 export default class FieldCheck extends Component {
 
-    state ={
-        table: {data: []},
-        loading: false,
-
-        params: {
-            pageIndex: 1,
-            pageSize: 10,
-            columnName: '',
-            ignore: 0, // 1 忽略，0 不忽略
-            type: '2',
-        },
+    constructor(props) {
+        super(props)
+        const {  triggerType2, startTime2, endTime2 } = this.props.location.query;
+        this. state = {
+            table: { data: [] },
+            loading: false,
+            params: {
+                pageIndex: 1,
+                pageSize: 10,
+                tableName: '',
+                ignore: 0, // 1 忽略，0 不忽略
+                type: '2',
+                triggerType: triggerType2&&triggerType2.split(",")||[],
+                startTime: startTime2,
+                endTime: endTime2,
+            },
+        }
     }
 
   
@@ -46,6 +52,18 @@ export default class FieldCheck extends Component {
 
     loadData = () => {
         const { params } = this.state;
+        const { startTime,endTime,triggerType} = params;
+        const { pathname, query} = this.props.location;
+        const pathQuery = { 
+            currentTab: '2', 
+            startTime2: startTime, 
+            endTime2: endTime, 
+            triggerType2: triggerType.join(",")||undefined
+        };
+        hashHistory.push({
+            pathname,
+            query: Object.assign(query,pathQuery),
+        })
         this.setState({
             loading: true,
         })
@@ -138,10 +156,26 @@ export default class FieldCheck extends Component {
         }]
     }
 
+    onChangeTime = (value) => {
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
+    }
+
+    handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
+        return moment&&moment.unix()*1000 
+    }
+      
+    onOk = (value) => {
+        console.log(value);
+        this.changeParams('startTime',this.handleMoment(value[0]));
+        this.changeParams('endTime',this.handleMoment(value[1]));
+    }
+
     render() {
 
         const { loading, table, params } = this.state
-
+        console.log('params',params);
+        
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
@@ -149,60 +183,67 @@ export default class FieldCheck extends Component {
         };
 
         return (
-            <div className="m-card">
-                <Card
-                    noHovering
-                    bordered={false}
-                    loading={false}
-                    title={
-                        <Form 
-                            className="m-form-inline" 
-                            layout="inline"
-                            style={{ marginTop: '10px' }}
-                        >
-                            <FormItem>
-                                <Input.Search
-                                    placeholder="按字段名搜索"
-                                    style={{ width: 200 }}
-                                    size="default"
-                                    onChange={ this.onTableNameChange }
-                                    onSearch={ this.loadData }
-                                />
-                            </FormItem>
-                            <FormItem label="类型">
-                                <Select
-                                    allowClear
-                                    showSearch
-                                    style={{ width: 200 }}
-                                    placeholder="选择类型"
-                                    optionFilterProp="name"
-                                    onChange={(value) => this.changeParams('triggerType', value)}
-                                >
-                                    <Option value="1">字段名称不合理</Option>
-                                    <Option value="2">字段类型不合理</Option>
-                                    <Option value="3">字段描述不合理</Option>
-                                </Select>
-                            </FormItem>
-                            <FormItem>
-                                <Checkbox 
-                                    onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
-                                >
-                                    已忽略
-                                </Checkbox>
-                            </FormItem>
-                        </Form>
-                    }
+            <div className="m-card antd-input">
+               <Form 
+                    className="m-form-inline" 
+                    layout="inline"
+                    style={{ margin: '10 0 0 20' }}
                 >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
-                            dataSource={table.data || []}
+                    <FormItem>
+                        <Input.Search
+                            placeholder="按字段名搜索"
+                            style={{ width: 200 }}
+                            size="default"
+                            onChange={ this.onTableNameChange }
+                            onSearch={ this.loadData }
                         />
-                </Card>
+                    </FormItem>
+                    <FormItem label="检测结果">
+                        <Select
+                            allowClear
+                            showSearch
+                            mode="multiple"
+                            size="default"
+                            value={params.triggerType}
+                            style={{ minWidth: 200, marginTop: 3 }}
+                            placeholder="选择检测结果"
+                            optionFilterProp="name"
+                            onChange={(value) => this.changeParams('triggerType', value)}
+                        >
+                            <Option value="0">规范</Option>
+                            <Option value="1">字段名称不合理</Option>
+                            <Option value="2">字段类型不合理</Option>
+                            <Option value="3">字段描述不合理</Option>
+                        </Select>
+                    </FormItem>
+                    <FormItem label="最后修改时间">
+                        <RangePicker
+                            size="default"
+                            value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]||[]}
+                            showTime={{ format: 'HH:mm:ss' }}
+                            format="YYYY-MM-DD HH:mm:ss"
+                            placeholder={['开始时间', '结束时间']}
+                            onChange={this.onChangeTime}
+                            onOk={this.onOk}
+                        />
+                    </FormItem>
+                    <FormItem>
+                        <Checkbox 
+                            onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
+                        >
+                            已忽略
+                        </Checkbox>
+                    </FormItem>
+                </Form>
+                <Table
+                    rowKey="id"
+                    className="m-table"
+                    pagination={pagination}
+                    loading={loading}
+                    columns={this.initColumns()}
+                    onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
+                    dataSource={table.data || []}
+                />
             </div>
         )
     }

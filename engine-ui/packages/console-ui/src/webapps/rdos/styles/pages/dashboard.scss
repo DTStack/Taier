@@ -69,9 +69,16 @@
     .card-width{
         min-width: 375px;
         .tooltip-img{
-            width: 20px;
+            width: 14px;
             float: right;
-            margin-top: 14;
+            margin-top: 17;
+        }
+        .cancel-top{
+            color: #94A8C6;
+            font-size: 12px;
+        }
+        .tooltip-img,.cancel-top:hover{
+            cursor: pointer;
         }
         .setTopImg{
             transform: rotate(180deg);
@@ -134,13 +141,13 @@
                 
             }
             .triangle_border_right{
-                border-width: 14px;
+                border-width: 12px;
                 border-style: solid;
                 border-color: transparent transparent transparent #94A8C6;/*透明 透明 透明 灰*/
                 //margin:40px auto;
                 position: absolute;
-                bottom: -14px;
-                right: -14px;
+                bottom: -12px;
+                right: -12px;
                 transform: rotate(45deg);
             }
         }
