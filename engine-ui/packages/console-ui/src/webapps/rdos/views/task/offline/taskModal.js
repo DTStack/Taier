@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip } from 'antd';
+import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip,message } from 'antd';
 
 import ajax from '../../../api';
 
@@ -40,13 +40,23 @@ class TaskForm extends React.Component {
         this._resChange = false;
     }
 
-    componentDidMount() {
+    componentWillMount() {
         const { defaultData } = this.props;
         this.loadTaskTypes();
         this.setState({
             operateModel: (defaultData&&defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
+    // componentWillReceiveProps(nextProps){
+    //     if(this.props.defaultData!=nextProps.project.id){
+    //         this.setState({
+    //             projectId:"all",
+    //             expandedKeys:[],
+    //             tableId:'',
+    //             searchName:""
+    //         })
+    //     }
+    // }
     handleSelectTreeChange(value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -520,8 +530,9 @@ class TaskModal extends React.Component {
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(isSuccess => {
                         if (isSuccess) {
-                            this.closeModal();
+                            message.success("操作成功")
                             form.resetFields();
+                            this.closeModal();
                         }
                     }
                     );
@@ -534,9 +545,9 @@ class TaskModal extends React.Component {
     }
 
     closeModal() {
-        this.dtcount++;
-        this.props.emptyModalDefault();
         this.props.toggleCreateTask();
+        this.props.emptyModalDefault();
+        this.dtcount++;
     }
 
     render() {
