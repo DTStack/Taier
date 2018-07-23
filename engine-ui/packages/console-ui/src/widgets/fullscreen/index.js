@@ -13,7 +13,7 @@ const isFullScreen = function() {
 export default class FullScreenButton extends Component {
 
     state = {
-        isFullScreen: isFullScreen(),
+        isFullScreen: false,
     }
 
     fullScreen = () => {
@@ -45,6 +45,7 @@ export default class FullScreenButton extends Component {
     }
 
     render() {
+        console.log('isFullScreen:', this.state.isFullScreen)
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
 

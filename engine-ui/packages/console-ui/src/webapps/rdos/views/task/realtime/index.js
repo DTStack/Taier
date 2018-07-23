@@ -10,6 +10,8 @@ import {
 
 import utils from 'utils'
 
+import FullScreenButton from 'widgets/fullscreen';
+
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 
@@ -288,6 +290,7 @@ class TaskIndex extends Component {
                         >
                             <MyIcon className="my-icon" type="save" />保存
                         </Button>
+                        <FullScreenButton />
                     </Col>
                     <Col className="right">
                         <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
