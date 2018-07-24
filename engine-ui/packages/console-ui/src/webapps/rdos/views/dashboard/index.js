@@ -219,7 +219,7 @@ class Index extends Component {
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
                             </Button>
-                        </Col>
+                        </Col> 
                         <Col span="14" >
                             <div className="sortTitle">
                                 <span  className="faileSort" style={sortTitleStatus == 2 ? {color:"#2491F7"}: {}} onClick={()=>{this.changeSort('faileSort')}}>按任务失败数排序</span>
@@ -236,13 +236,13 @@ class Index extends Component {
                                         return  <Col span="8" className="card-width" key={v.id} style={{padding: 0}}>
                                                     <Card  className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                         <Row className="card-content" >
-                                                            <Col span="18">
+                                                            <Col span="16">
                                                                 <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
                                                                 <div className="statistics" >表数量： <span className="statistics-info">{v.tableCount}</span></div>
                                                                 <div className="statistics" >项目占用存储： <span className="statistics-info">{v.totalSize}</span></div>
                                                                 <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
                                                             </Col>
-                                                            <Col span="6">
+                                                            <Col span="8">
                                                                 <div style={{fontSize:14}}>今日任务失败数</div>
                                                                 <div className="number" onClick={()=>{this.setRouter('operation',v)}}>
                                                                     {
