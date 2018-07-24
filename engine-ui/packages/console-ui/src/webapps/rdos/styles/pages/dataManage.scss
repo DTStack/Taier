@@ -39,8 +39,11 @@
     .ant-tree-icon__close {
         background-image: url(/public/rdos/img/icon/folder.svg)
     }
+    // .ant-tree-icon__docu {
+    //     background-image: url(/public/rdos/img/icon/file.svg);
+    // }
     .ant-tree-icon__docu {
-        background-image: url(/public/rdos/img/icon/file.svg);
+        background-image: url(/public/rdos/img/icon/open-folder.svg);
     }
     .s-table {
         .ant-tree-icon__docu {
