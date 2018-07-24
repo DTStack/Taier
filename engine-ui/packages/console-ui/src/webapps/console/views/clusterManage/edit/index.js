@@ -100,7 +100,7 @@ class EditCluster extends React.Component {
         };
         let notExtKeys_flink = ["typeName", "flinkZkAddress",
             "flinkHighAvailabilityStorageDir", "flinkZkNamespace",
-            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir"];
+            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir","clusterMode"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
         let sparkConfig = config.sparkConf;
@@ -371,6 +371,7 @@ class EditCluster extends React.Component {
                         (res) => {
                             if (res.code == 1) {
                                 message.success("保存成功")
+                                this.props.router.goBack();
                             }
                         }
                     )
@@ -407,6 +408,7 @@ class EditCluster extends React.Component {
         })
     }
     getServerParams(formValues, haveFile) {
+        const {mode,cluster} = this.props.location.state;
         const clusterConf = this.getClusterConf(formValues);
         const params = {
             clusterName: formValues.clusterName,
@@ -417,6 +419,9 @@ class EditCluster extends React.Component {
             if (file) {
                 params.config = file.files[0]
             }
+        }
+        if(mode=="edit"){
+            params.id=cluster.id
         }
         return params;
     }
@@ -692,6 +697,23 @@ class EditCluster extends React.Component {
                                 <Select disabled={isView} style={{ width: "100px" }}>
                                     <Option value="flink140">1.4</Option>
                                     <Option value="flink150">1.5</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="clusterMode"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.clusterMode', {
+                                rules: [{
+                                    required: true,
+                                    message: "请选择clusterMode"
+                                }],
+                                initialValue: "yarn"
+                            })(
+                                <Select disabled={isView} style={{ width: "100px" }}>
+                                    <Option value="standalone">standalone</Option>
+                                    <Option value="yarn">yarn</Option>
                                 </Select>
                             )}
                         </FormItem>

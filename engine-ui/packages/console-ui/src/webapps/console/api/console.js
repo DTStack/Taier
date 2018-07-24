@@ -32,6 +32,6 @@ export default {
         return http.post(req.GET_CLUSTER,params);
     },
     updateCluster(params){
-        return http.post(req.UPDATE_CLUSTER,params);
+        return http.postAsFormData(req.UPDATE_CLUSTER,params);
     }
 }
