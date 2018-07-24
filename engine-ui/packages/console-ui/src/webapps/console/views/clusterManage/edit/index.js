@@ -16,6 +16,9 @@ const TEST_STATUS = {
     SUCCESS: 1,
     FAIL: 2
 }
+function giveMeAKey() {
+    return (new Date().getTime() + '' + ~~(Math.random() * 100000))
+}
 function mapStateToProps(state) {
     return {
         consoleUser: state.consoleUser
@@ -42,12 +45,86 @@ class EditCluster extends React.Component {
         spark_params: [],
         core: null,
         nodeNumber: null,
-        memory: null
+        memory: null,
+        extDefaultValue: {},
+        fileHaveChange: false
     }
     componentDidMount() {
-        const { location } = this.props;
-        // const params = location.state;
+        const { location, form } = this.props;
+        const params = location.state;
+        if (params.mode == "edit"||params.mode=="view") {
+            Api.getClusterInfo({
+                clusterId: params.cluster.id
+            })
+                .then(
+                    (res) => {
+                        if (res.code == 1) {
+                            const cluster = res.data;
+                            let clusterConf = cluster.clusterConf;
+                            clusterConf = JSON.parse(clusterConf);
+                            const extParams = this.exchangeServerParams(clusterConf)
+
+                            this.setState({
+                                core: cluster.totalCore,
+                                memory: cluster.totalMemory,
+                                nodeNumber: cluster.totalNode,
+                                zipConfig: JSON.stringify({
+                                    hiveConf: clusterConf.yarnConf,
+                                    hadoopConf: clusterConf.hadoopConf
+                                }),
+                                flink_params: extParams.flinkKeys,
+                                spark_params: extParams.sparkKeys,
+                                extDefaultValue: extParams.default
+                            })
+                            form.setFieldsValue({
+                                clusterName: cluster.clusterName,
+                                hiveConf: clusterConf.hiveConf,
+                                sparkConf: clusterConf.sparkConf,
+                                flinkConf: clusterConf.flinkConf,
+                            })
+                        }
+                    }
+                )
+        }
         // this.props.getTenantList();
+    }
+    /**
+     * 从服务端配置中抽取出自定义参数
+     * @param {Map} config 服务端接收到的配置
+     */
+    exchangeServerParams(config) {
+        let result = {
+            flinkKeys: [],
+            sparkKeys: [],
+            default: {}
+        };
+        let notExtKeys_flink = ["typeName", "flinkZkAddress",
+            "flinkHighAvailabilityStorageDir", "flinkZkNamespace",
+            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir"];
+        let notExtKeys_spark = ["typeName", "sparkYarnArchive",
+            "sparkSqlProxyPath", "sparkPythonExtLibPath"];
+        let sparkConfig = config.sparkConf;
+        let flinkConfig = config.flinkConf;
+
+        function setDefault(config, notExtKeys, type, keys) {
+            const keyAndValue = Object.entries(config);
+            keyAndValue.map(
+                ([key, value]) => {
+                    if (!notExtKeys.includes(key)) {
+                        let formItemId = giveMeAKey();
+                        keys.push({ id: formItemId });
+                        result.default[formItemId] = {
+                            name: key,
+                            value: value
+                        }
+                    }
+                }
+            )
+        }
+
+        setDefault(sparkConfig, notExtKeys_spark, "spark", result.sparkKeys)
+        setDefault(flinkConfig, notExtKeys_flink, "flink", result.flinkKeys)
+        return result;
     }
     getUserOptions() {
         const { consoleUser } = this.props;
@@ -124,10 +201,9 @@ class EditCluster extends React.Component {
     }
     fileChange(e) {
         const file = e.target;
-        this.setState({ file: {}, uploadLoading: true, zipConfig: "" });
+        this.setState({ file: {}, uploadLoading: true, zipConfig: "", fileHaveChange: true });
         Api.uploadClusterResource({
-            config: file.files[0],
-            clusterName: "testtttttttt"
+            config: file.files[0]
         })
             .then(
                 (res) => {
@@ -167,18 +243,18 @@ class EditCluster extends React.Component {
             }
         }
     }
-    addParam(type) {
+    addParam(type, ) {
         const { flink_params, spark_params } = this.state;
         if (type == "flink") {
             this.setState({
                 flink_params: [...flink_params, {
-                    id: new Date().getTime() + '' + ~~(Math.random() * 1000)
+                    id: giveMeAKey()
                 }]
             })
         } else {
             this.setState({
                 spark_params: [...spark_params, {
-                    id: new Date().getTime() + '' + ~~(Math.random() * 1000)
+                    id: giveMeAKey()
                 }]
             })
         }
@@ -204,8 +280,10 @@ class EditCluster extends React.Component {
         })
     }
     renderExtraParam(type) {
-        const { flink_params, spark_params } = this.state;
+        const { flink_params, spark_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
+        const { mode } = this.props.location.state || {};
+        const isView=mode=="view"
         let tmpParams;
         if (type == "flink") {
             tmpParams = flink_params;
@@ -221,9 +299,10 @@ class EditCluster extends React.Component {
                                 rules: [{
                                     required: true,
                                     message: "请输入参数属性名"
-                                }]
+                                }],
+                                initialValue: extDefaultValue[param.id] && extDefaultValue[param.id].name
                             })(
-                                <Input style={{ width: "calc(100% - 12px)" }} />
+                                <Input disabled={isView} style={{ width: "calc(100% - 12px)" }} />
                             )}
                             :
                         </FormItem>
@@ -234,14 +313,15 @@ class EditCluster extends React.Component {
                                 rules: [{
                                     required: true,
                                     message: "请输入参数属性值"
-                                }]
+                                }],
+                                initialValue: extDefaultValue[param.id] && extDefaultValue[param.id].value
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
 
                     </Col>
-                    <a className="formItem-right-text" onClick={this.deleteParam.bind(this, param.id, type)}>删除</a>
+                    {isView?null:(<a className="formItem-right-text" onClick={this.deleteParam.bind(this, param.id, type)}>删除</a>)}
                 </Row>)
             }
         )
@@ -276,12 +356,17 @@ class EditCluster extends React.Component {
         }
         const memory = totalMemory / 1024;
         const haveDot = Math.floor(memory) != memory
-        return `${record.totalCore}核 ${haveDot ? memory.toFixed(2) : memory}GB`
+        return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
     save() {
+        const { mode } = this.props.location.state || {};
         this.props.form.validateFieldsAndScroll(null, {}, (err, values) => {
             if (!err) {
-                Api.createCluster(this.getServerParams(values, true))
+                let functionName = "createCluster"
+                if (mode == "edit") {
+                    functionName = "updateCluster"
+                }
+                Api[functionName](this.getServerParams(values, true))
                     .then(
                         (res) => {
                             if (res.code == 1) {
@@ -328,7 +413,10 @@ class EditCluster extends React.Component {
             clusterConf: JSON.stringify(clusterConf)
         };
         if (haveFile) {
-            params.config = this.state.file.files[0]
+            let file = this.state.file;
+            if (file) {
+                params.config = file.files[0]
+            }
         }
         return params;
     }
@@ -367,9 +455,10 @@ class EditCluster extends React.Component {
         return params;
     }
     render() {
-        const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading } = this.state;
+        const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const { mode } = this.props.location;
+        const { mode } = this.props.location.state || {};
+        const isView = mode == "view";
         const columns = this.initColumns();
 
         return (
@@ -391,7 +480,7 @@ class EditCluster extends React.Component {
                                     message: "集群标识不能超过64字符，支持英文、数字、下划线"
                                 }]
                             })(
-                                <Input placeholder="请输入集群标识" style={{ width: "40%" }} />
+                                <Input disabled={isView} placeholder="请输入集群标识" style={{ width: "40%" }} />
                             )}
                             <span style={{ marginLeft: "30px" }}>节点数：{nodeNumber || '--'} </span>
                             <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}核 {this.exchangeMemory(memory)} </span>
@@ -425,48 +514,52 @@ class EditCluster extends React.Component {
                             </Col>
                         </Row> */}
                     </div>
-                    <p className="config-title">上传配置文件</p>
-                    <div className="config-content" style={{ width: "750px" }}>
-                        <p style={{ marginBottom: "24px" }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-                        <FormItem
-                            label="配置文件"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('file', {
-                                rules: [{
-                                    required: true, message: '请选择上传文件',
-                                }, {
-                                    validator: this.validateFileType,
-                                }],
-                            })(
-                                <div>
-                                    {
-                                        uploadLoading ?
-                                            <label
-                                                style={{ lineHeight: '28px' }}
-                                                className="ant-btn disble"
-                                            >选择文件</label>
-                                            : <label
-                                                style={{ lineHeight: '28px' }}
-                                                className="ant-btn"
-                                                htmlFor="myOfflinFile">选择文件</label>
-                                    }
-                                    {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                    <span> {file.files && file.files[0].name}</span>
-                                    <input
-                                        name="file"
-                                        type="file"
-                                        id="myOfflinFile"
-                                        onChange={this.fileChange.bind(this)}
-                                        accept=".zip"
-                                        style={{ display: 'none' }}
-                                    />
-                                </div>
-                            )}
-                            <span>支持扩展名：.zip</span>
-                        </FormItem>
-                        如何获取这些配置文件？请您参考<a>《帮助文档》</a>
-                    </div>
+                    {isView ? null : (
+                        <div>
+                            <p className="config-title">上传配置文件</p>
+                            <div className="config-content" style={{ width: "750px" }}>
+                                <p style={{ marginBottom: "24px" }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
+                                <FormItem
+                                    label="配置文件"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('file', {
+                                        rules: [{
+                                            required: !fileHaveChange && mode == "edit" ? false : true, message: '请选择上传文件',
+                                        }, {
+                                            validator: this.validateFileType,
+                                        }],
+                                    })(
+                                        <div>
+                                            {
+                                                uploadLoading ?
+                                                    <label
+                                                        style={{ lineHeight: '28px' }}
+                                                        className="ant-btn disble"
+                                                    >选择文件</label>
+                                                    : <label
+                                                        style={{ lineHeight: '28px' }}
+                                                        className="ant-btn"
+                                                        htmlFor="myOfflinFile">选择文件</label>
+                                            }
+                                            {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                            <span> {file.files && file.files[0].name}</span>
+                                            <input
+                                                name="file"
+                                                type="file"
+                                                id="myOfflinFile"
+                                                onChange={this.fileChange.bind(this)}
+                                                accept=".zip"
+                                                style={{ display: 'none' }}
+                                            />
+                                        </div>
+                                    )}
+                                    <span>支持扩展名：.zip</span>
+                                </FormItem>
+                                如何获取这些配置文件？请您参考<a>《帮助文档》</a>
+                            </div>
+                        </div>
+                    )}
                     {
                         zipConfig ?
                             <div><p className="config-title">HDFS</p>
@@ -493,33 +586,23 @@ class EditCluster extends React.Component {
                                     message: "请输入jdbcUrl"
                                 }]
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
                             label="用户名"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('hiveConf.username', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入用户名"
-                                }]
-                            })(
-                                <Input />
+                            {getFieldDecorator('hiveConf.username')(
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
                             label="密码"
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('hiveConf.password', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入密码"
-                                }]
-                            })(
-                                <Input />
+                            {getFieldDecorator('hiveConf.password')(
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                     </div>
@@ -536,7 +619,7 @@ class EditCluster extends React.Component {
                                 }],
                                 initialValue: "spark_yarn"
                             })(
-                                <Select style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: "100px" }}>
                                     <Option value="spark_yarn">2.X</Option>
                                 </Select>
                             )}
@@ -552,7 +635,7 @@ class EditCluster extends React.Component {
                                 }],
                                 initialValue: "/sparkjars/jars"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
@@ -566,7 +649,7 @@ class EditCluster extends React.Component {
                                 }],
                                 initialValue: "/user/spark/spark-0.0.1-SNAPSHOT.jar"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
@@ -580,16 +663,18 @@ class EditCluster extends React.Component {
                                 }],
                                 initialValue: "/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         {this.renderExtraParam("spark")}
-                        <Row>
-                            <Col span={formItemLayout.labelCol.sm.span}></Col>
-                            <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                <a onClick={this.addParam.bind(this, "spark")}>添加自定义参数</a>
-                            </Col>
-                        </Row>
+                        {isView ? null : (
+                            <Row>
+                                <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                    <a onClick={this.addParam.bind(this, "spark")}>添加自定义参数</a>
+                                </Col>
+                            </Row>
+                        )}
                     </div>
                     <p className="config-title">Flink</p>
                     <div className="config-content" style={{ width: "680px" }}>
@@ -604,7 +689,7 @@ class EditCluster extends React.Component {
                                 }],
                                 initialValue: "flink140"
                             })(
-                                <Select style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: "100px" }}>
                                     <Option value="flink140">1.4</Option>
                                     <Option value="flink150">1.5</Option>
                                 </Select>
@@ -621,7 +706,7 @@ class EditCluster extends React.Component {
                                 }],
 
                             })(
-                                <Input placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
+                                <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
                             )}
                         </FormItem>
                         <FormItem
@@ -634,7 +719,7 @@ class EditCluster extends React.Component {
                                     message: "请输入flinkHighAvailabilityStorageDir"
                                 }]
                             })(
-                                <Input placeholder="Flink高可用存储地址，例如：/flink140/ha" />
+                                <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
                             )}
                         </FormItem>
                         <FormItem
@@ -647,7 +732,7 @@ class EditCluster extends React.Component {
                                     message: "请输入flinkZkNamespace"
                                 }]
                             })(
-                                <Input placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
+                                <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
                             )}
                         </FormItem>
                         <FormItem
@@ -657,7 +742,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.jarTmpDir', {
                                 initialValue: "../tmp140"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
@@ -667,7 +752,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkPluginRoot', {
                                 initialValue: "/opt/dtstack/flinkplugin"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         <FormItem
@@ -677,19 +762,22 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.remotePluginRootDir', {
                                 initialValue: "/opt/dtstack/flinkplugin"
                             })(
-                                <Input />
+                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         {this.renderExtraParam("flink")}
-                        <Row>
-                            <Col span={formItemLayout.labelCol.sm.span}></Col>
-                            <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                <a onClick={this.addParam.bind(this, "flink")}>添加自定义参数</a>
-                            </Col>
-                        </Row>
+                        {isView ? null : (
+                            <Row>
+                                <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                    <a onClick={this.addParam.bind(this, "flink")}>添加自定义参数</a>
+                                </Col>
+                            </Row>
+                        )}
                     </div>
                     <p className="config-title"></p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    {isView?null:(
+                        <div className="config-content" style={{ width: "680px" }}>
                         <Button onClick={this.test.bind(this)} loading={testLoading} type="primary">测试连通性</Button>
                         <span style={{ marginLeft: "18px" }}>
                             {this.renderTestResult()}
@@ -700,6 +788,7 @@ class EditCluster extends React.Component {
                             <Button style={{ marginLeft: "8px" }}>取消</Button>
                         </span>
                     </div>
+                    )}
                 </div>
             </div>
         )

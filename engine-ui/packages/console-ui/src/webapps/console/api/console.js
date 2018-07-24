@@ -27,5 +27,11 @@ export default {
     },
     bindUserToQuere(params){
         return http.post(req.BIND_USER_TO_RESOURCE,params);
+    },
+    getClusterInfo(params){
+        return http.post(req.GET_CLUSTER,params);
+    },
+    updateCluster(params){
+        return http.post(req.UPDATE_CLUSTER,params);
     }
 }

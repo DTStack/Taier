@@ -17,5 +17,5 @@ export default {
     NEW_CLUSTER:`${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/add`,//新建集群
     TEST_CLUSTER_CONNECT:`${CONSOLE_BASE_URL}/cluster/testConnect`,//测试集群联通性
     UPLOAD_CLUSTER_RESOURCE:`${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/config`,//上传集群资源配置包
-    GET_CLUSTER:`${CONSOLE_BASE_URL}/cluster/getClusterInfo`,//获取集群信息
+    GET_CLUSTER:`${CONSOLE_BASE_URL}/cluster/getOne`,//获取集群信息
 }   

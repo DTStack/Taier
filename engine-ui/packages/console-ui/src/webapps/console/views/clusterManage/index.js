@@ -91,7 +91,7 @@ class ClusterManage extends React.Component {
                         <div>
                             <a onClick={this.editCluster.bind(this, record)}>修改</a>
                             <span className="ant-divider" ></span>
-                            <a onClick={this.editCluster.bind(this, record)}>查看</a>
+                            <a onClick={this.viewCluster.bind(this, record)}>查看</a>
                         </div>
                     )
                 }
@@ -104,6 +104,15 @@ class ClusterManage extends React.Component {
             state: {
                 cluster: item,
                 mode: "edit"
+            }
+        })
+    }
+    viewCluster(item){
+        hashHistory.push({
+            pathname: "/console/clusterManage/editCluster",
+            state: {
+                cluster: item,
+                mode: "view"
             }
         })
     }

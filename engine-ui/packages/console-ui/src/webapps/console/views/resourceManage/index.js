@@ -63,11 +63,13 @@ class ResourceManage extends React.Component {
         return [
             {
                 title: "集群名称",
-                dataIndex: "clusterName"
+                dataIndex: "clusterName",
+                width:"200px"
             },
             {
                 title: "资源队列",
                 dataIndex: "queueName",
+                width:"200px",
                 render(text,record){
                     if(record.queueState=="STOPPED"){
                         return `${text}(已停用)`
