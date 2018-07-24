@@ -24,6 +24,12 @@
             <groupId>com.dtstack</groupId>
             <artifactId>learning</artifactId>
             <version>${learning.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xml-apis</artifactId>
+                    <groupId>xml-apis</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
