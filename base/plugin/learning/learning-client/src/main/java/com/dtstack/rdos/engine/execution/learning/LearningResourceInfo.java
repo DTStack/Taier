@@ -28,6 +28,7 @@ public class LearningResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
+        System.out.println("learning judgeslots start");
         int totalFreeCore = 0;
         int totalFreeMem = 0;
         int totalCore = 0;
@@ -72,6 +73,11 @@ public class LearningResourceInfo extends EngineResourceInfo {
 
         int neededCores = workerTotalCores + psTotalCores;
         int neededMem = workerTotalMem + psTotalMem;
+
+        System.out.println("neededCores=" + neededCores
+                + " totalFreeCore=" + totalFreeCore
+                + " neededMem=" + neededMem
+                + " totalFreeMem=" + totalFreeMem);
 
         return neededCores <= totalFreeCore && neededMem <= totalFreeMem;
     }
