@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -40,12 +41,11 @@ public class LearningClient extends AbsClient {
 
     private Client client;
 
-    private EngineResourceInfo resourceInfo;
 
     @Override
     public void init(Properties prop) throws Exception {
-        resourceInfo = new EngineResourceInfo();
         LearningConfiguration conf = new LearningConfiguration();
+        conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
         if(StringUtils.isNotBlank(hadoopConfDir)) {
@@ -57,7 +57,18 @@ public class LearningClient extends AbsClient {
         Enumeration enumeration =  prop.propertyNames();
         while(enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
-            conf.set(key, (String) prop.get(key));
+            Object value = prop.get(key);
+            if(value instanceof String) {
+                conf.set(key, (String)value);
+            } else if(value instanceof  Integer) {
+                conf.setInt(key, (Integer)value);
+            } else if(value instanceof  Float) {
+                conf.setFloat(key, (Float)value);
+            } else if(value instanceof Double) {
+                conf.setDouble(key, (Double)value);
+            } else {
+                conf.set(key, value.toString());
+            }
         }
         client = new Client(conf);
     }
@@ -132,6 +143,7 @@ public class LearningClient extends AbsClient {
     public JobResult submitPythonJob(JobClient jobClient){
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
+            System.out.println(Arrays.asList(args));
             String jobId = client.submit(args);
             return JobResult.createSuccessResult(jobId);
         } catch(Exception ex) {

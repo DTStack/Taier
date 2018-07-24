@@ -18,7 +18,7 @@ public class LearningUtil {
         String exeArgs = jobClient.getClassArgs();
         String[] args = exeArgs.split("\\s+");
         for(int i = 0; i < args.length - 1; ++i) {
-            if(args[i].equals("--launch-cmd")) {
+            if(args[i].equals("--launch-cmd") || args[i].equals("--cmd-opts") || args[i].equals("--remote-dfs-config")) {
                 args[i+1] = new String(decoder.decodeBuffer(args[i+1]), "UTF-8");
             }
         }
