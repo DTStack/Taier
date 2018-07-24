@@ -116,12 +116,12 @@
 .m-count {
     height: 108px;
     text-align: center;
-    .m-count-section {
+    .m-count-section { 
         width: 40px;
         height: 60px;
         margin: auto;
         margin-top: 25px;
-    
+        cursor: pointer;
         .m-count-title {
             font-size: 12px;
             color: #999999;
