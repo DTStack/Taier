@@ -57,7 +57,18 @@ public class LearningClient extends AbsClient {
         Enumeration enumeration =  prop.propertyNames();
         while(enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
-            conf.set(key, (String) prop.get(key));
+            Object value = prop.get(key);
+            if(value instanceof String) {
+                conf.set(key, (String)value);
+            } else if(value instanceof  Integer) {
+                conf.setInt(key, (Integer)value);
+            } else if(value instanceof  Float) {
+                conf.setFloat(key, (Float)value);
+            } else if(value instanceof Double) {
+                conf.setDouble(key, (Double)value);
+            } else {
+                conf.set(key, value.toString());
+            }
         }
         client = new Client(conf);
     }
