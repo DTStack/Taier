@@ -63,7 +63,7 @@ export default class Toolbar extends Component {
         } = this.props;
 
         return (
-            <div className="ide-toolbar toolbar clear-offset">
+            <div className="toolbar ide-toolbar clear-offset">
                 {
                     this.renderRun()
                 }

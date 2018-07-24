@@ -23,6 +23,14 @@ $prefix: 'ide';
         height: 39px;
         top: 0;
         border-bottom: 1px solid #dddddd;
+
+        .#{$prefix}-toolbar {
+            width: 100%;
+            height: 28px;
+            margin: 0;
+            margin-top: 6px;
+            padding: 0;
+        }
     }
 
     .#{$prefix}-content {
@@ -38,13 +46,6 @@ $prefix: 'ide';
         height: 100%;
     }
 
-    .#{$prefix}-toolbar {
-        width: 100%;
-        height: 28px;
-        margin: 0;
-        margin-top: 6px;
-        padding: 0;
-    }
 
     .#{$prefix}-console {
         width: 100%;
