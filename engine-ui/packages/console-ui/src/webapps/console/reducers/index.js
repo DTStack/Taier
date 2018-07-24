@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { routerReducer as routing } from 'react-router-redux'
 
-
+import consoleUser from "./modules/consoleUser"
 import { user } from 'main/reducers/modules/user'
 import { apps,app } from 'main/reducers/modules/apps'
 
@@ -12,6 +12,7 @@ const rootReducer = combineReducers({
     user,
     apps,
     app,
+    consoleUser
 })
 
 export default rootReducer

@@ -1,31 +1,61 @@
 import React from "react";
-import { Card, Table, Modal, Select } from "antd";
-import {cloneDeep} from "lodash";
+import { Card, Table, Modal, Select, message } from "antd";
+import {connect} from "react-redux";
+import {cloneDeep,uniq} from "lodash";
 
+import Api from "../../api/console";
+import {getUser} from "../../actions/console"
 
 const Option = Select.Option;
 
+function mapStateToProps(state){
+    return {
+        consoleUser:state.consoleUser
+    }
+}
+function mapDispatchToProps(dispatch){
+    return {
+        getTenantList(){
+            dispatch(getUser())
+        }
+    }
+}
+@connect(mapStateToProps,mapDispatchToProps)
 class ChangeResourceModal extends React.Component {
     state = {
         loading:false,
-        userList: [{ name: "z", id: 1 }, { name: "x", id: 2 }],
         selectUserMap: {},
         selectUser: "",//select输入value
     }
     componentDidMount() {
-
+        const {resource} = this.props;
+        this.setState({
+            selectUserMap:this.exchangeSelectMap(resource.tenants)
+        })
     }
     componentWillReceiveProps(nextProps){
         const {resource:nextResource,visible:nextVisible} = nextProps;
         const {resource,visible} = this.props;
         if(visible!=nextVisible&&nextVisible){
             this.setState({
-                userList:[],
-                selectUserMap:{},
+                selectUserMap:this.exchangeSelectMap(nextResource.tenants),
                 selectUser:"",
                 loading:false
             })
+            
+            this.props.getTenantList();
         }
+    }
+    exchangeSelectMap(userList=[]){
+        let result={};
+        userList.map(
+            (item)=>{
+                result[item.tenantId]={
+                    tenantName:item.tenantName
+                }
+            }
+        )
+        return result;
     }
     changeUserValue(value) {
         this.setState({
@@ -39,7 +69,7 @@ class ChangeResourceModal extends React.Component {
             selectUserMap: {
                 ...selectUserMap,
                 [value]:{
-                    name:option.props.children
+                    tenantName:option.props.children
                 }
             }
         })
@@ -53,12 +83,17 @@ class ChangeResourceModal extends React.Component {
         })
     }
     getUserOptions() {
-        const { userList, selectUserMap } = this.state;
         const result = [];
+        const { selectUserMap } = this.state;
+        const {consoleUser,resource} = this.props;
+        let userList=consoleUser.userList;
+        let extUserList=resource.tenants||[];
+        userList=uniq(userList.concat(extUserList),"tenantId")//去重合并
+        
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
-            if (!selectUserMap[user.id]) {
-                result.push(<Option value={user.id}>{user.name}</Option>)
+            if (!selectUserMap[user.tenantId]) {
+                result.push(<Option value={user.tenantId}>{user.tenantName}</Option>)
             }
         }
         return result;
@@ -85,17 +120,37 @@ class ChangeResourceModal extends React.Component {
         return keyAndValue.map((item)=>{
             return {
                 id:item[0],
-                name:item[1].name
+                name:item[1].tenantName
             }
         })
 
+    }
+    getTenantsList(){
+        const {selectUserMap} = this.state;
+        const selectKeys=Object.keys(selectUserMap);
+        return selectKeys;
     }
     changeResource(){
         this.setState({
             loading:true
         })
-        const {selectUserMap} = this.state;
+
         const {resource} = this.props;
+        Api.bindUserToQuere({
+            queueId:resource.queueId,
+            tenants:this.getTenantsList()
+        })
+        .then(
+            (res)=>{
+                this.setState({
+                    loading:false
+                })
+                if(res.code==1){
+                    message.success("修改成功");
+                    this.props.resourceUserChange();
+                }
+            }
+        )
         
     }
     render() {
@@ -112,6 +167,7 @@ class ChangeResourceModal extends React.Component {
                     onCancel={this.props.onCancel}
                     onOk={this.changeResource.bind(this)}
                     confirmLoading={loading}
+                    maskClosable={false}
                 >
                     <div className="line-formItem">资源队列：{queueName}</div>
                     <div className="line-formItem">绑定租户：

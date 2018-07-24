@@ -7,6 +7,7 @@ export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
+export const CONSOLE_BASE_UPLOAD_URL='/api/console';
 
 export const rdosApp = {
     id: 'rdos',

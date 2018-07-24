@@ -1,9 +1,40 @@
 .config-title{
     font-size:20px;
-    padding-left: 20px;
+    padding-left: 8px;
     width: 700px;
     border-bottom: 1px solid #a5a5a5;
 }
 .config-content{
     margin-top: 10px;
+    padding-left: 20px;
+    margin-bottom: 18px;
+}
+.blue-loading{
+    color:#2491F7;
+    padding-left: 5px;
+}
+.ant-btn.disble{
+    cursor:not-allowed;
+    color:rgba(1,1,1,0.54);
+}
+.ant-btn.disble:hover{
+    color: rgba(1,1,1,0.54);
+    border-color: #dddddd;
+}
+.formItem-right-text{
+    line-height: 32px;
+    margin-left: 8px;
+}
+.formitem-textname{
+    text-align: right;
+    word-break: break-all;
+    font-weight: bold;
+    color:rgba(1,1,1,0.54);
+}
+.formitem-textvalue{
+    color: rgba(1,1,1,0.84);
+}
+.zipConfig-item{
+    margin-bottom: 10px;
+    font-size: 13px;
 }

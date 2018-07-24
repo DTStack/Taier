@@ -67,7 +67,13 @@ class ResourceManage extends React.Component {
             },
             {
                 title: "资源队列",
-                dataIndex: "queueName"
+                dataIndex: "queueName",
+                render(text,record){
+                    if(record.queueState=="STOPPED"){
+                        return `${text}(已停用)`
+                    }
+                    return text;
+                }
             },
             {
                 title: "最小容量（%）",
@@ -87,7 +93,14 @@ class ResourceManage extends React.Component {
             },
             {
                 title: "绑定租户",
-                dataIndex: "name"
+                dataIndex: "tenants",
+                render(tenants){
+                    return tenants.map(
+                        (tenant)=>{
+                            return tenant.tenantName
+                        }
+                    ).join("，")||"无"
+                }
             },
             {
                 title: "修改时间",
@@ -101,6 +114,9 @@ class ResourceManage extends React.Component {
                 title: "操作",
                 dataIndex: "deal",
                 render:(text,record)=> {
+                    if(record.queueState=="STOPPED"){
+                        return null;
+                    }
                     return <a onClick={this.changeResource.bind(this,record)}>修改</a>
                 }
             }
@@ -128,6 +144,12 @@ class ResourceManage extends React.Component {
         this.setState({
             changeModalVisible:false
         })
+    }
+    resourceUserChange(){
+        this.setState({
+            changeModalVisible:false
+        })
+        this.getResourceList();
     }
     getUserOptions() {
         const { userList, selectUserList } = this.state;
@@ -175,6 +197,7 @@ class ResourceManage extends React.Component {
                 <ChangeResourceModal
                     visible={changeModalVisible}
                     onCancel={this.closeModal.bind(this)}
+                    resourceUserChange={this.resourceUserChange.bind(this)}
                     resource={resource}
                  />
             </div>

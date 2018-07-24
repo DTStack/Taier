@@ -1,13 +1,21 @@
 // 从config文件全局读取
-import { CONSOLE_BASE_URL, DQ_BASE_URL } from 'config/base';
+import { CONSOLE_BASE_URL, DQ_BASE_URL,  CONSOLE_BASE_UPLOAD_URL } from 'config/base';
 
 export default {
 
     // ===== 用户相关 ===== //
     DA_GET_USER_BY_ID: `${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
     DA_GET_USER_AUTH_BY_ID:`${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户权限
+    GET_USER_LIST:`${CONSOLE_BASE_URL}/tenant/listTenant`,//租户列表
+    GET_RESOURCE_USER_LIST:`${CONSOLE_BASE_URL}/tenant/listByQueueId`,//获取资源已绑定的租户
+    BIND_USER_TO_RESOURCE:`${CONSOLE_BASE_URL}/tenant/addToQueue`,//绑定用户到资源队列
     
     //集群
     GET_RESOURCE_LIST:`${CONSOLE_BASE_URL}/cluster/pageQueue`,//查看资源列表
     GET_CLUSTER_LIST:`${CONSOLE_BASE_URL}/cluster/pageQuery`,//查看集群列表
+    UPDATE_CLUSTER:`${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/update`,//更新集群信息
+    NEW_CLUSTER:`${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/add`,//新建集群
+    TEST_CLUSTER_CONNECT:`${CONSOLE_BASE_URL}/cluster/testConnect`,//测试集群联通性
+    UPLOAD_CLUSTER_RESOURCE:`${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/config`,//上传集群资源配置包
+    GET_CLUSTER:`${CONSOLE_BASE_URL}/cluster/getClusterInfo`,//获取集群信息
 }   
