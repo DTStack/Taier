@@ -57,6 +57,7 @@ public class LearningResourceInfo extends EngineResourceInfo {
         } catch (Exception e) {
            throw new RuntimeException(e);
         }
+
         int workerCores = clientArguments.getWorkerVCores();
         int workerMem = clientArguments.getWorkerMemory();
         int workerNum = clientArguments.getWorkerNum();
