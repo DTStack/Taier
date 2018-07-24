@@ -82,33 +82,32 @@ class Editor extends React.Component {
             return;
         }
 
-        // window.MonacoEnvironment = {
-        //     getWorkerUrl: function(moduleId, label) {
-        //         if (label === "json") {
-        //             return "./json.worker.js";
-        //         }
-        //         if (label === "css") {
-        //             return "./css.worker.js";
-        //         }
-        //         if (label === "html") {
-        //             return "./html.worker.js";
-        //         }
-        //         if (label === "typescript" || label === "javascript") {
-        //             return "./typescript.worker.js";
-        //         }
-        //         if (label === "sql") {
-        //             return "./sql.worker.js";
-        //         }
-        //         return "./editor.worker.js";
-        //     }
-        // };
+        window.MonacoEnvironment = {
+            getWorkerUrl: function(moduleId, label) {
+                if (label === "json") {
+                    return "./json.worker.js";
+                }
+                if (label === "css") {
+                    return "./css.worker.js";
+                }
+                if (label === "html") {
+                    return "./html.worker.js";
+                }
+                if (label === "typescript" || label === "javascript") {
+                    return "./typescript.worker.js";
+                }
+                if (label === "sql") {
+                    return "./sql.worker.js";
+                }
+                return "./editor.worker.js";
+            }
+        };
 
         const editorOptions = Object.assign(defaultOptions, options , {
             value,
             language: language || "sql",
         });
 
-        console.log('editorOptions:', editorOptions);
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
 
         if (this.monacoInstance && cursorPosition) {
@@ -131,7 +130,7 @@ class Editor extends React.Component {
     initEditorEvent() {
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");
-            const { onChange } = this.props;
+            const { onChange, value } = this.props;
             const newValue = this.monacoInstance.getValue();
             if (onChange) {
                 this.log("订阅事件触发");

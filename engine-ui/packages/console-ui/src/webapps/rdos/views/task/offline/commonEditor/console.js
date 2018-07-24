@@ -8,7 +8,7 @@ import CodeEditor from '../../../../components/code-editor'
 
 import {
     removeRes, resetConsole
-} from '../../../../store/modules/offlineTask/editorAction'
+} from '../../../../store/modules/editor/editorAction'
 
 // import { isEqual } from 'utils/pureRender'
 

@@ -16,11 +16,12 @@ import {
     stopSql,
     setOutput,
     addLoadingTab
-} from "../../../../store/modules/offlineTask/editorAction";
+} from "../../../../store/modules/editor/editorAction";
 
 import { workbenchAction } from "../../../../store/modules/offlineTask/actionType";
 
 export default class Toolbar extends Component {
+
     state = {
         confirmCode: "",
         execConfirmVisible: false
@@ -30,7 +31,6 @@ export default class Toolbar extends Component {
         const isCheckDDL = e.target.checked ? 1 : 0; // 0表示检查ddl，1表示不检查ddl
         this.props.dispatch(updateUser({ isCheckDDL }));
     };
-
 
     execSQL = () => {
         const {

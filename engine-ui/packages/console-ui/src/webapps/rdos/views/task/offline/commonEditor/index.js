@@ -16,7 +16,7 @@ import {
     getTab,
     setSelectionContent,
     updateEditorOptions,
-} from '../../../../store/modules/offlineTask/editorAction';
+} from '../../../../store/modules/editor/editorAction';
 
 class CommonEditor extends Component {
 
@@ -41,8 +41,6 @@ class CommonEditor extends Component {
     }
 
     changeTab = (state) => {
-        console.log('changeTab',state);
-        
         let { changeTab } = this.state;
         if(state){
             changeTab = true;

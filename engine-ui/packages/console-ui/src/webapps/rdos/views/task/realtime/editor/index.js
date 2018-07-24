@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import MrEditor from './mrEditor'
-import SQLEditor from './sqlEditor';
+import CodeEditor from './codeEditor';
 
 import { TASK_TYPE } from '../../../../comm/const';
 
@@ -13,7 +13,7 @@ export default class RealtimeEditor extends Component {
         } = this.props
 
         const showContent = currentPage.taskType === TASK_TYPE.SQL ?
-            (<SQLEditor {...this.props}/>)
+            (<CodeEditor {...this.props}/>)
             :
             (<MrEditor {...this.props}/>)
 

@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { cloneDeep, assign } from 'lodash';
-import { editorAction } from './actionType'
+import { editorAction } from './actionTypes'
 
 // Console Reducers 
 const console = (state = {}, action) => {
@@ -76,7 +76,11 @@ const console = (state = {}, action) => {
 export const selection = (state = '', action) => {
     switch(action.type) {
     case editorAction.SET_SELECTION_CONTENT: {
-        return action.data
+        if (action.data) {
+            return action.data
+        } else if (state !== '') {
+            return '';
+        }
     }
     default:
         return state

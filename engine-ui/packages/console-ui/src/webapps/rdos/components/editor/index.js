@@ -1,29 +1,100 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
+import PropTypes from 'prop-types';
+import SplitPane from "react-split-pane";
 
-import Editor from 'widgets/editor';
-import ToolBar from './toolbar';
+import Editor from "widgets/editor";
+import ToolBar from "./toolbar";
+import Console from './console';
 
-export default class IDEEditor extends Component {
+import './style.scss';
+
+const propType = {
+    editor: PropTypes.object,
+    toolbar: PropTypes.object,
+    console: PropTypes.object,
+}
+
+class IDEEditor extends Component {
+
+    state = {
+        changeTab: true,
+        size: undefined
+    };
+
+    changeTab = state => {
+        let { changeTab } = this.state;
+        if (state) {
+            changeTab = true;
+        } else {
+            changeTab = false;
+        }
+        this.setState({
+            changeTab
+        });
+    };
 
     render() {
-        const {
-            currentPage, editorChange,
-            dispatch,
-        } = this.props
+
+        const { editor, toolbar, console } = this.props;
+
+        const { size } = this.state;
+
+        const editorPane = (<Editor {...editor} />);
 
         return (
-            <div className="ide-sql">
-                <ToolBar currentTabData={currentPage} dispatch={dispatch} />
+            <div className="ide-editor">
+                {
+                    toolbar && toolbar.enable ? 
+                    <div className="ide-header">
+                        <ToolBar
+                            {...toolbar}
+                            changeTab={this.changeTab}
+                        /> 
+                    </div>
+                    : ""
+                }
                 <div className="ide-content">
-                    <Editor
-                        key={`main-editor-${currentPage.id}`}
-                        value={currentPage.sqlText}
-                        sync={currentPage.merged || undefined}
-                        language="sql"
-                        onChange={editorChange}
-                    />
+                    {console && console.data ? (
+                        <SplitPane
+                            split="horizontal"
+                            minSize={100}
+                            maxSize={-77}
+                            style={{ paddingBottom: "40px" }}
+                            defaultSize="60%"
+                            primary="first"
+                            size={size}
+                            onDragStarted={() => {
+                                this.setState({
+                                    size: undefined
+                                });
+                            }}
+                        >
+                            {editorPane}
+                            <Console
+                                onConsoleTabChange={this.changeTab}
+                                activedTab={this.state.changeTab}
+                                setSplitMax={() => {
+                                    this.setState({
+                                        size: "100px"
+                                    });
+                                }}
+                                setSplitMin={() => {
+                                    this.setState({
+                                        size: "calc(100% - 40px)"
+                                    });
+                                }}
+                                {...console}
+                            />
+                        </SplitPane>
+                    ) : (
+                        editorPane
+                    )}
                 </div>
             </div>
-        )
+        );
     }
 }
+
+IDEEditor.propTypes = propType
+
+export default IDEEditor;

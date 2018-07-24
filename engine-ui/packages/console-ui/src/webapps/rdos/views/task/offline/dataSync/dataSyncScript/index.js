@@ -10,7 +10,7 @@ import CodeEditor from '../../../../../components/code-editor';
 import Toolbar from "./toolbar.js";
 
 import { workbenchAction } from '../../../../../store/modules/offlineTask/actionType';
-import { setSelectionContent } from '../../../../../store/modules/offlineTask/editorAction';
+import { setSelectionContent } from '../../../../../store/modules/editor/editorAction';
 
 @connect(state => {
     return {

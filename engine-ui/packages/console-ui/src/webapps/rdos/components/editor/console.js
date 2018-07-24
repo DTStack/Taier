@@ -1,73 +1,63 @@
-import React, { Component } from 'react'
-import { isEqual } from 'lodash'
-import { Table, Tabs, Icon, Tooltip, Button } from 'antd'
+import React, { Component } from "react";
+import { isEqual } from "lodash";
+import { Table, Tabs, Icon, Tooltip, Button } from "antd";
 
-import reqOffline from '../../../../api/reqOffline';
+import CodeEditor from "widgets/code-editor";
+import { defaultEditorOptions } from "widgets/code-editor/config";
 
-import CodeEditor from '../../../../components/code-editor'
-import {
-    removeRes, resetConsole
-} from '../../../../store/modules/offlineTask/editorAction'
-
-
-const TabPane = Tabs.TabPane
-
-const editorOptions = {
-    mode: 'text/x-sql',
-    lineNumbers: false,
-    readOnly: true,
-    autofocus: false,
-    indentWithTabs: true,
-    smartIndent: true,
-}
+const TabPane = Tabs.TabPane;
 
 const exportStyle = {
-    position: 'absolute',
-    bottom: '0px',
-    height: '30px',
-}
+    position: "absolute",
+    bottom: "0px",
+    height: "30px"
+};
 
+const defaultConsoleTab = "console-log";
 
 class Result extends Component {
-
     state = {
-        currentPage: 1,
-    }
+        currentPage: 1
+    };
 
-    onChange = (page) => {
+    onChange = page => {
         this.setState({
-            currentPage: page.current,
-        })
-    }
+            currentPage: page.current
+        });
+    };
 
     generateCols(data) {
-        const { currentPage } = this.state
+        const { currentPage } = this.state;
         if (data && data.length > 0) {
-            const arr = [{
-                title: '序号',
-                key: 't-id',
-                render: (text, item, index) => {
-                    return (currentPage - 1) * 10 + (index + 1)
-                },
-            }]
+            const arr = [
+                {
+                    title: "序号",
+                    key: "t-id",
+                    render: (text, item, index) => {
+                        return (currentPage - 1) * 10 + (index + 1);
+                    }
+                }
+            ];
             data.forEach((item, index) => {
                 arr.push({
                     title: item,
                     key: index + item,
                     render: (text, item) => {
-                        return <textarea title={item[index]} value={item[index]} />
-                    },
-                })
-            })
-            return arr
+                        return (
+                            <textarea title={item[index]} value={item[index]} />
+                        );
+                    }
+                });
+            });
+            return arr;
         }
-        return []
+        return [];
     }
 
     render() {
-        const data = this.props.data
-        const showData = data.slice(1, data.length)
-        const columns = this.generateCols(data[0])
+        const data = this.props.data;
+        const showData = data.slice(1, data.length);
+        const columns = this.generateCols(data[0]);
         return (
             <Table
                 rowKey="id"
@@ -78,15 +68,15 @@ class Result extends Component {
                 onChange={this.onChange}
                 columns={columns}
             />
-        )
+        );
     }
 }
 
 class Console extends Component {
 
     state = {
-        activeKey: 'console-log',
-    }
+        activeKey: defaultConsoleTab
+    };
 
     componentWillReceiveProps(nextProps) {
         const newConsole = nextProps.data;
@@ -95,134 +85,102 @@ class Console extends Component {
             newConsole.showRes &&
             newConsole.results.length > 0 &&
             !isEqual(newConsole.results, oldConsole.results)
-        ) { // 如果成功获取结果，tab切换到结果界面
-            this.setState({ activeKey: `${newConsole.results.length - 1}` })
-            this.props.changeTab(0);
-        }
-        else if (
-            (
-            // (
-            //     !newConsole.showRes &&
-            //     newConsole.log !== oldConsole.log
-            // ) ||
-                newConsole.results.length === 0)
         ) {
-            this.setState({ activeKey: `console-log` }, this.focusEditor)
+            // 如果成功获取结果，tab切换到结果界面
+            this.setState({ activeKey: `${newConsole.results.length - 1}` });
+            this.props.onConsoleTabChange(0);
+        } else if (newConsole.results.length === 0) {
+            this.setState({ activeKey: defaultConsoleTab }, this.focusEditor);
         }
     }
 
     onEdit = (targetKey, action) => {
         this[action](targetKey);
-    }
+    };
 
-    onChange = (activeKey) => {
+    onTabChange = activeKey => {
+        const { onConsoleTabChange } = this.props;
         this.setState({ activeKey }, () => {
-            if (activeKey === 'console-log') {
+            if (activeKey === defaultConsoleTab) {
                 this.focusEditor();
-                this.props.changeTab(1);
-            }else{
-                this.props.changeTab(0);
+                onConsoleTabChange(1);
+            } else {
+                onConsoleTabChange(0);
             }
-        })
-    }
+        });
+    };
 
     focusEditor = () => {
-        const editor = this.editor.self
-        // editor.focus();
-        const doc = editor.doc
-        doc.setCursor(editor.lineCount(), null) // 控制滚动条在底部
-    }
+        const editor = this.editor.self;
+        const doc = editor.doc;
+        doc.setCursor(editor.lineCount(), null); // 控制滚动条在底部
+    };
 
-    remove = (targetKey) => {
-        const { currentTab, dispatch } = this.props
-        dispatch(removeRes(currentTab, parseInt(targetKey, 10)))
-    }
-
-    closeConsole = () => {
-        const { currentTab, dispatch } = this.props
-        dispatch(resetConsole(currentTab))
-    }
-
-    appendLog = (log) => {
-        if (log) {
-            const editor = this.editor.self
-            const doc = editor.doc
-            doc.setValue(log)
-            doc.setCursor(doc.lineCount(), null) // 控制滚动条在底部
-        }
-    }
-
-    exportCsv = () => {
-        const { results } = this.props.data
-        const index = parseInt(this.state.activeKey, 10)
-        const currentData = results[index]
-        let csvContent = "";
-        let downloadName = `结果${parseInt(index) + 1}.csv`;
-
-        currentData.forEach((row, i) => {
-            const dataStr = row.join(',')
-            csvContent += i < currentData.length ?
-                dataStr + '\n' : dataStr;
-        })
-        // var encodedUri = encodeURI(csvContent);
-        // window.open(encodedUri);
-        var blob = new Blob([csvContent]);
-        if (window.navigator.msSaveOrOpenBlob)  // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
-            window.navigator.msSaveBlob(blob, downloadName);
-        else {
-            var a = window.document.createElement("a");
-            a.href = window.URL.createObjectURL(blob, { type: "text/plain" });
-            a.download = downloadName;
-            document.body.appendChild(a);
-            a.click();  // IE: "Access is denied"; see: https://connect.microsoft.com/IE/feedback/details/797361/ie-10-treats-blob-url-as-cross-origin-and-denies-access
-            document.body.removeChild(a);
-        }
-    }
+    remove = targetKey => {
+        const { onRemoveTab } = this.props;
+        if (onRemoveTab) onRemoveTab(parseInt(targetKey, 10));
+    };
 
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
-                const title = (<span>
-                    结果{index + 1}
-                </span>);
+                const title = <span>结果{index + 1}</span>;
                 return (
                     <TabPane
-                        style={{ minHeight: '100%', "position": "relative" }}
+                        style={{ minHeight: "100%", position: "relative" }}
                         tab={title}
                         key={`${index}`}
                     >
                         <Result data={tab.data} />
-                        {tab.jobId ? <a href={`${reqOffline.DOWNLOAD_SQL_RESULT}?jobId=${tab.jobId}`} download><Button
-                            style={exportStyle}
-                        >
-                            下载
-                        </Button></a> : null}
+                        {tab.jobId ? (
+                            <a
+                                href={`${this.props.downloadUri}?jobId=${
+                                    tab.jobId
+                                }`}
+                                download
+                            >
+                                <Button style={exportStyle}>下载</Button>
+                            </a>
+                        ) : null}
                     </TabPane>
                 );
             });
         }
-        return []
+        return [];
     }
 
     render() {
-        const { data, dispatch, setMax, setMin,changeTabStatus } = this.props
-        const activeKey = changeTabStatus ? "console-log" : this.state.activeKey
+        const {
+            data,
+            setSplitMax,
+            setSplitMin,
+            activedTab,
+            onConsoleClose
+        } = this.props;
+
+        const activeKey = activedTab ? "console-log" : this.state.activeKey;
+
+        defaultEditorOptions.readOnly = true;
+        defaultEditorOptions.lineNumbers = false;
+
         return (
             <div className="ide-console">
                 <Tabs
                     hideAdd
                     type="editable-card"
                     activeKey={activeKey}
-                    onChange={this.onChange}
+                    onChange={this.onTabChange}
                     onEdit={this.onEdit}
                 >
                     <TabPane tab="日志" key="console-log">
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: "relative" }}>
                             <CodeEditor
                                 cursorAlwaysInEnd
                                 style={{ minHeight: "auto" }}
-                                ref={(e) => { this.editor = e }}
-                                options={editorOptions}
+                                ref={e => {
+                                    this.editor = e;
+                                }}
+                                options={defaultEditorOptions}
                                 key="output-log"
                                 sync={true}
                                 value={data.log}
@@ -231,23 +189,27 @@ class Console extends Component {
                     </TabPane>
                     {this.renderTabs(data.results)}
                 </Tabs>
-                
-                <Icon onClick={setMax} className="console-icon up" type="up-square-o" />
-                <Icon onClick={setMin} className="console-icon down" type="down-square-o" />
-                <Tooltip
-                    placement="top"
-                    title="关闭控制台"
-                >
+
+                <Icon
+                    onClick={setSplitMax}
+                    className="console-icon up"
+                    type="up-square-o"
+                />
+                <Icon
+                    onClick={setSplitMin}
+                    className="console-icon down"
+                    type="down-square-o"
+                />
+                <Tooltip placement="top" title="关闭控制台">
                     <Icon
                         className="close-console"
                         type="close"
-                        onClick={this.closeConsole}
+                        onClick={onConsoleClose}
                     />
                 </Tooltip>
             </div>
-        )
+        );
     }
 }
 
-export default Console
-
+export default Console;

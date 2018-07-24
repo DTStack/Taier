@@ -1,10 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, assign, isEqual, isObject, isNaN } from 'lodash'
+import { isNumber, isEqual, isObject, isNaN } from 'lodash'
 import { 
-    Button, Row, Col, Modal, 
-    Form, Select, Input, Tooltip,
-    InputNumber, message, Icon,
+    Button, Row, Col, Input, Tooltip, message, Icon,
 } from 'antd';
 
 import { select, selectAll, mouse } from 'd3-selection';
@@ -26,8 +24,6 @@ import KeyMapModal from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
 
-const FormItem = Form.Item;
-const Option = Select.Option;
 
 const DefaultRowKey = { // HBase默认行健
     cf: '-',

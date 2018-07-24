@@ -12,7 +12,10 @@ import {
 import DataSync from './dataSync';
 import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
-import SQLEditor from './sqlEditor';
+// import SQLEditor from './sqlEditor';
+
+import EditorContainer from './sqlEditor';
+
 import CommonEditor from "./commonEditor"
 
 const confirm = Modal.confirm;
@@ -158,13 +161,21 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
-                    return <SQLEditor
-                        options={defaultEditorOptions}
+                    // return <SQLEditor
+                    //     options={defaultEditorOptions}
+                    //     taskCustomParams={taskCustomParams}
+                    //     key={tabData.id}
+                    //     value={tabData.sqlText}
+                    //     currentTab={tabData.id}
+                    //     currentTabData={tabData} 
+                    // />;
+                    return <EditorContainer 
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
-                        currentTabData={tabData} />;
+                        currentTabData={tabData}
+                    />
                 case TASK_TYPE.SHELL:
                     return <CommonEditor
                         mode="shell"

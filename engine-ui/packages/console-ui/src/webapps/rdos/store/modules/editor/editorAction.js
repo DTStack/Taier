@@ -5,7 +5,7 @@ import {
 } from 'antd';
 
 import API from "../../../api";
-import { editorAction } from './actionType';
+import { editorAction } from './actionTypes';
 
 const INTERVALS = 3000;
 const EXCHANGE_STATUS = {

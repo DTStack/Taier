@@ -20,7 +20,7 @@ import './styles/pages/project.scss'
 import './styles/pages/task.scss'
 import './styles/pages/operation.scss'
 import './styles/pages/graph-editor.scss'
-import './styles/pages/ide.scss'
+// import './styles/pages/ide.scss'
 import './styles/pages/dashboard.scss'
 
 import routers from './routers'

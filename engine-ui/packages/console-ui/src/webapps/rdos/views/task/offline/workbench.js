@@ -29,11 +29,11 @@ import {
 } from '../../../store/modules/offlineTask/actionType';
 import {
     stopSql
-} from '../../../store/modules/offlineTask/editorAction'
+} from '../../../store/modules/editor/editorAction';
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction'
+} from '../../../store/modules/offlineTask/offlineAction';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -162,7 +162,7 @@ class Workbench extends React.Component {
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
-                    <FullScreenButton target="JS_APP"/>
+                    <FullScreenButton/>
                 </Col>
 
                 {showPublish ? (<Col className="right">

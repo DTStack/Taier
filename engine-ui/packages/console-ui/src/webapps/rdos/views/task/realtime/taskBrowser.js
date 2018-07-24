@@ -220,10 +220,12 @@ export default class TaskBrowser extends Component {
             }
         }
     }
+    
     editorParamsChange(){
         this._syncEditor=false;
         this.props.editorParamsChange(...arguments);
     }
+
     render() {
         const {
             currentPage, pages, router,

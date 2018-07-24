@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 
 import Sidebar from "./sidebar";
 import SearchTaskModal from "./searchTaskModal";
-import { stopSql } from "../../store/modules/offlineTask/editorAction";
+import { stopSql } from "../../store/modules/editor/editorAction";
 
 const { Content } = Layout;
 
