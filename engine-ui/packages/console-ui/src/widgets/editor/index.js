@@ -34,6 +34,9 @@ class Editor extends React.Component {
 
     componentDidMount() {
         this.initMonaco();
+        if(typeof this.props.editorInstanceRef=="function"){
+            this.props.editorInstanceRef(this.monacoInstance)
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -173,7 +176,7 @@ class Editor extends React.Component {
     }
 
     render() {
-        const { className, style } = this.props;
+        const { className, style, editorInstance } = this.props;
 
         let renderClass = 'code-editor';
         renderClass = className ? `${renderClass} ${className}` : renderClass;

@@ -35,11 +35,11 @@ class IDEEditor extends Component {
 
     render() {
 
-        const { editor, toolbar, console } = this.props;
+        const { editor, toolbar, console, editorInstanceRef } = this.props;
 
         const { size } = this.state;
 
-        const editorPane = (<Editor {...editor} />);
+        const editorPane = (<Editor editorInstanceRef={editorInstanceRef} {...editor} />);
 
         return (
             <div className="ide-editor">

@@ -8,6 +8,7 @@ import { Button, Modal, Checkbox, } from "antd";
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import Editor from 'widgets/editor';
+import {commonFileEditDelegator} from "widgets/editor/utils";
 import pureRender from 'utils/pureRender';
 
 import API from '../../../../api';
@@ -230,7 +231,7 @@ class EditorContainer extends Component {
             onRun: this.execConfirm,
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
-            onFileEdit: null,
+            onFileEdit: commonFileEditDelegator(this._editor),
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({theme: key})
             },
@@ -244,6 +245,7 @@ class EditorContainer extends Component {
         return (
             <div className="m-editor" style={{height: '100%'}}>
                 <IDEEditor 
+                    editorInstanceRef={(instance)=>{this._editor=instance}}
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
