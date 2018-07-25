@@ -6,7 +6,7 @@ import Editor from "widgets/editor";
 import ToolBar from "./toolbar";
 import Console from './console';
 
-import './style.scss';
+// import './style.scss';
 
 const propType = {
     editor: PropTypes.object,
@@ -45,7 +45,7 @@ class IDEEditor extends Component {
             <div className="ide-editor">
                 {
                     toolbar && toolbar.enable ? 
-                    <div className="ide-header">
+                    <div className="ide-header bd-bottom">
                         <ToolBar
                             {...toolbar}
                             changeTab={this.changeTab}
