@@ -12,6 +12,9 @@ import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree
 
 import RealTimeEditor from './editor'
 import TaskDetail from './taskDetail'
+import InputPanel from './inputPanel'
+import OutputPanel from './outputPanel'
+
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -264,6 +267,12 @@ export default class TaskBrowser extends Component {
                             tabPosition="right"
                             onTabClick={this.tabClick}
                         >
+                            <TabPane tab={<span className="title-vertical tabpanel-content">输入</span>} key="params3">
+                                <InputPanel {...this.props} />
+                            </TabPane>
+                            <TabPane tab={<span className="title-vertical tabpanel-content">输出</span>} key="params4">
+                                <OutputPanel {...this.props} />
+                            </TabPane>
                             <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
                                 <TaskDetail {...this.props} />
                             </TabPane>

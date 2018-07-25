@@ -484,6 +484,10 @@
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {
                 margin-bottom: 2px;
             }
+            // .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
+            //     padding: 20px;
+            //     border-right: 1px solid #e9e9e9;
+            // }
         }
         .editor-container {
             height: 100%;
@@ -531,10 +535,30 @@
                 .ant-tag {
                     margin-bottom: 5px;
                 }
-            }
+            }  
         }
         .title-vertical {
             width: 30px;
+        }
+        .tabpanel-content {
+            margin-top: 20px;
+        }
+        .panel-content{
+            padding: 20 0 20 20;
+            .stream-btn{
+                margin-top: 20px;
+                width: 100%;
+                height: 32px;
+            }
+            .title-content{
+                .left-type{
+                    float: right;
+                    line-height: 28px;
+                }
+                .right-select{
+                    width: 80%;
+                }
+            }
         }
     }
     .lock-layer {
