@@ -135,7 +135,7 @@ class TaskForm extends React.Component {
         const isSyncTast = value == TASK_TYPE.SYNC
         const isDeepLearning = value == TASK_TYPE.DEEP_LEARNING
         const isPython23 = value == TASK_TYPE.PYTHON_23
-        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
+        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : (isPyTask||isPython23||isDeepLearning) ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
         return (
             <Form>

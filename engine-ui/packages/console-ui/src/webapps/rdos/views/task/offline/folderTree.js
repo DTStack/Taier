@@ -413,12 +413,11 @@ class FolderTree extends React.Component {
 
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
-
+            
             // 过滤不匹配资源类型，
             if (isFilepicker && type === 'file' && acceptRes !== undefined ) {
                 if (acceptRes !== resourceType) return null;
             }
-
             // 目录选择过滤掉具体文件
             if (ispicker && !isFilepicker && data.children !== null) {
                 // potential mutate store directly
@@ -426,7 +425,7 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
-
+            console.log(data)
             return <TreeNode
                 title={
                     ispicker?
