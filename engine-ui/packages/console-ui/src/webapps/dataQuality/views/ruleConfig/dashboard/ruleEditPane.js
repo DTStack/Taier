@@ -658,17 +658,17 @@ export default class RuleEditPane extends Component {
 
         switch (type) {
             case 'column':
-                target.isCustomizeSql = false;
+                target.isCustomizeSql = 0;
                 target.columnName = undefined;
                 target.functionId = undefined;
                 break;
             case 'SQL':
-                target.isCustomizeSql = true;
+                target.isCustomizeSql = 1;
                 target.customizeSql = undefined;
                 break;
             case 'table':
                 target.isTable = true;
-                target.isCustomizeSql = false;
+                target.isCustomizeSql = 0;
                 target.columnName = data.tableName;
                 target.functionId = undefined;
 

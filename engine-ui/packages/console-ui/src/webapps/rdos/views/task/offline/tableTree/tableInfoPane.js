@@ -1,11 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import moment from 'moment';
 import { cloneDeep } from 'lodash';
 
 import { 
-    Row, Col, Table, Button,
-    Tabs, Radio, Icon, Input,
+    Table, Tabs, Radio, Icon, Input,
 } from 'antd';
 
 import ajax from '../../../../api/dataManage';
@@ -13,8 +10,6 @@ import TableCell from 'widgets/tableCell'
 import TablePartition from '../../../dataManage/tablePartition';
 
 const TabPane = Tabs.TabPane;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group
 
 export default class TableInfoPane extends React.Component {
 
