@@ -8,6 +8,7 @@ import { Button, Modal, Checkbox, } from "antd";
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import Editor from 'widgets/editor';
+import {commonFileEditDelegator} from "widgets/editor/utils";
 import pureRender from 'utils/pureRender';
 
 import API from '../../../../api';
@@ -34,7 +35,7 @@ class EditorContainer extends Component {
     componentDidMount() {
         const currentNode = this.props.currentTabData;
         if (currentNode) {
-            this.props.getTab(currentNode.id)
+            this.props.getTab(currentNode.id)//初始化console所需的数据结构
         }
     }
 
@@ -195,7 +196,7 @@ class EditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value, language } = this.props;
+        const { editor, currentTabData, value } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -211,7 +212,7 @@ class EditorContainer extends Component {
 
         const editorOpts = {
             value: value,
-            language: '',
+            language: 'dtsql',
             options: {
                 readOnly: isLocked,
             },
@@ -219,7 +220,7 @@ class EditorContainer extends Component {
             theme: editor.options.theme,
             onChange: this.debounceChange,
             sync: currentTabData.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange,
+            onCursorSelection: this.debounceSelectionChange
         }
 
         const toolbarOpts = {
@@ -230,7 +231,7 @@ class EditorContainer extends Component {
             onRun: this.execConfirm,
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
-            onFileEdit: null,
+            onFileEdit: commonFileEditDelegator(this._editor),
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({theme: key})
             },
@@ -244,6 +245,7 @@ class EditorContainer extends Component {
         return (
             <div className="m-editor" style={{height: '100%'}}>
                 <IDEEditor 
+                    editorInstanceRef={(instance)=>{this._editor=instance}}
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}

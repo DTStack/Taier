@@ -95,7 +95,7 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
 
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
-    dispatch(output(currentTab, `第${index + 1}条SQL开始执行`))
+    dispatch(output(currentTab, `第${index + 1}条任务开始执行`))
     function execContinue() {
         if (stopSign[currentTab]) {
             console.log("find stop sign in exec")

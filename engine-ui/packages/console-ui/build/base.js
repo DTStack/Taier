@@ -2,6 +2,7 @@ const path = require("path");
 const webpack = require("webpack");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const HappyPack = require("happypack");
 const os = require("os");
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
@@ -98,6 +99,7 @@ module.exports = function() {
             }
         },
         plugins: [
+            new MonacoWebpackPlugin(),
             new HappyPack({
                 id: "happy-babel-js",
                 loaders: ["babel-loader?cacheDirectory=true"],

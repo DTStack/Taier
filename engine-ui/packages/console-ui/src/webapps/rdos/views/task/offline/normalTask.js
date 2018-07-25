@@ -21,145 +21,182 @@ class NormalTaskForm extends React.Component {
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
+        const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
+        const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
+        const isPython23 = taskType == TASK_TYPE.PYTHON_23;
 
-        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : isPyTask ? RESOURCE_TYPE.PY : '';
+        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
 
+        const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
+        const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
+        const optionsShow = isDeepLearning || isPython23;
         return <Form>
+            <FormItem
+                {...formItemLayout}
+                label="任务名称"
+            >
+                {getFieldDecorator('name', {
+                    rules: [{
+                        max: 64,
+                        message: '任务名称不得超过20个字符！',
+                    }],
+                    initialValue: taskData.name
+                })(
+                    <Input disabled />,
+                )}
+            </FormItem>
+            <FormItem
+                {...formItemLayout}
+                label="任务类型"
+            >
+                {getFieldDecorator('taskType', {
+                    rules: [{}],
+                    initialValue: taskType
+                })(
+                    <RadioGroup disabled onChange={this.handleRadioChange}>
+                        <Radio value={TASK_TYPE.SQL}>SQL</Radio>
+                        <Radio value={TASK_TYPE.MR}>MR</Radio>
+                        <Radio value={TASK_TYPE.SYNC}>数据同步</Radio>
+                        <Radio value={TASK_TYPE.PYTHON}>Python</Radio>
+                        <Radio value={TASK_TYPE.VIRTUAL_NODE}>虚节点</Radio>
+                    </RadioGroup>
+                )}
+            </FormItem>
+            {
+                !isVirtual &&
                 <FormItem
                     {...formItemLayout}
-                    label="任务名称"
+                    label="资源"
                 >
-                    {getFieldDecorator('name', {
+                    {getFieldDecorator('resourceIdList', {
                         rules: [{
-                            max: 64,
-                            message: '任务名称不得超过20个字符！',
+                            required: true, message: '请选择关联资源',
                         }],
-                        initialValue: taskData.name
+                        initialValue: taskData.resourceList.length ?
+                            taskData.resourceList[0].id : ''
                     })(
-                        <Input disabled />,
+                        <Input type="hidden" ></Input>
                     )}
+                    <FolderPicker
+                        ispicker
+                        isFilepicker
+                        acceptRes={acceptType}
+                        type={MENU_TYPE.RESOURCE}
+                        treeData={this.props.resTreeData}
+                        onChange={this.handleResChange.bind(this)}
+                        defaultNode={taskData.resourceList.length ? taskData.resourceList[0].resourceName : ''}
+                    />
                 </FormItem>
+            }
+            {
+                mainClassShow &&
                 <FormItem
                     {...formItemLayout}
-                    label="任务类型"
-                >
-                    {getFieldDecorator('taskType', {
-                        rules: [{}],
-                        initialValue: taskType
-                    })(
-                        <RadioGroup disabled onChange={ this.handleRadioChange }>
-                            <Radio value={TASK_TYPE.SQL}>SQL</Radio>
-                            <Radio value={TASK_TYPE.MR}>MR</Radio>
-                            <Radio value={TASK_TYPE.SYNC}>数据同步</Radio>
-                            <Radio value={TASK_TYPE.PYTHON}>Python</Radio>
-                            <Radio value={TASK_TYPE.VIRTUAL_NODE}>虚节点</Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-                {
-                    taskType !== TASK_TYPE.VIRTUAL_NODE && 
-                    <FormItem
-                        {...formItemLayout}
-                        label="资源"
-                    >
-                        {getFieldDecorator('resourceIdList', {
-                            rules: [{
-                                required: true, message: '请选择关联资源',
-                            }],
-                            initialValue: taskData.resourceList.length ?
-                                taskData.resourceList[0].id :
-                                ''
-                        })(
-                            <Input type="hidden" ></Input>
-                        )}
-                        <FolderPicker
-                            ispicker
-                            isFilepicker
-                            acceptRes={ acceptType }
-                            type={ MENU_TYPE.RESOURCE }
-                            treeData={ this.props.resTreeData }
-                            onChange={ this.handleResChange.bind(this) }
-                            defaultNode={ taskData.resourceList.length ? taskData.resourceList[0].resourceName : ''  }
-                        />
-                    </FormItem>
-                }
-                {
-                taskType !== TASK_TYPE.PYTHON && 
-                taskType !== TASK_TYPE.VIRTUAL_NODE && 
-                    <FormItem
-                        {...formItemLayout}
-                        label="mainClass"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('mainClass', {
-                            rules: [{
-                                required: true, message: 'mainClass 不可为空！',
-                            }],
-                            initialValue: taskData.mainClass
-                        })(
-                            <Input placeholder="请输入 mainClass" />,
-                        )}
-                    </FormItem>
-                }
-                {
-                    taskType !== TASK_TYPE.VIRTUAL_NODE && 
-                    <span>
-                        <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                        >
-                            {getFieldDecorator('exeArgs', {
-                                initialValue: taskData.exeArgs
-                            })(
-                                <Input placeholder="请输入任务参数" />,
-                            )}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="存储位置"
-                        >
-                            {getFieldDecorator('nodePid', {
-                                rules: [{
-                                    required: true, message: '存储位置必选！',
-                                }],
-                                initialValue: taskData.nodePid
-                            })(
-                                <Input type="hidden"></Input>
-                            )}
-                            <FolderPicker
-                                type={MENU_TYPE.TASK}
-                                ispicker
-                                isFilepicker={ false }
-                                treeData={ this.props.pathTreeData }
-                                onChange={ this.handlePathChange.bind(this) }
-                                defaultNode={ taskData.nodePName }
-                            ></FolderPicker>
-                        </FormItem>
-                    </span>
-                }
-                <FormItem
-                    {...formItemLayout}
-                    label="描述"
+                    label="mainClass"
                     hasFeedback
                 >
-                    {getFieldDecorator('taskDesc', {
+                    {getFieldDecorator('mainClass', {
                         rules: [{
-                            max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            required: true, message: 'mainClass 不可为空！',
                         }],
-                        initialValue: taskData.taskDesc
+                        initialValue: taskData.mainClass
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入任务描述"/>,
+                        <Input placeholder="请输入 mainClass" />,
                     )}
                 </FormItem>
-                <FormItem style={{display: 'none'}}>
-                    {getFieldDecorator('computeType', {
-                        initialValue: 1
+            }
+            {
+                exeArgsShow && <FormItem
+                    {...formItemLayout}
+                    label=""
+                >
+                    {getFieldDecorator('exeArgs', {
+                        initialValue: taskData.exeArgs
                     })(
-                        <Input type="hidden"></Input>
+                        <Input placeholder="请输入任务参数" />,
                     )}
                 </FormItem>
-            </Form>
+            }
+            {
+                isDeepLearning && <span>
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据输入路径"
+                    >
+                        {getFieldDecorator('input', {
+                            initialValue: taskData.input
+                        })(
+                            <Input placeholder="请输入数据输入路径" />,
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="模型输出路径"
+                    >
+                        {getFieldDecorator('output', {
+                            initialValue: taskData.output
+                        })(
+                            <Input placeholder="请输入模型输出路径" />,
+                        )}
+                    </FormItem>
+                </span>
+            }
+            {
+                optionsShow && <FormItem
+                    {...formItemLayout}
+                    label="参数"
+                >
+                    {getFieldDecorator('options', {
+                        initialValue: taskData.options
+                    })(
+                        <Input placeholder="请输入命令行参数" />,
+                    )}
+                </FormItem>
+            }
+            <FormItem
+                {...formItemLayout}
+                label="存储位置"
+            >
+                {getFieldDecorator('nodePid', {
+                    rules: [{
+                        required: true, message: '存储位置必选！',
+                    }],
+                    initialValue: taskData.nodePid
+                })(
+                    <Input type="hidden"></Input>
+                )}
+                <FolderPicker
+                    type={MENU_TYPE.TASK}
+                    ispicker
+                    isFilepicker={false}
+                    treeData={this.props.pathTreeData}
+                    onChange={this.handlePathChange.bind(this)}
+                    defaultNode={taskData.nodePName}
+                ></FolderPicker>
+            </FormItem>
+            <FormItem
+                {...formItemLayout}
+                label="描述"
+                hasFeedback
+            >
+                {getFieldDecorator('taskDesc', {
+                    rules: [{
+                        max: 200,
+                        message: '描述请控制在200个字符以内！',
+                    }],
+                    initialValue: taskData.taskDesc
+                })(
+                    <Input type="textarea" rows={4} placeholder="请输入任务描述" />,
+                )}
+            </FormItem>
+            <FormItem style={{ display: 'none' }}>
+                {getFieldDecorator('computeType', {
+                    initialValue: 1
+                })(
+                    <Input type="hidden"></Input>
+                )}
+            </FormItem>
+        </Form>
     }
 
     handleResChange(value) {
@@ -203,7 +240,7 @@ class NormalTaskEditor extends React.Component {
 
     render() {
         return <div className="m-taskedit" style={{ padding: 60 }}>
-            <NormalTaskFormWrapper { ...this.props } />
+            <NormalTaskFormWrapper {...this.props} />
         </div>
     }
 }

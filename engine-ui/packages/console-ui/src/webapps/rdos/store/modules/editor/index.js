@@ -5,7 +5,7 @@ import { editorAction } from './actionTypes'
 // Console Reducers 
 const console = (state = {}, action) => {
     switch (action.type) {
-    case editorAction.GET_TAB: {// 获取Tab
+    case editorAction.GET_TAB: {// 初始化console
         const origin = cloneDeep(state)
         if (action.key) {
             const tab = origin[action.key]

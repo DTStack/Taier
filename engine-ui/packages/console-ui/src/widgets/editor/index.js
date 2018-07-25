@@ -14,6 +14,7 @@ import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
+import "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import { defaultOptions } from './config';
@@ -33,6 +34,9 @@ class Editor extends React.Component {
 
     componentDidMount() {
         this.initMonaco();
+        if(typeof this.props.editorInstanceRef=="function"){
+            this.props.editorInstanceRef(this.monacoInstance)
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -46,8 +50,8 @@ class Editor extends React.Component {
             this.monacoInstance.updateOptions(nextProps.options)
         }
 
-        if (this.props.theme !== nextProps.theme) {
-            monaco.editor.setTheme(nextProps.theme)
+        if (this.props.theme !== theme) {
+            monaco.editor.setTheme(theme)
         }
     }
 
@@ -171,7 +175,7 @@ class Editor extends React.Component {
     }
 
     render() {
-        const { className, style } = this.props;
+        const { className, style, editorInstance } = this.props;
 
         let renderClass = 'code-editor';
         renderClass = className ? `${renderClass} ${className}` : renderClass;
