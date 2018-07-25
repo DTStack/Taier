@@ -211,7 +211,7 @@ class EditorContainer extends Component {
 
         const editorOpts = {
             value: value,
-            language: '',
+            language: 'dtsql',
             options: {
                 readOnly: isLocked,
             },

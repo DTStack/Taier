@@ -61,6 +61,7 @@
     "less-loader": "^4.1.0",
     "lodash-webpack-plugin": "0.11.4",
     "mini-css-extract-plugin": "^0.4.0",
+    "monaco-editor-webpack-plugin": "^1.4.0",
     "node-notifier": "^5.2.1",
     "node-sass": "4.9.2",
     "postcss-loader": "0.9.1",
@@ -78,7 +79,7 @@
   },
   "scripts": {
     "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
-    "build": "rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
+    "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",
     "release": "./scripts/build.sh",

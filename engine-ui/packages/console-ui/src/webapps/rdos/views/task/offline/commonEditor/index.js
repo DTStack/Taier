@@ -27,8 +27,6 @@ import * as editorActions from '../../../../store/modules/editor/editorAction';
 class CommonEditorContainer extends Component {
 
     state = {
-        confirmCode: "",
-        execConfirmVisible: false,
     }
 
     componentDidMount() {
@@ -56,8 +54,7 @@ class CommonEditorContainer extends Component {
         if (utils.checkExist(task.taskType)) {
             params.sqlText = newVal
             // 过滤注释内容
-            const filterComm = filterComments(newVal)
-            params.taskVariables = matchTaskParams(taskCustomParams, filterComm)//this.matchTaskParams(newVal)
+            params.taskVariables = matchTaskParams(taskCustomParams, newVal)//this.matchTaskParams(newVal)
         } else if (utils.checkExist(task.type)) {
             params.scriptText = newVal
         }
@@ -105,21 +102,16 @@ class CommonEditorContainer extends Component {
             taskVariables: currentTabData.taskVariables
         };
 
-        this.setState({ execConfirmVisible: false });
 
         const code =
             editor.selection ||
             currentTabData.sqlText ||
             currentTabData.scriptText;
 
-        const sqls = this.filterSql(code);
-
-        if (sqls && sqls.length > 0) {
-            let i = 0;
             this.props.setOutput(currentTab, `正在提交...`);
             this.props.addLoadingTab(currentTab);
-            this.reqExecSQL(currentTabData, params, sqls, i);
-        }
+            this.reqExecSQL(currentTabData, params, [code], 0);
+        
     };
 
     reqExecSQL = (task, params, sqls, index) => {
@@ -135,29 +127,13 @@ class CommonEditorContainer extends Component {
     // 执行确认
     execConfirm = () => {
         const { currentTabData, user, editor } = this.props;
-        if (user.isCheckDDL === 1) {
-            // 不检测，直接执行
-            this.execSQL();
-            return;
-        }
-
+      
         let code =
             editor.selection ||
             currentTabData.sqlText ||
             currentTabData.scriptText;
-        code = filterComments(code);
 
-        let filterShowCode = code.replace(/show\s+create/gi, "show"); //排除show create;
-
-        // 匹配DDL执行语句，如果符合条件，则提醒
-        const regex = /(create|alter|drop|truncate)+\s+(external|temporary)?\s?(table)+\s+([\s\S]*?)/gi;
-
-        if (regex.test(filterShowCode)) {
-            this.setState({ execConfirmVisible: true, confirmCode: code });
-        } else {
-            this.execSQL();
-            this.setState({ execConfirmVisible: false });
-        }
+        this.execSQL();
     };
 
     sqlFormat = () => {
@@ -195,7 +171,7 @@ class CommonEditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value, language } = this.props;
+        const { editor, currentTabData, value, mode } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -204,14 +180,13 @@ class CommonEditorContainer extends Component {
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
         const editorOpts = {
             value: value,
-            language: language,
+            language: mode,
             options: {
                 readOnly: isLocked,
             },
@@ -225,11 +200,11 @@ class CommonEditorContainer extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: true,
-            enableFormat: true,
+            // enableFormat: true,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,
-            onFormat: this.sqlFormat,
+            // onFormat: this.sqlFormat,
             onFileEdit: null,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({theme: key})
@@ -248,48 +223,6 @@ class CommonEditorContainer extends Component {
                     toolbar={toolbarOpts}
                     console={consoleOpts}
                 />
-                <Modal
-                    maskClosable
-                    visible={execConfirmVisible}
-                    title="执行的语句中包含DDL语句，是否确认执行？"
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
-                    onCancel={() => {
-                        this.setState({ execConfirmVisible: false });
-                    }}
-                    footer={
-                        <div>
-                            <Checkbox onChange={this.onNeverWarning}>
-                                不再提示
-                            </Checkbox>
-                            <Button
-                                onClick={() => {
-                                    this.setState({
-                                        execConfirmVisible: false
-                                    });
-                                }}
-                            >
-                                取消
-                            </Button>
-                            <Button type="primary" onClick={this.execSQL}>
-                                执行
-                            </Button>
-                        </div>
-                    }
-                >
-                    <div style={{ height: "400px" }}>
-                        <Editor 
-                            value={confirmCode} 
-                            sync={true} 
-                            language="sql"
-                            options={{
-                                readOnly: true,
-                                minimap: {
-                                    enabled: false,
-                                },
-                            }}
-                        />
-                    </div>
-                </Modal>
             </div>
         )
     }
