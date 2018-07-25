@@ -179,7 +179,6 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.SHELL:
                     return <CommonEditor
                         mode="shell"
-                        options={defaultEditorOptions}
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
@@ -190,7 +189,6 @@ export default class MainBench extends React.Component {
                     if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor
                             mode="python"
-                            options={defaultEditorOptions}
                             taskCustomParams={taskCustomParams}
                             key={tabData.id}
                             value={tabData.sqlText}

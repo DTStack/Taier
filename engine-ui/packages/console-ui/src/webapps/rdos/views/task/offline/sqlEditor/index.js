@@ -34,7 +34,7 @@ class EditorContainer extends Component {
     componentDidMount() {
         const currentNode = this.props.currentTabData;
         if (currentNode) {
-            this.props.getTab(currentNode.id)
+            this.props.getTab(currentNode.id)//初始化console所需的数据结构
         }
     }
 
@@ -195,7 +195,7 @@ class EditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value, language } = this.props;
+        const { editor, currentTabData, value } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -219,7 +219,7 @@ class EditorContainer extends Component {
             theme: editor.options.theme,
             onChange: this.debounceChange,
             sync: currentTabData.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange,
+            onCursorSelection: this.debounceSelectionChange
         }
 
         const toolbarOpts = {

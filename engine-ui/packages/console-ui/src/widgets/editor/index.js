@@ -46,8 +46,8 @@ class Editor extends React.Component {
             this.monacoInstance.updateOptions(nextProps.options)
         }
 
-        if (this.props.theme !== nextProps.theme) {
-            monaco.editor.setTheme(nextProps.theme)
+        if (this.props.theme !== theme) {
+            monaco.editor.setTheme(theme)
         }
     }
 
