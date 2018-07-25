@@ -3,10 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { debounce } from 'lodash';
 
-// import Editor from 'widgets/editor';
 import IDEEditor from "../../../../components/editor";
 
-import ToolBar from './toolbar';
 import API from "../../../../api";
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
@@ -93,6 +91,7 @@ class CodeEditor extends Component {
 
         return (
             <IDEEditor 
+                key={`main-editor-${currentPage.id}`}
                 editor={editorOpts}
                 toolbar={toolbarOpts}
             />
