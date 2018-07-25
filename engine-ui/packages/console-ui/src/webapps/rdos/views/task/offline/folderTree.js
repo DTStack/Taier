@@ -425,7 +425,6 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
-            console.log(data)
             return <TreeNode
                 title={
                     ispicker?
