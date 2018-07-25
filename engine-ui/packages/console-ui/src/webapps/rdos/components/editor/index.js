@@ -54,7 +54,7 @@ class IDEEditor extends Component {
                     : ""
                 }
                 <div className="ide-content">
-                    {console && console.data ? (
+                    {console && console.data && console.data.log ? (
                         <SplitPane
                             split="horizontal"
                             minSize={100}
