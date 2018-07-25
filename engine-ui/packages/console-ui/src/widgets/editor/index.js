@@ -17,6 +17,7 @@ import "./languages/shell/shell.contribution.js";
 import "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
+import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
 
 class Editor extends React.Component {
@@ -109,7 +110,7 @@ class Editor extends React.Component {
 
         const editorOptions = Object.assign(defaultOptions, options , {
             value,
-            language: language || "sql",
+            language: language || "sql"
         });
 
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
@@ -124,9 +125,13 @@ class Editor extends React.Component {
     }
 
     initEditor() {
+        this.initTheme();
         this.initEditorEvent();
     }
-
+    initTheme(){
+        monaco.editor.defineTheme("white",whiteTheme);
+        this.props.theme&&monaco.editor.setTheme(this.props.theme);
+    }
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
