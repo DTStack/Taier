@@ -3,11 +3,8 @@ import { connect } from 'react-redux'
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
 
-import { Button, Modal, Checkbox, } from "antd";
-
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
-import Editor from 'widgets/editor';
 import pureRender from 'utils/pureRender';
 
 import API from '../../../../api';
@@ -179,7 +176,6 @@ class CommonEditorContainer extends Component {
 
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
-
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;

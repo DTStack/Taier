@@ -161,14 +161,6 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
-                    // return <SQLEditor
-                    //     options={defaultEditorOptions}
-                    //     taskCustomParams={taskCustomParams}
-                    //     key={tabData.id}
-                    //     value={tabData.sqlText}
-                    //     currentTab={tabData.id}
-                    //     currentTabData={tabData} 
-                    // />;
                     return <EditorContainer 
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
@@ -206,18 +198,18 @@ export default class MainBench extends React.Component {
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
                 case SCRIPT_TYPE.SQL: {
-                    return <SQLEditor
-                        options={defaultEditorOptions}
+                    return <EditorContainer 
+                        taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.scriptText}
                         currentTab={tabData.id}
-                        currentTabData={tabData} />;
+                        currentTabData={tabData}
+                    />
                 }
                 case SCRIPT_TYPE.PYTHON2:
                 case SCRIPT_TYPE.PYTHON3: {
                     return <CommonEditor
                         mode="python"
-                        options={defaultEditorOptions}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
@@ -226,7 +218,6 @@ export default class MainBench extends React.Component {
                 case SCRIPT_TYPE.SHELL: {
                     return <CommonEditor
                         mode="shell"
-                        options={defaultEditorOptions}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
