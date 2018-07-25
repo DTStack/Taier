@@ -162,7 +162,7 @@ class Workbench extends React.Component {
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
-                    <FullScreenButton/>
+                    <FullScreenButton target="JS_APP"/>
                 </Col>
 
                 {showPublish ? (<Col className="right">

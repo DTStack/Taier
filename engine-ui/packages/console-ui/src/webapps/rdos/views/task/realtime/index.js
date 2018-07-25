@@ -290,7 +290,7 @@ class TaskIndex extends Component {
                         >
                             <MyIcon className="my-icon" type="save" />保存
                         </Button>
-                        <FullScreenButton />
+                        <FullScreenButton target="JS_APP"/>
                     </Col>
                     <Col className="right">
                         <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>

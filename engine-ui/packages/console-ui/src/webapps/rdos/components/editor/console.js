@@ -73,7 +73,6 @@ class Result extends Component {
 }
 
 class Console extends Component {
-
     state = {
         activeKey: defaultConsoleTab
     };

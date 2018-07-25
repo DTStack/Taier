@@ -81,7 +81,6 @@ class Editor extends React.Component {
 
     initMonaco() {
         const { value, language, options, cursorPosition } = this.props;
-        console.log('initMonaco:', this.props)
         if (!this.monacoDom) {
             console.error("初始化dom节点出错");
             return;
