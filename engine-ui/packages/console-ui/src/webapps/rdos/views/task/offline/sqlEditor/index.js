@@ -217,7 +217,7 @@ class EditorContainer extends Component {
                 readOnly: isLocked,
             },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme,
+            theme: editor.options.theme||"white",
             onChange: this.debounceChange,
             sync: currentTabData.merged || undefined,
             onCursorSelection: this.debounceSelectionChange

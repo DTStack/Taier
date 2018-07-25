@@ -7,4 +7,7 @@ export const defaultOptions = {
     showFoldingControls: "always",
     folding: true,
     foldingStrategy: "auto",
+    suggestFontSize:13,
+    fontSize:13,
+    iconsInSuggestions:false,
 }
