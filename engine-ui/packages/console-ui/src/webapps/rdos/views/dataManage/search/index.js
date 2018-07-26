@@ -19,22 +19,24 @@ const ROUTER_BASE = '/data-manage/table';
 @connect(state => {
     return {
         projects: state.allProjects,
+        dataCatalogues: state.dataManage.dataCatalogues,
     }
 })
 class SearchTable extends Component {
 
     constructor(props) {
         super(props);
-        const { pId, pageIndex,permissionStatus,tableName} = this.props.location.query;
+        const { pId, pageIndex,permissionStatus,tableName,catalogueId} = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
             editRecord: {},
             cardLoading:false,
+            dataCatalogue: [props.dataCatalogues],
             queryParams: {
                 pId,
                 pageIndex: pageIndex || 1,
-                catalogueId: undefined,
+                catalogueId,
                 permissionStatus,
                 tableName,
             },
@@ -42,7 +44,7 @@ class SearchTable extends Component {
     }
 
     componentDidMount() {
-        this.loadCatalogue();
+        this.search();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -97,23 +99,7 @@ class SearchTable extends Component {
             queryParams,
         }, this.search)
     }
-
-    loadCatalogue = () => {
-        const { queryParams } = this.state;
-        this.setState({
-            cardLoading: true,
-        })
-        ajax.getDataCatalogues().then(res => {
-            const { catalogueId } =  this.props.location.query;
-            queryParams.catalogueId = catalogueId||undefined;
-            this.setState({
-                dataCatalogue: res.data && [res.data],
-                pageIndex: 1,
-                queryParams,
-            },this.search)
-        })
-    }
-
+    
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
