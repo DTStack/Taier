@@ -27,6 +27,7 @@ import {
     taskTreeAction,
     editorAction,
 } from '../../../store/modules/offlineTask/actionType';
+
 import {
     stopSql
 } from '../../../store/modules/editor/editorAction';
@@ -89,7 +90,7 @@ class Workbench extends React.Component {
 
     showPublish() {
         const { currentTabData } = this.props;
-        const { taskType,createModel } = currentTabData;
+        const { taskType, createModel } = currentTabData;
         let vaildPass = true;
 
         switch(taskType){
@@ -106,7 +107,7 @@ class Workbench extends React.Component {
     }
 
     checkSyncScript(currentTabData){
-        const sql=currentTabData.sqlText;
+        const sql = currentTabData.sqlText;
 
         if(utils.jsonFormat(sql)){
             return true;
@@ -115,8 +116,53 @@ class Workbench extends React.Component {
         return false;
     }
 
+    renderPublish = () => {
+        const { user } = this.props;
+        const { publishDesc } = this.state;
+        return (
+            <Modal
+                wrapClassName="vertical-center-modal"
+                title="发布任务"
+                style={{ height: '600px', width: '600px' }}
+                visible={this.state.showPublish}
+                onCancel={this.closePublish}
+                onOk={this.submitTab.bind(this)}
+                cancelText="关闭"
+            >
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="发布人"
+                        hasFeedback
+                    >
+                        <span>{user.userName}</span>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label={(
+                            <span className="ant-form-item-required">备注</span>
+                        )}
+                        hasFeedback
+                    >
+                        <Input
+                            type="textarea"
+                            value={publishDesc}
+                            name="publishDesc" rows={4}
+                            onChange={this.publishChange}
+                        />
+                    </FormItem>
+                </Form>
+            </Modal>
+        )
+    }
+
     render() {
-        const { tabs, currentTab, currentTabData, dataSync, taskCustomParams } = this.props;
+        const { 
+            tabs, currentTab, currentTabData,
+            dataSync, taskCustomParams, 
+            closeTab 
+        } = this.props;
+
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         let isSaveAvaliable = false;
@@ -188,7 +234,7 @@ class Workbench extends React.Component {
                         activeKey={`${currentTab}`}
                         type="editable-card"
                         className="browser-tabs"
-                        onEdit={this.closeTab.bind(this)}
+                        onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}
                                 onClick={this.closeAllorOthers.bind(this)}
@@ -205,7 +251,7 @@ class Workbench extends React.Component {
                     <MainBench
                         tabData={currentTabData}
                         taskCustomParams={taskCustomParams}
-                        updateTaskFields={this.props.updateTaskFields}
+                        updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
@@ -214,46 +260,6 @@ class Workbench extends React.Component {
             <ImportData visible={this.state.visible} />
             {this.renderPublish()}
         </Row>
-    }
-
-    renderPublish = () => {
-        const { user } = this.props;
-        const { publishDesc } = this.state
-        return (
-            <Modal
-                wrapClassName="vertical-center-modal"
-                title="发布任务"
-                style={{ height: '600px', width: '600px' }}
-                visible={this.state.showPublish}
-                onCancel={this.closePublish}
-                onOk={this.submitTab.bind(this)}
-                cancelText="关闭"
-            >
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="发布人"
-                        hasFeedback
-                    >
-                        <span>{user.userName}</span>
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label={(
-                            <span className="ant-form-item-required">备注</span>
-                        )}
-                        hasFeedback
-                    >
-                        <Input
-                            type="textarea"
-                            value={publishDesc}
-                            name="publishDesc" rows={4}
-                            onChange={this.publishChange}
-                        />
-                    </FormItem>
-                </Form>
-            </Modal>
-        )
     }
 
     publishChange = (e) => {
@@ -276,52 +282,52 @@ class Workbench extends React.Component {
      */
     closeAllorOthers(item) {
         const { key } = item;
-        const { tabs, closeAll, currentTab, closeOthers } = this.props;
+        const { tabs, currentTab, closeAllorOthers } = this.props;
+        closeAllorOthers(key, tabs, currentTab);
+        // if (key === 'ALL') {
+        //     let allClean = true;
 
-        if (key === 'ALL') {
-            let allClean = true;
+        //     for (let tab of tabs) {
+        //         if (tab.notSynced) allClean = false;
+        //         break;
+        //     }
 
-            for (let tab of tabs) {
-                if (tab.notSynced) allClean = false;
-                break;
-            }
+        //     if (allClean) {
+        //         this.props.closeAll(tabs);
+        //     }
+        //     else {
+        //         confirm({
+        //             title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+        //             content: '强制关闭将丢弃所有修改数据',
+        //             onOk() {
+        //                 closeAll(tabs);
+        //             },
+        //             onCancel() { }
+        //         });
+        //     }
+        // }
+        // else {
+        //     let allClean = true;
 
-            if (allClean) {
-                this.props.closeAll(tabs);
-            }
-            else {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃所有修改数据',
-                    onOk() {
-                        closeAll(tabs);
-                    },
-                    onCancel() { }
-                });
-            }
-        }
-        else {
-            let allClean = true;
+        //     for (let tab of tabs) {
+        //         if (tab.notSynced && tab.id !== currentTab) allClean = false;
+        //         break;
+        //     }
 
-            for (let tab of tabs) {
-                if (tab.notSynced && tab.id !== currentTab) allClean = false;
-                break;
-            }
-
-            if (allClean) {
-                closeOthers(currentTab, tabs);
-            }
-            else {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃这些修改数据',
-                    onOk() {
-                        closeOthers(currentTab, tabs);
-                    },
-                    onCancel() { }
-                });
-            }
-        }
+        //     if (allClean) {
+        //         closeOthers(currentTab, tabs);
+        //     }
+        //     else {
+        //         confirm({
+        //             title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+        //             content: '强制关闭将丢弃这些修改数据',
+        //             onOk() {
+        //                 closeOthers(currentTab, tabs);
+        //             },
+        //             onCancel() { }
+        //         });
+        //     }
+        // }
     }
 
     renderTabs(tabs) {
@@ -346,7 +352,7 @@ class Workbench extends React.Component {
 
     saveTab(isSave) {
         this.setState({ theReqIsEnd: false, })
-        const { saveTab, dataSync, currentTabData, currentTab } = this.props;
+        const { saveTab, dataSync, currentTabData } = this.props;
         let result = this.generateRqtBody(dataSync);
         let type = 'task'
         // 非任务类型，脚本类型
@@ -405,11 +411,12 @@ class Workbench extends React.Component {
 
     switchTab(currentTab, tabId) {
         const { openTab } = this.props;
-        +tabId !== currentTab && openTab(+tabId);
+        +tabId !== currentTab && openTab({id: + tabId } );
     }
 
     closeTab(tabId) {
         const { closeTab, tabs } = this.props;
+
         let dirty = tabs.filter(tab => {
             return tab.id == tabId
         })[0].notSynced;
@@ -678,16 +685,12 @@ const mapDispatch = dispatch => {
             }
         },
 
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
-        },
-
         reloadTabTask: (id) => {
             actions.reloadTabTask(id)
         },
 
         publishTask(res) {
-            console.log('publishTask',res);
+            console.log('publishTask', res);
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
@@ -718,4 +721,4 @@ const mapDispatch = dispatch => {
     }
 };
 
-export default connect(mapState, mapDispatch)(Workbench);
+export default connect(mapState, workbenchActions)(Workbench);

@@ -12,7 +12,6 @@ import {
 import DataSync from './dataSync';
 import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
-// import SQLEditor from './sqlEditor';
 
 import EditorContainer from './sqlEditor';
 

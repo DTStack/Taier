@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { debounce } from 'lodash';
 
+import { commonFileEditDelegator } from "widgets/editor/utils";
+
 import IDEEditor from "../../../../components/editor";
 
 import API from "../../../../api";
@@ -47,7 +49,7 @@ class CodeEditor extends Component {
                     sqlText: res.data,
                     id: currentPage.id,
                 };
-                const updatedData = assign(currentPage, data);
+                const updatedData = Object.assign(currentPage, data);
                 setCurrentPage(updatedData);
             }
         });
@@ -82,7 +84,7 @@ class CodeEditor extends Component {
             enable: true,
             enableRun: false,
             enableFormat: true,
-            onFileEdit: null,
+            onFileEdit: commonFileEditDelegator(this._editor),
             onFormat: this.sqlFormat,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({theme: key})
@@ -91,9 +93,10 @@ class CodeEditor extends Component {
 
         return (
             <IDEEditor 
-                key={`main-editor-${currentPage.id}`}
                 editor={editorOpts}
                 toolbar={toolbarOpts}
+                key={`main-editor-${currentPage.id}`}
+                editorInstanceRef={(instance)=>{this._editor=instance}}
             />
         )
     }

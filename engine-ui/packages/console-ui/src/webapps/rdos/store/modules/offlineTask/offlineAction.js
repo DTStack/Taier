@@ -1,8 +1,12 @@
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 import { hashHistory } from 'react-router'
 
 import ajax from '../../../api'
 import { MENU_TYPE } from '../../../comm/const'
+
+import {
+    stopSql
+} from '../../../store/modules/editor/editorAction';
 
 import {
     modalAction,
@@ -19,6 +23,7 @@ import {
     tableTreeAction,
 } from './actionType';
 
+const confirm = Modal.confirm;
 
 // keyMap模块
 export const keyMapActions = (dispatch) => {
@@ -156,10 +161,41 @@ export const keyMapActions = (dispatch) => {
 };
 
 // workbenchActions
-export const workbenchActions = (dispatch) => {
+export const workbenchActions = (dispatch, ownProps) => {
+
+    const closeAll = (tabs) => {
+        for (let i in tabs) {
+            dispatch(stopSql(tabs[i].id, null, true))
+        }
+        dispatch({
+            type: workbenchAction.CLOSE_ALL_TABS
+        })
+    };
+
+    const closeOthers = (id, tabs) => {
+        for (let i in tabs) {
+            if (tabs[i].id == id) {
+                continue;
+            }
+            dispatch(stopSql(tabs[i].id, null, true))
+        }
+        dispatch({
+            type: workbenchAction.CLOSE_OTHER_TABS,
+            payload: id
+        })
+    };
 
     return {
         dispatch,
+        /**
+         * 更新目录
+         */
+        updateCatalogue: catalogue => {
+            dispatch({
+                type: taskTreeAction.EDIT_FOLDER_CHILD_FIELDS,
+                payload: catalogue
+            });
+        },
 
         /**
          * 更新Tab数据
@@ -186,6 +222,21 @@ export const workbenchActions = (dispatch) => {
                     });
                 }
             });
+        },
+
+        /**
+         * 发布任务
+         * @param {*} res 
+         */
+        publishTask(res) {
+            console.log('publishTask',res);
+            dispatch({
+                type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
+                payload: (res.data && res.data.submitStatus) || 1
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_CLEAN
+            })
         },
 
         /**
@@ -217,10 +268,121 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
+        /**
+         * 保存Tab数据
+         * @param {} params 
+         * @param {*} isSave 
+         * @param {*} type 
+         */
+        saveTab(params, isSave, type) {
+
+            const updateTaskInfo = function (data) {
+
+                dispatch({
+                    type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                    payload: data
+                });
+                dispatch({
+                    type: workbenchAction.MAKE_TAB_CLEAN
+                })
+            }
+
+            const succCallback = (res) => {
+                if (res.code === 1) {
+                    const fileData = res.data;
+                    const lockInfo = fileData.readWriteLockVO;
+                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
+                    if (lockStatus === 0) {
+                        message.success(isSave ? '保存成功！' : '发布成功！');
+                        updateTaskInfo({
+                            version: fileData.version,
+                            readWriteLockVO: fileData.readWriteLockVO,
+                        })
+                        // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) { // 2-被锁定
+                        confirm({
+                            title: '锁定提醒', // 锁定提示
+                            content: <span>
+                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                            </span>,
+                            okText: '确定保存',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const succCall = (res) => {
+                                    if (res.code === 1) {
+                                        message.success('保存成功！')
+                                        updateTaskInfo({
+                                            version: res.data.version,
+                                            readWriteLockVO: res.data.readWriteLockVO,
+                                        })
+                                    }
+                                }
+                                if (type === 'task') {
+                                    ajax.forceUpdateOfflineTask(params).then(succCall)
+                                } else if (type === 'script') {
+                                    ajax.forceUpdateOfflineScript(params).then(succCall)
+                                }
+                            },
+                        });
+                        // 如果同步状态，则提示会覆盖代码，
+                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    } else if (lockStatus === 2) { // 2-需同步
+                        confirm({
+                            title: '保存警告',
+                            content: <span>
+                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                您本地的代码，请您提前做好备份！
+                            </span>,
+                            okText: '确定覆盖',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const reqParams = {
+                                    id: params.id,
+                                    lockVersion: lockInfo.version,
+                                }
+                                if (type === 'task') {
+                                    // 更新version, getLock信息
+                                    ajax.getOfflineTaskDetail(reqParams).then(res => {
+                                        if (res.code === 1) {
+                                            const taskInfo = res.data
+                                            taskInfo.merged = true;
+                                            updateTaskInfo(taskInfo)
+                                        }
+                                    })
+                                } else if (type === 'script') {
+                                    ajax.getScriptById(reqParams).then(res => {
+                                        if (res.code === 1) {
+                                            const scriptInfo = res.data
+                                            scriptInfo.merged = true;
+                                            updateTaskInfo(scriptInfo)
+                                        }
+                                    })
+                                }
+                            },
+                        });
+                    }
+                }
+            }
+
+            params.lockVersion = params.readWriteLockVO.version;
+            if (type === 'task') {
+                ajax.saveOfflineJobData(params).then(succCallback);
+            }
+            else if (type === 'script') {
+                ajax.saveScript(params).then(succCallback);
+            }
+        },
+
         openTab: function (data) {
             const { id, tabs, currentTab, treeType, lockInfo } = data
 
-            if (tabs.map(o => o.id).indexOf(id) === -1) {
+            if (tabs && tabs.map(o => o.id).indexOf(id) === -1) {
                 const succCallBack = (res) => {
                     if (res.code === 1) {
                         dispatch({
@@ -249,6 +411,85 @@ export const workbenchActions = (dispatch) => {
                 type: editorAction.SET_SELECTION_CONTENT,
                 data: '',
             })
+        },
+
+        closeTab: (tabId, tabs) => {
+            console.log('ownProps:', ownProps);
+            
+            const doClose = (id) => {
+                dispatch(stopSql(id, null, true))
+                dispatch({
+                    type: workbenchAction.CLOSE_TASK_TAB,
+                    payload: id
+                })
+            }
+
+            let dirty = tabs.filter(tab => {
+                return tab.id == tabId
+            })[0].notSynced;
+
+            if (!dirty) {
+                doClose(+tabId);
+            }
+            else {
+                confirm({
+                    title: '修改尚未同步到服务器，是否强制关闭 ?',
+                    content: '强制关闭将丢弃当前修改数据',
+                    onOk() {
+                        doClose(+tabId);
+                    },
+                    onCancel() { }
+                });
+            }
+        },
+
+
+        closeAllorOthers: (action, tabs, currentTab) => {
+
+            if (action === 'ALL') {
+                let allClean = true;
+    
+                for (let tab of tabs) {
+                    if (tab.notSynced) allClean = false;
+                    break;
+                }
+    
+                if (allClean) {
+                    closeAll(tabs);
+                }
+                else {
+                    confirm({
+                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                        content: '强制关闭将丢弃所有修改数据',
+                        onOk() {
+                            closeAll(tabs);
+                        },
+                        onCancel() { }
+                    });
+                }
+            }
+            else {
+                let allClean = true;
+    
+                for (let tab of tabs) {
+                    if (tab.notSynced && tab.id !== currentTab) allClean = false;
+                    break;
+                }
+    
+                if (allClean) {
+                    closeOthers(currentTab, tabs);
+                }
+                else {
+                    confirm({
+                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                        content: '强制关闭将丢弃这些修改数据',
+                        onOk() {
+                            closeOthers(currentTab, tabs);
+                        },
+                        onCancel() { }
+                    });
+                }
+            }
         },
 
         /**

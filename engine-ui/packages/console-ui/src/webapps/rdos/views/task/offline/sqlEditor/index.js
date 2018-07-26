@@ -8,7 +8,7 @@ import { Button, Modal, Checkbox, } from "antd";
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import Editor from 'widgets/editor';
-import {commonFileEditDelegator} from "widgets/editor/utils";
+import { commonFileEditDelegator } from "widgets/editor/utils";
 import pureRender from 'utils/pureRender';
 
 import API from '../../../../api';

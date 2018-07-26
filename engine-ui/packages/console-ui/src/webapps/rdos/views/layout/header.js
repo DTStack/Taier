@@ -171,7 +171,6 @@ class Header extends Component {
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
-        console.log('this.props',this.props);
 
         let pathname = router.location.pathname;
 
