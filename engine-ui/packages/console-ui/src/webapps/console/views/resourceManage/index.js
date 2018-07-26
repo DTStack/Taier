@@ -33,7 +33,7 @@ class ResourceManage extends React.Component {
                 (res) => {
                     if (res.code == 1) {
                         this.setState({
-                            dataSource: res.data.data,
+                            dataSource: this.exchangeDataSource(res.data.data),
                             table: {
                                 ...table,
                                 loading: false,
@@ -59,6 +59,36 @@ class ResourceManage extends React.Component {
             total: total
         }
     }
+    exchangeDataSource(dataSource){
+        let newDataSource=[];
+        let deepLength=0;
+        for(let _i=0;_i<dataSource.length;_i++){
+            let cluster=dataSource[_i];
+            newDataSource.push({
+                ...cluster,
+                type:"cluster",
+                clusterId:cluster.id,
+                children:loop(cluster.queues,deepLength)
+            })
+        }
+        function loop(queues,deepLength){
+            let newQueues=[];
+            if(!queues){
+                return null;
+            }
+            for(let _i=0;_i<queues.length;_i++){
+                let queue=queues[_i];
+                newQueues.push({
+                    ...queue,
+                    queueId:queue.id,
+                    deepLength:deepLength,
+                    children:loop(queue.childQueues,deepLength+1)
+                })
+            }
+            return newQueues.length>0?newQueues:null;
+        }
+        return newDataSource;
+    }
     initTableColumns() {
         return [
             {
@@ -71,17 +101,23 @@ class ResourceManage extends React.Component {
                 dataIndex: "queueName",
                 width:"200px",
                 render(text,record){
-                    if(record.queueState=="STOPPED"){
-                        return `${text}(已停用)`
+                    if(record.type=="cluster"){
+                        return null;
                     }
-                    return text;
+                    if(record.queueState=="STOPPED"){
+                        text=`${text}(已停用)`
+                    }
+                    return <span style={{paddingLeft:record.deepLength*15+"px"}}>{text}</span>;
                 }
             },
             {
                 title: "最小容量（%）",
                 dataIndex: "capacity",
                 width: "150px",
-                render(text) {
+                render(text,record) {
+                    if(record.type=="cluster"){
+                        return null;
+                    }
                     return text * 100;
                 }
             },
@@ -89,14 +125,20 @@ class ResourceManage extends React.Component {
                 title: "最大容量（%）",
                 dataIndex: "maxCapacity",
                 width: "150px",
-                render(text) {
+                render(text,record) {
+                    if(record.type=="cluster"){
+                        return null;
+                    }
                     return text * 100;
                 }
             },
             {
                 title: "绑定租户",
                 dataIndex: "tenants",
-                render(tenants){
+                render(tenants,record){
+                    if(!tenants){
+                        return null;
+                    }
                     return tenants.map(
                         (tenant)=>{
                             return tenant.tenantName
@@ -116,7 +158,7 @@ class ResourceManage extends React.Component {
                 title: "操作",
                 dataIndex: "deal",
                 render:(text,record)=> {
-                    if(record.queueState=="STOPPED"){
+                    if(record.queueState=="STOPPED"||!record.tenants){
                         return null;
                     }
                     return <a onClick={this.changeResource.bind(this,record)}>修改</a>
