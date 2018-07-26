@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source="./dist"
-target="/home/admin/app/rdos.front/dist"
+target="/home/admin/app/rdos.front/"
 server="172.16.8.104"
 
 echo "Uploading $source to $server:$target"
