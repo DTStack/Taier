@@ -15,7 +15,7 @@ function keywordsCompleteItemCreater(words) {
             return {
                 label: word,
                 kind: monaco.languages.CompletionItemKind.Keyword,
-                detail: "dtsql关键字",
+                // detail: "dtsql关键字",
                 insertText: word + " "
             }
         }
@@ -27,7 +27,7 @@ function functionsCompleteItemCreater(functions) {
             return {
                 label: functionName,
                 kind: monaco.languages.CompletionItemKind.Function,
-                detail: "dtsql函数",
+                // detail: "dtsql函数",
                 insertText: {
                     value: functionName + "($1) "
                 }
