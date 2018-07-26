@@ -7,7 +7,7 @@ export default class Toolbar extends Component {
     editMenu = () => {
         const { onFileEdit } = this.props;
         return (
-            <Menu onClick={({key}) => { onFileEdit(key)}}>
+            <Menu onClick={({ key }) => { onFileEdit(key) }}>
                 <Menu.Item key="find">查找（Cmd/Ctrl）+ F</Menu.Item>
                 <Menu.Item key="replace">替换（Cmd/Ctrl）+ F</Menu.Item>
                 <Menu.Item key="commandPane">命令面板 (F1)</Menu.Item>
@@ -18,7 +18,7 @@ export default class Toolbar extends Component {
     viewMenu = () => {
         const { onThemeChange } = this.props;
         return (
-            <Menu onClick={({key}) => {onThemeChange(key)}}>
+            <Menu onClick={({ key }) => { onThemeChange(key) }}>
                 <Menu.Item key="vs">默认</Menu.Item>
                 <Menu.Item key="vs-dark">黑色</Menu.Item>
                 <Menu.Item key="hc-black">高对比黑色</Menu.Item>
@@ -27,7 +27,7 @@ export default class Toolbar extends Component {
     }
 
     renderRun = () => {
-        const { 
+        const {
             isRunning, onRun, onStop, enableRun
         } = this.props;
 
@@ -58,8 +58,8 @@ export default class Toolbar extends Component {
 
 
     render() {
-        const { 
-            onFormat, enableFormat,
+        const {
+            onFormat, enableFormat, customButton
         } = this.props;
 
         return (
@@ -67,6 +67,7 @@ export default class Toolbar extends Component {
                 {
                     this.renderRun()
                 }
+                {customButton}
                 {
                     enableFormat &&
                     <Button

@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
 import { cloneDeep, isEqual } from 'lodash';
-import { tableAction, logAction } from './actionType';
+import { tableAction, logAction, cataloguesAction } from './actionType';
 
 // move up/down
 Array.prototype.__move = function (from, to) {
@@ -178,6 +178,18 @@ const log = (state = {
     }
 }
 
+const dataCatalogues = (state = {
+    dataCatalogues: {}
+},action) => {
+    switch (action.type) {
+        case cataloguesAction.DATA_CATALOGUES : {
+            return action.payload
+        }
+        default: 
+        return state;
+    }
+}
+
 export const dataManageReducer = combineReducers({
-    tableManage, log
+    tableManage, log ,dataCatalogues
 });

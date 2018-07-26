@@ -210,7 +210,7 @@ export default class MainBench extends React.Component {
                     return <CommonEditor
                         mode="python"
                         key={tabData.id}
-                        value={tabData.sqlText}
+                        value={tabData.scriptText}
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
                 }
@@ -218,7 +218,7 @@ export default class MainBench extends React.Component {
                     return <CommonEditor
                         mode="shell"
                         key={tabData.id}
-                        value={tabData.sqlText}
+                        value={tabData.scriptText}
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
                 }

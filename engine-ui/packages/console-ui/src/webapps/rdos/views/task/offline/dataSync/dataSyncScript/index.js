@@ -7,6 +7,7 @@ import utils from "utils";
 import { matchTaskParams } from '../../../../../comm';
 import { jsonEditorOptions, } from "../../../../../comm/const";
 import CodeEditor from '../../../../../components/code-editor';
+import Editor from "widgets/editor";
 import Toolbar from "./toolbar.js";
 
 import { workbenchAction } from '../../../../../store/modules/offlineTask/actionType';
@@ -36,38 +37,23 @@ import { setSelectionContent } from '../../../../../store/modules/editor/editorA
 })
 class DataSyncScript extends Component {
 
-    handleEditorTxtChange = (old, newVal, doc) => {
+    handleEditorTxtChange = (newVal, editorInstance) => {
         const { taskType, taskCustomParams } = this.props
         let params = {
             merged: false,
-            cursor: doc.getCursor(),
+            cursorPosition: editorInstance.getPosition(),
         }
-
         if (utils.checkExist(taskType)) {
             params.sqlText = newVal
-            params.taskVariables = matchTaskParams(taskCustomParams, newVal);
-        }
+            params.taskVariables = matchTaskParams(taskCustomParams, newVal)//this.matchTaskParams(newVal)
+        } 
         this.props.updateTaskFields(params);
-    }
-
-    onEditorSelection = (old, doc) => {
-        const selected = doc.getSelection()
-
-        if (doc.somethingSelected()) {
-            this.props.setSelection(selected)
-        } else {
-            const oldSelection = this.props.editor.selection
-
-            if (oldSelection !== '') this.props.setSelection('')
-        }
     }
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
 
     render() {
-        const { merged, sqlText, cursor } = this.props;
-        // TODO 最好默认不处理格式
-        const formated = utils.jsonFormat(sqlText);
+        const { merged, sqlText, cursorPosition } = this.props;
         return (
             <div className="ide-sql">
                 <div className="ide-header bd-bottom">
@@ -76,13 +62,12 @@ class DataSyncScript extends Component {
                 <div className="ide-content">
                     {
                         <div className="ide-editor bd-bottom">
-                            <CodeEditor
-                                key="jsonEditor"
+                            <Editor
+                                language="json"
+                                cursorPosition={cursorPosition}
                                 sync={merged || undefined}
-                                options={jsonEditorOptions}
-                                cursor={cursor}
                                 onChange={this.debounceChange}
-                                value={formated}
+                                value={sqlText}
                             />
                         </div>
                     }
