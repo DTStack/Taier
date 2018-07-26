@@ -14,6 +14,147 @@ const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
 const { Column, ColumnGroup } = Table;
 
+class outPutOrigin extends Component {
+
+    render(){
+        const data = [{
+            key: '1',
+            firstName: 'John',
+            lastName: 'Brown',
+            age: 32,
+            address: 'New York No. 1 Lake Park',
+        }];
+        const { handleInputChange,index } = this.props;
+        return (
+            <Row className="title-content">
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 类型 : </span></Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 数据源 : </span></Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> Topic : </span></Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" > 
+                            <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
+                                <span className="left-type"> Table <Icon type="question-circle-o" /> : </span>
+                            </Tooltip>
+                        </Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 字段 : </span></Col>
+                        <Col span="18" >
+                            <Radio.Group   defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("model",index,v)}}>
+                                <Radio.Button value={1}>键值模式</Radio.Button>
+                                <Radio.Button value={2}>脚本模式</Radio.Button>
+                            </Radio.Group>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Table dataSource={data} pagination={false} >
+                        <Column
+                            title="First Name"
+                            dataIndex="firstName"
+                            key="firstName"
+                        />
+                        <Column
+                            title="Last Name"
+                            dataIndex="lastName"
+                            key="lastName"
+                        />
+                    </Table>
+                    <div style={{padding: "0 20"}}>
+                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index)}}>
+                            <Icon type="plus" /><span> 添加输入</span>
+                        </Button>
+                    </div>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 时间特征 : </span></Col>
+                        <Col span="18" >
+                            <RadioGroup  defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v)}}>
+                                <Radio value={1}>ProcTime</Radio>
+                                <Radio value={2}>EventTime</Radio>
+                            </RadioGroup>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col style={{marginBottom: 20}}>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 时间列 : </span></Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+                <Col>
+                    <Row gutter={16}>
+                        <Col span="6" ><span className="left-type"> 别名 : </span></Col>
+                        <Col span="18" >
+                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("alias",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" disabled>Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
+        )
+    }
+}
+
 export default class InputPanel extends Component {
 
     state = {
@@ -21,12 +162,15 @@ export default class InputPanel extends Component {
         tabTemplate: [],
         panelActiveKey: [],
         popoverVisible: [],
+        panelColumn: [],
+        groupButton: 1,
+        radioGroup: 1,
     }
 
     changeInputTabs = (type,index) =>{
         let { tabTemplate, panelActiveKey, popoverVisible } = this.state;
         if(type==="add"){
-            tabTemplate.push(this.outPutOrigin());
+            tabTemplate.push(outPutOrigin);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
@@ -61,149 +205,28 @@ export default class InputPanel extends Component {
         })
     }
       
-    handleChange = (value) => {
+    handleInputChange = (type,index,value) => {
+       const { panelColumn } = this.state;
+        console.log('type,index,value',type,index,value);
+        
+       this.setState({
+            panelColumn
+       })
+    }
 
+    handleChangeRadio = (value) => {
+        this.setState({
+            radioGroup: value
+        })
     }
 
     handleSizeChange = (e) => {
         console.log(e.target.value);
+        this.setState({
+            groupButton: e.target.value
+        })
       }
     
-
-    outPutOrigin = () => {
-        const data = [{
-            key: '1',
-            firstName: 'John',
-            lastName: 'Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-          }];
-        const content = <Row className="title-content">
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 类型 : </span></Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 数据源 : </span></Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> Topic : </span></Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" > 
-                        <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
-                            <span className="left-type"> Table <Icon type="question-circle-o" /> : </span>
-                        </Tooltip>
-                    </Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 字段 : </span></Col>
-                    <Col span="18" >
-                        <Radio.Group  value={1} className="right-select" onChange={this.handleSizeChange}>
-                            <Radio.Button value={1}>键值模式</Radio.Button>
-                            <Radio.Button value={2}>脚本模式</Radio.Button>
-                        </Radio.Group>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Table dataSource={data} pagination={false}>
-                    <Column
-                        title="First Name"
-                        dataIndex="firstName"
-                        key="firstName"
-                    />
-                    <Column
-                        title="Last Name"
-                        dataIndex="lastName"
-                        key="lastName"
-                    />
-                </Table>
-                <div style={{padding: "0 20"}}>
-                    <Button className="stream-btn" type="dashed"><Icon type="plus" /><span> 添加输入</span></Button>
-                </div>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 时间特征 : </span></Col>
-                    <Col span="18" >
-                        <RadioGroup className="right-select"  style={{marginTop: 5}} onChange={this.handleChange} value={this.state.value}>
-                            <Radio value={1}>ProcTime</Radio>
-                            <Radio value={2}>EventTime</Radio>
-                        </RadioGroup>
-                    </Col>
-                </Row>
-            </Col>
-            <Col style={{marginBottom: 20}}>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 时间列 : </span></Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-            <Col>
-                <Row gutter={16}>
-                    <Col span="6" ><span className="left-type"> 别名 : </span></Col>
-                    <Col span="18" >
-                        <Select defaultValue="lucy" className="right-select"  onChange={this.handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>Disabled</Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
-            </Col>
-        </Row>
-        return content;
-    }
-
     deletePopover = () => {
 
     }
@@ -219,21 +242,19 @@ export default class InputPanel extends Component {
                 })
             }
         }
-        
         this.setState({ popoverVisible });
     }
 
     panelHeader = (index) => {
         const { popoverVisible } = this.state;
-        const popoverContent = <div>
-            <div style={{padding: "8 0 12"}}>你确定要删除此输入源吗？</div>
+        const popoverContent = <div className="input-panel-title">
+            <div style={{padding: "8 0 12"}}> <Icon type="exclamation-circle" style={{color: "#faad14",}}/>  你确定要删除此输入源吗？</div>
             <div style={{textAlign: "right",padding: "0 0 8"}}>
                 <Button style={{marginRight: 8}} size="small" onClick={()=>{this.handlePopoverVisibleChange(null,index,false)}}>取消</Button>
                 <Button type="primary" size="small" onClick={()=>{this.changeInputTabs('delete',index)}}>确定</Button>
             </div>
         </div>
-
-        return <div>
+        return <div className="input-panel-title">
             <span>{` 输入源 ${index+1} (仅支持Json)`}</span>
             <Popover
                 trigger="click"
@@ -242,27 +263,27 @@ export default class InputPanel extends Component {
                 visible={popoverVisible[index]}
                 onClick={(e)=>{this.handlePopoverVisibleChange(e,index,!popoverVisible[index])}}
             >
-                <span className="title-icon" ><Icon type="delete" /></span>
+                <span className="title-icon input-panel-title" ><Icon type="delete" /></span>
             </Popover>
         </div>
     }
 
     render() {
         const { tabTemplate,panelActiveKey } = this.state;
-        console.log('panelActiveKey',panelActiveKey);
-        
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
                     {
-                        tabTemplate.map( (tab,index) => {
-                            return  <Panel header={this.panelHeader(index)} key={index+1} >
-                                    {tab}
+                        tabTemplate.map( (OutPutOrigin,index) => {
+                            return  (
+                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
+                                    <OutPutOrigin index={index} handleInputChange={this.handleInputChange}/>
                                 </Panel>
+                            )
                         })
                     }
                 </Collapse>
-                <Button className="stream-btn" onClick={()=> {this.changeInputTabs('add')}}><Icon type="plus" /><span> 添加输入</span></Button>
+                <Button className="stream-btn" onClick={()=> {this.changeInputTabs('add')}} style={{borderRadius: 5}}><Icon type="plus" /><span> 添加输入</span></Button>
             </div>
         )
     }

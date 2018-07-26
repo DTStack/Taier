@@ -563,6 +563,22 @@
                 }
                 .right-select{
                     width: 80%;
+                    .ant-select-selection {
+                        outline: none;
+                        user-select: none;
+                        box-sizing: border-box;
+                        display: block;
+                        background-color: #fff;
+                        border-radius: 5px;
+                        border: 1px solid #dddddd;
+                        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+                    }
+                    .ant-radio-button-wrapper:first-child {
+                        border-radius: 5px 0 0 5px;
+                    }
+                    .ant-radio-button-wrapper:last-child {
+                        border-radius: 0 5px 5px 0;
+                    }
                 }
             }
         }
@@ -821,4 +837,11 @@
         width: 160px;
         display: inline-block;
     }
+}
+
+.ant-popover-inner{
+    background-color: #fff;
+    background-clip: padding-box;
+    border-radius: 5px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
 }
