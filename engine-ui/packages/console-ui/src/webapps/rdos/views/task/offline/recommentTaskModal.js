@@ -1,70 +1,74 @@
 import React from "react";
 
-import {Table,Modal} from "antd";
+import { Table, Modal, message } from "antd";
 
-class RecommentTaskModal extends React.Component{
-    state={
-        choosetask:[],//选择的任务
-        selectedRows:[],
+class RecommentTaskModal extends React.Component {
+    state = {
+        choosetask: [],//选择的任务
+        selectedRows: [],
     }
-    resetState(){
+    resetState() {
         this.setState({
-            choosetask:[],
-            selectedRows:[]
+            choosetask: [],
+            selectedRows: []
         })
     }
-    onOk(){
-        const {selectedRows} = this.state;
+    onOk() {
+        const { selectedRows } = this.state;
+        if (selectedRows.length == 0) {
+            message.warning("请选择依赖");
+            return;
+        }
         this.props.onOk(selectedRows);
         this.resetState();
     }
-    onCancel(){
+    onCancel() {
         this.resetState();
         this.props.onCancel();
     }
-    initColumns(){
+    initColumns() {
         return [{
             title: '表名',
             dataIndex: 'tableName',
-            width:"200px"
-        },{
+            width: "200px"
+        }, {
             title: '任务名称',
             dataIndex: 'name',
         }]
     }
-    rowSelection(){
+    rowSelection() {
         const { existTask } = this.props;
         return {
-            selectedRowKeys:this.state.choosetask,
-            onChange:(selectedRowKeys, selectedRows)=>{
+            selectedRowKeys: this.state.choosetask,
+            onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
-                    choosetask:selectedRowKeys,
-                    selectedRows:selectedRows
+                    choosetask: selectedRowKeys,
+                    selectedRows: selectedRows
                 })
             },
-            getCheckboxProps:(record)=>{
-                const id=record.id;
-                let isExist=false;
-                existTask&&existTask.map(
-                    (item)=>{
-                        if(item.id==id){
-                            isExist=true;
+            getCheckboxProps: (record) => {
+                const id = record.id;
+                let isExist = false;
+                existTask && existTask.map(
+                    (item) => {
+                        if (item.id == id) {
+                            isExist = true;
                         }
                     }
                 )
-                if(isExist){
-                    return {disabled:true}
+                if (isExist) {
+                    return { disabled: true }
                 }
                 return {};
             }
         }
     }
-    render(){
+    render() {
         const {
             visible,
             taskList
         } = this.props;
-        return ( 
+        return (
             <Modal
                 title="推荐上游依赖"
                 maskClosable={false}
@@ -73,15 +77,15 @@ class RecommentTaskModal extends React.Component{
                 onCancel={this.onCancel.bind(this)}
                 onOk={this.onOk.bind(this)}
             >
-            <p style={{margin:"10px 10px"}}>提示：该分析仅基于您已发布过的任务进行分析</p>
-            <Table 
-                className="m-table select-all-table"
-                columns={this.initColumns()}
-                dataSource={taskList}
-                pagination={false}
-                rowSelection={this.rowSelection()}
-                scroll={{y:400}}
-            />
+                <p style={{ margin: "10px 10px" }}>提示：该分析仅基于您已发布过的任务进行分析</p>
+                <Table
+                    className="m-table select-all-table"
+                    columns={this.initColumns()}
+                    dataSource={taskList}
+                    pagination={false}
+                    rowSelection={this.rowSelection()}
+                    scroll={{ y: 400 }}
+                />
             </Modal>
         )
     }
