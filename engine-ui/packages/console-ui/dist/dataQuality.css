@@ -205,6 +205,7 @@
   bottom: 0;
   background: #f2f7fa;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .container .ant-layout {
@@ -787,6 +788,10 @@ table {
   margin-bottom: 15px;
 }
 
+.CodeMirror, .CodeMirror-merge-pane{
+    height:inherit !important;
+    font-family: consolas !important;
+}
 .rule-dashboard .rule-manage {
   padding: 20px;
 }

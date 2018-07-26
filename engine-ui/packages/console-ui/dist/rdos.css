@@ -31,11 +31,6 @@
   }
 }
 
-.m-icon {
-  width: 14px;
-  height: 14px;
-}
-
 .header {
   background: #2E3943;
   padding-left: 44px;
@@ -130,7 +125,7 @@
   height: 100%;
 }
 
-.header .menu-right > span {
+.header .menu-right .menu-item {
   padding: 16px 10px;
   color: #fff;
   float: left;
@@ -160,6 +155,7 @@
   float: right;
   color: #fff;
   cursor: pointer;
+  height: 48px;
 }
 
 .header .menu-right .user-name {
@@ -210,6 +206,28 @@
   color: #2491F7;
 }
 
+.rdos-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.merge-text .CodeMirror-merge-editor{
+    position: relative;
+}
+.merge-text .CodeMirror-merge-editor:before{
+    content:"\5F53\524D\7248\672C";
+    position: absolute;
+    top:-20px;
+    left:30px;
+    color:#8c8c8c;
+}
+.merge-text .CodeMirror-merge-right:before{
+    content:"\5386\53F2\7248\672C";
+    position: absolute;
+    top:-20px;
+    left:30px;
+    color:#8c8c8c;
+}
 .txt-left {
     text-align: left;
 }
@@ -417,6 +435,7 @@
   bottom: 0;
   background: #f2f7fa;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .container .ant-layout {
@@ -1395,6 +1414,10 @@ table {
   margin-left: 10;
   padding-left: 10;
   border: 1px solid #ccc;
+}
+
+.diff-params .box-padding .schedulingCycle {
+  min-height: 281px;
 }
 
 .diff-params .box-padding .line {
@@ -2455,6 +2478,7 @@ table.mxPopupMenu tr {
   color: rgba(159, 168, 210, 0.48);
 }
 
+@charset "UTF-8";
 .project-dashboard {
   padding-bottom: 20px;
 }
@@ -2517,23 +2541,141 @@ table.mxPopupMenu tr {
   left: 80px;
 }
 
-.rdos-icon {
-  width: 14px;
-  height: 14px;
+.project-dashboard .project-search {
+  float: left;
+  width: 220px;
+  margin-top: 10px;
 }
 
-.font-warning, .font-normal {
-  font-size: 48px;
+.project-dashboard .card-width {
+  min-width: 375px;
+}
+
+.project-dashboard .card-width .company-name {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.project-dashboard .card-width .company-name:hover {
+  color: #2491F7;
+}
+
+.project-dashboard .card-width .general-card {
+  margin-bottom: 10px;
+  height: 230px;
+}
+
+.project-dashboard .card-width .general-card .card-content {
+  position: relative;
+}
+
+.project-dashboard .card-width .general-card .card-content .statistics {
+  line-height: 26px;
+  min-width: 190px;
+}
+
+.project-dashboard .card-width .general-card .card-content .ant-card-body {
+  padding: 4px;
+}
+
+.project-dashboard .card-width .general-card .card-content .card-task-padding {
+  padding: 0;
+}
+
+.project-dashboard .card-width .general-card .card-content .number {
+  font-size: 32px;
+  color: #f00;
+}
+
+.project-dashboard .card-width .general-card .card-content .number:hover {
+  cursor: pointer;
+}
+
+.project-dashboard .card-width .general-card .card-content .card-task {
+  min-width: 115px;
   text-align: center;
-  display: block;
+  margin-top: 10px;
+  background: #2491F7;
+  color: #fff;
 }
 
-.font-normal {
-  color: #5dd1f2;
+.project-dashboard .card-width .general-card .card-content .img-container {
+  padding-right: 5px;
 }
 
-.font-warning {
-  color: #ff9b1b;
+.project-dashboard .card-width .general-card .card-content .img-container .task-img {
+  display: inline-block;
+  height: 16px;
+  width: 20px;
+  background: #2491F7;
+  position: relative;
+  top: 3px;
+}
+
+.project-dashboard .card-width .general-card .card-content .card-task:hover {
+  cursor: pointer;
+}
+
+.project-dashboard .card-width .general-card .triangle_border_right {
+  border-width: 16px;
+  border-style: solid;
+  border-color: transparent transparent transparent #696565;
+  /*透明 透明 透明 灰*/
+  position: absolute;
+  bottom: -16px;
+  right: -16px;
+  transform: rotate(45deg);
+}
+
+.project-dashboard .sortTitle {
+  line-height: 45px;
+}
+
+.project-dashboard .sortTitle .faileSort {
+  float: right;
+  padding-left: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.project-dashboard .sortTitle .defaultSort {
+  float: right;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.project-dashboard .title-help {
+  padding-bottom: 10px;
+  cursor: pointer;
+}
+
+.project-dashboard .help-doc-rdos {
+  font-size: 14px;
+  line-height: 40px;
+}
+
+.project-dashboard .ant-card-head {
+  padding: 0 10;
+}
+
+.project-dashboard .ant-card-body {
+  padding: 16 10;
+}
+
+.tooltip-tittle-text {
+  cursor: pointer;
+}
+
+.tooltip .ant-tooltip-arrow {
+  border-bottom-color: #2491F7;
+}
+
+.tooltip .ant-tooltip-arrow {
+  border-bottom-color: #2491F7;
+}
+
+.tooltip .ant-tooltip-inner {
+  background-color: #2491F7;
 }
 
 .context-menu {

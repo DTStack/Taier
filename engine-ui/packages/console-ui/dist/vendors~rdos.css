@@ -1,177 +1,88 @@
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
 /* stylelint-disable declaration-bang-space-before */
 /* stylelint-disable declaration-bang-space-before */
-.ant-tag {
-  display: inline-block;
-  line-height: 20px;
-  height: 22px;
-  padding: 0 8px;
-  border-radius: 2px;
-  border: 1px solid #e9e9e9;
-  background: #f3f3f3;
-  font-size: 12px;
-  transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-  opacity: 1;
-  margin-right: 8px;
-  cursor: pointer;
-  white-space: nowrap;
+.ant-layout {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  background: #ececec;
 }
-.ant-tag:hover {
-  opacity: 0.85;
+.ant-layout.ant-layout-has-sider {
+  flex-direction: row;
 }
-.ant-tag,
-.ant-tag a,
-.ant-tag a:hover {
+.ant-layout.ant-layout-has-sider > .ant-layout,
+.ant-layout.ant-layout-has-sider > .ant-layout-content {
+  overflow-x: hidden;
+}
+.ant-layout-header,
+.ant-layout-footer {
+  flex: 0 0 auto;
+}
+.ant-layout-header {
+  background: #404040;
+  padding: 0 50px;
+  height: 64px;
+  line-height: 64px;
+}
+.ant-layout-footer {
+  background: #ececec;
+  padding: 24px 50px;
   color: rgba(0, 0, 0, 0.65);
-}
-.ant-tag-text a:first-child:last-child {
-  display: inline-block;
-  margin: 0 -8px;
-  padding: 0 8px;
-}
-.ant-tag .anticon-cross {
-  display: inline-block;
   font-size: 12px;
-  font-size: 10px \9;
-  transform: scale(0.83333333) rotate(0deg);
-  /* IE6-IE8 */
-  -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(sizingMethod='auto expand', M11=1, M12=0, M21=0, M22=1)";
-  zoom: 1;
+}
+.ant-layout-content {
+  flex: auto;
+}
+.ant-layout-sider {
+  transition: all .2s;
+  position: relative;
+  background: #404040;
+  /* fix firefox can't set width smaller than content on flex item */
+  min-width: 0;
+}
+.ant-layout-sider-children {
+  height: 100%;
+  padding-top: 0.1px;
+  margin-top: -0.1px;
+}
+.ant-layout-sider-has-trigger {
+  padding-bottom: 48px;
+}
+.ant-layout-sider-right {
+  order: 1;
+}
+.ant-layout-sider-trigger {
+  position: fixed;
+  text-align: center;
+  bottom: 0;
   cursor: pointer;
-  font-weight: bold;
-  margin-left: 3px;
-  transition: all 0.3s cubic-bezier(0.215, 0.61, 0.355, 1);
-  opacity: 0.66;
-}
-:root .ant-tag .anticon-cross {
-  filter: none;
-}
-:root .ant-tag .anticon-cross {
-  font-size: 12px;
-}
-.ant-tag .anticon-cross:hover {
-  opacity: 1;
-}
-.ant-tag-has-color {
-  border-color: transparent;
-}
-.ant-tag-has-color,
-.ant-tag-has-color a,
-.ant-tag-has-color a:hover,
-.ant-tag-has-color .anticon-cross,
-.ant-tag-has-color .anticon-cross:hover {
+  height: 48px;
+  line-height: 48px;
   color: #fff;
+  background: #404040;
+  z-index: 1;
+  transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
 }
-.ant-tag-checkable {
-  background-color: transparent;
-  border-color: transparent;
+.ant-layout-sider-zero-width > * {
+  overflow: hidden;
 }
-.ant-tag-checkable:not(.ant-tag-checkable-checked):hover {
-  color: #2491F7;
-}
-.ant-tag-checkable:active,
-.ant-tag-checkable-checked {
+.ant-layout-sider-zero-width-trigger {
+  position: absolute;
+  top: 64px;
+  right: -36px;
+  text-align: center;
+  width: 36px;
+  height: 42px;
+  line-height: 42px;
+  background: #404040;
   color: #fff;
+  font-size: 18px;
+  border-radius: 0 2px 2px 0;
+  cursor: pointer;
+  transition: background .3s ease;
 }
-.ant-tag-checkable-checked {
-  background-color: #2491F7;
-}
-.ant-tag-checkable:active {
-  background-color: #1c79d9;
-}
-.ant-tag-close {
-  width: 0 !important;
-  padding: 0;
-  margin: 0;
-}
-.ant-tag-zoom-enter,
-.ant-tag-zoom-appear {
-  animation: antFadeIn 0.2s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-  animation-fill-mode: both;
-}
-.ant-tag-zoom-leave {
-  animation: antZoomOut 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-  animation-fill-mode: both;
-}
-.ant-tag-pink {
-  color: #f5317f;
-  background: #fdd8e7;
-  border-color: #fdd8e7;
-}
-.ant-tag-pink-inverse {
-  background: #f5317f;
-  border-color: #f5317f;
-  color: #fff;
-}
-.ant-tag-red {
-  color: #f04134;
-  background: #fcdbd9;
-  border-color: #fcdbd9;
-}
-.ant-tag-red-inverse {
-  background: #f04134;
-  border-color: #f04134;
-  color: #fff;
-}
-.ant-tag-orange {
-  color: #f56a00;
-  background: #fde3cf;
-  border-color: #fde3cf;
-}
-.ant-tag-orange-inverse {
-  background: #f56a00;
-  border-color: #f56a00;
-  color: #fff;
-}
-.ant-tag-yellow {
-  color: #ffbf00;
-  background: #fff3cf;
-  border-color: #fff3cf;
-}
-.ant-tag-yellow-inverse {
-  background: #ffbf00;
-  border-color: #ffbf00;
-  color: #fff;
-}
-.ant-tag-cyan {
-  color: #00a2ae;
-  background: #cfedf0;
-  border-color: #cfedf0;
-}
-.ant-tag-cyan-inverse {
-  background: #00a2ae;
-  border-color: #00a2ae;
-  color: #fff;
-}
-.ant-tag-green {
-  color: #00a854;
-  background: #cfefdf;
-  border-color: #cfefdf;
-}
-.ant-tag-green-inverse {
-  background: #00a854;
-  border-color: #00a854;
-  color: #fff;
-}
-.ant-tag-blue {
-  color: #108ee9;
-  background: #d2eafb;
-  border-color: #d2eafb;
-}
-.ant-tag-blue-inverse {
-  background: #108ee9;
-  border-color: #108ee9;
-  color: #fff;
-}
-.ant-tag-purple {
-  color: #7265e6;
-  background: #e4e2fa;
-  border-color: #e4e2fa;
-}
-.ant-tag-purple-inverse {
-  background: #7265e6;
-  border-color: #7265e6;
-  color: #fff;
+.ant-layout-sider-zero-width-trigger:hover {
+  background: #535353;
 }
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
@@ -311,93 +222,6 @@
     opacity: 0;
     transform: scale(0) translateX(-50%);
   }
-}
-
-/* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
-/* stylelint-disable declaration-bang-space-before */
-/* stylelint-disable declaration-bang-space-before */
-.ant-layout {
-  display: flex;
-  flex-direction: column;
-  flex: auto;
-  background: #ececec;
-}
-.ant-layout.ant-layout-has-sider {
-  flex-direction: row;
-}
-.ant-layout.ant-layout-has-sider > .ant-layout,
-.ant-layout.ant-layout-has-sider > .ant-layout-content {
-  overflow-x: hidden;
-}
-.ant-layout-header,
-.ant-layout-footer {
-  flex: 0 0 auto;
-}
-.ant-layout-header {
-  background: #404040;
-  padding: 0 50px;
-  height: 64px;
-  line-height: 64px;
-}
-.ant-layout-footer {
-  background: #ececec;
-  padding: 24px 50px;
-  color: rgba(0, 0, 0, 0.65);
-  font-size: 12px;
-}
-.ant-layout-content {
-  flex: auto;
-}
-.ant-layout-sider {
-  transition: all .2s;
-  position: relative;
-  background: #404040;
-  /* fix firefox can't set width smaller than content on flex item */
-  min-width: 0;
-}
-.ant-layout-sider-children {
-  height: 100%;
-  padding-top: 0.1px;
-  margin-top: -0.1px;
-}
-.ant-layout-sider-has-trigger {
-  padding-bottom: 48px;
-}
-.ant-layout-sider-right {
-  order: 1;
-}
-.ant-layout-sider-trigger {
-  position: fixed;
-  text-align: center;
-  bottom: 0;
-  cursor: pointer;
-  height: 48px;
-  line-height: 48px;
-  color: #fff;
-  background: #404040;
-  z-index: 1;
-  transition: all 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
-}
-.ant-layout-sider-zero-width > * {
-  overflow: hidden;
-}
-.ant-layout-sider-zero-width-trigger {
-  position: absolute;
-  top: 64px;
-  right: -36px;
-  text-align: center;
-  width: 36px;
-  height: 42px;
-  line-height: 42px;
-  background: #404040;
-  color: #fff;
-  font-size: 18px;
-  border-radius: 0 2px 2px 0;
-  cursor: pointer;
-  transition: background .3s ease;
-}
-.ant-layout-sider-zero-width-trigger:hover {
-  background: #535353;
 }
 
 /* stylelint-disable at-rule-empty-line-before,at-rule-name-space-after,at-rule-no-unknown */
