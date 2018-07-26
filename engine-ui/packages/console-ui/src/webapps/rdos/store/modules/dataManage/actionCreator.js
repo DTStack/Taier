@@ -1,4 +1,4 @@
-import { tableAction, logAction } from './actionType';
+import { tableAction, logAction, cataloguesAction } from './actionType';
 import { message } from 'antd';
 import tableMaApi from '../../../api/dataManage';
 import ajax from '../../../api';
@@ -131,6 +131,21 @@ export default {
         return {
             type: tableAction.SAVE_TABLE,
             payload: code
+        }
+    },
+    getCatalogues(params) {
+        return dispatch => {
+            tableMaApi.getDataCatalogues(params).then(res => {
+                if(res.code === 1) {
+                    dispatch(this.getDataCatalogues(res.data))
+                }
+            })
+        }
+    },
+    getDataCatalogues(data){
+        return {
+            type: cataloguesAction.DATA_CATALOGUES,
+            payload: data
         }
     }
 }
