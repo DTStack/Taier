@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag, Icon,Tooltip,Table,
-    message, Select, Collapse, Button,Radio
+    message, Select, Collapse, Button,Radio,Popover
 } from '_antd@2.13.11@antd'
 
 import utils from 'utils'
@@ -18,12 +18,48 @@ export default class InputPanel extends Component {
 
     state = {
         visibleAlterRes: false,
-        resList: [],
+        tabTemplate: [],
+        panelActiveKey: [],
+        popoverVisible: [],
     }
 
-    callback = (key) => {
-        console.log(key);
-      }
+    changeInputTabs = (type,index) =>{
+        let { tabTemplate, panelActiveKey, popoverVisible } = this.state;
+        if(type==="add"){
+            tabTemplate.push(this.outPutOrigin());
+            let pushIndex = `${tabTemplate.length}`;
+            panelActiveKey.push(pushIndex)
+        }else{
+            tabTemplate.splice(index,1);
+            panelActiveKey = this.changeActiveKey(index);
+            popoverVisible[index] = false;
+        }
+        this.setState({
+            tabTemplate,
+            panelActiveKey,
+            popoverVisible
+        })
+    }
+
+    changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
+        const {panelActiveKey} = this.state;
+        const deleteActiveKey = `${index+1}`;
+        const deleteActiveKeyIndex  = panelActiveKey.indexOf(deleteActiveKey);
+        if(deleteActiveKeyIndex > -1){
+            panelActiveKey.splice(deleteActiveKeyIndex,1)
+        }
+        return panelActiveKey.map(v=>{
+            return Number(v) > Number(index) ? `${Number(v) -1}`: v
+        });
+    }
+
+    handleActiveKey = (key) => {
+        let { panelActiveKey } = this.state;
+        panelActiveKey = key
+        this.setState({
+            panelActiveKey,
+        })
+    }
       
     handleChange = (value) => {
 
@@ -35,19 +71,12 @@ export default class InputPanel extends Component {
     
 
     outPutOrigin = () => {
-
         const data = [{
             key: '1',
             firstName: 'John',
             lastName: 'Brown',
             age: 32,
             address: 'New York No. 1 Lake Park',
-          }, {
-            key: '2',
-            firstName: 'Jim',
-            lastName: 'Green',
-            age: 42,
-            address: 'London No. 1 Lake Park',
           }];
         const content = <Row className="title-content">
             <Col style={{marginBottom: 20}}>
@@ -118,7 +147,7 @@ export default class InputPanel extends Component {
                 </Row>
             </Col>
             <Col style={{marginBottom: 20}}>
-                <Table dataSource={data}>
+                <Table dataSource={data} pagination={false}>
                     <Column
                         title="First Name"
                         dataIndex="firstName"
@@ -130,6 +159,9 @@ export default class InputPanel extends Component {
                         key="lastName"
                     />
                 </Table>
+                <div style={{padding: "0 20"}}>
+                    <Button className="stream-btn" type="dashed"><Icon type="plus" /><span> 添加输入</span></Button>
+                </div>
             </Col>
             <Col style={{marginBottom: 20}}>
                 <Row gutter={16}>
@@ -172,26 +204,65 @@ export default class InputPanel extends Component {
         return content;
     }
 
+    deletePopover = () => {
+
+    }
+
+    handlePopoverVisibleChange = (e,index,visible) => {
+        let { popoverVisible } = this.state;
+        popoverVisible[index] = visible;
+        if (e) {
+            e.stopPropagation();//阻止删除按钮点击后冒泡到panel
+            if(visible){//只打开一个Popover提示
+                popoverVisible = popoverVisible.map( (v,i) => {
+                    return index == i ? true : false
+                })
+            }
+        }
+        
+        this.setState({ popoverVisible });
+    }
+
+    panelHeader = (index) => {
+        const { popoverVisible } = this.state;
+        const popoverContent = <div>
+            <div style={{padding: "8 0 12"}}>你确定要删除此输入源吗？</div>
+            <div style={{textAlign: "right",padding: "0 0 8"}}>
+                <Button style={{marginRight: 8}} size="small" onClick={()=>{this.handlePopoverVisibleChange(null,index,false)}}>取消</Button>
+                <Button type="primary" size="small" onClick={()=>{this.changeInputTabs('delete',index)}}>确定</Button>
+            </div>
+        </div>
+
+        return <div>
+            <span>{` 输入源 ${index+1} (仅支持Json)`}</span>
+            <Popover
+                trigger="click"
+                placement="topLeft"
+                content={popoverContent}
+                visible={popoverVisible[index]}
+                onClick={(e)=>{this.handlePopoverVisibleChange(e,index,!popoverVisible[index])}}
+            >
+                <span className="title-icon" ><Icon type="delete" /></span>
+            </Popover>
+        </div>
+    }
+
     render() {
-        const text = `
-            A dog is a type of domesticated animal.
-            Known for its loyalty and faithfulness,
-            it can be found as a welcome guest in many households across the world.
-            `;
+        const { tabTemplate,panelActiveKey } = this.state;
+        console.log('panelActiveKey',panelActiveKey);
+        
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse defaultActiveKey={['1']} onChange={this.callback} className="input-panel">
-                    <Panel header=" 1" key="1">
-                        {this.outPutOrigin()}
-                    </Panel>
-                    <Panel header="This is panel header 2" key="2">
-                    <p>{text}</p>
-                    </Panel>
-                    <Panel header="This is panel header 3" key="3" disabled>
-                    <p>{text}</p>
-                    </Panel>
+                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
+                    {
+                        tabTemplate.map( (tab,index) => {
+                            return  <Panel header={this.panelHeader(index)} key={index+1} >
+                                    {tab}
+                                </Panel>
+                        })
+                    }
                 </Collapse>
-                <Button className="stream-btn"><Icon type="plus" /><span> 添加输入</span></Button>
+                <Button className="stream-btn" onClick={()=> {this.changeInputTabs('add')}}><Icon type="plus" /><span> 添加输入</span></Button>
             </div>
         )
     }

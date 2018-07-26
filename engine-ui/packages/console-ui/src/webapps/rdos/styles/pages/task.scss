@@ -545,6 +545,12 @@
         }
         .panel-content{
             padding: 20 0 20 20;
+            .title-icon {
+                float: right;
+                margin-top: 3px;
+                margin-right: 18px;
+                font-size: 16px;
+            }
             .stream-btn{
                 margin-top: 20px;
                 width: 100%;
