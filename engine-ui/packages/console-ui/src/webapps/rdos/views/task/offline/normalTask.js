@@ -108,7 +108,7 @@ class NormalTaskForm extends React.Component {
             {
                 exeArgsShow && <FormItem
                     {...formItemLayout}
-                    label=""
+                    label="任务参数"
                 >
                     {getFieldDecorator('exeArgs', {
                         initialValue: taskData.exeArgs
