@@ -3,17 +3,18 @@ import { connect } from 'react-redux';
 import { Row, Col, Icon } from 'antd';
 import { isEmpty } from 'lodash';
 
-import {
-    modalAction
-} from '../../../store/modules/offlineTask/actionType';
 import MyIcon from '../../../components/icon'
+
+import {
+    workbenchActions
+} from '../../../store/modules/offlineTask/offlineAction';
 
 import Workbench from './workbench';
 
 class Default extends Component {
     render() {
         const { 
-            createTask, upload, workbench, scriptTree,
+            workbench, scriptTree,
             toggleCreateTask, toggleUpload, toggleCreateScript
         } = this.props;
         const iconStyle = { width: '60px', height: '60px', marginTop: '25px'}
@@ -56,25 +57,4 @@ export default connect((state) => {
     const { createTask, upload } = state.offlineTask.modalShow;
     const { workbench, scriptTree } = state.offlineTask;
     return { createTask, upload, workbench, scriptTree };
-},
-(dispatch) => {
-    return {
-        toggleCreateTask: function() {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK
-            });
-        },
-
-        toggleUpload: function() {
-            dispatch({
-                type: modalAction.TOGGLE_UPLOAD
-            });
-        },
-
-        toggleCreateScript: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_SCRIPT
-            });
-        }
-    }
-})(Default);
+}, workbenchActions)(Default);

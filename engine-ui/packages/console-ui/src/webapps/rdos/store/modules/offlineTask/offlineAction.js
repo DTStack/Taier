@@ -443,15 +443,17 @@ export const workbenchActions = (dispatch, ownProps) => {
             }
         },
 
-
         closeAllorOthers: (action, tabs, currentTab) => {
 
             if (action === 'ALL') {
                 let allClean = true;
     
                 for (let tab of tabs) {
-                    if (tab.notSynced) allClean = false;
-                    break;
+                    console.log('ALL notSynced:', tab.notSynced)
+                    if (tab.notSynced) {
+                        allClean = false;
+                        break;
+                    }
                 }
     
                 if (allClean) {
@@ -470,10 +472,12 @@ export const workbenchActions = (dispatch, ownProps) => {
             }
             else {
                 let allClean = true;
-    
                 for (let tab of tabs) {
-                    if (tab.notSynced && tab.id !== currentTab) allClean = false;
-                    break;
+                    console.log('notSynced:', tab.notSynced)
+                    if (tab.notSynced && tab.id !== currentTab) {
+                        allClean = false;
+                        break;
+                    }
                 }
     
                 if (allClean) {
@@ -525,6 +529,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                     }
                 )
         },
+
         loadTreeNode: (nodePid, type, option = {}) => {
             ajax.getOfflineCatalogue({
                 isGetFile: !!1,
@@ -644,7 +649,6 @@ export const workbenchActions = (dispatch, ownProps) => {
                     }
                 })
         },
-
 
         loadTaskParams() {
             ajax.getCustomParams()

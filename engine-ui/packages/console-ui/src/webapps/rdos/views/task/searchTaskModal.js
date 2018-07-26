@@ -1,14 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Select } from 'antd';
+import { Modal, Select } from 'antd';
 import { debounce } from 'lodash';
 
-import utils from 'utils';
 import pureRender from 'utils/pureRender';
 
 import ajax from '../../api';
 
-import { modalAction } from '../../store/modules/offlineTask/actionType';
 import { 
     workbenchActions
 } from '../../store/modules//offlineTask/offlineAction';
@@ -45,7 +43,6 @@ class SearchTaskModal extends React.Component {
 
     bindEvent = (target) => {
 
-        const pathname = location.pathname
         const keyCode = target.keyCode
         const keyMap = this.state.keyStack
 
@@ -82,8 +79,6 @@ class SearchTaskModal extends React.Component {
 
     search = (value) => {
         if (!value) return;
-
-        const pathname = location.pathname;
 
         const succCall = (res) => {
             if (res.code === 1) {
