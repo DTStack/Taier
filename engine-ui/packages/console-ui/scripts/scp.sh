@@ -2,7 +2,7 @@
 
 source="./dist"
 target="/home/admin/app/rdos.front/"
-server="172.16.8.104"
+server="172.16.8.107"
 
 echo "Uploading $source to $server:$target"
 
