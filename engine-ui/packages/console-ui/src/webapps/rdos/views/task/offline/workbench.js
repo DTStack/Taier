@@ -163,7 +163,6 @@ class Workbench extends React.Component {
             closeTab, closeAllorOthers
         } = this.props;
 
-        console.log('workbench render:', tabs);
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         let isSaveAvaliable = false;

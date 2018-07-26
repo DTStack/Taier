@@ -36,10 +36,10 @@ class TargetForm extends React.Component {
     }
 
     componentDidMount() {
-        const { targetMap } = this.props;
+        const { targetMap, isCurrentTabNew } = this.props;
         const { sourceId } = targetMap;
 
-        sourceId && this.getTableList(sourceId);
+        sourceId && isCurrentTabNew && this.getTableList(sourceId);
     }
 
 
