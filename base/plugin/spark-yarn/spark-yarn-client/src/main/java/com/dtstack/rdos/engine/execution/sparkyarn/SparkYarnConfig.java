@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class SparkYarnConfig {
     private String defaultFS;
 
     private String hadoopUserName;
+
+    private String queue;
 
     public String getTypeName() {
         return typeName;
@@ -161,5 +164,13 @@ public class SparkYarnConfig {
 
     public void setHadoopUserName(String hadoopUserName) {
         this.hadoopUserName = hadoopUserName;
+    }
+
+    public String getQueue() {
+        return StringUtils.isBlank(queue)? "default" : queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 }

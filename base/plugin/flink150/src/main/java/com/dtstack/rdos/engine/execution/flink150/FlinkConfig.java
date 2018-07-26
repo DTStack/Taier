@@ -53,6 +53,8 @@ public class FlinkConfig {
 
     private String flinkJarPath;
 
+    private String queue;
+
     private Map<String, Object> hadoopConf;
 
     private Map<String, Object> yarnConf;
@@ -229,5 +231,13 @@ public class FlinkConfig {
 
     public void setFlinkJarPath(String flinkJarPath) {
         this.flinkJarPath = flinkJarPath;
+    }
+
+    public String getQueue() {
+        return StringUtils.isBlank(queue) ? "default" : queue;
+    }
+
+    public void setQueue(String queue) {
+        this.queue = queue;
     }
 }

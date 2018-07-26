@@ -30,7 +30,6 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
-import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,12 +202,11 @@ public class FlinkClientBuilder {
 
         AbstractYarnClusterDescriptor clusterDescriptor = createSessionClusterDescriptor(flinkConfig);
 
-        String applicationId = acquireApplicationId(clusterDescriptor);
+        ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
 
-        ApplicationId yarnApplicationId = ConverterUtils.toApplicationId(applicationId);
         ClusterClient<ApplicationId> clusterClient = null;
         try {
-            clusterClient = clusterDescriptor.retrieve(yarnApplicationId);
+            clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
             if (clusterDescriptor != null) {
                 clusterDescriptor.close();
@@ -267,6 +265,7 @@ public class FlinkClientBuilder {
         } else {
             throw new RdosException("The Flink jar path is null");
         }
+        clusterDescriptor.setQueue(flinkConfig.getQueue());
         yarnClusterDescriptor = clusterDescriptor;
     }
 
@@ -292,9 +291,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private String acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor) {
-        String applicationId = null;
-
+    private ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -304,6 +301,7 @@ public class FlinkClientBuilder {
 
             int maxMemory = -1;
             int maxCores = -1;
+            ApplicationId applicationId = null;
             for (ApplicationReport report : reportList) {
                 if (!report.getName().startsWith("Flink session")) {
                     continue;
@@ -313,17 +311,21 @@ public class FlinkClientBuilder {
                     continue;
                 }
 
+                if (!flinkConfig.getQueue().equals(report.getQueue())){
+                    continue;
+                }
+
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
                 if (thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
-                    applicationId = report.getApplicationId().toString();
+                    applicationId = report.getApplicationId();
                 }
 
             }
 
-            if (StringUtils.isEmpty(applicationId)) {
+            if (applicationId == null) {
                 throw new RdosException("No flink session found on yarn cluster.");
             }
             return applicationId;
