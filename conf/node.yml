@@ -87,7 +87,7 @@ engineTypes:
         flinkPluginRoot: /opt/dtstack/flinkplugin
         remotePluginRootDir: /opt/dtstack/flinkplugin
         #新增配置
-        flinkYarnMode: per_job # flinkOnYarn 三种模式： new、legacy、per_job
+        flinkYarnMode:  new # flinkOnYarn 三种模式： new、legacy、per_job
         #new
         flinkYarnNewModeMaxSlots: 4
         #perjob

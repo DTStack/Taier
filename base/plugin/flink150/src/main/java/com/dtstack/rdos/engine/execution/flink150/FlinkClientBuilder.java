@@ -59,7 +59,7 @@ public class FlinkClientBuilder {
 
     private YarnConfiguration yarnConf;
 
-    private static AbstractYarnClusterDescriptor yarnClusterDescriptor;
+    private AbstractYarnClusterDescriptor yarnClusterDescriptor;
 
     private Configuration flinkConfiguration;
 
@@ -335,7 +335,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public static AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
+    public AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
         return yarnClusterDescriptor;
     }
 

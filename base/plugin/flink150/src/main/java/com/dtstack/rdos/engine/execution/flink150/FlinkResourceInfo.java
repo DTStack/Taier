@@ -19,8 +19,8 @@ public class FlinkResourceInfo extends EngineResourceInfo{
 
     public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
-    private static FlinkYarnMode flinkYarnMode = null;
-    private static int FLINK_NEW_MODE_MAX_SLOTS = 0;
+    private FlinkYarnMode flinkYarnMode = FlinkYarnMode.LEGACY;
+    private int flinkNewModeMaxSlots = 0;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
@@ -35,8 +35,8 @@ public class FlinkResourceInfo extends EngineResourceInfo{
             totalSlots += slotsNumber;
         }
         if (FlinkYarnMode.NEW == flinkYarnMode) {
-            availableSlots = FLINK_NEW_MODE_MAX_SLOTS - totalSlots + availableSlots;
-            totalSlots = FLINK_NEW_MODE_MAX_SLOTS;
+            availableSlots = flinkNewModeMaxSlots - totalSlots + availableSlots;
+            totalSlots = flinkNewModeMaxSlots;
         }
 
         //没有资源直接返回false
@@ -64,11 +64,11 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         return result;
     }
 
-    public static void setFlinkNewModeMaxSlots(int flinkNewModeMaxSlots) {
-        FLINK_NEW_MODE_MAX_SLOTS = flinkNewModeMaxSlots;
+    public void setFlinkNewModeMaxSlots(int flinkNewModeMaxSlots) {
+        this.flinkNewModeMaxSlots = flinkNewModeMaxSlots;
     }
 
-    public static void setFlinkYarnMode(FlinkYarnMode flinkYarnMode) {
-        FlinkResourceInfo.flinkYarnMode = flinkYarnMode;
+    public void setFlinkYarnMode(FlinkYarnMode flinkYarnMode) {
+        this.flinkYarnMode = flinkYarnMode;
     }
 }

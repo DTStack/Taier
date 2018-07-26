@@ -152,12 +152,10 @@ public class FlinkClient extends AbsClient {
             setClientOn(true);
         }
 
-        setFlinkResourceInfo();
-
         if (yarnSessionMode){
             ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
             //仅作用于yarn模式下
-            AbstractYarnClusterDescriptor yarnClusterDescriptor = FlinkClientBuilder.getYarnClusterDescriptor();
+            AbstractYarnClusterDescriptor yarnClusterDescriptor = flinkClientBuilder.getYarnClusterDescriptor();
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClusterDescriptor, yarnMonitorES));
         }
@@ -203,7 +201,7 @@ public class FlinkClient extends AbsClient {
         //taskmanager.heap.mb、jobmanager.heap.mb 配置文件没有设置则默认为1024
         ClusterSpecification clusterSpecification = createClusterSpecification();
         final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
-        ClusterClient<ApplicationId> clusterClient = FlinkClientBuilder.getYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
+        ClusterClient<ApplicationId> clusterClient = flinkClientBuilder.getYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph, true);
         try {
             clusterClient.shutdown();
         } catch (Exception e) {
@@ -679,6 +677,10 @@ public class FlinkClient extends AbsClient {
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();
         }
+        if (FlinkYarnMode.NEW == flinkYarnMode) {
+            resourceInfo.setFlinkYarnMode(flinkYarnMode);
+            resourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
+        }
 
         return resourceInfo;
     }
@@ -732,13 +734,4 @@ public class FlinkClient extends AbsClient {
         return client;
     }
 
-    private void setFlinkResourceInfo() {
-        if (FlinkYarnMode.NEW == flinkYarnMode) {
-            FlinkResourceInfo.setFlinkYarnMode(FlinkYarnMode.NEW);
-            FlinkResourceInfo.setFlinkNewModeMaxSlots(flinkConfig.getFlinkYarnNewModeMaxSlots());
-            if (logger.isInfoEnabled()){
-                logger.warn("node.yml flinkYarnNewModeMaxSlots:{}",flinkConfig.getFlinkYarnNewModeMaxSlots());
-            }
-        }
-    }
 }
