@@ -39,15 +39,15 @@ class TableTree extends React.Component {
         tableId: '',
         projectId: "all",
         expandedKeys: [],
-        searchName:""
+        searchName: ""
     }
-    componentWillReceiveProps(nextProps){
-        if(this.props.project.id!=nextProps.project.id){
+    componentWillReceiveProps(nextProps) {
+        if (this.props.project.id != nextProps.project.id) {
             this.setState({
-                projectId:"all",
-                expandedKeys:[],
-                tableId:'',
-                searchName:""
+                projectId: "all",
+                expandedKeys: [],
+                tableId: '',
+                searchName: ""
             })
         }
     }
@@ -64,7 +64,7 @@ class TableTree extends React.Component {
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
-                this.doReq();
+                this.doReq(null, data.id);
             }
             resolve();
         });
@@ -83,22 +83,29 @@ class TableTree extends React.Component {
     refresh = () => {
         this.doReq('')
         this.setState({ tableId: '' })
+
     }
 
-    doReq = (queryName) => {
+    doReq = (queryName, id) => {
         const { projectId, searchName } = this.state;
         const { treeData, loadTreeNode, loadTableListNodeByName } = this.props;
-        this.setState({
-            expandedKeys: [treeData.id + '']
-        })
-        if (searchName||projectId!="all") {
-            loadTableListNodeByName(treeData.id, {
+        const nodeId = typeof id == "undefined" ? treeData.id : id
+        if (searchName || projectId != "all") {
+            this.setState({
+                expandedKeys: [treeData.id + '']
+            })
+            loadTableListNodeByName(nodeId, {
                 tableName: queryName || searchName,
                 appointProjectId: projectId == "all" ? null : projectId,
                 isDirtyDataTable: 0,
             })
         } else {
-            loadTreeNode(treeData.id, MENU_TYPE.TABLE, {
+            if (typeof id == "undefined") {
+                this.setState({
+                    expandedKeys: [treeData.id + '']
+                })
+            }
+            loadTreeNode(nodeId, MENU_TYPE.TABLE, {
                 tableName: queryName || searchName,
                 appointProjectId: projectId == "all" ? null : projectId,
                 isDirtyDataTable: 0,
@@ -186,7 +193,7 @@ class TableTree extends React.Component {
         const display = displaySearch ? 'block' : 'none';
         return (
             <div className="menu-content" style={{ position: "relative" }}>
-                <header style={{ left: "13px",background:"#fff" }}>
+                <header style={{ left: "13px", background: "#fff" }}>
                     <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", marginTop: "6.5px", float: "left" }}>
                         <Option value="all">全部项目</Option>
                         <Option value={project.id}>{project.projectAlias}</Option>
