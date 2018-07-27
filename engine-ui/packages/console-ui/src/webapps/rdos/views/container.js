@@ -27,7 +27,7 @@ class Container extends Component {
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
-        dispatch(DataManageAction.getCatalogues())
+        dispatch(DataManageAction.getCatalogues({isGetFile:false}))
 
         dispatch(updateApp(rdosApp))
         this.initProject()
