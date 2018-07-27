@@ -7,7 +7,7 @@ import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 // import 'monaco-editor/esm/vs/basic-languages/mysql/mysql.contribution.js';
 // import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
-
+import whiteTheme from "./theme/whiteTheme";
 import "./style.scss";
 import { defaultOptions } from './config';
 
@@ -101,11 +101,12 @@ class DiffEditor extends React.Component {
             }
         };
 
-        const model = monaco.editor.createModel(
-            value,
-            language || "javascript"
+        this._originalModel = monaco.editor.createModel(
+            language || "sql"
         );
-
+        this._modifiedModel =  monaco.editor.createModel(
+            language || "sql"
+        );
         // monaco.languages.registerCodeActionProvider(lang, {
         //     provideCodeActions: function(model, range, context, token) {
         //         console.log('token', token)
@@ -116,19 +117,26 @@ class DiffEditor extends React.Component {
             model,
         });
         // console.log('model:', editorOptions)
-        this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
-
+        this.monacoInstance = monaco.editor.createDiffEditor(this.monacoDom, editorOptions);
+        this.monacoInstance.setModel({
+            original:this._originalModel,
+            modified:this._modifiedModel
+        });
         this.initEditor();
     }
 
     initEditor() {
+        this.initTheme();
         this.initEditorEvent();
     }
 
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
-
+    initTheme(){
+        monaco.editor.defineTheme("white",whiteTheme);
+        this.props.theme&&monaco.editor.setTheme(this.props.theme);
+    }
     initEditorEvent() {
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");

@@ -80,10 +80,10 @@ export default class TaskVersion extends React.Component {
         let compareToText = campareTo.sqlText;
 
         // 增加数据同步，JSON配置格式化操作
-        if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
-            sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
-            compareToText = this.getFomatedJSON(campareTo.sqlText);
-        }
+        // if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
+        //     sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
+        //     compareToText = this.getFomatedJSON(campareTo.sqlText);
+        // }
 
         return (
             <div>
