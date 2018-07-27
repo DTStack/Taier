@@ -54,10 +54,7 @@ export default class TaskVersion extends React.Component {
     };
 
     codeChange = (old, newVal) => {
-        this.props.changeSql({
-            sqlText: newVal,
-            merged: true,
-        });
+        this.props.changeSql(newVal);
     };
 
     getFomatedJSON = (jsonText) => {
