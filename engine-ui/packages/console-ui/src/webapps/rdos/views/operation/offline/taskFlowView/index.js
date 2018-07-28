@@ -103,7 +103,7 @@ class TaskFlowView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ selectedJob: data, data, sort: 'children' })
-                ctx.doInsertVertex(data, 'children')
+                ctx.doInsertVertex(res.data, 'children')
             }
             ctx.setState({ loading: 'success' })
         })
@@ -178,7 +178,7 @@ class TaskFlowView extends Component {
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            const currentNode = this._vertexCells[cell.id].data;
+            const currentNode = cell.data; //this._vertexCells[cell.id].data;
             return currentNode.batchTask.name;
         }
     }
@@ -217,28 +217,24 @@ class TaskFlowView extends Component {
     insertVertex = (graph, data, parent, type) => {
         if (data) {
             const style = getVertxtStyle(data.status)
-            const defaultParent = graph.getDefaultParent();
-            const exist = this._vertexCells[data.jobId];
 
+            const cacheKey = data.id;
+            const exist = this._vertexCells[cacheKey];
             let newVertex = exist;
 
-            if (exist) {
-                const edges = graph.getEdgesBetween(parent, exist);
-                if (edges.length === 0) {
-                    this.insertEdge(graph, type, parent, exist);
-                }
-                return exist;
+            if (exist && parent !== graph.getDefaultParent()) {
+                this.insertEdge(graph, type, parent, exist);
             } else if (!exist) {
                 // 插入当前节点
                 const str = this.getShowStr(data);
-                newVertex = newVertex = graph.insertVertex(
-                    defaultParent, data.jobId, str, this.cx, this.cy,
+                newVertex = graph.insertVertex(
+                    graph.getDefaultParent(), null, str, this.cx, this.cy,
                     VertexSize.width, VertexSize.height, style
                 );
                 newVertex.data = data;
                 this.insertEdge(graph, type, parent, newVertex);
                 // 缓存节点
-                this._vertexCells[data.jobId] = newVertex;
+                this._vertexCells[cacheKey] = newVertex;
             }
 
             if (data.jobVOS) {
@@ -265,7 +261,7 @@ class TaskFlowView extends Component {
         layout.edgeRouting = false;
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
-
+        
         this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
@@ -296,8 +292,8 @@ class TaskFlowView extends Component {
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
 
             if (!cell) return
-
-            const currentNode = ctx._vertexCells[cell.id].data;
+            console.log('data:', cell.data)
+            const currentNode = cell.data//ctx._vertexCells[cell.id].data;
 
             menu.addItem('展开上游（6层）', null, function () {
                 ctx.loadTaskParent({
@@ -320,7 +316,6 @@ class TaskFlowView extends Component {
             menu.addItem('查看任务属性', null, function () {
                 ctx.setState({ visible: true })
             })
-            // menu.addSeparator()
             menu.addItem('终止', null, function () {
                 ctx.stopTask({
                     jobId: currentNode.id,
@@ -398,8 +393,9 @@ class TaskFlowView extends Component {
         this.graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
-                const currentNode = ctx._vertexCells[cell.id].data;
+                const currentNode = cell.data // ctx._vertexCells[cell.id].data;
                 ctx.showJobLog(currentNode.jobId)
+
             }
         })
     }
@@ -409,7 +405,7 @@ class TaskFlowView extends Component {
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
-                const currentNode = ctx._vertexCells[cell.id].data;
+                const currentNode = cell.data//ctx._vertexCells[cell.id].data;
                 ctx.setState({ selectedJob: currentNode })
             }
         })
@@ -462,14 +458,15 @@ class TaskFlowView extends Component {
     /* eslint-enable */
     render() {
         const { selectedJob, taskLog } = this.state;
-        const { goToTaskDev, project, taskJob } = this.props
-     
+        const { goToTaskDev, project, taskJob } = this.props;
+
         return (
             <div className="graph-editor"
                 style={{
                     position: 'relative',
                 }}
             >
+
                 <Spin
                     tip="Loading..."
                     size="large"
@@ -480,7 +477,7 @@ class TaskFlowView extends Component {
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
-                            overflowX: 'auto',
+                            overflow: 'auto',
                             paddingBottom: '20px',
                             height: '95%',
                         }}
@@ -579,7 +576,7 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
-        return style
+        return style;
     }
 
     /* eslint-disable */

@@ -1,4 +1,5 @@
 import { debounce, endsWith, cloneDeep } from 'lodash';
+import { Promise } from '../../node_modules/monaco-editor';
 
 /**
  * 存放一些零碎的公共方法
@@ -120,7 +121,6 @@ export function hasProject(app) {
  * 字符串替换
  */
 export function replaceStrFormBeginToEnd(str, replaceStr, begin, end) {
-
     return str.substring(0, begin) + replaceStr + str.substring(end + 1)
 }
 
@@ -270,4 +270,18 @@ export function scrollToView(id) {
     } else if (ele && ele.scrollIntoView) {
         ele.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     }
+}
+
+/**
+ * Promise超时应用
+ * @param {} promise 
+ * @param {*} ms 
+ */
+export function timeout(promise, ms) {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            reject(new Error("timeout"))
+        }, ms)
+        promise.then(resolve, reject);
+    })
 }
