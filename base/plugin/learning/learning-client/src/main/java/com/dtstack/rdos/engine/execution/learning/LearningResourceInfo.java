@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.learning;
 
 import com.dtstack.learning.client.ClientArguments;
+import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -56,7 +58,7 @@ public class LearningResourceInfo extends EngineResourceInfo {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
             clientArguments = new ClientArguments(args);
         } catch (Exception e) {
-           throw new RuntimeException(e);
+           throw new RdosException(ErrorCode.INVALID_PARAMETERS, e);
         }
 
         int workerCores = clientArguments.getWorkerVCores();
