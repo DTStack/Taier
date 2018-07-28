@@ -477,7 +477,7 @@ class TaskFlowView extends Component {
                         ref={(e) => { this.Container = e }}
                         style={{
                             position: 'relative',
-                            overflow: 'auto',
+                            overflowX: 'auto',
                             paddingBottom: '20px',
                             height: '95%',
                         }}
