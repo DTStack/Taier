@@ -14,8 +14,10 @@ import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
+import "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
+import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
 
 class Editor extends React.Component {
@@ -33,6 +35,9 @@ class Editor extends React.Component {
 
     componentDidMount() {
         this.initMonaco();
+        if(typeof this.props.editorInstanceRef=="function"){
+            this.props.editorInstanceRef(this.monacoInstance)
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -46,8 +51,8 @@ class Editor extends React.Component {
             this.monacoInstance.updateOptions(nextProps.options)
         }
 
-        if (this.props.theme !== nextProps.theme) {
-            monaco.editor.setTheme(nextProps.theme)
+        if (this.props.theme !== theme) {
+            monaco.editor.setTheme(theme)
         }
     }
 
@@ -76,39 +81,37 @@ class Editor extends React.Component {
 
     initMonaco() {
         const { value, language, options, cursorPosition } = this.props;
-
         if (!this.monacoDom) {
             console.error("初始化dom节点出错");
             return;
         }
 
-        // window.MonacoEnvironment = {
-        //     getWorkerUrl: function(moduleId, label) {
-        //         if (label === "json") {
-        //             return "./json.worker.js";
-        //         }
-        //         if (label === "css") {
-        //             return "./css.worker.js";
-        //         }
-        //         if (label === "html") {
-        //             return "./html.worker.js";
-        //         }
-        //         if (label === "typescript" || label === "javascript") {
-        //             return "./typescript.worker.js";
-        //         }
-        //         if (label === "sql") {
-        //             return "./sql.worker.js";
-        //         }
-        //         return "./editor.worker.js";
-        //     }
-        // };
+        window.MonacoEnvironment = {
+            getWorkerUrl: function(moduleId, label) {
+                if (label === "json") {
+                    return "./json.worker.js";
+                }
+                if (label === "css") {
+                    return "./css.worker.js";
+                }
+                if (label === "html") {
+                    return "./html.worker.js";
+                }
+                if (label === "typescript" || label === "javascript") {
+                    return "./typescript.worker.js";
+                }
+                if (label === "sql") {
+                    return "./sql.worker.js";
+                }
+                return "./editor.worker.js";
+            }
+        };
 
         const editorOptions = Object.assign(defaultOptions, options , {
             value,
-            language: language || "sql",
+            language: language || "sql"
         });
 
-        console.log('editorOptions:', editorOptions);
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
 
         if (this.monacoInstance && cursorPosition) {
@@ -121,9 +124,13 @@ class Editor extends React.Component {
     }
 
     initEditor() {
+        this.initTheme();
         this.initEditorEvent();
     }
-
+    initTheme(){
+        monaco.editor.defineTheme("white",whiteTheme);
+        this.props.theme&&monaco.editor.setTheme(this.props.theme);
+    }
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
@@ -131,7 +138,7 @@ class Editor extends React.Component {
     initEditorEvent() {
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");
-            const { onChange } = this.props;
+            const { onChange, value } = this.props;
             const newValue = this.monacoInstance.getValue();
             if (onChange) {
                 this.log("订阅事件触发");
@@ -173,7 +180,7 @@ class Editor extends React.Component {
     }
 
     render() {
-        const { className, style } = this.props;
+        const { className, style, editorInstance } = this.props;
 
         let renderClass = 'code-editor';
         renderClass = className ? `${renderClass} ${className}` : renderClass;

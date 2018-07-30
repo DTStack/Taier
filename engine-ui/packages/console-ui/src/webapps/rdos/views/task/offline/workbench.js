@@ -27,13 +27,14 @@ import {
     taskTreeAction,
     editorAction,
 } from '../../../store/modules/offlineTask/actionType';
+
 import {
     stopSql
-} from '../../../store/modules/offlineTask/editorAction'
+} from '../../../store/modules/editor/editorAction';
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction'
+} from '../../../store/modules/offlineTask/offlineAction';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -89,7 +90,7 @@ class Workbench extends React.Component {
 
     showPublish() {
         const { currentTabData } = this.props;
-        const { taskType,createModel } = currentTabData;
+        const { taskType, createModel } = currentTabData;
         let vaildPass = true;
 
         switch(taskType){
@@ -106,7 +107,7 @@ class Workbench extends React.Component {
     }
 
     checkSyncScript(currentTabData){
-        const sql=currentTabData.sqlText;
+        const sql = currentTabData.sqlText;
 
         if(utils.jsonFormat(sql)){
             return true;
@@ -115,8 +116,53 @@ class Workbench extends React.Component {
         return false;
     }
 
+    renderPublish = () => {
+        const { user } = this.props;
+        const { publishDesc } = this.state;
+        return (
+            <Modal
+                wrapClassName="vertical-center-modal"
+                title="发布任务"
+                style={{ height: '600px', width: '600px' }}
+                visible={this.state.showPublish}
+                onCancel={this.closePublish}
+                onOk={this.submitTab.bind(this)}
+                cancelText="关闭"
+            >
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="发布人"
+                        hasFeedback
+                    >
+                        <span>{user.userName}</span>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label={(
+                            <span className="ant-form-item-required">备注</span>
+                        )}
+                        hasFeedback
+                    >
+                        <Input
+                            type="textarea"
+                            value={publishDesc}
+                            name="publishDesc" rows={4}
+                            onChange={this.publishChange}
+                        />
+                    </FormItem>
+                </Form>
+            </Modal>
+        )
+    }
+
     render() {
-        const { tabs, currentTab, currentTabData, dataSync, taskCustomParams } = this.props;
+        const { 
+            tabs, currentTab, currentTabData,
+            dataSync, taskCustomParams, 
+            closeTab, closeAllorOthers
+        } = this.props;
+
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         let isSaveAvaliable = false;
@@ -162,7 +208,7 @@ class Workbench extends React.Component {
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
-                    <FullScreenButton target="JS_APP"/>
+                    <FullScreenButton />
                 </Col>
 
                 {showPublish ? (<Col className="right">
@@ -188,10 +234,10 @@ class Workbench extends React.Component {
                         activeKey={`${currentTab}`}
                         type="editable-card"
                         className="browser-tabs"
-                        onEdit={this.closeTab.bind(this)}
+                        onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}
-                                onClick={this.closeAllorOthers.bind(this)}
+                                onClick={({key}) =>closeAllorOthers(key, tabs, currentTab)}
                             >
                                 <Menu.Item key="OHTERS">关闭其他</Menu.Item>
                                 <Menu.Item key="ALL">关闭所有</Menu.Item>
@@ -205,7 +251,7 @@ class Workbench extends React.Component {
                     <MainBench
                         tabData={currentTabData}
                         taskCustomParams={taskCustomParams}
-                        updateTaskFields={this.props.updateTaskFields}
+                        updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
@@ -214,46 +260,6 @@ class Workbench extends React.Component {
             <ImportData visible={this.state.visible} />
             {this.renderPublish()}
         </Row>
-    }
-
-    renderPublish = () => {
-        const { user } = this.props;
-        const { publishDesc } = this.state
-        return (
-            <Modal
-                wrapClassName="vertical-center-modal"
-                title="发布任务"
-                style={{ height: '600px', width: '600px' }}
-                visible={this.state.showPublish}
-                onCancel={this.closePublish}
-                onOk={this.submitTab.bind(this)}
-                cancelText="关闭"
-            >
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="发布人"
-                        hasFeedback
-                    >
-                        <span>{user.userName}</span>
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label={(
-                            <span className="ant-form-item-required">备注</span>
-                        )}
-                        hasFeedback
-                    >
-                        <Input
-                            type="textarea"
-                            value={publishDesc}
-                            name="publishDesc" rows={4}
-                            onChange={this.publishChange}
-                        />
-                    </FormItem>
-                </Form>
-            </Modal>
-        )
     }
 
     publishChange = (e) => {
@@ -267,61 +273,6 @@ class Workbench extends React.Component {
             publishDesc: '',
             showPublish: false,
         })
-    }
-
-    /**
-     * @description 关闭所有/其他tab
-     * @param {any} item
-     * @memberof Workbench
-     */
-    closeAllorOthers(item) {
-        const { key } = item;
-        const { tabs, closeAll, currentTab, closeOthers } = this.props;
-
-        if (key === 'ALL') {
-            let allClean = true;
-
-            for (let tab of tabs) {
-                if (tab.notSynced) allClean = false;
-                break;
-            }
-
-            if (allClean) {
-                this.props.closeAll(tabs);
-            }
-            else {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃所有修改数据',
-                    onOk() {
-                        closeAll(tabs);
-                    },
-                    onCancel() { }
-                });
-            }
-        }
-        else {
-            let allClean = true;
-
-            for (let tab of tabs) {
-                if (tab.notSynced && tab.id !== currentTab) allClean = false;
-                break;
-            }
-
-            if (allClean) {
-                closeOthers(currentTab, tabs);
-            }
-            else {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃这些修改数据',
-                    onOk() {
-                        closeOthers(currentTab, tabs);
-                    },
-                    onCancel() { }
-                });
-            }
-        }
     }
 
     renderTabs(tabs) {
@@ -346,7 +297,7 @@ class Workbench extends React.Component {
 
     saveTab(isSave) {
         this.setState({ theReqIsEnd: false, })
-        const { saveTab, dataSync, currentTabData, currentTab } = this.props;
+        const { saveTab, dataSync, currentTabData } = this.props;
         let result = this.generateRqtBody(dataSync);
         let type = 'task'
         // 非任务类型，脚本类型
@@ -405,11 +356,12 @@ class Workbench extends React.Component {
 
     switchTab(currentTab, tabId) {
         const { openTab } = this.props;
-        +tabId !== currentTab && openTab(+tabId);
+        +tabId !== currentTab && openTab({id: + tabId } );
     }
 
     closeTab(tabId) {
         const { closeTab, tabs } = this.props;
+
         let dirty = tabs.filter(tab => {
             return tab.id == tabId
         })[0].notSynced;
@@ -442,7 +394,6 @@ class Workbench extends React.Component {
         const { tabs, currentTab, currentTabData } = this.props;
         const { keymap, sourceMap, targetMap } = clone;
         const { source, target } = keymap;
-        const { name, id } = this.props;
 
         // 接口要求keymap中的连线映射数组放到sourceMap中
         clone.sourceMap.column = source;
@@ -517,205 +468,4 @@ const mapState = state => {
     };
 };
 
-const mapDispatch = dispatch => {
-
-    const actions = workbenchActions(dispatch)
-
-    return {
-        openTab: id => {
-            dispatch({
-                type: workbenchAction.OPEN_TASK_TAB,
-                payload: id
-            })
-            dispatch({
-                type: editorAction.SET_SELECTION_CONTENT,
-                data: '',
-            })
-        },
-
-        updateTaskFields: fields => dispatch({
-            type: workbenchAction.SET_TASK_FIELDS_VALUE,
-            payload: fields
-        }),
-
-        updateCatalogue: catalogue => {
-            dispatch({
-                type: taskTreeAction.EDIT_FOLDER_CHILD_FIELDS,
-                payload: catalogue
-            });
-        },
-
-        closeTab: id => {
-            dispatch(stopSql(id, null, true))
-            dispatch({
-                type: workbenchAction.CLOSE_TASK_TAB,
-                payload: id
-            })
-        },
-        closeAll: (tabs) => {
-            for (let i in tabs) {
-                dispatch(stopSql(tabs[i].id, null, true))
-            }
-            dispatch({
-                type: workbenchAction.CLOSE_ALL_TABS
-            })
-        },
-        closeOthers: (id, tabs) => {
-            for (let i in tabs) {
-                if (tabs[i].id == id) {
-                    continue;
-                }
-                dispatch(stopSql(tabs[i].id, null, true))
-            }
-            dispatch({
-                type: workbenchAction.CLOSE_OTHER_TABS,
-                payload: id
-            })
-        },
-
-        saveTab(params, isSave, type) {
-
-            const updateTaskInfo = function (data) {
-
-                dispatch({
-                    type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                    payload: data
-                });
-                dispatch({
-                    type: workbenchAction.MAKE_TAB_CLEAN
-                })
-            }
-
-            const succCallback = (res) => {
-                if (res.code === 1) {
-                    const fileData = res.data;
-                    const lockInfo = fileData.readWriteLockVO;
-                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
-                    if (lockStatus === 0) {
-                        message.success(isSave ? '保存成功！' : '发布成功！');
-                        updateTaskInfo({
-                            version: fileData.version,
-                            readWriteLockVO: fileData.readWriteLockVO,
-                        })
-                        // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                    } else if (lockStatus === 1) { // 2-被锁定
-                        confirm({
-                            title: '锁定提醒', // 锁定提示
-                            content: <span>
-                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                                {utils.formatDateTime(lockInfo.gmtModified)}。
-                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                            </span>,
-                            okText: '确定保存',
-                            okType: 'danger',
-                            cancelText: '取消',
-                            onOk() {
-                                const succCall = (res) => {
-                                    if (res.code === 1) {
-                                        message.success('保存成功！')
-                                        updateTaskInfo({
-                                            version: res.data.version,
-                                            readWriteLockVO: res.data.readWriteLockVO,
-                                        })
-                                    }
-                                }
-                                if (type === 'task') {
-                                    ajax.forceUpdateOfflineTask(params).then(succCall)
-                                } else if (type === 'script') {
-                                    ajax.forceUpdateOfflineScript(params).then(succCall)
-                                }
-                            },
-                        });
-                        // 如果同步状态，则提示会覆盖代码，
-                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                    } else if (lockStatus === 2) { // 2-需同步
-                        confirm({
-                            title: '保存警告',
-                            content: <span>
-                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                                {utils.formatDateTime(lockInfo.gmtModified)}。
-                                点击确认按钮会<Tag color="orange">覆盖</Tag>
-                                您本地的代码，请您提前做好备份！
-                            </span>,
-                            okText: '确定覆盖',
-                            okType: 'danger',
-                            cancelText: '取消',
-                            onOk() {
-                                const reqParams = {
-                                    id: params.id,
-                                    lockVersion: lockInfo.version,
-                                }
-                                if (type === 'task') {
-                                    // 更新version, getLock信息
-                                    ajax.getOfflineTaskDetail(reqParams).then(res => {
-                                        if (res.code === 1) {
-                                            const taskInfo = res.data
-                                            taskInfo.merged = true;
-                                            updateTaskInfo(taskInfo)
-                                        }
-                                    })
-                                } else if (type === 'script') {
-                                    ajax.getScriptById(reqParams).then(res => {
-                                        if (res.code === 1) {
-                                            const scriptInfo = res.data
-                                            scriptInfo.merged = true;
-                                            updateTaskInfo(scriptInfo)
-                                        }
-                                    })
-                                }
-                            },
-                        });
-                    }
-                }
-            }
-
-            params.lockVersion = params.readWriteLockVO.version;
-            if (type === 'task') {
-                ajax.saveOfflineJobData(params).then(succCallback);
-            }
-            else if (type === 'script') {
-                ajax.saveScript(params).then(succCallback);
-            }
-        },
-
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
-        },
-
-        reloadTabTask: (id) => {
-            actions.reloadTabTask(id)
-        },
-
-        publishTask(res) {
-            console.log('publishTask',res);
-            dispatch({
-                type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
-                payload: (res.data && res.data.submitStatus) || 1
-            });
-            dispatch({
-                type: workbenchAction.MAKE_TAB_CLEAN
-            })
-        },
-
-        toggleCreateTask: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK
-            });
-        },
-
-        toggleCreateFolder: function (cateType) {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_FOLDER,
-                payload: cateType
-            });
-        },
-
-        toggleCreateScript: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_SCRIPT,
-            });
-        },
-    }
-};
-
-export default connect(mapState, mapDispatch)(Workbench);
+export default connect(mapState, workbenchActions)(Workbench);

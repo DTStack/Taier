@@ -89,8 +89,7 @@ class OfflineTaskList extends Component {
         const {
             jobName, person, taskStatus,
             bussinessDate, businessDateSort, jobType, current,
-            execTime, taskType,
-            taskPeriodId, execTimeSort,
+            taskType, taskPeriodId, execTimeSort,
             execStartSort, execEndSort,
             cycSort, cycDate
         } = this.state

@@ -1,9 +1,11 @@
 import React, { Component } from "react";
-import { Menu, Icon, Dropdown } from "antd";
+import { connect } from 'react-redux';
+import { Menu, Icon, Dropdown, Modal } from "antd";
 
 import { MenuRight } from "main/components/nav";
 
 import Api from "../../api";
+import { inOffline, inRealtime } from '../../comm';
 import * as ProjectAction from "../../store/modules/project";
 
 /* eslint-disable */
@@ -11,7 +13,17 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 /* eslint-disable */
 
 const SubMenu = Menu.SubMenu;
+const confirm = Modal.confirm;
 
+@connect(state => {
+    const { workbench } = state.offlineTask;
+    const { pages } = state.realtimeTask;
+    
+    return {
+        realTimeTabs: pages,
+        offlineTabs: workbench.tabs,
+    }
+})
 class Header extends Component {
 
     constructor(props) {
@@ -39,11 +51,38 @@ class Header extends Component {
         const { router, dispatch } = this.props;
         const projectId = evt.key;
         if (projectId) {
-            dispatch(ProjectAction.getProject(projectId));
-            // 清理tab数据
-            if (this.state.current === "overview") {
-                router.push("/offline/task");
+            const switchProject = () => {
+                dispatch(ProjectAction.getProject(projectId));
+                // 清理tab数据
+                if (this.state.current === "overview") {
+                    router.push("/offline/task");
+                }
             }
+            this.checkUnSaveTask(switchProject);
+        }
+    }
+
+    checkUnSaveTask = (onOk) => {
+        const { realTimeTabs, offlineTabs } = this.props;
+        const tabsData = inOffline() ? offlineTabs : realTimeTabs;
+        const hasUnSave = (tabs) => {
+            for (let tab of tabs) {
+                if (tab.notSynced) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (hasUnSave(tabsData)) {
+            confirm({
+                title: '部分任务修后未同步到服务器，是否强制关闭?',
+                content: '在未保存任务前，切换项目将会丢弃这些任务的修改数据，建议您确认后再行操作！',
+                onOk() {
+                    if (onOk) onOk();
+                },
+            });
+        } else {
+            onOk();
         }
     }
 
@@ -171,7 +210,6 @@ class Header extends Component {
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
-        console.log('this.props',this.props);
 
         let pathname = router.location.pathname;
 

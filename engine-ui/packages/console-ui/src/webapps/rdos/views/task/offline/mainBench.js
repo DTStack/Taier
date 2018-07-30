@@ -12,7 +12,9 @@ import {
 import DataSync from './dataSync';
 import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
-import SQLEditor from './sqlEditor';
+
+import EditorContainer from './sqlEditor';
+
 import CommonEditor from "./commonEditor"
 
 const confirm = Modal.confirm;
@@ -153,22 +155,22 @@ export default class MainBench extends React.Component {
                         return <DataSyncScript
                             key={tabData.id}
                             {...tabData}
+                            currentTabData={tabData}
                             taskCustomParams={taskCustomParams}
                         />
                     }
                     return <DataSync key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
-                    return <SQLEditor
-                        options={defaultEditorOptions}
+                    return <EditorContainer 
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
-                        currentTabData={tabData} />;
+                        currentTabData={tabData}
+                    />
                 case TASK_TYPE.SHELL:
                     return <CommonEditor
                         mode="shell"
-                        options={defaultEditorOptions}
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
@@ -179,7 +181,6 @@ export default class MainBench extends React.Component {
                     if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor
                             mode="python"
-                            options={defaultEditorOptions}
                             taskCustomParams={taskCustomParams}
                             key={tabData.id}
                             value={tabData.sqlText}
@@ -197,29 +198,28 @@ export default class MainBench extends React.Component {
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
                 case SCRIPT_TYPE.SQL: {
-                    return <SQLEditor
-                        options={defaultEditorOptions}
+                    return <EditorContainer 
+                        taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.scriptText}
                         currentTab={tabData.id}
-                        currentTabData={tabData} />;
+                        currentTabData={tabData}
+                    />
                 }
                 case SCRIPT_TYPE.PYTHON2:
                 case SCRIPT_TYPE.PYTHON3: {
                     return <CommonEditor
                         mode="python"
-                        options={defaultEditorOptions}
                         key={tabData.id}
-                        value={tabData.sqlText}
+                        value={tabData.scriptText}
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
                 }
                 case SCRIPT_TYPE.SHELL: {
                     return <CommonEditor
                         mode="shell"
-                        options={defaultEditorOptions}
                         key={tabData.id}
-                        value={tabData.sqlText}
+                        value={tabData.scriptText}
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
                 }

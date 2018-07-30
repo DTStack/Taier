@@ -115,7 +115,6 @@ class TaskIndex extends Component {
     }
 
     editorChange = (data) => {
-        console.log('editorChange:', data)
         let { currentPage, dispatch } = this.props;
         currentPage = cloneDeep(currentPage);
         currentPage = Object.assign(currentPage, data);

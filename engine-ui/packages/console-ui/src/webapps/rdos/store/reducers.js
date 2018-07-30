@@ -11,7 +11,7 @@ import { project, projects, allProjects } from './modules/project'
 import { realtimeTask } from './modules/realtimeTask'
 // 离线任务
 import { offlineTask } from './modules/offlineTask';
-import { editor } from './modules/offlineTask/editor';
+import { editor } from './modules/editor';
 // 数据源
 import { dataSource } from './modules/dataSource';
 // 数据管理

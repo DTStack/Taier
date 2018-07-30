@@ -42,10 +42,10 @@ class SourceForm extends React.Component {
     }
 
     componentDidMount() {
-        const { sourceMap } = this.props;
+        const { sourceMap, isCurrentTabNew } = this.props;
         const { sourceId } = sourceMap;
 
-        sourceId && this.getTableList(sourceId);
+        sourceId && isCurrentTabNew && this.getTableList(sourceId);
     }
 
     componentWillUnmount() {
@@ -213,7 +213,7 @@ class SourceForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleSourceMapChange, sourceMap } = this.props;
+        const { form, sourceMap } = this.props;
         let validateFields = null;
         if (sourceMap.type && sourceMap.type.type === DATA_SOURCE.HDFS) {
             validateFields = ['sourceId', 'path', 'fileType'];

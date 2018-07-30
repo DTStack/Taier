@@ -15,3 +15,7 @@ export const tableAction = mc([
 export const logAction = mc([
     'GET_USERS_SUC'
 ], {prefix: 'datamanage/log/'});
+
+export const cataloguesAction = mc([
+    'DATA_CATALOGUES'
+], {prefix: 'datamanage/catalogues/'});

@@ -182,8 +182,10 @@ export default class TaskBrowser extends Component {
             let allClean = true;
 
             for (let tab of pages) {
-                if (tab.notSynced) allClean = false;
-                break;
+                if (tab.notSynced) {
+                    allClean = false;
+                    break;
+                }
             }
 
             if (allClean) {
@@ -204,8 +206,10 @@ export default class TaskBrowser extends Component {
             let allClean = true;
 
             for (let tab of pages) {
-                if (tab.notSynced && tab.id !== currentPage.id) allClean = false;
-                break;
+                if (tab.notSynced && tab.id !== currentPage.id) {
+                    allClean = false;
+                    break;
+                }
             }
 
             if (allClean) {
@@ -223,10 +227,12 @@ export default class TaskBrowser extends Component {
             }
         }
     }
+
     editorParamsChange(){
         this._syncEditor=false;
         this.props.editorParamsChange(...arguments);
     }
+
     render() {
         const {
             currentPage, pages, router,

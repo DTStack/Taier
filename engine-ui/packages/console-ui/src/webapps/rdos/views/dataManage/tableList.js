@@ -24,17 +24,19 @@ const ROUTER_BASE = '/data-manage/table';
     return {
         projects: state.allProjects,
         user: state.user,
+        dataCatalogues: state.dataManage.dataCatalogues,
     }
 })
 class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType,tableName,pId,pageIndex } = this.props.location.query;
+        const { listType, tableName, pId, pageIndex, catalogueId } = props.location.query;
         this.state = {
             table: [],
             editRecord: {},
             loading: false,
+            dataCatalogue:[props.dataCatalogues],
             tableLog: {
                 tableId: undefined,
                 tableName,
@@ -44,7 +46,7 @@ class TableList extends Component {
                 listType:listType || "1",
                 pageIndex: pageIndex || 1,
                 pageSize: 10,
-                catalogueId: undefined,
+                catalogueId,
                 pId,
                 tableName,
             },
@@ -53,7 +55,7 @@ class TableList extends Component {
     }
 
     componentDidMount() {
-        this.loadCatalogue();
+        this.search();
     }
 
     search = () => {
@@ -100,19 +102,6 @@ class TableList extends Component {
         }, this.search)
     }
  
-    loadCatalogue = () => {
-        const { queryParams } = this.state;
-        this.setState({loading: true });
-        ajax.getDataCatalogues().then(res => {
-            const { catalogueId } =  this.props.location.query;
-            queryParams.catalogueId = catalogueId||undefined;
-            this.setState({
-                dataCatalogue: res.data && [res.data],
-                queryParams
-            },this.search)
-        })
-    }
-
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current

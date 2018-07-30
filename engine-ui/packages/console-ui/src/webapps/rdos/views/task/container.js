@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 
 import Sidebar from "./sidebar";
 import SearchTaskModal from "./searchTaskModal";
-import { stopSql } from "../../store/modules/offlineTask/editorAction";
+import { stopSql } from "../../store/modules/editor/editorAction";
 
 const { Content } = Layout;
 
@@ -75,12 +75,12 @@ class Container extends Component {
                 >
                     <div
                         className="bg-w ant-layout-sider"
-                        style={{ width: "inherit" }}
+                        style={{ width: "inherit", height: '100%' }}
                     >
                         <Sidebar />
                         <SearchTaskModal />
                     </div>
-                    <Content>
+                    <Content style={{height: '100%'}}>
                         <Spin
                             tip="Loading..."
                             size="large"

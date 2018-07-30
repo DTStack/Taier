@@ -29,9 +29,9 @@ export function getDefaultSQLTemp(data) {
 /**
  * 获取任务类型指定图表className
  */
-export function taskTypeIcon(type, task={}) {
-    const { pythonVersion, learningType,scriptType } = task;
-    if(scriptType==null){
+export function taskTypeIcon(type, task = {}) {
+    const { pythonVersion, learningType, scriptType } = task;
+    if (scriptType == null) {
         switch (type) {
             case TASK_TYPE.SQL: {
                 return 's-sqlicon'
@@ -71,7 +71,7 @@ export function taskTypeIcon(type, task={}) {
             }
             default: ''
         }
-    }else{
+    } else {
         switch (type) {
             case SCRIPT_TYPE.SQL: {
                 return 's-sqlicon'
@@ -79,7 +79,7 @@ export function taskTypeIcon(type, task={}) {
             case SCRIPT_TYPE.PYTHON2: {
                 return 's-python2icon'
             }
-            case SCRIPT_TYPE.PYTHON3:{
+            case SCRIPT_TYPE.PYTHON3: {
                 return 's-python3icon'
             }
             case SCRIPT_TYPE.SHELL: {
@@ -88,7 +88,7 @@ export function taskTypeIcon(type, task={}) {
             default: ''
         }
     }
-    
+
 }
 
 export function resourceTypeIcon(type) {
