@@ -1,5 +1,5 @@
 import React from 'react';
-import { Steps, Button, message } from 'antd';
+import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash'
 
@@ -30,35 +30,15 @@ class DataSync extends React.Component{
     }
 
     componentDidMount() {
-        const { id, dataSyncSaved } = this.props;
+        const { id } = this.props;
 
         this.getJobData({ taskId: id });
-        // if (!dataSyncSaved) {
-        //     this.props.getJobData({taskId: id})
-        //     .then((data)=>{
-        //             if(data){
-        //                 this.setState({
-        //                     currentStep:4,
-        //                     loading:false
-        //                 })
-        //             }else{
-        //                 this.setState({
-        //                     loading:false
-        //                 })
-        //             }
-        //         }
-        //     );
-        // } else {
-        //     this.props.getDataSyncSaved(dataSyncSaved);
-        //     this.setState({ loading: false });
-        // }
-
         this.props.setTabId(id);
         this.props.getDataSource();
     }
 
     getJobData = (params) => {
-        const { id, dataSyncSaved } = this.props;
+        const { dataSyncSaved } = this.props;
 
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {

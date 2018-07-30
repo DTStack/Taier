@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, assign, isEqual, isObject, isNaN } from 'lodash'
+import { isNumber, isEqual, isObject, isNaN } from 'lodash'
 import { 
-    Button, Row, Col, Modal, 
-    Form, Select, Input, Tooltip,
-    InputNumber, message, Icon,
+    Button, Row, Col, 
+    Input, Tooltip,
+    message, Icon,
 } from 'antd';
 
 import { select, selectAll, mouse } from 'd3-selection';
@@ -17,40 +17,21 @@ import utils from 'utils';
 import Api from '../../../../../api';
 
 import { 
-    hdfsFieldTypes, 
-    formItemLayoutm, 
-    DATA_TYPE_ARRAY, 
+    hdfsFieldTypes,
     DATA_SOURCE,
 } from '../../../../../comm/const';
+
+import { isHdfsType, isRDB } from '../../../../../comm';
 
 import KeyMapModal from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
-
-const FormItem = Form.Item;
-const Option = Select.Option;
 
 const DefaultRowKey = { // HBase默认行健
     cf: '-',
     key: 'rowkey',
     type: 'STRING',
 };
-
-/**
- * 是否为HDFS类型
- * @param {*} type 
- */
-function isHdfsType(type) {
-    return DATA_SOURCE.HDFS === parseInt(type, 10)
-}
-
-/**
- * 是否属于关系型数据源
- * @param {*} type 
- */
-function isRDB(type) {
-    return DATA_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
-}
 
 /**
  * 判断字段是否匹配
@@ -434,7 +415,7 @@ class Keymap extends React.Component{
         const { w, h, W, H, padding } = this.state;
 
         const { 
-            targetCol, sourceCol, keymap,
+            sourceCol,
             sourceSrcType, sourceFileType,
             removeSourceKeyRow, readonly,
         } = this.props;
@@ -1287,10 +1268,10 @@ class Keymap extends React.Component{
      */
     setNameMap() {
         const { nameMap, rowMap } = this.state;
-        const { targetCol, sourceCol, targetSrcType } = this.props;
+        const { targetCol, sourceCol, sourceSrcType ,targetSrcType } = this.props;
 
         if(!nameMap) {
-            this.props.setNameMap({sourceCol, targetCol, targetSrcType});
+            this.props.setNameMap({sourceCol, targetCol, sourceSrcType, targetSrcType});
         }
         else{
             this.props.resetLinkedKeys();
