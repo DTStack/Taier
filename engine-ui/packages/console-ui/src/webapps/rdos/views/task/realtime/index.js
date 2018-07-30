@@ -115,7 +115,6 @@ class TaskIndex extends Component {
     }
 
     editorChange = (data) => {
-        console.log('editorChange:', data)
         let { currentPage, dispatch } = this.props;
         currentPage = cloneDeep(currentPage);
         currentPage = Object.assign(currentPage, data);
@@ -290,7 +289,7 @@ class TaskIndex extends Component {
                         >
                             <MyIcon className="my-icon" type="save" />保存
                         </Button>
-                        <FullScreenButton target="JS_APP"/>
+                        <FullScreenButton />
                     </Col>
                     <Col className="right">
                         <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>

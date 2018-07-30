@@ -1,7 +1,10 @@
 import 'whatwg-fetch'
 
-import ProgressBar from 'widgets/progress-bar'
-import { authAfterFormated, authBeforeFormate } from '../interceptor'
+import ProgressBar from 'widgets/progress-bar';
+import { timeout } from 'funcs';
+import { authAfterFormated, authBeforeFormate } from '../interceptor';
+
+const FETCH_TIME_OUT = 5000;
 
 class Http {
 /* eslint-disable */
@@ -33,6 +36,7 @@ class Http {
     request(url, options) {
         ProgressBar.show()
         options.credentials = 'same-origin'
+        // return timeout(), FETCH_TIME_OUT);
         return fetch(url, options)
         .then(authBeforeFormate)
         .then(response => {
@@ -42,11 +46,11 @@ class Http {
             return response.json()
         })
         .then(authAfterFormated)
-        .catch( err => { 
-            ProgressBar.hide() 
+        .catch( err => {
+            ProgressBar.hide()
             console.error(url + ":" + err)
             return err //错误信息返回
-        })
+        });
     }
 
     defaultHeader() { // 默认头
