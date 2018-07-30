@@ -466,7 +466,6 @@ class TaskFlowView extends Component {
                     position: 'relative',
                 }}
             >
-
                 <Spin
                     tip="Loading..."
                     size="large"
