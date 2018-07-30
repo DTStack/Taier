@@ -55,7 +55,7 @@ class DataSyncScript extends Component {
     render() {
         const { merged, sqlText, cursorPosition } = this.props;
         return (
-            <div className="ide-sql">
+            <div className="ide-sql ide-editor">
                 <div className="ide-header bd-bottom">
                     <Toolbar {...this.props} />
                 </div>
