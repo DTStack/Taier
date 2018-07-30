@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import { TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE } from './const'
+import {  
+    TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, 
+    DATA_SOURCE, RDB_TYPE_ARRAY,
+} from './const'
 
 // 请求防抖动
 export function debounceEventHander(...args) {
@@ -241,4 +244,20 @@ export function inOffline() {
  */
 export function inRealtime() {
     return location.href.indexOf('realtime') > -1;
+}
+
+/**
+ * 是否为HDFS类型
+ * @param {*} type 
+ */
+export function isHdfsType(type) {
+    return DATA_SOURCE.HDFS === parseInt(type, 10)
+}
+
+/**
+ * 是否属于关系型数据源
+ * @param {*} type 
+ */
+export function isRDB(type) {
+    return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
 }
