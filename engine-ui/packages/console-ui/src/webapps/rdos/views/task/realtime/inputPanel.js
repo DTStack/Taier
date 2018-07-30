@@ -17,13 +17,6 @@ const { Column, ColumnGroup } = Table;
 class outPutOrigin extends Component {
 
     render(){
-        const data = [{
-            key: '1',
-            firstName: 'John',
-            lastName: 'Brown',
-            age: 32,
-            address: 'New York No. 1 Lake Park',
-        }];
         const { handleInputChange,index,panelColumn } = this.props;
         return (
             <Row className="title-content">
@@ -74,12 +67,7 @@ class outPutOrigin extends Component {
                             </Tooltip>
                         </Col>
                         <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
+                            <Input  placeholder="请输入" className="right-select" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         </Col>
                     </Row>
                 </Col>
@@ -101,7 +89,7 @@ class outPutOrigin extends Component {
                             dataIndex="column"
                             key="字段"
                             width='50%'
-                            render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                            render={(text,record,subIndex)=>{return <Input  placeholder="支持字母、数字和下划线" onBlur={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
                         />
                         <Column
                             title="类型"
@@ -142,29 +130,26 @@ class outPutOrigin extends Component {
                         </Col>
                     </Row>
                 </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 时间列 : </span></Col>
-                        <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                </Col>
+               { 
+                   panelColumn[index].timeType === 2 ? <Col style={{marginBottom: 20}}>
+                        <Row gutter={16}>
+                            <Col span="6" ><span className="left-type"> 时间列 : </span></Col>
+                            <Col span="18" >
+                                <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                    <Option value="jack">Jack</Option>
+                                    <Option value="lucy">Lucy</Option>
+                                    <Option value="disabled" disabled>Disabled</Option>
+                                    <Option value="Yiminghe">yiminghe</Option>
+                                </Select>
+                            </Col>
+                        </Row>
+                    </Col> : undefined
+                }
                 <Col>
                     <Row gutter={16}>
                         <Col span="6" ><span className="left-type"> 别名 : </span></Col>
                         <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("alias",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
+                            <Input  className="right-select" onChange={e => handleInputChange('alias',index,e.target.value)}/>
                         </Col>
                     </Row>
                 </Col>
