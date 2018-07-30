@@ -20,6 +20,7 @@ export default class TableAnalytics extends Component {
         tablePartitions: [],
         tableCountInfo: '',
         loading: false,
+        currentPage: 1,
     }
 
     componentDidMount() {
@@ -63,7 +64,7 @@ export default class TableAnalytics extends Component {
 
     onTabChange = (value) => {
         const { partId, tableId } = this.state
-        this.setState({ errorType: value })
+        this.setState({ errorType: value,currentPage: 1 })
         this.getTableAnalytics({
             tableId,
             partId,
@@ -88,7 +89,7 @@ export default class TableAnalytics extends Component {
                 key: 't-id',
                 width: 80,
                 render: (text, item, index) => {
-                    return index + 1
+                    return  (this.state.currentPage-1)*10 + index + 1
                 },
             }]
             data.forEach((item, index) => {
@@ -109,6 +110,12 @@ export default class TableAnalytics extends Component {
             return arr
         }
         return []
+    }
+
+    changePage = (pagination)=> {
+        this.setState({
+            currentPage: pagination.current
+        })
     }
 
     render() {
@@ -134,6 +141,7 @@ export default class TableAnalytics extends Component {
             dataSource={showData} 
             loading={this.state.loading}
             scroll={{ x: true, y: 280 }} 
+            onChange={this.changePage}
         />
 
         return (
@@ -141,7 +149,7 @@ export default class TableAnalytics extends Component {
                 bordered={false}
                 noHovering
                 title={
-                    <span> 总计：共{tableCountInfo.totalNum}条 脏数据</span>
+                    <span> 总计：共{tableCountInfo.totalNum||0}条 脏数据</span>
                 }
                 extra={
                     <Select 
@@ -163,7 +171,7 @@ export default class TableAnalytics extends Component {
                         <TabPane tab={`主键冲突 (${tableCountInfo.duplicate || 0}条)`} key="duplicate">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`类型转换 (${tableCountInfo.conversion || 0}条)`} key="conversion">
+                        <TabPane tab={`类型转换 (${tableCountInfo.conversion || 0}条)`} key="conversion" >
                             {tablePane}
                         </TabPane>
                         <TabPane tab={`其他 (${tableCountInfo.other || 0}条)`} key="other">
