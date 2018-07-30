@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Modal, Tag, Icon,Tooltip,Table,
+    Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
     message, Select, Collapse, Button,Radio,Popover
-} from '_antd@2.13.11@antd'
+} from 'antd'
 
 import utils from 'utils'
 import Api from '../../../api'
@@ -24,7 +24,7 @@ class outPutOrigin extends Component {
             age: 32,
             address: 'New York No. 1 Lake Park',
         }];
-        const { handleInputChange,index } = this.props;
+        const { handleInputChange,index,panelColumn } = this.props;
         return (
             <Row className="title-content">
                 <Col style={{marginBottom: 20}}>
@@ -87,7 +87,7 @@ class outPutOrigin extends Component {
                     <Row gutter={16}>
                         <Col span="6" ><span className="left-type"> 字段 : </span></Col>
                         <Col span="18" >
-                            <Radio.Group   defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("model",index,v)}}>
+                            <Radio.Group   defaultValue={1} className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
                                 <Radio.Button value={1}>键值模式</Radio.Button>
                                 <Radio.Button value={2}>脚本模式</Radio.Button>
                             </Radio.Group>
@@ -95,20 +95,38 @@ class outPutOrigin extends Component {
                     </Row>
                 </Col>
                 <Col style={{marginBottom: 20}}>
-                    <Table dataSource={data} pagination={false} >
+                    <Table dataSource={panelColumn[index].column} pagination={false} >
                         <Column
-                            title="First Name"
-                            dataIndex="firstName"
-                            key="firstName"
+                            title="字段"
+                            dataIndex="column"
+                            key="字段"
+                            width='50%'
+                            render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
                         />
                         <Column
-                            title="Last Name"
-                            dataIndex="lastName"
-                            key="lastName"
+                            title="类型"
+                            dataIndex="type"
+                            key="类型"
+                            width='40%'
+                            render={(text,record,subIndex)=>{
+                                console.log('text,record,index',text,record,subIndex);
+                                return (
+                                    <Select defaultValue="lucy"   className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                        <Option value="jack">Jack</Option>
+                                        <Option value="lucy">Lucy</Option>
+                                        <Option value="disabled" disabled>Disabled</Option>
+                                        <Option value="Yiminghe">yiminghe</Option>
+                                    </Select>
+                                )
+                            }}
+                        />
+                        <Column
+                            key="delete"
+                            render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
                         />
                     </Table>
                     <div style={{padding: "0 20"}}>
-                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index)}}>
+                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index,{})}}>
                             <Icon type="plus" /><span> 添加输入</span>
                         </Button>
                     </div>
@@ -117,7 +135,7 @@ class outPutOrigin extends Component {
                     <Row gutter={16}>
                         <Col span="6" ><span className="left-type"> 时间特征 : </span></Col>
                         <Col span="18" >
-                            <RadioGroup  defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v)}}>
+                            <RadioGroup  defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
                                 <Radio value={1}>ProcTime</Radio>
                                 <Radio value={2}>EventTime</Radio>
                             </RadioGroup>
@@ -159,29 +177,44 @@ export default class InputPanel extends Component {
 
     state = {
         visibleAlterRes: false,
-        tabTemplate: [],
-        panelActiveKey: [],
-        popoverVisible: [],
-        panelColumn: [],
+        tabTemplate: [],//模版存储,有所少输入源
+        panelActiveKey: [],//输入源是打开或关闭状态
+        popoverVisible: [],//删除显示按钮状态
+        panelColumn: [],//存储数据
         groupButton: 1,
         radioGroup: 1,
     }
 
+
     changeInputTabs = (type,index) =>{
-        let { tabTemplate, panelActiveKey, popoverVisible } = this.state;
+        const inputData = {
+            type: undefined,
+            dataOrigin: undefined,
+            topic: undefined,
+            table: undefined,
+            model: undefined,
+            column: [],
+            timeType: undefined,
+            timeColum: undefined,
+            alias: undefined,
+        }
+        let { tabTemplate, panelActiveKey, popoverVisible,panelColumn } = this.state;
         if(type==="add"){
             tabTemplate.push(outPutOrigin);
+            panelColumn.push(inputData);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
             tabTemplate.splice(index,1);
+            panelColumn.splice(index,1);
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
         this.setState({
             tabTemplate,
             panelActiveKey,
-            popoverVisible
+            popoverVisible,
+            panelColumn
         })
     }
 
@@ -205,13 +238,23 @@ export default class InputPanel extends Component {
         })
     }
       
-    handleInputChange = (type,index,value) => {
-       const { panelColumn } = this.state;
-        console.log('type,index,value',type,index,value);
-        
-       this.setState({
+    handleInputChange = (type,index,value,subValue) => {//监听数据改变
+        const { panelColumn } = this.state;
+        if(type === 'column'){
+            panelColumn[index][type].push(value);
+        }else if(type === "deleteColumn"){
+            panelColumn[index]["column"].splice(value,1);
+        }else if(type ==="subColumn"){
+            panelColumn[index]["column"][value].column = subValue;
+        }else if(type === "subType"){
+            panelColumn[index]["column"][value].type = subValue;
+        }else{
+            panelColumn[index][type] = value;
+        }
+        console.log('handleInputChange-panelColumn',panelColumn);
+        this.setState({
             panelColumn
-       })
+        })
     }
 
     handleChangeRadio = (value) => {
@@ -269,7 +312,7 @@ export default class InputPanel extends Component {
     }
 
     render() {
-        const { tabTemplate,panelActiveKey } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
@@ -277,7 +320,7 @@ export default class InputPanel extends Component {
                         tabTemplate.map( (OutPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <OutPutOrigin index={index} handleInputChange={this.handleInputChange}/>
+                                    <OutPutOrigin index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}/>
                                 </Panel>
                             )
                         })

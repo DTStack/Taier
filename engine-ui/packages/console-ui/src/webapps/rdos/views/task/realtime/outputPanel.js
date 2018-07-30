@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag,
     message, Select, Collapse
-} from '_antd@2.13.11@antd'
+} from 'antd'
 
 import utils from 'utils'
 import Api from '../../../api'
