@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { debounce } from 'lodash';
 
-import {  
-    TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, 
-    DATA_SOURCE, RDB_TYPE_ARRAY,
+import { 
+    TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, RDB_TYPE_ARRAY,
+    LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE, DATA_SOURCE
 } from './const'
+
 
 // 请求防抖动
 export function debounceEventHander(...args) {
