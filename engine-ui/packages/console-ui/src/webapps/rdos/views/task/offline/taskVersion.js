@@ -54,10 +54,7 @@ export default class TaskVersion extends React.Component {
     };
 
     codeChange = (old, newVal) => {
-        this.props.changeSql({
-            sqlText: newVal,
-            merged: true,
-        });
+        this.props.changeSql(newVal);
     };
 
     getFomatedJSON = (jsonText) => {
@@ -80,10 +77,10 @@ export default class TaskVersion extends React.Component {
         let compareToText = campareTo.sqlText;
 
         // 增加数据同步，JSON配置格式化操作
-        if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
-            sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
-            compareToText = this.getFomatedJSON(campareTo.sqlText);
-        }
+        // if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
+        //     sqlTextJSON = this.getFomatedJSON(taskInfo.sqlText);
+        //     compareToText = this.getFomatedJSON(campareTo.sqlText);
+        // }
 
         return (
             <div>
