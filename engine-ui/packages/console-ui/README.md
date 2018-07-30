@@ -11,11 +11,10 @@
 - 【应用】提升了应用在浏览器中的加载性能
 
 
- > 版本：DTinsight v2.2.2 <br>
- > 日期：2018-07-02
+ > 版本：DTinsight v2.2.3 <br>
+ > 日期：2018-07-30
 
-- 【开发套件】修复任务参数Tab切换异常Bug
-- 【开发套件】修复数据导入，数据预览Bug
+- 【开发套件】修复数据同步同名映射无效的Bug
 
 
 - 【其他】主要以Bug修复为主，更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-2-0/issues)

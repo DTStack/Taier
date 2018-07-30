@@ -1797,8 +1797,39 @@ table {
   cursor: pointer;
 }
 
+.diff-params .title {
+  padding: 0 10 10;
+  font-size: 14px;
+}
+
 .diff-params .box-padding {
-  padding: 0 10px;
+  margin-left: 10;
+  padding-left: 10;
+  border: 1px solid #ccc;
+}
+
+.diff-params .box-padding .line {
+  width: 80%;
+  border-bottom: 1px solid #ccc;
+}
+
+.diff-params .box-padding .sub-title {
+  font-size: 14px;
+  padding-top: 15px;
+  height: 40px;
+}
+
+.diff-params .box-padding .txt-left {
+  height: 40px;
+  line-height: 40px;
+}
+
+.diff-params .box-padding .word-break {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 40px;
+  line-height: 40px;
 }
 
 .m-dirpicker {
