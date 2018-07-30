@@ -408,7 +408,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
 
                 if( idx !== -1) {
                     const sourceName = isRDB(sourceSrcType) ? o.key : o;
-                    const targetName = isRDB(sourceSrcType) ? name: targetCol[idx]
+                    const targetName = isRDB(targetSrcType) ? name: targetCol[idx]
                     source.push(sourceName);
                     target.push(targetName);
                 }
