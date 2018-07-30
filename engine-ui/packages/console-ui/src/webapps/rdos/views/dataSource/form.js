@@ -255,8 +255,8 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
                             }, {
-                                pattern: /jdbc:\w:\/\/\w\/\w/g, // 
-                                message: '请检查您的JDBC URL地址格式',
+                                // pattern: /jdbc:\w:\/\/\w\/\w/g, // 
+                                // message: '请检查您的JDBC URL地址格式',
                             }],
                             initialValue: config.jdbcUrl || '',
                         })(
