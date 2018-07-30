@@ -51,7 +51,7 @@ class EditCluster extends React.Component {
     }
     componentDidMount() {
         const { location, form } = this.props;
-        const params = location.state;
+        const params = location.state||{};
         if (params.mode == "edit"||params.mode=="view") {
             Api.getClusterInfo({
                 clusterId: params.cluster.id
@@ -69,7 +69,7 @@ class EditCluster extends React.Component {
                                 memory: cluster.totalMemory,
                                 nodeNumber: cluster.totalNode,
                                 zipConfig: JSON.stringify({
-                                    hiveConf: clusterConf.yarnConf,
+                                    yarnConf: clusterConf.yarnConf,
                                     hadoopConf: clusterConf.hadoopConf
                                 }),
                                 flink_params: extParams.flinkKeys,
@@ -333,7 +333,7 @@ class EditCluster extends React.Component {
         if (type == "hdfs") {
             keyAndValue = Object.entries(zipConfig.hadoopConf)
         } else {
-            keyAndValue = Object.entries(zipConfig.hiveConf)
+            keyAndValue = Object.entries(zipConfig.yarnConf)
         }
         return keyAndValue.map(
             ([key, value]) => {
@@ -408,7 +408,7 @@ class EditCluster extends React.Component {
         })
     }
     getServerParams(formValues, haveFile) {
-        const {mode,cluster} = this.props.location.state;
+        const {mode,cluster} = this.props.location.state||{};
         const clusterConf = this.getClusterConf(formValues);
         const params = {
             clusterName: formValues.clusterName,
@@ -432,7 +432,7 @@ class EditCluster extends React.Component {
         const sparkExtParams = this.getCustomParams(formValues, "spark")
         const flinkExtParams = this.getCustomParams(formValues, "flink")
         clusterConf["hadoopConf"] = zipConfig.hadoopConf;
-        clusterConf["yarnConf"] = zipConfig.hiveConf;
+        clusterConf["yarnConf"] = zipConfig.yarnConf;
         clusterConf["hiveConf"] = formValues.hiveConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
