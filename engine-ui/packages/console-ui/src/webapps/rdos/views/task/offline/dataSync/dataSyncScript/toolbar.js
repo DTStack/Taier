@@ -11,7 +11,7 @@ import utils from 'utils'
 
 import API from '../../../../../api'
 import { DatabaseType } from '../../../../../components/status';
-import { formItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE } from '../../../../../comm/const'
 
 import {
     workbenchAction,
@@ -264,25 +264,6 @@ class SyncToolbar extends Component {
         })
     }
 
-    sqlFormat = () => {
-        const { sqlText, dispatch } = this.props;
-        const data = {
-            merged: true,
-        }
-
-        data.sqlText = utils.jsonFormat(sqlText);
-
-        if (!data.sqlText) {
-            message.error("您的JSON格式有误")
-            return;
-        }
-        dispatch({
-            type: workbenchAction.SET_TASK_SQL_FIELD_VALUE,
-            payload: data,
-        })
-
-    }
-
     onSuccess = (template) => {
         const { dispatch } = this.props;
         const data = {
@@ -303,35 +284,15 @@ class SyncToolbar extends Component {
 
     render() {
         const { execConfirmVisible } = this.state
-        const { currentTabData } = this.props;
 
         return (
-            <div className="ide-toolbar toolbar" style={{position:"relative"}}>
+            <span>
                 <Button
                     onClick={this.importTemplate.bind(this)}
                     title="导入模版"
                     icon="plus-circle-o"
                     style={{ marginLeft: '0px' }}>导入模版
                 </Button>
-                <Button
-                    icon="appstore-o"
-                    title="格式化"
-                    onClick={this.sqlFormat}
-                >
-                    格式化
-                </Button>
-                <span style={{ float:"right" ,position: "relative", marginRight: "18px", lineHeight: "28px",zIndex:"901"}}>
-                    <Icon
-                        style={{ color: "#2491F7", marginRight: "2px" }}
-                        type="question-circle-o" />
-                    <a
-                        href={HELP_DOC_URL.DATA_SYNC}
-                        target="blank">
-                        帮助文档
-                    </a>
-                </span>
-
-
                 <WrapTemplateForm
                     execConfirmVisible={execConfirmVisible}
                     onCancel={
@@ -342,7 +303,7 @@ class SyncToolbar extends Component {
                     onSuccess={this.onSuccess.bind(this)}
                     {...this.props} />
 
-            </div>
+            </span>
         )
     }
 }

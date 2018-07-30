@@ -155,6 +155,7 @@ export default class MainBench extends React.Component {
                         return <DataSyncScript
                             key={tabData.id}
                             {...tabData}
+                            currentTabData={tabData}
                             taskCustomParams={taskCustomParams}
                         />
                     }

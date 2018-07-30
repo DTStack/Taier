@@ -374,7 +374,7 @@ class ColumnsConfig extends React.Component {
                 <div className="required-tip middle-title middle-header">
                     输出参数：
                     <span className="params_result_check">
-                        <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页返回结果默认20条。若没有选择，默认分页查询，最大返回1000条结果。">
+                        <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">
                             返回结果分页
                     </Tooltip>
                         <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} />

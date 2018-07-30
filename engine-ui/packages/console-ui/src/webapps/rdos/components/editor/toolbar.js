@@ -59,7 +59,7 @@ export default class Toolbar extends Component {
 
     render() {
         const {
-            onFormat, enableFormat, customButton
+            onFormat, enableFormat, leftCustomButton, rightCustomButton
         } = this.props;
 
         return (
@@ -67,7 +67,7 @@ export default class Toolbar extends Component {
                 {
                     this.renderRun()
                 }
-                {customButton}
+                {leftCustomButton}
                 {
                     enableFormat &&
                     <Button
@@ -88,6 +88,9 @@ export default class Toolbar extends Component {
                         主题<Icon type="down" />
                     </Button>
                 </Dropdown>
+                <span style={{ float: "right", position: "relative", marginRight: "18px", lineHeight: "28px", zIndex: "901" }}>
+                    {rightCustomButton}
+                </span>
             </div>
         );
     }
