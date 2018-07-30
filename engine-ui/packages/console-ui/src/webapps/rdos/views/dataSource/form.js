@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 
 import {
-    Table, Input, Button, Row, Col,
-    Select, Form, message, Checkbox,
-    Radio, Modal, Popconfirm, Tooltip,
+    Input, Button,
+    Select, Form, Checkbox,
+    Radio, Modal, Tooltip,
     Icon
 } from 'antd'
 
@@ -14,7 +14,6 @@ import utils from 'utils';
 import {
     formItemLayout,
     tailFormItemLayout,
-    DataSourceTypeFilter,
     DATA_SOURCE,
 } from '../../comm/const';
 import {
@@ -255,6 +254,9 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
+                            }, {
+                                pattern: /jdbc:\w:\/\/\w\/\w/g, // 
+                                message: '请检查您的JDBC URL地址格式',
                             }],
                             initialValue: config.jdbcUrl || '',
                         })(

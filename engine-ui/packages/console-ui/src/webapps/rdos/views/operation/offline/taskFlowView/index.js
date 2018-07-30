@@ -292,8 +292,7 @@ class TaskFlowView extends Component {
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
 
             if (!cell) return
-            console.log('data:', cell.data)
-            const currentNode = cell.data//ctx._vertexCells[cell.id].data;
+            const currentNode = cell.data;
 
             menu.addItem('展开上游（6层）', null, function () {
                 ctx.loadTaskParent({

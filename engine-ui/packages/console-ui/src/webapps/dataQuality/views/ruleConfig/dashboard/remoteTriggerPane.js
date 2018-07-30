@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Form, Tooltip } from 'antd';
+import { 
+    Button, Table, message, Modal, 
+    Input, Select, Popconfirm, Form 
+} from 'antd';
 import moment from 'moment';
 
 import ToolTipCopy from '../../../components/tooltipCopy';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { rowFormItemLayout } from '../../../consts';
+import { rowFormItemLayout, DATA_SOURCE } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const Option = Select.Option;
@@ -48,7 +51,11 @@ export default class RemoteTriggerPane extends Component {
         let monitorId = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
-        this.setState({ monitorId });
+        const params = { monitorId, }
+        if (data.dataSourceType === DATA_SOURCE.HIVE || data.dataSourceType === DATA_SOURCE.MAXCOMPUTE) {
+            params.havePart = true;
+        }
+        this.setState(params);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -66,7 +73,7 @@ export default class RemoteTriggerPane extends Component {
                 selectedIds: []
             });
 
-            if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
+            if (newData.dataSourceType === DATA_SOURCE.HIVE || newData.dataSourceType === DATA_SOURCE.MAXCOMPUTE) {
                 this.setState({ havePart: true });
             }
         }
@@ -132,8 +139,6 @@ export default class RemoteTriggerPane extends Component {
 
     // 编辑远程调用
     editTrigger = (record) => {
-        const { data } = this.props;
-
         this.showRemoteModal();
         this.props.getMonitorRule({ monitorId: record.id });
 
