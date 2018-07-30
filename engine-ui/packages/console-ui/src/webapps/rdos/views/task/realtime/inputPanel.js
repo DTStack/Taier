@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
-    message, Select, Collapse, Button,Radio,Popover
+    message, Select, Collapse, Button,Radio,Popover,
+    Form
 } from 'antd'
 
 import utils from 'utils'
@@ -13,75 +14,111 @@ const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
 const { Column, ColumnGroup } = Table;
+const FormItem = Form.Item;
 
-class outPutOrigin extends Component {
+class InputOrigin extends Component {
 
     render(){
         const { handleInputChange,index,panelColumn } = this.props;
+        const { getFieldDecorator } = this.props.form;
+        const formItemLayout = {
+            labelCol: {
+              xs: { span: 24 },
+              sm: { span: 6 },
+            },
+            wrapperCol: {
+              xs: { span: 24 },
+              sm: { span: 14 },
+            },
+        };
         return (
             <Row className="title-content">
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 类型 : </span></Col>
-                        <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                <FormItem
+                    {...formItemLayout}
+                    label="类型"
+                >
+                    {getFieldDecorator('type', {
+                        initialValue: "disabled",
+                        rules: [
+                            {required: true, message: '请选择类型',}
+                        ],
+                    })(
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" >Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="数据源"
+                >
+                    {getFieldDecorator('dataOrigin', {
+                        initialValue: "lucy",
+                        rules: [
+                            {required: true, message: '请选择数据源',}
+                        ],
+                    })(
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
                                 <Option value="jack">Jack</Option>
                                 <Option value="lucy">Lucy</Option>
                                 <Option value="disabled" disabled>Disabled</Option>
                                 <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 数据源 : </span></Col>
-                        <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="Topic"
+                >
+                    {getFieldDecorator('topic', {
+                        initialValue: "jack",
+                        rules: [
+                            {required: true, message: '请选择Topic',}
+                        ],
+                    })(
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
                                 <Option value="jack">Jack</Option>
                                 <Option value="lucy">Lucy</Option>
                                 <Option value="disabled" disabled>Disabled</Option>
                                 <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> Topic : </span></Col>
-                        <Col span="18" >
-                            <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                            </Select>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" > 
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label={(
+                        <span > 
+                            Table&nbsp;
                             <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
-                                <span className="left-type"> Table <Icon type="question-circle-o" /> : </span>
+                                <Icon type="question-circle-o" /> 
                             </Tooltip>
-                        </Col>
-                        <Col span="18" >
-                            <Input  placeholder="请输入" className="right-select" onChange={e => handleInputChange('table',index,e.target.value)}/>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 字段 : </span></Col>
-                        <Col span="18" >
-                            <Radio.Group   defaultValue={1} className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
-                                <Radio.Button value={1}>键值模式</Radio.Button>
-                                <Radio.Button value={2}>脚本模式</Radio.Button>
-                            </Radio.Group>
-                        </Col>
-                    </Row>
-                </Col>
+                        </span>
+                        )}
+                >
+                    {getFieldDecorator('table', {
+                        rules: [
+                            {required: true, message: '请输入Table',}
+                        ],
+                    })(
+                        <Input  placeholder="请输入Table" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="model"
+                >
+                    {getFieldDecorator('model',{
+                        initialValue: 1,
+                    })(
+                        <Radio.Group className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
+                            <Radio.Button value={1}>键值模式</Radio.Button>
+                            <Radio.Button value={2}>脚本模式</Radio.Button>
+                        </Radio.Group>
+                    )}
+                </FormItem>
                 <Col style={{marginBottom: 20}}>
                     <Table dataSource={panelColumn[index].column} pagination={false} >
                         <Column
@@ -119,50 +156,65 @@ class outPutOrigin extends Component {
                         </Button>
                     </div>
                 </Col>
-                <Col style={{marginBottom: 20}}>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 时间特征 : </span></Col>
-                        <Col span="18" >
-                            <RadioGroup  defaultValue={1} className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
-                                <Radio value={1}>ProcTime</Radio>
-                                <Radio value={2}>EventTime</Radio>
-                            </RadioGroup>
-                        </Col>
-                    </Row>
-                </Col>
+                <FormItem
+                    {...formItemLayout}
+                    label="时间特征"
+                >
+                    {getFieldDecorator('timeType',{
+                        initialValue: 1,
+                    })(
+                        <RadioGroup  className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
+                            <Radio value={1}>ProcTime</Radio>
+                            <Radio value={2}>EventTime</Radio>
+                        </RadioGroup>
+                    )}
+                </FormItem>
                { 
-                   panelColumn[index].timeType === 2 ? <Col style={{marginBottom: 20}}>
-                        <Row gutter={16}>
-                            <Col span="6" ><span className="left-type"> 时间列 : </span></Col>
-                            <Col span="18" >
-                                <Select defaultValue="lucy" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                   panelColumn[index].timeType === 2 ? 
+                    <FormItem
+                        {...formItemLayout}
+                        label="时间列"
+                    >
+                        {getFieldDecorator('timeColum', {
+                            initialValue: "jack",
+                            rules: [
+                                {required: true, message: '请选择时间列',}
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
                                     <Option value="jack">Jack</Option>
                                     <Option value="lucy">Lucy</Option>
                                     <Option value="disabled" disabled>Disabled</Option>
                                     <Option value="Yiminghe">yiminghe</Option>
-                                </Select>
-                            </Col>
-                        </Row>
-                    </Col> : undefined
+                            </Select>
+                        )}
+                    </FormItem>: undefined
                 }
-                <Col>
-                    <Row gutter={16}>
-                        <Col span="6" ><span className="left-type"> 别名 : </span></Col>
-                        <Col span="18" >
-                            <Input  className="right-select" onChange={e => handleInputChange('alias',index,e.target.value)}/>
-                        </Col>
-                    </Row>
-                </Col>
+                <FormItem
+                    {...formItemLayout}
+                    label="别名"
+                >
+                    {getFieldDecorator('alias', {
+                        rules: [
+                            {required: true, message: '请输入别名',}
+                        ],
+                    })(
+                        <Input  placeholder="请输入别名" className="right-input" onChange={e => handleInputChange('alias',index,e.target.value)}/>
+                    )}
+                </FormItem>
             </Row>
         )
     }
 }
 
+const InputForm = Form.create()(InputOrigin);
+
+
 export default class InputPanel extends Component {
 
     state = {
         visibleAlterRes: false,
-        tabTemplate: [],//模版存储,有所少输入源
+        tabTemplate: [],//模版存储,所有输入源
         panelActiveKey: [],//输入源是打开或关闭状态
         popoverVisible: [],//删除显示按钮状态
         panelColumn: [],//存储数据
@@ -185,7 +237,7 @@ export default class InputPanel extends Component {
         }
         let { tabTemplate, panelActiveKey, popoverVisible,panelColumn } = this.state;
         if(type==="add"){
-            tabTemplate.push(outPutOrigin);
+            tabTemplate.push(InputForm);
             panelColumn.push(inputData);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
@@ -302,10 +354,10 @@ export default class InputPanel extends Component {
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
                     {
-                        tabTemplate.map( (OutPutOrigin,index) => {
+                        tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <OutPutOrigin index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}/>
+                                    <InputPutOrigin index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}/>
                                 </Panel>
                             )
                         })

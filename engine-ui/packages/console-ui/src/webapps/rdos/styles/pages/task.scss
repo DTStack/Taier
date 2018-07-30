@@ -558,7 +558,7 @@
                     line-height: 28px;
                 }
                 .right-select{
-                    width: 80%;
+                    width: 100%;
                     .ant-select-selection {
                         outline: none;
                         user-select: none;
@@ -575,6 +575,10 @@
                     .ant-radio-button-wrapper:last-child {
                         border-radius: 0 5px 5px 0;
                     }
+                }
+                .right-input{
+                    height: 30px;
+                    border-radius: 5px;
                 }
                 .sub-right-select{
                   width: 100%;
