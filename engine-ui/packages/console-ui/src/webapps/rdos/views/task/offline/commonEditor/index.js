@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import pureRender from 'utils/pureRender';
+import { commonFileEditDelegator } from "widgets/editor/utils";
 
 import API from '../../../../api';
 import IDEEditor from "../../../../components/editor";
@@ -168,7 +169,7 @@ class CommonEditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value, mode } = this.props;
+        const { editor={}, currentTabData, value, mode, toolBarOptions={} } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -196,15 +197,14 @@ class CommonEditorContainer extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: true,
-            // enableFormat: true,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,
-            // onFormat: this.sqlFormat,
-            onFileEdit: null,
+            onFileEdit: commonFileEditDelegator(this._editor),
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({theme: key})
             },
+            ...toolBarOptions
         }
 
         const consoleOpts = {
@@ -215,6 +215,7 @@ class CommonEditorContainer extends Component {
         return (
             <div className="m-editor" style={{height: '100%'}}>
                 <IDEEditor 
+                    editorInstanceRef={(instance)=>{this._editor=instance}}
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
