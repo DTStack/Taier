@@ -402,10 +402,10 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s",getReqUrl(),path);
+        String reqUrl = String.format("%s%s", getReqUrl(), path);
         try {
             return PoolHttpClient.get(reqUrl);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
