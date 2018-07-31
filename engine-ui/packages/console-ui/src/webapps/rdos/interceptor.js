@@ -4,20 +4,29 @@ import localDb from 'utils/localDb'
 import utils from 'utils'
 import Api from './api'
 
+
 /* eslint-disable */
 export function authBeforeFormate(response) {
     switch (response.status) {
     case 500:
     case 502:
     case 504:
-        message.error('服务器出现了点问题')
+        // message.error('服务器出现了点问题')
+        notification['error']({
+            message: title,
+            description: '服务器出现了点问题',
+        });
     case 402:
     case 200:
         return response;
     case 302:
         message.info('登录超时, 请重新登录！')
     case 413:
-        message.error(response.message)
+        // message.error(response.message)
+        notification['error']({
+            message: '异常',
+            description: response.message,
+        });
     default:
         if (process.env.NODE_ENV !== 'production') {
             console.error('Request error: ', response.code, response.message)
@@ -34,7 +43,7 @@ export function authAfterFormated(response) {
     case 0: // 需要登录
         Api.openLogin()
         return Promise.reject(response);
-    case 3: {// 功能无权限
+    case 3: { // 功能无权限
         // 通过判断dom数量，限制通知数量
         const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
         if (notifyMsgs.length === 0) {

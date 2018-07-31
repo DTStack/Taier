@@ -12,7 +12,9 @@ import {
     dataSyncAction,
 } from './actionType';
 
-import { DATA_TYPE_ARRAY } from '../../../comm/const'
+import { RDB_TYPE_ARRAY } from '../../../comm/const';
+import { isRDB } from '../../../comm';
+
 
 // 缓存数据源列表
 const tabId = (state = {}, action) => {
@@ -87,14 +89,14 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, where } = action.payload;
+            const { sourceId, splitPK, src, } = action.payload;
             const { type } = src;
             const clone = cloneDeep(state);
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
 
-            if (DATA_TYPE_ARRAY.indexOf(+type) !== -1) {
+            if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
                 delete action.payload.splitPK;
             }
@@ -391,22 +393,23 @@ const keymap = (state = { source: [], target: [] }, action) => {
                 }
             });
 
-            return {source, target};
+            return { source, target };
         }
 
         case keyMapAction.SET_NAME_MAP: {
-            let { targetCol, sourceCol, targetSrcType } = action.payload;
+            let { targetCol, sourceCol, sourceSrcType, targetSrcType } = action.payload;
             let source = [], target = [];
 
             let targetNameCol = targetCol.map(o => o.key);
-            
+
             sourceCol.forEach((o, i) => {
                 let name = o.key;
                 let idx = targetNameCol.indexOf(name);
-                
+
                 if( idx !== -1) {
-                    const targetName = DATA_TYPE_ARRAY.indexOf(+targetSrcType) !== -1 ? name: targetCol[idx]
-                    source.push(name);
+                    const sourceName = isRDB(sourceSrcType) ? o.key : o;
+                    const targetName = isRDB(targetSrcType) ? name: targetCol[idx]
+                    source.push(sourceName);
                     target.push(targetName);
                 }
             });

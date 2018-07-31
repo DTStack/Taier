@@ -255,16 +255,16 @@ class TaskFlowView extends Component {
         this.cx = (graph.container.clientWidth - VertexSize.width) / 2
         this.cy = 200;
 
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = false;
-        layout.useBoundingBox = false;
-        layout.edgeRouting = false;
-        layout.levelDistance = 30;
-        layout.nodeDistance = 10;
-        
         this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
+                const layout = new mxCompactTreeLayout(graph, false);
+                layout.horizontal = false;
+                layout.useBoundingBox = false;
+                layout.edgeRouting = false;
+                layout.levelDistance = 30;
+                layout.nodeDistance = 10;
+
                 if (change != null) { change(); }
                 layout.execute(parent);
             } catch (e) {
@@ -292,8 +292,7 @@ class TaskFlowView extends Component {
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
 
             if (!cell) return
-            console.log('data:', cell.data)
-            const currentNode = cell.data//ctx._vertexCells[cell.id].data;
+            const currentNode = cell.data;
 
             menu.addItem('展开上游（6层）', null, function () {
                 ctx.loadTaskParent({
@@ -466,7 +465,6 @@ class TaskFlowView extends Component {
                     position: 'relative',
                 }}
             >
-
                 <Spin
                     tip="Loading..."
                     size="large"

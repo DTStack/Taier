@@ -20,6 +20,13 @@ export default class TableAnalytics extends Component {
         tablePartitions: [],
         tableCountInfo: '',
         loading: false,
+        errorType: "npe",
+        currentPage: {
+            npe : 1,
+            duplicate: 1,
+            conversion: 1,
+            other: 1,
+        }
     }
 
     componentDidMount() {
@@ -82,13 +89,14 @@ export default class TableAnalytics extends Component {
     }
 
     generateCols = (data) => {
+        const { errorType, currentPage } = this.state;
         if (data && data.length > 0) {
             const arr = [{
                 title: '序号',
                 key: 't-id',
                 width: 80,
                 render: (text, item, index) => {
-                    return index + 1
+                    return  (currentPage[errorType]-1)*10 + index + 1
                 },
             }]
             data.forEach((item, index) => {
@@ -111,7 +119,17 @@ export default class TableAnalytics extends Component {
         return []
     }
 
+    changePage = (pagination)=> {
+        let { errorType, currentPage } = this.state;
+        currentPage [ errorType || "npe"] = pagination.current;
+        this.setState({
+            currentPage
+        })
+    }
+
     render() {
+        console.log(this.state.errorType);
+        
         const { tableData } = this.props;
         const { data, tablePartitions, tableCountInfo } = this.state
   
@@ -134,6 +152,7 @@ export default class TableAnalytics extends Component {
             dataSource={showData} 
             loading={this.state.loading}
             scroll={{ x: true, y: 280 }} 
+            onChange={this.changePage}
         />
 
         return (
@@ -141,7 +160,7 @@ export default class TableAnalytics extends Component {
                 bordered={false}
                 noHovering
                 title={
-                    <span> 总计：共{tableCountInfo.totalNum}条 脏数据</span>
+                    <span> 总计：共{tableCountInfo.totalNum||0}条 脏数据</span>
                 }
                 extra={
                     <Select 
@@ -163,7 +182,7 @@ export default class TableAnalytics extends Component {
                         <TabPane tab={`主键冲突 (${tableCountInfo.duplicate || 0}条)`} key="duplicate">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`类型转换 (${tableCountInfo.conversion || 0}条)`} key="conversion">
+                        <TabPane tab={`类型转换 (${tableCountInfo.conversion || 0}条)`} key="conversion" >
                             {tablePane}
                         </TabPane>
                         <TabPane tab={`其他 (${tableCountInfo.other || 0}条)`} key="other">
