@@ -11,7 +11,6 @@ export function authBeforeFormate(response) {
     case 500:
     case 502:
     case 504:
-        // message.error('服务器出现了点问题')
         notification['error']({
             message: title,
             description: '服务器出现了点问题',
@@ -22,7 +21,6 @@ export function authBeforeFormate(response) {
     case 302:
         message.info('登录超时, 请重新登录！')
     case 413:
-        // message.error(response.message)
         notification['error']({
             message: '异常',
             description: response.message,

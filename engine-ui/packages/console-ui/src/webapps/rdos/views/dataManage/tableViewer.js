@@ -1,12 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import moment from 'moment';
-import SplitPane from 'react-split-pane';
 import {
     Row, Col, Table, Button,
     Tabs, Radio, Icon,
-    Modal, message, Card
+    Modal, message, Card, 
+    notification
 } from 'antd';
 
 import GoBack from 'main/components/go-back';
@@ -134,7 +132,10 @@ export default class TableViewer extends React.Component {
                 });
             }
             else {
-                message.error('从服务器获取数据失败！');
+                notification['error']({
+                    message: '异常',
+                    description: '从服务器获取数据失败！',
+                });
             }
         }) :
             this.setState({

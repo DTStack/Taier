@@ -169,6 +169,23 @@ class BaseForm extends Component {
         }
     }
 
+    getJDBCRule = (type) => {
+        switch (type) {
+            case DATA_SOURCE.HIVE:
+                return /jdbc:(\w)+:\/\/(\w)+(\:\d|\w)+\/(\w)+/;
+            case DATA_SOURCE.MYSQL:
+                return /jdbc:mysql:\/\/(\w)+/;
+            case DATA_SOURCE.ORACLE:
+                return /jdbc:oracle:thin:@\/\/(\w)+/;
+            case DATA_SOURCE.SQLSERVER:
+                return /jdbc:sqlserver:\/\/(\w)+/;
+            case DATA_SOURCE.POSTGRESQL:
+                return /jdbc:postgresql:\/\/(\w)+/;
+            default:
+                return null;
+        }
+    }
+
     renderDynamic() {
         const { form, sourceData,  } = this.props;
         const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
@@ -176,6 +193,11 @@ class BaseForm extends Component {
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
         
+        const jdbcRulePattern = {
+            pattern: this.getJDBCRule(sourceType),
+            message: '请检查您的JDBC地址格式！',
+        }
+
         switch (sourceType) {
             case DATA_SOURCE.HDFS: {
                 const formItems = [
@@ -254,10 +276,9 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
-                            }, {
-                                // pattern: /jdbc:\w:\/\/\w\/\w/g, // 
-                                // message: '请检查您的JDBC URL地址格式',
-                            }],
+                            }, 
+                                jdbcRulePattern
+                            ],
                             initialValue: config.jdbcUrl || '',
                         })(
                             <Input autoComplete="off" />,
@@ -287,7 +308,7 @@ class BaseForm extends Component {
                             rules: [],
                             initialValue: '',
                         })(
-                            <Input type="password" />,
+                            <Input type="password" autoComplete="off"/>,
                         )}
                     </FormItem>,
                     <FormItem
@@ -692,7 +713,9 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
-                            }],
+                            },
+                            jdbcRulePattern,
+                        ],
                             initialValue: config.jdbcUrl || '',
                         })(
                             <Input autoComplete="off" />,
@@ -728,7 +751,7 @@ class BaseForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input type="password" />,
+                            <Input type="password" autoComplete="off"/>,
                         )}
                     </FormItem>
                 ]
@@ -739,8 +762,6 @@ class BaseForm extends Component {
 
     render() {
         
-        const { hasHdfsConfig } = this.state;
-
         const { form, sourceData, status, types } = this.props;
         const { getFieldDecorator } = form;
 
@@ -757,7 +778,7 @@ class BaseForm extends Component {
         const sourceType = this.state.sourceType || types[0] && types[0].value
 
         return ( 
-            <Form>
+            <Form autoComplete="off">
                 <FormItem
                     {...formItemLayout}
                     label="数据源类型"
