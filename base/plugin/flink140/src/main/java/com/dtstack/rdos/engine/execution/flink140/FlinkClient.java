@@ -368,7 +368,7 @@ public class FlinkClient extends AbsClient {
             String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
-            String addr = hadoopConf.get(key);
+            String addr = yarnConf.get(key);
             String appId = ((YarnClusterClient) client).getApplicationId().toString();
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
@@ -402,10 +402,10 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s",getReqUrl(),path);
+        String reqUrl = String.format("%s%s", getReqUrl(), path);
         try {
             return PoolHttpClient.get(reqUrl);
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }

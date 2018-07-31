@@ -44,6 +44,7 @@ public class LearningClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+        LOG.info("LearningClien.init ...");
         LearningConfiguration conf = new LearningConfiguration();
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
@@ -141,6 +142,7 @@ public class LearningClient extends AbsClient {
 
     @Override
     public JobResult submitPythonJob(JobClient jobClient){
+        LOG.info("LearningClient.submitPythonJob");
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
             System.out.println(Arrays.asList(args));
