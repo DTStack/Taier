@@ -297,7 +297,7 @@ export const offlineTaskTypeFilter = [
         value: TASK_TYPE.SYNC,
     }, {
         id: 5,
-        text: 'Spark Python',
+        text: 'PySpark',
         value: TASK_TYPE.PYTHON,
     },{
         id: 6,

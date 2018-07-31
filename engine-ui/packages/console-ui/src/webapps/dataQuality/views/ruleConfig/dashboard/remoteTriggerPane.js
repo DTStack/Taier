@@ -81,12 +81,7 @@ export default class RemoteTriggerPane extends Component {
 
     // 远程调用table设置
     initTriggerColumns = () => {
-        return [{
-            title: '分区',
-            dataIndex: 'partitionValue',
-            key: 'partitionValue',
-            width: '12%',
-        }, {
+        const cols = [{
             title: '触发规则数',
             dataIndex: 'ruleNumber',
             key: 'ruleNumber',
@@ -134,7 +129,17 @@ export default class RemoteTriggerPane extends Component {
                     </div>
                 )
             },
-        }]
+        }];
+
+        if (this.state.havePart) {
+            cols.splice(0, 0, {
+                title: '分区',
+                dataIndex: 'partitionValue',
+                key: 'partitionValue',
+                width: '12%',
+            })
+        }
+        return cols;
     }
 
     // 编辑远程调用
