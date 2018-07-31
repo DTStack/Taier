@@ -240,6 +240,7 @@ class EditorContainer extends Component {
         const consoleOpts = {
             data: data,
             onConsoleClose: this.closeConsole,
+            onRemoveTab: this.removeConsoleTab,
         }
 
         return (
