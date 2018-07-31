@@ -16,7 +16,7 @@ const InputGroup = Input.Group;
 const Option = Select.Option;
 
 const sortType = {
-    "applyTime": 'gmt_modified'
+    "applyTime": 'gmt_create'
 }
 const orderType = {
     "ascend": 'asc',
