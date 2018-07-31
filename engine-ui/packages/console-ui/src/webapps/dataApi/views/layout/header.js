@@ -86,16 +86,15 @@ class Header extends Component {
 
         const logo = <span>
             <img
-                style={{ height: "20px", marginTop: "15px" }}
+                style={{ height: "36px", width: '36px', marginTop: "5px" }}
                 alt="logo"
-                src="/public/dataApi/img/logo.png"
+                src="/public/dataApi/img/logo.svg"
             />
-            {/* <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="api"/> */}
             <span style={{
                 fontSize: "14px",
                 color: "#ffffff",
                 position: "absolute",
-                left: "70px",
+                left: "80px",
                 top: 0
             }}>
                 DTinsight.API
