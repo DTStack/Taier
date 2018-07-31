@@ -176,7 +176,7 @@ class BaseForm extends Component {
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
             case DATA_SOURCE.ORACLE:
-                return /jdbc:oracle:thin:@\/\/(\w)+/;
+                return /jdbc:oracle:thin:@(\/\/)?(\w)+/;
             case DATA_SOURCE.SQLSERVER:
                 return /jdbc:sqlserver:\/\/(\w)+/;
             case DATA_SOURCE.POSTGRESQL:
