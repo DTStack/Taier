@@ -58,15 +58,15 @@ class Header extends Component {
 
         const logo = <span>
             <img
-                style={{ height: "20px", marginTop: "15px" }}
+                style={{ height: "36px", width: '36px', marginTop: "5px" }}
                 alt="logo"
-                src="/public/dataLabel/img/logo.png"
+                src="/public/dataLabel/img/logo.svg"
             />
             <span style={{
                 fontSize: "14px",
                 color: "#ffffff",
                 position: "absolute",
-                left: "70px",
+                left: "80px",
                 top: 0
              }}>
                 DTinsight.Tag
