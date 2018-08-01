@@ -60,7 +60,7 @@ module.exports = [
         target: '_self',
         enable: true,
         apiBase: '/console',
-        icon: '/public/main/img/icon_4.png',
+        icon: '/public/main/img/icon_5.png',
         description: '计算资源分配、多集群管理',
         needRoot:true
     }, {
