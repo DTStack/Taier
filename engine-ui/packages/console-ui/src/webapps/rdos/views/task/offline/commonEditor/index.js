@@ -100,16 +100,16 @@ class CommonEditorContainer extends Component {
             taskVariables: currentTabData.taskVariables
         };
 
-
         const code =
             editor.selection ||
             currentTabData.sqlText ||
             currentTabData.scriptText;
 
+        if (code && code.length > 0) {
             this.props.setOutput(currentTab, `正在提交...`);
             this.props.addLoadingTab(currentTab);
             this.reqExecSQL(currentTabData, params, [code], 0);
-        
+        }
     };
 
     reqExecSQL = (task, params, sqls, index) => {
@@ -118,14 +118,14 @@ class CommonEditorContainer extends Component {
     };
 
     stopSQL = () => {
-        const { currentTabData, currentTab, stopSql} = this.props;
+        const { currentTabData, currentTab, stopSql } = this.props;
         stopSql(currentTab, currentTabData);
     };
 
     // 执行确认
     execConfirm = () => {
         const { currentTabData, user, editor } = this.props;
-      
+
         let code =
             editor.selection ||
             currentTabData.sqlText ||
@@ -169,7 +169,7 @@ class CommonEditorContainer extends Component {
 
     render() {
 
-        const { editor={}, currentTabData, value, mode, toolBarOptions={} } = this.props;
+        const { editor = {}, currentTabData, value, mode, toolBarOptions = {} } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -202,7 +202,7 @@ class CommonEditorContainer extends Component {
             onStop: this.stopSQL,
             onFileEdit: commonFileEditDelegator(this._editor),
             onThemeChange: (key) => {
-                this.props.updateEditorOptions({theme: key})
+                this.props.updateEditorOptions({ theme: key })
             },
             ...toolBarOptions
         }
@@ -213,9 +213,9 @@ class CommonEditorContainer extends Component {
         }
 
         return (
-            <div className="m-editor" style={{height: '100%'}}>
-                <IDEEditor 
-                    editorInstanceRef={(instance)=>{this._editor=instance}}
+            <div className="m-editor" style={{ height: '100%' }}>
+                <IDEEditor
+                    editorInstanceRef={(instance) => { this._editor = instance }}
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}

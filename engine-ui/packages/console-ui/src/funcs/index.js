@@ -157,7 +157,9 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
 export function filterComments(sql) {
     let tmpArr = [];
     const comments = [];
-
+    if(!sql){
+        return '';
+    }
     for (let i = 0; i < sql.length; i++) {
         let char = sql[i];
 
