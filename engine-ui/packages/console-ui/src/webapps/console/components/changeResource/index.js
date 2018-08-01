@@ -26,6 +26,7 @@ class ChangeResourceModal extends React.Component {
         loading:false,
         selectUserMap: {},
         selectUser: "",//select输入value
+        selectHack:false,//select combobox自带bug
     }
     componentDidMount() {
         const {resource} = this.props;
@@ -39,10 +40,9 @@ class ChangeResourceModal extends React.Component {
         if(visible!=nextVisible&&nextVisible){
             this.setState({
                 selectUserMap:this.exchangeSelectMap(nextResource.tenants),
-                selectUser:"",
                 loading:false
             })
-            
+            this.resetValueByHack();
             this.props.getTenantList();
         }
     }
@@ -143,7 +143,7 @@ class ChangeResourceModal extends React.Component {
         .then(
             (res)=>{
                 this.setState({
-                    loading:false
+                    loading:false,
                 })
                 if(res.code==1){
                     message.success("修改成功");
@@ -153,8 +153,21 @@ class ChangeResourceModal extends React.Component {
         )
         
     }
+    onCancel(){
+        this.props.onCancel()
+    }
+    resetValueByHack(){
+        this.setState({
+            selectHack:true
+        },()=>{
+            this.setState({
+                selectHack:false,
+                selectUser:""
+            })
+        })
+    }
     render() {
-        const { selectUser,loading } = this.state;
+        const { selectUser,loading, selectHack } = this.state;
         const { visible,resource } = this.props;
         const columns= this.initColumns();
         const {queueName} = resource;
@@ -164,14 +177,14 @@ class ChangeResourceModal extends React.Component {
                 <Modal
                     title="修改"
                     visible={visible}
-                    onCancel={this.props.onCancel}
+                    onCancel={this.onCancel.bind(this)}
                     onOk={this.changeResource.bind(this)}
                     confirmLoading={loading}
                     maskClosable={false}
                 >
                     <div className="line-formItem">资源队列：{queueName}</div>
                     <div className="line-formItem">绑定租户：
-                        <Select
+                        {!selectHack&&<Select
                             mode="combobox"
                             style={{ width: "150px" }}
                             placeholder="请选择租户"
@@ -180,7 +193,7 @@ class ChangeResourceModal extends React.Component {
                             value={selectUser}
                         >
                             {this.getUserOptions()}
-                        </Select>
+                        </Select>}
                     </div>
                     <Table
                     className="m-table"
