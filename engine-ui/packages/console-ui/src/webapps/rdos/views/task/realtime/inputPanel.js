@@ -18,8 +18,37 @@ const FormItem = Form.Item;
 
 class InputOrigin extends Component {
 
+    // state = {
+    //     panelColumn: this.props.panelColumn
+    // }
+    // componentWillReceiveProps = (nextProps) => {
+    //     if(nextProps.panelColumn!= this.props.panelColumn){
+    //         this.setState({
+    //             panelColumn: nextProps.panelColumn
+    //         })
+    //     }
+    // }
+
+    componentDidMount(){
+        this.props.onRef(this);
+    }
+
+    checkParams = () => {
+        let result;
+        console.log('checkParams-this.props.form',this.props.form);
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                console.log('Received values of form: ', values);
+                result = true;
+            }else{
+                result = false;
+            }
+        });
+        return result
+    }
+
     render(){
-        const { handleInputChange,index,panelColumn } = this.props;
+        const { handleInputChange, index,panelColumn } = this.props;
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -33,195 +62,236 @@ class InputOrigin extends Component {
         };
         return (
             <Row className="title-content">
-                <FormItem
-                    {...formItemLayout}
-                    label="类型"
-                >
-                    {getFieldDecorator('type', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择类型',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="数据源"
-                >
-                    {getFieldDecorator('dataOrigin', {
-                        initialValue: "lucy",
-                        rules: [
-                            {required: true, message: '请选择数据源',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="Topic"
-                >
-                    {getFieldDecorator('topic', {
-                        initialValue: "jack",
-                        rules: [
-                            {required: true, message: '请选择Topic',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" disabled>Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label={(
-                        <span > 
-                            Table&nbsp;
-                            <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
-                                <Icon type="question-circle-o" /> 
-                            </Tooltip>
-                        </span>
-                        )}
-                >
-                    {getFieldDecorator('table', {
-                        rules: [
-                            {required: true, message: '请输入Table',}
-                        ],
-                    })(
-                        <Input  placeholder="请输入Table" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="model"
-                >
-                    {getFieldDecorator('model',{
-                        initialValue: 1,
-                    })(
-                        <Radio.Group className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
-                            <Radio.Button value={1}>键值模式</Radio.Button>
-                            <Radio.Button value={2}>脚本模式</Radio.Button>
-                        </Radio.Group>
-                    )}
-                </FormItem>
-                <Col style={{marginBottom: 20}}>
-                    <Table dataSource={panelColumn[index].column} pagination={false} >
-                        <Column
-                            title="字段"
-                            dataIndex="column"
-                            key="字段"
-                            width='50%'
-                            render={(text,record,subIndex)=>{return <Input  placeholder="支持字母、数字和下划线" onBlur={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
-                        />
-                        <Column
-                            title="类型"
-                            dataIndex="type"
-                            key="类型"
-                            width='40%'
-                            render={(text,record,subIndex)=>{
-                                console.log('text,record,index',text,record,subIndex);
-                                return (
-                                    <Select defaultValue="lucy"   className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
-                                        <Option value="jack">Jack</Option>
-                                        <Option value="lucy">Lucy</Option>
-                                        <Option value="disabled" disabled>Disabled</Option>
-                                        <Option value="Yiminghe">yiminghe</Option>
-                                    </Select>
-                                )
-                            }}
-                        />
-                        <Column
-                            key="delete"
-                            render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                        />
-                    </Table>
-                    <div style={{padding: "0 20"}}>
-                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index,{})}}>
-                            <Icon type="plus" /><span> 添加输入</span>
-                        </Button>
-                    </div>
-                </Col>
-                <FormItem
-                    {...formItemLayout}
-                    label="时间特征"
-                >
-                    {getFieldDecorator('timeType',{
-                        initialValue: 1,
-                    })(
-                        <RadioGroup  className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
-                            <Radio value={1}>ProcTime</Radio>
-                            <Radio value={2}>EventTime</Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-               { 
-                   panelColumn[index].timeType === 2 ? 
+                <Form >
                     <FormItem
                         {...formItemLayout}
-                        label="时间列"
+                        label="类型"
                     >
-                        {getFieldDecorator('timeColum', {
-                            initialValue: "jack",
+                        {getFieldDecorator('type', {
+                            initialValue: panelColumn[index].type||"disabled",
                             rules: [
-                                {required: true, message: '请选择时间列',}
+                                {required: true, message: '请选择类型',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                                    <Option value="jack">Jack</Option>
+                                    <Option value="lucy">Lucy</Option>
+                                    <Option value="disabled" >Disabled</Option>
+                                    <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据源"
+                    >
+                        {getFieldDecorator('dataOrigin', {
+                            initialValue: panelColumn[index].dataOrigin||"lucy",
+                            rules: [
+                                {required: true, message: '请选择数据源',}
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
                                     <Option value="jack">Jack</Option>
                                     <Option value="lucy">Lucy</Option>
                                     <Option value="disabled" disabled>Disabled</Option>
                                     <Option value="Yiminghe">yiminghe</Option>
                             </Select>
                         )}
-                    </FormItem>: undefined
-                }
-                <FormItem
-                    {...formItemLayout}
-                    label="别名"
-                >
-                    {getFieldDecorator('alias', {
-                        rules: [
-                            {required: true, message: '请输入别名',}
-                        ],
-                    })(
-                        <Input  placeholder="请输入别名" className="right-input" onChange={e => handleInputChange('alias',index,e.target.value)}/>
-                    )}
-                </FormItem>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="Topic"
+                    >
+                        {getFieldDecorator('topic', {
+                            initialValue: panelColumn[index].topic||"jack",
+                            rules: [
+                                {required: true, message: '请选择Topic',}
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                                    <Option value="jack">Jack</Option>
+                                    <Option value="lucy">Lucy</Option>
+                                    <Option value="disabled" disabled>Disabled</Option>
+                                    <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label={(
+                            <span > 
+                                Table&nbsp;
+                                <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
+                                    <Icon type="question-circle-o" /> 
+                                </Tooltip>
+                            </span>
+                            )}
+                    >
+                        {getFieldDecorator('table', {
+                            initialValue: panelColumn[index].table,
+                            rules: [
+                                {required: true, message: '请输入Table',}
+                            ],
+                        })(
+                            <Input  placeholder="请输入Table" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="model"
+                    >
+                        {getFieldDecorator('model',{
+                            initialValue: panelColumn[index].model||1,
+                        })(
+                            <Radio.Group className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
+                                <Radio.Button value={1}>键值模式</Radio.Button>
+                                <Radio.Button value={2}>脚本模式</Radio.Button>
+                            </Radio.Group>
+                        )}
+                    </FormItem>
+                    <Col style={{marginBottom: 20}}>
+                        <Table dataSource={panelColumn[index].column} pagination={false} >
+                            <Column
+                                title="字段"
+                                dataIndex="column"
+                                key="字段"
+                                width='50%'
+                                render={(text,record,subIndex)=>{return <Input  placeholder="支持字母、数字和下划线" onBlur={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                            />
+                            <Column
+                                title="类型"
+                                dataIndex="type"
+                                key="类型"
+                                width='40%'
+                                render={(text,record,subIndex)=>{
+                                    return (
+                                        <Select defaultValue="lucy"   className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                            <Option value="jack">Jack</Option>
+                                            <Option value="lucy">Lucy</Option>
+                                            <Option value="disabled" disabled>Disabled</Option>
+                                            <Option value="Yiminghe">yiminghe</Option>
+                                        </Select>
+                                    )
+                                }}
+                            />
+                            <Column
+                                key="delete"
+                                render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
+                            />
+                        </Table>
+                        <div style={{padding: "0 20"}}>
+                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index,{})}}>
+                                <Icon type="plus" /><span> 添加输入</span>
+                            </Button>
+                        </div>
+                    </Col>
+                    <FormItem
+                        {...formItemLayout}
+                        label="时间特征"
+                    >
+                        {getFieldDecorator('timeType',{
+                            initialValue: panelColumn[index].timeType||1,
+                        })(
+                            <RadioGroup  className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
+                                <Radio value={1}>ProcTime</Radio>
+                                <Radio value={2}>EventTime</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                { 
+                    panelColumn[index].timeType === 2 ? 
+                        <FormItem
+                            {...formItemLayout}
+                            label="时间列"
+                        >
+                            {getFieldDecorator('timeColum', {
+                                initialValue: panelColumn[index].timeColum||"jack",
+                                rules: [
+                                    {required: true, message: '请选择时间列',}
+                                ],
+                            })(
+                                <Select className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                        <Option value="jack">Jack</Option>
+                                        <Option value="lucy">Lucy</Option>
+                                        <Option value="disabled" disabled>Disabled</Option>
+                                        <Option value="Yiminghe">yiminghe</Option>
+                                </Select>
+                            )}
+                        </FormItem>: undefined
+                    }
+                    <FormItem
+                        {...formItemLayout}
+                        label="别名"
+                    >
+                        {getFieldDecorator('alias', {
+                            initialValue: panelColumn[index].alias,
+                            rules: [
+                                {required: true, message: '请输入别名',}
+                            ],
+                        })(
+                            <Input  placeholder="请输入别名" className="right-input" onChange={e => handleInputChange('alias',index,e.target.value)}/>
+                        )}
+                    </FormItem>
+                </Form>
             </Row>
         )
     }
 }
 
-const InputForm = Form.create()(InputOrigin);
+const InputForm = Form.create({
+    mapPropsToFields(props) {
+            const { type, dataOrigin, topic, table, model, column, timeType, timeColum, alias } = props.panelColumn[props.index];
+            return {
+                type: { value: type },
+                dataOrigin: { value: dataOrigin },
+                topic: { value: topic },
+                table: { value: table },
+                model: { value: model },
+                column: { value: column },
+                timeType: { value: timeType },
+                timeColum: { value: timeColum },
+                alias: { value: alias },
+            }
+        } 
+})(InputOrigin);
 
+const initialData = {
+    popoverVisible: false,
+    tabTemplate: [],//模版存储,所有输入源
+    panelActiveKey: [],//输入源是打开或关闭状态
+    popoverVisible: [],//删除显示按钮状态
+    panelColumn: [],//存储数据
+    checkFormParams: [],//存储要检查的参数from
+}
 
 export default class InputPanel extends Component {
 
-    state = {
-        visibleAlterRes: false,
-        tabTemplate: [],//模版存储,所有输入源
-        panelActiveKey: [],//输入源是打开或关闭状态
-        popoverVisible: [],//删除显示按钮状态
-        panelColumn: [],//存储数据
-        groupButton: 1,
-        radioGroup: 1,
+    constructor(props) {
+        super(props)
+        const taskId = this.props.currentPage.id;
+        const copyInitialData = JSON.parse(JSON.stringify(initialData));
+        const data = props.inputData[taskId]||copyInitialData;
+        console.log('InputPanel----props',props);
+        
+        this.state = {...data};
+    }
+    
+    getCurrentData = (taskId) => {
+        const { dispatch,inputData } = this.props;
+        const copyInitialData = JSON.parse(JSON.stringify(initialData));
+        dispatch(BrowserAction.getInputData(taskId));
+        const data = inputData[taskId]||copyInitialData;
+        this.setState({...data})
     }
 
+    componentWillReceiveProps(nextProps) {
+        const currentPage = nextProps.currentPage
+        const oldPage = this.props.currentPage
+        if (currentPage.id !== oldPage.id) {
+            this.getCurrentData(currentPage.id)
+        }
+    }
 
     changeInputTabs = (type,index) =>{
         const inputData = {
@@ -235,7 +305,7 @@ export default class InputPanel extends Component {
             timeColum: undefined,
             alias: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible,panelColumn } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams } = this.state;
         if(type==="add"){
             tabTemplate.push(InputForm);
             panelColumn.push(inputData);
@@ -244,15 +314,24 @@ export default class InputPanel extends Component {
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
+            checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
+        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
         this.setState({
             tabTemplate,
             panelActiveKey,
             popoverVisible,
-            panelColumn
+            panelColumn,
+            checkFormParams
         })
+    }
+
+    setCurrentSource = (data) => {
+        const { dispatch, currentPage } = this.props;
+        const dispatchSource = {...this.state,...data};
+        dispatch(BrowserAction.setInputData({taskId: currentPage.id ,source: dispatchSource}));
     }
 
     changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
@@ -270,13 +349,14 @@ export default class InputPanel extends Component {
     handleActiveKey = (key) => {
         let { panelActiveKey } = this.state;
         panelActiveKey = key
+        this.setCurrentSource({panelActiveKey})
         this.setState({
             panelActiveKey,
         })
     }
       
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
-        const { panelColumn } = this.state;
+        const { panelColumn, tabTemplate } = this.state;
         if(type === 'column'){
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
@@ -288,27 +368,12 @@ export default class InputPanel extends Component {
         }else{
             panelColumn[index][type] = value;
         }
-        console.log('handleInputChange-panelColumn',panelColumn);
+        tabTemplate[index] = InputForm;
+        this.setCurrentSource({panelColumn})
         this.setState({
-            panelColumn
+            panelColumn,
+            tabTemplate
         })
-    }
-
-    handleChangeRadio = (value) => {
-        this.setState({
-            radioGroup: value
-        })
-    }
-
-    handleSizeChange = (e) => {
-        console.log(e.target.value);
-        this.setState({
-            groupButton: e.target.value
-        })
-      }
-    
-    deletePopover = () => {
-
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
@@ -322,6 +387,7 @@ export default class InputPanel extends Component {
                 })
             }
         }
+        this.setCurrentSource({popoverVisible})
         this.setState({ popoverVisible });
     }
 
@@ -348,6 +414,16 @@ export default class InputPanel extends Component {
         </div>
     }
 
+    recordForm = (ref) => {//存储子组建的所有要检查的form表单
+        const { checkFormParams } = this.state;
+        checkFormParams.push(ref);
+        this.setCurrentSource({checkFormParams})
+        this.setState({
+            checkFormParams
+        })
+    }
+
+
     render() {
         const { tabTemplate,panelActiveKey,panelColumn } = this.state;
         return (
@@ -357,7 +433,7 @@ export default class InputPanel extends Component {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <InputPutOrigin index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}/>
+                                    <InputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}  onRef={this.recordForm}/>
                                 </Panel>
                             )
                         })
@@ -368,3 +444,4 @@ export default class InputPanel extends Component {
         )
     }
 }
+

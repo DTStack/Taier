@@ -16,7 +16,23 @@ const RadioGroup = Radio.Group;
 const { Column, ColumnGroup } = Table;
 const FormItem = Form.Item;
 
-class OutPutOrigin extends Component {
+class OutputOrigin extends Component {
+
+    componentDidMount(){
+        this.props.onRef(this);
+    }
+
+    checkParams = () => {
+        let result;
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                result = true;
+            }else{
+                result = false;
+            }
+        });
+        return result
+    }
 
     render(){
         const { handleInputChange,index,panelColumn } = this.props;
@@ -71,6 +87,24 @@ class OutPutOrigin extends Component {
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
+                    label="Topic"
+                >
+                    {getFieldDecorator('topic', {
+                        initialValue: "disabled",
+                        rules: [
+                            {required: true, message: '请选择Topic',}
+                        ],
+                    })(
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                                <Option value="jack">Jack</Option>
+                                <Option value="lucy">Lucy</Option>
+                                <Option value="disabled" >Disabled</Option>
+                                <Option value="Yiminghe">yiminghe</Option>
+                        </Select>
+                    )}
+                </FormItem>
+                {/* <FormItem
+                    {...formItemLayout}
                     label="表"
                 >
                     {getFieldDecorator('table', {
@@ -86,25 +120,7 @@ class OutPutOrigin extends Component {
                                 <Option value="Yiminghe">yiminghe</Option>
                         </Select>
                     )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="Topic"
-                >
-                    {getFieldDecorator('topic', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择Topic',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("Topic",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
+                </FormItem> 
                 <FormItem
                     {...formItemLayout}
                     label="索引"
@@ -158,42 +174,65 @@ class OutPutOrigin extends Component {
                                 <Option value="Yiminghe">yiminghe</Option>
                         </Select>
                     )}
-                </FormItem>
+                </FormItem> */}
             </Row>
         )
     }
 }
 
+const OutputForm = Form.create({
+    mapPropsToFields(props) {
+            const { saveType, dataOrigin, topic } = props.panelColumn[props.index];
+            return {
+                saveType: { value: saveType },
+                dataOrigin: { value: dataOrigin },
+                topic: { value: topic },
+            }
+        } 
+})(OutputOrigin);
 
-const OutputForm = Form.create()(OutPutOrigin);
+const initialData = {
+    popoverVisible: false,
+    tabTemplate: [],//模版存储,所有输出源(记录个数)
+    panelActiveKey: [],//输出源是打开或关闭状态
+    popoverVisible: [],//删除显示按钮状态
+    panelColumn: [],//存储数据
+    checkFormParams: [],//存储要检查的参数from
+}
 
+export default class OutputPanel extends Component {
 
-export default class InputPanel extends Component {
-
-    state = {
-        visibleAlterRes: false,
-        tabTemplate: [],//模版存储,有所少输入源
-        panelActiveKey: [],//输入源是打开或关闭状态
-        popoverVisible: [],//删除显示按钮状态
-        panelColumn: [],//存储数据
-        groupButton: 1,
-        radioGroup: 1,
+    constructor(props) {
+        super(props)
+        const taskId = this.props.currentPage.id;
+        const copyInitialData = JSON.parse(JSON.stringify(initialData));
+        const data = props.outputData[taskId]||copyInitialData;
+        this.state = {...data};
+    }
+    
+    getCurrentData = (taskId) => {
+        const { dispatch,outputData } = this.props;
+        const copyInitialData = JSON.parse(JSON.stringify(initialData));
+        dispatch(BrowserAction.getOutputData(taskId));
+        const data = outputData[taskId]||copyInitialData;
+        this.setState({...data})
     }
 
+    componentWillReceiveProps(nextProps) {
+        const currentPage = nextProps.currentPage
+        const oldPage = this.props.currentPage
+        if (currentPage.id !== oldPage.id) {
+            this.getCurrentData(currentPage.id)
+        }
+    }
 
     changeInputTabs = (type,index) =>{
         const inputData = {
-            type: undefined,
+            tysaveTypepe: undefined,
             dataOrigin: undefined,
             topic: undefined,
-            table: undefined,
-            model: undefined,
-            column: [],
-            timeType: undefined,
-            timeColum: undefined,
-            alias: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible,panelColumn } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams } = this.state;
         if(type==="add"){
             tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
@@ -202,15 +241,24 @@ export default class InputPanel extends Component {
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
+            checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
+        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
         this.setState({
             tabTemplate,
             panelActiveKey,
             popoverVisible,
-            panelColumn
+            panelColumn,
+            checkFormParams
         })
+    }
+
+    setOutputData = (data) => {
+        const { dispatch, currentPage } = this.props;
+        const dispatchSource = {...this.state,...data};
+        dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,source: dispatchSource}));
     }
 
     changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
@@ -228,45 +276,19 @@ export default class InputPanel extends Component {
     handleActiveKey = (key) => {
         let { panelActiveKey } = this.state;
         panelActiveKey = key
+        this.setOutputData({panelActiveKey})
         this.setState({
             panelActiveKey,
         })
     }
       
-    handleInputChange = (type,index,value,subValue) => {//监听数据改变
+    handleInputChange = (type,index,value,) => {//监听数据改变
         const { panelColumn } = this.state;
-        if(type === 'column'){
-            panelColumn[index][type].push(value);
-        }else if(type === "deleteColumn"){
-            panelColumn[index]["column"].splice(value,1);
-        }else if(type ==="subColumn"){
-            panelColumn[index]["column"][value].column = subValue;
-        }else if(type === "subType"){
-            panelColumn[index]["column"][value].type = subValue;
-        }else{
-            panelColumn[index][type] = value;
-        }
-        console.log('handleInputChange-panelColumn',panelColumn);
+        panelColumn[index][type] = value;
+        this.setOutputData({panelColumn})
         this.setState({
-            panelColumn
+            panelColumn,
         })
-    }
-
-    handleChangeRadio = (value) => {
-        this.setState({
-            radioGroup: value
-        })
-    }
-
-    handleSizeChange = (e) => {
-        console.log(e.target.value);
-        this.setState({
-            groupButton: e.target.value
-        })
-      }
-    
-    deletePopover = () => {
-
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
@@ -280,20 +302,21 @@ export default class InputPanel extends Component {
                 })
             }
         }
+        this.setOutputData({popoverVisible})
         this.setState({ popoverVisible });
     }
 
     panelHeader = (index) => {
         const { popoverVisible } = this.state;
         const popoverContent = <div className="input-panel-title">
-            <div style={{padding: "8 0 12"}}> <Icon type="exclamation-circle" style={{color: "#faad14",}}/>  你确定要删除此输入源吗？</div>
+            <div style={{padding: "8 0 12"}}> <Icon type="exclamation-circle" style={{color: "#faad14",}}/>  你确定要删除此输出源吗？</div>
             <div style={{textAlign: "right",padding: "0 0 8"}}>
                 <Button style={{marginRight: 8}} size="small" onClick={()=>{this.handlePopoverVisibleChange(null,index,false)}}>取消</Button>
                 <Button type="primary" size="small" onClick={()=>{this.changeInputTabs('delete',index)}}>确定</Button>
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输入源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 输出源 ${index+1} (仅支持Json)`}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"
@@ -306,16 +329,26 @@ export default class InputPanel extends Component {
         </div>
     }
 
+    recordForm = (ref) => {//存储子组建的所有要检查的form表单
+        const { checkFormParams } = this.state;
+        checkFormParams.push(ref);
+        this.setOutputData({checkFormParams})
+        this.setState({
+            checkFormParams
+        })
+    }
+
+
     render() {
         const { tabTemplate,panelActiveKey,panelColumn } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
                     {
-                        tabTemplate.map( (OutPutOrigin,index) => {
+                        tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <OutPutOrigin index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}/>
+                                    <OutputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}  onRef={this.recordForm}/>
                                 </Panel>
                             )
                         })
@@ -326,3 +359,4 @@ export default class InputPanel extends Component {
         )
     }
 }
+

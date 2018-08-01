@@ -9,6 +9,10 @@ export const browserAction = mc([
     'CLOSE_OTHERS',
     'SET_CURRENT_PAGE',
     'GET_CURRENT_PAGE',
+    'SET_INPUT_DATA',
+    'GET_INPUT_DATA',
+    'SET_OUTPUT_DATA',
+    'GET_OUTPUT_DATA',
 ], { prefix: 'realtimeTask/browser/' })
 
 export const modalAction = mc([

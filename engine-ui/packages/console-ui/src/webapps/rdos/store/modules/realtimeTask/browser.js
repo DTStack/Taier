@@ -101,6 +101,34 @@ export function updatePage(page) {
     }
 }
 
+export function setInputData(value){
+    return {
+        type: browserAction.SET_INPUT_DATA,
+        data: value,
+    }
+}
+
+export function getInputData(id){
+    return {
+        type: browserAction.GET_INPUT_DATA,
+        data: id,
+    }
+}
+
+export function setOutputData(value){
+    return {
+        type: browserAction.SET_OUTPUT_DATA,
+        data: value,
+    }
+}
+
+export function getOutputData(id){
+    return {
+        type: browserAction.GET_OUTPUT_DATA,
+        data: id,
+    }
+}
+
 // Reducer
 const pagesKey = 'pages';
 const defaultPages = localDb.get(pagesKey) || []
@@ -174,6 +202,30 @@ export function currentPage(state = defaultCurPage, action) {
             localDb.set(key, current)
             return current
         }
+        default:
+            return state;
+    }
+}
+
+export function inputData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_INPUT_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            return data;
+        case browserAction.GET_INPUT_DATA:
+            return state;
+        default:
+            return state;
+    }
+}
+
+export function outputData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_OUTPUT_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            return data;
+        case browserAction.GET_OUTPUT_DATA:
+            return state;
         default:
             return state;
     }

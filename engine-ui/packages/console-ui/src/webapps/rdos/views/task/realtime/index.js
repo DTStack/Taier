@@ -35,9 +35,47 @@ class TaskIndex extends Component {
 
     componentDidMount() { }
 
+    checkParams= () => {
+        const { currentPage, inputData, outputData } = this.props;
+        const { checkFormParams=[] } = inputData[currentPage.id]||{};
+        const { checkFormParams:outputCheckFormParams=[] } = outputData[currentPage.id]||{};
+        let checkStatus = true;
+        
+        if (checkFormParams.length === 0){
+            message.error("至少添加一个输入源");
+            return checkStatus = false;
+        }
+        for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+            const result = checkFormParams[index].checkParams();
+                if(!result){
+                    message.error(`输入源${checkFormParams[index].props.index+1}: 您还有未填选项`);
+                    return checkStatus = false;
+            }
+        }
+        if(outputCheckFormParams.length>0){
+            for (let index = 0,len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+                const result = outputCheckFormParams[index].checkParams();
+                    if(!result){
+                        message.error(`输出源${outputCheckFormParams[index].props.index+1}: 您还有未填选项`);
+                        return checkStatus = false;
+                }
+            }
+        }
+         //检查所有未填选项,弹出所有错误(多次)
+         // checkFormParams.map(v=> {
+         //         const result = v.checkParams();
+         //         if(!result){
+         //             return message.error(`输入源${v.props.index+1}: 您还有未填选项`)
+         //         }
+         // })
+     }
+
     saveTask = () => {
-        const { currentPage, dispatch } = this.props
-        const resList = currentPage.resourceList
+        const { currentPage, dispatch, inputData } = this.props;
+        //检查页面输入输出参数配置
+        if(!this.checkParams()) return;
+
+        const resList = currentPage.resourceList;
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
@@ -315,12 +353,14 @@ class TaskIndex extends Component {
 }
 
 export default connect((state) => {
-    const { resources, pages, currentPage } = state.realtimeTask;
+    const { resources, pages, currentPage, inputData, outputData } = state.realtimeTask;
     const { user } = state;
     return {
         currentPage,
         pages,
         resources,
-        user
+        user,
+        inputData,
+        outputData
     }
 })(TaskIndex) 

@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import { visibleReducer } from './modal'
 import { realtimeTree } from './tree'
 import { resources } from './res'
-import { pages, currentPage } from './browser'
+import { pages, currentPage, inputData, outputData } from './browser'
 
 export const realtimeTask = combineReducers({
     modal: visibleReducer,
@@ -11,4 +11,6 @@ export const realtimeTask = combineReducers({
     resources,
     pages,
     currentPage,
+    inputData,
+    outputData,
 })
