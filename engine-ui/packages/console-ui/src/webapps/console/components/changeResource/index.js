@@ -68,7 +68,7 @@ class ChangeResourceModal extends React.Component {
             selectUser: "",
             selectUserMap: {
                 ...selectUserMap,
-                [value]:{
+                [option.props.tenantid]:{
                     tenantName:option.props.children
                 }
             }
@@ -93,7 +93,7 @@ class ChangeResourceModal extends React.Component {
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
             if (!selectUserMap[user.tenantId]) {
-                result.push(<Option value={user.tenantId}>{user.tenantName}</Option>)
+                result.push(<Option tenantid={user.tenantId} value={user.tenantName}>{user.tenantName}</Option>)
             }
         }
         return result;

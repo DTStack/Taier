@@ -113,7 +113,7 @@ class ResourceManage extends React.Component {
             {
                 title: "最小容量（%）",
                 dataIndex: "capacity",
-                width: "150px",
+                width: "120px",
                 render(text,record) {
                     if(record.type=="cluster"){
                         return null;
@@ -124,7 +124,7 @@ class ResourceManage extends React.Component {
             {
                 title: "最大容量（%）",
                 dataIndex: "maxCapacity",
-                width: "150px",
+                width: "120px",
                 render(text,record) {
                     if(record.type=="cluster"){
                         return null;
