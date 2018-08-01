@@ -62,6 +62,7 @@ module.exports = [
         apiBase: '/console',
         icon: '/public/main/img/icon_4.png',
         description: '计算资源分配、多集群管理',
+        needRoot:true
     }, {
         id: 'map',
         name: '数据地图',

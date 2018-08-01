@@ -13,13 +13,14 @@ import '../../styles/views/portal.scss';
 @connect(state => {
     return {
         apps: state.apps,
+        user: state.user
     }
 })
 class Dashboard extends Component {
 
-    componentDidMount() { 
+    componentDidMount() {
         this._userLoaded = false;
-        this.listenUserStatus();
+        // this.listenUserStatus();
     }
 
     listenUserStatus = () => {
@@ -34,14 +35,17 @@ class Dashboard extends Component {
     }
 
     renderApps = () => {
-        const { apps } = this.props;
-        const sections = apps.map(app => app.enable && app.id !== MY_APPS.MAIN && (
-            <a href={app.link} className="app-tag"  key={app.id}>
-                <img className="app-logo" src={app.icon}/>
-                <h1>{app.name}</h1>
-                <p>{app.description}</p>
-            </a>
-        ))
+        const { apps, user } = this.props;
+        const sections = apps.map(app =>{
+            const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
+            return isShow && app.id !== MY_APPS.MAIN && (
+                <a href={app.link} className="app-tag" key={app.id}>
+                    <img className="app-logo" src={app.icon} />
+                    <h1>{app.name}</h1>
+                    <p>{app.description}</p>
+                </a>
+            )
+        })
         return sections
     }
 
@@ -58,7 +62,7 @@ class Dashboard extends Component {
                                 <span>企业级一站式数据中台-让数据产生价值</span>
                             </div>
                             <div className="left img">
-                                <img src="/public/main/img/pic_banner.png"/>
+                                <img src="/public/main/img/pic_banner.png" />
                             </div>
                         </div>
                     </div>

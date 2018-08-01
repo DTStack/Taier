@@ -436,6 +436,9 @@ class EditCluster extends React.Component {
         clusterConf["hiveConf"] = formValues.hiveConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
+        //服务端兼容，不允许null
+        clusterConf["hiveConf"].username=clusterConf["hiveConf"].username||'';
+        clusterConf["hiveConf"].password=clusterConf["hiveConf"].password||'';
         return clusterConf;
     }
     getCustomParams(data, ParamKey) {

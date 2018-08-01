@@ -26,12 +26,13 @@ function renderMenuItems(menuItems) {
     ) : []
 }
 
-function renderATagMenuItems(menuItems) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
-        menu.enable ? <Menu.Item key={menu.id}>
+function renderATagMenuItems(menuItems, isRoot) {
+    return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
+        const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
+        return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target}>{menu.name}</a>
-        </Menu.Item> : ''
-    ) : []
+        </Menu.Item>) : ''
+    }) : []
 }
 
 export function Logo(props) {
@@ -42,7 +43,7 @@ export function Logo(props) {
 }
 
 export function MenuLeft(props) {
-    const { activeKey, onClick, menuItems } = props;
+    const { activeKey, onClick, menuItems, user } = props;
     return (
         <div className="menu left">
             <Menu
@@ -51,16 +52,16 @@ export function MenuLeft(props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(menuItems)}
+                {renderATagMenuItems(menuItems,user.isRoot)}
             </Menu>
         </div>
     )
 }
 
 export function MenuRight(props) {
-    const { 
+    const {
         onClick, settingMenus, user,
-        apps, app, showHelpSite, helpUrl 
+        apps, app, showHelpSite, helpUrl
     } = props;
 
     const extraParms = app ? `?app=${app && app.id}` : '';
@@ -208,11 +209,12 @@ export class Navigator extends Component {
         const { current } = this.state
         return (
             <header className="header">
-                <div style={{width:logoWidth}} className="logo left txt-left">
+                <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>
                 {
                     menuLeft ? menuLeft : <MenuLeft
+                        user={user}
                         activeKey={current}
                         menuItems={menuItems}
                         onClick={this.handleClick}

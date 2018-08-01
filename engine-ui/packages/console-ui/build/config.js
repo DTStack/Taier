@@ -22,6 +22,7 @@ module.exports = {
             "/uic": { // UIC地址
                 target: "http://dtuic.dtstack.net",
                 changeOrigin: true,
+                pathRewrite:{"^/uic":"/"},
                 secure: false,
             },
             "/api/da": { // da地址
