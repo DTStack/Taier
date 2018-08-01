@@ -52,6 +52,17 @@ module.exports = [
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
+    },{
+        id: 'console',
+        name: '控制台',
+        link: 'console.html#/',
+        filename: 'console.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/console',
+        icon: '/public/main/img/icon_4.png',
+        description: '计算资源分配、多集群管理',
+        needRoot:true
     }, {
         id: 'map',
         name: '数据地图',
