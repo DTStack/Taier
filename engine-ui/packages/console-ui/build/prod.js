@@ -12,9 +12,16 @@ const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 
+baseConf.mode = "production";
+
 baseConf.plugins.push(
     // new BundleAnalyzerPlugin(),
-    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 })
+    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 }),
+    new webpack.DefinePlugin({
+        'process.env': {
+            'NODE_ENV': JSON.stringify('production')
+        }
+    }),
 );
 
 baseConf.optimization.minimizer = [
@@ -30,7 +37,6 @@ baseConf.optimization.minimizer = [
         }
     })
 ];
-baseConf.mode = "production";
 
 const htmlPlugs = [];
 function loadHtmlPlugs() {

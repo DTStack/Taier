@@ -18,6 +18,7 @@ baseConf.output = {
     publicPath: "/"
 };
 baseConf.mode = "development";
+
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
         clearConsole: true,
@@ -38,6 +39,11 @@ baseConf.plugins.push(
     new webpack.SourceMapDevToolPlugin({
         filename: "[file].map",
         columns: false
+    }),
+    new webpack.DefinePlugin({
+        'process.env': {
+            'NODE_ENV': JSON.stringify('development')
+        }
     }),
     new webpack.HotModuleReplacementPlugin() // 开启全局的模块热替换(HMR)
 );
