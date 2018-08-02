@@ -425,7 +425,7 @@ public class FlinkClient extends AbsClient {
 
         try {
             return FlinkStandaloneRestParseUtil.parseEngineLog(retMap);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             logger.error("", e);
             return "get engine message error," + e.getMessage();
         }
