@@ -59,4 +59,6 @@ export const consoleApp = {
     target: '_blank',
     enable: true,
     apiBase: '/console',
+    needRoot:true,
+    disableExt:true
 }

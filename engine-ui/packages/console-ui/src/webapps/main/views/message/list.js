@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { assign } from 'lodash'
-import { 
-    Tabs, Menu, Table, 
-    Checkbox, Button, message 
+import {
+    Tabs, Menu, Table,
+    Checkbox, Button, message
 } from 'antd'
 
 import { Link } from 'react-router'
@@ -96,7 +96,7 @@ class MessageList extends Component {
 
     markAsAllRead = () => {
         const { selectedApp, selectedRowKeys } = this.state;
-        
+
         const unReadRows = this.getUnreadRows()
 
         Api.markAsAllRead(selectedApp, {
@@ -130,7 +130,7 @@ class MessageList extends Component {
         this.props.updateMsg({
             currentPage: pagination.current,
         })
-        this.setState({ 
+        this.setState({
             selectedRowKeys: [],
             selectedAll: false,
         }, this.loadMsg)
@@ -189,16 +189,16 @@ class MessageList extends Component {
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '0 24px' }}>
-                    <Checkbox 
+                    <Checkbox
                         checked={selectedAll}
                         disabled={disabled}
                         onChange={this.onCheckAllChange}></Checkbox>
                 </td>
                 <td>
                     {
-                        <Button 
+                        <Button
                             size="small"
-                            type="primary" 
+                            type="primary"
                             disabled={disabled}
                             onClick={this.deleteMsg}>
                             删除
@@ -206,7 +206,7 @@ class MessageList extends Component {
                     }
                     {
                         msgList.msgType !== '3' && <span>
-                            <Button 
+                            <Button
                                 size="small"
                                 type="primary"
                                 disabled={disabled}
@@ -216,7 +216,7 @@ class MessageList extends Component {
                             <Button
                                 disabled={disabled}
                                 size="small"
-                                type="primary" 
+                                type="primary"
                                 onClick={this.markAsAllRead}>
                                 全部已读
                             </Button>
@@ -236,7 +236,7 @@ class MessageList extends Component {
         if (apps && apps.length > 0) {
             for (var i = 0; i < apps.length; i++) {
                 const app = apps[i];
-                if (app.enable && app.id !== 'main') {
+                if (app.enable && app.id !== 'main' && !app.disableExt) {
                     menuItem.push(
                         <MenuItem app={app} key={app.id}>{app.name}</MenuItem>
                     )
@@ -250,7 +250,7 @@ class MessageList extends Component {
             key: 'content',
             render(text, record) {
                 return <Link to={`message/detail/${record.id}?app=${selectedApp}`}>
-                    <MsgStatus value={record.readStatus}/> {text}
+                    <MsgStatus value={record.readStatus} /> {text}
                 </Link>
             },
         }, {
@@ -301,23 +301,23 @@ class MessageList extends Component {
 
         return (
             <div className="m-panel" style={{ overflowY: 'auto', height: 'calc(100% - 80px)' }}>
-                <Menu 
-                    selectedKeys={[ selectedApp ]}
+                <Menu
+                    selectedKeys={[selectedApp]}
                     onSelect={this.onAppSelect}
                     className="left">
                     {menuItem}
                 </Menu>
                 <div className="right panel-content">
-                    <Table 
+                    <Table
                         rowKey="id"
                         className="m-table"
-                        columns={colms} 
-                        dataSource={ table.data || [] } 
+                        columns={colms}
+                        dataSource={table.data || []}
                         rowSelection={rowSelection}
                         onChange={this.handleTableChange}
                         pagination={pagination}
                         footer={this.tableFooter}
-                        // scroll={{ y: 400 }}
+                    // scroll={{ y: 400 }}
                     />
                 </div>
             </div>
@@ -331,10 +331,10 @@ class MessageList extends Component {
 
         return (
             <div className="box-1 m-tabs" style={{ height: 'calc(100% - 40px)' }}>
-                <Tabs 
+                <Tabs
                     animated={false}
                     // style={{ overflowY: 'auto' }}
-                    activeKey={ msgList.msgType }
+                    activeKey={msgList.msgType}
                     onChange={this.onPaneChange}
                 >
                     <TabPane tab="全部消息" key="1"> {paneContent} </TabPane>

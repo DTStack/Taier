@@ -18,7 +18,7 @@ export function getUser() {
         Api.getLoginedUser().then(res => {
             if (res.code === 1) {
                 return dispatch({
-                    type: userAction.GET_USER,
+                    type: userAction.UPDATE_USER,
                     data: res.data,
                 })
             }
@@ -66,7 +66,7 @@ export function user(state = {}, action) {
         return action.data
     case userAction.UPDATE_USER: {
         if (action.data !== null) {
-            return assign(state, action.data)
+            return {...state,...action.data}
         }
         return state;
     }
