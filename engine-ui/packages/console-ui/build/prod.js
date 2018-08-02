@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
     .BundleAnalyzerPlugin;
-const ImageminPlugin = require("imagemin-webpack-plugin").default;
+// const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 const MY_PATH = require("./consts");
