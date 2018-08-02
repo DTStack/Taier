@@ -17,6 +17,9 @@ baseConf.output = {
     sourceMapFilename: "[name].map",
     publicPath: "/"
 };
+/**
+ * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
+ *  **/
 baseConf.mode = "development";
 
 baseConf.plugins.push(

@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
     .BundleAnalyzerPlugin;
+//centos有bug,暂不启动
 // const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
@@ -12,6 +13,10 @@ const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 
+/**
+ * Sets process.env.NODE_ENV on DefinePlugin to value production. 
+ * Enables FlagDependencyUsagePlugin, FlagIncludedChunksPlugin, ModuleConcatenationPlugin, NoEmitOnErrorsPlugin, OccurrenceOrderPlugin, SideEffectsFlagPlugin and UglifyJsPlugin
+ *  **/
 baseConf.mode = "production";
 
 // baseConf.plugins.push(
