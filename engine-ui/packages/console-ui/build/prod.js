@@ -17,11 +17,11 @@ baseConf.mode = "production";
 baseConf.plugins.push(
     // new BundleAnalyzerPlugin(),
     new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 }),
-    new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': JSON.stringify('production')
-        }
-    }),
+    // new webpack.DefinePlugin({
+    //     'process.env': {
+    //         'NODE_ENV': JSON.stringify('production')
+    //     }
+    // }),
 );
 
 baseConf.optimization.minimizer = [

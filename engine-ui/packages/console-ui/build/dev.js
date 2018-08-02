@@ -40,11 +40,11 @@ baseConf.plugins.push(
         filename: "[file].map",
         columns: false
     }),
-    new webpack.DefinePlugin({
-        'process.env': {
-            'NODE_ENV': JSON.stringify('development')
-        }
-    }),
+    // new webpack.DefinePlugin({
+    //     'process.env': {
+    //         'NODE_ENV': JSON.stringify('development')
+    //     }
+    // }),
     new webpack.HotModuleReplacementPlugin() // 开启全局的模块热替换(HMR)
 );
 
