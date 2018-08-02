@@ -45,6 +45,8 @@ public class FlinkConfig {
 
 	private String clusterMode; // 集群运行模式: standalone or yarn
 
+	private String queue;
+
 	private Map<String, Object> hadoopConf;
 
 	private Map<String, Object> yarnConf;
@@ -188,5 +190,13 @@ public class FlinkConfig {
 
 	public void setYarnConf(Map<String, Object> yarnConf) {
 		this.yarnConf = yarnConf;
+	}
+
+	public String getQueue() {
+		return queue;
+	}
+
+	public void setQueue(String queue) {
+		this.queue = queue;
 	}
 }
