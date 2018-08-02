@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.execution.learning;
 
 import com.dtstack.learning.client.ClientArguments;
+import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -28,6 +30,7 @@ public class LearningResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
+        System.out.println("learning judgeslots start");
         int totalFreeCore = 0;
         int totalFreeMem = 0;
         int totalCore = 0;
@@ -55,8 +58,9 @@ public class LearningResourceInfo extends EngineResourceInfo {
             String[] args = LearningUtil.buildPythonArgs(jobClient);
             clientArguments = new ClientArguments(args);
         } catch (Exception e) {
-           throw new RuntimeException(e);
+           throw new RdosException(ErrorCode.INVALID_PARAMETERS, e);
         }
+
         int workerCores = clientArguments.getWorkerVCores();
         int workerMem = clientArguments.getWorkerMemory();
         int workerNum = clientArguments.getWorkerNum();
@@ -71,6 +75,11 @@ public class LearningResourceInfo extends EngineResourceInfo {
 
         int neededCores = workerTotalCores + psTotalCores;
         int neededMem = workerTotalMem + psTotalMem;
+
+        System.out.println("neededCores=" + neededCores
+                + " totalFreeCore=" + totalFreeCore
+                + " neededMem=" + neededMem
+                + " totalFreeMem=" + totalFreeMem);
 
         return neededCores <= totalFreeCore && neededMem <= totalFreeMem;
     }

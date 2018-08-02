@@ -37,6 +37,8 @@ public class SyncPluginInfo {
     /**插件jar名称*/
     private static final String syncJarFileName = "flinkx.jar";
 
+    private static final String FILE_PROTOCOL = "file://";
+
     //同步模块在flink集群加载插件
     private String flinkRemoteSyncPluginRoot;
 
@@ -130,13 +132,12 @@ public class SyncPluginInfo {
             Preconditions.checkArgument(StringUtils.isNotEmpty(readerName), "reader name should not be empty");
             Preconditions.checkArgument(StringUtils.isNotEmpty(writerName), "writer ame should not be empty");
 
-            File commonDir = new File(flinkSyncPluginRoot + fileSP + "common");
-            File readerDir = new File(flinkSyncPluginRoot + fileSP + readerName);
-            File writerDir = new File(flinkSyncPluginRoot + fileSP + writerName);
-
-            urlList.addAll(findJarsInDir(commonDir));
-            urlList.addAll(findJarsInDir(readerDir));
-            urlList.addAll(findJarsInDir(writerDir));
+            File commonDir = new File(localSyncFileDir + fileSP + "common");
+            File readerDir = new File(localSyncFileDir + fileSP + readerName);
+            File writerDir = new File(localSyncFileDir + fileSP + writerName);
+            urlList.addAll(findJarsInDir(commonDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + "common"));
+            urlList.addAll(findJarsInDir(readerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + readerName));
+            urlList.addAll(findJarsInDir(writerDir, FILE_PROTOCOL + flinkSyncPluginRoot + fileSP + writerName));
 
         } catch (Exception e) {
             LOG.error("", e);
@@ -145,7 +146,7 @@ public class SyncPluginInfo {
         }
     }
 
-    private static List<URL> findJarsInDir(File dir)  throws MalformedURLException {
+    private List<URL> findJarsInDir(File dir, String prefix)  throws MalformedURLException {
         List<URL> urlList = new ArrayList<>();
 
         if(dir.exists() && dir.isDirectory()) {
@@ -157,7 +158,8 @@ public class SyncPluginInfo {
             });
 
             for(File jarFile : jarFiles) {
-                urlList.add(jarFile.toURI().toURL());
+                URL url = new URL(prefix + File.separator +  jarFile.getName());
+                urlList.add(url);
             }
 
         }
