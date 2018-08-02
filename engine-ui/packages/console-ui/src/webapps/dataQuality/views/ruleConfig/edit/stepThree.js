@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import moment from 'moment';
-import { 
-    Button, Form, Select, 
-    DatePicker, Checkbox, message, Input 
+import {
+    Button, Form, Select,
+    DatePicker, Checkbox, message, Input
 } from 'antd';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
@@ -72,8 +72,8 @@ export default class StepThree extends Component {
     // 调度周期下拉框
     renderPeriodType = (data) => {
         return data.map((item) => {
-            return <Option 
-                key={item.value} 
+            return <Option
+                key={item.value}
                 value={item.value.toString()}>
                 {item.name}
             </Option>
@@ -87,8 +87,8 @@ export default class StepThree extends Component {
 
     renderSendTypeList = (data) => {
         return data && data.map((item) => {
-            return <Checkbox 
-                key={item.value} 
+            return <Checkbox
+                key={item.value}
                 value={item.value.toString()}>
                 {item.name}
             </Checkbox>
@@ -110,8 +110,8 @@ export default class StepThree extends Component {
     // 通知人下拉框
     renderUserList = (data) => {
         return data.map((item) => {
-            return <Option 
-                key={item.id} 
+            return <Option
+                key={item.id}
                 value={item.id.toString()}>
                 {item.userName}
             </Option>
@@ -122,7 +122,7 @@ export default class StepThree extends Component {
     onNotifyUserChange = (value) => {
         const { form } = this.props;
         let sendTypes = form.getFieldValue('sendTypes');
-        
+
         if (value.length === 0 && sendTypes.length === 0) {
             form.setFieldsValue({ sendTypes: [] });
         }
@@ -174,18 +174,18 @@ export default class StepThree extends Component {
 
             for (let i = 0; i <= 23; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
-                        {i < 10 ? `0${i}`: i}
+                        {i < 10 ? `0${i}` : i}
                     </Option>
                 );
             }
 
-            return <Select 
-                style={{ width: 200 }} 
+            return <Select
+                style={{ width: 200 }}
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
+                {options}
             </Select>
         };
 
@@ -195,18 +195,18 @@ export default class StepThree extends Component {
 
             for (let i = 0, l = 59; i <= l; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
-                        {i < 10 ? `0${i}`: i}
+                        {i < 10 ? `0${i}` : i}
                     </Option>
                 );
             }
 
-            return <Select 
-                style={{ width: 200 }} 
+            return <Select
+                style={{ width: 200 }}
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
-                { options }
+                {options}
             </Select>
         };
 
@@ -214,20 +214,20 @@ export default class StepThree extends Component {
         const generateGapHour = () => {
             let options = [];
 
-            for(let i = 1, l = 23; i <= l; i++) {
+            for (let i = 1, l = 23; i <= l; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
                         {i}小时
                     </Option>
                 );
             }
-            
+
             return <Select
                 style={{ width: 200 }}
-                onChange={this.changeScheduleConfTime.bind(this, 'gapHour') }>
-                { options }
+                onChange={this.changeScheduleConfTime.bind(this, 'gapHour')}>
+                {options}
             </Select>
         };
 
@@ -237,8 +237,8 @@ export default class StepThree extends Component {
 
             for (let i = 1; i <= 31; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
                         {`每月${i}号`}
                     </Option>
@@ -249,7 +249,7 @@ export default class StepThree extends Component {
                 mode="multiple"
                 style={{ width: 428 }}
                 onChange={this.changeScheduleConfTime.bind(this, 'day')}>
-                { options }
+                {options}
             </Select>
         };
 
@@ -276,7 +276,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -292,7 +292,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -311,7 +311,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('gapHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '间隔时间不能为空'
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : ''
@@ -325,7 +325,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('endHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -341,7 +341,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -395,7 +395,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('weekDay', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '周内天数不能为空'
                                 }],
                                 initialValue: scheduleConfObj.weekDay ? scheduleConfObj.weekDay : []
@@ -443,7 +443,7 @@ export default class StepThree extends Component {
                         {
                             getFieldDecorator('day', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '月内天数不能为空'
                                 }],
                                 initialValue: scheduleConfObj.day ? scheduleConfObj.day : []
@@ -485,7 +485,7 @@ export default class StepThree extends Component {
                 </div>
             }
 
-            case '5': 
+            case '5':
             default: {
                 break;
             }
@@ -496,11 +496,11 @@ export default class StepThree extends Component {
     checkTime = (rule, value, callback) => {
         const { form } = this.props;
         let beginHour = form.getFieldValue('beginHour'),
-            beginMin  = form.getFieldValue('beginMin'),
-            endHour   = form.getFieldValue('endHour'),
-            endMin    = form.getFieldValue('endMin'),
+            beginMin = form.getFieldValue('beginMin'),
+            endHour = form.getFieldValue('endHour'),
+            endMin = form.getFieldValue('endMin'),
             beginTime = parseInt(beginHour) * 60 + parseInt(beginMin),
-            endTime   = parseInt(endHour) * 60 + parseInt(endMin);
+            endTime = parseInt(endHour) * 60 + parseInt(endMin);
 
         if (beginTime >= endTime) {
             callback('开始时间不能晚于结束时间');
@@ -550,7 +550,7 @@ export default class StepThree extends Component {
                 message.error(err.endDate.errors[0].message)
             }
 
-            if(!err) {
+            if (!err) {
                 editParams.rules.forEach((rule) => {
                     delete rule.id;
                     delete rule.isTable;
@@ -558,12 +558,12 @@ export default class StepThree extends Component {
                     delete rule.functionName;
                     delete rule.verifyTypeValue;
                 });
-                if(!havePart){
-                    editParams.partition=undefined;
+                if (!havePart) {
+                    editParams.partition = undefined;
                 }
-                this.props.addMonitor({...editParams});
+                this.props.addMonitor({ ...editParams });
                 setTimeout(
-                    ()=>{
+                    () => {
                         hashHistory.push('/dq/rule');
                     },
                     1000
@@ -585,6 +585,7 @@ export default class StepThree extends Component {
         const alarmTypes = sendTypes ? sendTypes.map(item => item.toString()) : [];
         // 钉钉告警
         const hasDDAlarm = alarmTypes.indexOf(ALARM_TYPE.DINGDING) > -1;
+        const DDOnly=hasDDAlarm&&alarmTypes.length==1;
 
         return (
             <div>
@@ -593,10 +594,10 @@ export default class StepThree extends Component {
                         <FormItem {...halfFormItemLayout} label="调度周期">
                             {
                                 getFieldDecorator('periodType', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '执行周期不能为空' 
-                                    }], 
+                                    rules: [{
+                                        required: true,
+                                        message: '执行周期不能为空'
+                                    }],
                                     initialValue: `${scheduleConfObj.periodType}`
                                 })(
                                     <Select onChange={this.onPeriodTypeChange}>
@@ -615,7 +616,7 @@ export default class StepThree extends Component {
                                 {
                                     getFieldDecorator('beginDate', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
@@ -636,7 +637,7 @@ export default class StepThree extends Component {
                                 {
                                     getFieldDecorator('endDate', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
@@ -657,7 +658,7 @@ export default class StepThree extends Component {
                         {
                             this.renderDynamic()
                         }
-                        
+
                         <FormItem {...halfFormItemLayout} label="告警方式">
                             {
                                 getFieldDecorator('sendTypes', {
@@ -675,7 +676,7 @@ export default class StepThree extends Component {
                                 )
                             }
                         </FormItem>
-                        { hasDDAlarm && <FormItem
+                        {hasDDAlarm && <FormItem
                             {...halfFormItemLayout}
                             label="webhook"
                         >
@@ -689,7 +690,7 @@ export default class StepThree extends Component {
                             )}
                         </FormItem>}
 
-                        <FormItem {...halfFormItemLayout} label="告警接收人">
+                        {!DDOnly && <FormItem {...halfFormItemLayout} label="告警接收人">
                             {
                                 getFieldDecorator('notifyUser', {
                                     rules: [{
@@ -698,9 +699,9 @@ export default class StepThree extends Component {
                                     }],
                                     initialValue: notifyUser.map(item => item.toString())
                                 })(
-                                    <Select 
-                                        allowClear 
-                                        mode="multiple" 
+                                    <Select
+                                        allowClear
+                                        mode="multiple"
                                         onChange={this.onNotifyUserChange}>
                                         {
                                             this.renderUserList(userList)
@@ -708,7 +709,7 @@ export default class StepThree extends Component {
                                     </Select>
                                 )
                             }
-                        </FormItem>
+                        </FormItem>}
                     </Form>
                 </div>
 
