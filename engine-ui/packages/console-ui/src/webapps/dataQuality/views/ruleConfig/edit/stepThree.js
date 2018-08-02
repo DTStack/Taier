@@ -585,7 +585,6 @@ export default class StepThree extends Component {
         const alarmTypes = sendTypes ? sendTypes.map(item => item.toString()) : [];
         // 钉钉告警
         const hasDDAlarm = alarmTypes.indexOf(ALARM_TYPE.DINGDING) > -1;
-        const DDOnly=hasDDAlarm&&alarmTypes.length==1;
 
         return (
             <div>
@@ -690,7 +689,7 @@ export default class StepThree extends Component {
                             )}
                         </FormItem>}
 
-                        {!DDOnly && <FormItem {...halfFormItemLayout} label="告警接收人">
+                        <FormItem {...halfFormItemLayout} label="告警接收人">
                             {
                                 getFieldDecorator('notifyUser', {
                                     rules: [{
@@ -709,7 +708,7 @@ export default class StepThree extends Component {
                                     </Select>
                                 )
                             }
-                        </FormItem>}
+                        </FormItem>
                     </Form>
                 </div>
 
