@@ -338,12 +338,12 @@ class EditCluster extends React.Component {
         return keyAndValue.map(
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span}>
-                        {key.length > 17 ?
-                            <Tooltip title={key}>{key.substr(0, 17) + "..."}</Tooltip>
+                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span+3}>
+                        {key.length > 25 ?
+                            <Tooltip title={key}>{key.substr(0, 25) + "..."}</Tooltip>
                             : key}：
                     </Col>
-                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span}>
+                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span-1}>
                         {value}
                     </Col>
                 </Row>)
