@@ -64,7 +64,8 @@ class Header extends Component {
 
     checkUnSaveTask = (onOk) => {
         const { realTimeTabs, offlineTabs } = this.props;
-        const tabsData = inOffline() ? offlineTabs : realTimeTabs;
+        const tabsData = inOffline() ? offlineTabs : inRealtime() ? realTimeTabs : [];
+
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {
                 if (tab.notSynced) {
