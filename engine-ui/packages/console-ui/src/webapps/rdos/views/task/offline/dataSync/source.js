@@ -524,7 +524,7 @@ class SourceForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: !sourceMap.type || !sourceMap.type.fileType ? 'text' : sourceMap.type.fileType
+                            initialValue: sourceMap.type && sourceMap.type.fileType ? sourceMap.type.fileType : 'text',
                         })(
                             <Select onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
