@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
     Row,Col,Icon,Tooltip,Table,Input,Select,
-    Collapse, Button,Radio,Popover,Form
+    Collapse, Button,Radio,Popover,Form,InputNumber
 } from 'antd'
 
 import Api from '../../../api';
@@ -37,43 +37,40 @@ class InputOrigin extends Component {
         this.props.onRef(this);
     }
 
-    checkParams = (v) => {
-        console.log('checkParams',this.props);
+    checkParams = () => {
         //手动检测table参数
         const { index,panelColumn } = this.props;
         const tableColumns = panelColumn[index].columns;
-        
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
                 result.status = true;
+                if(tableColumns.length === 0){
+                    result.status = false;
+                    result.message = "至少添加一个字段"
+                }else{
+                    tableColumns.map(v=>{
+                        if(!v.column||!v.type){
+                            result.status = false;
+                            result.message= "有未填写的字段或类型"
+                        }
+                    })
+                }
             }else{
                 result.status = false;
             }
         });
-        if(tableColumns.length === 0){
-            result.status = false;
-            result.message = "至少添加一个字段"
-        }else{
-            tableColumns.map(v=>{
-                if(v.column||v.type){
-                    result.status = false;
-                    result.message= "有未填写的字段或类型"
-                }
-            })
-        }
         return result
     }
 
-    checkConfirm = (rule, value, callback)=>{
-        const number = parseInt(value || 0, 10);
-        if (isNaN(number)) {
-            callback("请输入数字"); 
-        }else{
-            return
-        }
-  }
+    // checkConfirm = (rule, value, callback)=>{
+    //     const number = parseInt(value || 0, 10);
+    //     if (isNaN(number)) {
+    //         callback("请输入数字");
+    //     }else{
+    //         return
+    //     }
+    // }
 
     originOption = (type,arrData)=> {
         switch (type) {
@@ -105,10 +102,7 @@ class InputOrigin extends Component {
 
     render(){
         const { handleInputChange, index, panelColumn,inputSearchParams } = this.props;
-        console.log('inputSearchParams', this.props);
         const currentOpt = inputSearchParams[index];
-        console.log('mysqlOptionType',mysqlFieldTypes);
-        
         const originOptionType = this.originOption('originType',currentOpt&&currentOpt.originType||[]);
         const topicOptionType = this.originOption('currencyType',currentOpt&&currentOpt.topic||[]);
         const eventTimeOptionType = this.originOption('eventTime',panelColumn[index].columns)
@@ -176,7 +170,7 @@ class InputOrigin extends Component {
                     <FormItem
                         {...formItemLayout}
                         label={(
-                            <span > 
+                            <span >
                                 Table&nbsp;
                                 <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
                                     <Icon type="question-circle-o" /> 
@@ -280,10 +274,10 @@ class InputOrigin extends Component {
                                 {getFieldDecorator('offset', {
                                     rules: [
                                         {required: true, message: '请输入时间偏移量'},
-                                        { validator: this.checkConfirm }
+                                        // { validator: this.checkConfirm }
                                     ],
                                 })(
-                                    <Input  placeholder="请输入时间偏移量" className="right-input" onChange={e => handleInputChange('offset',index,e.target.value)}/>
+                                    <InputNumber className="number-input" onChange={value => handleInputChange('offset',index,value)}/>
                                 )}
                             </FormItem>: undefined
                     }
@@ -344,6 +338,26 @@ export default class InputPanel extends Component {
         this.state = {...data};
     }
     
+    componentDidMount(){
+        const { source } = this.props.currentPage;
+        if(source&&source.length>0){
+            this.currentInitData(source)
+        }
+    }
+
+    currentInitData = (source) => {
+        const {tabTemplate,panelColumn} = this.state;
+        source.map( v => {
+            tabTemplate.push(InputForm);
+            panelColumn.push(v);
+            this.getTypeOriginData("add",v.type);
+        })
+        this.setState({
+            tabTemplate,
+            panelColumn
+        })
+    }
+
     getTypeOriginData = (index,type) => {
         const { inputSearchParams } = this.state;
         const selectData = { topic: [], originType: [] };
@@ -406,6 +420,7 @@ export default class InputPanel extends Component {
             columns: [],
             timeType: 1,
             timeColum: undefined,
+            offset: 0
             // alias: undefined,
         }
         
@@ -465,7 +480,6 @@ export default class InputPanel extends Component {
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
         const { panelColumn } = this.state;
         if(type === 'columns'){
-            // console.log('columns-value',value);
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
@@ -537,8 +551,6 @@ export default class InputPanel extends Component {
 
     render() {
         const { tabTemplate,panelActiveKey,panelColumn,inputSearchParams } = this.state;
-        console.log('panelColumn',panelColumn);
-        
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">

@@ -24,7 +24,6 @@ class OutputOrigin extends Component {
     }
 
     checkParams = (v) => {
-        console.log('checkParams',this.props);
         //手动检测table参数
         const { index,panelColumn } = this.props;
         const tableColumns = panelColumn[index].columns;
@@ -32,23 +31,22 @@ class OutputOrigin extends Component {
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
                 result.status = true;
+                if(tableColumns.length === 0){
+                    result.status = false;
+                    result.message = "至少添加一个字段"
+                }else{
+                    tableColumns.map(v=>{
+                        if(!v.column||!v.type){
+                            result.status = false;
+                            result.message= "有未填写的字段或类型"
+                        }
+                    })
+                }
             }else{
                 result.status = false;
             }
         });
-        if(tableColumns.length === 0){
-            result.status = false;
-            result.message = "至少添加一个字段"
-        }else{
-            tableColumns.map(v=>{
-                if(v.column||v.type){
-                    result.status = false;
-                    result.message= "有未填写的字段或类型"
-                }
-            })
-        }
         return result
     }
 
@@ -285,6 +283,26 @@ export default class OutputPanel extends Component {
         this.state = {...data};
     }
     
+    componentDidMount(){
+        const { sink } = this.props.currentPage;
+        if(sink&&sink.length>0){
+            this.currentInitData(sink)
+        }
+    }
+
+    currentInitData = (sink) => {
+        const {tabTemplate,panelColumn} = this.state;
+        sink.map( v => {
+            tabTemplate.push(OutputForm);
+            panelColumn.push(v);
+            this.getTypeOriginData("add",v.type);
+        })
+        this.setState({
+            tabTemplate,
+            panelColumn
+        })
+    }
+
     getCurrentData = (taskId) => {
         const { dispatch,outputData } = this.props;
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
@@ -397,10 +415,9 @@ export default class OutputPanel extends Component {
         })
     }
       
-    handleInputChange = (type,index,value,) => {//监听数据改变
+    handleInputChange = (type,index,value,subValue) => {//监听数据改变
         const { panelColumn } = this.state;
         if(type === 'columns'){
-            // console.log('columns-value',value);
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);

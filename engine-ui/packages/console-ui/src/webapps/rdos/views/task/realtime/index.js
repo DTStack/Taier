@@ -45,6 +45,8 @@ class TaskIndex extends Component {
         }
         for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
+            console.log('result',result);
+            
             if(!result.status){
                 return message.error(`输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
             }
