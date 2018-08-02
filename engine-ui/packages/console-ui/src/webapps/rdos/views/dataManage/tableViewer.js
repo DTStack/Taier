@@ -98,7 +98,7 @@ export default class TableViewer extends React.Component {
     getPreview(key) {
         const { previewData } = this.state;
         if (previewData) return;
-        if (+key === 2 || +key === 3) {
+        if (+key === 3) {
             ajax.previewTable(this.queryParams).then(res => {
                 if (res.code === 1 && res.data) {
                     this.setState({
