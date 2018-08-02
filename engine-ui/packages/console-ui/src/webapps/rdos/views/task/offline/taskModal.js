@@ -497,7 +497,9 @@ class TaskModal extends React.Component {
 
     constructor(props) {
         super(props);
-
+        this.state={
+            loading:false
+        }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
 
@@ -526,10 +528,15 @@ class TaskModal extends React.Component {
                     values.version = defaultData.version;
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
-
+                this.setState({
+                    loading:true
+                })
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(isSuccess => {
                         if (isSuccess) {
+                            this.setState({
+                                loading:false
+                            })
                             message.success("操作成功")
                             form.resetFields();
                             this.closeModal();
@@ -552,7 +559,7 @@ class TaskModal extends React.Component {
 
     render() {
         const { isModalShow, taskTreeData, resourceTreeData, defaultData } = this.props;
-
+        const {loading} = this.state;
         let isCreate = true;
         if (defaultData && defaultData.name) {
             isCreate = false;
@@ -573,7 +580,8 @@ class TaskModal extends React.Component {
                         <Button key="submit"
                             type="primary"
                             size="large"
-                            onClick={this.handleSubmit}
+                            loading={loading}
+                            onClick={this.handleSubmit.bind(this)}
                         > 确认 </Button>
                     ]}
                     onCancel={this.handleCancel}
