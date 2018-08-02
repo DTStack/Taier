@@ -57,6 +57,11 @@ class Main extends Component {
                             })
                         }
                     }
+                )
+                .catch(
+                    (e)=>{
+                        console.log("控制台权限")
+                    }
                 );
         }
     }
