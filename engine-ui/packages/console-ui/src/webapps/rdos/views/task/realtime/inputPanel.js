@@ -1,14 +1,18 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
-    message, Select, Collapse, Button,Radio,Popover,
-    Form
+    Row,Col,Icon,Tooltip,Table,Input,Select,
+    Collapse, Button,Radio,Popover,Form
 } from 'antd'
 
-import utils from 'utils'
-import Api from '../../../api'
+import Api from '../../../api';
+import { mysqlFieldTypes } from '../../../comm/const';
+
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import TaskVersion from '../offline/taskVersion';
+import Editor from '../../../components/code-editor'
+
+import { jsonEditorOptions, LOCK_TYPE } from '../../../comm/const'
+
+
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -33,22 +37,82 @@ class InputOrigin extends Component {
         this.props.onRef(this);
     }
 
-    checkParams = () => {
-        let result;
-        console.log('checkParams-this.props.form',this.props.form);
+    checkParams = (v) => {
+        console.log('checkParams',this.props);
+        //手动检测table参数
+        const { index,panelColumn } = this.props;
+        const tableColumns = panelColumn[index].columns;
+        
+        let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 console.log('Received values of form: ', values);
-                result = true;
+                result.status = true;
             }else{
-                result = false;
+                result.status = false;
             }
         });
+        if(tableColumns.length === 0){
+            result.status = false;
+            result.message = "至少添加一个字段"
+        }else{
+            tableColumns.map(v=>{
+                if(v.column||v.type){
+                    result.status = false;
+                    result.message= "有未填写的字段或类型"
+                }
+            })
+        }
         return result
     }
 
+    checkConfirm = (rule, value, callback)=>{
+        const number = parseInt(value || 0, 10);
+        if (isNaN(number)) {
+            callback("请输入数字"); 
+        }else{
+            return
+        }
+  }
+
+    originOption = (type,arrData)=> {
+        switch (type) {
+            case "originType":
+                return arrData.map(v=>{
+                    return  <Option key={v} value={`${v.id}`}>{v.name}</Option>
+                 })
+            case "currencyType":
+               return arrData.map(v=>{
+                    return  <Option key={v} value={`${v}`}>{v}</Option>
+                })
+            case "eventTime":
+                return arrData.map((v,index)=>{
+                    return  <Option key={index} value={`${v.column}`}>{v.column}</Option>
+                })  
+            default:
+                return null;
+        }
+    }
+
+    // editorParamsChange(a,b,c){
+    //     this._syncEditor=false;
+    //     console.log('editorParamsChange',b);
+
+    //     console.log('editorParamsChange',...arguments);
+        
+    //     this.props.editorParamsChange(...arguments);
+    // }
+
     render(){
-        const { handleInputChange, index,panelColumn } = this.props;
+        const { handleInputChange, index, panelColumn,inputSearchParams } = this.props;
+        console.log('inputSearchParams', this.props);
+        const currentOpt = inputSearchParams[index];
+        console.log('mysqlOptionType',mysqlFieldTypes);
+        
+        const originOptionType = this.originOption('originType',currentOpt&&currentOpt.originType||[]);
+        const topicOptionType = this.originOption('currencyType',currentOpt&&currentOpt.topic||[]);
+        const eventTimeOptionType = this.originOption('eventTime',panelColumn[index].columns)
+        const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
             labelCol: {
@@ -68,16 +132,12 @@ class InputOrigin extends Component {
                         label="类型"
                     >
                         {getFieldDecorator('type', {
-                            initialValue: panelColumn[index].type||"disabled",
                             rules: [
                                 {required: true, message: '请选择类型',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                    <Option value="disabled" >Disabled</Option>
-                                    <Option value="Yiminghe">yiminghe</Option>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                                    <Option value="14">Kafka</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -85,17 +145,15 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label="数据源"
                     >
-                        {getFieldDecorator('dataOrigin', {
-                            initialValue: panelColumn[index].dataOrigin||"lucy",
+                        {getFieldDecorator('sourceId', {
                             rules: [
                                 {required: true, message: '请选择数据源',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("dataOrigin",index,v)}}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                    <Option value="disabled" disabled>Disabled</Option>
-                                    <Option value="Yiminghe">yiminghe</Option>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
+                                {
+                                    originOptionType
+                                }
                             </Select>
                         )}
                     </FormItem>
@@ -104,16 +162,14 @@ class InputOrigin extends Component {
                         label="Topic"
                     >
                         {getFieldDecorator('topic', {
-                            initialValue: panelColumn[index].topic||"jack",
                             rules: [
                                 {required: true, message: '请选择Topic',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                    <Option value="disabled" disabled>Disabled</Option>
-                                    <Option value="Yiminghe">yiminghe</Option>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                                {
+                                    topicOptionType
+                                }
                             </Select>
                         )}
                     </FormItem>
@@ -129,7 +185,6 @@ class InputOrigin extends Component {
                             )}
                     >
                         {getFieldDecorator('table', {
-                            initialValue: panelColumn[index].table,
                             rules: [
                                 {required: true, message: '请输入Table',}
                             ],
@@ -139,25 +194,26 @@ class InputOrigin extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="model"
+                        label="字段"
                     >
-                        {getFieldDecorator('model',{
-                            initialValue: panelColumn[index].model||1,
-                        })(
-                            <Radio.Group className="right-select" onChange={(e)=>{handleInputChange("model",index,e.target.value)}}>
-                                <Radio.Button value={1}>键值模式</Radio.Button>
-                                <Radio.Button value={2}>脚本模式</Radio.Button>
-                            </Radio.Group>
-                        )}
                     </FormItem>
+                    {/* <Col style={{marginBottom: 20}}>
+                        <Editor 
+                             key="params-editor"
+                             //sync={this._syncEditor}
+                             options={jsonEditorOptions}
+                             value={panelColumn[index].columns}
+                             onChange={this.editorParamsChange.bind(this)}
+                        />
+                    </Col> */}
                     <Col style={{marginBottom: 20}}>
-                        <Table dataSource={panelColumn[index].column} pagination={false} >
+                        <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                             <Column
                                 title="字段"
                                 dataIndex="column"
                                 key="字段"
                                 width='50%'
-                                render={(text,record,subIndex)=>{return <Input  placeholder="支持字母、数字和下划线" onBlur={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                                render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
                             />
                             <Column
                                 title="类型"
@@ -166,11 +222,10 @@ class InputOrigin extends Component {
                                 width='40%'
                                 render={(text,record,subIndex)=>{
                                     return (
-                                        <Select defaultValue="lucy"   className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
-                                            <Option value="jack">Jack</Option>
-                                            <Option value="lucy">Lucy</Option>
-                                            <Option value="disabled" disabled>Disabled</Option>
-                                            <Option value="Yiminghe">yiminghe</Option>
+                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                            {
+                                                mysqlOptionType
+                                            }
                                         </Select>
                                     )
                                 }}
@@ -181,7 +236,7 @@ class InputOrigin extends Component {
                             />
                         </Table>
                         <div style={{padding: "0 20"}}>
-                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("column",index,{})}}>
+                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
                                 <Icon type="plus" /><span> 添加输入</span>
                             </Button>
                         </div>
@@ -190,37 +245,49 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label="时间特征"
                     >
-                        {getFieldDecorator('timeType',{
-                            initialValue: panelColumn[index].timeType||1,
-                        })(
+                        {getFieldDecorator('timeType')(
                             <RadioGroup  className="right-select" onChange={(v)=>{handleInputChange("timeType",index,v.target.value)}}>
                                 <Radio value={1}>ProcTime</Radio>
                                 <Radio value={2}>EventTime</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
-                { 
-                    panelColumn[index].timeType === 2 ? 
-                        <FormItem
-                            {...formItemLayout}
-                            label="时间列"
-                        >
-                            {getFieldDecorator('timeColum', {
-                                initialValue: panelColumn[index].timeColum||"jack",
-                                rules: [
-                                    {required: true, message: '请选择时间列',}
-                                ],
-                            })(
-                                <Select className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
-                                        <Option value="jack">Jack</Option>
-                                        <Option value="lucy">Lucy</Option>
-                                        <Option value="disabled" disabled>Disabled</Option>
-                                        <Option value="Yiminghe">yiminghe</Option>
-                                </Select>
-                            )}
-                        </FormItem>: undefined
+                    { 
+                        panelColumn[index].timeType === 2 ? 
+                            <FormItem
+                                {...formItemLayout}
+                                label="时间列"
+                            >
+                                {getFieldDecorator('timeColum', {
+                                    rules: [
+                                        {required: true, message: '请选择时间列',}
+                                    ],
+                                })(
+                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                           {
+                                               eventTimeOptionType
+                                           }
+                                    </Select>
+                                )}
+                            </FormItem>: undefined
                     }
-                    <FormItem
+                    {
+                        panelColumn[index].timeType === 2 ? 
+                            <FormItem
+                                {...formItemLayout}
+                                label="偏移量(毫秒)"
+                            >
+                                {getFieldDecorator('offset', {
+                                    rules: [
+                                        {required: true, message: '请输入时间偏移量'},
+                                        { validator: this.checkConfirm }
+                                    ],
+                                })(
+                                    <Input  placeholder="请输入时间偏移量" className="right-input" onChange={e => handleInputChange('offset',index,e.target.value)}/>
+                                )}
+                            </FormItem>: undefined
+                    }
+                    {/* <FormItem
                         {...formItemLayout}
                         label="别名"
                     >
@@ -232,7 +299,7 @@ class InputOrigin extends Component {
                         })(
                             <Input  placeholder="请输入别名" className="right-input" onChange={e => handleInputChange('alias',index,e.target.value)}/>
                         )}
-                    </FormItem>
+                    </FormItem> */}
                 </Form>
             </Row>
         )
@@ -241,17 +308,18 @@ class InputOrigin extends Component {
 
 const InputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, dataOrigin, topic, table, model, column, timeType, timeColum, alias } = props.panelColumn[props.index];
+            const { type, sourceId, topic, table, model, columns, timeType, timeColum, offset } = props.panelColumn[props.index];
             return {
                 type: { value: type },
-                dataOrigin: { value: dataOrigin },
+                sourceId: { value: sourceId },
                 topic: { value: topic },
                 table: { value: table },
                 model: { value: model },
-                column: { value: column },
+                columns: { value: columns },
                 timeType: { value: timeType },
                 timeColum: { value: timeColum },
-                alias: { value: alias },
+                offset: { value: offset}
+                // alias: { value: alias },
             }
         } 
 })(InputOrigin);
@@ -263,6 +331,7 @@ const initialData = {
     popoverVisible: [],//删除显示按钮状态
     panelColumn: [],//存储数据
     checkFormParams: [],//存储要检查的参数from
+    inputSearchParams: [],//所有输入选择的参数
 }
 
 export default class InputPanel extends Component {
@@ -272,11 +341,45 @@ export default class InputPanel extends Component {
         const taskId = this.props.currentPage.id;
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
         const data = props.inputData[taskId]||copyInitialData;
-        console.log('InputPanel----props',props);
-        
         this.state = {...data};
     }
     
+    getTypeOriginData = (index,type) => {
+        const { inputSearchParams } = this.state;
+        const selectData = { topic: [], originType: [] };
+        Api.getTypeOriginData({type}).then(v=>{
+            if(v.code===1){
+                if(index === "add"){
+                    selectData.originType = v.data;
+                    inputSearchParams.push(selectData);
+                }else{
+                    inputSearchParams[index].originType = v.data;
+                }
+            }else{
+                if(index === "add"){
+                    inputSearchParams.push(selectData);
+                }
+            }
+            this.setCurrentSource({inputSearchParams});
+            this.setState({
+                inputSearchParams
+            })
+        })
+    }
+
+    getTopicType = (index,sourceId) => {
+        const { inputSearchParams } = this.state;
+        const selectData = inputSearchParams[index];
+        Api.getTopicType({sourceId}).then(v=>{
+            if(v.code===1){
+                selectData.topic = v.data
+                this.setState({
+                    inputSearchParams
+                })
+            }
+        })
+    }
+
     getCurrentData = (taskId) => {
         const { dispatch,inputData } = this.props;
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
@@ -295,36 +398,40 @@ export default class InputPanel extends Component {
 
     changeInputTabs = (type,index) =>{
         const inputData = {
-            type: undefined,
-            dataOrigin: undefined,
+            type: "14",
+            sourceId: undefined,
             topic: undefined,
             table: undefined,
-            model: undefined,
-            column: [],
-            timeType: undefined,
+            model: 1,
+            columns: [],
+            timeType: 1,
             timeColum: undefined,
-            alias: undefined,
+            // alias: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams } = this.state;
+        
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,inputSearchParams } = this.state;
         if(type==="add"){
             tabTemplate.push(InputForm);
             panelColumn.push(inputData);
+            this.getTypeOriginData("add",inputData.type);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
+            inputSearchParams.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
+        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,inputSearchParams});
         this.setState({
             tabTemplate,
             panelActiveKey,
             popoverVisible,
             panelColumn,
-            checkFormParams
+            checkFormParams,
+            inputSearchParams
         })
     }
 
@@ -356,23 +463,27 @@ export default class InputPanel extends Component {
     }
       
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
-        const { panelColumn, tabTemplate } = this.state;
-        if(type === 'column'){
+        const { panelColumn } = this.state;
+        if(type === 'columns'){
+            // console.log('columns-value',value);
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
-            panelColumn[index]["column"].splice(value,1);
+            panelColumn[index]["columns"].splice(value,1);
         }else if(type ==="subColumn"){
-            panelColumn[index]["column"][value].column = subValue;
+            panelColumn[index]["columns"][value].column = subValue;
         }else if(type === "subType"){
-            panelColumn[index]["column"][value].type = subValue;
+            panelColumn[index]["columns"][value].type = subValue;
         }else{
             panelColumn[index][type] = value;
         }
-        tabTemplate[index] = InputForm;
+        if(type==="type"){
+            this.getTypeOriginData(index,value);
+        }else if(type==="sourceId"){
+            this.getTopicType(index,value);
+        }
         this.setCurrentSource({panelColumn})
         this.setState({
             panelColumn,
-            tabTemplate
         })
     }
 
@@ -425,7 +536,9 @@ export default class InputPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,inputSearchParams } = this.state;
+        console.log('panelColumn',panelColumn);
+        
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
@@ -433,7 +546,7 @@ export default class InputPanel extends Component {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <InputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn}  onRef={this.recordForm}/>
+                                    <InputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn} inputSearchParams={inputSearchParams} onRef={this.recordForm}/>
                                 </Panel>
                             )
                         })

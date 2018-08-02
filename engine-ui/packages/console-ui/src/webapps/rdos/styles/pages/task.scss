@@ -583,6 +583,21 @@
                 .sub-right-select{
                   width: 100%;
                 }
+                .title-column{
+                    padding-left: 20px;
+                }
+                .table-small{
+                    .ant-table-small{
+                        border: 0
+                    }
+                    .ant-table-thead > tr > th {
+                        background: #f7f7f7;
+                        font-weight: 500;
+                        transition: background .3s ease;
+                        text-align: left;
+                        color: rgba(0, 0, 0, 0.85);
+                    }
+                }
             }
         }
     }

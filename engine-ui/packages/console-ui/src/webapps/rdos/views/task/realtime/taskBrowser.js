@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 
 import utils from 'utils'
-
+ 
 import Api from '../../../api'
 import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
@@ -34,7 +34,7 @@ export default class TaskBrowser extends Component {
             dispatch(BrowserAction.setCurrentPage(page))
         }
     }
-    
+      
     componentWillReceiveProps(nextProps) {
         if(nextProps.currentPage!=this.props.currentPage){
             this._syncEditor=true;
@@ -238,6 +238,8 @@ export default class TaskBrowser extends Component {
             currentPage, pages, router,
             editorFocus, editorFocusOut,
         } = this.props
+        console.log('this.props',this.props);
+        
         if (pages.length === 0) router.push('/realtime')
         const panels = this.mapPanels(pages)
         return (
@@ -273,12 +275,16 @@ export default class TaskBrowser extends Component {
                             tabPosition="right"
                             onTabClick={this.tabClick}
                         >
-                            <TabPane tab={<span className="title-vertical tabpanel-content">输入</span>} key="params3">
-                                <InputPanel {...this.props} />
-                            </TabPane>
-                            <TabPane tab={<span className="title-vertical tabpanel-content">输出</span>} key="params4">
-                                <OutputPanel {...this.props} />
-                            </TabPane>
+                            {
+                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">输入</span>} key="params3">
+                                        <InputPanel {...this.props} />
+                                    </TabPane> : ""
+                            }
+                            {
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">输出</span>} key="params4">
+                                    <OutputPanel {...this.props} />
+                                </TabPane>:""
+                            } 
                             <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
                                 <TaskDetail {...this.props} />
                             </TabPane>

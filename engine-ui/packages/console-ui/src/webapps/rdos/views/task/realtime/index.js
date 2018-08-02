@@ -30,58 +30,45 @@ class TaskIndex extends Component {
 
     state = {
         publishDesc: "",
-        showPublish: false
+        showPublish: false,
     }
 
     componentDidMount() { }
 
-    checkParams= () => {
-        const { currentPage, inputData, outputData } = this.props;
-        const { checkFormParams=[] } = inputData[currentPage.id]||{};
-        const { checkFormParams:outputCheckFormParams=[] } = outputData[currentPage.id]||{};
-        let checkStatus = true;
-        
+    saveTask = () => {
+        const { currentPage, dispatch, inputData,checkAllParams,outputData } = this.props;
+        //检查页面输入输出参数配置
+        const { checkFormParams=[], panelColumn } = inputData[currentPage.id]||{};
+        const { checkFormParams:outputCheckFormParams=[], panelColumn:outputPanelColumn=[]} = outputData[currentPage.id]||{};
         if (checkFormParams.length === 0){
-            message.error("至少添加一个输入源");
-            return checkStatus = false;
+            return message.error("至少添加一个输入源");
         }
         for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
-                if(!result){
-                    message.error(`输入源${checkFormParams[index].props.index+1}: 您还有未填选项`);
-                    return checkStatus = false;
+            if(!result.status){
+                return message.error(`输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
             }
+        }
+        if (outputCheckFormParams.length === 0){
+            return message.error("至少添加一个输出源");
         }
         if(outputCheckFormParams.length>0){
             for (let index = 0,len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
-                    if(!result){
-                        message.error(`输出源${outputCheckFormParams[index].props.index+1}: 您还有未填选项`);
-                        return checkStatus = false;
+                    if(!result.status){
+                        return  message.error(`输出源${outputCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
                 }
             }
         }
-         //检查所有未填选项,弹出所有错误(多次)
-         // checkFormParams.map(v=> {
-         //         const result = v.checkParams();
-         //         if(!result){
-         //             return message.error(`输入源${v.props.index+1}: 您还有未填选项`)
-         //         }
-         // })
-     }
-
-    saveTask = () => {
-        const { currentPage, dispatch, inputData } = this.props;
-        //检查页面输入输出参数配置
-        if(!this.checkParams()) return;
-
+        console.log('inputData,outputData',inputData,outputData,currentPage);
         const resList = currentPage.resourceList;
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
+        currentPage.source = panelColumn;
+        currentPage.sink = outputPanelColumn;
         Api.saveTask(currentPage).then((res) => {
-
             const updatePageStatus = (pageData) => {
                 message.success('任务保存成功')
                 pageData.notSynced = false;// 添加已保存标记

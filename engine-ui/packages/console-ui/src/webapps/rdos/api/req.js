@@ -56,6 +56,8 @@ export default {
     GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/stream/streamTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${RDOS_BASE_URL}/stream/streamTask/getSupportJobTypes`, // 获取任务类型
     PUBLISH_REALTIME_TASK:`${RDOS_BASE_URL}/stream/streamTask/publishStreamTask`,//发布任务
+    GET_TYPE_ORIGIN_DATA: `${RDOS_BASE_URL}/batch/batchDataSource/listDataSourceBaseInfo`,//获取类型数据源
+    GET_TOPIC_TYPE: `${RDOS_BASE_URL}/batch/batchDataSource/getKafkaTopics`,//获取Topic
 
     GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
     UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录
