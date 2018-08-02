@@ -5,14 +5,18 @@ import { browserHistory, hashHistory } from 'react-router'
 export default class GoBack extends Component {
 
     go = () => {
-        const { url, history } = this.props
+        const { url, history, autoClose } = this.props
         if (url) {
             if (history)
                 browserHistory.push(url)
             else
                 hashHistory.push(url)
         } else {
-            browserHistory.go(-1)
+            if(!browserHistory.go(-1)){
+                if(autoClose){
+                    window.close();
+                }
+            }
         }
     }
 
