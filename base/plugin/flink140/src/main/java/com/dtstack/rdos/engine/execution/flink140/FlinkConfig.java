@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -193,7 +194,7 @@ public class FlinkConfig {
 	}
 
 	public String getQueue() {
-		return queue;
+		return StringUtils.isBlank(queue) ? "default" : queue;
 	}
 
 	public void setQueue(String queue) {
