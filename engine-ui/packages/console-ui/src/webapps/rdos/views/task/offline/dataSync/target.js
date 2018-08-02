@@ -174,7 +174,7 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange, targetMap } = this.props;
+        const { form } = this.props;
 
         form.validateFields((err, values) => {
             if (!err) {
@@ -187,7 +187,7 @@ class TargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
 
         const {
-            targetMap, sourceMap, dataSourceList,
+            targetMap, dataSourceList,
             navtoStep, isCurrentTabNew
         } = this.props;
 
@@ -483,7 +483,7 @@ class TargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: !targetMap.type || !targetMap.type.fileType ? 'orc' : targetMap.type.fileType
+                            initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc',
                         })(
                             <Select onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
