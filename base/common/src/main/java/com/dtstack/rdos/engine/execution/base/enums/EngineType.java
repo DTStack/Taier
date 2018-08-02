@@ -104,6 +104,15 @@ public enum EngineType {
         return false;
     }
 
+    public static boolean isLearning(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("learning")){
+            return true;
+        }
+
+        return false;
+    }
+
     public static String getEngineTypeWithoutVersion(String engineType){
         Pattern pattern = Pattern.compile("([a-zA-Z]+).*");
         Matcher matcher = pattern.matcher(engineType);
