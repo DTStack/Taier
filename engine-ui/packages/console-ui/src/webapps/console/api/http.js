@@ -1,4 +1,5 @@
 import 'whatwg-fetch'
+import { notification } from 'antd'
 
 import ProgressBar from 'widgets/progress-bar'
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
@@ -45,6 +46,10 @@ class Http {
         .catch( err => { 
             ProgressBar.hide() 
             console.error(url + ":" + err)
+            notification['error']({
+                message: '请求异常',
+                description: '服务器可能出了点问题, 请稍后再试！',
+            });
             return new Promise.reject(err);
         })
     }

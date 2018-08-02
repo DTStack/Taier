@@ -64,7 +64,8 @@ class Header extends Component {
 
     checkUnSaveTask = (onOk) => {
         const { realTimeTabs, offlineTabs } = this.props;
-        const tabsData = inOffline() ? offlineTabs : realTimeTabs;
+        const tabsData = inOffline() ? offlineTabs : inRealtime() ? realTimeTabs : [];
+
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {
                 if (tab.notSynced) {
@@ -210,7 +211,6 @@ class Header extends Component {
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
-
         let pathname = router.location.pathname;
 
         const display = current !== "overview" ? "inline-block" : "none";
