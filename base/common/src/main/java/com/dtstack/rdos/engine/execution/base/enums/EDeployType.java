@@ -4,7 +4,7 @@ package com.dtstack.rdos.engine.execution.base.enums;
  * Reason:
  * Date: 2017/11/10
  * Company: www.dtstack.com
- * @ahthor xuchao
+ * @author xuchao
  */
 public enum EDeployType {
 
