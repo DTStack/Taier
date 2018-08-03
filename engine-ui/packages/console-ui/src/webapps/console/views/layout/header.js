@@ -38,7 +38,7 @@ class Header extends Component {
 
         const logo = <span>
            <img
-                style={{ height: "26px", width: '26px', marginTop: "10px" }}
+                style={{ height: "20px", width: '20px', marginTop: "13px" }}
                 alt="logo"
                 src="/public/console/img/logo.svg"
             />
