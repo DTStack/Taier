@@ -87,7 +87,7 @@ export default class RemoteTriggerPane extends Component {
             key: 'ruleNumber',
             width: '8%',
         }, {
-            title: '访问接口',
+            title: '触发接口',
             dataIndex: 'url',
             key: 'url',
             width: '23%',
