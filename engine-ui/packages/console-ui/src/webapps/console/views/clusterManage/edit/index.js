@@ -338,12 +338,12 @@ class EditCluster extends React.Component {
         return keyAndValue.map(
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span}>
-                        {key.length > 17 ?
-                            <Tooltip title={key}>{key.substr(0, 17) + "..."}</Tooltip>
+                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span+3}>
+                        {key.length > 25 ?
+                            <Tooltip title={key}>{key.substr(0, 25) + "..."}</Tooltip>
                             : key}：
                     </Col>
-                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span}>
+                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span-1}>
                         {value}
                     </Col>
                 </Row>)
@@ -491,7 +491,7 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="请输入集群标识" style={{ width: "40%" }} />
                             )}
                             <span style={{ marginLeft: "30px" }}>节点数：{nodeNumber || '--'} </span>
-                            <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}核 {this.exchangeMemory(memory)} </span>
+                            <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
                         </FormItem>
                         {/* <FormItem
                             label="绑定租户"

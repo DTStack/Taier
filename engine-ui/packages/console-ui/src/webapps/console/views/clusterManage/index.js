@@ -72,7 +72,7 @@ class ClusterManage extends React.Component {
                 render(text, record) {
                     const memory = record.totalMemory / 1024;
                     const haveDot = Math.floor(memory) != memory
-                    return `${record.totalCore}核 ${haveDot ? memory.toFixed(2) : memory}GB`
+                    return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
                 }
             },
             {

@@ -67,6 +67,7 @@ class ResourceManage extends React.Component {
             newDataSource.push({
                 ...cluster,
                 type:"cluster",
+                className:null,
                 clusterId:cluster.id,
                 children:loop(cluster.queues,deepLength)
             })
@@ -82,6 +83,7 @@ class ResourceManage extends React.Component {
                     ...queue,
                     queueId:queue.id,
                     deepLength:deepLength,
+                    className:`table-row-color_level${deepLength+1}`,
                     children:loop(queue.childQueues,deepLength+1)
                 })
             }
@@ -107,7 +109,7 @@ class ResourceManage extends React.Component {
                     if(record.queueState=="STOPPED"){
                         text=`${text}(已停用)`
                     }
-                    return <span style={{paddingLeft:record.deepLength*15+"px"}}>{text}</span>;
+                    return <span style={{paddingLeft:record.deepLength*10+"px"}}>{text}</span>;
                 }
             },
             {
@@ -222,12 +224,15 @@ class ResourceManage extends React.Component {
                     <ul>
                         <li>1、“资源队列”仅包括集群的内存和CPU；</li>
                         <li>2、只支持将资源队列绑定到租户，暂时不支持绑定到项目；</li>
-                        <li>3、每个资源队列的最大容量之和等于100%；</li>
+                        <li>3、每个资源队列的最小容量之和等于100%；</li>
                         <li>4、以资源队列的形式分配资源，资源队列的维护在配置文件中，本模块只是将资源队列绑定到租户；</li>
                         <li>5、可能已有的任务占用了较多的资源，导致更新配置后不会立即生效，需要等待已占用的资源释放；</li>
                     </ul>
                 </Card>
                 <Table
+                    rowClassName={(record,index)=>{
+                        return record.className
+                    }}
                     rowKey={(record) => {
                         return record.clusterId + "~" + record.queueId
                     }}

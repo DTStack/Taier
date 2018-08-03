@@ -5,17 +5,29 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
     .BundleAnalyzerPlugin;
-const ImageminPlugin = require("imagemin-webpack-plugin").default;
+//centos有bug,暂不启动
+// const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 
-baseConf.plugins.push(
-    // new BundleAnalyzerPlugin(),
-    new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 })
-);
+/**
+ * Sets process.env.NODE_ENV on DefinePlugin to value production. 
+ * Enables FlagDependencyUsagePlugin, FlagIncludedChunksPlugin, ModuleConcatenationPlugin, NoEmitOnErrorsPlugin, OccurrenceOrderPlugin, SideEffectsFlagPlugin and UglifyJsPlugin
+ *  **/
+baseConf.mode = "production";
+
+// baseConf.plugins.push(
+//     // new BundleAnalyzerPlugin(),
+//     new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i, quality: 80 }),
+//     // new webpack.DefinePlugin({
+//     //     'process.env': {
+//     //         'NODE_ENV': JSON.stringify('production')
+//     //     }
+//     // }),
+// );
 
 baseConf.optimization.minimizer = [
     new UglifyJsPlugin({
@@ -30,7 +42,6 @@ baseConf.optimization.minimizer = [
         }
     })
 ];
-baseConf.mode = "production";
 
 const htmlPlugs = [];
 function loadHtmlPlugs() {
