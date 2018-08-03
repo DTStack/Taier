@@ -67,6 +67,7 @@ class ResourceManage extends React.Component {
             newDataSource.push({
                 ...cluster,
                 type:"cluster",
+                className:null,
                 clusterId:cluster.id,
                 children:loop(cluster.queues,deepLength)
             })
@@ -82,6 +83,7 @@ class ResourceManage extends React.Component {
                     ...queue,
                     queueId:queue.id,
                     deepLength:deepLength,
+                    className:`table-row-color_level${deepLength+1}`,
                     children:loop(queue.childQueues,deepLength+1)
                 })
             }
@@ -107,7 +109,7 @@ class ResourceManage extends React.Component {
                     if(record.queueState=="STOPPED"){
                         text=`${text}(已停用)`
                     }
-                    return <span style={{paddingLeft:record.deepLength*15+"px"}}>{text}</span>;
+                    return <span style={{paddingLeft:record.deepLength*10+"px"}}>{text}</span>;
                 }
             },
             {
@@ -228,6 +230,9 @@ class ResourceManage extends React.Component {
                     </ul>
                 </Card>
                 <Table
+                    rowClassName={(record,index)=>{
+                        return record.className
+                    }}
                     rowKey={(record) => {
                         return record.clusterId + "~" + record.queueId
                     }}
