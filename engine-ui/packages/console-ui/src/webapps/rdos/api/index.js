@@ -191,6 +191,9 @@ export default {
     getTopicType(params){
         return http.post(req.GET_TOPIC_TYPE, params)
     },
+    getStremTableType(params){
+        return http.post(req.GET_STREM_TABLE_TYPE, params)
+    },
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {

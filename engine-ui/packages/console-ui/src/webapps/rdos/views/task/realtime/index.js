@@ -36,11 +36,13 @@ class TaskIndex extends Component {
     componentDidMount() { }
 
     saveTask = () => {
-        const { currentPage, dispatch, inputData,checkAllParams,outputData } = this.props;
+        const { currentPage, dispatch, inputData, outputData } = this.props;
+        console.log('saveTask',this.props);
+        
         //检查页面输入输出参数配置
-        const { checkFormParams=[], panelColumn } = inputData[currentPage.id]||{};
+        const { checkFormParams=[], panelColumn=[] } = inputData[currentPage.id]||{};
         const { checkFormParams:outputCheckFormParams=[], panelColumn:outputPanelColumn=[]} = outputData[currentPage.id]||{};
-        if (checkFormParams.length === 0){
+        if (panelColumn.length === 0){
             return message.error("至少添加一个输入源");
         }
         for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
@@ -51,7 +53,7 @@ class TaskIndex extends Component {
                 return message.error(`输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
             }
         }
-        if (outputCheckFormParams.length === 0){
+        if (outputPanelColumn.length === 0){
             return message.error("至少添加一个输出源");
         }
         if(outputCheckFormParams.length>0){

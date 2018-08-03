@@ -297,18 +297,37 @@ export default class OutputPanel extends Component {
             panelColumn.push(v);
             this.getTypeOriginData("add",v.type);
         })
+        this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
             tabTemplate,
             panelColumn
         })
     }
 
-    getCurrentData = (taskId) => {
-        const { dispatch,outputData } = this.props;
+    getCurrentData = (taskId,nextProps) => {
+        const { currentPage,outputData } = nextProps;
+        const { source } = currentPage;
+        if(!outputData[taskId]&&source.length>0){
+            this.receiveState(taskId,source,dispatch)
+        }else{
+            const copyInitialData = JSON.parse(JSON.stringify(initialData));
+            const data = outputData[taskId]||copyInitialData;
+            this.setState({...data})
+        }
+    }
+
+    receiveState = (taskId,source,dispatch) => {
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        dispatch(BrowserAction.getOutputData(taskId));
-        const data = outputData[taskId]||copyInitialData;
-        this.setState({...data})
+        const {tabTemplate,panelColumn} = copyInitialData;
+        source.map( v => {
+            tabTemplate.push(InputForm);
+            panelColumn.push(v);
+        })
+        dispatch(BrowserAction.setOutputData({taskId ,source: copyInitialData}));
+        this.setState({
+            tabTemplate,
+            panelColumn
+        })
     }
 
     getTypeOriginData = (index,type) => {
@@ -337,7 +356,7 @@ export default class OutputPanel extends Component {
     getTableType = (index,sourceId) => {
         const { outputSearchParams } = this.state;
         const selectData = outputSearchParams[index];
-        Api.getOfflineTableList({sourceId,"isSys":false}).then(v=>{
+        Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
             if(v.code===1){
                 selectData.tableType = v.data
                 this.setState({
@@ -351,7 +370,7 @@ export default class OutputPanel extends Component {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
-            this.setOutputData(currentPage.id)
+            this.getCurrentData(currentPage.id,nextProps)
         }
     }
 

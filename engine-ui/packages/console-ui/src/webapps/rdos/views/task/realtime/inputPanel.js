@@ -34,6 +34,8 @@ class InputOrigin extends Component {
     // }
 
     componentDidMount(){
+        console.log("componentDidMount=----componentDidMount");
+        
         this.props.onRef(this);
     }
 
@@ -350,8 +352,8 @@ export default class InputPanel extends Component {
         source.map( v => {
             tabTemplate.push(InputForm);
             panelColumn.push(v);
-            this.getTypeOriginData("add",v.type);
         })
+        this.setCurrentSource({tabTemplate,panelColumn})
         this.setState({
             tabTemplate,
             panelColumn
@@ -394,19 +396,36 @@ export default class InputPanel extends Component {
         })
     }
 
-    getCurrentData = (taskId) => {
-        const { dispatch,inputData } = this.props;
+    getCurrentData = (taskId,nextProps) => {
+        const { dispatch,inputData,currentPage } = nextProps;
+        const { source } = currentPage;
+        if(!inputData[taskId]&&source.length>0){
+            this.receiveState(taskId,source,dispatch)
+        }else{
+            const copyInitialData = JSON.parse(JSON.stringify(initialData));
+            const data = inputData[taskId]||copyInitialData;
+            this.setState({...data})
+        }
+    }
+
+    receiveState = (taskId,source,dispatch) => {
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        dispatch(BrowserAction.getInputData(taskId));
-        const data = inputData[taskId]||copyInitialData;
-        this.setState({...data})
+        const {tabTemplate,panelColumn} = copyInitialData;
+        source.map( v => {
+            tabTemplate.push(InputForm);
+            panelColumn.push(v);
+        })
+        dispatch(BrowserAction.setInputData({taskId ,source: copyInitialData}));
+        this.setState({
+            copyInitialData
+        })
     }
 
     componentWillReceiveProps(nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
-            this.getCurrentData(currentPage.id)
+            this.getCurrentData(currentPage.id,nextProps)
         }
     }
 
@@ -452,6 +471,7 @@ export default class InputPanel extends Component {
 
     setCurrentSource = (data) => {
         const { dispatch, currentPage } = this.props;
+        console.log("inputPanel-setCurrentSource:",this.props);
         const dispatchSource = {...this.state,...data};
         dispatch(BrowserAction.setInputData({taskId: currentPage.id ,source: dispatchSource}));
     }
@@ -541,6 +561,8 @@ export default class InputPanel extends Component {
 
     recordForm = (ref) => {//存储子组建的所有要检查的form表单
         const { checkFormParams } = this.state;
+        console.log('checkFormParams-ref:',ref);
+        
         checkFormParams.push(ref);
         this.setCurrentSource({checkFormParams})
         this.setState({
@@ -558,7 +580,7 @@ export default class InputPanel extends Component {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <InputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn} inputSearchParams={inputSearchParams} onRef={this.recordForm}/>
+                                    <InputForm index={index} key={index+1} handleInputChange={this.handleInputChange} panelColumn={panelColumn} inputSearchParams={inputSearchParams} onRef={this.recordForm}/>
                                 </Panel>
                             )
                         })
