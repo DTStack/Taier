@@ -19,7 +19,8 @@ module.exports = function() {
             rdos: MY_PATH.RDOS_APP_FILE,
             dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             dataApi: MY_PATH.DATA_API_APP_FILE,
-            dataLabel: MY_PATH.DATA_LABEL_APP_FILE
+            dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
+            console: MY_PATH.CONSOLE_APP_FILE
         },
         output: {
             path: MY_PATH.BUILD_PATH,
@@ -93,6 +94,7 @@ module.exports = function() {
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
                 dataApi: MY_PATH.DATA_API_PATH, // 数据API
                 dataLabel: MY_PATH.DATA_LABEL_PATH, // 标签工厂
+                console: MY_PATH.CONSOLE_PATH, // 控制台
                 dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
                 metaData: MY_PATH.META_DATA_PATH, // 元数据
                 coreData: MY_PATH.CORE_DATA_PATH // 主数据

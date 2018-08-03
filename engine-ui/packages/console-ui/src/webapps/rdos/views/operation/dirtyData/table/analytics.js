@@ -20,7 +20,13 @@ export default class TableAnalytics extends Component {
         tablePartitions: [],
         tableCountInfo: '',
         loading: false,
-        currentPage: 1,
+        errorType: "npe",
+        currentPage: {
+            npe : 1,
+            duplicate: 1,
+            conversion: 1,
+            other: 1,
+        }
     }
 
     componentDidMount() {
@@ -64,7 +70,7 @@ export default class TableAnalytics extends Component {
 
     onTabChange = (value) => {
         const { partId, tableId } = this.state
-        this.setState({ errorType: value,currentPage: 1 })
+        this.setState({ errorType: value })
         this.getTableAnalytics({
             tableId,
             partId,
@@ -83,13 +89,14 @@ export default class TableAnalytics extends Component {
     }
 
     generateCols = (data) => {
+        const { errorType, currentPage } = this.state;
         if (data && data.length > 0) {
             const arr = [{
                 title: '序号',
                 key: 't-id',
                 width: 80,
                 render: (text, item, index) => {
-                    return  (this.state.currentPage-1)*10 + index + 1
+                    return  (currentPage[errorType]-1)*10 + index + 1
                 },
             }]
             data.forEach((item, index) => {
@@ -113,12 +120,16 @@ export default class TableAnalytics extends Component {
     }
 
     changePage = (pagination)=> {
+        let { errorType, currentPage } = this.state;
+        currentPage [ errorType || "npe"] = pagination.current;
         this.setState({
-            currentPage: pagination.current
+            currentPage
         })
     }
 
     render() {
+        console.log(this.state.errorType);
+        
         const { tableData } = this.props;
         const { data, tablePartitions, tableCountInfo } = this.state
   

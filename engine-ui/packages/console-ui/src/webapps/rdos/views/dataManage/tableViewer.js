@@ -1,12 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import moment from 'moment';
-import SplitPane from 'react-split-pane';
 import {
     Row, Col, Table, Button,
     Tabs, Radio, Icon,
-    Modal, message, Card
+    Modal, message, Card, 
+    notification
 } from 'antd';
 
 import GoBack from 'main/components/go-back';
@@ -100,7 +98,7 @@ export default class TableViewer extends React.Component {
     getPreview(key) {
         const { previewData } = this.state;
         if (previewData) return;
-        if (+key === 2 || +key === 3) {
+        if (+key === 3) {
             ajax.previewTable(this.queryParams).then(res => {
                 if (res.code === 1 && res.data) {
                     this.setState({
@@ -134,7 +132,10 @@ export default class TableViewer extends React.Component {
                 });
             }
             else {
-                message.error('从服务器获取数据失败！');
+                notification['error']({
+                    message: '异常',
+                    description: '从服务器获取数据失败！',
+                });
             }
         }) :
             this.setState({
@@ -229,7 +230,7 @@ export default class TableViewer extends React.Component {
                 <main>
                     <div >
                         <h1 className="card-title">
-                            <GoBack type="textButton" /> 查看表：{tableData && tableData.table.tableName}
+                            <GoBack type="textButton" autoClose={true} /> 查看表：{tableData && tableData.table.tableName}
                             <span className="right">
                                 <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
                                 {applyButton ? <Button className="button-top" type="primary" onClick={this.showApply}>申请授权</Button> : ""}

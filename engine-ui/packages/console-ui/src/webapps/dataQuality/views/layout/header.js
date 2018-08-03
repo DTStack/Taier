@@ -50,12 +50,21 @@ class Header extends Component {
         }];
 
         const logo = <span>
-            <Icon style={{fontSize: '18px', color: '#2491F7', marginRight: '10px'}} type="database"/>
-            <span style={{fontSize: '14px', color: '#ffffff'}}>
+            <img
+                style={{ height: "36px", width: '36px', marginTop: "5px" }}
+                alt="logo"
+                src="/public/dataQuality/img/logo.svg"
+            />
+            <span style={{
+                fontSize: "14px",
+                color: "#ffffff",
+                position: "absolute",
+                left: "80px",
+                top: 0
+            }}>
                 DTinsight.Valid
             </span>
         </span>
-        // <Logo linkTo="/" img={'public/main/img/logo.png'}/>
         return <Navigator 
             logo={logo}
             menuItems={menuItems}

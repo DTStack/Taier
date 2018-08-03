@@ -16,7 +16,7 @@ export const DATA_SOURCE = {
 }
 
 export const DATA_SOURCE_TEXT = {
-    1: 'MySql',
+    1: 'MySQL',
     2: 'Oracle',
     3: 'SQLServer',
     4: 'PostgreSQL',
@@ -74,7 +74,7 @@ export const PROJECT_ROLE = { // 项目角色
     VISITOR: 4, // 访客
 }
 
-export const DATA_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql
+export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
@@ -321,7 +321,7 @@ export const offlineTaskTypeFilter = [
         value: TASK_TYPE.SYNC,
     }, {
         id: 5,
-        text: 'Spark Python',
+        text: 'PySpark',
         value: TASK_TYPE.PYTHON,
     },{
         id: 6,

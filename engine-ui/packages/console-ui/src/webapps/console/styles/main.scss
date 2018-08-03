@@ -1,0 +1,16 @@
+
+/**
+** CSS 主引入口
+**/
+
+@import './views/resourceManage.scss';
+@import './views/clusterManage.scss';
+table{
+    font-size:12px;
+}
+.overflow-x-hidden{
+    overflow-x: hidden;
+}
+.contentBox{
+    margin:20px;
+}

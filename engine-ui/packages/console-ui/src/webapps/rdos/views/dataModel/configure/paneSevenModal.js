@@ -26,7 +26,6 @@ class DeriveIndexModal extends Component {
 
     componentDidMount() {
         // 加载原子指标
-        const isEdit = this.props.data && !isEmpty(this.props.data);
         this.loadAtomIndex();
         this.getColumnType();
     }
@@ -77,8 +76,8 @@ class DeriveIndexModal extends Component {
         const { indexNames } = this.state;
 
         if (indexNames.length === 0) {
-            return false;
             message.error('请配置您的指标名称！')
+            return false;
         }
 
         const formData = this.props.form.getFieldsValue()

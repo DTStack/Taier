@@ -308,10 +308,6 @@ export class RowItem extends React.Component {
         return true;
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     // return !isEqual(this.props, nextProps);
-    // }
-
     render() {
         const { data } = this.props;
         const { editMode } = this.state;

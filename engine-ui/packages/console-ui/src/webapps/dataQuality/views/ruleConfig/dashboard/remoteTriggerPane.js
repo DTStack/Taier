@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
-import { Button, Table, message, Modal, Input, Select, Popconfirm, Form, Tooltip } from 'antd';
+import {
+    Button, Table, message, Modal,
+    Input, Select, Popconfirm, Form
+} from 'antd';
 import moment from 'moment';
 
 import ToolTipCopy from '../../../components/tooltipCopy';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { rowFormItemLayout } from '../../../consts';
+import { rowFormItemLayout, DATA_SOURCE } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const Option = Select.Option;
@@ -48,7 +51,11 @@ export default class RemoteTriggerPane extends Component {
         let monitorId = data.monitorPartVOS[0].monitorId;
 
         this.props.getRemoteTrigger({ tableId: data.tableId });
-        this.setState({ monitorId });
+        const params = { monitorId, }
+        if (data.dataSourceType === DATA_SOURCE.HIVE || data.dataSourceType === DATA_SOURCE.MAXCOMPUTE) {
+            params.havePart = true;
+        }
+        this.setState(params);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -66,7 +73,7 @@ export default class RemoteTriggerPane extends Component {
                 selectedIds: []
             });
 
-            if (newData.dataSourceType === 7 || newData.dataSourceType === 10) {
+            if (newData.dataSourceType === DATA_SOURCE.HIVE || newData.dataSourceType === DATA_SOURCE.MAXCOMPUTE) {
                 this.setState({ havePart: true });
             }
         }
@@ -74,12 +81,7 @@ export default class RemoteTriggerPane extends Component {
 
     // 远程调用table设置
     initTriggerColumns = () => {
-        return [{
-            title: '分区',
-            dataIndex: 'partitionValue',
-            key: 'partitionValue',
-            width: '12%',
-        }, {
+        const cols = [{
             title: '触发规则数',
             dataIndex: 'ruleNumber',
             key: 'ruleNumber',
@@ -127,18 +129,27 @@ export default class RemoteTriggerPane extends Component {
                     </div>
                 )
             },
-        }]
+        }];
+
+        if (this.state.havePart) {
+            cols.splice(0, 0, {
+                title: '分区',
+                dataIndex: 'partitionValue',
+                key: 'partitionValue',
+                width: '12%',
+            })
+        }
+        return cols;
     }
 
     // 编辑远程调用
     editTrigger = (record) => {
-        const { data } = this.props;
-
         this.showRemoteModal();
-        this.props.getMonitorRule({ monitorId: record.id });
+        this.props.getMonitorRule({ monitorId: record.monitorId });
 
         this.setState({
-            monitorId: record.id,
+            monitorId: record.monitorId,
+            chooseRule: record,
             selectedIds: record.ruleIds,
             remark: record.remark
         });
@@ -148,7 +159,7 @@ export default class RemoteTriggerPane extends Component {
     deleteTrigger = (id) => {
         const { data } = this.props;
 
-        RCApi.delRemoteTrigger({ monitorId: id }).then((res) => {
+        RCApi.delRemoteTrigger({ remoteId: id }).then((res) => {
             if (res.code === 1) {
                 message.success('删除成功！');
                 this.props.getRemoteTrigger({ tableId: data.tableId });
@@ -265,7 +276,8 @@ export default class RemoteTriggerPane extends Component {
     closeRemoteModal = () => {
         this.setState({
             visible: false,
-            selectedIds: []
+            selectedIds: [],
+            chooseRule: {}
         });
 
         this.props.form.resetFields();
@@ -273,7 +285,7 @@ export default class RemoteTriggerPane extends Component {
 
     // 生成远程调用
     saveRemoteTrigger = () => {
-        const { selectedIds, monitorId, remark } = this.state;
+        const { selectedIds, monitorId, remark, chooseRule = {} } = this.state;
         const { data, form, getRemoteTrigger } = this.props;
 
         if (selectedIds.length) {
@@ -281,11 +293,18 @@ export default class RemoteTriggerPane extends Component {
                 // console.log(err,values)
                 if (!err) {
                     RCApi.addRemoteTrigger({
+                        remoteId: chooseRule.id,
                         monitorId: monitorId,
                         ruleIds: selectedIds,
                         remark: remark
                     }).then((res) => {
                         if (res.code === 1) {
+                            this.setState({
+                                chooseRule: {},
+                                monitorId: null,
+                                selectedIds: [],
+                                remark: null
+                            })
                             message.success('操作成功！');
                             this.closeRemoteModal();
                             getRemoteTrigger({ tableId: data.tableId });
@@ -314,6 +333,9 @@ export default class RemoteTriggerPane extends Component {
 
         return (
             <div className="trigger-box">
+                <div style={{ overflow: "hidden", padding: "0px 10px 10px 0px" }}>
+                    <Button type="primary" onClick={this.newRemoteTrigger} style={{ float: "right" }}>新增远程触发</Button>
+                </div>
                 {
                     triggerList.length > 0
                     &&
@@ -338,11 +360,7 @@ export default class RemoteTriggerPane extends Component {
                 <p>2、在您自建的大数据平台上，新建一个脚本任务，并编写调用的代码，详细的使用教程请参考<a>《帮助文档》</a>；</p>
                 <p>3、在您自建的大数据平台上，将数据处理任务作为脚本任务的下游任务；</p>
 
-                {
-                    triggerList.length < 1
-                    &&
-                    <Button style={{ marginTop: 10 }} type="primary" onClick={this.newRemoteTrigger}>配置远程触发</Button>
-                }
+
 
                 <Modal
                     title="配置远程调用"

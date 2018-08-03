@@ -7,7 +7,7 @@ import {
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceFilter,dataSourceTypes } from '../../consts';
+import { dataSourceFilter, } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import DSApi from '../../api/dataSource';
 

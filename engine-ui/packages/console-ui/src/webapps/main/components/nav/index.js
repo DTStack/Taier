@@ -26,12 +26,13 @@ function renderMenuItems(menuItems) {
     ) : []
 }
 
-function renderATagMenuItems(menuItems) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
-        menu.enable ? <Menu.Item key={menu.id}>
+function renderATagMenuItems(menuItems, isRoot) {
+    return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
+        const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
+        return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target}>{menu.name}</a>
-        </Menu.Item> : ''
-    ) : []
+        </Menu.Item>) : ''
+    }) : []
 }
 
 export function Logo(props) {
@@ -42,7 +43,7 @@ export function Logo(props) {
 }
 
 export function MenuLeft(props) {
-    const { activeKey, onClick, menuItems } = props;
+    const { activeKey, onClick, menuItems, user } = props;
     return (
         <div className="menu left">
             <Menu
@@ -51,18 +52,18 @@ export function MenuLeft(props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(menuItems)}
+                {renderATagMenuItems(menuItems, user.isRoot)}
             </Menu>
         </div>
     )
 }
 
 export function MenuRight(props) {
-    const { 
+    const {
         onClick, settingMenus, user,
-        apps, app, showHelpSite, helpUrl 
+        apps, app, showHelpSite, helpUrl
     } = props;
-
+    const isShowExt=!app||!app.disableExt;
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -90,7 +91,7 @@ export function MenuRight(props) {
 
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(apps)}
+            {renderATagMenuItems(apps, user.isRoot)}
         </Menu>
     )
 
@@ -113,20 +114,20 @@ export function MenuRight(props) {
                     </span>
                 </Dropdown>
                 <span className="divide left"></span>
-                <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
                     </span>
-                </a>
-                <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                </a>}
+                {isShowExt && <Dropdown overlay={settingMenuItems} trigger={['click']}>
                     <span className="menu-item"><Icon type="setting" /> </span>
-                </Dropdown>
+                </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
                         <Icon className="avatar" type="user" />
-                        <span className="user-name">
+                        <span className="user-name" title={user && user.userName}>
                             {(user && user.userName) || '未登录'}
                         </span>
                     </div>
@@ -203,16 +204,17 @@ export class Navigator extends Component {
         const {
             user, logo, menuItems,
             settingMenus, apps, app,
-            menuLeft, menuRight
+            menuLeft, menuRight, logoWidth
         } = this.props;
         const { current } = this.state
         return (
             <header className="header">
-                <div className="logo left txt-left">
+                <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>
                 {
                     menuLeft ? menuLeft : <MenuLeft
+                        user={user}
                         activeKey={current}
                         menuItems={menuItems}
                         onClick={this.handleClick}
