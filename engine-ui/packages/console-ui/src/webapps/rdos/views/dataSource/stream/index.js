@@ -54,7 +54,7 @@ class DataSourceMana extends Component {
             pageSize: 10,
             currentPage: 1,
         }, params)
-        Api.queryDataSource(reqParams).then((res) => {
+        Api.streamQueryDataSource(reqParams).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data, loading: false })
             }
@@ -74,7 +74,7 @@ class DataSourceMana extends Component {
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(source, sourceFormData)
         }
-        Api.addOrUpdateSource(reqSource).then((res) => {
+        Api.streamSaveDataSource(reqSource).then((res) => {
             if (res.code === 1) {
                 formObj.resetFields()
                 message.success(`${title}成功！`)
@@ -89,11 +89,11 @@ class DataSourceMana extends Component {
 
     remove = (source) => {
         const ctx = this
-        if (source.active === 1) {
-            message.info('此数据源已在任务中被引用，无法删除!')
-            return;
-        }
-        Api.deleteDataSource({ sourceId: source.id }).then((res) => {
+        // if (source.active === 1) {
+        //     message.info('此数据源已在任务中被引用，无法删除!')
+        //     return;
+        // }
+        Api.streamDeleteDataSource({ sourceId: source.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！')
                 ctx.loadDataSources()
@@ -103,7 +103,7 @@ class DataSourceMana extends Component {
 
     testConnection = (source) => { // 测试数据源连通性
         const ctx = this
-        Api.testDSConnection(source).then((res) => {
+        Api.streamTestDataSourceConnection(source).then((res) => {
             if (res.code === 1) {
                 message.success('数据源连接正常！')
             }
@@ -201,15 +201,15 @@ class DataSourceMana extends Component {
                         </a>
                         <span className="ant-divider" />
                         { 
-                            record.active === 1 ?
-                                <Popconfirm
-                                    title="使用中,无法删除此数据源!"
-                                    okText="确定" cancelText="取消"
-                                    //onConfirm={() => { this.remove(record) }}
-                                >
+                            // record.active === 1 ?
+                            //     <Popconfirm
+                            //         title="使用中,无法删除此数据源!"
+                            //         okText="确定" cancelText="取消"
+                            //         //onConfirm={() => { this.remove(record) }}
+                            //     >
 
-                                    <a>删除</a>
-                                </Popconfirm> :
+                            //         <a>删除</a>
+                            //     </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
                                     okText="确定" cancelText="取消"
@@ -240,6 +240,7 @@ class DataSourceMana extends Component {
 
     render() {
         const { visible, syncModalVisible, source, dataSource } = this.state
+        
         const { project } = this.props
         const pagination = {
             total: dataSource.totalCount,

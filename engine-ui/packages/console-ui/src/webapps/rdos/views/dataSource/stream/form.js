@@ -108,6 +108,7 @@ class BaseForm extends Component {
 
     testConnection = (e) => {
         const { testConnection, form } = this.props
+        
         form.validateFields((err, source) => {
             if (!err) {
                 this.preHandFormValues(source);
@@ -123,7 +124,6 @@ class BaseForm extends Component {
         if (source.dataJson.defaultFS) {
             source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
         }
-
         // 端口转为整型
         if (source.dataJson.port) {
             source.dataJson.port = parseInt(source.dataJson.port, 10)
@@ -192,7 +192,6 @@ class BaseForm extends Component {
         
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-        
         const jdbcRulePattern = {
             pattern: this.getJDBCRule(sourceType),
             message: '请检查您的JDBC地址格式！',
@@ -589,6 +588,28 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
+            case DATA_SOURCE.KAFKA: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="Address"
+                        key="Address"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.address', {
+                            rules: [{
+                                required: true, message: 'Address不可为空！',
+                            }],
+                            initialValue: config.address || '',
+                        })(
+                            <Input
+                                type="textarea" rows={4}
+                                placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
+                            />,
+                        )}
+                    </FormItem>
+                ]
+            }
             case DATA_SOURCE.REDIS: {
                 return [
                     <FormItem
@@ -762,9 +783,14 @@ class BaseForm extends Component {
 
     render() {
         
-        const { form, sourceData, status, types } = this.props;
+        const { form, sourceData, status } = this.props;
         const { getFieldDecorator } = form;
-
+        const types = [
+            {name: "MySQL", value: 1},
+            {name: "HBase", value: 8},
+            {name: "ElasticSearch", value: 11},
+            {name: "Kafka", value: 14}
+        ]
         const sourceTypeList = types.map(
             item => (
                 <Option
