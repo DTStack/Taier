@@ -15,14 +15,14 @@ import {
     formItemLayout,
     tailFormItemLayout,
     DATA_SOURCE,
-} from '../../comm/const';
+} from '../../../comm/const';
 import {
     jdbcUrlExample
-} from '../../comm/JDBCCommon';
+} from '../../../comm/JDBCCommon';
 
 
-import Api from '../../api';
-import HelpDoc from '../helpDoc';
+import Api from '../../../api';
+import HelpDoc from '../../helpDoc';
 import CopyIcon from "main/components/copy-icon";
 
 const FormItem = Form.Item

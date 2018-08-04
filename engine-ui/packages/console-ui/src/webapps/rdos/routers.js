@@ -49,8 +49,10 @@ import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 import DirtyData from './views/operation/dirtyData/index';
 import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
-import DataSourceIndex from './views/dataSource'
-import DataSourceMigration from './views/dataSource/dbSync'
+import DataSourceOffline from './views/dataSource/offline';
+import DataSourceStream from './views/dataSource/stream';
+import DataSourceMigrationOffline from './views/dataSource/offline/dbSync'
+import DataSourceMigrationStream from './views/dataSource/stream/dbSync'
 
 // ======= 数据管理 =======
 import TableManage from './views/dataManage/tableManage';
@@ -163,9 +165,12 @@ export default (
                 <Route path="log" component={Log} />
                 <Route path="log/:tableId/:tableName" component={Log}></Route>
             </Route>
-            <Route path="/database">
-                <IndexRoute component={DataSourceIndex} />
-                <Route path="db-sync/:sourceId/:sourceName" component={DataSourceMigration} />
+            <Route path="/database" component={DataSourceContainer} onEnter={isSelectedProject}>
+                <IndexRoute component={DataSourceOffline} />
+                <Route path="offline" component={DataSourceOffline} />
+                <Route path="offline/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
+                <Route path="stream" component={DataSourceStream} />
+                <Route path="stream/db-sync/:sourceId/:sourceName" component={DataSourceMigrationStream} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>

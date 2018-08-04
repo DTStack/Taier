@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Table, Button, Tooltip, Icon } from 'antd';
 
-import Api from '../../api';
-import { workbenchActions } from '../../store/modules/offlineTask/offlineAction';
+import Api from '../../../api';
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 class dbSyncHistoryModal extends Component {
 
