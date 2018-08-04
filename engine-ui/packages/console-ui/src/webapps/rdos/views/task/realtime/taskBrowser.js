@@ -239,8 +239,6 @@ export default class TaskBrowser extends Component {
             currentPage, pages, router,
             editorFocus, editorFocusOut,
         } = this.props
-        console.log('this.props',this.props);
-        
         if (pages.length === 0) router.push('/realtime')
         const panels = this.mapPanels(pages)
         return (

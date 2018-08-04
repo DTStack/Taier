@@ -36,12 +36,13 @@ class TaskIndex extends Component {
     componentDidMount() { }
 
     saveTask = () => {
-        const { currentPage, dispatch, inputData, outputData } = this.props;
+        const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask',this.props);
         
         //检查页面输入输出参数配置
         const { checkFormParams=[], panelColumn=[] } = inputData[currentPage.id]||{};
         const { checkFormParams:outputCheckFormParams=[], panelColumn:outputPanelColumn=[]} = outputData[currentPage.id]||{};
+        const { checkFormParams:dimensionCheckFormParams=[], panelColumn:dimensionPanelColumn=[]} = dimensionData[currentPage.id]||{};
         if (panelColumn.length === 0){
             return message.error("源表至少添加一个输入源");
         }
@@ -72,6 +73,7 @@ class TaskIndex extends Component {
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
         currentPage.source = panelColumn;
         currentPage.sink = outputPanelColumn;
+        currentPage.side = dimensionPanelColumn;
         Api.saveTask(currentPage).then((res) => {
             const updatePageStatus = (pageData) => {
                 message.success('任务保存成功')

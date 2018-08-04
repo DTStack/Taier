@@ -305,7 +305,7 @@ export default class OutputPanel extends Component {
     }
 
     getCurrentData = (taskId,nextProps) => {
-        const { currentPage,outputData } = nextProps;
+        const { currentPage,outputData,dispatch } = nextProps;
         const { source } = currentPage;
         if(!outputData[taskId]&&source.length>0){
             this.receiveState(taskId,source,dispatch)
@@ -317,19 +317,20 @@ export default class OutputPanel extends Component {
     }
 
     receiveState = (taskId,source,dispatch) => {
-        const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        const {tabTemplate,panelColumn} = copyInitialData;
+        const tabTemplate = [];
+        const panelColumn = [];
         source.map( v => {
-            tabTemplate.push(InputForm);
+            tabTemplate.push(OutputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setOutputData({taskId ,source: copyInitialData}));
+        dispatch(BrowserAction.setOutputData({taskId ,source: {tabTemplate,panelColumn}}));
         this.setState({
-            tabTemplate,
-            panelColumn
+            tabTemplate,panelColumn
         })
     }
 
+
+    
     getTypeOriginData = (index,type) => {
         const { outputSearchParams } = this.state;
         const selectData = { originType: [],tableType: [] };

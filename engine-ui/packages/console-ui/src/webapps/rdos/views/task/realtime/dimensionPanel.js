@@ -279,20 +279,20 @@ export default class DimensionPanel extends Component {
         super(props)
         const taskId = this.props.currentPage.id;
         const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        const data = props.outputData[taskId]||copyInitialData;
+        const data = props.dimensionData[taskId]||copyInitialData;
         this.state = {...data};
     }
     
     componentDidMount(){
-        const { sink } = this.props.currentPage;
-        if(sink&&sink.length>0){
-            this.currentInitData(sink)
+        const { side } = this.props.currentPage;
+        if(side&&side.length>0){
+            this.currentInitData(side)
         }
     }
 
-    currentInitData = (sink) => {
+    currentInitData = (side) => {
         const {tabTemplate,panelColumn} = this.state;
-        sink.map( v => {
+        side.map( v => {
             tabTemplate.push(DimensionForm);
             panelColumn.push(v);
             this.getTypeOriginData("add",v.type);
@@ -305,29 +305,29 @@ export default class DimensionPanel extends Component {
     }
 
     getCurrentData = (taskId,nextProps) => {
-        const { currentPage,outputData } = nextProps;
+        const { currentPage,dimensionData,dispatch } = nextProps;
         const { source } = currentPage;
-        if(!outputData[taskId]&&source.length>0){
+        if(!dimensionData[taskId]&&source.length>0){
             this.receiveState(taskId,source,dispatch)
         }else{
             const copyInitialData = JSON.parse(JSON.stringify(initialData));
-            const data = outputData[taskId]||copyInitialData;
+            const data = dimensionData[taskId]||copyInitialData;
             this.setState({...data})
         }
     }
 
     receiveState = (taskId,source,dispatch) => {
-        const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        const {tabTemplate,panelColumn} = copyInitialData;
+        const tabTemplate = [];
+        const panelColumn = [];
         source.map( v => {
-            tabTemplate.push(InputForm);
+            tabTemplate.push(DimensionForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setDimensionData({taskId ,source: copyInitialData}));
+        dispatch(BrowserAction.setDimensionData({taskId ,source: {tabTemplate,panelColumn}}));
         this.setState({
-            tabTemplate,
-            panelColumn
+            tabTemplate,panelColumn
         })
+
     }
 
     getTypeOriginData = (index,type) => {
