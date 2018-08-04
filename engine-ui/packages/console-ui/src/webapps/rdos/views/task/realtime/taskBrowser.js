@@ -14,6 +14,7 @@ import RealTimeEditor from './editor'
 import TaskDetail from './taskDetail'
 import InputPanel from './inputPanel'
 import OutputPanel from './outputPanel'
+import DimensionPanel from './dimensionPanel'
 
 
 const TabPane = Tabs.TabPane
@@ -275,19 +276,24 @@ export default class TaskBrowser extends Component {
                             tabPosition="right"
                             onTabClick={this.tabClick}
                         >
+                            <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
+                                <TaskDetail {...this.props} />
+                            </TabPane>
                             {
-                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">输入</span>} key="params3">
+                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">源表</span>} key="params3">
                                         <InputPanel {...this.props} />
                                     </TabPane> : ""
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">输出</span>} key="params4">
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">结果出</span>} key="params4">
                                     <OutputPanel {...this.props} />
                                 </TabPane>:""
                             } 
-                            <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
-                                <TaskDetail {...this.props} />
-                            </TabPane>
+                            {
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">维表</span>} key="params5">
+                                    <DimensionPanel {...this.props} />
+                                </TabPane>:""
+                            } 
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
                                     key="params-editor"

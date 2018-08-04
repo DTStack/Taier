@@ -13,6 +13,8 @@ export const browserAction = mc([
     'GET_INPUT_DATA',
     'SET_OUTPUT_DATA',
     'GET_OUTPUT_DATA',
+    'SET_DIMESION_DATA',
+    'GET_DIMESION_DATA'
 ], { prefix: 'realtimeTask/browser/' })
 
 export const modalAction = mc([

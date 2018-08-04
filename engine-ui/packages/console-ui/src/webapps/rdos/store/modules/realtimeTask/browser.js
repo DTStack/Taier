@@ -129,6 +129,20 @@ export function getOutputData(id){
     }
 }
 
+export function setDimensionData(value){
+    return {
+        type: browserAction.SET_DIMESION_DATA,
+        data: value,
+    }
+}
+
+export function getDimensionData(id){
+    return {
+        type: browserAction.GET_DIMESION_DATA,
+        data: id,
+    }
+}
+
 // Reducer
 const pagesKey = 'pages';
 const defaultPages = localDb.get(pagesKey) || []
@@ -225,6 +239,18 @@ export function outputData(state = {}, action){
             const data = {...state,...{[action.data.taskId]: action.data.source}}
             return data;
         case browserAction.GET_OUTPUT_DATA:
+            return state;
+        default:
+            return state;
+    }
+}
+
+export function dimensionData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_DIMESION_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            return data;
+        case browserAction.GET_DIMESION_DATA:
             return state;
         default:
             return state;

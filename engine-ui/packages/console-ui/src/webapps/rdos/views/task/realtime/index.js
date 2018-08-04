@@ -43,7 +43,7 @@ class TaskIndex extends Component {
         const { checkFormParams=[], panelColumn=[] } = inputData[currentPage.id]||{};
         const { checkFormParams:outputCheckFormParams=[], panelColumn:outputPanelColumn=[]} = outputData[currentPage.id]||{};
         if (panelColumn.length === 0){
-            return message.error("至少添加一个输入源");
+            return message.error("源表至少添加一个输入源");
         }
         for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
@@ -54,7 +54,7 @@ class TaskIndex extends Component {
             }
         }
         if (outputPanelColumn.length === 0){
-            return message.error("至少添加一个输出源");
+            return message.error("结果表至少添加一个输出源");
         }
         if(outputCheckFormParams.length>0){
             for (let index = 0,len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
@@ -344,7 +344,7 @@ class TaskIndex extends Component {
 }
 
 export default connect((state) => {
-    const { resources, pages, currentPage, inputData, outputData } = state.realtimeTask;
+    const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
     const { user } = state;
     return {
         currentPage,
@@ -352,6 +352,7 @@ export default connect((state) => {
         resources,
         user,
         inputData,
-        outputData
+        outputData,
+        dimensionData
     }
 })(TaskIndex) 
