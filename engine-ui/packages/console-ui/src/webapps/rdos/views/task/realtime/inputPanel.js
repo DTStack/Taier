@@ -71,18 +71,19 @@ class InputOrigin extends Component {
     }
 
     editorParamsChange(a,b,c){
-        const { handleInputChange, index, panelColumn,inputSearchParams } = this.props;
+        const { handleInputChange, index, } = this.props;
         this._syncEditor=false;
         handleInputChange("columnsText",index,b);
         //this.props.editorParamsChange(...arguments);
     }
 
     render(){
-        const { handleInputChange, index, panelColumn,inputSearchParams } = this.props;
-        const currentOpt = inputSearchParams[index];
-        const originOptionType = this.originOption('originType',currentOpt&&currentOpt.originType||[]);
-        const topicOptionType = this.originOption('currencyType',currentOpt&&currentOpt.topic||[]);
-        //const eventTimeOptionType = this.originOption('eventTime',panelColumn[index].columns)
+        const { handleInputChange, index, panelColumn,sync,timeColumoption=[],originOptionType=[],topicOptionType=[] } = this.props;
+        console.log('timeColumoption',timeColumoption);
+        
+        const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
+        const topicOptionTypes = this.originOption('currencyType',topicOptionType[index]||[]);
+        const eventTimeOptionType = this.originOption('eventTime',timeColumoption[index]||[]);
         //const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const { getFieldDecorator } = this.props.form;
         const formItemLayout = {
@@ -123,7 +124,7 @@ class InputOrigin extends Component {
                         })(
                             <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
                                 {
-                                    originOptionType
+                                    originOptionTypes
                                 }
                             </Select>
                         )}
@@ -139,7 +140,7 @@ class InputOrigin extends Component {
                         })(
                             <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
                                 {
-                                    topicOptionType
+                                    topicOptionTypes
                                 }
                             </Select>
                         )}
@@ -168,13 +169,15 @@ class InputOrigin extends Component {
                         label="字段"
                     >
                     </FormItem>
-                    <Col style={{marginBottom: 20}}>
+                    <Col style={{marginBottom: 20,height: 200}}>
                         <Editor 
-                             key="params-editor"
-                             //sync={this._syncEditor}
+                            style={{height: 200}}
+                            key="params-editor"
+                            sync={sync}
+                            placeholder="字段:类型, 比如id:int 一行一个字段"
                             // options={jsonEditorOptions}
-                             value={panelColumn[index].columnsText}
-                             onChange={this.editorParamsChange.bind(this)}
+                            value={panelColumn[index].columnsText}
+                            onChange={this.editorParamsChange.bind(this)}
                         />
                     </Col>
                     {/* <Col style={{marginBottom: 20}}>
@@ -236,7 +239,7 @@ class InputOrigin extends Component {
                                 })(
                                     <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
                                            {
-                                              // eventTimeOptionType
+                                              eventTimeOptionType
                                            }
                                     </Select>
                                 )}
@@ -280,12 +283,13 @@ class InputOrigin extends Component {
 const InputForm = Form.create({
     mapPropsToFields(props) {
             const { type, sourceId, topic, table , columns, timeType, timeColum, offset,columnsText } = props.panelColumn[props.index];
+            console.log('props.panelColumn[props.index]',props.panelColumn[props.index]);
+            
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
                 topic: { value: topic },
                 table: { value: table },
-                // model: { value: model },
                 columns: { value: columns },
                 timeType: { value: timeType },
                 timeColum: { value: timeColum },
@@ -303,7 +307,9 @@ const initialData = {
     popoverVisible: [],//删除显示按钮状态
     panelColumn: [],//存储数据
     checkFormParams: [],//存储要检查的参数from
-    inputSearchParams: [],//所有输入选择的参数
+    timeColumoption: [],//时间列选择数据
+    topicOptionType: [],//topic选择数据
+    originOptionType: [],//数据源选择数据
 }
 
 export default class InputPanel extends Component {
@@ -325,11 +331,12 @@ export default class InputPanel extends Component {
 
     currentInitData = (source) => {
         const {tabTemplate,panelColumn} = this.state;
-        console.log(source);
-        source.map( v => {
+        source.map( (v,index) => {
             tabTemplate.push(InputForm);
             panelColumn.push(v);
-            this.getTypeOriginData('add',v.type)
+            this.getTypeOriginData(index,v.type);
+            this.parseColumnsText(index,v.columnsText);
+            this.getTopicType(index,v.sourceId);
         })
         this.setCurrentSource({tabTemplate,panelColumn})
         this.setState({
@@ -338,46 +345,90 @@ export default class InputPanel extends Component {
         })
     }
 
+    parseColumnsText = (index,text="")=>{
+        const { timeColumoption } = this.state;
+        const columns =  text.split("\n").map(v=>{
+            const column = v.split(":");
+            return { column: column[0],type: column[1] }
+        })
+       const filterColumns =  columns.filter(v=>{
+            return v.column&&v.type
+        })
+        timeColumoption[index] = filterColumns;
+        this.setCurrentSource({timeColumoption})
+        this.setState({
+            timeColumoption
+        })
+    }
+
     getTypeOriginData = (index,type) => {
-        const { inputSearchParams } = this.state;
-        const selectData = { topic: [], originType: [] };
+        const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(v.code===1){
-                if(index === "add"){
-                    console.log('originOption',inputSearchParams);
-                    selectData.originType = v.data;
-                    inputSearchParams.push(selectData);
+            if(index='add'){
+                if(v.code===1){
+                    originOptionType.push(v.data) 
                 }else{
-                    inputSearchParams[index].originType = v.data;
+                    originOptionType.push([]) 
                 }
             }else{
-                if(index === "add"){
-                    inputSearchParams.push(selectData);
+                if(v.code===1){
+                    originOptionType[index] = v.data;
+                }else{
+                    originOptionType[index] = [];
                 }
             }
-            this.setCurrentSource({inputSearchParams});
+            this.setCurrentSource({originOptionType});
             this.setState({
-                inputSearchParams
+                originOptionType
             })
         })
     }
 
     getTopicType = (index,sourceId) => {
-        const { inputSearchParams } = this.state;
-        const selectData = inputSearchParams[index];
-        Api.getTopicType({sourceId}).then(v=>{
-            if(v.code===1){
-                selectData.topic = v.data
+        const { topicOptionType } = this.state;
+        console.log('getTopicType',index,sourceId);
+        
+        if(sourceId){
+            Api.getTopicType({sourceId}).then(v=>{
+                if(index==='add'){
+                    if(v.code===1){
+                        topicOptionType.push(v.data) 
+                    }else{
+                        topicOptionType.push([]) 
+                    }
+                }else{
+                    if(v.code===1){
+                        topicOptionType[index] = v.data;
+                    }else{
+                        topicOptionType[index] = [];
+                    }
+                }
+                console.log('topicOptionType',topicOptionType);
+                this.setCurrentSource({topicOptionType});
                 this.setState({
-                    inputSearchParams
+                    topicOptionType
                 })
+            })
+        }else{
+            if(index==="add"){
+                topicOptionType.push([]);
+            }else{
+                topicOptionType[index] = [];
             }
-        })
+            this.setCurrentSource({topicOptionType});
+            this.setState({
+                topicOptionType
+            })
+        }
     }
 
     getCurrentData = (taskId,nextProps) => {
         const { dispatch,inputData,currentPage } = nextProps;
         const { source } = currentPage;
+        console.log('-----inputData:',inputData);
+        console.log('inputData[taskId]:',inputData[taskId]);
+        console.log('componentWillReceiveProps-source',source);
+        
         if(!inputData[taskId]&&source.length>0){
             this.receiveState(taskId,source,dispatch)
         }else{
@@ -390,45 +441,41 @@ export default class InputPanel extends Component {
     receiveState = (taskId,source,dispatch) => {
         const tabTemplate = [];
         const panelColumn = [];
+        const panelActiveKey = [];
+        const popoverVisible = [];
+        const checkFormParams = [];
+        const timeColumoption = [];
+        const originOptionType = [];
+        const topicOptionType = [];
         source.map( v => {
             tabTemplate.push(InputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setInputData({taskId ,source: {tabTemplate,panelColumn}}));
-        this.setState({
-            tabTemplate,panelColumn
-        },()=>{ source.map(v=>{
-            this.receiveTypeOriginData(v.type,taskId,dispatch)
-        })})
-    }
-
-
-    receiveTypeOriginData = (type,taskId,dispatch) => {
-        const inputSearchParams  = []
-        const selectData = { topic: [], originType: [] };
-        Api.getTypeOriginData({type}).then(v=>{
-            if(v.code===1){
-                selectData.originType = v.data;
-                inputSearchParams.push(selectData);
-            }else{
-                inputSearchParams.push(selectData);
+        dispatch(BrowserAction.setInputData({
+            taskId ,
+            source: {
+                tabTemplate,panelColumn,panelActiveKey,
+                popoverVisible,checkFormParams,timeColumoption,
+                originOptionType,topicOptionType
             }
-            const dispatchSource = {...this.state,inputSearchParams};
-            dispatch(BrowserAction.setInputData({taskId ,source: dispatchSource}));
-            this.setState({
-                inputSearchParams
-            })
-        })
+        }));
+        this.setState({
+            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,topicOptionType,timeColumoption
+        },()=>{ source.map((v,index)=>{
+            this.getTypeOriginData(index,v.type);
+            this.getTopicType(index,v.sourceId)
+            this.parseColumnsText(index,v.columnsText)
+        })})
     }
 
     componentWillReceiveProps(nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
+            this._syncEditor=true;
             this.getCurrentData(currentPage.id,nextProps)
         }
     }
-
     changeInputTabs = (type,index) =>{
         const inputData = {
             type: "14",
@@ -444,29 +491,32 @@ export default class InputPanel extends Component {
             // alias: undefined,
         }
         
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,inputSearchParams } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,originOptionType,topicIndex } = this.state;
         if(type==="add"){
             tabTemplate.push(InputForm);
             panelColumn.push(inputData);
             this.getTypeOriginData("add",inputData.type);
+            this.getTopicType("add",inputData.topic)
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
-            inputSearchParams.splice(index,1);
+            originOptionType.splice(index,1);
+            topicIndex.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,inputSearchParams});
+        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicIndex});
         this.setState({
             tabTemplate,
             panelActiveKey,
             popoverVisible,
             panelColumn,
             checkFormParams,
-            inputSearchParams
+            originOptionType,
+            topicIndex
         })
     }
 
@@ -510,6 +560,10 @@ export default class InputPanel extends Component {
         // }else{
         //     panelColumn[index][type] = value;
         // }
+        if(type === "columnsText"){
+            this._syncEditor=false;
+            this.parseColumnsText(index,value)
+        }
         panelColumn[index][type] = value;
         if(type==="type"){
             this.getTypeOriginData(index,value);
@@ -571,7 +625,7 @@ export default class InputPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,inputSearchParams } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,timeColumoption,topicOptionType,originOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
@@ -579,7 +633,15 @@ export default class InputPanel extends Component {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <InputForm index={index} key={index+1} handleInputChange={this.handleInputChange} panelColumn={panelColumn} inputSearchParams={inputSearchParams} onRef={this.recordForm} editorParamsChange={this.props.editorParamsChange}/>
+                                    <InputForm  
+                                        sync={this._syncEditor} index={index} key={index+1} 
+                                        handleInputChange={this.handleInputChange} panelColumn={panelColumn} 
+                                        onRef={this.recordForm} 
+                                        editorParamsChange={this.props.editorParamsChange}
+                                        timeColumoption = { timeColumoption }
+                                        topicOptionType = { topicOptionType }
+                                        originOptionType = { originOptionType }
+                                    />
                                 </Panel>
                             )
                         })

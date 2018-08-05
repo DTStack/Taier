@@ -17,7 +17,7 @@ const RadioGroup = Radio.Group;
 const { Column, ColumnGroup } = Table;
 const FormItem = Form.Item;
 
-class dimensionOrigin extends Component {
+class OutputOrigin extends Component {
 
     componentDidMount(){
         this.props.onRef(this);
@@ -32,17 +32,17 @@ class dimensionOrigin extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 result.status = true;
-                if(tableColumns.length === 0){
-                    result.status = false;
-                    result.message = "至少添加一个字段"
-                }else{
-                    tableColumns.map(v=>{
-                        if(!v.column||!v.type){
-                            result.status = false;
-                            result.message= "有未填写的字段或类型"
-                        }
-                    })
-                }
+                // if(tableColumns.length === 0){
+                //     result.status = false;
+                //     result.message = "至少添加一个字段"
+                // }else{
+                //     tableColumns.map(v=>{
+                //         if(!v.column||!v.type){
+                //             result.status = false;
+                //             result.message= "有未填写的字段或类型"
+                //         }
+                //     })
+                // }
             }else{
                 result.status = false;
             }
@@ -66,11 +66,10 @@ class dimensionOrigin extends Component {
     }
 
     render(){
-        const { handleInputChange,index, outputSearchParams,panelColumn } = this.props;
+        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const currentOpt = outputSearchParams[index];
-        const originOptionType = this.originOption('originType',currentOpt&&currentOpt.originType||[]);
-        const tableOptionType = this.originOption('currencyType',currentOpt&&currentOpt.tableType||[]);
+        const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
+        const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
         const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const formItemLayout = {
             labelCol: {
@@ -89,13 +88,14 @@ class dimensionOrigin extends Component {
                     label="存储类型"
                 >
                     {getFieldDecorator('type', {
-                        initialValue: "disabled",
                         rules: [
                             {required: true, message: '请选择存储类型',}
                         ],
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
                                 <Option value="1">Mysql</Option>
+                                {/* <Option value="8">HBase</Option>
+                                <Option value="11">ElasticSearch</Option> */}
                         </Select>
                     )}
                 </FormItem>
@@ -111,7 +111,7 @@ class dimensionOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
                                {
-                                   originOptionType
+                                   originOptionTypes
                                }
                         </Select>
                     )}
@@ -128,7 +128,7 @@ class dimensionOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
                                 {
-                                    tableOptionType
+                                    tableOptionTypes
                                 }
                         </Select>
                     )}
@@ -251,7 +251,7 @@ class dimensionOrigin extends Component {
     }
 }
 
-const DimensionForm = Form.create({
+const OutputForm = Form.create({
     mapPropsToFields(props) {
             const { type, sourceId, table, columns } = props.panelColumn[props.index];
             return {
@@ -261,7 +261,7 @@ const DimensionForm = Form.create({
                 columns: { value: columns },
             }
         } 
-})(dimensionOrigin);
+})(OutputOrigin);
 
 const initialData = {
     popoverVisible: false,
@@ -270,10 +270,11 @@ const initialData = {
     popoverVisible: [],//删除显示按钮状态
     panelColumn: [],//存储数据
     checkFormParams: [],//存储要检查的参数from
-    outputSearchParams: [],//所有输入选择的参数
+    originOptionType: [],//数据源选择数据
+    tableOptionType: [],//表选择数据
 }
 
-export default class DimensionPanel extends Component {
+export default class OutputPanel extends Component {
 
     constructor(props) {
         super(props)
@@ -292,12 +293,13 @@ export default class DimensionPanel extends Component {
 
     currentInitData = (side) => {
         const {tabTemplate,panelColumn} = this.state;
-        side.map( v => {
-            tabTemplate.push(DimensionForm);
+        side.map( (v,index) => {
+            tabTemplate.push(OutputForm);
             panelColumn.push(v);
-            this.getTypeOriginData("add",v.type);
+            this.getTypeOriginData(index,v.type);
+            this.getTableType(index,v.sourceId)
         })
-        this.setDimensionData({ tabTemplate, panelColumn })
+        this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
             tabTemplate,
             panelColumn
@@ -306,9 +308,9 @@ export default class DimensionPanel extends Component {
 
     getCurrentData = (taskId,nextProps) => {
         const { currentPage,dimensionData,dispatch } = nextProps;
-        const { source } = currentPage;
-        if(!dimensionData[taskId]&&source.length>0){
-            this.receiveState(taskId,source,dispatch)
+        const { side } = currentPage;
+        if(!dimensionData[taskId]&&side.length>0){
+            this.receiveState(taskId,side,dispatch)
         }else{
             const copyInitialData = JSON.parse(JSON.stringify(initialData));
             const data = dimensionData[taskId]||copyInitialData;
@@ -316,54 +318,86 @@ export default class DimensionPanel extends Component {
         }
     }
 
-    receiveState = (taskId,source,dispatch) => {
+    receiveState = (taskId,side,dispatch) => {
         const tabTemplate = [];
         const panelColumn = [];
-        source.map( v => {
-            tabTemplate.push(DimensionForm);
+        const panelActiveKey = [];
+        const popoverVisible = [];
+        const checkFormParams = [];
+        const originOptionType = [];
+        const tableOptionType = [];
+        side.map( v => {
+            tabTemplate.push(OutputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setDimensionData({taskId ,source: {tabTemplate,panelColumn}}));
+        dispatch(BrowserAction.setDimensionData({taskId ,side: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType}}));
         this.setState({
-            tabTemplate,panelColumn
+            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType
+        },()=>{
+            side.map((v,index)=>{
+                this.getTypeOriginData(index,v.type)
+                this.getTableType(index,v.sourceId)
+            })
         })
-
     }
 
     getTypeOriginData = (index,type) => {
-        const { outputSearchParams } = this.state;
-        const selectData = { originType: [],tableType: [] };
+        const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(v.code===1){
-                if(index === "add"){
-                    selectData.originType = v.data;
-                    outputSearchParams.push(selectData);
+            if(index='add'){
+                if(v.code===1){
+                    originOptionType.push(v.data) 
                 }else{
-                    outputSearchParams[index].originType = v.data;
+                    originOptionType.push([]) 
                 }
             }else{
-                if(index === "add"){
-                    outputSearchParams.push(selectData);
+                if(v.code===1){
+                    originOptionType[index] = v.data;
+                }else{
+                    originOptionType[index] = [];
                 }
             }
-            this.setDimensionData({outputSearchParams});
+            this.setOutputData({originOptionType});
             this.setState({
-                outputSearchParams
+                originOptionType
             })
         })
     }
 
     getTableType = (index,sourceId) => {
-        const { outputSearchParams } = this.state;
-        const selectData = outputSearchParams[index];
-        Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
-            if(v.code===1){
-                selectData.tableType = v.data
+        const { tableOptionType } = this.state;
+        if(sourceId){
+            Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
+                if(index==='add'){
+                    if(v.code===1){
+                        tableOptionType.push(v.data) 
+                    }else{
+                        tableOptionType.push([]) 
+                    }
+                }else{
+                    if(v.code===1){
+                        tableOptionType[index] = v.data;
+                    }else{
+                        tableOptionType[index] = [];
+                    }
+                }
+                console.log('tableOptionType',tableOptionType);
+                this.setOutputData({tableOptionType});
                 this.setState({
-                    outputSearchParams
+                    tableOptionType
                 })
+            })
+        }else{
+            if(index="add"){
+                tableOptionType.push([]);
+            }else{
+                tableOptionType[index] = [];
             }
-        })
+            this.setOutputData({tableOptionType});
+            this.setState({
+                tableOptionType
+            })
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -381,36 +415,39 @@ export default class DimensionPanel extends Component {
             sourceId: undefined,
             table: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, outputSearchParams } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
         if(type==="add"){
-            tabTemplate.push(DimensionForm);
+            tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
             this.getTypeOriginData("add",inputData.type);
+            this.getTableType('add',inputData.table)
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
-            outputSearchParams.splice(index,1);
+            originOptionType.splice(index,1);
+            tableOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setDimensionData({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
+        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
         this.setState({
             tabTemplate,
             panelActiveKey,
             popoverVisible,
             panelColumn,
             checkFormParams,
-            outputSearchParams
+            originOptionType,
+            tableOptionType
         })
     }
 
-    setDimensionData = (data) => {
+    setOutputData = (data) => {
         const { dispatch, currentPage } = this.props;
         const dispatchSource = {...this.state,...data};
-        dispatch(BrowserAction.setDimensionData({taskId: currentPage.id ,source: dispatchSource}));
+        dispatch(BrowserAction.setDimensionData({taskId: currentPage.id ,side: dispatchSource}));
     }
 
     changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
@@ -428,7 +465,7 @@ export default class DimensionPanel extends Component {
     handleActiveKey = (key) => {
         let { panelActiveKey } = this.state;
         panelActiveKey = key
-        this.setDimensionData({panelActiveKey})
+        this.setOutputData({panelActiveKey})
         this.setState({
             panelActiveKey,
         })
@@ -452,7 +489,7 @@ export default class DimensionPanel extends Component {
         }else if(type==="sourceId"){
             this.getTableType(index,value)
         }
-        this.setDimensionData({panelColumn})
+        this.setOutputData({panelColumn})
         this.setState({
             panelColumn,
         })
@@ -469,7 +506,7 @@ export default class DimensionPanel extends Component {
                 })
             }
         }
-        this.setDimensionData({popoverVisible})
+        this.setOutputData({popoverVisible})
         this.setState({ popoverVisible });
     }
 
@@ -499,7 +536,7 @@ export default class DimensionPanel extends Component {
     recordForm = (ref) => {//存储子组建的所有要检查的form表单
         const { checkFormParams } = this.state;
         checkFormParams.push(ref);
-        this.setDimensionData({checkFormParams})
+        this.setOutputData({checkFormParams})
         this.setState({
             checkFormParams
         })
@@ -507,7 +544,7 @@ export default class DimensionPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,outputSearchParams } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
@@ -515,7 +552,13 @@ export default class DimensionPanel extends Component {
                         tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <DimensionForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn} outputSearchParams={outputSearchParams} onRef={this.recordForm}/>
+                                    <OutputForm 
+                                        index={index} 
+                                        handleInputChange={this.handleInputChange}
+                                        panelColumn={panelColumn} originOptionType={originOptionType} 
+                                        tableOptionType = {tableOptionType}
+                                        onRef={this.recordForm}
+                                    />
                                 </Panel>
                             )
                         })

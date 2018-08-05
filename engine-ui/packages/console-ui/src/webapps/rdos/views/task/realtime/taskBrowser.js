@@ -15,6 +15,7 @@ import TaskDetail from './taskDetail'
 import InputPanel from './inputPanel'
 import OutputPanel from './outputPanel'
 import DimensionPanel from './dimensionPanel'
+import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
 
 
 const TabPane = Tabs.TabPane
@@ -33,6 +34,9 @@ export default class TaskBrowser extends Component {
         const page = pages && pages.find((item) => { return item.id === id })
         if (page) {
             dispatch(BrowserAction.setCurrentPage(page))
+            dispatch(BrowserAction.getInputData())
+            dispatch(BrowserAction.getOutputData())
+            dispatch(BrowserAction.getDimensionData())
         }
     }
       

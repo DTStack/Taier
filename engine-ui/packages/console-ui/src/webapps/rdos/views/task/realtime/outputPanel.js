@@ -32,17 +32,17 @@ class OutputOrigin extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 result.status = true;
-                if(tableColumns.length === 0){
-                    result.status = false;
-                    result.message = "至少添加一个字段"
-                }else{
-                    tableColumns.map(v=>{
-                        if(!v.column||!v.type){
-                            result.status = false;
-                            result.message= "有未填写的字段或类型"
-                        }
-                    })
-                }
+                // if(tableColumns.length === 0){
+                //     result.status = false;
+                //     result.message = "至少添加一个字段"
+                // }else{
+                //     tableColumns.map(v=>{
+                //         if(!v.column||!v.type){
+                //             result.status = false;
+                //             result.message= "有未填写的字段或类型"
+                //         }
+                //     })
+                // }
             }else{
                 result.status = false;
             }
@@ -66,11 +66,10 @@ class OutputOrigin extends Component {
     }
 
     render(){
-        const { handleInputChange,index, outputSearchParams,panelColumn } = this.props;
+        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const currentOpt = outputSearchParams[index];
-        const originOptionType = this.originOption('originType',currentOpt&&currentOpt.originType||[]);
-        const tableOptionType = this.originOption('currencyType',currentOpt&&currentOpt.tableType||[]);
+        const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
+        const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
         const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const formItemLayout = {
             labelCol: {
@@ -89,13 +88,14 @@ class OutputOrigin extends Component {
                     label="存储类型"
                 >
                     {getFieldDecorator('type', {
-                        initialValue: "disabled",
                         rules: [
                             {required: true, message: '请选择存储类型',}
                         ],
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
                                 <Option value="1">Mysql</Option>
+                                <Option value="8">HBase</Option>
+                                <Option value="11">ElasticSearch</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -111,7 +111,7 @@ class OutputOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
                                {
-                                   originOptionType
+                                   originOptionTypes
                                }
                         </Select>
                     )}
@@ -128,7 +128,7 @@ class OutputOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
                                 {
-                                    tableOptionType
+                                    tableOptionTypes
                                 }
                         </Select>
                     )}
@@ -270,7 +270,8 @@ const initialData = {
     popoverVisible: [],//删除显示按钮状态
     panelColumn: [],//存储数据
     checkFormParams: [],//存储要检查的参数from
-    outputSearchParams: [],//所有输入选择的参数
+    originOptionType: [],//数据源选择数据
+    tableOptionType: [],//表选择数据
 }
 
 export default class OutputPanel extends Component {
@@ -292,10 +293,11 @@ export default class OutputPanel extends Component {
 
     currentInitData = (sink) => {
         const {tabTemplate,panelColumn} = this.state;
-        sink.map( v => {
+        sink.map( (v,index) => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
-            this.getTypeOriginData("add",v.type);
+            this.getTypeOriginData(index,v.type);
+            this.getTableType(index,v.sourceId)
         })
         this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
@@ -306,9 +308,9 @@ export default class OutputPanel extends Component {
 
     getCurrentData = (taskId,nextProps) => {
         const { currentPage,outputData,dispatch } = nextProps;
-        const { source } = currentPage;
-        if(!outputData[taskId]&&source.length>0){
-            this.receiveState(taskId,source,dispatch)
+        const { sink } = currentPage;
+        if(!outputData[taskId]&&sink.length>0){
+            this.receiveState(taskId,sink,dispatch)
         }else{
             const copyInitialData = JSON.parse(JSON.stringify(initialData));
             const data = outputData[taskId]||copyInitialData;
@@ -316,55 +318,86 @@ export default class OutputPanel extends Component {
         }
     }
 
-    receiveState = (taskId,source,dispatch) => {
+    receiveState = (taskId,sink,dispatch) => {
         const tabTemplate = [];
         const panelColumn = [];
-        source.map( v => {
+        const panelActiveKey = [];
+        const popoverVisible = [];
+        const checkFormParams = [];
+        const originOptionType = [];
+        const tableOptionType = [];
+        sink.map( v => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setOutputData({taskId ,source: {tabTemplate,panelColumn}}));
+        dispatch(BrowserAction.setOutputData({taskId ,sink: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType}}));
         this.setState({
-            tabTemplate,panelColumn
+            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType
+        },()=>{
+            sink.map((v,index)=>{
+                this.getTypeOriginData(index,v.type)
+                this.getTableType(index,v.sourceId)
+            })
         })
     }
 
-
-    
     getTypeOriginData = (index,type) => {
-        const { outputSearchParams } = this.state;
-        const selectData = { originType: [],tableType: [] };
+        const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(v.code===1){
-                if(index === "add"){
-                    selectData.originType = v.data;
-                    outputSearchParams.push(selectData);
+            if(index='add'){
+                if(v.code===1){
+                    originOptionType.push(v.data) 
                 }else{
-                    outputSearchParams[index].originType = v.data;
+                    originOptionType.push([]) 
                 }
             }else{
-                if(index === "add"){
-                    outputSearchParams.push(selectData);
+                if(v.code===1){
+                    originOptionType[index] = v.data;
+                }else{
+                    originOptionType[index] = [];
                 }
             }
-            this.setOutputData({outputSearchParams});
+            this.setOutputData({originOptionType});
             this.setState({
-                outputSearchParams
+                originOptionType
             })
         })
     }
 
     getTableType = (index,sourceId) => {
-        const { outputSearchParams } = this.state;
-        const selectData = outputSearchParams[index];
-        Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
-            if(v.code===1){
-                selectData.tableType = v.data
+        const { tableOptionType } = this.state;
+        if(sourceId){
+            Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
+                if(index==='add'){
+                    if(v.code===1){
+                        tableOptionType.push(v.data) 
+                    }else{
+                        tableOptionType.push([]) 
+                    }
+                }else{
+                    if(v.code===1){
+                        tableOptionType[index] = v.data;
+                    }else{
+                        tableOptionType[index] = [];
+                    }
+                }
+                console.log('tableOptionType',tableOptionType);
+                this.setOutputData({tableOptionType});
                 this.setState({
-                    outputSearchParams
+                    tableOptionType
                 })
+            })
+        }else{
+            if(index="add"){
+                tableOptionType.push([]);
+            }else{
+                tableOptionType[index] = [];
             }
-        })
+            this.setOutputData({tableOptionType});
+            this.setState({
+                tableOptionType
+            })
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -382,17 +415,19 @@ export default class OutputPanel extends Component {
             sourceId: undefined,
             table: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, outputSearchParams } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
         if(type==="add"){
             tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
             this.getTypeOriginData("add",inputData.type);
+            this.getTableType('add',inputData.table)
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
-            outputSearchParams.splice(index,1);
+            originOptionType.splice(index,1);
+            tableOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
@@ -404,14 +439,15 @@ export default class OutputPanel extends Component {
             popoverVisible,
             panelColumn,
             checkFormParams,
-            outputSearchParams
+            originOptionType,
+            tableOptionType
         })
     }
 
     setOutputData = (data) => {
         const { dispatch, currentPage } = this.props;
         const dispatchSource = {...this.state,...data};
-        dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,source: dispatchSource}));
+        dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,sink: dispatchSource}));
     }
 
     changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
@@ -508,7 +544,7 @@ export default class OutputPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,outputSearchParams } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
@@ -516,7 +552,13 @@ export default class OutputPanel extends Component {
                         tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
-                                    <OutputForm index={index} handleInputChange={this.handleInputChange} panelColumn={panelColumn} outputSearchParams={outputSearchParams} onRef={this.recordForm}/>
+                                    <OutputForm 
+                                        index={index} 
+                                        handleInputChange={this.handleInputChange}
+                                        panelColumn={panelColumn} originOptionType={originOptionType} 
+                                        tableOptionType = {tableOptionType}
+                                        onRef={this.recordForm}
+                                    />
                                 </Panel>
                             )
                         })
