@@ -153,10 +153,40 @@ class OutputOrigin extends Component {
                     >
                         {getFieldDecorator('index', {
                             rules: [
-                                {required: true, message: '请选择索引',}
+                                {required: true, message: '请输入索引',}
                             ],
                         })(
-                            <Input placeholder="请输入id" onChange={e => handleInputChange('index',index,e.target.value)}/>
+                            <Input placeholder="请输入索引" onChange={e => handleInputChange('index',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+                    panelColumn[index].type == "11" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="id"
+                    >
+                        {getFieldDecorator('esId', {
+                            rules: [
+                                {required: true, message: '请输入id',}
+                            ],
+                        })(
+                            <Input placeholder="请输入id" onChange={e => handleInputChange('esId',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+                    panelColumn[index].type == "11" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="索引类型"
+                    >
+                        {getFieldDecorator('esType', {
+                            rules: [
+                                {required: true, message: '请输入索引类型',}
+                            ],
+                        })(
+                            <Input placeholder="请输入索引类型" onChange={e => handleInputChange('esType',index,e.target.value)}/>
                         )}
                     </FormItem> : ""
                 }
@@ -188,10 +218,7 @@ class OutputOrigin extends Component {
                             ],
                         })(
                             <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                    <Option value="disabled" >Disabled</Option>
-                                    <Option value="Yiminghe">yiminghe</Option>
+                                    <Option value="AppendChild">AppendChild</Option>
                             </Select>
                         )}
                     </FormItem>:""
@@ -377,7 +404,9 @@ export default class OutputPanel extends Component {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
             this.getTypeOriginData(index,v.type);
-            this.getTableType(index,v.sourceId)
+            if(v.type=="1"){
+                this.getTableType(index,v.sourceId)
+            }
         })
         this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
@@ -416,7 +445,9 @@ export default class OutputPanel extends Component {
         },()=>{
             sink.map((v,index)=>{
                 this.getTypeOriginData(index,v.type)
-                this.getTableType(index,v.sourceId)
+                if(v.type=='1'){
+                    this.getTableType(index,v.sourceId)
+                }
             })
         })
     }
@@ -580,7 +611,9 @@ export default class OutputPanel extends Component {
         if(type==="type"){
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            this.getTableType(index,value)
+            if(panelColumn[index].type=='1'){
+                this.getTableType(index,value)
+            }
         }
         this.setOutputData({panelColumn})
         this.setState({
