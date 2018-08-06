@@ -9,7 +9,6 @@ import { mysqlFieldTypes } from '../../../comm/const';
 
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
-
 import { jsonEditorOptions, LOCK_TYPE } from '../../../comm/const'
 
 
@@ -232,12 +231,12 @@ class InputOrigin extends Component {
                                 {...formItemLayout}
                                 label="时间列"
                             >
-                                {getFieldDecorator('timeColum', {
+                                {getFieldDecorator('timeColumn', {
                                     rules: [
                                         {required: true, message: '请选择时间列',}
                                     ],
                                 })(
-                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}>
                                            {
                                               eventTimeOptionType
                                            }
@@ -257,10 +256,18 @@ class InputOrigin extends Component {
                                         // { validator: this.checkConfirm }
                                     ],
                                 })(
-                                    <InputNumber className="number-input" onChange={value => handleInputChange('offset',index,value)}/>
+                                    <InputNumber className="number-input" min={0} onChange={value => handleInputChange('offset',index,value)}/>
                                 )}
                             </FormItem>: undefined
                     }
+                    <FormItem
+                        {...formItemLayout}
+                        label="并行度"
+                    >
+                        {getFieldDecorator('parallelism')(
+                            <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
+                        )}
+                    </FormItem>
                     {/* <FormItem
                         {...formItemLayout}
                         label="别名"
@@ -282,9 +289,8 @@ class InputOrigin extends Component {
 
 const InputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, topic, table , columns, timeType, timeColum, offset,columnsText } = props.panelColumn[props.index];
+            const { type, sourceId, topic, table , columns, timeType, timeColumn, offset,columnsText, parallelism } = props.panelColumn[props.index];
             console.log('props.panelColumn[props.index]',props.panelColumn[props.index]);
-            
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -292,9 +298,11 @@ const InputForm = Form.create({
                 table: { value: table },
                 columns: { value: columns },
                 timeType: { value: timeType },
-                timeColum: { value: timeColum },
+                timeColumn: { value: timeColumn },
                 offset: { value: offset},
-                columnsText: { value: columnsText}
+                columnsText: { value: columnsText},
+                parallelism: { value: parallelism},
+
                 // alias: { value: alias },
             }
         } 
@@ -348,10 +356,15 @@ export default class InputPanel extends Component {
     parseColumnsText = (index,text="")=>{
         const { timeColumoption } = this.state;
         const columns =  text.split("\n").map(v=>{
-            const column = v.split(":");
+            let column;
+            if(v.includes(" as ")){
+                column = v.split(" as ")
+            }else{
+                column = v.split(":");
+            }
             return { column: column[0],type: column[1] }
         })
-       const filterColumns =  columns.filter(v=>{
+       const filterColumns = columns.filter(v=>{
             return v.column&&v.type
         })
         timeColumoption[index] = filterColumns;
@@ -364,7 +377,7 @@ export default class InputPanel extends Component {
     getTypeOriginData = (index,type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(index='add'){
+            if(index==='add'){
                 if(v.code===1){
                     originOptionType.push(v.data) 
                 }else{
@@ -485,13 +498,14 @@ export default class InputPanel extends Component {
             //model: 1,
             // columns: [],
             timeType: 1,
-            timeColum: undefined,
+            timeColumn: undefined,
             offset: 0,
             columnsText: undefined,
+            parallelism: 1,
             // alias: undefined,
         }
         
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,originOptionType,topicIndex } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,originOptionType,topicOptionType } = this.state;
         if(type==="add"){
             tabTemplate.push(InputForm);
             panelColumn.push(inputData);
@@ -503,12 +517,12 @@ export default class InputPanel extends Component {
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
             originOptionType.splice(index,1);
-            topicIndex.splice(index,1);
+            topicOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicIndex});
+        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicOptionType});
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -516,7 +530,7 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicIndex
+            topicOptionType
         })
     }
 

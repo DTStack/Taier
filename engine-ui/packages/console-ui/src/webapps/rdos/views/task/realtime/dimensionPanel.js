@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
     message, Select, Collapse, Button,Radio,Popover,
-    Form
+    Form,InputNumber
 } from 'antd'
 
 import utils from 'utils'
@@ -174,6 +174,61 @@ class OutputOrigin extends Component {
                         </Button>
                     </div>
                 </Col>
+                <FormItem
+                    {...formItemLayout}
+                    label="并行度"
+                >
+                    {getFieldDecorator('parallelism')(
+                        <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="缓存策略"
+                >
+                    {getFieldDecorator('cache', {
+                        rules: [
+                            {required: true, message: '请选择缓存策略',}
+                        ],
+                    })(
+                        <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("cache",index,v)}}>
+                                <Option key="None" value="None">None</Option>
+                                <Option key="LRU" value="LRU">LRU</Option>
+                        </Select>
+                    )}
+                </FormItem>
+                {
+                    panelColumn[index].cache === "LRU" ? 
+                        <FormItem
+                            {...formItemLayout}
+                            label="缓存大小(行)"
+                        >
+                            {getFieldDecorator('cacheSize', {
+                                rules: [
+                                    {required: true, message: '请输入缓存大小'},
+                                    // { validator: this.checkConfirm }
+                                ],
+                            })(
+                                <InputNumber className="number-input" min={0} onChange={value => handleInputChange('cacheSize',index,value)}/>
+                            )}
+                        </FormItem>: undefined
+                }
+                {
+                    panelColumn[index].cache === "LRU" ? 
+                        <FormItem
+                            {...formItemLayout}
+                            label="缓存超时时间(毫秒)"
+                        >
+                            {getFieldDecorator('cacheTTLMs', {
+                                rules: [
+                                    {required: true, message: '请输入缓存超时时间'},
+                                    // { validator: this.checkConfirm }
+                                ],
+                            })(
+                                <InputNumber className="number-input" min={0} onChange={value => handleInputChange('cacheTTLMs',index,value)}/>
+                            )}
+                        </FormItem>: undefined
+                }
                 {/* <FormItem
                     {...formItemLayout}
                     label="Topic"
@@ -253,12 +308,16 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, parallelism, cache="None", cacheSize=10000, cacheTTLMs=60000 } = props.panelColumn[props.index];
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
                 table: { value: table },
                 columns: { value: columns },
+                parallelism: { value: parallelism },
+                cache: { value: cache },
+                cacheSize: { value: cacheSize },
+                cacheTTLMs: { value: cacheTTLMs },
             }
         } 
 })(OutputOrigin);
@@ -344,7 +403,7 @@ export default class OutputPanel extends Component {
     getTypeOriginData = (index,type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(index='add'){
+            if(index==='add'){
                 if(v.code===1){
                     originOptionType.push(v.data) 
                 }else{
@@ -414,6 +473,10 @@ export default class OutputPanel extends Component {
             columns: [],
             sourceId: undefined,
             table: undefined,
+            parallelism: 1,
+            cache: "None",
+            cacheSize: 10000,
+            cacheTTLMs: 60000,
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
         if(type==="add"){

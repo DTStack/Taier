@@ -89,10 +89,10 @@ class DataSourceMana extends Component {
 
     remove = (source) => {
         const ctx = this
-        // if (source.active === 1) {
-        //     message.info('此数据源已在任务中被引用，无法删除!')
-        //     return;
-        // }
+        if (source.active === 1) {
+            message.info('此数据源已在任务中被引用，无法删除!')
+            return;
+        }
         Api.streamDeleteDataSource({ sourceId: source.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！')
@@ -201,15 +201,15 @@ class DataSourceMana extends Component {
                         </a>
                         <span className="ant-divider" />
                         { 
-                            // record.active === 1 ?
-                            //     <Popconfirm
-                            //         title="使用中,无法删除此数据源!"
-                            //         okText="确定" cancelText="取消"
-                            //         //onConfirm={() => { this.remove(record) }}
-                            //     >
+                            record.active === 1 ?
+                                <Popconfirm
+                                    title="此数据源已在任务中被引用，无法删除!"
+                                    okText="确定" cancelText="取消"
+                                    //onConfirm={() => { this.remove(record) }}
+                                >
 
-                            //         <a>删除</a>
-                            //     </Popconfirm> :
+                                    <span>删除</span>
+                                </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
                                     okText="确定" cancelText="取消"
