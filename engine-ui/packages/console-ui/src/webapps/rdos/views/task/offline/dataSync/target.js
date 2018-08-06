@@ -207,7 +207,7 @@ class TargetForm extends React.Component {
                             showSearch
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                            disabled={!isCurrentTabNew}
+                            // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
@@ -267,7 +267,7 @@ class TargetForm extends React.Component {
                         <Select
                             showSearch
                             mode="combobox"
-                            disabled={ !isCurrentTabNew }
+                            // disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
                             onChange={this.debounceTableSearch.bind(this)}
                         >
@@ -356,7 +356,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
@@ -533,7 +533,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
