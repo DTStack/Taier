@@ -183,6 +183,30 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'DATE',
 ]
 
+export const mysqlFieldTypes = [// mysql类型
+    "BIT",
+    "BOOL",
+    "TINYINT",
+    "SMALLINT",
+    "MEDIUMINT", 
+    "INT", 
+    "BIGINT",
+    "FLOAT",
+    "DOUBLE",
+    "DECIMAL",
+    "CHAR",
+    "VARCHAR",
+    "TINYTEXT",
+    "TEXT",
+    "MEDIUMTEXT",
+    "LONGTEXT",
+    "DATETIME",
+    "DATE",
+    "TIMESTAMP",
+    "TIME",
+    "YEAR"
+]
+
 // 表模型规则列表
 export const tableModelRules = [{
     name: '层级',

@@ -186,6 +186,15 @@ export default {
     updateTaskOwner(params) {
         return http.post(offlineReq.UPDATE_TASK_OWNER, params)
     },
+    getTypeOriginData(params){
+        return http.post(req.GET_TYPE_ORIGIN_DATA, params)
+    },
+    getTopicType(params){
+        return http.post(req.GET_TOPIC_TYPE, params)
+    },
+    getStremTableType(params){
+        return http.post(req.GET_STREM_TABLE_TYPE, params)
+    },
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
