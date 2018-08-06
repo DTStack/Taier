@@ -9,7 +9,6 @@ import { mysqlFieldTypes } from '../../../comm/const';
 
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
-
 import { jsonEditorOptions, LOCK_TYPE } from '../../../comm/const'
 
 
@@ -261,6 +260,19 @@ class InputOrigin extends Component {
                                 )}
                             </FormItem>: undefined
                     }
+                    <FormItem
+                        {...formItemLayout}
+                        label="并行度(个)"
+                    >
+                        {getFieldDecorator('parallelism', {
+                            rules: [
+                                {required: true, message: '请输入并行度个数'},
+                                // { validator: this.checkConfirm }
+                            ],
+                        })(
+                            <InputNumber className="number-input" min={0} onChange={value => handleInputChange('parallelism',index,value)}/>
+                        )}
+                    </FormItem>
                     {/* <FormItem
                         {...formItemLayout}
                         label="别名"
@@ -282,9 +294,8 @@ class InputOrigin extends Component {
 
 const InputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, topic, table , columns, timeType, timeColum, offset,columnsText } = props.panelColumn[props.index];
+            const { type, sourceId, topic, table , columns, timeType, timeColum, offset,columnsText, parallelism } = props.panelColumn[props.index];
             console.log('props.panelColumn[props.index]',props.panelColumn[props.index]);
-            
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -294,7 +305,9 @@ const InputForm = Form.create({
                 timeType: { value: timeType },
                 timeColum: { value: timeColum },
                 offset: { value: offset},
-                columnsText: { value: columnsText}
+                columnsText: { value: columnsText},
+                parallelism: { value: parallelism},
+
                 // alias: { value: alias },
             }
         } 
@@ -348,7 +361,12 @@ export default class InputPanel extends Component {
     parseColumnsText = (index,text="")=>{
         const { timeColumoption } = this.state;
         const columns =  text.split("\n").map(v=>{
-            const column = v.split(":");
+            let column;
+            if(v.includes(" as ")){
+                column = v.split(" as ")
+            }else{
+                column = v.split(":");
+            }
             return { column: column[0],type: column[1] }
         })
        const filterColumns =  columns.filter(v=>{
