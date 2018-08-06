@@ -94,8 +94,8 @@ class OutputOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
                                 <Option value="1">Mysql</Option>
-                                <Option value="8">HBase</Option>
-                                <Option value="11">ElasticSearch</Option>
+                                {/* <Option value="8">HBase</Option>
+                                <Option value="11">ElasticSearch</Option> */}
                         </Select>
                     )}
                 </FormItem>
@@ -344,7 +344,7 @@ export default class OutputPanel extends Component {
     getTypeOriginData = (index,type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(index='add'){
+            if(index==='add'){
                 if(v.code===1){
                     originOptionType.push(v.data) 
                 }else{
@@ -388,7 +388,7 @@ export default class OutputPanel extends Component {
                 })
             })
         }else{
-            if(index="add"){
+            if(index==="add"){
                 tableOptionType.push([]);
             }else{
                 tableOptionType[index] = [];
