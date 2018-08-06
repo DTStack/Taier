@@ -11,10 +11,19 @@ export const browserAction = mc([
     'GET_CURRENT_PAGE',
     'SET_INPUT_DATA',
     'GET_INPUT_DATA',
+    'CLEAR_CURRENT_INPUT_DATA',
+    'CLEAR_OTHER_INPUT_DATA',
+    'CLEAR_ALL_INPUT_DATA',
     'SET_OUTPUT_DATA',
     'GET_OUTPUT_DATA',
+    'CLEAR_CURRENT_OUTPUT_DATA',
+    'CLEAR_OTHER_OUTPUT_DATA',
+    'CLEAR_ALL_OUTPUT_DATA',
     'SET_DIMESION_DATA',
-    'GET_DIMESION_DATA'
+    'GET_DIMESION_DATA',
+    'CLEAR_CURRENT_DIMESION_DATA',
+    'CLEAR_OTHER_DIMESION_DATA',
+    'CLEAR_ALL_DIMESION_DATA',
 ], { prefix: 'realtimeTask/browser/' })
 
 export const modalAction = mc([

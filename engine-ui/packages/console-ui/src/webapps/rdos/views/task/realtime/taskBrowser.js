@@ -56,11 +56,17 @@ export default class TaskBrowser extends Component {
                         content: '强制关闭将丢弃这些修改数据',
                         onOk() {
                             dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
+                            dispatch(BrowserAction.closeCurrentInputData(currentPage.id));
+                            dispatch(BrowserAction.closeCurrentOutputData(currentPage.id));
+                            dispatch(BrowserAction.closeCurrentDimensionData(currentPage.id));
                         },
                         onCancel() { }
                     });
                 } else {
                     dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
+                    dispatch(BrowserAction.closeCurrentInputData(currentPage.id));
+                    dispatch(BrowserAction.closeCurrentOutputData(currentPage.id));
+                    dispatch(BrowserAction.closeCurrentDimensionData(currentPage.id));
                 }
                 break;
             }
@@ -195,6 +201,9 @@ export default class TaskBrowser extends Component {
 
             if (allClean) {
                 dispatch(BrowserAction.clearPages());
+                dispatch(BrowserAction.closeAllInputData());
+                dispatch(BrowserAction.closeAllOutputData());
+                dispatch(BrowserAction.closeAllDimensionData());
             }
             else {
                 confirm({
@@ -202,6 +211,9 @@ export default class TaskBrowser extends Component {
                     content: '强制关闭将丢弃所有修改数据',
                     onOk() {
                         dispatch(BrowserAction.clearPages());
+                        dispatch(BrowserAction.closeAllInputData());
+                        dispatch(BrowserAction.closeAllOutputData());
+                        dispatch(BrowserAction.closeAllDimensionData());
                     },
                     onCancel() { }
                 });
@@ -219,6 +231,9 @@ export default class TaskBrowser extends Component {
 
             if (allClean) {
                 dispatch(BrowserAction.closeOtherPages(currentPage));
+                dispatch(BrowserAction.closeOtherInputData(currentPage.id));
+                dispatch(BrowserAction.closeOtherOutputData(currentPage.id));
+                dispatch(BrowserAction.closeOtherDimensionData(currentPage.id));
             }
             else {
                 confirm({
@@ -226,6 +241,9 @@ export default class TaskBrowser extends Component {
                     content: '强制关闭将丢弃这些修改数据',
                     onOk() {
                         dispatch(BrowserAction.closeOtherPages(currentPage));
+                        dispatch(BrowserAction.closeOtherInputData(currentPage.id));
+                        dispatch(BrowserAction.closeOtherOutputData(currentPage.id));
+                        dispatch(BrowserAction.closeOtherDimensionData(currentPage.id));
                     },
                     onCancel() { }
                 });

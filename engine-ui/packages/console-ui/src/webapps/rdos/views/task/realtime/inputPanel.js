@@ -484,6 +484,8 @@ export default class InputPanel extends Component {
     componentWillReceiveProps(nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
+        console.log('oldPage.id----currentPage.id',currentPage.id,oldPage.id);
+        
         if (currentPage.id !== oldPage.id) {
             this._syncEditor=true;
             this.getCurrentData(currentPage.id,nextProps)
