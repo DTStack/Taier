@@ -231,12 +231,12 @@ class InputOrigin extends Component {
                                 {...formItemLayout}
                                 label="时间列"
                             >
-                                {getFieldDecorator('timeColum', {
+                                {getFieldDecorator('timeColumn', {
                                     rules: [
                                         {required: true, message: '请选择时间列',}
                                     ],
                                 })(
-                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColum",index,v)}}>
+                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}>
                                            {
                                               eventTimeOptionType
                                            }
@@ -262,15 +262,10 @@ class InputOrigin extends Component {
                     }
                     <FormItem
                         {...formItemLayout}
-                        label="并行度(个)"
+                        label="并行度"
                     >
-                        {getFieldDecorator('parallelism', {
-                            rules: [
-                                {required: true, message: '请输入并行度个数'},
-                                // { validator: this.checkConfirm }
-                            ],
-                        })(
-                            <InputNumber className="number-input" min={0} onChange={value => handleInputChange('parallelism',index,value)}/>
+                        {getFieldDecorator('parallelism')(
+                            <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
                         )}
                     </FormItem>
                     {/* <FormItem
@@ -294,7 +289,7 @@ class InputOrigin extends Component {
 
 const InputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, topic, table , columns, timeType, timeColum, offset,columnsText, parallelism } = props.panelColumn[props.index];
+            const { type, sourceId, topic, table , columns, timeType, timeColumn, offset,columnsText, parallelism } = props.panelColumn[props.index];
             console.log('props.panelColumn[props.index]',props.panelColumn[props.index]);
             return {
                 type: { value: type },
@@ -303,7 +298,7 @@ const InputForm = Form.create({
                 table: { value: table },
                 columns: { value: columns },
                 timeType: { value: timeType },
-                timeColum: { value: timeColum },
+                timeColumn: { value: timeColumn },
                 offset: { value: offset},
                 columnsText: { value: columnsText},
                 parallelism: { value: parallelism},
@@ -503,9 +498,10 @@ export default class InputPanel extends Component {
             //model: 1,
             // columns: [],
             timeType: 1,
-            timeColum: undefined,
+            timeColumn: undefined,
             offset: 0,
             columnsText: undefined,
+            parallelism: 1,
             // alias: undefined,
         }
         
