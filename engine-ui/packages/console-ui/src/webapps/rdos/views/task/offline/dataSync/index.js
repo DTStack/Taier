@@ -42,15 +42,17 @@ class DataSync extends React.Component{
 
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {
-                const {sourceMap} = res.data;
-                sourceMap.sourceList=sourceMap.sourceList.map(
-                    (source,index)=>{
-                        return {
-                            ...source,
-                            key:index==0?"main":("key"+~~Math.random()*10000000)
+                if(res.data){
+                    const {sourceMap} = res.data
+                    sourceMap.sourceList?(sourceMap.sourceList=sourceMap.sourceList.map(
+                        (source,index)=>{
+                            return {
+                                ...source,
+                                key:index==0?"main":("key"+~~Math.random()*10000000)
+                            }
                         }
-                    }
-                )
+                    )):null;
+                }
                 this.props.initJobData(res.data);
             } else {
                 // tabs中有则把数据取出来
