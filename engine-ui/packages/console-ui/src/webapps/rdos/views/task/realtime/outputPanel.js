@@ -9,6 +9,8 @@ import utils from 'utils'
 import Api from '../../../api'
 import { mysqlFieldTypes } from '../../../comm/const';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import Editor from '../../../components/code-editor'
+
 import TaskVersion from '../offline/taskVersion';
 
 const Option = Select.Option;
@@ -64,8 +66,16 @@ class OutputOrigin extends Component {
                 return null;
         }
     }
+
+    editorParamsChange(a,b,c){
+        const { handleInputChange, index, } = this.props;
+        this._syncEditor=false;
+        handleInputChange("columnsText",index,b);
+        //this.props.editorParamsChange(...arguments);
+    }
+
     render(){
-        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn } = this.props;
+        const { handleInputChange,index,sync, originOptionType,tableOptionType,panelColumn } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
@@ -93,8 +103,8 @@ class OutputOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
                                 <Option value="1">Mysql</Option>
-                                {/* <Option value="8">HBase</Option>
-                                <Option value="11">ElasticSearch</Option> */}
+                                <Option value="8">HBase</Option>
+                                <Option value="11">ElasticSearch</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -143,10 +153,40 @@ class OutputOrigin extends Component {
                     >
                         {getFieldDecorator('index', {
                             rules: [
-                                {required: true, message: '请选择索引',}
+                                {required: true, message: '请输入索引',}
                             ],
                         })(
-                            <Input placeholder="请输入id" onChange={e => handleInputChange('index',index,e.target.value)}/>
+                            <Input placeholder="请输入索引" onChange={e => handleInputChange('index',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+                    panelColumn[index].type == "11" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="id"
+                    >
+                        {getFieldDecorator('esId', {
+                            rules: [
+                                {required: true, message: '请输入id',}
+                            ],
+                        })(
+                            <Input placeholder="请输入id" onChange={e => handleInputChange('esId',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+                    panelColumn[index].type == "11" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="索引类型"
+                    >
+                        {getFieldDecorator('esType', {
+                            rules: [
+                                {required: true, message: '请输入索引类型',}
+                            ],
+                        })(
+                            <Input placeholder="请输入索引类型" onChange={e => handleInputChange('esType',index,e.target.value)}/>
                         )}
                     </FormItem> : ""
                 }
@@ -178,10 +218,7 @@ class OutputOrigin extends Component {
                             ],
                         })(
                             <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
-                                    <Option value="jack">Jack</Option>
-                                    <Option value="lucy">Lucy</Option>
-                                    <Option value="disabled" >Disabled</Option>
-                                    <Option value="Yiminghe">yiminghe</Option>
+                                    <Option value="AppendChild">AppendChild</Option>
                             </Select>
                         )}
                     </FormItem>:""
@@ -191,41 +228,55 @@ class OutputOrigin extends Component {
                         label="字段"
                     >
                 </FormItem>
-                <Col style={{marginBottom: 20}}>
-                    <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                        <Column
-                            title="字段"
-                            dataIndex="column"
-                            key="字段"
-                            width='50%'
-                            render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+               { 
+                    panelColumn[index].type == "1" ?
+                    <Col style={{marginBottom: 20}}>
+                        <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
+                            <Column
+                                title="字段"
+                                dataIndex="column"
+                                key="字段"
+                                width='50%'
+                                render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                            />
+                            <Column
+                                title="类型"
+                                dataIndex="type"
+                                key="类型"
+                                width='40%'
+                                render={(text,record,subIndex)=>{
+                                    return (
+                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                            {
+                                                mysqlOptionType
+                                            }
+                                        </Select>
+                                    )
+                                }}
+                            />
+                            <Column
+                                key="delete"
+                                render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
+                            />
+                        </Table>
+                        <div style={{padding: "0 20"}}>
+                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
+                                <Icon type="plus" /><span> 添加输入</span>
+                            </Button>
+                        </div>
+                    </Col> : 
+                    <Col style={{marginBottom: 20,height: 200}}>
+                        <Editor 
+                            style={{height: 200}}
+                            key="params-editor"
+                            sync={sync}
+                            placeholder="字段:类型, 比如id:int 一行一个字段"
+                            // options={jsonEditorOptions}
+                            value={panelColumn[index].columnsText}
+                            onChange={this.editorParamsChange.bind(this)}
                         />
-                        <Column
-                            title="类型"
-                            dataIndex="type"
-                            key="类型"
-                            width='40%'
-                            render={(text,record,subIndex)=>{
-                                return (
-                                    <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
-                                        {
-                                            mysqlOptionType
-                                        }
-                                    </Select>
-                                )
-                            }}
-                        />
-                        <Column
-                            key="delete"
-                            render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                        />
-                    </Table>
-                    <div style={{padding: "0 20"}}>
-                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
-                            <Icon type="plus" /><span> 添加输入</span>
-                        </Button>
-                    </div>
-                </Col>
+                    </Col>
+                }
                 {/* <FormItem
                     {...formItemLayout}
                     label="Topic"
@@ -305,7 +356,8 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, columnsText, id, index, writePolicy  } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType } = props.panelColumn[props.index];
+            console.log('mapPropsToFields',props.panelColumn[props.index]);
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -315,6 +367,9 @@ const OutputForm = Form.create({
                 id: { value: id},
                 index: { value: index},
                 writePolicy: {value: writePolicy},
+                esId: { value: esId },
+                esType: { value: esType },
+
             }
         } 
 })(OutputOrigin);
@@ -353,7 +408,9 @@ export default class OutputPanel extends Component {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
             this.getTypeOriginData(index,v.type);
-            this.getTableType(index,v.sourceId)
+            if(v.type=="1"){
+                this.getTableType(index,v.sourceId)
+            }
         })
         this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
@@ -392,7 +449,9 @@ export default class OutputPanel extends Component {
         },()=>{
             sink.map((v,index)=>{
                 this.getTypeOriginData(index,v.type)
-                this.getTableType(index,v.sourceId)
+                if(v.type=='1'){
+                    this.getTableType(index,v.sourceId)
+                }
             })
         })
     }
@@ -460,6 +519,7 @@ export default class OutputPanel extends Component {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
+            this._syncEditor=true;
             this.getCurrentData(currentPage.id,nextProps)
         }
     }
@@ -470,6 +530,7 @@ export default class OutputPanel extends Component {
             columns: [],
             sourceId: undefined,
             table: undefined,
+            columnsText: undefined,
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
         if(type==="add"){
@@ -538,13 +599,25 @@ export default class OutputPanel extends Component {
             panelColumn[index]["columns"][value].column = subValue;
         }else if(type === "subType"){
             panelColumn[index]["columns"][value].type = subValue;
+        }else if(type === "type"){
+            panelColumn[index]["type"] = value;
+            panelColumn[index]["sourceId"] = undefined;
+            panelColumn[index]["table"] = undefined;
+            panelColumn[index]["columnsText"] = undefined;
+            panelColumn[index]["columns"] = [];
         }else{
             panelColumn[index][type] = value;
+        }
+        if(type === "columnsText"){
+            this._syncEditor=false;
+            //this.parseColumnsText(index,value)
         }
         if(type==="type"){
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            this.getTableType(index,value)
+            if(panelColumn[index].type=='1'){
+                this.getTableType(index,value)
+            }
         }
         this.setOutputData({panelColumn})
         this.setState({
@@ -610,11 +683,13 @@ export default class OutputPanel extends Component {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
                                     <OutputForm 
+                                        sync={this._syncEditor}
                                         index={index} 
                                         handleInputChange={this.handleInputChange}
                                         panelColumn={panelColumn} originOptionType={originOptionType} 
                                         tableOptionType = {tableOptionType}
                                         onRef={this.recordForm}
+                                        editorParamsChange={this.props.editorParamsChange}
                                     />
                                 </Panel>
                             )
