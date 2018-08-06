@@ -279,15 +279,10 @@ class OutputOrigin extends Component {
                 }
                 <FormItem
                     {...formItemLayout}
-                    label="并行度(个)"
+                    label="并行度"
                 >
-                    {getFieldDecorator('parallelism', {
-                        rules: [
-                            {required: true, message: '请输入并行度个数'},
-                            // { validator: this.checkConfirm }
-                        ],
-                    })(
-                        <InputNumber className="number-input" min={0} onChange={value => handleInputChange('parallelism',index,value)}/>
+                    {getFieldDecorator('parallelism')(
+                        <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
                     )}
                 </FormItem>
                 {/* <FormItem
@@ -544,6 +539,12 @@ export default class OutputPanel extends Component {
             sourceId: undefined,
             table: undefined,
             columnsText: undefined,
+            esId: undefined,
+            esType: undefined,
+            writePolicy: undefined,
+            index: undefined,
+            id: undefined,
+            parallelism: 1,
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
         if(type==="add"){
