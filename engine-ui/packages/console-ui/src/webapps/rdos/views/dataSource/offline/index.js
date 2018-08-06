@@ -190,7 +190,7 @@ class DataSourceMana extends Component {
                                     同步历史
                                 </a>
                                 <span className="ant-divider" />
-                                <Link to={`database/offline/db-sync/${record.id}/${record.dataName}`}>
+                                <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>
                                     整库同步
                                 </Link>
                                 <span className="ant-divider" />

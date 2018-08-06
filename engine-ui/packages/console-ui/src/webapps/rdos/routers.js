@@ -167,10 +167,10 @@ export default (
             </Route>
             <Route path="/database" component={DataSourceContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={DataSourceOffline} />
-                <Route path="offline" component={DataSourceOffline} />
-                <Route path="offline/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
-                <Route path="stream" component={DataSourceStream} />
-                <Route path="stream/db-sync/:sourceId/:sourceName" component={DataSourceMigrationStream} />
+                <Route path="offLineData" component={DataSourceOffline} />
+                <Route path="offLineData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
+                <Route path="streamData" component={DataSourceStream} />
+                <Route path="streamData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationStream} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>
