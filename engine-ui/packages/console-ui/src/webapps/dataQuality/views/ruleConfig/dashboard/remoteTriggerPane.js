@@ -301,7 +301,6 @@ export default class RemoteTriggerPane extends Component {
                         if (res.code === 1) {
                             this.setState({
                                 chooseRule: {},
-                                monitorId: null,
                                 selectedIds: [],
                                 remark: null
                             })
