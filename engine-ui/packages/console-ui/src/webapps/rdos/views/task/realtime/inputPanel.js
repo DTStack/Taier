@@ -491,7 +491,7 @@ export default class InputPanel extends Component {
             // alias: undefined,
         }
         
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,originOptionType,topicIndex } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams ,originOptionType,topicOptionType } = this.state;
         if(type==="add"){
             tabTemplate.push(InputForm);
             panelColumn.push(inputData);
@@ -503,12 +503,12 @@ export default class InputPanel extends Component {
             tabTemplate.splice(index,1);
             panelColumn.splice(index,1);
             originOptionType.splice(index,1);
-            topicIndex.splice(index,1);
+            topicOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicIndex});
+        this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicOptionType});
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -516,7 +516,7 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicIndex
+            topicOptionType
         })
     }
 

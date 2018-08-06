@@ -70,10 +70,16 @@ class TaskIndex extends Component {
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
+        if(panelColumn.length>0){
+            currentPage.source = panelColumn;
+        }
+        if(outputPanelColumn.length>0){
+            currentPage.sink = outputPanelColumn;
+        }
+        if(dimensionPanelColumn.length>0){
+            currentPage.side = dimensionPanelColumn;
+        }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
-        currentPage.source = panelColumn;
-        currentPage.sink = outputPanelColumn;
-        currentPage.side = dimensionPanelColumn;
         Api.saveTask(currentPage).then((res) => {
             const updatePageStatus = (pageData) => {
                 message.success('任务保存成功')
