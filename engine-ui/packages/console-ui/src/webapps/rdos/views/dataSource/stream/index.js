@@ -8,13 +8,12 @@ import {
 
 import utils from 'utils';
 
-import Api from '../../api';
+import Api from '../../../api';
 import DataSourceForm from './form';
 import DbSyncModal from './syncModal';
-import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../comm/const';
-import { DatabaseType } from '../../components/status';
-import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes';
-import '../../styles/pages/dataSource.scss';
+import { formItemLayout, StreamDataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
+import { DatabaseType } from '../../../components/status';
+import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 
 const Search = Input.Search
 
@@ -55,7 +54,7 @@ class DataSourceMana extends Component {
             pageSize: 10,
             currentPage: 1,
         }, params)
-        Api.queryDataSource(reqParams).then((res) => {
+        Api.streamQueryDataSource(reqParams).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data, loading: false })
             }
@@ -75,7 +74,7 @@ class DataSourceMana extends Component {
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(source, sourceFormData)
         }
-        Api.addOrUpdateSource(reqSource).then((res) => {
+        Api.streamSaveDataSource(reqSource).then((res) => {
             if (res.code === 1) {
                 formObj.resetFields()
                 message.success(`${title}成功！`)
@@ -90,11 +89,11 @@ class DataSourceMana extends Component {
 
     remove = (source) => {
         const ctx = this
-        if (source.active === 1) {
-            message.info('此数据源已在任务中被引用，无法删除!')
-            return;
-        }
-        Api.deleteDataSource({ sourceId: source.id }).then((res) => {
+        // if (source.active === 1) {
+        //     message.info('此数据源已在任务中被引用，无法删除!')
+        //     return;
+        // }
+        Api.streamDeleteDataSource({ sourceId: source.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！')
                 ctx.loadDataSources()
@@ -104,7 +103,7 @@ class DataSourceMana extends Component {
 
     testConnection = (source) => { // 测试数据源连通性
         const ctx = this
-        Api.testDSConnection(source).then((res) => {
+        Api.streamTestDataSourceConnection(source).then((res) => {
             if (res.code === 1) {
                 message.success('数据源连接正常！')
             }
@@ -144,7 +143,7 @@ class DataSourceMana extends Component {
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
-            filters: DataSourceTypeFilter,
+            filters: StreamDataSourceTypeFilter,
             filterMultiple: false,
         }, 
         {
@@ -176,14 +175,14 @@ class DataSourceMana extends Component {
             },
         }, {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '15%',
+            width: '10%',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
                  // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        {
+                        {/* {
                             record.type === DATA_SOURCE.MYSQL
                             &&
                             <span>
@@ -191,23 +190,34 @@ class DataSourceMana extends Component {
                                     同步历史
                                 </a>
                                 <span className="ant-divider" />
-                                <Link to={`/database/db-sync/${record.id}/${record.dataName}`}>
+                                <Link to={`database/stream/db-sync/${record.id}/${record.dataName}`}>
                                     整库同步
                                 </Link>
                                 <span className="ant-divider" />
                             </span>
-                        }
+                        } */}
                         <a onClick={() => {this.initEdit(record)}}>
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title="确定删除此数据源？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.remove(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        { 
+                            // record.active === 1 ?
+                            //     <Popconfirm
+                            //         title="使用中,无法删除此数据源!"
+                            //         okText="确定" cancelText="取消"
+                            //         //onConfirm={() => { this.remove(record) }}
+                            //     >
+
+                            //         <a>删除</a>
+                            //     </Popconfirm> :
+                                <Popconfirm
+                                    title="确定删除此数据源？"
+                                    okText="确定" cancelText="取消"
+                                    onConfirm={() => { this.remove(record) }}
+                                >
+                                    <a>删除</a>
+                                </Popconfirm>
+                        }
                     </span>
                 )
             },
@@ -230,6 +240,7 @@ class DataSourceMana extends Component {
 
     render() {
         const { visible, syncModalVisible, source, dataSource } = this.state
+        
         const { project } = this.props
         const pagination = {
             total: dataSource.totalCount,
@@ -259,12 +270,9 @@ class DataSourceMana extends Component {
                 }}
             >新增数据源</Button>
         )
-
+        console.log('dataSource.data',dataSource.data);
         return (
             <div>
-                <h1 className="box-title">
-                    离线数据源
-                </h1>
                 <div className="box-2 m-card shadow">
                     <Card 
                         title={title} 

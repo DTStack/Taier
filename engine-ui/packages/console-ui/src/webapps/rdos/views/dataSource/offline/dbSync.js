@@ -10,7 +10,7 @@ import moment from 'moment';
 
 import TransformModal from './transformModal';
 import GoBack from 'main/components/go-back';
-import Api from '../../api';
+import Api from '../../../api';
 
 const Option = Select.Option;
 const FormItem = Form.Item;

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 
 import utils from 'utils'
-
+ 
 import Api from '../../../api'
 import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
@@ -12,6 +12,11 @@ import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree
 
 import RealTimeEditor from './editor'
 import TaskDetail from './taskDetail'
+import InputPanel from './inputPanel'
+import OutputPanel from './outputPanel'
+import DimensionPanel from './dimensionPanel'
+import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
+
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -29,9 +34,12 @@ export default class TaskBrowser extends Component {
         const page = pages && pages.find((item) => { return item.id === id })
         if (page) {
             dispatch(BrowserAction.setCurrentPage(page))
+            dispatch(BrowserAction.getInputData())
+            dispatch(BrowserAction.getOutputData())
+            dispatch(BrowserAction.getDimensionData())
         }
     }
-    
+      
     componentWillReceiveProps(nextProps) {
         if(nextProps.currentPage!=this.props.currentPage){
             this._syncEditor=true;
@@ -273,6 +281,21 @@ export default class TaskBrowser extends Component {
                             <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
                                 <TaskDetail {...this.props} />
                             </TabPane>
+                            {
+                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">源表</span>} key="params3">
+                                        <InputPanel {...this.props} />
+                                    </TabPane> : ""
+                            }
+                            {
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">结果出</span>} key="params4">
+                                    <OutputPanel {...this.props} />
+                                </TabPane>:""
+                            } 
+                            {
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">维表</span>} key="params5">
+                                    <DimensionPanel {...this.props} />
+                                </TabPane>:""
+                            } 
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
                                     key="params-editor"
