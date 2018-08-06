@@ -356,7 +356,8 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, columnsText, id, index, writePolicy  } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType } = props.panelColumn[props.index];
+            console.log('mapPropsToFields',props.panelColumn[props.index]);
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -366,6 +367,9 @@ const OutputForm = Form.create({
                 id: { value: id},
                 index: { value: index},
                 writePolicy: {value: writePolicy},
+                esId: { value: esId },
+                esType: { value: esType },
+
             }
         } 
 })(OutputOrigin);
