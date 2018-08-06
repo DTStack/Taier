@@ -364,7 +364,7 @@ export default class InputPanel extends Component {
             }
             return { column: column[0],type: column[1] }
         })
-       const filterColumns =  columns.filter(v=>{
+       const filterColumns = columns.filter(v=>{
             return v.column&&v.type
         })
         timeColumoption[index] = filterColumns;
@@ -377,7 +377,7 @@ export default class InputPanel extends Component {
     getTypeOriginData = (index,type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(index='add'){
+            if(index==='add'){
                 if(v.code===1){
                     originOptionType.push(v.data) 
                 }else{

@@ -403,7 +403,7 @@ export default class OutputPanel extends Component {
     getTypeOriginData = (index,type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({type}).then(v=>{
-            if(index='add'){
+            if(index==='add'){
                 if(v.code===1){
                     originOptionType.push(v.data) 
                 }else{
