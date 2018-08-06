@@ -9,7 +9,6 @@ import { mysqlFieldTypes } from '../../../comm/const';
 
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
-
 import { jsonEditorOptions, LOCK_TYPE } from '../../../comm/const'
 
 
@@ -348,7 +347,12 @@ export default class InputPanel extends Component {
     parseColumnsText = (index,text="")=>{
         const { timeColumoption } = this.state;
         const columns =  text.split("\n").map(v=>{
-            const column = v.split(":");
+            let column;
+            if(v.includes(" as ")){
+                column = v.split(" as ")
+            }else{
+                column = v.split(":");
+            }
             return { column: column[0],type: column[1] }
         })
        const filterColumns =  columns.filter(v=>{
