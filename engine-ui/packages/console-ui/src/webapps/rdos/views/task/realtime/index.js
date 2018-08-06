@@ -347,6 +347,8 @@ class TaskIndex extends Component {
 
 export default connect((state) => {
     const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
+    console.log('inputData, outputData, dimensionData',inputData, outputData, dimensionData);
+    
     const { user } = state;
     return {
         currentPage,

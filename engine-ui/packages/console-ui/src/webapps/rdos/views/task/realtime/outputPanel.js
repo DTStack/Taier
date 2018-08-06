@@ -64,7 +64,6 @@ class OutputOrigin extends Component {
                 return null;
         }
     }
-
     render(){
         const { handleInputChange,index, originOptionType,tableOptionType,panelColumn } = this.props;
         const { getFieldDecorator } = this.props.form;
@@ -116,29 +115,82 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="表"
-                >
-                    {getFieldDecorator('table', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择表',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
-                                {
-                                    tableOptionTypes
-                                }
-                        </Select>
-                    )}
-                </FormItem>
+                {
+                    panelColumn[index].type == "1" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="表"
+                    >
+                        {getFieldDecorator('table', {
+                            initialValue: "disabled",
+                            rules: [
+                                {required: true, message: '请选择表',}
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
+                                    {
+                                        tableOptionTypes
+                                    }
+                            </Select>
+                        )}
+                    </FormItem>:""
+                }
+                {
+                    panelColumn[index].type == "11" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="索引"
+                    >
+                        {getFieldDecorator('index', {
+                            rules: [
+                                {required: true, message: '请选择索引',}
+                            ],
+                        })(
+                            <Input placeholder="请输入id" onChange={e => handleInputChange('index',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+                    panelColumn[index].type == "8" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="rowkey"
+                    >
+                        {getFieldDecorator('rowkey', {
+                            rules: [
+                                {required: true, message: '请输入rowkey',}
+                            ],
+                        })(
+                            <Input  placeholder="请输入rowkey" onChange={e => handleInputChange('rowkey',index,e.target.value)}/>
+                        )}
+                    </FormItem> : ""
+                }
+                {
+
+                    panelColumn[index].type == "11" || panelColumn[index].type == "8" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入策略"
+                    >
+                        {getFieldDecorator('writePolicy', {
+                            rules: [
+                                {required: true, message: '请选择写入策略',}
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
+                                    <Option value="jack">Jack</Option>
+                                    <Option value="lucy">Lucy</Option>
+                                    <Option value="disabled" >Disabled</Option>
+                                    <Option value="Yiminghe">yiminghe</Option>
+                            </Select>
+                        )}
+                    </FormItem>:""
+                }
                 <FormItem
                         {...formItemLayout}
                         label="字段"
                     >
                 </FormItem>
-
                 <Col style={{marginBottom: 20}}>
                     <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                         <Column
@@ -253,12 +305,16 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy  } = props.panelColumn[props.index];
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
                 table: { value: table },
                 columns: { value: columns },
+                columnsText: { value: columnsText},
+                id: { value: id},
+                index: { value: index},
+                writePolicy: {value: writePolicy},
             }
         } 
 })(OutputOrigin);
@@ -447,6 +503,7 @@ export default class OutputPanel extends Component {
     setOutputData = (data) => {
         const { dispatch, currentPage } = this.props;
         const dispatchSource = {...this.state,...data};
+        console.log('dispatchSource',dispatchSource);
         dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,sink: dispatchSource}));
     }
 

@@ -236,7 +236,7 @@ export function inputData(state = {}, action){
 export function outputData(state = {}, action){
     switch (action.type) {
         case browserAction.SET_OUTPUT_DATA:
-            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            const data = {...state,...{[action.data.taskId]: action.data.sink}}
             return data;
         case browserAction.GET_OUTPUT_DATA:
             return state;
@@ -248,7 +248,7 @@ export function outputData(state = {}, action){
 export function dimensionData(state = {}, action){
     switch (action.type) {
         case browserAction.SET_DIMESION_DATA:
-            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            const data = {...state,...{[action.data.taskId]: action.data.side}}
             return data;
         case browserAction.GET_DIMESION_DATA:
             return state;

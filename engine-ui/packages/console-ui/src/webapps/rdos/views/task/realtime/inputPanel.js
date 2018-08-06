@@ -257,7 +257,7 @@ class InputOrigin extends Component {
                                         // { validator: this.checkConfirm }
                                     ],
                                 })(
-                                    <InputNumber className="number-input" onChange={value => handleInputChange('offset',index,value)}/>
+                                    <InputNumber className="number-input" min={0} onChange={value => handleInputChange('offset',index,value)}/>
                                 )}
                             </FormItem>: undefined
                     }
