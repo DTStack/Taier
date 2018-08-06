@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {
     Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
     message, Select, Collapse, Button,Radio,Popover,
-    Form
+    Form,InputNumber
 } from 'antd'
 
 import utils from 'utils'
@@ -277,6 +277,19 @@ class OutputOrigin extends Component {
                         />
                     </Col>
                 }
+                <FormItem
+                    {...formItemLayout}
+                    label="并行度(个)"
+                >
+                    {getFieldDecorator('parallelism', {
+                        rules: [
+                            {required: true, message: '请输入并行度个数'},
+                            // { validator: this.checkConfirm }
+                        ],
+                    })(
+                        <InputNumber className="number-input" min={0} onChange={value => handleInputChange('parallelism',index,value)}/>
+                    )}
+                </FormItem>
                 {/* <FormItem
                     {...formItemLayout}
                     label="Topic"
@@ -356,7 +369,7 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism} = props.panelColumn[props.index];
             console.log('mapPropsToFields',props.panelColumn[props.index]);
             return {
                 type: { value: type },
@@ -369,7 +382,7 @@ const OutputForm = Form.create({
                 writePolicy: {value: writePolicy},
                 esId: { value: esId },
                 esType: { value: esType },
-
+                parallelism: { value: parallelism },
             }
         } 
 })(OutputOrigin);
