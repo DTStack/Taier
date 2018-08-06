@@ -43,7 +43,7 @@ export default class DBSync extends Component {
     }
 
     componentDidMount() {
-        this.getTableList(this.props.routeParams.sourceId);
+        //this.getTableList(this.props.routeParams.sourceId);
     }
 
     // 获取所有表
