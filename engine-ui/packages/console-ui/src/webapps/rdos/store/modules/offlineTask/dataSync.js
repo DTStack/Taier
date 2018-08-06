@@ -151,10 +151,14 @@ const sourceMap = (state = {}, action) => {
             clone.type = assign(action.payload, { type });
 
             if (typeof key != "undefined") {
-                for (let i in clone.sourceList) {
-                    let source = clone.sourceList[i];
-                    if (key == source.key) {
-                        source.tables = [extTable[key]]
+                if(key=="main"){
+                    source.tables = [table]
+                }else{
+                    for (let i in clone.sourceList) {
+                        let source = clone.sourceList[i];
+                        if (key == source.key) {
+                            source.tables = [extTable[key]]
+                        }
                     }
                 }
             }
