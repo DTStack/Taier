@@ -103,8 +103,8 @@ class OutputOrigin extends Component {
                     })(
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
                                 <Option value="1">Mysql</Option>
-                                {/* <Option value="8">HBase</Option>
-                                <Option value="11">ElasticSearch</Option> */}
+                                <Option value="8">HBase</Option>
+                                <Option value="11">ElasticSearch</Option>
                         </Select>
                     )}
                 </FormItem>
