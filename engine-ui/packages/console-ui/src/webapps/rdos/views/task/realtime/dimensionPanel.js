@@ -350,10 +350,16 @@ export default class OutputPanel extends Component {
 
     constructor(props) {
         super(props)
-        const taskId = this.props.currentPage.id;
-        const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        const data = props.dimensionData[taskId]||copyInitialData;
-        this.state = {...data};
+        this.state =  {
+            popoverVisible: false,
+            tabTemplate: [],//模版存储,所有输出源(记录个数)
+            panelActiveKey: [],//输出源是打开或关闭状态
+            popoverVisible: [],//删除显示按钮状态
+            panelColumn: [],//存储数据
+            checkFormParams: [],//存储要检查的参数from
+            originOptionType: [],//数据源选择数据
+            tableOptionType: [],//表选择数据
+        };
     }
     
     componentDidMount(){
