@@ -51,7 +51,7 @@ class TaskIndex extends Component {
             console.log('result',result);
             
             if(!result.status){
-                return message.error(`输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                return message.error(`源表--输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
             }
         }
         // if (outputPanelColumn.length === 0){
@@ -61,7 +61,15 @@ class TaskIndex extends Component {
             for (let index = 0,len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
                     if(!result.status){
-                        return  message.error(`输出源${outputCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                        return  message.error(`结果表--输出源${outputCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                }
+            }
+        }
+        if(dimensionCheckFormParams.length>0){
+            for (let index = 0,len = dimensionCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+                const result = dimensionCheckFormParams[index].checkParams();
+                    if(!result.status){
+                        return  message.error(`维表--输出源${dimensionCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
                 }
             }
         }
@@ -70,10 +78,16 @@ class TaskIndex extends Component {
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
+        if(panelColumn.length>0){
+            currentPage.source = panelColumn;
+        }
+        if(outputPanelColumn.length>0){
+            currentPage.sink = outputPanelColumn;
+        }
+        if(dimensionPanelColumn.length>0){
+            currentPage.side = dimensionPanelColumn;
+        }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
-        currentPage.source = panelColumn;
-        currentPage.sink = outputPanelColumn;
-        currentPage.side = dimensionPanelColumn;
         Api.saveTask(currentPage).then((res) => {
             const updatePageStatus = (pageData) => {
                 message.success('任务保存成功')
@@ -347,6 +361,8 @@ class TaskIndex extends Component {
 
 export default connect((state) => {
     const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
+    console.log('inputData, outputData, dimensionData',inputData, outputData, dimensionData);
+    
     const { user } = state;
     return {
         currentPage,

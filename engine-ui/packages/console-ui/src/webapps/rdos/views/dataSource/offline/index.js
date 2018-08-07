@@ -190,7 +190,7 @@ class DataSourceMana extends Component {
                                     同步历史
                                 </a>
                                 <span className="ant-divider" />
-                                <Link to={`database/offline/db-sync/${record.id}/${record.dataName}`}>
+                                <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>
                                     整库同步
                                 </Link>
                                 <span className="ant-divider" />
@@ -200,13 +200,24 @@ class DataSourceMana extends Component {
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        <Popconfirm
-                            title="确定删除此数据源？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.remove(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
+                        { 
+                            record.active === 1 ?
+                                <Popconfirm
+                                    title="此数据源已在任务中被引用，无法删除!"
+                                    okText="确定" cancelText="取消"
+                                    //onConfirm={() => { this.remove(record) }}
+                                >
+
+                                    <span>删除</span>
+                                </Popconfirm> :
+                                <Popconfirm
+                                    title="确定删除此数据源？"
+                                    okText="确定" cancelText="取消"
+                                    onConfirm={() => { this.remove(record) }}
+                                >
+                                    <a>删除</a>
+                                </Popconfirm>
+                        }
                     </span>
                 )
             },
