@@ -12,7 +12,8 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
     ES: 11,
     REDIS: 12,
-    MONGODB: 13
+    MONGODB: 13,
+    KAFKA: 14
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -75,6 +76,13 @@ export const PROJECT_ROLE = { // 项目角色
 }
 
 export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
+    DATA_SOURCE.MYSQL,
+    DATA_SOURCE.ORACLE,
+    DATA_SOURCE.SQLSERVER,
+    DATA_SOURCE.POSTGRESQL,
+]
+
+export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ //支持分库分表的数据库类型r
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
@@ -180,6 +188,30 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'DOUBLE',
     'TIMESTAMP',
     'DATE',
+]
+
+export const mysqlFieldTypes = [// mysql类型
+    "BIT",
+    "BOOL",
+    "TINYINT",
+    "SMALLINT",
+    "MEDIUMINT", 
+    "INT", 
+    "BIGINT",
+    "FLOAT",
+    "DOUBLE",
+    "DECIMAL",
+    "CHAR",
+    "VARCHAR",
+    "TINYTEXT",
+    "TEXT",
+    "MEDIUMTEXT",
+    "LONGTEXT",
+    "DATETIME",
+    "DATE",
+    "TIMESTAMP",
+    "TIME",
+    "YEAR"
 ]
 
 // 表模型规则列表
@@ -362,7 +394,7 @@ export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
     value: 1,
 }]
 
-export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
+export const DataSourceTypeFilter = [{ // 离线数据源类型过滤选项
     text: 'MySQL',
     value: DATA_SOURCE.MYSQL,
 }, {
@@ -399,6 +431,25 @@ export const DataSourceTypeFilter = [{ // 数据源类型过滤选项
     text: 'MongoDB',
     value: DATA_SOURCE.MONGODB,
 }]
+
+export const StreamDataSourceTypeFilter = [{ // 实时数据源类型过滤选项
+    text: 'MySQL',
+    value: DATA_SOURCE.MYSQL,
+}, {
+    text: 'HBase',
+    value: DATA_SOURCE.HBASE,
+},{
+    text: 'ElasticSearch',
+    value: DATA_SOURCE.ES,
+},{
+    text: 'Kafka',
+    value: DATA_SOURCE.KAFKA,
+}
+]
+
+
+
+
 
 export const propEditorOptions = { // 编辑器选项
     mode: 'text/x-properties',

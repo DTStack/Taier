@@ -174,7 +174,7 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange, targetMap } = this.props;
+        const { form } = this.props;
 
         form.validateFields((err, values) => {
             if (!err) {
@@ -187,7 +187,7 @@ class TargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
 
         const {
-            targetMap, sourceMap, dataSourceList,
+            targetMap, dataSourceList,
             navtoStep, isCurrentTabNew
         } = this.props;
 
@@ -207,7 +207,7 @@ class TargetForm extends React.Component {
                             showSearch
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                            disabled={!isCurrentTabNew}
+                            // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
@@ -267,7 +267,7 @@ class TargetForm extends React.Component {
                         <Select
                             showSearch
                             mode="combobox"
-                            disabled={ !isCurrentTabNew }
+                            // disabled={ !isCurrentTabNew }
                             optionFilterProp="value"
                             onChange={this.debounceTableSearch.bind(this)}
                         >
@@ -356,7 +356,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
@@ -483,7 +483,7 @@ class TargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: !targetMap.type || !targetMap.type.fileType ? 'orc' : targetMap.type.fileType
+                            initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc',
                         })(
                             <Select onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
@@ -533,7 +533,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {

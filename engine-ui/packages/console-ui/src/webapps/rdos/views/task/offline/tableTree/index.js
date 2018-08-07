@@ -126,62 +126,6 @@ class TableTree extends React.Component {
             this.setState({ tableId: table.id })
         }
     }
-    jumpToDataMap(id) {
-        hashHistory.push({
-            pathname: "data-manage/table/view/" + id
-        })
-    }
-    renderNodes = () => {
-        const { treeData } = this.props;
-        const loop = (data) => {
-            const id = `${data.id || data.tableId}`
-            const isFile = data.type === 'file' || !data.type
-            const isFolder = data.type === 'folder'
-            const name = data.name || data.tableName
-
-            const title = <span
-                title={name}
-                className={isFolder ? 'folder-item' : 'file-item'}
-            >
-                {name}
-                <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                    {data.chargeUser || data.userName}
-                </i>
-            </span>
-            const nodeTitle = isFolder ? name : (
-                <Tooltip overlayClassName="table-detail-card" title={(
-                    <div className="detail-content">
-                        <p className="text-item"><span className="text-item-name">表名</span><span className="text-item-value">{name}</span></p>
-                        <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
-                        <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias || "-"}</span></p>
-                        <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay ? `${data.lifeDay}天` : '-'}</span></p>
-                        <p className="text-item"><span className="text-item-name">描述</span><span className="text-item-value">{data.tableDesc || "-"}</span></p>
-                        <a onClick={this.jumpToDataMap.bind(this, data.id)}>更多详情</a>
-                    </div>
-                )}
-                    placement="bottomLeft"
-                    mouseEnterDelay={0.5}>
-                    {name}
-                </Tooltip>
-            )
-
-            return data ? (
-
-                <TreeNode
-                    title={nodeTitle}
-                    key={isFolder ? id : `${id}-file`}
-                    value={id}
-                    isLeaf={isFile}
-                    data={data}
-                    className={'s-table'}
-                >
-                    {data.children && data.children.map(subItem => loop(subItem))}
-                </TreeNode>
-            ) : null
-        }
-        const result = loop(treeData)
-        return result;
-    }
     tableChange(value) {
         this.setState({
             projectId: value
@@ -249,9 +193,7 @@ class TableTree extends React.Component {
 //抽离组件防止其他影响的卡顿
 class TreeContent extends React.PureComponent {
     jumpToDataMap(id) {
-        hashHistory.push({
-            pathname: "data-manage/table/view/" + id
-        })
+        window.open(`${location.pathname}#/data-manage/table/view/${id}`);
     }
     renderNodes = () => {
         const { treeData } = this.props;

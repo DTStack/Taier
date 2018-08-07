@@ -11,7 +11,7 @@ export default class Sidebar extends Component {
         this.state = {
             current: 'overview',
         }
-    }
+    } 
 
     componentDidMount() {
         this.updateSelected()
@@ -20,7 +20,7 @@ export default class Sidebar extends Component {
     componentWillReceiveProps() {
         this.updateSelected()
     }
-
+ 
     updateSelected = () => {
         const routes = this.props.router.routes
         if (routes.length > 3) {

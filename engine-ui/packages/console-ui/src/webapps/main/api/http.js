@@ -13,10 +13,10 @@ class Http {
         })
     }
 
-    post(url, body) { // POST请求
+    post(url, body, extOption={}) { // POST请求
         let options = { method: 'POST' }
         if (body) options.body = JSON.stringify(body)
-        return this.request(url, options)
+        return this.request(url, options, extOption)
     }
 
     postAsFormData(url, params) {
@@ -31,7 +31,7 @@ class Http {
         return this.request(url, options)
     }
 
-    request(url, options) {
+    request(url, options,extOption) {
         ProgressBar.show()
         options.credentials = 'same-origin'
         return fetch(url, options)
@@ -44,6 +44,9 @@ class Http {
         })
         .then(authAfterFormated)
         .catch( err => { 
+            if(extOption.isSilent){
+                return err;
+            }
             ProgressBar.hide() 
             console.error(url + ":" + err);
             singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！');

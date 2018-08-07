@@ -230,7 +230,7 @@ export default class TableViewer extends React.Component {
                 <main>
                     <div >
                         <h1 className="card-title">
-                            <GoBack type="textButton" /> 查看表：{tableData && tableData.table.tableName}
+                            <GoBack type="textButton" autoClose={true} /> 查看表：{tableData && tableData.table.tableName}
                             <span className="right">
                                 <Button className="button-top" type="primary" onClick={this.changeMark.bind(this)}>{isMark ? "取消收藏" : "收藏"}</Button>
                                 {applyButton ? <Button className="button-top" type="primary" onClick={this.showApply}>申请授权</Button> : ""}

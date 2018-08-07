@@ -103,15 +103,15 @@ class ChangeResourceModal extends React.Component {
             {
                 title:"租户名称",
                 dataIndex:"name",
-                width:"150px"
+                // width:"150px"
             },
-            {
-                title:"操作",
-                dataIndex:"deal",
-                render:(text,record)=>{
-                    return (<a onClick={this.removeUser.bind(this,record.id)}>删除</a>)
-                }
-            }
+            // {
+            //     title:"操作",
+            //     dataIndex:"deal",
+            //     render:(text,record)=>{
+            //         return (<a  onClick={this.removeUser.bind(this,record.id)}>删除</a>)
+            //     }
+            // }
         ]
     }
     getTableDataSource(){
@@ -181,6 +181,7 @@ class ChangeResourceModal extends React.Component {
                     onOk={this.changeResource.bind(this)}
                     confirmLoading={loading}
                     maskClosable={false}
+                    className="m-card"
                 >
                     <div className="line-formItem">资源队列：{queueName}</div>
                     <div className="line-formItem">绑定租户：

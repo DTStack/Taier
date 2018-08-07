@@ -22,8 +22,13 @@ const {
     mxPopupMenu,
     // mxEdgeHandler,
     // mxCellRenderer,
+    mxGraphHandler,
+    mxCell,
+    mxGeometry,
     mxPerimeter,
     mxUndoManager,
+    mxUtils,
+    mxDragSource,
     // mxCylinder,
 } = Mx
 
@@ -91,7 +96,8 @@ export default class Editor extends Component {
         this.graph = graph
         graph.setConnectable(true)
         graph.setTooltips(true)
-        graph.view.setScale(1);
+        graph.view.setScale(1)
+        mxGraphHandler.prototype.guidesEnabled = true;
 
         // 禁止Edge对象移动
         graph.isCellsMovable = function(cell) {
@@ -129,8 +135,8 @@ export default class Editor extends Component {
         } finally {
             model.endUpdate()
         }
-        this.initContextMenu(graph)
-        
+        this.initContextMenu(graph);
+        this.initDragItem();
     }
 
     getDefaultVertexStyle() {
@@ -198,6 +204,70 @@ export default class Editor extends Component {
                 alert('item 1')
             }, subMenu)
         }
+    }
+
+    initDragItem() {
+        const previewDragTarget = document.createElement('div');
+        previewDragTarget.style.border = '1px solid blue';
+        previewDragTarget.style.width = VertexSize.width + 'px';
+        previewDragTarget.style.height = VertexSize.height + 'px';
+
+        const ds1 = mxUtils.makeDraggable(
+            this.btn1, 
+            this.getUnderMouseGraph,
+            this.insertItemVertex,
+            previewDragTarget,
+            null,
+            null,
+            this.graph.autoscroll,
+            true,
+        );
+
+        const ds2 = mxUtils.makeDraggable(
+            this.btn2, 
+            this.getUnderMouseGraph,
+            this.insertItemVertex,
+            previewDragTarget,
+            null,
+            null,
+            this.graph.autoscroll,
+            true,
+        );
+
+        ds1.isGuidesEnabled = () => {
+            return this.graph.graphHandler.guidesEnabled;
+        };
+        ds1.createDragElement = mxDragSource.prototype.createDragElement;
+        
+        ds2.isGuidesEnabled = () => {
+            return this.graph.graphHandler.guidesEnabled;
+        };
+        ds2.createDragElement = mxDragSource.prototype.createDragElement;
+    }
+
+    insertItemVertex = (graph, evt, target, x, y) => {
+
+        const newCell = new mxCell(
+            'new Cell', new mxGeometry(0, 0, VertexSize.width,  VertexSize.height 
+        ))
+        newCell.vertex = true;
+
+        const cells = graph.importCells([newCell], x, y, target);
+        if (cells != null && cells.length > 0) {
+            graph.scrollCellToVisible(cells[0]);
+            graph.setSelectionCells(cells);
+        }
+    }
+
+    getUnderMouseGraph = (evt) => {
+        const x = mxEvent.getClientX(evt);
+        const y = mxEvent.getClientY(evt);
+
+        const elt = document.elementFromPoint(x, y);
+        if (mxUtils.isAncestorNode(this.graph.container, elt)) {
+            return this.graph;
+        }
+        return null;
     }
 
     zoomIn() {
@@ -341,7 +411,7 @@ export default class Editor extends Component {
     /* eslint-enable */
     render() {
         return (
-            <div>
+            <div style={{height: '100%', width: '90%', marginLeft: '10%', position: 'relative'}}>
                 <div className="editor" ref={(e) => { this.Container = e }} />
                 <div style={{ position: 'absolute', zIndex: '2', right: '20px', top: '30px' }}>
                     <button onClick={() => this.zoomIn()}>放大</button>
@@ -354,6 +424,22 @@ export default class Editor extends Component {
                     <button onClick={() => this.graphEnable()}>禁止编辑</button>
                     <button onClick={() => this.undo()}>撤销</button>
                 </div>
+                <ul style={{ position: 'absolute', zIndex: '2', left: '-10%', top: '30px' }}>
+
+                    <li>
+                        <button ref={(ins) => this.btn1 = ins } style={{padding: '10px'}}>
+                            Tool-1
+                        </button>
+                    </li>
+
+                    <li style={{marginTop: '10px'}}>
+                        <button ref={(ins) => this.btn2 = ins }
+                            style={{padding: '10px'}}
+                        >
+                            Tool-2
+                        </button>
+                    </li>
+                </ul>
             </div>
         )
     }

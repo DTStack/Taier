@@ -52,7 +52,7 @@ export function MenuLeft(props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(menuItems,user.isRoot)}
+                {renderATagMenuItems(menuItems, user.isRoot)}
             </Menu>
         </div>
     )
@@ -63,7 +63,7 @@ export function MenuRight(props) {
         onClick, settingMenus, user,
         apps, app, showHelpSite, helpUrl
     } = props;
-
+    const isShowExt=!app||!app.disableExt;
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -91,7 +91,7 @@ export function MenuRight(props) {
 
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(apps)}
+            {renderATagMenuItems(apps, user.isRoot)}
         </Menu>
     )
 
@@ -114,16 +114,16 @@ export function MenuRight(props) {
                     </span>
                 </Dropdown>
                 <span className="divide left"></span>
-                <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
                         <Icon type="message" />
                         {/* <Badge dot>
                         </Badge> */}
                     </span>
-                </a>
-                <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                </a>}
+                {isShowExt && <Dropdown overlay={settingMenuItems} trigger={['click']}>
                     <span className="menu-item"><Icon type="setting" /> </span>
-                </Dropdown>
+                </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']}>
                     <div className="user-info">
                         <Icon className="avatar" type="user" />

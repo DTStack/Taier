@@ -37,9 +37,19 @@ class Header extends Component {
         }];
 
         const logo = <span>
-            <Icon style={{ fontSize: '18px', color: '#2491F7', marginRight: '10px' }} type="code-o" />
-            <span style={{ fontSize: '14px', color: '#ffffff' }}>
-                DTinsight.CONSOLE
+           <img
+                style={{ height: "20px", width: '20px', marginTop: "13px" }}
+                alt="logo"
+                src="/public/console/img/logo.svg"
+            />
+            <span style={{
+                fontSize: "14px",
+                color: "#ffffff",
+                position: "absolute",
+                left: "80px",
+                top: 0
+            }}>
+                DTinsight.Console
             </span>
         </span>;
         return <Navigator

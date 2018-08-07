@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message } from "antd";
+import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card } from "antd";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux"
 
@@ -51,8 +51,8 @@ class EditCluster extends React.Component {
     }
     componentDidMount() {
         const { location, form } = this.props;
-        const params = location.state||{};
-        if (params.mode == "edit"||params.mode=="view") {
+        const params = location.state || {};
+        if (params.mode == "edit" || params.mode == "view") {
             Api.getClusterInfo({
                 clusterId: params.cluster.id
             })
@@ -100,7 +100,7 @@ class EditCluster extends React.Component {
         };
         let notExtKeys_flink = ["typeName", "flinkZkAddress",
             "flinkHighAvailabilityStorageDir", "flinkZkNamespace",
-            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir","clusterMode"];
+            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
         let sparkConfig = config.sparkConf;
@@ -283,7 +283,7 @@ class EditCluster extends React.Component {
         const { flink_params, spark_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
-        const isView=mode=="view"
+        const isView = mode == "view"
         let tmpParams;
         if (type == "flink") {
             tmpParams = flink_params;
@@ -321,7 +321,7 @@ class EditCluster extends React.Component {
                         </FormItem>
 
                     </Col>
-                    {isView?null:(<a className="formItem-right-text" onClick={this.deleteParam.bind(this, param.id, type)}>删除</a>)}
+                    {isView ? null : (<a className="formItem-right-text" onClick={this.deleteParam.bind(this, param.id, type)}>删除</a>)}
                 </Row>)
             }
         )
@@ -338,12 +338,12 @@ class EditCluster extends React.Component {
         return keyAndValue.map(
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span}>
-                        {key.length > 17 ?
-                            <Tooltip title={key}>{key.substr(0, 17) + "..."}</Tooltip>
+                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
+                        {key.length > 40 ?
+                            <Tooltip title={key}>{key.substr(0, 40) + "..."}</Tooltip>
                             : key}：
                     </Col>
-                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span}>
+                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
                         {value}
                     </Col>
                 </Row>)
@@ -408,7 +408,7 @@ class EditCluster extends React.Component {
         })
     }
     getServerParams(formValues, haveFile) {
-        const {mode,cluster} = this.props.location.state||{};
+        const { mode, cluster } = this.props.location.state || {};
         const clusterConf = this.getClusterConf(formValues);
         const params = {
             clusterName: formValues.clusterName,
@@ -420,8 +420,8 @@ class EditCluster extends React.Component {
                 params.config = file.files[0]
             }
         }
-        if(mode=="edit"){
-            params.id=cluster.id
+        if (mode == "edit") {
+            params.id = cluster.id
         }
         return params;
     }
@@ -437,8 +437,8 @@ class EditCluster extends React.Component {
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
         //服务端兼容，不允许null
-        clusterConf["hiveConf"].username=clusterConf["hiveConf"].username||'';
-        clusterConf["hiveConf"].password=clusterConf["hiveConf"].password||'';
+        clusterConf["hiveConf"].username = clusterConf["hiveConf"].username || '';
+        clusterConf["hiveConf"].password = clusterConf["hiveConf"].password || '';
         return clusterConf;
     }
     getCustomParams(data, ParamKey) {
@@ -471,8 +471,10 @@ class EditCluster extends React.Component {
 
         return (
             <div className="contentBox">
-                <p className="box-title" style={{ paddingLeft: "0px" }}><GoBack size="default" type="textButton"></GoBack></p>
-                <div className="contentBox">
+                <p className="box-title" style={{ height: "auto", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
+                <Card
+                    noHovering
+                    className="contentBox shadow">
                     <p className="config-title">集群信息</p>
                     <div className="config-content" style={{ width: "680px" }}>
                         <FormItem
@@ -491,7 +493,7 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="请输入集群标识" style={{ width: "40%" }} />
                             )}
                             <span style={{ marginLeft: "30px" }}>节点数：{nodeNumber || '--'} </span>
-                            <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}核 {this.exchangeMemory(memory)} </span>
+                            <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
                         </FormItem>
                         {/* <FormItem
                             label="绑定租户"
@@ -527,6 +529,7 @@ class EditCluster extends React.Component {
                             <p className="config-title">上传配置文件</p>
                             <div className="config-content" style={{ width: "750px" }}>
                                 <p style={{ marginBottom: "24px" }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
+
                                 <FormItem
                                     label="配置文件"
                                     {...formItemLayout}
@@ -571,11 +574,11 @@ class EditCluster extends React.Component {
                     {
                         zipConfig ?
                             <div><p className="config-title">HDFS</p>
-                                <div className="config-content" style={{ width: "680px" }}>
+                                <div className="config-content" style={{ width: "800px" }}>
                                     {this.renderZipConfig("hdfs")}
                                 </div>
                                 <p className="config-title">YARN</p>
-                                <div className="config-content" style={{ width: "680px" }}>
+                                <div className="config-content" style={{ width: "800px" }}>
                                     {this.renderZipConfig("yarn")}
                                 </div>
                             </div>
@@ -801,20 +804,20 @@ class EditCluster extends React.Component {
                         )}
                     </div>
                     <p className="config-title"></p>
-                    {isView?null:(
-                        <div className="config-content" style={{ width: "680px" }}>
-                        <Button onClick={this.test.bind(this)} loading={testLoading} type="primary">测试连通性</Button>
-                        <span style={{ marginLeft: "18px" }}>
-                            {this.renderTestResult()}
-                        </span>
+                    {isView ? null : (
+                        <div className="config-content" style={{ width: "100%" }}>
+                            <Button onClick={this.test.bind(this)} loading={testLoading} type="primary">测试连通性</Button>
+                            <span style={{ marginLeft: "18px" }}>
+                                {this.renderTestResult()}
+                            </span>
 
-                        <span style={{ float: "right" }}>
-                            <Button onClick={this.save.bind(this)} type="primary">保存</Button>
-                            <Button style={{ marginLeft: "8px" }}>取消</Button>
-                        </span>
-                    </div>
+                            <span style={{ float: "right",marginRight:"18px" }}>
+                                <Button onClick={this.save.bind(this)} type="primary">保存</Button>
+                                <Button style={{ marginLeft: "8px" }}>取消</Button>
+                            </span>
+                        </div>
                     )}
-                </div>
+                </Card>
             </div>
         )
     }

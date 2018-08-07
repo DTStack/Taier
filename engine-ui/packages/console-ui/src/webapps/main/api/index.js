@@ -12,7 +12,7 @@ import rdosUrls from '../consts/rdosUrls';
 
 export default {
     checkRoot(params){
-        return http.post(req.CHECKISROOT, params);
+        return http.post(req.CHECKISROOT, params,{isSilent:true});
     },
     // ================== 公共模块 ==================//
     getProjects(app, params) {

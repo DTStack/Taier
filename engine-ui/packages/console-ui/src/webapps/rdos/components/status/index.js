@@ -213,6 +213,8 @@ export function DatabaseType(props) {
             return <span>Redis</span>
         case DATA_SOURCE.MONGODB:
             return <span>MongoDB</span>
+        case DATA_SOURCE.KAFKA:
+            return <span>Kafka</span>
         default:
             return <span>其他</span>
     }

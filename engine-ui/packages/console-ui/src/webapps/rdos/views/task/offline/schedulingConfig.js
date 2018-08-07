@@ -855,7 +855,7 @@ class TaskSelector extends React.Component {
         this.selectVOS = this.props.onSelect;
         this.taskId = this.props.taskId;
 
-        this.state = { list: [] };
+        this.state = { list: [],emptyError:false };
     }
 
     fetchVOS(evt) {
@@ -864,6 +864,7 @@ class TaskSelector extends React.Component {
             this.setState({
                 list: []
             });
+            this.resetError();
             return;
         }
 
@@ -872,7 +873,10 @@ class TaskSelector extends React.Component {
             taskId: this.taskId
         }).then(res => {
             if(res.code === 1) {
-                res.data.length === 0 && message.warning('没有符合条件的任务');
+                res.data.length === 0&&this.setState({
+                    emptyError:true
+                })
+                // res.data.length === 0 && message.warning('没有符合条件的任务');
                 this.setState({
                     list: res.data,
                     fetching: false
@@ -899,15 +903,29 @@ class TaskSelector extends React.Component {
             }
         })
     }
-
+    resetError(){
+        this.setState({
+            emptyError:false
+        })
+    }
     render() {
-        const { list } = this.state;
-
+        const { list, emptyError } = this.state;
+        const emptyErrorStyle={
+            position: "absolute",
+            width: "100%",
+            bottom: "-28px",
+            left: "0px",
+            color:"red"
+        }
         return <div className="m-taskselector">
-            <input onInput={debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 }) }
+            <input onInput={(event)=>{
+                this.resetError();
+                debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event); 
+            }}
                 ref={el => this.$input = el}
                 className="ant-input"
             />
+            {emptyError&&<span style={emptyErrorStyle}>没有符合条件的任务</span>}
             {list.length > 0 && <ul className="tasklist">
                 {list.map(o => <li className="taskitem"
                     onClick={ ()=>{ this.handleClick(o) } }

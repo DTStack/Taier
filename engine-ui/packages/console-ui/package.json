@@ -56,7 +56,6 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "happypack": "^5.0.0",
     "html-webpack-plugin": "^4.0.0-alpha",
-    "imagemin-webpack-plugin": "^2.1.5",
     "less": "^2.7.0",
     "less-loader": "^4.1.0",
     "lodash-webpack-plugin": "0.11.4",
