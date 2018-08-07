@@ -2,3 +2,11 @@
     height:inherit !important;
     font-family: consolas !important;
 }
+.editor_custom_link{
+    cursor: pointer;
+    color:#1474f1;
+    text-decoration:underline;
+}
+.editor_custom_link:hover{
+    color:#04b4fa;
+}
