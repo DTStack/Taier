@@ -178,7 +178,7 @@ class DataSourceMana extends Component {
         }, {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
                         <span>连接状态 &nbsp;
-                            <Icon style={{fontSize: 14}} type="question-circle-o" />
+                            <Icon type="question-circle-o" />
                         </span>
                     </Tooltip>,
             dataIndex: 'linkState',
