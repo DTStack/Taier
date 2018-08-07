@@ -7,6 +7,7 @@ import { getUser } from "../../../actions/console"
 import Api from "../../../api/console"
 import { longLabelFormLayout, formItemLayout } from "../../../consts"
 import GoBack from "main/components/go-back";
+import utils from "utils";
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -332,38 +333,88 @@ class EditCluster extends React.Component {
         let keyAndValue;
         if (type == "hdfs") {
             keyAndValue = Object.entries(zipConfig.hadoopConf)
-            keyAndValue.sort(
-                ([key,value],[compareKey,compareValue])=>{
-                    if(key=="fs.defaultFS"){
+            utils.sortByCompareFunctions(keyAndValue,
+                ([key, value], [compareKey, compareValue]) => {
+                    if (key == "fs.defaultFS") {
                         return -1;
                     }
-                    if(compareKey=="fs.defaultFS"){
+                    if (compareKey == "fs.defaultFS") {
                         return 1;
                     }
-                    if(key.indexOf("dfs.nameservices")>-1){
+                    return 0;
+                },
+                ([key, value], [compareKey, compareValue]) => {
+                    if (key == "dfs.nameservices") {
                         return -1;
                     }
-                    if(compareKey.indexOf("dfs.nameservices")>-1){
+                    if (compareKey == "dfs.nameservices") {
                         return 1;
                     }
-                    if(key.indexOf("dfs.ha.namenodes")>-1){
+                    return 0;
+                },
+                ([key, value], [compareKey, compareValue]) => {
+                    if (key.indexOf("dfs.ha.namenodes") > -1) {
                         return -1;
                     }
-                    if(compareKey.indexOf("dfs.ha.namenodes")>-1){
+                    if (compareKey.indexOf("dfs.ha.namenodes") > -1) {
                         return 1;
                     }
-                    if(key.indexOf("dfs.namenode.rpc-address")>-1){
+                    return 0;
+                },
+                ([key, value], [compareKey, compareValue]) => {
+                    const checkKey = key.indexOf("dfs.namenode.rpc-address") > -1
+                    const checkCompareKey = compareKey.indexOf("dfs.namenode.rpc-address") > -1
+                    if (checkKey && checkCompareKey) {
+                        return key > compareKey ? 1 : -1
+                    } else if (checkKey) {
                         return -1;
-                    }
-                    if(compareKey.indexOf("dfs.namenode.rpc-address")>-1){
+                    } else if (checkCompareKey) {
                         return 1;
+                    } else {
+                        return 0;
                     }
-                }
-            )
+                });
         } else {
             keyAndValue = Object.entries(zipConfig.yarnConf)
+            utils.sortByCompareFunctions(keyAndValue,
+                ([key, value], [compareKey, compareValue]) => {
+                    if (key == "yarn.resourcemanager.ha.rm-ids") {
+                        return -1;
+                    }
+                    if (compareKey == "yarn.resourcemanager.ha.rm-ids") {
+                        return 1;
+                    }
+                    return 0;
+                },
+                ([key, value], [compareKey, compareValue]) => {
+                    
+                    const checkKey = key.indexOf("yarn.resourcemanager.address") > -1
+                    const checkCompareKey = compareKey.indexOf("yarn.resourcemanager.address") > -1
+                    if (checkKey && checkCompareKey) {
+                        return key > compareKey ? 1 : -1
+                    } else if (checkKey) {
+                        return -1;
+                    } else if (checkCompareKey) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                },
+                ([key, value], [compareKey, compareValue]) => {
+                    const checkKey = key.indexOf("yarn.resourcemanager.webapp.address") > -1
+                    const checkCompareKey = compareKey.indexOf("yarn.resourcemanager.webapp.address") > -1
+                    if (checkKey && checkCompareKey) {
+                        return key > compareKey ? 1 : -1
+                    } else if (checkKey) {
+                        return -1;
+                    } else if (checkCompareKey) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                });
         }
-        
+
         return keyAndValue.map(
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
@@ -840,7 +891,7 @@ class EditCluster extends React.Component {
                                 {this.renderTestResult()}
                             </span>
 
-                            <span style={{ float: "right",marginRight:"18px" }}>
+                            <span style={{ float: "right", marginRight: "18px" }}>
                                 <Button onClick={this.save.bind(this)} type="primary">保存</Button>
                                 <Button style={{ marginLeft: "8px" }}>取消</Button>
                             </span>
