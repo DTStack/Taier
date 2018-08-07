@@ -6,6 +6,7 @@ import {
 
 import API from "../../../api";
 import { editorAction } from './actionTypes';
+import { createLinkMark } from "widgets/code-editor/utils"
 
 const INTERVALS = 3000;
 const EXCHANGE_STATUS = {
@@ -25,10 +26,13 @@ function getUniqueKey(id) {
 }
 
 function getDataOver(dispatch, currentTab, res, jobId) {
-    if(res.data.result){
-        dispatch(outputRes(currentTab, res.data.result,jobId))
+    if (res.data.result) {
+        dispatch(outputRes(currentTab, res.data.result, jobId))
     }
     dispatch(output(currentTab, '执行成功!'))
+    if (res.data && res.data.download) {
+        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download,download:'' })}\n`))
+    }
 }
 
 function doSelect(resolve, dispatch, jobId, currentTab) {
@@ -122,8 +126,8 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
 
             if (res.data.jobId) {
-                runningSql[currentTab]=res.data.jobId;
-              
+                runningSql[currentTab] = res.data.jobId;
+
                 selectData(dispatch, res.data.jobId, currentTab)
                     .then(
                         (isSuccess) => {
@@ -240,7 +244,7 @@ export function setOutput(tab, log) {
 export function outputRes(tab, item, jobId) {
     return {
         type: editorAction.UPDATE_RESULTS,
-        data: {jobId:jobId,data:item},
+        data: { jobId: jobId, data: item },
         key: tab,
     }
 }
@@ -283,16 +287,16 @@ export function setSelectionContent(data) {
 export function addLoadingTab(id) {
     return {
         type: editorAction.ADD_LOADING_TAB,
-        data:{
-            id:id
+        data: {
+            id: id
         }
     }
 }
 export function removeLoadingTab(id) {
     return {
         type: editorAction.REMOVE_LOADING_TAB,
-        data:{
-            id:id
+        data: {
+            id: id
         }
     }
 }
