@@ -84,9 +84,9 @@ export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ //支持分库分表的数据库类型r
     DATA_SOURCE.MYSQL,
-    DATA_SOURCE.ORACLE,
-    DATA_SOURCE.SQLSERVER,
-    DATA_SOURCE.POSTGRESQL,
+    // DATA_SOURCE.ORACLE,
+    // DATA_SOURCE.SQLSERVER,
+    // DATA_SOURCE.POSTGRESQL,
 ]
 
 export const TASK_TYPE = { // 任务类型

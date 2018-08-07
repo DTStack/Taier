@@ -83,17 +83,17 @@ const sourceMap = (state = {}, action) => {
                 sourceId: null,
                 type: null,
                 tables: [],
-                key:key
+                key: key
             })
             return clone;
         }
 
-        case sourceMapAction.DATA_SOURCE_DELETE:{
+        case sourceMapAction.DATA_SOURCE_DELETE: {
             const key = action.key;
             const clone = cloneDeep(state);
-            clone.sourceList=clone.sourceList.filter(
-                (source)=>{
-                    return source.key!=key
+            clone.sourceList = clone.sourceList.filter(
+                (source) => {
+                    return source.key != key
                 }
             )
             return clone;
@@ -112,7 +112,7 @@ const sourceMap = (state = {}, action) => {
                             sourceId: id,
                             type: type,
                             tables: [],
-                            key:key
+                            key: key
                         }
                     }
                 }
@@ -134,11 +134,11 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extTable={} } = action.payload;
+            const { sourceId, splitPK, src, table, extTable = {} } = action.payload;
             const { type } = src;
             const key = action.key;
             const clone = cloneDeep(state);
-            
+
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
 
@@ -151,14 +151,14 @@ const sourceMap = (state = {}, action) => {
             clone.type = assign(action.payload, { type });
 
             if (typeof key != "undefined") {
-                if(key=="main"){
-                    source.tables = [table]
-                }else{
-                    for (let i in clone.sourceList) {
-                        let source = clone.sourceList[i];
-                        if (key == source.key) {
+                for (let i in clone.sourceList) {
+                    let source = clone.sourceList[i];
+                    if (key == source.key) {
+                        if (key == "main") {
+                            source.tables = [table]
+                        }else{
                             source.tables = [extTable[key]]
-                        }
+                        } 
                     }
                 }
             }

@@ -213,6 +213,23 @@ const utils = {
         } catch (e) {
             return null;
         }
+    },
+    /**
+     * 多函数排序，匹配到0为止
+     */
+    sortByCompareFunctions(arr,...compareFunctions){
+        arr.sort(
+            (a,b)=>{
+                let result=0;
+                for(let func of compareFunctions){
+                    result=func(a,b);
+                    if(result!=0){
+                        return result;
+                    }
+                }
+                return result;
+            }
+        )
     }
 };
 

@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import {
     Form, Input, Select,
     Button, Icon, Table,
-    message, Radio, Row, Col
+    message, Radio, Row, Col,
+    Tooltip
 } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
@@ -48,9 +49,9 @@ class SourceForm extends React.Component {
         if (sourceList && isCurrentTabNew) {
             for (let i = 0; i < sourceList.length; i++) {
                 let source = sourceList[i];
-                if(source.sourceId!=null){
+                if (source.sourceId != null) {
                     this.getTableList(source.sourceId);
-                }   
+                }
             }
         }
     }
@@ -119,8 +120,10 @@ class SourceForm extends React.Component {
             return src.id == id;
         })[0];
     }
-    changeExtSource(key,value){
-        this.props.changeExtDataSource(this.getDataObjById(value),key);
+    changeExtSource(key, value) {
+        this.props.changeExtDataSource(this.getDataObjById(value), key);
+        this.getTableList(value);
+        this.resetTable(`extTable.${key}`);
     }
     changeSource(value, option) {
         const { handleSourceChange, sourceMap } = this.props;
@@ -135,20 +138,24 @@ class SourceForm extends React.Component {
         this.resetTable();
     }
     addDataSource() {
-        const key = "key"+~~(Math.random() * 10000000);
+        const key = "key" + ~~(Math.random() * 10000000);
         this.props.addDataSource(key);
     }
-    deleteExtSource(key){
+    deleteExtSource(key) {
         this.props.deleteDataSource(key);
     }
-    resetTable() {
+    resetTable(key) {
         const { form } = this.props;
         this.changeTable('');
         //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState({
             selectHack: true
         }, () => {
-            form.resetFields(['table'])
+            if (key) {
+                form.resetFields([key])
+            } else {
+                form.resetFields(['table'])
+            }
             this.setState({
                 selectHack: false
             })
@@ -165,8 +172,8 @@ class SourceForm extends React.Component {
             showPreview: false
         })
     }
-    changeExtTable(key,value){
-        this.submitForm(null,key);
+    changeExtTable(key, value) {
+        this.submitForm(null, key);
     }
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
@@ -188,7 +195,7 @@ class SourceForm extends React.Component {
         }
     }
 
-    submitForm(event,sourceKey) {
+    submitForm(event, sourceKey) {
         const {
             updateTaskFields, form,
             handleSourceMapChange, currentTab,
@@ -230,7 +237,7 @@ class SourceForm extends React.Component {
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
-            handleSourceMapChange(srcmap,sourceKey);
+            handleSourceMapChange(srcmap, sourceKey);
         }, 0);
     }
 
@@ -279,7 +286,7 @@ class SourceForm extends React.Component {
                             showSearch
                             onSelect={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                            // disabled={!isCurrentTabNew}
+                        // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
@@ -386,15 +393,15 @@ class SourceForm extends React.Component {
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const sourceList=sourceMap.sourceList;
+        const sourceList = sourceMap.sourceList;
 
         if (!sourceList) {
             return null;
         }
 
         return sourceList.filter(
-            (source)=>{
-                return source.key!="main"
+            (source) => {
+                return source.key != "main"
             }
         ).map(
             (source) => {
@@ -407,19 +414,19 @@ class SourceForm extends React.Component {
                             {getFieldDecorator(`extSourceId.${source.key}`, {
                                 rules: [{
                                     required: true,
-                                    message:"数据源为必填项"
+                                    message: "数据源为必填项"
                                 }],
-                                initialValue: source.sourceId==null?null:(""+source.sourceId)
+                                initialValue: source.sourceId == null ? null : ("" + source.sourceId)
                             })(
                                 <Select
                                     showSearch
-                                    onSelect={this.changeExtSource.bind(this,source.key)}
+                                    onSelect={this.changeExtSource.bind(this, source.key)}
                                     optionFilterProp="name"
-                                    // disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 >
                                     {dataSourceList.filter(
-                                        (dataSource)=>{
-                                            return dataSource.type==sourceList[0].type
+                                        (dataSource) => {
+                                            return dataSource.type == sourceList[0].type
                                         }
                                     ).map(src => {
                                         let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
@@ -439,7 +446,7 @@ class SourceForm extends React.Component {
                                     })}
                                 </Select>
                             )}
-                            <Icon onClick={this.deleteExtSource.bind(this,source.key)} className="help-doc click-icon" type="delete" />
+                            <Icon onClick={this.deleteExtSource.bind(this, source.key)} className="help-doc click-icon" type="delete" />
                         </FormItem>
                         {!selectHack && <FormItem
                             {...formItemLayout}
@@ -457,7 +464,7 @@ class SourceForm extends React.Component {
                                     mode="combobox"
                                     showSearch
                                     showArrow={true}
-                                    onChange={this.debounceExtTableSearch.bind(this,source.key)}
+                                    onChange={this.debounceExtTableSearch.bind(this, source.key)}
                                     // disabled={!isCurrentTabNew}
                                     optionFilterProp="value"
                                 >
@@ -516,9 +523,12 @@ class SourceForm extends React.Component {
                                 })}
                             </Select>
                         )}
+                        {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>}
                     </FormItem>,
                     ...this.renderExtDataSource(),
-                     supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
+                    supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
                         <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
                     </Row>,
                     <FormItem
@@ -925,17 +935,17 @@ const mapDispatch = dispatch => {
                 key: key
             });
         },
-        deleteDataSource(key){
+        deleteDataSource(key) {
             dispatch({
                 type: sourceMapAction.DATA_SOURCE_DELETE,
                 key: key
             });
         },
-        changeExtDataSource(src,key){
+        changeExtDataSource(src, key) {
             dispatch({
                 type: sourceMapAction.DATA_SOURCE_CHANGE,
                 payload: src,
-                key:key
+                key: key
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
