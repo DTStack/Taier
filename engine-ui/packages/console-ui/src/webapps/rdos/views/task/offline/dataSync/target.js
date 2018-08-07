@@ -242,9 +242,9 @@ class TargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state
 
-        const { targetMap, dataSourceList, isCurrentTabNew } = this.props;
+        const { targetMap, dataSourceList, isCurrentTabNew, project } = this.props;
         let formItem;
-
+        const showCreateTable=targetMap.name==project.projectName;
         if (isEmpty(targetMap)) return null;
 
         switch (targetMap.type.type) {
@@ -369,6 +369,7 @@ class TargetForm extends React.Component {
                                 })}
                             </Select>
                         )}
+                        {showCreateTable&&<a style={{top:"0px",right:"-90px"}} className="help-doc" >一键生成目标表</a>}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -718,6 +719,7 @@ const mapState = state => {
         sourceMap: dataSync.sourceMap,
         dataSourceList: dataSync.dataSourceList,
         taskCustomParams: workbench.taskCustomParams,
+        project:state.project
     };
 };
 
