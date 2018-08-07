@@ -5,7 +5,9 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.enums.SourceType;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
@@ -108,9 +110,10 @@ public class RestartDealer {
         }
 
         try {
-            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo)){
+            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType)){
                 return false;
             }
+
             resetStatus(jobId, computeType, engineType);
             RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             if(jobCache == null){
@@ -130,9 +133,25 @@ public class RestartDealer {
         }
     }
 
-    private boolean checkNeedResubmit(String jobId, String engineJobId, String engineType, String pluginInfo) throws Exception {
+    private boolean checkNeedResubmit(String jobId, String engineJobId, String engineType, String pluginInfo, Integer computeType) throws Exception {
         if(Strings.isNullOrEmpty(engineJobId)){
             return false;
+        }
+
+        if(ComputeType.STREAM.getType().equals(computeType)){
+            //do nothing
+        }else{
+            //需要判断数据来源-->临时查询不需重跑
+            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+            if(engineBatchJob == null){
+                LOG.error("batch job {} can't find.", jobId);
+                return false;
+            }
+
+            if(engineBatchJob.getSourceType() != null && SourceType.TEMP_QUERY.getType().equals(engineBatchJob.getSourceType())){
+                return false;
+            }
+
         }
 
         IClient client = clientCache.getClient(engineType, pluginInfo);

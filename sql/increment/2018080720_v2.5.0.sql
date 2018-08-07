@@ -1,0 +1,1 @@
+alter table rdos_engine_batch_job add COLUMN source_type tinyint(2) NOT NULL COMMENT '任务来源';

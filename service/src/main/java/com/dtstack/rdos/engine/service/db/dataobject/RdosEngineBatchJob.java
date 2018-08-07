@@ -38,6 +38,8 @@ public class RdosEngineBatchJob extends DataObject{
 
     private long pluginInfoId;
 
+    private Integer sourceType;
+
     public String getJobId() {
         return jobId;
     }
@@ -108,5 +110,13 @@ public class RdosEngineBatchJob extends DataObject{
 
     public void setPluginInfoId(long pluginInfoId) {
         this.pluginInfoId = pluginInfoId;
+    }
+
+    public Integer getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Integer sourceType) {
+        this.sourceType = sourceType;
     }
 }

@@ -84,12 +84,6 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-
-		<dependency>
-			<groupId>io.thekraken</groupId>
-			<artifactId>grok</artifactId>
-			<version>0.1.4</version>
-		</dependency>
 		
 		<dependency>
 			<groupId>junit</groupId>
