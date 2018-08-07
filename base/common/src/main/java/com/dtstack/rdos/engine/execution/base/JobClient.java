@@ -139,6 +139,7 @@ public class JobClient extends OrderObject{
         action.setExternalPath(externalPath);
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);
+        action.setGroupName(groupName);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
