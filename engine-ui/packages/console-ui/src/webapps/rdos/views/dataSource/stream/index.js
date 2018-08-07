@@ -3,11 +3,12 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import { 
     Input, Button, Popconfirm,
-    Table, message, Card,
+    Table, message, Card, Icon, Tooltip
  } from 'antd';
 
 import utils from 'utils';
 
+import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from './form';
 import DbSyncModal from './syncModal';
@@ -130,6 +131,7 @@ class DataSourceMana extends Component {
     }
 
     initColumns = () => {
+        const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
@@ -166,12 +168,26 @@ class DataSourceMana extends Component {
             width: '12%',
             render: text => utils.formatDateTime(text),
         }, {
-            title: '状态',
+            title: '应用状态',
             dataIndex: 'active',
             key: 'active',
             width: '10%',
             render: (text, record) => {
                 return record.active === 1 ? '使用中' : '未启用'
+            },
+        }, {
+            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+                        <span>连接状态 &nbsp;
+                            <Icon type="question-circle-o" />
+                        </span>
+                    </Tooltip>,
+            dataIndex: 'linkState',
+            key: 'linkState',
+            width: '10%',
+            render: (text, record) => {
+                return record.active === 1 ? 
+                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
             },
         }, {
             title: <div className="txt-right m-r-8">操作</div>,

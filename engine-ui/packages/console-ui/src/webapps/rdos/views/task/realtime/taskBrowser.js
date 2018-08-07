@@ -305,7 +305,7 @@ export default class TaskBrowser extends Component {
                                     </TabPane> : ""
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">结果表</span>} key="params4">
+                                currentPage.taskType === 0 ? <TabPane tab={<span  style={{marginTop: 10}} className="title-vertical tabpanel-content">结果表</span>} key="params4">
                                     <OutputPanel {...this.props} />
                                 </TabPane>:""
                             } 

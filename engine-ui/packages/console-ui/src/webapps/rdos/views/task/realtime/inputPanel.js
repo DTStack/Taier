@@ -88,7 +88,7 @@ class InputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
-              sm: { span: 6 },
+              sm: { span: 8 },
             },
             wrapperCol: {
               xs: { span: 24 },
@@ -148,7 +148,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={(
                             <span >
-                                Table&nbsp;
+                                映射表&nbsp;
                                 <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
                                     <Icon type="question-circle-o" /> 
                                 </Tooltip>
@@ -157,10 +157,10 @@ class InputOrigin extends Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [
-                                {required: true, message: '请输入Table',}
+                                {required: true, message: '请输入映射表名',}
                             ],
                         })(
-                            <Input  placeholder="请输入Table" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
+                            <Input  placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         )}
                     </FormItem>
                     <FormItem
@@ -248,7 +248,14 @@ class InputOrigin extends Component {
                         panelColumn[index].timeType === 2 ? 
                             <FormItem
                                 {...formItemLayout}
-                                label="偏移量(毫秒)"
+                                label={(
+                                    <span >
+                                        偏移量(毫秒)&nbsp;
+                                        <Tooltip title="watermark值与event time值的偏移量">
+                                            <Icon type="question-circle-o" /> 
+                                        </Tooltip>
+                                    </span>
+                                )}
                             >
                                 {getFieldDecorator('offset', {
                                     rules: [
@@ -290,7 +297,6 @@ class InputOrigin extends Component {
 const InputForm = Form.create({
     mapPropsToFields(props) {
             const { type, sourceId, topic, table , columns, timeType, timeColumn, offset,columnsText, parallelism } = props.panelColumn[props.index];
-            console.log('props.panelColumn[props.index]',props.panelColumn[props.index]);
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -302,7 +308,6 @@ const InputForm = Form.create({
                 offset: { value: offset},
                 columnsText: { value: columnsText},
                 parallelism: { value: parallelism},
-
                 // alias: { value: alias },
             }
         } 
@@ -321,13 +326,19 @@ const initialData = {
 }
 
 export default class InputPanel extends Component {
-
     constructor(props) {
         super(props)
-        const taskId = this.props.currentPage.id;
-        const copyInitialData = JSON.parse(JSON.stringify(initialData));
-        const data = props.inputData[taskId]||copyInitialData;
-        this.state = {...data};
+        this.state = {
+            popoverVisible: false,
+            tabTemplate: [],//模版存储,所有输入源
+            panelActiveKey: [],//输入源是打开或关闭状态
+            popoverVisible: [],//删除显示按钮状态
+            panelColumn: [],//存储数据
+            checkFormParams: [],//存储要检查的参数from
+            timeColumoption: [],//时间列选择数据
+            topicOptionType: [],//topic选择数据
+            originOptionType: [],//数据源选择数据 
+        };
     }
     
     componentDidMount(){
@@ -399,8 +410,6 @@ export default class InputPanel extends Component {
 
     getTopicType = (index,sourceId) => {
         const { topicOptionType } = this.state;
-        console.log('getTopicType',index,sourceId);
-        
         if(sourceId){
             Api.getTopicType({sourceId}).then(v=>{
                 if(index==='add'){
@@ -416,7 +425,6 @@ export default class InputPanel extends Component {
                         topicOptionType[index] = [];
                     }
                 }
-                console.log('topicOptionType',topicOptionType);
                 this.setCurrentSource({topicOptionType});
                 this.setState({
                     topicOptionType
@@ -438,10 +446,6 @@ export default class InputPanel extends Component {
     getCurrentData = (taskId,nextProps) => {
         const { dispatch,inputData,currentPage } = nextProps;
         const { source } = currentPage;
-        console.log('-----inputData:',inputData);
-        console.log('inputData[taskId]:',inputData[taskId]);
-        console.log('componentWillReceiveProps-source',source);
-        
         if(!inputData[taskId]&&source.length>0){
             this.receiveState(taskId,source,dispatch)
         }else{
@@ -485,7 +489,6 @@ export default class InputPanel extends Component {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         console.log('oldPage.id----currentPage.id',currentPage.id,oldPage.id);
-        
         if (currentPage.id !== oldPage.id) {
             this._syncEditor=true;
             this.getCurrentData(currentPage.id,nextProps)
