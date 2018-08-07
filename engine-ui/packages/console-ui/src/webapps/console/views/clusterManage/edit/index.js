@@ -332,9 +332,38 @@ class EditCluster extends React.Component {
         let keyAndValue;
         if (type == "hdfs") {
             keyAndValue = Object.entries(zipConfig.hadoopConf)
+            keyAndValue.sort(
+                ([key,value],[compareKey,compareValue])=>{
+                    if(key=="fs.defaultFS"){
+                        return -1;
+                    }
+                    if(compareKey=="fs.defaultFS"){
+                        return 1;
+                    }
+                    if(key.indexOf("dfs.nameservices")>-1){
+                        return -1;
+                    }
+                    if(compareKey.indexOf("dfs.nameservices")>-1){
+                        return 1;
+                    }
+                    if(key.indexOf("dfs.ha.namenodes")>-1){
+                        return -1;
+                    }
+                    if(compareKey.indexOf("dfs.ha.namenodes")>-1){
+                        return 1;
+                    }
+                    if(key.indexOf("dfs.namenode.rpc-address")>-1){
+                        return -1;
+                    }
+                    if(compareKey.indexOf("dfs.namenode.rpc-address")>-1){
+                        return 1;
+                    }
+                }
+            )
         } else {
             keyAndValue = Object.entries(zipConfig.yarnConf)
         }
+        
         return keyAndValue.map(
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
