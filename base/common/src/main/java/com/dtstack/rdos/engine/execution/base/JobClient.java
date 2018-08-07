@@ -120,6 +120,7 @@ public class JobClient extends OrderObject{
             //获取priority值
             this.priority =  priorityLevel * PRIORITY_LEVEL_WEIGHT;
         }
+        this.groupName = paramAction.getGroupName();
 
         //将任务id 标识为对象id
         this.id = taskId;
