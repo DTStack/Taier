@@ -55,7 +55,6 @@ public class JobSubmitProcessor implements Runnable{
 
                     updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.SUBMITTED.getStatus());
                     jobClient.doJobClientCallBack(updateStatus);
-                    //TODO jobClient.setOperators(SqlParser.parser(jobClient.getEngineType(), jobClient.getComputeType().getType(), jobClient.getSql()));
 
                     jobResult = clusterClient.submitJob(jobClient);
 
