@@ -88,7 +88,7 @@ class InputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
-              sm: { span: 6 },
+              sm: { span: 8 },
             },
             wrapperCol: {
               xs: { span: 24 },
@@ -148,7 +148,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={(
                             <span >
-                                Table&nbsp;
+                                映射表&nbsp;
                                 <Tooltip title="该表是kafka中的topic映射而成，可以以SQL的方式使用它。">
                                     <Icon type="question-circle-o" /> 
                                 </Tooltip>
@@ -157,10 +157,10 @@ class InputOrigin extends Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [
-                                {required: true, message: '请输入Table',}
+                                {required: true, message: '请输入映射表名',}
                             ],
                         })(
-                            <Input  placeholder="请输入Table" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
+                            <Input  placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         )}
                     </FormItem>
                     <FormItem
@@ -248,7 +248,14 @@ class InputOrigin extends Component {
                         panelColumn[index].timeType === 2 ? 
                             <FormItem
                                 {...formItemLayout}
-                                label="偏移量(毫秒)"
+                                label={(
+                                    <span >
+                                        偏移量(毫秒)&nbsp;
+                                        <Tooltip title="watermark值与event time值的偏移量">
+                                            <Icon type="question-circle-o" /> 
+                                        </Tooltip>
+                                    </span>
+                                )}
                             >
                                 {getFieldDecorator('offset', {
                                     rules: [
