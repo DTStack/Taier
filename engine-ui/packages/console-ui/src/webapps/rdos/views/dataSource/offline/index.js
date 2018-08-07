@@ -172,8 +172,8 @@ class DataSourceMana extends Component {
             dataIndex: 'active',
             key: 'active',
             width: '10%',
-            render: (text, record) => {
-                return record.active === 1 ? '使用中' : '未使用'
+            render: (active) => {
+                return active === 1 ? '使用中' : '未使用'
             },
         }, {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
@@ -184,8 +184,8 @@ class DataSourceMana extends Component {
             dataIndex: 'linkState',
             key: 'linkState',
             width: '10%',
-            render: (text, record) => {
-                return record.active === 1 ? 
+            render: (linkState) => {
+                return linkState === 1 ? 
                     <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
                     <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
             },
