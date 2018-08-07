@@ -59,6 +59,7 @@ module.exports = function() {
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
                         path.resolve(MY_PATH.WEB_PUBLIC)
                     ],
+                    sideEffects: false,
                     // loader: ['babel-loader?cacheDirectory']
                     loader: ["happypack/loader?id=happy-babel-js"]
                 },

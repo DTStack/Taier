@@ -5,7 +5,8 @@ import ajax from '../../../api'
 import { MENU_TYPE } from '../../../comm/const'
 
 import {
-    stopSql
+    stopSql,
+    setSelectionContent,
 } from '../../../store/modules/editor/editorAction';
 
 import {
@@ -17,7 +18,6 @@ import {
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
-    editorAction,
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
@@ -407,10 +407,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                     payload: id
                 });
             }
-            dispatch({
-                type: editorAction.SET_SELECTION_CONTENT,
-                data: '',
-            })
+            dispatch(setSelectionContent(''));
         },
 
         closeTab: (tabId, tabs) => {
@@ -761,3 +758,4 @@ export const workbenchActions = (dispatch, ownProps) => {
         },
     }
 }
+

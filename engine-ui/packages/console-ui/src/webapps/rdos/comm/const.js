@@ -98,7 +98,8 @@ export const TASK_TYPE = { // 任务类型
     R: 4,
     DEEP_LEARNING:5,
     PYTHON_23:6,
-    SHELL:7
+    SHELL:7,
+    WORKFLOW: 8, // 工作流
 }
 
 export const LEARNING_TYPE={//深度学习框架

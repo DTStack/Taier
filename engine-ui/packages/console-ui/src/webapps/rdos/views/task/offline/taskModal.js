@@ -27,14 +27,11 @@ const RadioGroup = Radio.Group;
 class TaskForm extends React.Component {
     constructor(props) {
         super(props);
-
-        // this.handleRadioChange = this.handleRadioChange.bind(this);
         this.handleTaskTypeChange = this.handleTaskTypeChange.bind(this);
         this.isEditExist = false;
         this.state = {
             value: 0,
             operateModel: '',
-            taskTypes: [],
         };
 
         this._resChange = false;
@@ -42,21 +39,11 @@ class TaskForm extends React.Component {
 
     componentWillMount() {
         const { defaultData } = this.props;
-        this.loadTaskTypes();
         this.setState({
             operateModel: (defaultData&&defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
-    // componentWillReceiveProps(nextProps){
-    //     if(this.props.defaultData!=nextProps.project.id){
-    //         this.setState({
-    //             projectId:"all",
-    //             expandedKeys:[],
-    //             tableId:'',
-    //             searchName:""
-    //         })
-    //     }
-    // }
+
     handleSelectTreeChange(value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -67,21 +54,6 @@ class TaskForm extends React.Component {
         this.props.form.validateFields(['resourceIdList']);
     }
 
-    loadTaskTypes = () => {
-        ajax.getTaskTypes().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    taskTypes: res.data || [],
-                })
-            }
-        })
-    }
-
-    // handleRadioChange(e) {
-    //     this.setState({
-    //         value: e.target.value
-    //     });
-    // }
     handleTaskTypeChange(value) {
         this.setState({
             value: value
@@ -95,9 +67,9 @@ class TaskForm extends React.Component {
     }
 
     render() {
-        const { getFieldDecorator, getFieldValue } = this.props.form;
-        const { defaultData } = this.props;
-        const { taskTypes, operateModel } = this.state;
+        const { getFieldDecorator } = this.props.form;
+        const { defaultData, taskTypes } = this.props;
+        const { operateModel } = this.state;
 
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
@@ -129,7 +101,6 @@ class TaskForm extends React.Component {
             </div>
         )
 
-
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTast = value == TASK_TYPE.SYNC
@@ -137,6 +108,7 @@ class TaskForm extends React.Component {
         const isPython23 = value == TASK_TYPE.PYTHON_23
         const acceptType = isMrTask ? RESOURCE_TYPE.JAR : (isPyTask||isPython23||isDeepLearning) ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
+
         return (
             <Form>
                 <FormItem
@@ -558,7 +530,7 @@ class TaskModal extends React.Component {
     }
 
     render() {
-        const { isModalShow, taskTreeData, resourceTreeData, defaultData } = this.props;
+        const { isModalShow, taskTreeData, resourceTreeData, defaultData, taskTypes } = this.props;
         const {loading} = this.state;
         let isCreate = true;
         if (defaultData && defaultData.name) {
@@ -591,6 +563,7 @@ class TaskModal extends React.Component {
                         treeData={taskTreeData}
                         resTreeData={resourceTreeData}
                         defaultData={defaultData}
+                        taskTypes={taskTypes}
                     />
                 </Modal>
             </div>
@@ -604,7 +577,8 @@ export default connect(state => {
         taskTreeData: state.offlineTask.taskTree,
         currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
-        resourceTreeData: state.offlineTask.resourceTree
+        resourceTreeData: state.offlineTask.resourceTree,
+        taskTypes: state.offlineTask.comm.taskTypes,
     }
 },
     dispatch => {

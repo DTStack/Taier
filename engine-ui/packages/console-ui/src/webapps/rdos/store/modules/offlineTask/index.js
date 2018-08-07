@@ -12,6 +12,7 @@ import {
 import { modalShowReducer } from './modal'
 import { dataSyncReducer } from './dataSync'
 import { workbenchReducer } from './workbench'
+import { commReducer } from './comm'
 
 export const offlineTask = combineReducers({
     modalShow: modalShowReducer,
@@ -22,5 +23,6 @@ export const offlineTask = combineReducers({
     sysFunctionTree: sysFunctionTreeReducer,
     scriptTree: scriptTreeReducer,
     workbench: workbenchReducer,
-    dataSync: dataSyncReducer
+    dataSync: dataSyncReducer,
+    comm: commReducer,
 });

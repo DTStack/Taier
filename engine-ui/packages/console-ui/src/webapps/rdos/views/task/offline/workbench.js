@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router'
 import {
     Row, Col, Button, message, Input, Form,
-    Tabs, Menu, Dropdown, Icon, Modal, Tag,
+    Tabs, Menu, Dropdown, Icon, Modal,
 } from 'antd';
 
 import { cloneDeep, isEmpty } from 'lodash';
@@ -20,17 +20,6 @@ import SyncBadge from '../../../components/sync-badge';
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
 import ImportData from './dataImport';
-
-import {
-    modalAction,
-    workbenchAction,
-    taskTreeAction,
-    editorAction,
-} from '../../../store/modules/offlineTask/actionType';
-
-import {
-    stopSql
-} from '../../../store/modules/editor/editorAction';
 
 import {
     workbenchActions
