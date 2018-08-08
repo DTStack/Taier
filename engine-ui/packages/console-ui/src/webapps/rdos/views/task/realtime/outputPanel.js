@@ -126,7 +126,7 @@ class OutputOrigin extends Component {
                     )}
                 </FormItem>
                 {
-                    panelColumn[index].type == "1" ?
+                    panelColumn[index].type == "1" || panelColumn[index].type == "8"  ? 
                     <FormItem
                         {...formItemLayout}
                         label="表"
@@ -227,11 +227,7 @@ class OutputOrigin extends Component {
                     {...formItemLayout}
                     label="映射表"
                 >
-                    {getFieldDecorator('tableName', {
-                        rules: [
-                            {required: true, message: '请输入映射表名',}
-                        ],
-                    })(
+                    {getFieldDecorator('tableName')(
                         <Input  placeholder="请输入映射表名" onChange={e => handleInputChange('tableName',index,e.target.value)}/>
                     )}
                 </FormItem>
@@ -647,6 +643,7 @@ export default class OutputPanel extends Component {
             //this.parseColumnsText(index,value)
         }
         if(type==="type"){
+            this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             if(panelColumn[index].type=='1'){
@@ -657,6 +654,33 @@ export default class OutputPanel extends Component {
         this.setState({
             panelColumn,
         })
+    }
+
+    clearCurrentInfo = (type,index,value) => {
+        const { panelColumn } = this.state;
+        const inputData = {
+            type: undefined,
+            columns: [],
+            sourceId: undefined,
+            table: undefined,
+            columnsText: undefined,
+            esId: undefined,
+            esType: undefined,
+            writePolicy: undefined,
+            index: undefined,
+            id: undefined,
+            parallelism: 1,
+            tableName: undefined,
+        }
+        if(type==="type"){
+            inputData.type = value;
+            panelColumn[index] = inputData;
+        }else if(type==="sourceId"){
+            inputData.type = panelColumn[index]['type']
+            inputData.sourceId = value;
+        }
+        this.setOutputData({panelColumn})
+        this.setState(panelColumn);
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
