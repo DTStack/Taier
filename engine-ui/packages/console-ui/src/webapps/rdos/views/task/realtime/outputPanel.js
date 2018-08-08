@@ -101,7 +101,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择存储类型',}
                         ],
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                 <Option value="1">Mysql</Option>
                                 <Option value="8">HBase</Option>
                                 <Option value="11">ElasticSearch</Option>
@@ -118,7 +120,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择数据源',}
                         ],
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                {
                                    originOptionTypes
                                }
@@ -137,7 +141,9 @@ class OutputOrigin extends Component {
                                 {required: true, message: '请选择表',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}
+                                    showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                     {
                                         tableOptionTypes
                                     }
@@ -217,7 +223,9 @@ class OutputOrigin extends Component {
                                 {required: true, message: '请选择写入策略',}
                             ],
                         })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                     <Option value="AppendChild">AppendChild</Option>
                             </Select>
                         )}
@@ -254,7 +262,9 @@ class OutputOrigin extends Component {
                                 width='40%'
                                 render={(text,record,subIndex)=>{
                                     return (
-                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
+                                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                        >
                                             {
                                                 mysqlOptionType
                                             }
@@ -593,6 +603,9 @@ export default class OutputPanel extends Component {
 
     setOutputData = (data) => {
         const { dispatch, currentPage } = this.props;
+        console.log('setOutputData:',this.state,'data:',data);
+        console.log('...setOutputData:',this.state,'...data:',data);
+        
         const dispatchSource = {...this.state,...data};
         console.log('dispatchSource',dispatchSource);
         dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,sink: dispatchSource}));
@@ -657,7 +670,7 @@ export default class OutputPanel extends Component {
     }
 
     clearCurrentInfo = (type,index,value) => {
-        const { panelColumn } = this.state;
+        const { panelColumn,tableOptionType,originOptionType } = this.state;
         const inputData = {
             type: undefined,
             columns: [],
@@ -674,13 +687,18 @@ export default class OutputPanel extends Component {
         }
         if(type==="type"){
             inputData.type = value;
+            originOptionType[index] = [];
+            tableOptionType[index] = [];
             panelColumn[index] = inputData;
+
         }else if(type==="sourceId"){
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
+            tableOptionType[index] = [];
+            panelColumn[index] = inputData;
         }
-        this.setOutputData({panelColumn})
-        this.setState(panelColumn);
+        this.setOutputData({panelColumn,tableOptionType,originOptionType})
+        this.setState({panelColumn,tableOptionType,originOptionType});
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
