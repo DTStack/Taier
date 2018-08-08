@@ -185,7 +185,7 @@ class DataSourceMana extends Component {
             key: 'linkState',
             width: '10%',
             render: (text, record) => {
-                return record.active === 1 ? 
+                return record.linkState === 1 ? 
                     <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
                     <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
             },
