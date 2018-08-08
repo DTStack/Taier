@@ -170,9 +170,9 @@ class InputOrigin extends Component {
                             <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
                         </span>
                         </Col>
-                        <Col span="18" style={{marginBottom: 20,height: 200}}>
+                        <Col span="18" style={{marginBottom: 20,height: 202}}>
                             <Editor 
-                                style={{height: 200}}
+                                style={{minHeight: 202,border: "1px solid #ddd"}}
                                 key="params-editor"
                                 sync={sync}
                                 placeholder="字段:类型, 比如id:int 一行一个字段"

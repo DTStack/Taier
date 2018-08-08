@@ -74,11 +74,11 @@ class OutputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
-              sm: { span: 8 },
+              sm: { span: 6 },
             },
             wrapperCol: {
               xs: { span: 24 },
-              sm: { span: 14 },
+              sm: { span: 18 },
             },
         };
         return (
@@ -95,7 +95,7 @@ class OutputOrigin extends Component {
                         <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
                             showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
-                                <Option value="1">Mysql</Option>
+                                <Option value="1">MySQL</Option>
                                 {/* <Option value="8">HBase</Option>
                                 <Option value="11">ElasticSearch</Option> */}
                         </Select>
@@ -147,49 +147,49 @@ class OutputOrigin extends Component {
                         <Input  placeholder="请输入映射表名" onChange={e => handleInputChange('tableName',index,e.target.value)}/>
                     )}
                 </FormItem>
-                <FormItem
-                        {...formItemLayout}
-                        label="字段"
-                    >
-                </FormItem>
-
-                <Col style={{marginBottom: 20}}>
-                    <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                        <Column
-                            title="字段"
-                            dataIndex="column"
-                            key="字段"
-                            width='50%'
-                            render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
-                        />
-                        <Column
-                            title="类型"
-                            dataIndex="type"
-                            key="类型"
-                            width='40%'
-                            render={(text,record,subIndex)=>{
-                                return (
-                                    <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
-                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    >
-                                        {
-                                            mysqlOptionType
-                                        }
-                                    </Select>
-                                )
-                            }}
-                        />
-                        <Column
-                            key="delete"
-                            render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                        />
-                    </Table>
-                    <div style={{padding: "0 20"}}>
-                        <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
-                            <Icon type="plus" /><span> 添加输入</span>
-                        </Button>
-                    </div>
-                </Col>
+                <Row>
+                    <Col span="6">
+                        <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
+                    </span>
+                    </Col>
+                    <Col span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
+                        <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
+                            <Column
+                                title="字段"
+                                dataIndex="column"
+                                key="字段"
+                                width='50%'
+                                render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                            />
+                            <Column
+                                title="类型"
+                                dataIndex="type"
+                                key="类型"
+                                width='40%'
+                                render={(text,record,subIndex)=>{
+                                    return (
+                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
+                                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                        >
+                                            {
+                                                mysqlOptionType
+                                            }
+                                        </Select>
+                                    )
+                                }}
+                            />
+                            <Column
+                                key="delete"
+                                render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
+                            />
+                        </Table>
+                        <div style={{padding: "0 20 20"}}>
+                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
+                                <Icon type="plus" /><span> 添加输入</span>
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
                 <FormItem
                     {...formItemLayout}
                     label="并行度"
@@ -666,7 +666,7 @@ export default class OutputPanel extends Component {
         const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey}>
+                <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey}>
                     {
                         tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
