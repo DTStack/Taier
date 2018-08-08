@@ -88,11 +88,11 @@ class InputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
-              sm: { span: 8 },
+              sm: { span: 6 },
             },
             wrapperCol: {
               xs: { span: 24 },
-              sm: { span: 14 },
+              sm: { span: 18 },
             },
         };
         return (
@@ -107,7 +107,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择类型',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                     <Option value="14">Kafka</Option>
                             </Select>
                         )}
@@ -121,7 +123,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择数据源',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                 {
                                     originOptionTypes
                                 }
@@ -137,7 +141,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择Topic',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                 {
                                     topicOptionTypes
                                 }
@@ -159,22 +165,23 @@ class InputOrigin extends Component {
                             <Input  placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         )}
                     </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="字段"
-                    >
-                    </FormItem>
-                    <Col style={{marginBottom: 20,height: 200}}>
-                        <Editor 
-                            style={{height: 200}}
-                            key="params-editor"
-                            sync={sync}
-                            placeholder="字段:类型, 比如id:int 一行一个字段"
-                            // options={jsonEditorOptions}
-                            value={panelColumn[index].columnsText}
-                            onChange={this.editorParamsChange.bind(this)}
-                        />
-                    </Col>
+                    <Row>
+                        <Col span="6">
+                            <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
+                        </span>
+                        </Col>
+                        <Col span="18" style={{marginBottom: 20,height: 200}}>
+                            <Editor 
+                                style={{height: 200}}
+                                key="params-editor"
+                                sync={sync}
+                                placeholder="字段:类型, 比如id:int 一行一个字段"
+                                // options={jsonEditorOptions}
+                                value={panelColumn[index].columnsText}
+                                onChange={this.editorParamsChange.bind(this)}
+                            />
+                        </Col>
+                    </Row>
                     {/* <Col style={{marginBottom: 20}}>
                         <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                             <Column
@@ -232,7 +239,9 @@ class InputOrigin extends Component {
                                         {required: true, message: '请选择时间列',}
                                     ],
                                 })(
-                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}>
+                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}
+                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
                                            {
                                               eventTimeOptionType
                                            }
@@ -581,12 +590,13 @@ export default class InputPanel extends Component {
         }
         panelColumn[index][type] = value;
         if(type==="type"){
-            this.clearCurrentInfo(type,index)
+            //this.clearCurrentInfo(type,index)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            this.clearCurrentInfo(type,index)
+            //this.clearCurrentInfo(type,index)
             this.getTopicType(index,value);
         }
+        console.log('panelColumn[index]---handleInputChange:',panelColumn[index]);
         this.setCurrentSource({panelColumn})
         this.setState({
             panelColumn,
@@ -594,7 +604,7 @@ export default class InputPanel extends Component {
     }
 
     clearCurrentInfo = (type,index,value) => {
-        const { panelColumn } = this.state;
+        const { panelColumn,topicOptionType,originOptionType } = this.state;
         const inputData = {
             type: undefined,
             sourceId: undefined,
@@ -609,12 +619,17 @@ export default class InputPanel extends Component {
         if(type==="type"){
             inputData.type = value;
             panelColumn[index] = inputData;
+            topicOptionType[index] = [];
+            originOptionType[index] = []
         }else if(type==="sourceId"){
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
+            panelColumn[index] = inputData;
+            topicOptionType[index] = [];
         }
-        this.setCurrentSource({panelColumn})
-        this.setState(panelColumn);
+        console.log('panelColumn[index]---:clearCurrentInfo',panelColumn[index]);
+        this.setCurrentSource({panelColumn,topicOptionType,originOptionType})
+        this.setState({panelColumn,topicOptionType,originOptionType});
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
@@ -669,11 +684,11 @@ export default class InputPanel extends Component {
         const { tabTemplate,panelActiveKey,panelColumn,timeColumoption,topicOptionType,originOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
+                <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
                     {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
-                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
+                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
                                     <InputForm  
                                         sync={this._syncEditor} index={index} key={index+1} 
                                         handleInputChange={this.handleInputChange} panelColumn={panelColumn} 

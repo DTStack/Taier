@@ -92,7 +92,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择存储类型',}
                         ],
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                 <Option value="1">Mysql</Option>
                                 {/* <Option value="8">HBase</Option>
                                 <Option value="11">ElasticSearch</Option> */}
@@ -109,7 +111,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择数据源',}
                         ],
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                {
                                    originOptionTypes
                                }
@@ -126,7 +130,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择表',}
                         ],
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}>
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                 {
                                     tableOptionTypes
                                 }
@@ -163,7 +169,9 @@ class OutputOrigin extends Component {
                             width='40%'
                             render={(text,record,subIndex)=>{
                                 return (
-                                    <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
+                                    <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
+                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
                                         {
                                             mysqlOptionType
                                         }
@@ -199,7 +207,9 @@ class OutputOrigin extends Component {
                             {required: true, message: '请选择缓存策略',}
                         ],
                     })(
-                        <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("cache",index,v)}}>
+                        <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("cache",index,v)}}
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
                                 <Option key="None" value="None">None</Option>
                                 <Option key="LRU" value="LRU">LRU</Option>
                         </Select>
@@ -564,10 +574,10 @@ export default class OutputPanel extends Component {
             panelColumn[index][type] = value;
         }
         if(type==="type"){
-            this.clearCurrentInfo(type,index,value)
+            //this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            this.clearCurrentInfo(type,index,value)
+            //this.clearCurrentInfo(type,index,value)
             this.getTableType(index,value)
         }
         this.setOutputData({panelColumn})
@@ -577,7 +587,7 @@ export default class OutputPanel extends Component {
     }
 
     clearCurrentInfo = (type,index,value) => {
-        const { panelColumn } = this.state;
+        const { panelColumn, originOptionType, tableOptionType } = this.state;
         const inputData = {
             type: undefined,
             columns: [],
@@ -592,12 +602,16 @@ export default class OutputPanel extends Component {
         if(type==="type"){
             inputData.type = value;
             panelColumn[index] = inputData;
+            originOptionType[index] = [];
+            tableOptionType[index] = [];
         }else if(type==="sourceId"){
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
+            panelColumn[index] = inputData;
+            tableOptionType[index] = [];
         }
-        this.setOutputData({panelColumn})
-        this.setState(panelColumn);
+        this.setOutputData({panelColumn,originOptionType,tableOptionType})
+        this.setState({panelColumn,originOptionType,tableOptionType});
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
@@ -652,11 +666,11 @@ export default class OutputPanel extends Component {
         const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
+                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey}>
                     {
                         tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
-                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
+                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
                                     <OutputForm 
                                         index={index} 
                                         handleInputChange={this.handleInputChange}

@@ -184,7 +184,7 @@ export default class TaskQuery extends Component {
             currentPage: page.current,
             statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
             alarmSort: undefined,
-            trigFilter: filter.trigMode && filter.trigMode.length > 0 ?filter.trigMode.join(',') : undefined,
+            trigMode: filter.trigMode && filter.trigMode.length > 0 ?filter.trigMode.join(',') : undefined,
             executeTimeSort: undefined,
         };
 
