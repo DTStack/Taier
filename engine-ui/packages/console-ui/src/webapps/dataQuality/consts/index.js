@@ -14,6 +14,16 @@ export const ALARM_TYPE = {
     DINGDING: "4",
 }
 
+//触发方式
+export const TRIG_MODE = {
+    LOOP: 0,
+    HAND: 1,
+}
+export const TRIG_MODE_TEXT = {
+    [TRIG_MODE.LOOP]: "周期",
+    [TRIG_MODE.HAND]: "手动",
+}
+
 // 数据源类型
 export const DATA_SOURCE = {
     MYSQL: 1,
@@ -66,13 +76,13 @@ export const CHECK_STATUS_CN = [{
 }]
 
 export const dataSourceTypes = [ // 数据源类型
-    '未知类型', 
-    'MySQL', 
-    'Oracle', 
-    'SQLServer', 
-    'PostgreSQL', 
-    'RDBMS', 
-    'HDFS', 
+    '未知类型',
+    'MySQL',
+    'Oracle',
+    'SQLServer',
+    'PostgreSQL',
+    'RDBMS',
+    'HDFS',
     'Spark',
     'HBase',
     'FTP',
@@ -97,11 +107,11 @@ export const dataSourceFilter = [{
 }]
 
 export const periodType = [ // 调度类型
-    '未知类型', 
-    '小时', 
-    '天', 
-    '周', 
-    '月', 
+    '未知类型',
+    '小时',
+    '天',
+    '周',
+    '月',
     '手动触发'
 ]
 
@@ -168,7 +178,7 @@ export const alarmDateFilter = [{
 export const taskStatusFilter = [{
     text: '等待运行',
     value: TASK_STATUS.WAIT_RUN,
-},{
+}, {
     text: '运行中',
     value: TASK_STATUS.RUNNING,
 }, {
@@ -218,7 +228,7 @@ export const tailFormItemLayout = { // 表单末尾布局
 }
 
 // 不显示label
-export const rowFormItemLayout = { 
+export const rowFormItemLayout = {
     labelCol: { span: 0 },
     wrapperCol: { span: 24 },
 }
@@ -231,7 +241,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         },
         textAlign: 'left',
     },
-    tooltip : {
+    tooltip: {
         trigger: 'axis',
         axisPointer: {
             label: {
@@ -241,7 +251,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     },
     color: ['#2491F7', '#7460EF', '#26DAD2', '#79E079', '#7A64F3', '#FFDC53', '#9a64fb'],
     legend: {
-        data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
     },
     toolbox: {
         feature: {
@@ -256,11 +266,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
         bottom: '3%',
         containLabel: true
     },
-    xAxis : [
+    xAxis: [
         {
-            type : 'category',
-            boundaryGap : false,
-            data : [],
+            type: 'category',
+            boundaryGap: false,
+            data: [],
             axisTick: {
                 show: true,
             },
@@ -282,9 +292,9 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    yAxis : [
+    yAxis: [
         {
-            type : 'value',
+            type: 'value',
             axisLabel: {
                 formatter: '{value} 个',
                 textStyle: {
@@ -311,5 +321,5 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             }
         }
     ],
-    series : []
+    series: []
 };
