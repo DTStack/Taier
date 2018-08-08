@@ -48,6 +48,8 @@ public class ParamAction {
 	 * 0 是从web端发起，1是有内部节点发起，如果是1就会直接执行不会再判断node运行的task任务在进行路由选择
 	 */
 	private Integer requestStart = 0;
+
+	private Integer sourceType;
 	
 	
 	public Integer getRequestStart() {
@@ -154,6 +156,14 @@ public class ParamAction {
 
 	public void setPluginInfo(Map<String, Object> pluginInfo) {
 		this.pluginInfo = pluginInfo;
+	}
+
+	public Integer getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(Integer sourceType) {
+		this.sourceType = sourceType;
 	}
 
 	@Override

@@ -325,6 +325,7 @@ public class ActionServiceImpl {
             if(rdosEngineBatchJob == null){
                 rdosEngineBatchJob = new RdosEngineBatchJob();
                 rdosEngineBatchJob.setJobId(jobId);
+                rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
                 rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                 batchJobDAO.insert(rdosEngineBatchJob);
                 result =  true;

@@ -14,6 +14,7 @@ public enum SourceType {
     FILL(1),
     //临时查询
     TEMP_QUERY(2);
+
     Integer type;
     SourceType(int type){
         this.type = type;
