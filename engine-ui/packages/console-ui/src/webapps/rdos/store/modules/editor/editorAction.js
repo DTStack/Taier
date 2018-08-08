@@ -43,6 +43,7 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
             (res) => {
                 //获取到返回值
                 if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+                if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
                 //状态正常
                 if (res && res.code === 1) {
 
