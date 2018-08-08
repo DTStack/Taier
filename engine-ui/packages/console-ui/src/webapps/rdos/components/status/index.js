@@ -98,14 +98,14 @@ export function OfflineTaskStatus(props) {
                 运行失败
             </span>
         case 9:
-                return <span color="red">
-                    <Circle style={{ background: '#EF5350' }} />&nbsp;
-                    提交失败
+            return <span color="red">
+                <Circle style={{ background: '#EF5350' }} />&nbsp;
+                提交失败
                 </span>
         case 21:
-                return <span color="red">
-                    <Circle style={{ background: '#EF5350' }} />&nbsp;
-                    上游失败
+            return <span color="red">
+                <Circle style={{ background: '#EF5350' }} />&nbsp;
+                上游失败
                 </span>
         case 10:
             return <span color="green">
@@ -226,20 +226,24 @@ export function TaskType(props) {
         case TASK_TYPE.VIRTUAL_NODE:
             return <span>虚节点</span>
         case TASK_TYPE.MR:
-            return <span>MR</span>
+            return <span>Spark</span>
         case TASK_TYPE.SYNC:
             return <span>数据同步</span>
         case TASK_TYPE.PYTHON:
-            return <span>spark Python</span>
+            return <span>PySpark</span>
         case TASK_TYPE.DEEP_LEARNING:
             return <span>深度学习</span>
         case TASK_TYPE.PYTHON_23:
-            return <span>python</span>
+            return <span>Python</span>
         case TASK_TYPE.SHELL:
             return <span>Shell</span>
+        case TASK_TYPE.ML:
+            return <span>机器学习</span>
+        case TASK_TYPE.HAHDOOPMR:
+            return <span>HadoopMR</span>
         case TASK_TYPE.SQL:
         default:
-            return <span>SQL</span>
+            return <span>SparkSQL</span>
     }
 }
 

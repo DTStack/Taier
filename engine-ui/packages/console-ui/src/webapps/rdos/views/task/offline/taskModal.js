@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip,message } from 'antd';
+import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip, message } from 'antd';
 
 import ajax from '../../../api';
 
@@ -44,7 +44,7 @@ class TaskForm extends React.Component {
         const { defaultData } = this.props;
         this.loadTaskTypes();
         this.setState({
-            operateModel: (defaultData&&defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
+            operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
     // componentWillReceiveProps(nextProps){
@@ -135,7 +135,9 @@ class TaskForm extends React.Component {
         const isSyncTast = value == TASK_TYPE.SYNC
         const isDeepLearning = value == TASK_TYPE.DEEP_LEARNING
         const isPython23 = value == TASK_TYPE.PYTHON_23
-        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : (isPyTask||isPython23||isDeepLearning) ? RESOURCE_TYPE.PY : '';
+        const isMl = value == TASK_TYPE.ML;
+        const isHadoopMR = value == TASK_TYPE.HAHDOOPMR;
+        const acceptType = (isMl||isHadoopMR||isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
         return (
             <Form>
@@ -178,8 +180,14 @@ class TaskForm extends React.Component {
                     )}
                     {isMrTask && <Tooltip title={(
                         <div>
+                            <p>支持基于Spark API的Java、Scala处理程序</p>
+                        </div>
+                    )}>
+                        <Icon className="formItem_inline_icon" type="question-circle-o" />
+                    </Tooltip>}
+                    {isMl&&<Tooltip title={(
+                        <div>
                             <p>支持基于Spark MLLib的机器学习任务</p>
-                            <p>支持基于Spark API的Java处理程序</p>
                         </div>
                     )}>
                         <Icon className="formItem_inline_icon" type="question-circle-o" />
@@ -294,7 +302,7 @@ class TaskForm extends React.Component {
                     )
                 }
                 {
-                    (isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
+                    (isHadoopMR||isMl||isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
                             label="资源"
@@ -323,7 +331,7 @@ class TaskForm extends React.Component {
                             />
                         </FormItem>
                         {
-                            isMrTask && <FormItem
+                            (isHadoopMR||isMl||isMrTask) && <FormItem
                                 {...formItemLayout}
                                 label="mainClass"
                                 hasFeedback
@@ -341,7 +349,7 @@ class TaskForm extends React.Component {
                                 )}
                             </FormItem>
                         }
-                        {(isMrTask || isPyTask) && <FormItem
+                        {(isHadoopMR||isMl||isMrTask || isPyTask) && <FormItem
                             {...formItemLayout}
                             label="参数"
                             hasFeedback
@@ -497,8 +505,8 @@ class TaskModal extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state={
-            loading:false
+        this.state = {
+            loading: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -529,12 +537,12 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
                 this.setState({
-                    loading:true
+                    loading: true
                 })
                 addOfflineTask(values, isEditExist, defaultData)
                     .then(isSuccess => {
                         this.setState({
-                            loading:false
+                            loading: false
                         })
                         if (isSuccess) {
                             message.success("操作成功")
@@ -559,7 +567,7 @@ class TaskModal extends React.Component {
 
     render() {
         const { isModalShow, taskTreeData, resourceTreeData, defaultData } = this.props;
-        const {loading} = this.state;
+        const { loading } = this.state;
         let isCreate = true;
         if (defaultData && defaultData.name) {
             isCreate = false;
@@ -647,7 +655,7 @@ export default connect(state => {
                                     }
                                 });
                             }
-                            benchActions.loadTreeNode(res.data.parentId,MENU_TYPE.TASK_DEV)
+                            benchActions.loadTreeNode(res.data.parentId, MENU_TYPE.TASK_DEV)
                             return true;
                         }
                     });
