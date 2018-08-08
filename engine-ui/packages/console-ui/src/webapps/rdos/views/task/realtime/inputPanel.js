@@ -88,11 +88,11 @@ class InputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
-              sm: { span: 8 },
+              sm: { span: 6 },
             },
             wrapperCol: {
               xs: { span: 24 },
-              sm: { span: 14 },
+              sm: { span: 18 },
             },
         };
         return (
@@ -165,22 +165,23 @@ class InputOrigin extends Component {
                             <Input  placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         )}
                     </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="字段"
-                    >
-                    </FormItem>
-                    <Col style={{marginBottom: 20,height: 200}}>
-                        <Editor 
-                            style={{height: 200}}
-                            key="params-editor"
-                            sync={sync}
-                            placeholder="字段:类型, 比如id:int 一行一个字段"
-                            // options={jsonEditorOptions}
-                            value={panelColumn[index].columnsText}
-                            onChange={this.editorParamsChange.bind(this)}
-                        />
-                    </Col>
+                    <Row>
+                        <Col span="6">
+                            <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
+                        </span>
+                        </Col>
+                        <Col span="18" style={{marginBottom: 20,height: 200}}>
+                            <Editor 
+                                style={{height: 200}}
+                                key="params-editor"
+                                sync={sync}
+                                placeholder="字段:类型, 比如id:int 一行一个字段"
+                                // options={jsonEditorOptions}
+                                value={panelColumn[index].columnsText}
+                                onChange={this.editorParamsChange.bind(this)}
+                            />
+                        </Col>
+                    </Row>
                     {/* <Col style={{marginBottom: 20}}>
                         <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                             <Column
@@ -589,10 +590,10 @@ export default class InputPanel extends Component {
         }
         panelColumn[index][type] = value;
         if(type==="type"){
-            this.clearCurrentInfo(type,index)
+            //this.clearCurrentInfo(type,index)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            this.clearCurrentInfo(type,index)
+            //this.clearCurrentInfo(type,index)
             this.getTopicType(index,value);
         }
         console.log('panelColumn[index]---handleInputChange:',panelColumn[index]);
@@ -683,11 +684,11 @@ export default class InputPanel extends Component {
         const { tabTemplate,panelActiveKey,panelColumn,timeColumoption,topicOptionType,originOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
+                <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
                     {
                         tabTemplate.map( (InputPutOrigin,index) => {
                             return  (
-                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
+                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
                                     <InputForm  
                                         sync={this._syncEditor} index={index} key={index+1} 
                                         handleInputChange={this.handleInputChange} panelColumn={panelColumn} 
