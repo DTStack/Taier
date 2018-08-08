@@ -195,6 +195,7 @@ class TargetForm extends React.Component {
     }
     createTable() {
         const { textSql } = this.state;
+        const {targetMap} =  this.props;
         this.setState({
             modalLoading:true
         })
@@ -203,9 +204,11 @@ class TargetForm extends React.Component {
                 modalLoading:false
             })
             if (res.code === 1) {
+                this.getTableList(targetMap.sourceId)
+                this.changeTable(res.data.tableName);
+                this.props.form.setFieldsValue({table:res.data.tableName})
                 this.setState({
-                    visible: false,
-                    tableList: [res.data]
+                    visible: false
                 })
                 message.success('表创建成功!')
             }
