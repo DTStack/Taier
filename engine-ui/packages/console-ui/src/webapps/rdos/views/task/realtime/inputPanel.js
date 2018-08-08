@@ -155,11 +155,7 @@ class InputOrigin extends Component {
                             </span>
                             )}
                     >
-                        {getFieldDecorator('table', {
-                            rules: [
-                                {required: true, message: '请输入映射表名',}
-                            ],
-                        })(
+                        {getFieldDecorator('table')(
                             <Input  placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table',index,e.target.value)}/>
                         )}
                     </FormItem>
@@ -250,7 +246,7 @@ class InputOrigin extends Component {
                                 {...formItemLayout}
                                 label={(
                                     <span >
-                                        偏移量(毫秒)&nbsp;
+                                        偏移量(ms)&nbsp;
                                         <Tooltip title="watermark值与event time值的偏移量">
                                             <Icon type="question-circle-o" /> 
                                         </Tooltip>
@@ -566,7 +562,7 @@ export default class InputPanel extends Component {
         })
     }
       
-    handleInputChange = (type,index,value,subValue) => {//监听数据改变
+    handleInputChange = (type,index,value) => {//监听数据改变
         const { panelColumn } = this.state;
         // if(type === 'columns'){
         //     panelColumn[index][type].push(value);
@@ -585,14 +581,40 @@ export default class InputPanel extends Component {
         }
         panelColumn[index][type] = value;
         if(type==="type"){
+            this.clearCurrentInfo(type,index)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
+            this.clearCurrentInfo(type,index)
             this.getTopicType(index,value);
         }
         this.setCurrentSource({panelColumn})
         this.setState({
             panelColumn,
         })
+    }
+
+    clearCurrentInfo = (type,index,value) => {
+        const { panelColumn } = this.state;
+        const inputData = {
+            type: undefined,
+            sourceId: undefined,
+            topic: undefined,
+            table: undefined,
+            timeType: 1,
+            timeColumn: undefined,
+            offset: 0,
+            columnsText: undefined,
+            parallelism: 1,
+        }
+        if(type==="type"){
+            inputData.type = value;
+            panelColumn[index] = inputData;
+        }else if(type==="sourceId"){
+            inputData.type = panelColumn[index]['type']
+            inputData.sourceId = value;
+        }
+        this.setCurrentSource({panelColumn})
+        this.setState(panelColumn);
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
