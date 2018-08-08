@@ -673,9 +673,10 @@ export const workbenchActions = (dispatch, ownProps) => {
             });
         },
 
-        toggleCreateTask: function () {
+        toggleCreateTask: function (data) {
             dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK
+                type: modalAction.TOGGLE_CREATE_TASK,
+                payload: data,
             });
         },
 

@@ -99,7 +99,9 @@ export const TASK_TYPE = { // 任务类型
     DEEP_LEARNING:5,
     PYTHON_23:6,
     SHELL:7,
-    WORKFLOW: 8, // 工作流
+    ML:8,
+    HAHDOOPMR: 9,
+    WORKFLOW: 10, // 工作流
 }
 
 export const LEARNING_TYPE={//深度学习框架
@@ -318,11 +320,11 @@ export const offlineTaskTypeFilter = [
         value: TASK_TYPE.VIRTUAL_NODE,
     }, {
         id: 1,
-        text: 'SQL',
+        text: 'SparkSQL',
         value: TASK_TYPE.SQL,
     }, {
         id: 2,
-        text: 'MR',
+        text: 'Spark',
         value: TASK_TYPE.MR,
     }, {
         id: 3,
@@ -344,6 +346,14 @@ export const offlineTaskTypeFilter = [
         id: 8,
         text: 'Shell',
         value: TASK_TYPE.SHELL,
+    },{
+        id: 9,
+        text: '机器学习',
+        value: TASK_TYPE.ML,
+    },{
+        id: 10,
+        text: 'HadoopMR',
+        value: TASK_TYPE.HAHDOOPMR,
     }]
 
 export const offlineTaskPeriodFilter = [{

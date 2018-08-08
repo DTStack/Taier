@@ -349,13 +349,15 @@ class SourceForm extends React.Component {
         const { showPreview } = this.state;
         const { form } = this.props;
         const sourceId = form.getFieldValue('sourceId');
-        const tableName = form.getFieldValue('table');
+        let tableName = form.getFieldValue('table');
 
         if (!sourceId || !tableName) {
             message.error('数据源或表名缺失');
             return;
         }
-
+        if(tableName instanceof Array){
+            tableName=tableName[0];
+        }
         if (!showPreview) {
             ajax.getDataPreview({
                 sourceId, tableName

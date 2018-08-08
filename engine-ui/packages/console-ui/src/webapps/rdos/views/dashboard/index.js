@@ -133,11 +133,15 @@ class Index extends Component {
         const title = <div>
             <Row>
                 <Col span="20" >
-                    <Link to={`/offline/task?projectId=${data.id}`}>
-                        <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
-                            {data.projectAlias}&nbsp;&nbsp;
+                    {data.status == 1 ? (
+                        <Link to={`/offline/task?projectId=${data.id}`}>
+                            <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
+                                {data.projectAlias}&nbsp;&nbsp;
                         </span>
-                    </Link>
+                        </Link>
+                    ) : (<span className="company-name no-hover">
+                        {data.projectAlias}&nbsp;&nbsp;
+                </span>)}
                     {this.renderTitleText(data)}
                 </Col>
                 <Col span="4">
@@ -153,7 +157,7 @@ class Index extends Component {
                 return (
                     <span>
                         <Icon type="loading" style={{ fontSize: 14, color: "#2491F7", paddingLeft: 16 }} />
-                        <span style={{ color: '#999', paddingLeft:"8px" }}>创建中</span>
+                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建中</span>
                     </span>
                 )
             }
@@ -169,7 +173,7 @@ class Index extends Component {
                 return (
                     <span>
                         <Icon type="close-circle" style={{ fontSize: 14, color: "#f00", paddingLeft: 16 }} />
-                        <span style={{ color: '#999',paddingLeft:"8px" }}>创建失败</span>
+                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建失败</span>
                     </span>
                 )
             }
@@ -261,17 +265,25 @@ class Index extends Component {
                                                     </Col>
                                                     <Col span="8">
                                                         <div style={{ fontSize: 14 }}>今日任务失败数</div>
-                                                        <div className="number" onClick={() => { this.setRouter('operation', v) }}>
-                                                            {
-                                                                v.jobSum ? <span>{v.jobSum}</span> :
-                                                                    <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
-                                                            }
-                                                        </div>
-
+                                                        {v.status != 1 ? (
+                                                            <div className="number no-hover">
+                                                                {
+                                                                    v.jobSum ? <span>{v.jobSum}</span> :
+                                                                        <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
+                                                                }
+                                                            </div>
+                                                        ) : (
+                                                                <div className="number" onClick={() => { this.setRouter('operation', v) }}>
+                                                                    {
+                                                                        v.jobSum ? <span>{v.jobSum}</span> :
+                                                                            <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
+                                                                    }
+                                                                </div>
+                                                            )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {
-                                                            v.status == 2 || v.status == 3 ? "" : <Row >
+                                                            v.status != 1 ? "" : <Row >
                                                                 <Col span="8">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('offline', v) }}

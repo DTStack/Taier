@@ -24,8 +24,10 @@ class NormalTaskForm extends React.Component {
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
         const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
+        const isMl = taskType == TASK_TYPE.ML;
+        const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
 
-        const acceptType = isMrTask ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
+        const acceptType = (isMl||isHadoopMR||isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
 
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;

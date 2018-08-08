@@ -18,14 +18,20 @@ const initModalState = {
     fnViewModal: false,
     resId: undefined,
     fnId: undefined,
-    moveFnData: undefined
+    moveFnData: undefined,
+    taskType: '',
+    createOrigin: {
+        name: undefined,
+        data: undefined,
+    },
 };
 
 export const modalShowReducer = (state = initModalState, action) => {
     switch(action.type) {
         case modalAction.TOGGLE_CREATE_TASK:
             return assign({}, state, {
-                createTask: !state.createTask
+                createTask: !state.createTask,
+                createOrigin: action.payload,
             });
 
         case modalAction.TOGGLE_CREATE_SCRIPT:
