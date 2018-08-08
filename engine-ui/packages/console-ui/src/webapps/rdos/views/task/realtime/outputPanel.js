@@ -656,7 +656,7 @@ export default class OutputPanel extends Component {
             //this.parseColumnsText(index,value)
         }
         if(type==="type"){
-            this.clearCurrentInfo(type,index,value)
+           // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             if(panelColumn[index].type=='1'){
@@ -753,11 +753,11 @@ export default class OutputPanel extends Component {
         const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} className="input-panel">
+                <Collapse activeKey={panelActiveKey}  onChange={this.handleActiveKey} >
                     {
                         tabTemplate.map( (OutputPutOrigin,index) => {
                             return  (
-                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}}>
+                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
                                     <OutputForm 
                                         sync={this._syncEditor}
                                         index={index} 
