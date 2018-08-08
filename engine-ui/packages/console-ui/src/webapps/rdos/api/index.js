@@ -311,7 +311,9 @@ export default {
     getSyncTemplate(params){
         return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
     },
-
+    getCreateTargetTable(params){
+        return http.post(req.GET_CREATE_TARGET_TABLE,params)
+    },
     // =========== 脚本模块 ==================//
     saveScript(params) {
         return http.post(offlineReq.SAVE_SCRIPT, params)

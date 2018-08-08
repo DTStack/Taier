@@ -46,7 +46,7 @@ class SourceForm extends React.Component {
     componentDidMount() {
         const { sourceMap, isCurrentTabNew } = this.props;
         const { sourceList } = sourceMap;
-        if (sourceList && isCurrentTabNew) {
+        if (sourceList) {
             for (let i = 0; i < sourceList.length; i++) {
                 let source = sourceList[i];
                 if (source.sourceId != null) {
@@ -92,6 +92,12 @@ class SourceForm extends React.Component {
     }
 
     getTableColumn(tableName) {
+        if (tableName instanceof Array) {
+            tableName = tableName[0];
+        }
+        if (!tableName) {
+            return;
+        }
         const { form, handleTableColumnChange } = this.props;
         const { sourceMap } = this.props
 
@@ -164,6 +170,7 @@ class SourceForm extends React.Component {
     }
 
     changeTable(value) {
+        console.log(value);
         if (value) {
             this.getTableColumn(value);
         }
@@ -458,10 +465,10 @@ class SourceForm extends React.Component {
                                     required: true,
                                     message: '数据源表为必选项！'
                                 }],
-                                initialValue: source.tables[0]
+                                initialValue: source.tables
                             })(
                                 <Select
-                                    mode="combobox"
+                                    mode="tags"
                                     showSearch
                                     showArrow={true}
                                     onChange={this.debounceExtTableSearch.bind(this, source.key)}
@@ -475,6 +482,9 @@ class SourceForm extends React.Component {
                                     })}
                                 </Select>
                             )}
+                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
                         </FormItem>}
                     </div>
                 )
@@ -506,10 +516,10 @@ class SourceForm extends React.Component {
                                 required: true,
                                 message: '数据源表为必选项！'
                             }],
-                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
+                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary?sourceMap.sourceList[0].tables:sourceMap.type.table
                         })(
                             <Select
-                                mode="combobox"
+                                mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
                                 onChange={this.debounceTableSearch.bind(this)}

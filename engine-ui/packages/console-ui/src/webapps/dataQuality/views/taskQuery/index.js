@@ -9,7 +9,7 @@ import TaskDetailPane from './taskDetailPane';
 import TaskTablePane from './taskTablePane';
 
 import { TaskStatus } from '../../components/display';
-import { TASK_STATUS } from '../../consts';
+import { TASK_STATUS, TRIG_MODE_TEXT, TRIG_MODE } from '../../consts';
 import { taskStatusFilter } from '../../consts';
 import { taskQueryActions } from '../../actions/taskQuery';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -48,7 +48,7 @@ export default class TaskQuery extends Component {
             executeStartTime: utils.getParameterByName('startTime') || undefined,
             executeEndTime: utils.getParameterByName('endTime') || undefined,
             bizTime: 0,
-            statusFilter:utils.getParameterByName('statusFilter')||""
+            statusFilter: utils.getParameterByName('statusFilter') || ""
         },
         tabKey: '1',
         showSlidePane: false,
@@ -66,14 +66,14 @@ export default class TaskQuery extends Component {
         let title = '';
         let icon = 'close-circle-o';
         if (status === TASK_STATUS.FAIL) {
-            title = <a 
-            className="tooltip_content_a" 
-            onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>
-                { record.logInfo || '空' }
+            title = <a
+                className="tooltip_content_a"
+                onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>
+                {record.logInfo || '空'}
             </a>;
         } else if (status === TASK_STATUS.UNPASS) {
             title = <span
-                className="tooltip_content_a" 
+                className="tooltip_content_a"
             >
                 {record.logInfo || '空'}&nbsp;
                 <a onClick={this.openSlidePane.bind(this, record)}>查看详情</a>
@@ -120,7 +120,7 @@ export default class TaskQuery extends Component {
             render: (status, record) => {
                 return <div>
                     <TaskStatus style={{ display: 'inline-block', width: '80px' }} value={status} />
-                    { this.renderLogInfo(status, record) }
+                    {this.renderLogInfo(status, record)}
                 </div>
             },
             filters: taskStatusFilter,
@@ -143,10 +143,26 @@ export default class TaskQuery extends Component {
             },
             width: '15%'
         }, {
+            title: "触发方式",
+            dataIndex: 'trigMode',
+            key: 'trigMode',
+            width: "80px",
+            render(text) {
+                return TRIG_MODE_TEXT[text];
+            },
+            filters: [{
+                text: TRIG_MODE_TEXT[TRIG_MODE.LOOP],
+                value: TRIG_MODE.LOOP,
+            }, {
+                text: TRIG_MODE_TEXT[TRIG_MODE.HAND],
+                value: TRIG_MODE.HAND,
+            }],
+            filterMultiple:false
+        }, {
             title: '配置人',
             dataIndex: 'configureUserName',
             key: 'configureUserName',
-            width: '12%'
+            width: '150px'
         },
         {
             title: '执行时间',
@@ -168,6 +184,7 @@ export default class TaskQuery extends Component {
             currentPage: page.current,
             statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
             alarmSort: undefined,
+            trigFilter: filter.trigMode && filter.trigMode.length > 0 ?filter.trigMode.join(',') : undefined,
             executeTimeSort: undefined,
         };
 
@@ -175,8 +192,8 @@ export default class TaskQuery extends Component {
             params[
                 field === 'alarmSum' ? 'alarmSort' : 'executeTimeSort'
             ] = order === 'descend' ? 'desc' : 'asc';
-        }else{
-            params.alarmSort =  params.executeTimeSort = undefined;
+        } else {
+            params.alarmSort = params.executeTimeSort = undefined;
         }
 
         this.props.getTaskList(params);
@@ -414,7 +431,7 @@ export default class TaskQuery extends Component {
                         defaultValue={defaultRangeValue}
                         format="YYYY-MM-DD"
                         placeholder={["开始日期", "结束日期"]}
-                        style={{ width: 200, "verticalAlign": "middle", "marginTop":"-1px" }}
+                        style={{ width: 200, "verticalAlign": "middle", "marginTop": "-1px" }}
                         disabledDate={this.disabledDate}
                         onChange={this.onExecuteTimeChange}
                     />

@@ -155,9 +155,9 @@ const sourceMap = (state = {}, action) => {
                     let source = clone.sourceList[i];
                     if (key == source.key) {
                         if (key == "main") {
-                            source.tables = [table]
+                            source.tables = table
                         }else{
-                            source.tables = [extTable[key]]
+                            source.tables = extTable[key]
                         } 
                     }
                 }
