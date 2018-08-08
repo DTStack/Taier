@@ -59,6 +59,7 @@
      GET_TYPE_ORIGIN_DATA: `${RDOS_BASE_URL}/stream/streamDataSource/listDataSourceBaseInfo`,//获取类型数据源
      GET_TOPIC_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/getKafkaTopics`,//获取Topic
      GET_STREM_TABLE_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/tablelist`,//获取数据源列表
+     GET_CREATE_TARGET_TABLE:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/getCreateTargetTableSql`,//获取目标表创建sql
  
      GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
      UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录
