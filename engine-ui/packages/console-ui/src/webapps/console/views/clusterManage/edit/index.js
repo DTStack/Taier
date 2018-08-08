@@ -547,6 +547,7 @@ class EditCluster extends React.Component {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == "view";
+        const isNew= !(mode=="view"||mode=="edit");
         const columns = this.initColumns();
 
         return (
@@ -570,7 +571,7 @@ class EditCluster extends React.Component {
                                     message: "集群标识不能超过64字符，支持英文、数字、下划线"
                                 }]
                             })(
-                                <Input disabled={isView} placeholder="请输入集群标识" style={{ width: "40%" }} />
+                                <Input disabled={!isNew} placeholder="请输入集群标识" style={{ width: "40%" }} />
                             )}
                             <span style={{ marginLeft: "30px" }}>节点数：{nodeNumber || '--'} </span>
                             <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>

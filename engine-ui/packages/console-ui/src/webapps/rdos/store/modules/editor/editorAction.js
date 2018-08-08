@@ -31,7 +31,7 @@ function getDataOver(dispatch, currentTab, res, jobId) {
     }
     dispatch(output(currentTab, '执行成功!'))
     if (res.data && res.data.download) {
-        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download,download:'' })}\n`))
+        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
     }
 }
 
@@ -43,8 +43,10 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
             (res) => {
                 //获取到返回值
                 if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+                if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
                 //状态正常
                 if (res && res.code === 1) {
+
                     switch (EXCHANGE_STATUS[res.data.status]) {
                         case "success": {
                             //成功
@@ -70,6 +72,9 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                         case "fail":
                         default: {
                             //同失败
+                            if (res.data && res.data.download) {
+                                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                            }
                             dispatch(removeLoadingTab(currentTab))
                             resolve(false)
                             return;

@@ -85,7 +85,7 @@ export default class RemoteTriggerPane extends Component {
             title: '触发规则数',
             dataIndex: 'ruleNumber',
             key: 'ruleNumber',
-            width: '8%',
+            width: "120px",
         }, {
             title: '触发接口',
             dataIndex: 'url',
@@ -344,6 +344,7 @@ export default class RemoteTriggerPane extends Component {
                         columns={this.initTriggerColumns()}
                         pagination={false}
                         dataSource={triggerList}
+                        scroll={{y:300}}
                     />
                 }
 
