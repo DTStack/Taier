@@ -2,13 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Tooltip, Spin, Icon, Button } from 'antd'
 
+import KeyEventListener from 'widgets/keyCombiner/listener'
+import KEY_CODE from 'widgets/keyCombiner/keyCode'
+
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
 
 import {
     workbenchActions,
-} from '../../../../store/modules/offlineTask/offlineAction';
+} from '../../../../store/modules/offlineTask/offlineAction'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -29,6 +32,8 @@ const {
     mxEdgeStyle,
     mxPerimeter,
     mxRubberband,
+    mxUndoManager,
+    mxGraphHandler,
     mxCompactTreeLayout,
     mxConnectionConstraint,
 } = Mx;
@@ -38,6 +43,8 @@ const VertexSize = { // vertex大小
     height: 36,
 }
 
+const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
+
 @connect(state => {
     const { offlineTask } = state;
     return {
@@ -46,38 +53,33 @@ const VertexSize = { // vertex大小
 }, workbenchActions )
 class WorkflowEditor extends Component {
 
-    state = {
-    }
+    state = {}
 
     componentDidMount() {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
         const editor = this.Container;
-        const currentTask = this.props.tabData;
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
     }
 
-    doInsertVertex = (data) => {
+    initGraphLayout = () => {
         const graph = this.graph;
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2
-        const cy = 200
-        this._vertexCells = []; // 用于缓存创建的顶点节点
-
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
         this.executeLayout = function(change, post) {
 
+            const parent = graph.getDefaultParent();
             model.beginUpdate();
 
             try {
                 const layout = new mxCompactTreeLayout(graph, false);
-                layout.orientation = 'north';
-                layout.disableEdgeStyle = false;
-                layout.interRankCellSpacing = 40;
-                layout.intraCellSpacing = 10;
+                layout.horizontal = false;
+                layout.useBoundingBox = false;
+                layout.edgeRouting = false;
+                layout.levelDistance = 30;
+                layout.nodeDistance = 10;
 
                 if (change != null) {
                     change();
@@ -90,12 +92,6 @@ class WorkflowEditor extends Component {
                 if (post != null) { post();}
             }
         }
-
-        this.executeLayout(() => {
-            this.loopTree(graph, data);
-        }, () => {
-            graph.view.setTranslate(cx, cy);
-        });
     }
 
     loadEditor = (container) => {
@@ -107,14 +103,19 @@ class WorkflowEditor extends Component {
         graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
+        graph.keepEdgesInBackground = true;
+        // 启用辅助线
+        mxGraphHandler.prototype.guidesEnabled = true;
         graph.setConnectable(true)
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
+
         // 禁止连接
-        graph.setConnectable(false)
+        // graph.setConnectable(false)
+
         // 禁止Edge对象移动
         graph.isCellsMovable = function(cell) {
             var cell = graph.getSelectionCell()
@@ -141,47 +142,11 @@ class WorkflowEditor extends Component {
 
         // enables rubberband
         new mxRubberband(graph)
-    }
 
-    initDraggableToolBar() {
-
-        const { taskTypes } = this.props;
-        const previewDragTarget = document.createElement('div');
-        previewDragTarget.style.border = '1px solid blue';
-        previewDragTarget.style.width = VertexSize.width + 'px';
-        previewDragTarget.style.height = VertexSize.height + 'px';
-
-        const ds1 = mxUtils.makeDraggable(
-            this.btn1, 
-            this.getUnderMouseGraph,
-            this.insertItemVertex,
-            previewDragTarget,
-            null,
-            null,
-            this.graph.autoscroll,
-            true,
-        );
-
-        const ds2 = mxUtils.makeDraggable(
-            this.btn2, 
-            this.getUnderMouseGraph,
-            this.insertItemVertex,
-            previewDragTarget,
-            null,
-            null,
-            this.graph.autoscroll,
-            true,
-        );
-
-        ds1.isGuidesEnabled = () => {
-            return this.graph.graphHandler.guidesEnabled;
-        };
-        ds1.createDragElement = mxDragSource.prototype.createDragElement;
-        
-        ds2.isGuidesEnabled = () => {
-            return this.graph.graphHandler.guidesEnabled;
-        };
-        ds2.createDragElement = mxDragSource.prototype.createDragElement;
+        // Initial draggable elements
+        this.initDraggableToolBar();
+        this.initGraphLayout();
+        this.initUndoManager();
     }
 
     getStyles = (type) => {
@@ -190,7 +155,7 @@ class WorkflowEditor extends Component {
 
     formatTooltip = (cell) => {
         const data = cell.getAttribute('data');
-        const task = data ? JSON.parse(data) : ''; 
+        const task = data ? JSON.parse(data) : '';
         return task ? task.name : ''
     }
 
@@ -224,15 +189,27 @@ class WorkflowEditor extends Component {
         this.graph.addListener(mxEvent.onClick, function(sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell) {
-                ctx.setState({ selectedTask: cell.data || '' })
+                ctx.setState({ selectedData: cell.data || '' })
             }
         })
     }
 
+    onkeyDown = (evt) => {
+        const keyCode = evt.keyCode;
+        const ctx = this;
+
+        switch(keyCode) {
+            case KEY_CODE.BACKUP: {
+                ctx.removeCell()
+                break;
+            }
+            default:
+        }
+    }
+
     insertItemVertex = (graph, evt, target, x, y) => {
 
-        const newCell = new mxCell(
-            'new Cell', new mxGeometry(0, 0, VertexSize.width,  VertexSize.height 
+        const newCell = new mxCell('新节点', new mxGeometry(0, 0, VertexSize.width, VertexSize.height 
         ))
         newCell.vertex = true;
 
@@ -254,23 +231,6 @@ class WorkflowEditor extends Component {
         return null;
     }
 
-    refresh = () => {
-        this.componentDidMount()
-    }
-
-    graphEnable() {
-        const status = this.graph.isEnabled()
-        this.graph.setEnabled(!status)
-    }
-
-    zoomIn = () => {
-        this.graph.zoomIn()
-    }
-
-    zoomOut = () => {
-        this.graph.zoomOut()
-    }
-
     removeCell(cells) {
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
@@ -288,15 +248,99 @@ class WorkflowEditor extends Component {
         })
     }
 
+    refresh = () => {
+        this.componentDidMount()
+    }
+
+    graphEnable() {
+        const status = this.graph.isEnabled()
+        this.graph.setEnabled(!status)
+    }
+
+    zoomIn = () => {
+        this.graph.zoomIn()
+    }
+
+    zoomOut = () => {
+        this.graph.zoomOut()
+    }
+
+    layout = () => {
+        this.executeLayout(null, () => {
+            this.graph.center();
+        });
+    }
+
+    undo = () => { // 撤销上一步
+        this.undoMana.undo()
+    }
+
+    initUndoManager() {
+        const undoManager = new mxUndoManager()
+        const graph = this.graph
+        this.undoMana = undoManager
+        const listener = function(sender, evt) {
+            undoManager.undoableEditHappened(evt.getProperty('edit'));
+        }
+        graph.getModel().addListener(mxEvent.UNDO, listener);
+        graph.getView().addListener(mxEvent.UNDO, listener);
+    }
+
+    initDraggableToolBar() {
+
+        const graph = this.graph;
+        const { taskTypes } = this.props;
+        const previewDragTarget = document.createElement('div');
+        previewDragTarget.style.width = VertexSize.width + 'px';
+        previewDragTarget.style.height = VertexSize.height + 'px';
+        previewDragTarget.className = 'preview-drag-vertex';
+        previewDragTarget.innerHTML = '新节点';
+
+        for (let i = 0; i < taskTypes.length; i++ ) {
+            const type = taskTypes[i];
+            const dragTarget = document.getElementById(`${WIDGETS_PREFIX}${type.key}`);
+            if (dragTarget) {
+                const draggabledEle = mxUtils.makeDraggable(
+                    dragTarget, 
+                    this.getUnderMouseGraph,
+                    this.insertItemVertex,
+                    previewDragTarget,
+                    null,
+                    null,
+                    graph.autoscroll,
+                    true,
+                );
+
+                draggabledEle.isGuidesEnabled = () => {
+                    return graph.graphHandler.guidesEnabled;
+                };
+                draggabledEle.createDragElement = mxDragSource.prototype.createDragElement;
+
+                // Double Click
+            }
+
+        }
+    }
+
     renderToolBar = () => {
         const { taskTypes } = this.props;
-        const toolBtns = taskTypes.map(item =>
-            <Button id={`JS_Widget_${item.key}`} key={item.key} value={item.key}>{item.value}</Button>
+        const widgets = taskTypes.map(item =>
+            <Button 
+                id={`${WIDGETS_PREFIX}${item.key}`} 
+                className="widgets-items" 
+                key={item.key} 
+                value={item.key}>{item.value}
+            </Button>
         )
 
         return (
-            <div className="graph-widgets">
-                { toolBtns }
+            <div className="graph-widgets bd">
+                <header className="widgets-header bd-bottom">
+                    节点组件
+                </header>
+                <div className="widgets-content">
+                    { widgets }
+                </div>
             </div>
         )
     }
@@ -305,30 +349,43 @@ class WorkflowEditor extends Component {
     render() {
 
         return (
-            <div className="graph-editor" 
-                style={{  position: 'relative', }}
+            <KeyEventListener 
+                onKeyDown={this.onkeyDown} 
             >
-                { this.renderToolBar() }
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
-                <Spin
-                    tip="Loading..."
-                    size="large"
-                    spinning={this.state.loading === 'loading'}
+
+                <div className="graph-editor" 
+                    style={{ 
+                        position: 'relative',
+                    }}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
-                </Spin>
-                <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="放大">
-                        <MyIcon onClick={this.zoomIn} type="zoom-in"/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="缩小">
-                        <MyIcon onClick={this.zoomOut} type="zoom-out"/>
-                    </Tooltip>
+                    { this.renderToolBar() }
+                    <div className="editor pointer graph-bg" ref={(e) => { this.Container = e }} />
+                    <Spin
+                        tip="Loading..."
+                        size="large"
+                        spinning={this.state.loading === 'loading'}
+                    >
+                        <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                    </Spin>
+                    <div className="graph-toolbar">
+                        <Tooltip placement="bottom" title="布局">
+                            <MyIcon type="flowchart" onClick={this.layout}/>
+                        </Tooltip>
+                        <Tooltip placement="bottom" title="撤销">
+                            <Icon type="rollback" onClick={this.undo}/>
+                        </Tooltip>
+                        <Tooltip placement="bottom" title="刷新">
+                            <Icon type="reload" onClick={this.refresh}/>
+                        </Tooltip>
+                        <Tooltip placement="bottom" title="放大">
+                            <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                        </Tooltip>
+                        <Tooltip placement="bottom" title="缩小">
+                            <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                        </Tooltip>
+                    </div>
                 </div>
-            </div>
+            </KeyEventListener>
         )
     }
 
@@ -337,8 +394,8 @@ class WorkflowEditor extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
-        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
+        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
