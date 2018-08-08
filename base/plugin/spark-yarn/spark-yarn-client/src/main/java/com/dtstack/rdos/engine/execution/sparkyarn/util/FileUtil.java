@@ -1,8 +1,10 @@
 package com.dtstack.rdos.engine.execution.sparkyarn.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.hadoop.conf.Configuration;
@@ -22,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,28 +48,27 @@ public class FileUtil {
     private static String fileSP = File.separator;
 
     public static Map<String, String> downLoadDirFromHdfs(String uriStr, String dstDirName, Configuration hadoopConf) throws IOException, URISyntaxException {
-        FileSystem fs = FileSystem.get(hadoopConf);
-        Path path = new Path(uriStr);
-        if(!fs.exists(path)){
-            throw new RuntimeException("hdfs不存在" + path);
+        try (FileSystem fs = FileSystem.get(hadoopConf)) {
+            Path path = new Path(uriStr);
+            if (!fs.exists(path)) {
+                throw new RuntimeException("hdfs不存在" + path);
+            }
+
+            if (!fs.isDirectory(path)) {
+                throw new RuntimeException("传输目的路径必须为目录");
+            }
+
+            Map<String, String> downFileInfo = Maps.newHashMap();
+            FileStatus[] statusArr = fs.listStatus(path);
+            for (FileStatus status : statusArr) {
+                String subPath = status.getPath().toString();
+                String fileName = status.getPath().getName();
+                String localDstFileName = dstDirName + fileSP + fileName;
+                downLoadFileFromHdfs(subPath, localDstFileName, hadoopConf);
+                downFileInfo.put(fileName, localDstFileName);
+            }
+            return downFileInfo;
         }
-
-        if(!fs.isDirectory(path)){
-            throw new RuntimeException("传输目的路径必须为目录");
-        }
-
-        Map<String, String> downFileInfo = Maps.newHashMap();
-        FileStatus[] statusArr = fs.listStatus(path);
-        for(FileStatus status : statusArr){
-            String subPath = status.getPath().toString();
-            String fileName = status.getPath().getName();
-            String localDstFileName = dstDirName + fileSP + fileName;
-            downLoadFileFromHdfs(subPath, localDstFileName, hadoopConf);
-            downFileInfo.put(fileName, localDstFileName);
-        }
-
-        return downFileInfo;
-
     }
 
 
@@ -81,20 +83,21 @@ public class FileUtil {
         String hdfsFilePathStr = pair.getRight();
 
         URI uri = new URI(hdfsUri);
-        FileSystem fs = FileSystem.get(uri, hadoopConf);
-        Path hdfsFilePath = new Path(hdfsFilePathStr);
-        if(!fs.exists(hdfsFilePath)){
-            return false;
+        try (FileSystem fs = FileSystem.get(uri, hadoopConf)) {
+            Path hdfsFilePath = new Path(hdfsFilePathStr);
+            if (!fs.exists(hdfsFilePath)) {
+                return false;
+            }
+
+
+            File file = new File(dstFileName);
+            if(!file.getParentFile().exists()){
+                Files.createParentDirs(file);
+            }
+
+            InputStream is=fs.open(hdfsFilePath);//读取文件
+            IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);//保存到本地
         }
-
-        File file = new File(dstFileName);
-        if(!file.getParentFile().exists()){
-            Files.createParentDirs(file);
-        }
-
-        InputStream is=fs.open(hdfsFilePath);//读取文件
-        IOUtils.copyBytes(is, new FileOutputStream(file), BUFFER_SIZE, true);//保存到本地
-
         return true;
     }
 
@@ -106,6 +109,29 @@ public class FileUtil {
             return new MutablePair<>(hdfsUri, hdfsPath);
         }else{
             return null;
+        }
+    }
+
+    public static void deleteFile(String fileName, Configuration conf) throws Exception{
+        deleteFiles(Lists.newArrayList(fileName),conf);
+    }
+
+    public static void deleteFiles(List<String> fileNames, Configuration conf) throws Exception{
+        if(CollectionUtils.isNotEmpty(fileNames)){
+            try (FileSystem fs = FileSystem.get(conf)){
+                for (String fileName : fileNames) {
+                    Path path = new Path(fileName);
+                    if (!fs.exists(path)){
+                        continue;
+                    }
+
+                    if(!fs.isFile(path)){
+                        continue;
+                    }
+
+                    fs.delete(path,false);
+                }
+            }
         }
     }
 
