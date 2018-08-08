@@ -107,7 +107,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择类型',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                     <Option value="14">Kafka</Option>
                             </Select>
                         )}
@@ -121,7 +123,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择数据源',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                 {
                                     originOptionTypes
                                 }
@@ -137,7 +141,9 @@ class InputOrigin extends Component {
                                 {required: true, message: '请选择Topic',}
                             ],
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
+                            <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
                                 {
                                     topicOptionTypes
                                 }
@@ -232,7 +238,9 @@ class InputOrigin extends Component {
                                         {required: true, message: '请选择时间列',}
                                     ],
                                 })(
-                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}>
+                                    <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("timeColumn",index,v)}}
+                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
                                            {
                                               eventTimeOptionType
                                            }
@@ -587,6 +595,7 @@ export default class InputPanel extends Component {
             this.clearCurrentInfo(type,index)
             this.getTopicType(index,value);
         }
+        console.log('panelColumn[index]---handleInputChange:',panelColumn[index]);
         this.setCurrentSource({panelColumn})
         this.setState({
             panelColumn,
@@ -594,7 +603,7 @@ export default class InputPanel extends Component {
     }
 
     clearCurrentInfo = (type,index,value) => {
-        const { panelColumn } = this.state;
+        const { panelColumn,topicOptionType,originOptionType } = this.state;
         const inputData = {
             type: undefined,
             sourceId: undefined,
@@ -609,12 +618,17 @@ export default class InputPanel extends Component {
         if(type==="type"){
             inputData.type = value;
             panelColumn[index] = inputData;
+            topicOptionType[index] = [];
+            originOptionType[index] = []
         }else if(type==="sourceId"){
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
+            panelColumn[index] = inputData;
+            topicOptionType[index] = [];
         }
-        this.setCurrentSource({panelColumn})
-        this.setState(panelColumn);
+        console.log('panelColumn[index]---:clearCurrentInfo',panelColumn[index]);
+        this.setCurrentSource({panelColumn,topicOptionType,originOptionType})
+        this.setState({panelColumn,topicOptionType,originOptionType});
     }
 
     handlePopoverVisibleChange = (e,index,visible) => {
