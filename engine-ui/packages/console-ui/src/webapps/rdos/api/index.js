@@ -712,4 +712,7 @@ export default {
     getStreamDataSource(params) {
         return http.post(stremReq.GET_STREAM_DATA_SOURCE, params)
     },
+    getStreamTableColumn(params) {
+        return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
+    },
 }
