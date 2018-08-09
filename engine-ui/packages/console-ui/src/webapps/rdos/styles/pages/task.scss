@@ -563,6 +563,12 @@
                 height: 32px;
             }
             .title-content{
+                .ant-form-item {
+                    font-size: 12px;
+                    margin-bottom: 20px;
+                    color: rgba(0, 0, 0, 0.65);
+                    vertical-align: top;
+                }
                 .left-type{
                     float: right;
                     line-height: 28px;
@@ -614,6 +620,10 @@
                         transition: background .3s ease;
                         text-align: left;
                         color: rgba(0, 0, 0, 0.85);
+                    }
+                    .ant-table-small .ant-table-header > table, .ant-table-small .ant-table-body > table {
+                        border: 0;
+                        padding: 0;
                     }
                 }
             }
