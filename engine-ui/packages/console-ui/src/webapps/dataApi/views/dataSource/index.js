@@ -187,21 +187,23 @@ export default class DataSource extends Component {
             render: (active) => {
                 return active === 1 ? '使用中' : '未启用'
             },
-        }, {
-            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-                        <span>连接状态 &nbsp;
-                            <Icon type="question-circle-o" />
-                        </span>
-                    </Tooltip>,
-            dataIndex: 'linkState',
-            key: 'linkState',
-            width: '10%',
-            render: (linkState) => {
-                return linkState === 1 ? 
-                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-            },
-        }, {
+        },
+        //  {
+        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+        //                 <span>连接状态 &nbsp;
+        //                     <Icon type="question-circle-o" />
+        //                 </span>
+        //             </Tooltip>,
+        //     dataIndex: 'linkState',
+        //     key: 'linkState',
+        //     width: '10%',
+        //     render: (linkState) => {
+        //         return linkState === 1 ? 
+        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+        //     },
+        // },
+         {
             title: '操作',
             width: '10%',
             key: 'operation',
