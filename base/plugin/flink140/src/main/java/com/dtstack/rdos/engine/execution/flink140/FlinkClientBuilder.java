@@ -11,7 +11,9 @@ import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
+import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -21,7 +23,6 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.EnumSet;
@@ -194,6 +195,7 @@ public class FlinkClientBuilder {
         String applicationId = null;
 
         try {
+            config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
@@ -238,6 +240,7 @@ public class FlinkClientBuilder {
 
         AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, ".");
         try {
+            FileSystem.initialize(config);
             Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
             confField.setAccessible(true);
             confField.set(clusterDescriptor, yarnConf);
@@ -268,4 +271,5 @@ public class FlinkClientBuilder {
     public void setYarnConf(org.apache.hadoop.conf.Configuration yarnConf) {
         this.yarnConf = yarnConf;
     }
+
 }

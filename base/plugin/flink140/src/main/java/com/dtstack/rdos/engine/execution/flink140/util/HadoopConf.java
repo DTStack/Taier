@@ -6,12 +6,18 @@ import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -176,4 +182,5 @@ public class HadoopConf {
 	public Configuration getYarnConfiguration() {
 		return yarnConfiguration;
 	}
+
 }
