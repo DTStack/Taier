@@ -532,6 +532,7 @@ export default class InputPanel extends Component {
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
+        this.props.tableParamsChange()//添加数据改变标记
         this.setCurrentSource({tabTemplate,panelActiveKey,popoverVisible,panelColumn,originOptionType,topicOptionType});
         this.setState({
             tabTemplate,
@@ -597,6 +598,7 @@ export default class InputPanel extends Component {
             this.getTopicType(index,value);
         }
         console.log('panelColumn[index]---handleInputChange:',panelColumn[index]);
+        this.props.tableParamsChange()//添加数据改变标记
         this.setCurrentSource({panelColumn})
         this.setState({
             panelColumn,

@@ -402,7 +402,8 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.hbase_other', {
                             rules: [],
-                            initialValue: config.hbase_other || ''
+                            initialValue: config.hbase_other ?   typeof config.hbase_other == "string" ? 
+                            JSON.stringify(JSON.parse(config.hbase_other),null,4): JSON.stringify(config.hbase_other,null,4) : ''
                         })(
                             <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />,
                         )}
@@ -891,7 +892,7 @@ class DataSourceForm extends Component {
     }
 
     componentDidMount() {
-        this.loadSourceTypes()
+        //this.loadSourceTypes()
     }
 
     loadSourceTypes = () => {

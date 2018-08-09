@@ -105,8 +105,10 @@ class DataSourceMana extends Component {
     testConnection = (source) => { // 测试数据源连通性
         const ctx = this
         Api.streamTestDataSourceConnection(source).then((res) => {
-            if (res.code === 1) {
+            if (res.code === 1 && res.data) {
                 message.success('数据源连接正常！')
+            }else if(res.code===1&& !res.data){
+                message.error('数据源连接异常')
             }
         })
     }

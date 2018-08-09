@@ -14,17 +14,17 @@ class dbSyncHistoryModal extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-    	if (nextProps.source.id) {
-    		Api.getSyncHistoryList({
-    			dataSourceId: nextProps.source.id,
-    			currentPage: 1,
-    			pageSize: 5
-    		}).then(res =>{
-    			if (res.code === 1) {
-    				this.setState({ listData: res.data });
-    			}
-    		})
-    	}
+    	// if (nextProps.source.id) {
+    	// 	Api.getSyncHistoryList({
+    	// 		dataSourceId: nextProps.source.id,
+    	// 		currentPage: 1,
+    	// 		pageSize: 5
+    	// 	}).then(res =>{
+    	// 		if (res.code === 1) {
+    	// 			this.setState({ listData: res.data });
+    	// 		}
+    	// 	})
+    	// }
     }
 
     showConfigDetail = (id) => {
