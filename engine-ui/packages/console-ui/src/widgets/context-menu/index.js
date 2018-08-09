@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import './style.scss'
 /* eslint-disable */
+
 export class MenuItem extends Component {
     render() {
         return (
@@ -35,22 +36,32 @@ export class ContextMenu extends Component {
 
     toggleMenu(evt) {
         const { forEle, onChange } = this.props
-        let selfEle = this.selfEle
+        const selfEle = this.selfEle
         if (!selfEle) return;
-        let parent = this.findParent(evt.target, forEle)
+        const parent = this.findParent(evt.target, forEle);
+
         if (parent) {
+
             this.hideAll()
+
             let style = selfEle.style;
-            let top = evt.clientY,
-                left = evt.clientX;
-                style.cssText = `
-                    top: ${top}px;
-                    left: ${left}px;
-                    display: block;
-                `
-                if (onChange) {
-                    onChange(parent)
-                }
+            style.display = "block";
+
+            const pointerY = evt.clientY;
+            const pointerX = evt.clientX;
+            const viewHeight = document.body.offsetHeight; // 可视区高度
+            const distanceToBottom = viewHeight - pointerY;
+            const menuHeight = selfEle.offsetHeight;
+            const menuTop = distanceToBottom > menuHeight ? pointerY : pointerY - menuHeight;
+     
+            style.cssText = `
+                top: ${menuTop}px;
+                left: ${pointerX}px;
+                display: block;
+            `
+            if (onChange) {
+                onChange(parent)
+            }
             evt.preventDefault();
         }
     }
