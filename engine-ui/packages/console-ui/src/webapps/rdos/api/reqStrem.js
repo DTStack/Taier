@@ -7,4 +7,5 @@ export default {
     GET_STREAM_TABLELIST: `${RDOS_BASE_URL}/stream/streamDataSource/tablelist`,
     STREAM_QUERY_DATA_SOURCE: `${RDOS_BASE_URL}/stream/streamDataSource/pageQuery`, // 查询数据源接口
     GET_STREAM_TABLELIST: `${RDOS_BASE_URL}/stream/streamDataSource/list`,
+    GET_STREAM_TABLECOLUMN: `${RDOS_BASE_URL}/stream/streamDataSource/tablecolumn`,//输出tablecolumn
 }

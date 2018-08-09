@@ -60,17 +60,21 @@ class OutputOrigin extends Component {
                return arrData.map(v=>{
                     return  <Option key={v} value={`${v}`}>{v}</Option>
                 }) 
+            case "columnType":
+               return arrData.map((v,index)=>{
+                    return  <Option key={index} value={`${v.key}`}>{v.key}</Option>
+                }) 
             default:
                 return null;
         }
     }
 
     render(){
-        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn } = this.props;
+        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn,tableColumnOptionType } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
-        const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
+        const tableColumnOptionTypes = this.originOption('columnType',tableColumnOptionType[index]||[]);
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
@@ -125,7 +129,6 @@ class OutputOrigin extends Component {
                     label="表"
                 >
                     {getFieldDecorator('table', {
-                        initialValue: "disabled",
                         rules: [
                             {required: true, message: '请选择表',}
                         ],
@@ -159,23 +162,23 @@ class OutputOrigin extends Component {
                                 dataIndex="column"
                                 key="字段"
                                 width='50%'
-                                render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
+                                render={(text,record,subIndex)=>{ 
+                                    return  <Select className="sub-right-select" value={text} onChange={(v)=>{handleInputChange("subColumn",index,subIndex,v)}}
+                                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                            >
+                                                {
+                                                    tableColumnOptionTypes
+                                                }
+                                            </Select>
+                                }}
                             />
                             <Column
                                 title="类型"
                                 dataIndex="type"
                                 key="类型"
                                 width='40%'
-                                render={(text,record,subIndex)=>{
-                                    return (
-                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
-                                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                        >
-                                            {
-                                                mysqlOptionType
-                                            }
-                                        </Select>
-                                    )
+                                render={(text,record,subIndex)=>{ 
+                                    return <Input value={text} disabled/>
                                 }}
                             />
                             <Column
@@ -350,6 +353,7 @@ const initialData = {
     checkFormParams: [],//存储要检查的参数from
     originOptionType: [],//数据源选择数据
     tableOptionType: [],//表选择数据
+    tableColumnOptionType: [],//表字段选择的类型
 }
 
 export default class OutputPanel extends Component {
@@ -365,6 +369,7 @@ export default class OutputPanel extends Component {
             checkFormParams: [],//存储要检查的参数from
             originOptionType: [],//数据源选择数据
             tableOptionType: [],//表选择数据
+            tableColumnOptionType: [],//表字段选择的类型
         };
     }
     
@@ -381,7 +386,8 @@ export default class OutputPanel extends Component {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
             this.getTypeOriginData(index,v.type);
-            this.getTableType(index,v.sourceId)
+            this.getTableType(index,v.sourceId);
+            this.getTableColumns(index,v.sourceId,v.table)
         })
         this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
@@ -410,17 +416,19 @@ export default class OutputPanel extends Component {
         const checkFormParams = [];
         const originOptionType = [];
         const tableOptionType = [];
+        const tableColumnOptionType = []
         side.map( v => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setDimensionData({taskId ,side: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType}}));
+        dispatch(BrowserAction.setDimensionData({taskId ,side: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType}}));
         this.setState({
-            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType
+            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType
         },()=>{
             side.map((v,index)=>{
                 this.getTypeOriginData(index,v.type)
                 this.getTableType(index,v.sourceId)
+                this.getTableColumns(index,v.sourceId,v.table)
             })
         })
     }
@@ -448,7 +456,7 @@ export default class OutputPanel extends Component {
         })
     }
 
-    getTableType = (index,sourceId) => {
+    getTableType = (index,sourceId,type) => {
         const { tableOptionType } = this.state;
         if(sourceId){
             Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
@@ -465,7 +473,6 @@ export default class OutputPanel extends Component {
                         tableOptionType[index] = [];
                     }
                 }
-                console.log('tableOptionType',tableOptionType);
                 this.setOutputData({tableOptionType});
                 this.setState({
                     tableOptionType
@@ -484,6 +491,21 @@ export default class OutputPanel extends Component {
         }
     }
 
+    getTableColumns = (index,sourceId,tableName) => {
+        const { tableColumnOptionType } = this.state;
+        Api.getStreamTableColumn({sourceId,tableName}).then(v=>{
+            if(v.code === 1){
+               tableColumnOptionType[index] = v.data;
+            }else{
+               tableColumnOptionType[index] = []
+            }
+            this.setOutputData({tableColumnOptionType})
+            this.setState({
+                tableColumnOptionType
+            })
+        })
+    }
+
     componentWillReceiveProps(nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
@@ -500,16 +522,17 @@ export default class OutputPanel extends Component {
             table: undefined,
             tableName: undefined,
             parallelism: 1,
-            cache: "None",
+            cache: "LRU",
             cacheSize: 10000,
             cacheTTLMs: 60000,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         if(type==="add"){
             tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
             this.getTypeOriginData("add",inputData.type);
-            this.getTableType('add',inputData.table)
+            this.getTableType('add',inputData.table);
+            tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
@@ -517,11 +540,12 @@ export default class OutputPanel extends Component {
             panelColumn.splice(index,1);
             originOptionType.splice(index,1);
             tableOptionType.splice(index,1);
+            tableColumnOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
+        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType});
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -529,7 +553,8 @@ export default class OutputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            tableOptionType
+            tableOptionType,
+            tableColumnOptionType,
         })
     }
 
@@ -559,26 +584,59 @@ export default class OutputPanel extends Component {
             panelActiveKey,
         })
     }
-      
+
+    tableColumnType = (index,column) => {
+        const { tableColumnOptionType } = this.state;
+        const filterColumn = tableColumnOptionType[index].filter(v=>{
+            return v.key === column
+        })
+        return filterColumn[0].type
+    }
+
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
-        const { panelColumn } = this.state;
+        const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
         }else if(type ==="subColumn"){
             panelColumn[index]["columns"][value].column = subValue;
-        }else if(type === "subType"){
-            panelColumn[index]["columns"][value].type = subValue;
+            const subType = this.tableColumnType(index,subValue);
+            panelColumn[index]["columns"][value].type = subType;
         }else{
             panelColumn[index][type] = value;
         }
         if(type==="type"){
+            originOptionType[index] = [];
+            tableOptionType[index] = [];
+            tableColumnOptionType[index] = [];
+            panelColumn[index].columns = [];
+            panelColumn[index]["sourceId"] = undefined;
+            panelColumn[index]["table"] = undefined;
+            panelColumn[index]["tableName"] = undefined;
+            panelColumn[index]["parallelism"] = 1;
+            panelColumn[index]["cache"] = 'LRU';
+            panelColumn[index]["cacheSize"] = 10000;
+            panelColumn[index]["cacheTTLMs"] = 60000;
             //this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
+            tableOptionType[index] = [];
+            tableColumnOptionType[index] = [];
+            panelColumn[index].columns = [];
+            panelColumn[index]["table"] = undefined;
+            panelColumn[index]["tableName"] = undefined;
             //this.clearCurrentInfo(type,index,value)
-            this.getTableType(index,value)
+            this.getTableType(index,value,type)
+        }else if (type==="table"){
+            tableColumnOptionType[index] = [];
+            const { sourceId } = panelColumn[index];
+            panelColumn[index].columns = [];
+            panelColumn[index]["parallelism"] = 1;
+            panelColumn[index]["cache"] = 'LRU';
+            panelColumn[index]["cacheSize"] = 10000;
+            panelColumn[index]["cacheTTLMs"] = 60000;
+            this.getTableColumns(index,sourceId,value)
         }
         this.setOutputData({panelColumn})
         this.setState({
@@ -595,7 +653,7 @@ export default class OutputPanel extends Component {
             table: undefined,
             tableName: undefined,
             parallelism: 1,
-            cache: "None",
+            cache: "LRU",
             cacheSize: 10000,
             cacheTTLMs: 60000,
         }
@@ -663,7 +721,7 @@ export default class OutputPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey}>
@@ -676,6 +734,7 @@ export default class OutputPanel extends Component {
                                         handleInputChange={this.handleInputChange}
                                         panelColumn={panelColumn} originOptionType={originOptionType} 
                                         tableOptionType = {tableOptionType}
+                                        tableColumnOptionType = {tableColumnOptionType}
                                         onRef={this.recordForm}
                                     />
                                 </Panel>
