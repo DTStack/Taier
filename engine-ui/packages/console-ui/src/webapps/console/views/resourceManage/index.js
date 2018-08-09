@@ -164,7 +164,8 @@ class ResourceManage extends React.Component {
                         return null;
                     }
                     return <a onClick={this.changeResource.bind(this,record)}>修改</a>
-                }
+                },
+                width:"80px"
             }
         ]
     }

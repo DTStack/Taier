@@ -234,7 +234,10 @@ class TaskFormModal extends Component {
                         style={{ display: taskType === 1 ? 'block' : 'none' }}
                     >
                         {getFieldDecorator('mainClass', {
-                            rules: [{}],
+                            rules: [{
+                                required: taskType === 1,
+                                message:'请输入mainClass'
+                            }],
                             initialValue: taskInfo && taskInfo.mainClass,
                         })(
                             <Input placeholder="请输入mainClass" />,

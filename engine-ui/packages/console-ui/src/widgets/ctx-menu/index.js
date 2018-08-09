@@ -1,7 +1,9 @@
 import React from 'react';
 import './style.scss';
-import { Popconfirm } from 'antd'
 
+
+const MENU_ITEM_HEIGHT = 25;
+const MENU_PADDING = 20;
 
 export default class CtxMenu extends React.Component {
     constructor(props) {
@@ -23,7 +25,7 @@ export default class CtxMenu extends React.Component {
 
     componentWillUnmount() {
         this.box.removeEventListener('contextmenu', this.showMenu);
-        document.addEventListener('click', this.hideMenu);
+        document.removeEventListener('click', this.hideMenu);
     }
 
     hideMenu(e) {
@@ -38,7 +40,7 @@ export default class CtxMenu extends React.Component {
         this.setState({
             show: true,
             x: e.clientX,
-            y: e.clientY
+            y: e.clientY,
         });
     }
 
@@ -46,12 +48,17 @@ export default class CtxMenu extends React.Component {
         const { children, operations, id } = this.props;
         const { show, x, y } = this.state;
 
+        const viewHeight = document.body.offsetHeight; // 可视区高度
+        const distanceToBottom = viewHeight - y;
+        const menuHeight = operations.length * MENU_ITEM_HEIGHT + MENU_PADDING;
+        const menuTop = distanceToBottom > menuHeight ? y : y - menuHeight;
+
         return <span ref={ el => this.box = el } >
             { children }
             { show && <div
                 className={`ctx-menu ${operations.length === 0 ? "f-dn" : ""}`}
                 ref={ el => this.menu = el }
-                style={{ left: x, top: y, zIndex: 1006 }}
+                style={{ left: x, top: menuTop, zIndex: 1006 }}
             >
                 <ul className="ctx-menu-list" >
                     { operations.map((o, i) => {
