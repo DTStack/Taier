@@ -2,6 +2,7 @@ import React from "react";
 import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card } from "antd";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux"
+import {hashHistory} from "react-router"
 
 import { getUser } from "../../../actions/console"
 import Api from "../../../api/console"
@@ -894,7 +895,7 @@ class EditCluster extends React.Component {
 
                             <span style={{ float: "right", marginRight: "18px" }}>
                                 <Button onClick={this.save.bind(this)} type="primary">保存</Button>
-                                <Button style={{ marginLeft: "8px" }}>取消</Button>
+                                <Button onClick={hashHistory.goBack} style={{ marginLeft: "8px" }}>取消</Button>
                             </span>
                         </div>
                     )}
