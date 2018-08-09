@@ -108,6 +108,12 @@ public class ClientExt extends DtClient {
             FileUtil.downLoadDirFromHdfs(hdfsPath, confFileDirName, hadoopConf);
         } catch (Exception e){
             LOG.error("", e);
+            try {
+                //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
+                FileUtil.deleteFile(confFileDirName, hadoopConf);
+            } catch (Exception e1) {
+                LOG.error("", e1);
+            }
             throw new RuntimeException("----从hdfs下载文件异常---");
         }
 
