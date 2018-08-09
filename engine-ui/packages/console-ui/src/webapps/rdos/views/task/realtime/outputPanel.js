@@ -222,7 +222,7 @@ class OutputOrigin extends Component {
                 }
                 {
 
-                    panelColumn[index].type == "11" || panelColumn[index].type == "8" ?
+                    panelColumn[index].type == "11" ?
                     <FormItem
                         {...formItemLayout}
                         label="写入策略"
