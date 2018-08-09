@@ -225,12 +225,11 @@ class TreeContent extends React.PureComponent {
                 )}
                     placement="bottomLeft"
                     mouseEnterDelay={0.5}>
-                    {name}
+                    <span style={{padding:"8px 0px"}}>{name}</span>
                 </Tooltip>
             )
 
             return data ? (
-
                 <TreeNode
                     title={nodeTitle}
                     key={isFolder ? id : `${id}-file`}
