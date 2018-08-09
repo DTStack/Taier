@@ -1,7 +1,7 @@
 import React from 'react';
 import { cloneDeep } from 'lodash';
 
-import { 
+import {
     Table, Tabs, Radio, Icon, Input,
 } from 'antd';
 
@@ -32,7 +32,7 @@ export default class TableInfoPane extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const tbId = nextProps.tableId
-        if (tbId && tbId !== this.props.tableId ) {
+        if (tbId && tbId !== this.props.tableId) {
             this.getTable(tbId)
             this.getPreview(this.state.tabKey, tbId)
         }
@@ -85,7 +85,7 @@ export default class TableInfoPane extends React.Component {
         const tableColms = [...tableData.column]
         if (searchText) {
             const reg = new RegExp(searchText, 'gi');
-            const filteredTables = tableColms.length > 0 && tableColms.filter(col =>{
+            const filteredTables = tableColms.length > 0 && tableColms.filter(col => {
                 return col.columnName.match(reg);
             })
             if (filteredTables.length > 0) {
@@ -102,7 +102,7 @@ export default class TableInfoPane extends React.Component {
             key: 'columnName',
             filterIcon: <Icon type="search" />,
             filterDropdownVisible: this.state.filterDropdownVisible,
-            filterDropdown:(
+            filterDropdown: (
                 <div className="custom-filter-dropdown">
                     <Input
                         ref={ele => this.searchInput = ele}
@@ -132,12 +132,18 @@ export default class TableInfoPane extends React.Component {
             }
         }];
     }
-
+    getScrollX(previewCols) {
+        let l = 500;
+        for (let str of previewCols) {
+            l = 20 + l + str.length * 10;
+        }
+        return Math.max(l, 600);
+    }
     render() {
         const { tableData, previewData } = this.state;
 
         return <div className="g-tableviewer">
-            <Tabs 
+            <Tabs
                 type="inline"
                 size="small"
                 animated={false}
@@ -149,33 +155,33 @@ export default class TableInfoPane extends React.Component {
                             rowKey="columnName"
                             columns={this.initColums()}
                             dataSource={tableData.column}
-                            pagination={{ simple: true, size: 'small'}}
+                            pagination={{ simple: true, size: 'small' }}
                         />
                     </div>
                 </TabPane>
                 <TabPane tab="分区信息" key="2">
-                    <TablePartition 
+                    <TablePartition
                         pagination={{ simple: true, size: 'small' }}
-                        table={tableData && tableData.table} 
+                        table={tableData && tableData.table}
                     />
                 </TabPane>
                 <TabPane tab="数据预览" key="3">
                     <div className="box">
                         {previewData ? <Table
                             columns={this.previewCols.map(str => ({
-                                width: 80,
+                                width: 20 + str.length * 10,
                                 title: str,
                                 dataIndex: str,
                                 key: str,
                                 render(text) {
-                                    return <TableCell style={{minWidth: 80}} value={text} />
+                                    return <TableCell style={{ minWidth: 80 }} value={text} />
                                 }
                             }))}
                             bordered
                             rowKey="key"
                             pagination={{ simple: true, size: 'small' }}
                             dataSource={previewData}
-                            scroll={{ x: 1000 }}
+                            scroll={{ x: this.getScrollX(this.previewCols) }}
                         />
                             :
                             <p style={{

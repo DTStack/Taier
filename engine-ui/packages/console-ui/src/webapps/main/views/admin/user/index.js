@@ -257,6 +257,7 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
+        this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
 

@@ -4,6 +4,7 @@ import utils from 'utils'
 import req from './req'
 import http from './http'
 import offlineReq from './reqOffline';
+import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
 import realtime from '../views/task/realtime';
 
@@ -185,6 +186,15 @@ export default {
     updateTaskOwner(params) {
         return http.post(offlineReq.UPDATE_TASK_OWNER, params)
     },
+    getTypeOriginData(params){
+        return http.post(req.GET_TYPE_ORIGIN_DATA, params)
+    },
+    getTopicType(params){
+        return http.post(req.GET_TOPIC_TYPE, params)
+    },
+    getStremTableType(params){
+        return http.post(req.GET_STREM_TABLE_TYPE, params)
+    },
 
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
@@ -301,7 +311,9 @@ export default {
     getSyncTemplate(params){
         return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
     },
-
+    getCreateTargetTable(params){
+        return http.post(req.GET_CREATE_TARGET_TABLE,params)
+    },
     // =========== 脚本模块 ==================//
     saveScript(params) {
         return http.post(offlineReq.SAVE_SCRIPT, params)
@@ -680,5 +692,24 @@ export default {
     },
     getProjectDataOverview(params) {
         return http.post(offlineReq.PROJECT_DATA_OVERVIEW, params)
+    },
+    //================实时数据源 ===============/
+    streamSaveDataSource(params) {
+        return http.post(stremReq.STREAM_SAVE_DATA_SOURCE, params)
+    },
+    streamTestDataSourceConnection(params) {
+        return http.post(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION, params)
+    },
+    streamDeleteDataSource(params) {
+        return http.post(stremReq.STREAM_DELETE_DATA_SOURCE, params)
+    },
+    getStreamTablelist(params) {
+        return http.post(stremReq.GET_STREAM_TABLELIST, params)
+    },
+    streamQueryDataSource(params) {
+        return http.post(stremReq.STREAM_QUERY_DATA_SOURCE, params)
+    },
+    getStreamDataSource(params) {
+        return http.post(stremReq.GET_STREAM_DATA_SOURCE, params)
     },
 }

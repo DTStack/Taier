@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import {
     Form, Input, Select,
     Button, Icon, Table,
-    message, Radio
+    message, Radio, Row, Col,
+    Tooltip
 } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
@@ -21,7 +22,8 @@ import { matchTaskParams } from '../../../../comm';
 import {
     formItemLayout,
     DATA_SOURCE,
-    DATA_SOURCE_TEXT
+    DATA_SOURCE_TEXT,
+    SUPPROT_SUB_LIBRARY_DB_ARRAY
 } from '../../../../comm/const';
 
 const FormItem = Form.Item;
@@ -34,7 +36,7 @@ class SourceForm extends React.Component {
         super(props);
 
         this.state = {
-            tableList: [],
+            tableListMap: {},
             showPreview: false,
             dataSource: [],
             columns: []
@@ -43,9 +45,15 @@ class SourceForm extends React.Component {
 
     componentDidMount() {
         const { sourceMap, isCurrentTabNew } = this.props;
-        const { sourceId } = sourceMap;
-
-        sourceId && isCurrentTabNew && this.getTableList(sourceId);
+        const { sourceList } = sourceMap;
+        if (sourceList) {
+            for (let i = 0; i < sourceList.length; i++) {
+                let source = sourceList[i];
+                if (source.sourceId != null) {
+                    this.getTableList(source.sourceId);
+                }
+            }
+        }
     }
 
     componentWillUnmount() {
@@ -65,7 +73,6 @@ class SourceForm extends React.Component {
         }
 
         this.setState({
-            tableList: [],
             showPreview: false
         }, () => {
             ajax.getOfflineTableList({
@@ -74,7 +81,10 @@ class SourceForm extends React.Component {
             }).then(res => {
                 if (res.code === 1) {
                     ctx.setState({
-                        tableList: res.data || []
+                        tableListMap: {
+                            ...this.state.tableListMap,
+                            [sourceId]: res.data || []
+                        }
                     });
                 }
             });
@@ -82,6 +92,12 @@ class SourceForm extends React.Component {
     }
 
     getTableColumn(tableName) {
+        if (tableName instanceof Array) {
+            tableName = tableName[0];
+        }
+        if (!tableName) {
+            return;
+        }
         const { form, handleTableColumnChange } = this.props;
         const { sourceMap } = this.props
 
@@ -110,34 +126,52 @@ class SourceForm extends React.Component {
             return src.id == id;
         })[0];
     }
-
-    changeSource(value) {
-        const { handleSourceChange } = this.props;
+    changeExtSource(key, value) {
+        this.props.changeExtDataSource(this.getDataObjById(value), key);
+        this.getTableList(value);
+        this.resetTable(`extTable.${key}`);
+    }
+    changeSource(value, option) {
+        const { handleSourceChange, sourceMap } = this.props;
+        const firstSource = sourceMap && sourceMap.sourceList && sourceMap.sourceList[0];
+        const type = option.props.dataType;
+        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(type) > -1;
+        console.log(supportSubLibrary);
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
-
         handleSourceChange(this.getDataObjById(value));
         this.resetTable();
-    }   
-
-    resetTable(){
+    }
+    addDataSource() {
+        const key = "key" + ~~(Math.random() * 10000000);
+        this.props.addDataSource(key);
+    }
+    deleteExtSource(key) {
+        this.props.deleteDataSource(key);
+    }
+    resetTable(key) {
         const { form } = this.props;
         this.changeTable('');
         //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState({
-            selectHack:true
-        },()=>{
-            form.resetFields(['table'])
+            selectHack: true
+        }, () => {
+            if (key) {
+                form.resetFields([key])
+            } else {
+                form.resetFields(['table'])
+            }
             this.setState({
-                selectHack:false
+                selectHack: false
             })
         })
-        
+
     }
 
     changeTable(value) {
-        if(value){
+        console.log(value);
+        if (value) {
             this.getTableColumn(value);
         }
         this.submitForm();
@@ -145,7 +179,9 @@ class SourceForm extends React.Component {
             showPreview: false
         })
     }
-
+    changeExtTable(key, value) {
+        this.submitForm(null, key);
+    }
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
         const { getFieldValue } = form
@@ -166,7 +202,7 @@ class SourceForm extends React.Component {
         }
     }
 
-    submitForm() {
+    submitForm(event, sourceKey) {
         const {
             updateTaskFields, form,
             handleSourceMapChange, currentTab,
@@ -208,7 +244,7 @@ class SourceForm extends React.Component {
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
-            handleSourceMapChange(srcmap);
+            handleSourceMapChange(srcmap, sourceKey);
         }, 0);
     }
 
@@ -237,9 +273,9 @@ class SourceForm extends React.Component {
         } = this.props;
 
         const disablePreview = isEmpty(sourceMap) ||
-              sourceMap.type.type === DATA_SOURCE.HDFS ||
-              sourceMap.type.type === DATA_SOURCE.HBASE ||
-              sourceMap.type.type === DATA_SOURCE.FTP;
+            sourceMap.type.type === DATA_SOURCE.HDFS ||
+            sourceMap.type.type === DATA_SOURCE.HBASE ||
+            sourceMap.type.type === DATA_SOURCE.FTP;
 
         return <div className="g-step1">
             <Form>
@@ -255,18 +291,19 @@ class SourceForm extends React.Component {
                     })(
                         <Select
                             showSearch
-                            onChange={this.changeSource.bind(this)}
+                            onSelect={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                            disabled={ !isCurrentTabNew }
+                        // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
-                                
+
                                 const disableSelect = src.type === DATA_SOURCE.ES ||
-                                      src.type === DATA_SOURCE.REDIS ||
-                                      src.type === DATA_SOURCE.MONGODB;
+                                    src.type === DATA_SOURCE.REDIS ||
+                                    src.type === DATA_SOURCE.MONGODB;
 
                                 return <Option
+                                    dataType={src.type}
                                     key={src.id}
                                     name={src.dataName}
                                     value={`${src.id}`}
@@ -285,9 +322,9 @@ class SourceForm extends React.Component {
                 overflow: 'auto'
             }}>
                 <p style={{ cursor: 'pointer', marginBottom: 10 }} >
-                    <a 
-                        disabled={ disablePreview }
-                        href="javascript:void(0)" 
+                    <a
+                        disabled={disablePreview}
+                        href="javascript:void(0)"
                         onClick={this.loadPreview.bind(this)}
                     >
                         数据预览{this.state.showPreview ? <Icon type="up" /> : <Icon type="down" />}
@@ -312,13 +349,15 @@ class SourceForm extends React.Component {
         const { showPreview } = this.state;
         const { form } = this.props;
         const sourceId = form.getFieldValue('sourceId');
-        const tableName = form.getFieldValue('table');
+        let tableName = form.getFieldValue('table');
 
         if (!sourceId || !tableName) {
             message.error('数据源或表名缺失');
             return;
         }
-
+        if(tableName instanceof Array){
+            tableName=tableName[0];
+        }
         if (!showPreview) {
             ajax.getDataPreview({
                 sourceId, tableName
@@ -357,22 +396,119 @@ class SourceForm extends React.Component {
     }
 
     debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
+    debounceExtTableSearch = debounce(this.changeExtTable, 300, { 'maxWait': 2000 })
 
+    renderExtDataSource() {
+        const { selectHack } = this.state;
+        const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
+        const { getFieldDecorator } = this.props.form;
+        const sourceList = sourceMap.sourceList;
+
+        if (!sourceList) {
+            return null;
+        }
+
+        return sourceList.filter(
+            (source) => {
+                return source.key != "main"
+            }
+        ).map(
+            (source) => {
+                return (
+                    <div>
+                        <FormItem
+                            {...formItemLayout}
+                            label="数据源"
+                        >
+                            {getFieldDecorator(`extSourceId.${source.key}`, {
+                                rules: [{
+                                    required: true,
+                                    message: "数据源为必填项"
+                                }],
+                                initialValue: source.sourceId == null ? null : ("" + source.sourceId)
+                            })(
+                                <Select
+                                    showSearch
+                                    onSelect={this.changeExtSource.bind(this, source.key)}
+                                    optionFilterProp="name"
+                                // disabled={!isCurrentTabNew}
+                                >
+                                    {dataSourceList.filter(
+                                        (dataSource) => {
+                                            return dataSource.type == sourceList[0].type
+                                        }
+                                    ).map(src => {
+                                        let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+
+                                        const disableSelect = src.type === DATA_SOURCE.ES ||
+                                            src.type === DATA_SOURCE.REDIS ||
+                                            src.type === DATA_SOURCE.MONGODB;
+
+                                        return <Option
+                                            dataType={src.type}
+                                            key={src.id}
+                                            name={src.dataName}
+                                            value={`${src.id}`}
+                                            disabled={disableSelect}>
+                                            {title}
+                                        </Option>
+                                    })}
+                                </Select>
+                            )}
+                            <Icon onClick={this.deleteExtSource.bind(this, source.key)} className="help-doc click-icon" type="delete" />
+                        </FormItem>
+                        {!selectHack && <FormItem
+                            {...formItemLayout}
+                            label="表名"
+                            key="table"
+                        >
+                            {getFieldDecorator(`extTable.${source.key}`, {
+                                rules: [{
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }],
+                                initialValue: source.tables
+                            })(
+                                <Select
+                                    mode="tags"
+                                    showSearch
+                                    showArrow={true}
+                                    onChange={this.debounceExtTableSearch.bind(this, source.key)}
+                                    // disabled={!isCurrentTabNew}
+                                    optionFilterProp="value"
+                                >
+                                    {(this.state.tableListMap[source.sourceId] || []).map(table => {
+                                        return <Option key={`rdb-${table}`} value={table}>
+                                            {table}
+                                        </Option>
+                                    })}
+                                </Select>
+                            )}
+                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        </FormItem>}
+                    </div>
+                )
+            }
+        )
+    }
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
+        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap && sourceMap.sourceList && sourceMap.sourceList[0].type) > -1;
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
 
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER: 
+            case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -382,24 +518,31 @@ class SourceForm extends React.Component {
                                 required: true,
                                 message: '数据源表为必选项！'
                             }],
-                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
+                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary?sourceMap.sourceList[0].tables:sourceMap.type.table
                         })(
                             <Select
-                                mode="combobox"
+                                mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
-                                {this.state.tableList.map(table => {
+                                {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
                                     return <Option key={`rdb-${table}`} value={table}>
                                         {table}
                                     </Option>
                                 })}
                             </Select>
                         )}
+                        {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>}
                     </FormItem>,
+                    ...this.renderExtDataSource(),
+                    supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
+                        <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
+                    </Row>,
                     <FormItem
                         {...formItemLayout}
                         label="数据过滤"
@@ -443,7 +586,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.MAXCOMPUTE:
             case DATA_SOURCE.HIVE: {// Relational DB
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -458,10 +601,10 @@ class SourceForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
-                                {this.state.tableList.map(table => {
+                                {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
                                     return <Option key={`rdb-${table}`} value={table}>
                                         {table}
                                     </Option>
@@ -569,7 +712,7 @@ class SourceForm extends React.Component {
                 break;
             case DATA_SOURCE.HBASE:
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -584,10 +727,10 @@ class SourceForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
-                                {this.state.tableList.map(table => {
+                                {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
                                     return <Option key={`hbase-${table}`} value={table}>
                                         {table}
                                     </Option>
@@ -798,6 +941,28 @@ const mapState = state => {
 };
 const mapDispatch = dispatch => {
     return {
+        addDataSource(key) {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCE_ADD,
+                key: key
+            });
+        },
+        deleteDataSource(key) {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCE_DELETE,
+                key: key
+            });
+        },
+        changeExtDataSource(src, key) {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCE_CHANGE,
+                payload: src,
+                key: key
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
         handleSourceChange: src => {
             dispatch({
                 type: dataSyncAction.RESET_SOURCE_MAP,
@@ -814,10 +979,11 @@ const mapDispatch = dispatch => {
             });
         },
 
-        handleSourceMapChange: srcmap => {
+        handleSourceMapChange: (srcmap, key) => {
             dispatch({
                 type: sourceMapAction.DATA_SOURCEMAP_CHANGE,
-                payload: srcmap
+                payload: srcmap,
+                key: key || "main"
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY

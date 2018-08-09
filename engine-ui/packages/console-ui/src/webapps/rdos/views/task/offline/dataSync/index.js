@@ -42,6 +42,17 @@ class DataSync extends React.Component{
 
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {
+                if(res.data){
+                    const {sourceMap} = res.data
+                    sourceMap.sourceList?(sourceMap.sourceList=sourceMap.sourceList.map(
+                        (source,index)=>{
+                            return {
+                                ...source,
+                                key:index==0?"main":("key"+~~Math.random()*10000000)
+                            }
+                        }
+                    )):null;
+                }
                 this.props.initJobData(res.data);
             } else {
                 // tabs中有则把数据取出来
@@ -53,7 +64,9 @@ class DataSync extends React.Component{
                 this.props.setTabNew();
             } else {
                 this.props.setTabSaved();
-                this.setState({ currentStep: 4 });
+                if(!dataSyncSaved){
+                    this.setState({ currentStep: 4 });
+                }
             }
 
             this.setState({ loading: false });

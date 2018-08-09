@@ -168,7 +168,7 @@ export default class TaskTablePane extends Component {
 
     init30TimesTableReport = () => {
         const { data } = this.props;
-        const colums = [{
+        let colums = [{
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
@@ -191,7 +191,7 @@ export default class TaskTablePane extends Component {
             data.dataSourceType === DATA_SOURCE.HIVE ||
             data.dataSourceType === DATA_SOURCE.MAXCOMPUTE
         ) {
-            colums.push({
+            colums.splice(1,0,{
                 title: '分区',
                 dataIndex: 'partition',
                 key: 'partition',

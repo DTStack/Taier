@@ -94,6 +94,12 @@
         .company-name:hover{
             color: #2491F7;
         }
+        .company-name.no-hover{
+            cursor:unset;
+        }
+        .company-name.no-hover:hover{
+            color:#333;
+        }
         .general-card{
             margin: 0 5 10;
             height: 220px;
@@ -115,9 +121,10 @@
                 .number{
                     font-size: 32px;
                     color: #f00;
-                }
-                .number:hover{
                     cursor: pointer;
+                }
+                .no-hover{
+                    cursor: unset;
                 }
                 .card-task{
                     min-width: 115px;

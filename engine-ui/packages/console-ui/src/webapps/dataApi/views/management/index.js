@@ -106,6 +106,7 @@ class APIMana extends Component {
         params.apiName = this.state.searchName;//查询名
         params.pid = this.state.type1;//一级目录
         params.cid = this.state.type2;//二级目录
+        params.status=this.state.filter.status;
         params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);//数据源类型
         params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);//数据源
         params.modifyUserId = this.state.changeMan;//修改人id
@@ -192,7 +193,17 @@ class APIMana extends Component {
                     editting:"未发布"
                 }
                 return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
-            }
+            },
+            filters:[{
+                text:"正常",
+                value:API_SYSTEM_STATUS.SUCCESS
+            },{
+                text:"未发布",
+                value:API_SYSTEM_STATUS.EDITTING
+            },{
+                text:"已禁用",
+                value:API_SYSTEM_STATUS.STOP
+            }]
         },
         {
             title: '数据源',

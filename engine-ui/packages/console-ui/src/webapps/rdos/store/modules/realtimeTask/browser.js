@@ -101,6 +101,113 @@ export function updatePage(page) {
     }
 }
 
+export function setInputData(value){
+    return {
+        type: browserAction.SET_INPUT_DATA,
+        data: value,
+    }
+}
+
+export function getInputData(id){
+    return {
+        type: browserAction.GET_INPUT_DATA,
+        data: id,
+    }
+}
+
+export function closeCurrentInputData(id){
+    return {
+        type: browserAction.CLEAR_CURRENT_INPUT_DATA,
+        data: id,
+    }
+}
+
+
+export function closeOtherInputData(id){
+    return {
+        type: browserAction.CLEAR_OTHER_INPUT_DATA,
+        data: id,
+    }
+}
+
+export function closeAllInputData(){
+    return {
+        type: browserAction.CLEAR_ALL_INPUT_DATA,
+    }
+}
+
+
+export function setOutputData(value){
+    return {
+        type: browserAction.SET_OUTPUT_DATA,
+        data: value,
+    }
+}
+
+export function getOutputData(id){
+    return {
+        type: browserAction.GET_OUTPUT_DATA,
+        data: id,
+    }
+}
+
+export function closeCurrentOutputData(id){
+    return {
+        type: browserAction.CLEAR_CURRENT_OUTPUT_DATA,
+        data: id,
+    }
+}
+
+
+export function closeOtherOutputData(id){
+    return {
+        type: browserAction.CLEAR_OTHER_OUTPUT_DATA,
+        data: id,
+    }
+}
+
+export function closeAllOutputData(){
+    return {
+        type: browserAction.CLEAR_ALL_OUTPUT_DATA,
+    }
+}
+
+
+export function setDimensionData(value){
+    return {
+        type: browserAction.SET_DIMESION_DATA,
+        data: value,
+    }
+}
+
+export function getDimensionData(id){
+    return {
+        type: browserAction.GET_DIMESION_DATA,
+        data: id,
+    }
+}
+
+export function closeCurrentDimensionData(id){
+    return {
+        type: browserAction.CLEAR_CURRENT_DIMESION_DATA,
+        data: id,
+    }
+}
+
+
+export function closeOtherDimensionData(id){
+    return {
+        type: browserAction.CLEAR_OTHER_DIMESION_DATA,
+        data: id,
+    }
+}
+
+export function closeAllDimensionData(){
+    return {
+        type: browserAction.CLEAR_ALL_DIMESION_DATA,
+    }
+}
+
 // Reducer
 const pagesKey = 'pages';
 const defaultPages = localDb.get(pagesKey) || []
@@ -174,6 +281,75 @@ export function currentPage(state = defaultCurPage, action) {
             localDb.set(key, current)
             return current
         }
+        default:
+            return state;
+    }
+}
+
+export function inputData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_INPUT_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.source}}
+            return data;
+        case browserAction.GET_INPUT_DATA:
+            return state;
+        case browserAction.CLEAR_CURRENT_INPUT_DATA:
+            const newState = {...state};
+            console.log('inputData-CLEAR_CURRENT_INPUT_DATA',newState);
+            delete newState[action.data]
+            console.log('inputData-CLEAR_CURRENT_INPUT_DATA',newState);
+            return newState;
+        case browserAction.CLEAR_OTHER_INPUT_DATA:
+            const taskId = action.data;
+            return {[taskId]: state[taskId]};
+        case browserAction.CLEAR_ALL_INPUT_DATA:
+            return {};
+        default:
+            return state;
+    }
+}
+
+export function outputData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_OUTPUT_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.sink}}
+            return data;
+        case browserAction.GET_OUTPUT_DATA:
+            return state;
+        case browserAction.CLEAR_CURRENT_OUTPUT_DATA:
+            const newState = {...state};
+            console.log('inputData-CLEAR_CURRENT_OUT_DATA',newState);
+            delete newState[action.data]
+            console.log('inputData-CLEAR_CURRENT_OUT_DATA',newState);
+            return newState;
+        case browserAction.CLEAR_OTHER_OUTPUT_DATA:
+            const taskId = action.data;
+            return {[taskId]: state[taskId]};
+        case browserAction.CLEAR_ALL_OUTPUT_DATA:
+            return {};
+        default:
+            return state;
+    }
+}
+
+export function dimensionData(state = {}, action){
+    switch (action.type) {
+        case browserAction.SET_DIMESION_DATA:
+            const data = {...state,...{[action.data.taskId]: action.data.side}}
+            return data;
+        case browserAction.GET_DIMESION_DATA:
+            return state;
+        case browserAction.CLEAR_CURRENT_DIMESION_DATA:
+            const newState = {...state};
+            console.log('inputData-CLEAR_CURRENT_DIMESION_DATA',newState);
+            delete newState[action.data]
+            console.log('inputData-CLEAR_CURRENT_DIMESION_DATA',newState);
+            return newState;
+        case browserAction.CLEAR_OTHER_DIMESION_DATA:
+            const taskId = action.data;
+            return {[taskId]: state[taskId]};
+        case browserAction.CLEAR_ALL_DIMESION_DATA:
+            return {};
         default:
             return state;
     }
