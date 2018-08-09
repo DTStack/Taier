@@ -637,7 +637,7 @@ export default class OutputPanel extends Component {
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
-            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"],panelColumn[index].primaryKey);
+            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"],panelColumn[index].primaryKey||[]);
             panelColumn[index].primaryKey = filterPrimaryKeys;
         }else if(type ==="subColumn"){
             panelColumn[index]["columns"][value].column = subValue;
