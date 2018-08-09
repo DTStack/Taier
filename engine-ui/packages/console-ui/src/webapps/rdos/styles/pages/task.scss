@@ -541,6 +541,16 @@
         }
         .panel-content{
             padding: 20 0 20 20;
+            .input-panel{
+              background:#f7f7f7;
+              border: 1px solid #ddd;
+              margin-bottom: 15px;
+              overflow: hidden;
+            }
+            .ant-collapse-borderless > .ant-collapse-item > .ant-collapse-content {
+                background-color: #fff;
+                border-top: 0;
+            }
             .title-icon {
                 float: right;
                 margin-top: 3px;
@@ -548,11 +558,17 @@
                 font-size: 16px;
             }
             .stream-btn{
-                margin-top: 20px;
+                margin-top: 25px;
                 width: 100%;
                 height: 32px;
             }
             .title-content{
+                .ant-form-item {
+                    font-size: 12px;
+                    margin-bottom: 20px;
+                    color: rgba(0, 0, 0, 0.65);
+                    vertical-align: top;
+                }
                 .left-type{
                     float: right;
                     line-height: 28px;
@@ -604,6 +620,10 @@
                         transition: background .3s ease;
                         text-align: left;
                         color: rgba(0, 0, 0, 0.85);
+                    }
+                    .ant-table-small .ant-table-header > table, .ant-table-small .ant-table-body > table {
+                        border: 0;
+                        padding: 0;
                     }
                 }
             }
