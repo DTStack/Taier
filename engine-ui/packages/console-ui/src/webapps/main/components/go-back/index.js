@@ -12,10 +12,12 @@ export default class GoBack extends Component {
             else
                 hashHistory.push(url)
         } else {
-            if(!browserHistory.go(-1)){
+            if(window.history.length==1){
                 if(autoClose){
                     window.close();
                 }
+            }else{
+                hashHistory.go(-1);
             }
         }
     }
