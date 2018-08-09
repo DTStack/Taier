@@ -23,6 +23,7 @@ const initModalState = {
     createOrigin: {
         name: undefined,
         data: undefined,
+        taskType: undefined,
     },
 };
 

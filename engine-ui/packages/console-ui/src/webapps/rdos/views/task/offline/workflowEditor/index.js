@@ -64,6 +64,9 @@ class WorkflowEditor extends Component {
         this.hideMenu()
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        return false;
+    }
 
     loadEditor = (container) => {
         // Disable default context menu
@@ -78,6 +81,8 @@ class WorkflowEditor extends Component {
         graph.cellsResizable = false;
         // 启用辅助线
         mxGraphHandler.prototype.guidesEnabled = true;
+        mxGraphHandler.prototype.previewColor = '#2491F7';
+
         graph.setConnectable(true)
         graph.setTooltips(true)
         graph.view.setScale(1)
@@ -116,6 +121,7 @@ class WorkflowEditor extends Component {
         new mxRubberband(graph)
 
         // Initial draggable elements
+        this.listenConnection()
         this.initDraggableToolBar();
         this.initGraphLayout();
         this.initUndoManager();
@@ -178,21 +184,28 @@ class WorkflowEditor extends Component {
     insertItemVertex = (graph, evt, target, x, y) => {
 
         console.log('insertItemVertex:', this._currentSourceType)
+        const { toggleCreateTask, data } = this.props;
 
+        const taskType = this._currentSourceType.key; 
         const newCell = new mxCell(
             '新节点', 
             new mxGeometry(0, 0, VertexSize.width, VertexSize.height)
         )
         newCell.vertex = true;
         newCell.data = {
-            taskType: this._currentSourceType.key,
+            taskType: taskType,
             name: '新节点'
         }
 
         const cells = graph.importCells([newCell], x, y, target);
         if (cells != null && cells.length > 0) {
             this._currentCell = cells[0];
-            this.props.toggleCreateTask();
+            const createOrigin = {
+                name: 'graph',
+                data: data,
+                taskType: taskType,
+            }
+            toggleCreateTask(createOrigin);
             graph.scrollCellToVisible(cells[0]);
             graph.setSelectionCells(cells);
         }
@@ -303,6 +316,20 @@ class WorkflowEditor extends Component {
         return previewDragTarget;
     }
 
+    listenConnection() { // 仅仅限制有效的链接
+        const graph = this.graph
+        graph.connectionHandler.addListener(mxEvent.CONNECT, function(sender, evt) {
+            var edge = evt.getProperty('cell');
+            var source = graph.getModel().getTerminal(edge, true);
+            var target = graph.getModel().getTerminal(edge, false);
+
+            const edges = graph.getEdgesBetween(source, target);
+            if (edges.length > 1) {
+                graph.removeCells([edge])
+            }
+        })
+    }
+
     initDraggableToolBar() {
 
         const ctx = this;
@@ -327,7 +354,6 @@ class WorkflowEditor extends Component {
                 );
 
                 draggabledEle.createPreviewElement = function(graph, event) {
-                    console.log('createPreviewElement', type);
                     ctx._currentSourceType = type;
                     return previewDragTarget;
                 }

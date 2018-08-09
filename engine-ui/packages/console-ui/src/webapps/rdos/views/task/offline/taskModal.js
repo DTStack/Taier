@@ -68,7 +68,10 @@ class TaskForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { defaultData, taskTypes } = this.props;
+        const { 
+            defaultData, taskTypes, createOrigin, 
+            labelPrefix, createFromGraph 
+        } = this.props;
         const { operateModel } = this.state;
 
         /**
@@ -82,8 +85,13 @@ class TaskForm extends React.Component {
 
         this.isEditExist = !isCreateNormal && !isCreateFromMenu;
 
-        const value = isCreateNormal ? this.state.value :
+        let value = isCreateNormal ? this.state.value :
             (!isCreateFromMenu ? defaultData.taskType : this.state.value);
+
+        // 如果是从Graph中触发创建
+        if (createFromGraph) {
+            value = createOrigin.taskType;
+        }
 
         const taskOptions = taskTypes.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
@@ -111,37 +119,40 @@ class TaskForm extends React.Component {
         const acceptType = (isMl||isHadoopMR||isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
 
+        const initialTaskType = this.isEditExist ? defaultData.taskType : 
+        createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
+
         return (
             <Form>
                 <FormItem
                     {...formItemLayout}
-                    label="任务名称"
+                    label={`${labelPrefix}名称`}
                     hasFeedback
                 >
                     {getFieldDecorator('name', {
                         rules: [{
-                            required: true, message: '任务名称不可为空！',
+                            required: true, message: `${labelPrefix}名称不可为空！`,
                         }, {
                             max: 64,
-                            message: '任务名称不得超过64个字符！',
+                            message: `${labelPrefix}名称不得超过64个字符！`,
                         }, {
                             pattern: /^[A-Za-z0-9_]+$/,
-                            message: '任务名称只能由字母、数字、下划线组成!',
+                            message: `${labelPrefix}名称只能由字母、数字、下划线组成!`,
                         }],
                         initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.name
                     })(
-                        <Input placeholder="请输入任务名称" />,
+                        <Input placeholder={`请输入${labelPrefix}名称`} />,
                     )}
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label="任务类型"
+                    label={`${labelPrefix}类型`}
                 >
                     {getFieldDecorator('taskType', {
                         rules: [{
-                            required: true, message: '请选择任务类型',
+                            required: true, message: `请选择${labelPrefix}类型`,
                         }],
-                        initialValue: this.isEditExist ? defaultData.taskType : (taskTypes.length > 0 && taskTypes[0].key)
+                        initialValue: initialTaskType,
                     })(
                         <Select
                             disabled={isCreateNormal ? false : !isCreateFromMenu}
@@ -364,31 +375,34 @@ class TaskForm extends React.Component {
                         </Tooltip>
                     </FormItem>
                 }
-                <FormItem
-                    {...formItemLayout}
-                    label="存储位置"
-                >
-                    {getFieldDecorator('nodePid', {
-                        rules: [{
-                            required: true, message: '存储位置必选！',
-                        }],
-                        initialValue: savePath,
-                    })(
-                        <FolderPicker
-                            ispicker
-                            id="Task_dev_catalogue"
-                            type={MENU_TYPE.TASK_DEV}
-                            treeData={this.props.treeData}
-                            onChange={this.handleSelectTreeChange.bind(this)}
-                            defaultNode={isCreateNormal ?
-                                this.props.treeData.name :
-                                isCreateFromMenu ?
-                                    this.getFolderName(defaultData.parentId) :
-                                    this.getFolderName(defaultData.nodePid)
-                            }
-                        />
-                    )}
-                </FormItem>
+                {
+                    !createFromGraph && 
+                    <FormItem
+                        {...formItemLayout}
+                        label="存储位置"
+                    >
+                        {getFieldDecorator('nodePid', {
+                            rules: [{
+                                required: true, message: '存储位置必选！',
+                            }],
+                            initialValue: savePath,
+                        })(
+                            <FolderPicker
+                                ispicker
+                                id="Task_dev_catalogue"
+                                type={MENU_TYPE.TASK_DEV}
+                                treeData={this.props.treeData}
+                                onChange={this.handleSelectTreeChange.bind(this)}
+                                defaultNode={isCreateNormal ?
+                                    this.props.treeData.name :
+                                    isCreateFromMenu ?
+                                        this.getFolderName(defaultData.parentId) :
+                                        this.getFolderName(defaultData.nodePid)
+                                }
+                            />
+                        )}
+                    </FormItem>
+                }
                 <FormItem
                     {...formItemLayout}
                     label="描述"
@@ -538,9 +552,15 @@ class TaskModal extends React.Component {
     }
 
     render() {
-        const { isModalShow, taskTreeData, resourceTreeData, defaultData, taskTypes } = this.props;
+        const { 
+            isModalShow, taskTreeData, resourceTreeData, 
+            defaultData, taskTypes, createOrigin } = this.props;
         const { loading } = this.state;
+
         let isCreate = true;
+        const createFromGraph = createOrigin && createOrigin.name === 'graph';
+        const labelPrefix = createFromGraph ? '节点' : '任务';
+
         if (defaultData && defaultData.name) {
             isCreate = false;
         }
@@ -548,7 +568,7 @@ class TaskModal extends React.Component {
         return (
             <div>
                 <Modal
-                    title={isCreate ? '新建离线任务' : '编辑离线任务'}
+                    title={isCreate ? `新建离线${labelPrefix}` : `编辑离线${labelPrefix}`}
                     key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}
@@ -571,7 +591,10 @@ class TaskModal extends React.Component {
                         treeData={taskTreeData}
                         resTreeData={resourceTreeData}
                         defaultData={defaultData}
+                        createOrigin={createOrigin}
                         taskTypes={taskTypes}
+                        labelPrefix={labelPrefix}
+                        createFromGraph={createFromGraph}
                     />
                 </Modal>
             </div>
