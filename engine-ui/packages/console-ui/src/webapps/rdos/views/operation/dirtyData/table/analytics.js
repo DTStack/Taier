@@ -31,7 +31,7 @@ export default class TableAnalytics extends Component {
 
     componentDidMount() {
         const tableId = this.state.tableId;
-        this.getTableAnalytics({ tableId, limit: 10, errorType: 0 });
+        this.getTableAnalytics({ tableId, limit: 10, errorType: 'npe' });
         this.getTablePartitions({ tableId, pageSize: 1000 });
         this.getTableCountInfo({ tableId });
     }
