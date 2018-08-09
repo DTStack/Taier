@@ -545,6 +545,7 @@ export default class OutputPanel extends Component {
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
+        this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType});
         this.setState({
             tabTemplate,
@@ -638,6 +639,7 @@ export default class OutputPanel extends Component {
             panelColumn[index]["cacheTTLMs"] = 60000;
             this.getTableColumns(index,sourceId,value)
         }
+        this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({panelColumn})
         this.setState({
             panelColumn,
