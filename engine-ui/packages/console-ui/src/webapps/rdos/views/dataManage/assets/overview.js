@@ -352,7 +352,7 @@ export default class ProjectList extends Component {
         const { project, selectedProject, projectTable, projectStore, topStyle, total, chartSpan } = this.state
         const { projects } = this.props
         const projectOptions = projects ? projects.map(item => {
-            return <Option key={item.id} value={item.id}><Tooltip placement="top" mouseEnterDelay={1} title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
+            return <Option key={item.id} value={item.id} title={item.projectAlias || item.projectName} ><Tooltip placement="top" mouseEnterDelay={1} title={item.projectAlias || item.projectName}><div>{item.projectAlias || item.projectName}</div></Tooltip></Option>
         }) : []
 
         return (
@@ -375,6 +375,7 @@ export default class ProjectList extends Component {
                                             value={selectedProject}
                                             onChange={this.projectOnChange}
                                             style={{ width: '100px' }}
+                                            title=""
                                             filterOption={(input, option) =>  option.props.children.props.children.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                         >
                                             {projectOptions}
