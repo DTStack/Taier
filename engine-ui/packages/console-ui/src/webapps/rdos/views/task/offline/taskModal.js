@@ -582,6 +582,7 @@ class TaskModal extends React.Component {
 export default connect(state => {
     return {
         isModalShow: state.offlineTask.modalShow.createTask,
+        createOrigin: state.offlineTask.modalShow.createOrigin,
         taskTreeData: state.offlineTask.taskTree,
         currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
