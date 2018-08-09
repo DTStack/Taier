@@ -173,6 +173,7 @@ class TaskIndex extends Component {
         const { currentPage, dispatch } = this.props
         if (old !== newVal) {
             currentPage.taskParams = newVal
+             currentPage.notSynced = true; // 添加未保存标记
             dispatch(BrowserAction.setCurrentPage(currentPage))
         }
     }
@@ -314,7 +315,7 @@ class TaskIndex extends Component {
     render() {
         const { dispatch, currentPage } = this.props
         const disablePublish = currentPage.notSynced
-
+ 
         return (
             <Row className="task-editor">
                 <header className="toolbar bd-bottom clear">
@@ -361,8 +362,6 @@ class TaskIndex extends Component {
 
 export default connect((state) => {
     const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
-    console.log('inputData, outputData, dimensionData',inputData, outputData, dimensionData);
-    
     const { user } = state;
     return {
         currentPage,
