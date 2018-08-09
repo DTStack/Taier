@@ -61,7 +61,11 @@ class OutputOrigin extends Component {
             case "currencyType":
                return arrData.map(v=>{
                     return  <Option key={v} value={`${v}`}>{v}</Option>
-                }) 
+                })
+            case "columnType":
+                return arrData.map((v,index)=>{
+                    return  <Option key={index} value={`${v.key}`}>{v.key}</Option>
+                })  
             default:
                 return null;
         }
@@ -75,11 +79,11 @@ class OutputOrigin extends Component {
     }
 
     render(){
-        const { handleInputChange,index,sync, originOptionType,tableOptionType,panelColumn } = this.props;
+        const { handleInputChange,index,sync, originOptionType,tableOptionType,panelColumn,tableColumnOptionType } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
-        const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
+        const tableColumnOptionTypes = this.originOption('columnType',tableColumnOptionType[index]||[]);
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
@@ -207,7 +211,7 @@ class OutputOrigin extends Component {
                                 {required: true, message: '请输入rowkey',}
                             ],
                         })(
-                            <Input  placeholder="请输入rowkey" onChange={e => handleInputChange('rowkey',index,e.target.value)}/>
+                            <Input  placeholder=" rowkey 格式：填写字段1 , 填写字段2 " onChange={e => handleInputChange('rowkey',index,e.target.value)}/>
                         )}
                     </FormItem> : ""
                 }
@@ -248,7 +252,7 @@ class OutputOrigin extends Component {
                         panelColumn[index].type == "1" ?
                         <Col  span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
                             <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                                <Column
+                                {/* <Column
                                     title="字段"
                                     dataIndex="column"
                                     key="字段"
@@ -270,6 +274,30 @@ class OutputOrigin extends Component {
                                                 }
                                             </Select>
                                         )
+                                    }}
+                                /> */}
+                                <Column
+                                    title="字段"
+                                    dataIndex="column"
+                                    key="字段"
+                                    width='50%'
+                                    render={(text,record,subIndex)=>{ 
+                                        return  <Select className="sub-right-select" value={text} onChange={(v)=>{handleInputChange("subColumn",index,subIndex,v)}}
+                                                    showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                >
+                                                    {
+                                                        tableColumnOptionTypes
+                                                    }
+                                                </Select>
+                                    }}
+                                />
+                                <Column
+                                    title="类型"
+                                    dataIndex="type"
+                                    key="类型"
+                                    width='40%'
+                                    render={(text,record,subIndex)=>{ 
+                                        return <Input value={text} disabled/>
                                     }}
                                 />
                                 <Column
@@ -411,6 +439,8 @@ const initialData = {
     checkFormParams: [],//存储要检查的参数from
     originOptionType: [],//数据源选择数据
     tableOptionType: [],//表选择数据
+    tableColumnOptionType: [],//表字段选择的类型
+
 }
 
 export default class OutputPanel extends Component {
@@ -426,6 +456,7 @@ export default class OutputPanel extends Component {
             checkFormParams: [],//存储要检查的参数from
             originOptionType: [],//数据源选择数据
             tableOptionType: [],//表选择数据
+            tableColumnOptionType: [],//表字段选择的类型
         }
     }
     
@@ -442,8 +473,9 @@ export default class OutputPanel extends Component {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
             this.getTypeOriginData(index,v.type);
-            if(v.type=="1"){
+            if(v.type=="1"||v.type=="8"){
                 this.getTableType(index,v.sourceId)
+                this.getTableColumns(index,v.sourceId,v.table)
             }
         })
         this.setOutputData({ tabTemplate, panelColumn })
@@ -473,18 +505,20 @@ export default class OutputPanel extends Component {
         const checkFormParams = [];
         const originOptionType = [];
         const tableOptionType = [];
+        const tableColumnOptionType = [];
         sink.map( v => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setOutputData({taskId ,sink: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType}}));
+        dispatch(BrowserAction.setOutputData({taskId ,sink: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType}}));
         this.setState({
-            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType
+            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType
         },()=>{
             sink.map((v,index)=>{
                 this.getTypeOriginData(index,v.type)
-                if(v.type=='1'){
+                if(v.type=='1'||v.type=="8"){
                     this.getTableType(index,v.sourceId)
+                    this.getTableColumns(index,v.sourceId,v.table)
                 }
             })
         })
@@ -515,6 +549,7 @@ export default class OutputPanel extends Component {
 
     getTableType = (index,sourceId) => {
         const { tableOptionType } = this.state;
+        console.log('getTableType:',index,sourceId);
         if(sourceId){
             Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
                 if(index==='add'){
@@ -549,6 +584,21 @@ export default class OutputPanel extends Component {
         }
     }
 
+    getTableColumns = (index,sourceId,tableName) => {
+        const { tableColumnOptionType } = this.state;
+        Api.getStreamTableColumn({sourceId,tableName}).then(v=>{
+            if(v.code === 1){
+               tableColumnOptionType[index] = v.data;
+            }else{
+               tableColumnOptionType[index] = []
+            }
+            this.setOutputData({tableColumnOptionType})
+            this.setState({
+                tableColumnOptionType
+            })
+        })
+    }
+
     componentWillReceiveProps(nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
@@ -573,12 +623,13 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             tableName: undefined,
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         if(type==="add"){
             tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
             this.getTypeOriginData("add",inputData.type);
             this.getTableType('add',inputData.table)
+            tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         }else{
@@ -586,11 +637,13 @@ export default class OutputPanel extends Component {
             panelColumn.splice(index,1);
             originOptionType.splice(index,1);
             tableOptionType.splice(index,1);
+            tableColumnOptionType.splice(index,1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn});
+        this.props.tableParamsChange()//添加数据改变标记
+        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn,tableColumnOptionType});
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -598,17 +651,14 @@ export default class OutputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            tableOptionType
+            tableOptionType,
+            tableColumnOptionType
         })
     }
 
     setOutputData = (data) => {
         const { dispatch, currentPage } = this.props;
-        console.log('setOutputData:',this.state,'data:',data);
-        console.log('...setOutputData:',this.state,'...data:',data);
-        
         const dispatchSource = {...this.state,...data};
-        console.log('dispatchSource',dispatchSource);
         dispatch(BrowserAction.setOutputData({taskId: currentPage.id ,sink: dispatchSource}));
     }
 
@@ -632,23 +682,25 @@ export default class OutputPanel extends Component {
             panelActiveKey,
         })
     }
+
+    tableColumnType = (index,column) => {
+        const { tableColumnOptionType } = this.state;
+        const filterColumn = tableColumnOptionType[index].filter(v=>{
+            return v.key === column
+        })
+        return filterColumn[0].type
+    }
       
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
-        const { panelColumn } = this.state;
+        const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
         }else if(type ==="subColumn"){
             panelColumn[index]["columns"][value].column = subValue;
-        }else if(type === "subType"){
-            panelColumn[index]["columns"][value].type = subValue;
-        }else if(type === "type"){
-            panelColumn[index]["type"] = value;
-            panelColumn[index]["sourceId"] = undefined;
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["columnsText"] = undefined;
-            panelColumn[index]["columns"] = [];
+            const subType = this.tableColumnType(index,subValue);
+            panelColumn[index]["columns"][value].type = subType;
         }else{
             panelColumn[index][type] = value;
         }
@@ -657,13 +709,34 @@ export default class OutputPanel extends Component {
             //this.parseColumnsText(index,value)
         }
         if(type==="type"){
+            originOptionType[index] = [];
+            tableOptionType[index] = [];
+            tableColumnOptionType[index] = [];
+            panelColumn[index]["type"] = value;
+            panelColumn[index]["sourceId"] = undefined;
+            panelColumn[index]["table"] = undefined;
+            panelColumn[index]["columnsText"] = undefined;
+            panelColumn[index]["columns"] = [];
            // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
-            if(panelColumn[index].type=='1'){
+            tableOptionType[index] = [];
+            tableColumnOptionType[index] = [];
+            panelColumn[index].columns = [];
+            panelColumn[index]["table"] = undefined;
+            panelColumn[index]["columnsText"] = undefined;
+            panelColumn[index]["columns"] = [];
+            if(panelColumn[index].type=='1'||panelColumn[index].type=='8'){
                 this.getTableType(index,value)
             }
+        }else if(type === "table"){
+            tableColumnOptionType[index] = [];
+            const { sourceId } = panelColumn[index];
+            panelColumn[index].columns = [];
+            panelColumn[index].columnsText = undefined;
+            this.getTableColumns(index,sourceId,value)
         }
+        this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({panelColumn})
         this.setState({
             panelColumn,
@@ -751,7 +824,7 @@ export default class OutputPanel extends Component {
 
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType } = this.state;
+        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false}  onChange={this.handleActiveKey} >
@@ -765,6 +838,7 @@ export default class OutputPanel extends Component {
                                         handleInputChange={this.handleInputChange}
                                         panelColumn={panelColumn} originOptionType={originOptionType} 
                                         tableOptionType = {tableOptionType}
+                                        tableColumnOptionType = {tableColumnOptionType}
                                         onRef={this.recordForm}
                                         editorParamsChange={this.props.editorParamsChange}
                                     />

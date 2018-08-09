@@ -256,6 +256,10 @@ export default class TaskBrowser extends Component {
         this.props.editorParamsChange(...arguments);
     }
 
+    tableParamsChange = ()=>{
+        this.props.editorChange();
+    }
+
     render() {
         const {
             currentPage, pages, router,
@@ -301,17 +305,17 @@ export default class TaskBrowser extends Component {
                             </TabPane>
                             {
                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">源表</span>} key="params3">
-                                        <InputPanel {...this.props} />
+                                        <InputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                     </TabPane> : ""
                             }
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span  style={{marginTop: 10}} className="title-vertical tabpanel-content">结果表</span>} key="params4">
-                                    <OutputPanel {...this.props} />
+                                    <OutputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">维表</span>} key="params5">
-                                    <DimensionPanel {...this.props} />
+                                    <DimensionPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
