@@ -44,7 +44,13 @@ export default class ImportLocalData extends Component {
         if (this.checkParams(params)) {
             params.partitions = JSON.stringify(params.partitions)
             params.keyRef = JSON.stringify(params.keyRef)
+            this.setState({
+                loading:true
+            })
             API.importLocalData(params).then((res) => {
+                this.setState({
+                    loading:false
+                })
                 if (res.code === 1) {
                     const msg = `您已经成功导入${res.data}条数据！`
                     message.success(msg);
@@ -213,7 +219,7 @@ export default class ImportLocalData extends Component {
     }
 
     footer() {
-        const { step } = this.state
+        const { step, loading } = this.state
         return (
             <div>
                 <Button onClick={() => {
@@ -243,6 +249,7 @@ export default class ImportLocalData extends Component {
                             ? 'inline-block' : 'none'
                     }}
                     onClick={this.importData}
+                    loading={loading}
                     type="primary">
                     导入
                 </Button>
