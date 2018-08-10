@@ -244,7 +244,11 @@ class OutputOrigin extends Component {
                     {...formItemLayout}
                     label="映射表"
                 >
-                    {getFieldDecorator('tableName')(
+                    {getFieldDecorator('tableName', {
+                        rules: panelColumn[index].type === "11" ?  [
+                                {required: true, message: '请输入映射表名'}
+                            ] : [],
+                    })(
                         <Input  placeholder="请输入映射表名" onChange={e => handleInputChange('tableName',index,e.target.value)}/>
                     )}
                 </FormItem>
@@ -842,7 +846,7 @@ export default class OutputPanel extends Component {
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输出源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 输出源 ${index+1} `}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"

@@ -659,7 +659,7 @@ export default class InputPanel extends Component {
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输入源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 输入源 ${index+1} `}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"
