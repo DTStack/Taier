@@ -26,6 +26,7 @@ const {
     mxGeometry,
     mxUtils,
     mxEvent,
+    mxPopupMenu,
     mxDragSource,
     mxPolyline,
     mxConstants,
@@ -121,10 +122,11 @@ class WorkflowEditor extends Component {
         new mxRubberband(graph)
 
         // Initial draggable elements
-        this.listenConnection()
+        this.listenConnection();
         this.initDraggableToolBar();
         this.initGraphLayout();
         this.initUndoManager();
+        this.initContextMenu();
     }
 
     getStyles = (type) => {
@@ -174,8 +176,8 @@ class WorkflowEditor extends Component {
         const ctx = this;
         switch(keyCode) {
             case KEY_CODE.BACKUP: {
-                ctx.removeCell()
-                break;
+                // ctx.removeCell()
+                // break;
             }
             default:
         }
@@ -304,6 +306,36 @@ class WorkflowEditor extends Component {
                 graph.getModel().endUpdate();
                 if (post != null) { post();}
             }
+        }
+    }
+
+    initContextMenu = () => {
+        const ctx = this;
+        const graph = this.graph;
+        const { goToTaskDev, tabData } = this.props
+        var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
+        mxPopupMenu.prototype.showMenu = function() {
+            var cells = this.graph.getSelectionCells()
+            if (cells.length > 0 && cells[0].vertex) {
+                mxPopupMenuShowMenu.apply(this, arguments);
+            } else return false
+        };
+        graph.popupMenuHandler.autoExpand = true
+        graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
+
+            if (!cell) return
+
+            const currentNode = cell.data || {};
+
+            menu.addItem('保存', null, function() {
+            }, null, null, true) // 正常状态
+
+            menu.addItem('编辑', null, function() {
+            }, null, null, true) // 正常状态
+
+            menu.addItem('删除', null, function() {
+            }, null, null, true) // 正常状态
+
         }
     }
 
