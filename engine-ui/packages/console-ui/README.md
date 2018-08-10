@@ -14,7 +14,7 @@
 - 【数据质量】表级报告增加`分区`
 - 【数据质量】任务查询模块增加`触发方式`过滤
 - 【数据质量】新增`4`中系统变量
-- 【其他】总计100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-4-0/issues)
+- 【其他】总计100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsight-v2-6-0)
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
