@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { 
     Input, Button, Popconfirm,
-    Table, message, Card
+    Table, message, Card, Icon, Tooltip
  } from 'antd';
 import moment from 'moment';
 
+import { Circle } from 'widgets/circle';
 import DataSourceForm from './editModal';
 import { dataSourceFilter, } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
@@ -121,6 +122,7 @@ export default class DataSource extends Component {
     }
 
     initColumns = () => {
+        const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
@@ -154,22 +156,38 @@ export default class DataSource extends Component {
             render: text => moment(text).format("YYYY-MM-DD HH:mm:ss"),
             width: '15%'
         }, {
-            title: '状态',
+            title: '应用状态',
             dataIndex: 'active',
             key: 'active',
             filters: [{
-                text: '未启用',
+                text: '未使用',
                 value: 0,
             }, {
                 text: '使用中',
                 value: 1,
             }],
             filterMultiple: false,
-            render: (text, record) => {
-                return record.active === 1 ? '使用中' : '未启用'
+            render: (active) => {
+                return active === 1 ? '使用中' : '未使用'
             },
             width: '10%'
-        }, {
+        }, 
+        // {
+        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+        //                 <span>连接状态 &nbsp;
+        //                     <Icon type="question-circle-o" />
+        //                 </span>
+        //             </Tooltip>,
+        //     dataIndex: 'linkState',
+        //     key: 'linkState',
+        //     width: '10%',
+        //     render: (linkState) => {
+        //         return linkState === 1 ? 
+        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+        //     },
+        // },
+         {
             title: '操作',
             width: '10%',
             render: (text, record) => {

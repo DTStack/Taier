@@ -566,7 +566,7 @@ class Keymap extends React.Component{
                     }
                 }
                 return (
-                    <div className="m-col footer pa" 
+                    footerContent?<div className="m-col footer pa" 
                         style={{
                             left: padding,
                             top: padding + (h * (sourceCol.length + 1)),
@@ -575,7 +575,7 @@ class Keymap extends React.Component{
                         }}
                     >
                         { footerContent }
-                    </div>
+                    </div>:null
                 )
             }
             return ''

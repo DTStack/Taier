@@ -25,8 +25,18 @@ class ResFormModal extends Component {
         const resource = this.props.form.getFieldsValue()
         this.props.form.validateFields((err) => {
             if (!err) {
+                this.setState({
+                    loading:true
+                })
                 resource.file = file.files[0]
                 handOk(resource)
+                .then(
+                    ()=>{
+                        this.setState({
+                            loading:false
+                        })
+                    }
+                )
                 setTimeout(() => {
                     this.setState({ file: '' })
                     this.resetInput();
@@ -69,7 +79,7 @@ class ResFormModal extends Component {
             form, resRoot, title, ayncTree,
             handCancel, visible, activeNode,
         } = this.props
-        const { file } = this.state
+        const { file, loading } = this.state
         const { getFieldDecorator } = form
         return (
             <Modal
@@ -78,6 +88,7 @@ class ResFormModal extends Component {
               visible={visible}
               onOk={this.submit}
               onCancel={handCancel}
+              confirmLoading={loading}
             >
                 <Form>
                     <FormItem

@@ -1,7 +1,7 @@
 import 'whatwg-fetch'
 
 import ProgressBar from 'widgets/progress-bar';
-import { timeout } from 'funcs';
+import { singletonNotification } from 'funcs';
 import { authAfterFormated, authBeforeFormate } from '../interceptor';
 
 const FETCH_TIME_OUT = 5000;
@@ -36,7 +36,6 @@ class Http {
     request(url, options) {
         ProgressBar.show()
         options.credentials = 'same-origin'
-        // return timeout(), FETCH_TIME_OUT);
         return fetch(url, options)
         .then(authBeforeFormate)
         .then(response => {
@@ -48,7 +47,7 @@ class Http {
         .then(authAfterFormated)
         .catch( err => {
             ProgressBar.hide()
-            console.error(url + ":" + err)
+            singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！')
             return err //错误信息返回
         });
     }

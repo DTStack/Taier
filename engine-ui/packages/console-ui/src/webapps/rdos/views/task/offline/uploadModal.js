@@ -357,19 +357,23 @@ class ResModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.props !== nextProps;
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     return this.props !== nextProps;
+    // }
 
     handleSubmit() {
         const form = this.form;
-
         form.validateFields((err, values) => {
             if(!err) {
                 values.file = this.state.file.files[0];
-
+                this.setState({
+                    loading:true
+                })
                 this.props.addResource(values)
                     .then(success => {
+                        this.setState({
+                            loading:false
+                        })
                         if (success) {
                             this.closeModal();
                             this.setState({ file: '' });
@@ -400,7 +404,7 @@ class ResModal extends React.Component {
             isModalShow, toggleUploadModal, 
             resourceTreeData, defaultData, isCoverUpload, 
         } = this.props;
-
+        const {loading} = this.state;
         const isCreateNormal = typeof defaultData === 'undefined';
         const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
@@ -412,7 +416,7 @@ class ResModal extends React.Component {
                     visible={ isModalShow }
                     footer={[
                         <Button key="back" size="large" onClick={ this.handleCancel }>取消</Button>,
-                        <Button key="submit" type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
+                        <Button key="submit" loading={loading} type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
                     ]}
                     key={ this.dtcount }
                     onCancel={this.handleCancel}
@@ -463,9 +467,7 @@ dispatch => {
                         });
 
                         return true;
-                    } else {
-                        message.success('资源上传异常！');
-                    }
+                    } 
                 })
         },
         emptyModalDefault() {

@@ -107,6 +107,8 @@ export const sourceMapAction = mc([
     'ADD_SOURCE_KEYROW',
     'REMOVE_SOURCE_KEYROW',
     'ADD_BATCH_SOURCE_KEYROW',
+    'DATA_SOURCE_ADD',
+    'DATA_SOURCE_DELETE',
 ], {prefix: 'offline/dataSync/sourceMap/'});
 
 export const targetMapAction = mc([

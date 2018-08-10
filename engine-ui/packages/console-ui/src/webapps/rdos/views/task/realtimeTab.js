@@ -235,7 +235,7 @@ class RealTimeTabPane extends Component {
 
     uploadRes = (file) => {
         const { dispatch } = this.props
-        Api.uploadRes(file).then((res) => {
+        return Api.uploadRes(file).then((res) => {
             if (res.code === 1) {
                 this.closeModal()
                 message.success('资源上传成功！')

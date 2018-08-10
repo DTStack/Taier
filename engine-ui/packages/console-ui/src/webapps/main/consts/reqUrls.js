@@ -6,11 +6,13 @@ import {
      RDOS_BASE_URL,
      DQ_BASE_URL,
      DL_BASE_URL,
+     CONSOLE_BASE_URL
 } from 'config/base';
 
 export default {
     // ===== 用户模块 ===== //
     LOGOUT: `${UIC_BASE_URL}/v2/logout`,
+    CHECKISROOT:`${CONSOLE_BASE_URL}/status/status`,//验证是否为租户root管理员
 
     //===== 开发套件 ====//
     RDOS_SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,

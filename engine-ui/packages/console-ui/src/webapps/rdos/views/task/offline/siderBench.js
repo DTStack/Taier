@@ -120,7 +120,7 @@ export default connect(state => {
     return {
         setTaskParams(params) {
             dispatch({
-                type: workbenchAction.SET_TASK_FIELDS_VALUE_SILENT,
+                type: workbenchAction.SET_TASK_SQL_FIELD_VALUE,
                 payload: params
             });
         }

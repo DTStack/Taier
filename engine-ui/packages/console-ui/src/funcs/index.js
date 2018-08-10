@@ -1,5 +1,5 @@
 import { debounce, endsWith, cloneDeep } from 'lodash';
-import { Promise } from '../../node_modules/monaco-editor';
+import { notification } from 'antd'
 
 /**
  * 存放一些零碎的公共方法
@@ -157,7 +157,9 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
 export function filterComments(sql) {
     let tmpArr = [];
     const comments = [];
-
+    if(!sql){
+        return '';
+    }
     for (let i = 0; i < sql.length; i++) {
         let char = sql[i];
 
@@ -284,4 +286,19 @@ export function timeout(promise, ms) {
         }, ms)
         promise.then(resolve, reject);
     })
+}
+
+/**
+ * 全局唯一的notification实例
+ * @param {*} title 
+ * @param {*} message 
+ */
+export function singletonNotification(title, message) {
+    const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
+    if (notifyMsgs.length === 0) {
+        notification['error']({
+            message: title,
+            description: message,
+        });
+    }
 }

@@ -11,6 +11,7 @@ import Editor from 'widgets/editor';
 import { commonFileEditDelegator } from "widgets/editor/utils";
 import pureRender from 'utils/pureRender';
 
+import reqOfflineUrl from "../../../../api/reqOffline";
 import API from '../../../../api';
 import IDEEditor from "../../../../components/editor";
 
@@ -241,6 +242,7 @@ class EditorContainer extends Component {
             data: data,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
+            downloadUri:reqOfflineUrl.DOWNLOAD_SQL_RESULT
         }
 
         return (

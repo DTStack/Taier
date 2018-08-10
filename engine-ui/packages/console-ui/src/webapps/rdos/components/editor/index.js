@@ -53,7 +53,7 @@ class IDEEditor extends Component {
                     </div>
                     : ""
                 }
-                <div className="ide-content">
+                <div style={{zIndex:901}} className="ide-content">
                     {console && console.data && console.data.log ? (
                         <SplitPane
                             split="horizontal"

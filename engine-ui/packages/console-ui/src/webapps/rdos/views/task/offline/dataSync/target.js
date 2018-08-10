@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio } from 'antd';
+import { Form, Input, Select, Button, Radio, Modal } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
@@ -18,8 +18,10 @@ import {
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
+import Editor from '../../../../components/code-editor'
 
 import { matchTaskParams } from '../../../../comm';
+import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -31,7 +33,10 @@ class TargetForm extends React.Component {
         super(props);
 
         this.state = {
-            tableList: []
+            tableList: [],
+            visible: false,
+            modalLoading: false,
+            loading: false
         };
     }
 
@@ -39,7 +44,7 @@ class TargetForm extends React.Component {
         const { targetMap, isCurrentTabNew } = this.props;
         const { sourceId } = targetMap;
 
-        sourceId && isCurrentTabNew && this.getTableList(sourceId);
+        sourceId && this.getTableList(sourceId);
     }
 
 
@@ -108,23 +113,23 @@ class TargetForm extends React.Component {
         this.resetTable();
     }
 
-    resetTable(){
+    resetTable() {
         const { form } = this.props;
         this.changeTable('');
         //这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
         this.setState({
-            selectHack:true
-        },()=>{
+            selectHack: true
+        }, () => {
             form.resetFields(['table'])
             this.setState({
-                selectHack:false
+                selectHack: false
             })
         })
-        
+
     }
 
     changeTable(value) {
-        if(value){
+        if (value) {
             this.getTableColumn(value);
         }
         this.submitForm();
@@ -174,7 +179,7 @@ class TargetForm extends React.Component {
     }
 
     next(cb) {
-        const { form, handleTargetMapChange, targetMap } = this.props;
+        const { form } = this.props;
 
         form.validateFields((err, values) => {
             if (!err) {
@@ -182,16 +187,87 @@ class TargetForm extends React.Component {
             }
         })
     }
-
+    handleCancel() {
+        this.setState({
+            textSql: "",
+            visible: false
+        })
+    }
+    createTable() {
+        const { textSql } = this.state;
+        const {targetMap} =  this.props;
+        this.setState({
+            modalLoading:true
+        })
+        ajax.createDdlTable({ sql: textSql }).then((res) => {
+            this.setState({
+                modalLoading:false
+            })
+            if (res.code === 1) {
+                this.getTableList(targetMap.sourceId)
+                this.changeTable(res.data.tableName);
+                this.props.form.setFieldsValue({table:res.data.tableName})
+                this.setState({
+                    visible: false
+                })
+                message.success('表创建成功!')
+            }
+        })
+    }
+    showCreateModal() {
+        const { sourceMap } = this.props;
+        this.setState({
+            loading: true
+        })
+        const tableName=typeof sourceMap.type.table=="string"?sourceMap.type.table:sourceMap.type.table[0]
+        ajax.getCreateTargetTable({
+            originSourceId: sourceMap.sourceId,
+            tableName: tableName,
+            partition: sourceMap.type.partition,
+        })
+            .then(
+                (res) => {
+                    this.setState({
+                        loading:false
+                    })
+                    if (res.code == 1) {
+                        this.setState({
+                            textSql: res.data,
+                            sync: true,
+                            visible: true
+                        })
+                    }
+                }
+            )
+    }
+    ddlChange = (origin, newVal) => {
+        this.setState({
+            textSql: newVal,
+            sync: false
+        })
+    }
     render() {
         const { getFieldDecorator } = this.props.form;
-
+        const { modalLoading } = this.state;
         const {
-            targetMap, sourceMap, dataSourceList,
+            targetMap, dataSourceList,
             navtoStep, isCurrentTabNew
         } = this.props;
 
         return <div className="g-step2">
+            <Modal className="m-codemodal"
+                title={(
+                    <span>建表语句</span>
+                )}
+                confirmLoading={modalLoading}
+                maskClosable={false}
+                style={{ height: 424 }}
+                visible={this.state.visible}
+                onCancel={this.handleCancel.bind(this)}
+                onOk={this.createTable.bind(this)}
+            >
+                <Editor value={this.state.textSql} sync={this.state.sync} placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
+            </Modal>
             <Form>
                 <FormItem
                     {...formItemLayout}
@@ -207,16 +283,16 @@ class TargetForm extends React.Component {
                             showSearch
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                            disabled={!isCurrentTabNew}
+                        // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
-                               
-                                const disableSelect = src.type === DATA_SOURCE.ES ||
-                                src.type === DATA_SOURCE.REDIS ||
-                                src.type === DATA_SOURCE.MONGODB;
 
-                                return <Option 
+                                const disableSelect = src.type === DATA_SOURCE.ES ||
+                                    src.type === DATA_SOURCE.REDIS ||
+                                    src.type === DATA_SOURCE.MONGODB;
+
+                                return <Option
                                     key={src.id}
                                     name={src.dataName}
                                     value={`${src.id}`}
@@ -240,46 +316,52 @@ class TargetForm extends React.Component {
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
-        const { selectHack } = this.state
+        const { selectHack, loading } = this.state
 
-        const { targetMap, dataSourceList, isCurrentTabNew } = this.props;
+        const { targetMap, dataSourceList, isCurrentTabNew, project, sourceMap } = this.props;
+        const sourceType = sourceMap.type.type;
         let formItem;
-
+        const showCreateTable =
+            targetMap.name == project.projectName
+            && (sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
+                || sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL
+                || sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.MYSQL
+                || sourceType == DATA_SOURCE.HIVE || sourceType == DATA_SOURCE.MAXCOMPUTE);
         if (isEmpty(targetMap)) return null;
 
         switch (targetMap.type.type) {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER: 
+            case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
                     >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                    })(
-                        <Select
-                            showSearch
-                            mode="combobox"
-                            disabled={ !isCurrentTabNew }
-                            optionFilterProp="value"
-                            onChange={this.debounceTableSearch.bind(this)}
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option 
-                                    key={ `rdb-target-${table}` } 
-                                    value={ table }>
-                                    { table }
-                                </Option>
-                            })}
-                        </Select>
-                    )}
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                showSearch
+                                mode="combobox"
+                                // disabled={ !isCurrentTabNew }
+                                optionFilterProp="value"
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -341,7 +423,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -356,7 +438,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
@@ -369,6 +451,10 @@ class TargetForm extends React.Component {
                                 })}
                             </Select>
                         )}
+                        {showCreateTable && (loading ? <Icon type="loading" /> : <a
+                            style={{ top: "0px", right: "-90px" }}
+                            onClick={this.showCreateModal.bind(this)}
+                            className="help-doc" >一键生成目标表</a>)}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -483,7 +569,7 @@ class TargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: !targetMap.type || !targetMap.type.fileType ? 'orc' : targetMap.type.fileType
+                            initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc',
                         })(
                             <Select onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
@@ -518,7 +604,7 @@ class TargetForm extends React.Component {
             }
             case DATA_SOURCE.HBASE: {
                 formItem = [
-                    !selectHack&&<FormItem
+                    !selectHack && <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -533,7 +619,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                disabled={!isCurrentTabNew}
+                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
@@ -654,7 +740,7 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue:  !targetMap.type || !targetMap.type.fieldDelimiter ? ',' : targetMap.type.fieldDelimiter
+                            initialValue: !targetMap.type || !targetMap.type.fieldDelimiter ? ',' : targetMap.type.fieldDelimiter
                         })(
                             <Input
                                 placeholder="若不填写，则默认,"
@@ -718,6 +804,7 @@ const mapState = state => {
         sourceMap: dataSync.sourceMap,
         dataSourceList: dataSync.dataSourceList,
         taskCustomParams: workbench.taskCustomParams,
+        project: state.project
     };
 };
 

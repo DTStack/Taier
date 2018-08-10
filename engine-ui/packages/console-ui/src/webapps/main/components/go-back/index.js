@@ -5,19 +5,25 @@ import { browserHistory, hashHistory } from 'react-router'
 export default class GoBack extends Component {
 
     go = () => {
-        const { url, history } = this.props
+        const { url, history, autoClose } = this.props
         if (url) {
             if (history)
                 browserHistory.push(url)
             else
                 hashHistory.push(url)
         } else {
-            browserHistory.go(-1)
+            if(window.history.length==1){
+                if(autoClose){
+                    window.close();
+                }
+            }else{
+                hashHistory.go(-1);
+            }
         }
     }
 
     getButtonView() {
-        const { type, style } = this.props;
+        const { type, style, size } = this.props;
         let mStyle = {
             cursor: 'pointer'
         }
@@ -28,7 +34,7 @@ export default class GoBack extends Component {
             case "textButton":
                 mStyle.marginRight = '5px';
                 return (
-                    <Button style={mStyle} onClick={this.go} size="small">
+                    <Button style={mStyle} onClick={this.go} size={size||"small"}>
                         <Icon type="left" />返回
                     </Button>
                 );

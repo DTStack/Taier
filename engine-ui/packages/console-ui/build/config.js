@@ -14,7 +14,7 @@ module.exports = {
             },
             "/api/rdos": {
                 target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.0.227:9020", // tmp test server
+                // target: "http://172.16.1.170:9020", // tmp test server
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,
@@ -22,6 +22,7 @@ module.exports = {
             "/uic": { // UIC地址
                 target: "http://dtuic.dtstack.net",
                 changeOrigin: true,
+                pathRewrite:{"^/uic":"/"},
                 secure: false,
             },
             "/api/da": { // da地址
@@ -34,6 +35,12 @@ module.exports = {
             },
             "/api/tag": { // 数据标签
                 target: "http://172.16.8.107:8085",//测试环境
+                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                changeOrigin: true,
+                secure: false,
+            },
+            "/api/console": { // 控制台
+                target: "http://172.16.8.107:8084",//测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,

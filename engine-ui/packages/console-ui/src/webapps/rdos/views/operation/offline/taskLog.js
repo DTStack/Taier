@@ -8,7 +8,8 @@ import utils from 'utils'
 import GoBack from 'widgets/go-back'
 
 import Api from '../../../api'
-import Editor from '../../../components/code-editor'
+import Editor from 'widgets/code-editor'
+import { createLinkMark } from 'widgets/code-editor/utils'
 import { TaskType } from '../../../components/status'
 
 const editorOptions = {
@@ -29,21 +30,21 @@ function wrappTitle(title) {
 function getLogsInfo(title, data) {
     let res = '';
     if (data && data.length > 0) {
-        for (let i = 0; i < data.length ; ++i) {
-            res = `${res} \n${wrappTitle(title)} \n${data[i].id } \n${data[i].value}`
+        for (let i = 0; i < data.length; ++i) {
+            res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`
         }
     }
     return res
 }
 
 export function LogInfo(props) {
-    window.loggg=props.log;
-    const log = props.log ? JSON.parse(props.log.replace(/\n/g,"\\n").replace(/\r/g,"\\r")) : {};
+    window.loggg = props.log;
+    const log = props.log ? JSON.parse(props.log.replace(/\n/g, "\\n").replace(/\r/g, "\\r")) : {};
     const syncJobInfo = props.syncJobInfo;
     const logStyle = Object.assign(editorStyle, {
         height: props.height,
     });
-    
+
     const errors = log['all-exceptions'] || ''
     let flinkLog = isArray(errors) && errors.length > 0 ? errors.map(item => {
         return `${item.exception} \n`
@@ -52,11 +53,19 @@ export function LogInfo(props) {
     const appLogs = getLogsInfo('appLogs', log.appLog)
     const driverLog = getLogsInfo('driverLog', log.driverLog)
     let logText = ''
+    if (props.downloadLog) {
+        logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
+    }
     if (log.msg_info) {
-        logText = `${wrappTitle('基本日志')}\n${log.msg_info}`
-        if(log["sql"]){
-            logText=`${wrappTitle('任务信息')}\n${log.sql}\n`+logText
+        let log_sql=log["sql"];
+        if(log_sql&&typeof log_sql=="object"){
+            log_sql=JSON.stringify(log_sql,null,2);
         }
+        if (log_sql) {
+            logText = `${logText}${wrappTitle('任务信息')}\n${log_sql}\n`
+        }
+        logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info}`
+
     }
 
     if (log['perf']) {
@@ -74,21 +83,21 @@ export function LogInfo(props) {
     return (
         <div>
             {
-                syncJobInfo ? 
-                <Row style={{marginBottom: '14px'}}>
-                    <p>运行时长：{syncJobInfo.execTime}秒</p>
-                    <p>
-                        <span>读取数据：{syncJobInfo.readNum}条</span>&nbsp;&nbsp; 
+                syncJobInfo ?
+                    <Row style={{ marginBottom: '14px' }}>
+                        <p>运行时长：{syncJobInfo.execTime}秒</p>
+                        <p>
+                            <span>读取数据：{syncJobInfo.readNum}条</span>&nbsp;&nbsp;
                         <span>写入数据：{syncJobInfo.writeNum}条</span>&nbsp;&nbsp;
                         <span>脏数据：{syncJobInfo.dirtyPercent}%</span>&nbsp;&nbsp;
                         {/* <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span> */}
-                    </p>
-                </Row>
-                :
-                ''
+                        </p>
+                    </Row>
+                    :
+                    ''
             }
             <Row style={logStyle}>
-                <Editor sync value={logText} options={editorOptions}/>
+                <Editor sync value={logText} options={editorOptions} />
             </Row>
         </div>
     )
