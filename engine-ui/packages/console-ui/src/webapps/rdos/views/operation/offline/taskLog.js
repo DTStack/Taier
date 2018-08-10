@@ -57,8 +57,12 @@ export function LogInfo(props) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
     if (log.msg_info) {
-        if (log["sql"]) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${log.sql}\n`
+        let log_sql=log["sql"];
+        if(log_sql&&typeof log_sql=="object"){
+            log_sql=JSON.stringify(log_sql,null,2);
+        }
+        if (log_sql) {
+            logText = `${logText}${wrappTitle('任务信息')}\n${log_sql}\n`
         }
         logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info}`
 
