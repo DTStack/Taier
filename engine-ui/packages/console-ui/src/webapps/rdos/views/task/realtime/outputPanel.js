@@ -325,7 +325,7 @@ class OutputOrigin extends Component {
                                 style={{minHeight: 202,border: "1px solid #ddd"}}
                                 key="params-editor"
                                 sync={sync}
-                                placeholder="字段:类型, 比如id:int 一行一个字段"
+                                placeholder="字段 类型, 比如 id int 一行一个字段"
                                 // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.editorParamsChange.bind(this)}
