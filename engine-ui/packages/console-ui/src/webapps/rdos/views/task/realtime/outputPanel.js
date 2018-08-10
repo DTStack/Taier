@@ -65,7 +65,11 @@ class OutputOrigin extends Component {
             case "columnType":
                 return arrData.map((v,index)=>{
                     return  <Option key={index} value={`${v.key}`}>{v.key}</Option>
-                })  
+                })
+            case "primaryType":
+                return arrData.map((v,index)=>{
+                    return  <Option key={index} value={`${v.column}`}>{v.column}</Option>
+                })   
             default:
                 return null;
         }
@@ -84,6 +88,7 @@ class OutputOrigin extends Component {
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
         const tableColumnOptionTypes = this.originOption('columnType',tableColumnOptionType[index]||[]);
+        const primaryKeyOptionTypes = this.originOption('primaryType',panelColumn[index].columns||[]);
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
@@ -217,7 +222,7 @@ class OutputOrigin extends Component {
                 }
                 {
 
-                    panelColumn[index].type == "11" || panelColumn[index].type == "8" ?
+                    panelColumn[index].type == "11" ?
                     <FormItem
                         {...formItemLayout}
                         label="写入策略"
@@ -324,6 +329,24 @@ class OutputOrigin extends Component {
                         </Col>
                     }
                 </Row>
+                {
+
+                    panelColumn[index].type == "1" ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="主键"
+                    >
+                        {getFieldDecorator('primaryKey')(
+                            <Select className="right-select" onChange={(v)=>{handleInputChange("primaryKey",index,v)}} mode="multiple"
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {
+                                    primaryKeyOptionTypes
+                                }
+                            </Select>
+                        )}
+                    </FormItem>:""
+                }
                 <FormItem
                     {...formItemLayout}
                     label="并行度"
@@ -411,7 +434,7 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism, tableName} = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism, tableName,primaryKey} = props.panelColumn[props.index];
             console.log('mapPropsToFields',props.panelColumn[props.index]);
             return {
                 type: { value: type },
@@ -426,6 +449,7 @@ const OutputForm = Form.create({
                 esType: { value: esType },
                 parallelism: { value: parallelism },
                 tableName: { value: tableName },
+                primaryKey: { value: primaryKey },
             }
         } 
 })(OutputOrigin);
@@ -622,6 +646,7 @@ export default class OutputPanel extends Component {
             id: undefined,
             parallelism: 1,
             tableName: undefined,
+            primaryKey: undefined,
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         if(type==="add"){
@@ -691,12 +716,26 @@ export default class OutputPanel extends Component {
         return filterColumn[0].type
     }
       
+    filterPrimaryKey = (columns,primaryKeys) => {//删除导致原始的primaryKey不存在
+        return primaryKeys.filter(v=>{
+            let flag = false;
+            columns.map(value=>{
+                if(value.column === v){
+                    flag = true
+                }
+            })
+            return flag;
+        })
+    }
+
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
+            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"],panelColumn[index].primaryKey||[]);
+            panelColumn[index].primaryKey = filterPrimaryKeys;
         }else if(type ==="subColumn"){
             panelColumn[index]["columns"][value].column = subValue;
             const subType = this.tableColumnType(index,subValue);
@@ -717,6 +756,7 @@ export default class OutputPanel extends Component {
             panelColumn[index]["table"] = undefined;
             panelColumn[index]["columnsText"] = undefined;
             panelColumn[index]["columns"] = [];
+            panelColumn[index]["primaryKey"] = undefined;
            // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
@@ -726,6 +766,7 @@ export default class OutputPanel extends Component {
             panelColumn[index]["table"] = undefined;
             panelColumn[index]["columnsText"] = undefined;
             panelColumn[index]["columns"] = [];
+            panelColumn[index]["primaryKey"] = undefined;
             if(panelColumn[index].type=='1'||panelColumn[index].type=='8'){
                 this.getTableType(index,value)
             }
@@ -733,6 +774,7 @@ export default class OutputPanel extends Component {
             tableColumnOptionType[index] = [];
             const { sourceId } = panelColumn[index];
             panelColumn[index].columns = [];
+            panelColumn[index].primaryKey = undefined;
             panelColumn[index].columnsText = undefined;
             this.getTableColumns(index,sourceId,value)
         }
