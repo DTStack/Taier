@@ -114,9 +114,15 @@ module.exports = function() {
             }),
             new CopyWebpackPlugin([
                 {
-                    from: path.resolve(MY_PATH.WEB_PUBLIC),
+                    from: path.resolve(MY_PATH.WEB_PUBLIC), 
                     to: path.resolve(MY_PATH.BUILD_PATH, "public"),
                     ignore: ["*/index.html"]
+                }, {
+                    from:  path.resolve(MY_PATH.ROOT_PATH, 'README.md'), 
+                    to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
+                }, {
+                    from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'), 
+                    to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }
             ]),
 
