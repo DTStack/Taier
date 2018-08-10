@@ -101,6 +101,7 @@ module.exports = function() {
             }
         },
         plugins: [
+            new webpack.HashedModuleIdsPlugin(),
             new MonacoWebpackPlugin(),
             new HappyPack({
                 id: "happy-babel-js",
