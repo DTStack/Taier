@@ -137,65 +137,69 @@ public class ExeQueueMgr {
     public void checkQueueAndSubmit(){
         for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
 
-            String engineType = engineTypeQueue.getEngineType();
-            Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
             final boolean[] needBreak = {false};
 
-            engineTypeQueueMap.values().forEach(gq ->{
+            try{
+                String engineType = engineTypeQueue.getEngineType();
+                Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
 
-                //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
-                    return;
-                }
+                engineTypeQueueMap.values().forEach(gq ->{
 
-                JobClient jobClient = gq.getTop();
-                if(jobClient == null){
-                    return;
-                }
-
-                //判断资源是否满足
-                IClient clusterClient = null;
-
-                try{
-                    clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-                }catch (Exception e){
-                    LOG.info("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
-                    LOG.info("", e);
-                    gq.remove(jobClient.getTaskId());
-                    addJobToFail(jobClient, e);
-                    return;
-                }
-
-                EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-
-                try{
-                    if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
+                    //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
+                    if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
                         return;
                     }
-                }catch (RdosException e){
-                    //判断资源的时候抛出异常,直接将任务设置为失败
-                    gq.remove(jobClient.getTaskId());
-                    addJobToFail(jobClient, e);
-                    return;
-                }
 
-
-                gq.remove(jobClient.getTaskId());
-                try {
-                    JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient));
-                } catch (RejectedExecutionException e) {
-                    //如果添加到执行线程池失败则添加回等待队列
-                    try {
-                        needBreak[0] = true;
-                        add(jobClient);
-                    } catch (InterruptedException e1) {
-                        LOG.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e1);
+                    JobClient jobClient = gq.getTop();
+                    if(jobClient == null){
+                        return;
                     }
-                } catch (Exception e){
-                    LOG.error("", e);
-                }
 
-            });
+                    //判断资源是否满足
+                    IClient clusterClient = null;
+
+                    try{
+                        clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+                    }catch (Exception e){
+                        LOG.info("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
+                        LOG.info("", e);
+                        gq.remove(jobClient.getTaskId());
+                        addJobToFail(jobClient, e);
+                        return;
+                    }
+
+                    EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
+
+                    try{
+                        if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
+                            return;
+                        }
+                    }catch (RdosException e){
+                        //判断资源的时候抛出异常,直接将任务设置为失败
+                        gq.remove(jobClient.getTaskId());
+                        addJobToFail(jobClient, e);
+                        return;
+                    }
+
+                    gq.remove(jobClient.getTaskId());
+                    try {
+                        JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient));
+                    } catch (RejectedExecutionException e) {
+                        //如果添加到执行线程池失败则添加回等待队列
+                        try {
+                            needBreak[0] = true;
+                            add(jobClient);
+                        } catch (InterruptedException e1) {
+                            LOG.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e1);
+                        }
+                    } catch (Exception e){
+                        LOG.error("", e);
+                    }
+
+                });
+            }catch (Exception e){
+                LOG.error("", e);
+            }
 
             if(needBreak[0]){
                 break;
