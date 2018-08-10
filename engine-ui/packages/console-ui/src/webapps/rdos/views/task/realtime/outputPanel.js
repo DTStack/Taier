@@ -181,11 +181,7 @@ class OutputOrigin extends Component {
                         {...formItemLayout}
                         label="id"
                     >
-                        {getFieldDecorator('esId', {
-                            rules: [
-                                {required: true, message: '请输入id',}
-                            ],
-                        })(
+                        {getFieldDecorator('esId')(
                             <Input placeholder="请输入id" onChange={e => handleInputChange('esId',index,e.target.value)}/>
                         )}
                     </FormItem> : ""
@@ -209,18 +205,18 @@ class OutputOrigin extends Component {
                     panelColumn[index].type == "8" ?
                     <FormItem
                         {...formItemLayout}
-                        label="rowkey"
+                        label="rowKey"
                     >
-                        {getFieldDecorator('rowkey', {
+                        {getFieldDecorator('rowKey', {
                             rules: [
-                                {required: true, message: '请输入rowkey',}
+                                {required: true, message: '请输入rowKey',}
                             ],
                         })(
-                            <Input  placeholder=" rowkey 格式：填写字段1 , 填写字段2 " onChange={e => handleInputChange('rowkey',index,e.target.value)}/>
+                            <Input  placeholder=" rowKey 格式：填写字段1 , 填写字段2 " onChange={e => handleInputChange('rowKey',index,e.target.value)}/>
                         )}
                     </FormItem> : ""
                 }
-                {
+                {/* {
 
                     panelColumn[index].type == "11" ?
                     <FormItem
@@ -239,7 +235,7 @@ class OutputOrigin extends Component {
                             </Select>
                         )}
                     </FormItem>:""
-                }
+                } */}
                 <FormItem
                     {...formItemLayout}
                     label="映射表"
@@ -438,7 +434,7 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism, tableName,primaryKey} = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism, tableName,primaryKey,rowKey} = props.panelColumn[props.index];
             console.log('mapPropsToFields',props.panelColumn[props.index]);
             return {
                 type: { value: type },
@@ -454,6 +450,7 @@ const OutputForm = Form.create({
                 parallelism: { value: parallelism },
                 tableName: { value: tableName },
                 primaryKey: { value: primaryKey },
+                rowKey: { value: rowKey },
             }
         } 
 })(OutputOrigin);
@@ -655,6 +652,7 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             tableName: undefined,
             primaryKey: undefined,
+            rowKey: undefined,
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType,tableColumnOptionType } = this.state;
         if(type==="add"){
@@ -755,26 +753,39 @@ export default class OutputPanel extends Component {
             this._syncEditor=false;
             //this.parseColumnsText(index,value)
         }
+        const allParamsType = ["type", "sourceId", "table", "columns", "columnsText", "id", "index", "writePolicy", "esId", "esType", "parallelism", "tableName","primaryKey","rowKey"];
         if(type==="type"){
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
-            panelColumn[index]["type"] = value;
-            panelColumn[index]["sourceId"] = undefined;
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["columnsText"] = undefined;
-            panelColumn[index]["columns"] = [];
-            panelColumn[index]["primaryKey"] = undefined;
+            allParamsType.map(v=>{
+                if(v==="type"){
+                    panelColumn[index][v] = value;
+                }else if(v=="columns"){
+                    panelColumn[index][v] = [];
+                }else{
+                    panelColumn[index][v] = undefined
+                }
+            })
            // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
-            panelColumn[index].columns = [];
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["columnsText"] = undefined;
-            panelColumn[index]["columns"] = [];
-            panelColumn[index]["primaryKey"] = undefined;
+            allParamsType.map(v=>{
+                if(v !=="type" && v != "sourceId"){
+                    console.log(v);
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }else{
+
+                }
+            })
+            console.log('panelColumn[index]:',panelColumn[index]);
+            
             if(panelColumn[index].type=='1'||panelColumn[index].type=='8'){
                 this.getTableType(index,value)
             }
@@ -782,8 +793,15 @@ export default class OutputPanel extends Component {
             tableColumnOptionType[index] = [];
             const { sourceId } = panelColumn[index];
             panelColumn[index].columns = [];
-            panelColumn[index].primaryKey = undefined;
-            panelColumn[index].columnsText = undefined;
+            allParamsType.map(v=>{
+                if(v !="type" && v != "sourceId" && v!="table"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             if(panelColumn[index].type=="1"){
                 this.getTableColumns(index,sourceId,value)
             }
@@ -810,6 +828,8 @@ export default class OutputPanel extends Component {
             id: undefined,
             parallelism: 1,
             tableName: undefined,
+            rowKey: undefined,
+            primaryKey: undefined,
         }
         if(type==="type"){
             inputData.type = value;
