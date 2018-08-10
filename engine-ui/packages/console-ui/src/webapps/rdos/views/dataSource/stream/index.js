@@ -293,7 +293,7 @@ class DataSourceMana extends Component {
         console.log('dataSource.data',dataSource.data);
         return (
             <div>
-                <div className="box-2 m-card shadow">
+                <div className="shadow">
                     <Card 
                         title={title} 
                         extra={extra} 

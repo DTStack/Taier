@@ -601,6 +601,23 @@ class BaseForm extends Component {
                                 placeholder="Elasticsearch地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
                             />,
                         )}
+                    </FormItem>,
+                     <FormItem
+                        {...formItemLayout}
+                        label="集群名称"
+                        key="clusterName"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.clusterName', {
+                            rules: [{
+                                required: true, message: '集群名称不可为空！',
+                            }],
+                            initialValue: config.clusterName || '',
+                        })(
+                            <Input
+                                placeholder="请输入集群名称"
+                            />
+                        )}
                     </FormItem>
                 ]
             }
