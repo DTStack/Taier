@@ -23,6 +23,7 @@ CREATE TABLE `rdos_engine_batch_job` (
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
   `plugin_info_id` int(11) COMMENT '插件信息',
+  `source_type` tinyint(2) COMMENT '任务来源',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
