@@ -80,6 +80,8 @@ class InputOrigin extends Component {
         const { handleInputChange, index, panelColumn,sync,timeColumoption=[],originOptionType=[],topicOptionType=[] } = this.props;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const topicOptionTypes = this.originOption('currencyType',topicOptionType[index]||[]);
+        console.log('timeColumoption[index]',timeColumoption[index]);
+        
         const eventTimeOptionType = this.originOption('eventTime',timeColumoption[index]||[]);
         //const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const { getFieldDecorator } = this.props.form;
@@ -378,12 +380,15 @@ export default class InputPanel extends Component {
             }
             return { column: column[0],type: column[1] }
         })
+        console.log('columns',columns);
         
         const filterColumns = columns.filter(v=>{
             return v.column&&v.type
         })
         timeColumoption[index] = filterColumns;
-        panelColumn[index].timeColumn = filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0];
+        console.log( ' filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]',filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]);
+        const timeColumn = filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]
+        panelColumn[index].timeColumn = timeColumn&&timeColumn.column||undefined;
         this.setCurrentSource({timeColumoption})
         this.setState({
             timeColumoption
@@ -573,7 +578,7 @@ export default class InputPanel extends Component {
     }
       
     handleInputChange = (type,index,value) => {//监听数据改变
-        const { panelColumn } = this.state;
+        const { panelColumn,timeColumoption,originOptionType,topicOptionType } = this.state;
         // if(type === 'columns'){
         //     panelColumn[index][type].push(value);
         // }else if(type === "deleteColumn"){
@@ -585,6 +590,7 @@ export default class InputPanel extends Component {
         // }else{
         //     panelColumn[index][type] = value;
         // }
+        const allParamsType = ["type", "sourceId", "topic", "table" , "columns", "timeType", "timeColumn", "offset", "columnsText", "parallelism"]
         if(type === "columnsText"){
             this._syncEditor=false;
             this.parseColumnsText(index,value,'changeText')
@@ -592,10 +598,59 @@ export default class InputPanel extends Component {
         panelColumn[index][type] = value;
         if(type==="type"){
             //this.clearCurrentInfo(type,index)
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            originOptionType[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             //this.clearCurrentInfo(type,index)
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             this.getTopicType(index,value);
+        }else if(type==="topic"){
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"&&v!="topic"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
         }
         this.props.tableParamsChange()//添加数据改变标记
         this.setCurrentSource({panelColumn})
