@@ -69,7 +69,7 @@ class TaskIndex extends Component {
             for (let index = 0,len = dimensionCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = dimensionCheckFormParams[index].checkParams();
                     if(!result.status){
-                        return  message.error(`维表--输出源${dimensionCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                        return  message.error(`维表--维表${dimensionCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
                 }
             }
         }

@@ -394,6 +394,21 @@ class BaseForm extends Component {
                             />,
                         )}
                     </FormItem>,
+                     <FormItem
+                        {...formItemLayout}
+                        key="hbase_parent"
+                        label="根目录"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hbase_parent', {
+                            rules: [],
+                            initialValue: config.hbase_parent || '',
+                        })(
+                            <Input 
+                                placeholder="ZooKeeper中hbase创建的根目录，例如：/hbase"
+                            />,
+                        )}
+                    </FormItem>,
                     <FormItem
                         {...formItemLayout}
                         label="其他参数"
