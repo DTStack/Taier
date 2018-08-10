@@ -741,7 +741,7 @@ export default class OutputPanel extends Component {
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输出源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 维表 ${index+1}`}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"
