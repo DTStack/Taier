@@ -80,6 +80,8 @@ class InputOrigin extends Component {
         const { handleInputChange, index, panelColumn,sync,timeColumoption=[],originOptionType=[],topicOptionType=[] } = this.props;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const topicOptionTypes = this.originOption('currencyType',topicOptionType[index]||[]);
+        console.log('timeColumoption[index]',timeColumoption[index]);
+        
         const eventTimeOptionType = this.originOption('eventTime',timeColumoption[index]||[]);
         //const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const { getFieldDecorator } = this.props.form;
@@ -378,12 +380,15 @@ export default class InputPanel extends Component {
             }
             return { column: column[0],type: column[1] }
         })
+        console.log('columns',columns);
         
         const filterColumns = columns.filter(v=>{
             return v.column&&v.type
         })
         timeColumoption[index] = filterColumns;
-        panelColumn[index].timeColumn = filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0];
+        console.log( ' filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]',filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]);
+        const timeColumn = filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]
+        panelColumn[index].timeColumn = timeColumn&&timeColumn.column||undefined;
         this.setCurrentSource({timeColumoption})
         this.setState({
             timeColumoption
