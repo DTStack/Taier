@@ -325,7 +325,7 @@ class OutputOrigin extends Component {
                                 style={{minHeight: 202,border: "1px solid #ddd"}}
                                 key="params-editor"
                                 sync={sync}
-                                placeholder="字段:类型, 比如id:int 一行一个字段"
+                                placeholder="字段 类型, 比如 id int 一行一个字段"
                                 // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.editorParamsChange.bind(this)}
@@ -503,7 +503,9 @@ export default class OutputPanel extends Component {
             this.getTypeOriginData(index,v.type);
             if(v.type=="1"||v.type=="8"){
                 this.getTableType(index,v.sourceId)
-                this.getTableColumns(index,v.sourceId,v.table)
+                if(v.type=="1"){
+                    this.getTableColumns(index,v.sourceId,v.table)
+                }
             }
         })
         this.setOutputData({ tabTemplate, panelColumn })
@@ -546,7 +548,9 @@ export default class OutputPanel extends Component {
                 this.getTypeOriginData(index,v.type)
                 if(v.type=='1'||v.type=="8"){
                     this.getTableType(index,v.sourceId)
-                    this.getTableColumns(index,v.sourceId,v.table)
+                    if(v.type=='1'){
+                        this.getTableColumns(index,v.sourceId,v.table)
+                    }
                 }
             })
         })
@@ -780,7 +784,9 @@ export default class OutputPanel extends Component {
             panelColumn[index].columns = [];
             panelColumn[index].primaryKey = undefined;
             panelColumn[index].columnsText = undefined;
-            this.getTableColumns(index,sourceId,value)
+            if(panelColumn[index].type=="1"){
+                this.getTableColumns(index,sourceId,value)
+            }
         }
         this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({panelColumn})

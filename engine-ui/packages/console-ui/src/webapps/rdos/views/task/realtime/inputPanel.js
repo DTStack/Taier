@@ -78,8 +78,6 @@ class InputOrigin extends Component {
 
     render(){
         const { handleInputChange, index, panelColumn,sync,timeColumoption=[],originOptionType=[],topicOptionType=[] } = this.props;
-        console.log('timeColumoption',timeColumoption);
-        
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const topicOptionTypes = this.originOption('currencyType',topicOptionType[index]||[]);
         const eventTimeOptionType = this.originOption('eventTime',timeColumoption[index]||[]);
@@ -175,7 +173,7 @@ class InputOrigin extends Component {
                                 style={{minHeight: 202,border: "1px solid #ddd"}}
                                 key="params-editor"
                                 sync={sync}
-                                placeholder="字段:类型, 比如id:int 一行一个字段"
+                                placeholder="字段 类型, 比如 id int 一行一个字段"
                                 // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.editorParamsChange.bind(this)}
@@ -370,20 +368,22 @@ export default class InputPanel extends Component {
     }
 
     parseColumnsText = (index,text="")=>{
-        const { timeColumoption } = this.state;
-        const columns =  text.split("\n").map(v=>{
+        const { timeColumoption,panelColumn } = this.state;
+        const columns =  text.split('\n').filter(v => !!v).map(v=> {
             let column;
-            if(v.includes(" as ")){
-                column = v.split(" as ")
+            if(v.trim().includes(" as ")){
+                column = v.trim().split(" as ")
             }else{
-                column = v.split(":");
+                column = v.trim().split(" ");
             }
             return { column: column[0],type: column[1] }
         })
-       const filterColumns = columns.filter(v=>{
+        
+        const filterColumns = columns.filter(v=>{
             return v.column&&v.type
         })
         timeColumoption[index] = filterColumns;
+        panelColumn[index].timeColumn = filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0];
         this.setCurrentSource({timeColumoption})
         this.setState({
             timeColumoption
@@ -587,7 +587,7 @@ export default class InputPanel extends Component {
         // }
         if(type === "columnsText"){
             this._syncEditor=false;
-            this.parseColumnsText(index,value)
+            this.parseColumnsText(index,value,'changeText')
         }
         panelColumn[index][type] = value;
         if(type==="type"){
@@ -597,7 +597,6 @@ export default class InputPanel extends Component {
             //this.clearCurrentInfo(type,index)
             this.getTopicType(index,value);
         }
-        console.log('panelColumn[index]---handleInputChange:',panelColumn[index]);
         this.props.tableParamsChange()//添加数据改变标记
         this.setCurrentSource({panelColumn})
         this.setState({
@@ -629,7 +628,6 @@ export default class InputPanel extends Component {
             panelColumn[index] = inputData;
             topicOptionType[index] = [];
         }
-        console.log('panelColumn[index]---:clearCurrentInfo',panelColumn[index]);
         this.setCurrentSource({panelColumn,topicOptionType,originOptionType})
         this.setState({panelColumn,topicOptionType,originOptionType});
     }
