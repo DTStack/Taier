@@ -229,7 +229,7 @@ class DeriveIndexModal extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="指标口径"
+                        label="指标口径(描述)"
                         hasFeedback
                     >
                         {getFieldDecorator('modelDesc', {

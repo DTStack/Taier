@@ -240,7 +240,6 @@ class EditCluster extends React.Component {
             case TEST_STATUS.FAIL: {
                 return <span>
                     <Tag color="red">连通失败</Tag>
-                    您依然可以保存配置，但任务运行时可能会失败
                 </span>
             }
         }

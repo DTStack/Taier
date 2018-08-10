@@ -219,18 +219,21 @@ class TreeContent extends React.PureComponent {
                         <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
                         <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias || "-"}</span></p>
                         <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay ? `${data.lifeDay}天` : '-'}</span></p>
-                        <p className="text-item"><span className="text-item-name">描述</span><span className="text-item-value">{data.tableDesc || "-"}</span></p>
+                        <p className="text-item"><span className="text-item-name">描述</span>
+                        <span className="text-item-value">
+                        {!data.tableDesc?'-':data.tableDesc.length>60?<Tooltip title={data.tableDesc}>{data.tableDesc.substr(0,60)}......</Tooltip>:data.tableDesc}
+                        </span>
+                        </p>
                         <a onClick={this.jumpToDataMap.bind(this, data.id)}>更多详情</a>
                     </div>
                 )}
                     placement="bottomLeft"
                     mouseEnterDelay={0.5}>
-                    {name}
+                    <span style={{padding:"8px 0px"}}>{name}</span>
                 </Tooltip>
             )
 
             return data ? (
-
                 <TreeNode
                     title={nodeTitle}
                     key={isFolder ? id : `${id}-file`}

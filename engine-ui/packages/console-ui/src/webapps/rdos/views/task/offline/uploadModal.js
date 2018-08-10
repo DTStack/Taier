@@ -357,13 +357,12 @@ class ResModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.props !== nextProps;
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     return this.props !== nextProps;
+    // }
 
     handleSubmit() {
         const form = this.form;
-
         form.validateFields((err, values) => {
             if(!err) {
                 values.file = this.state.file.files[0];
@@ -468,9 +467,7 @@ dispatch => {
                         });
 
                         return true;
-                    } else {
-                        message.success('资源上传异常！');
-                    }
+                    } 
                 })
         },
         emptyModalDefault() {

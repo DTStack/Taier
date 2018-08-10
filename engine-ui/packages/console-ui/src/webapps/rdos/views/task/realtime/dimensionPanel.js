@@ -64,6 +64,10 @@ class OutputOrigin extends Component {
                return arrData.map((v,index)=>{
                     return  <Option key={index} value={`${v.key}`}>{v.key}</Option>
                 }) 
+            case "primaryType":
+                return arrData.map((v,index)=>{
+                    return  <Option key={index} value={`${v.column}`}>{v.column}</Option>
+                }) 
             default:
                 return null;
         }
@@ -75,6 +79,7 @@ class OutputOrigin extends Component {
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
         const tableColumnOptionTypes = this.originOption('columnType',tableColumnOptionType[index]||[]);
+        const primaryKeyOptionTypes = this.originOption('primaryType',panelColumn[index].columns||[]);
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
@@ -193,6 +198,24 @@ class OutputOrigin extends Component {
                         </div>
                     </Col>
                 </Row>
+                <FormItem
+                    {...formItemLayout}
+                    label="主键"
+                >
+                    {getFieldDecorator('primaryKey',{
+                        rules: [
+                            {required: true, message: '请选择主键',}
+                        ],
+                    })(
+                        <Select className="right-select" onChange={(v)=>{handleInputChange("primaryKey",index,v)}} mode="multiple"
+                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        >
+                            {
+                                primaryKeyOptionTypes
+                            }
+                        </Select>
+                    )}
+                </FormItem>
                 <FormItem
                     {...formItemLayout}
                     label="并行度"
@@ -329,7 +352,7 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, parallelism, cache, cacheSize, cacheTTLMs, tableName } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, parallelism, cache, cacheSize, cacheTTLMs, tableName, primaryKey } = props.panelColumn[props.index];
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -340,6 +363,7 @@ const OutputForm = Form.create({
                 cache: { value: cache },
                 cacheSize: { value: cacheSize },
                 cacheTTLMs: { value: cacheTTLMs },
+                primaryKey: { value: primaryKey },
             }
         } 
 })(OutputOrigin);
@@ -521,6 +545,7 @@ export default class OutputPanel extends Component {
             sourceId: undefined,
             table: undefined,
             tableName: undefined,
+            primaryKey: undefined,
             parallelism: 1,
             cache: "LRU",
             cacheSize: 10000,
@@ -594,12 +619,26 @@ export default class OutputPanel extends Component {
         return filterColumn[0].type
     }
 
+    filterPrimaryKey = (columns,primaryKeys) => {//删除导致原始的primaryKey不存在
+        return primaryKeys.filter(v=>{
+            let flag = false;
+            columns.map(value=>{
+                if(value.column === v){
+                    flag = true
+                }
+            })
+            return flag;
+        })
+    }
+
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
         }else if(type === "deleteColumn"){
             panelColumn[index]["columns"].splice(value,1);
+            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"],panelColumn[index].primaryKey||[]);
+            panelColumn[index].primaryKey = filterPrimaryKeys;
         }else if(type ==="subColumn"){
             panelColumn[index]["columns"][value].column = subValue;
             const subType = this.tableColumnType(index,subValue);
@@ -607,36 +646,74 @@ export default class OutputPanel extends Component {
         }else{
             panelColumn[index][type] = value;
         }
+        const allParamsType = ["type", "sourceId", "table", "columns", "parallelism", "cache", "cacheSize", "cacheTTLMs", "tableName", "primaryKey"]
         if(type==="type"){
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
-            panelColumn[index].columns = [];
-            panelColumn[index]["sourceId"] = undefined;
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["tableName"] = undefined;
-            panelColumn[index]["parallelism"] = 1;
-            panelColumn[index]["cache"] = 'LRU';
-            panelColumn[index]["cacheSize"] = 10000;
-            panelColumn[index]["cacheTTLMs"] = 60000;
+            allParamsType.map(v=>{
+                if(v!="type"){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             //this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             panelColumn[index].columns = [];
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["tableName"] = undefined;
+
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             //this.clearCurrentInfo(type,index,value)
             this.getTableType(index,value,type)
         }else if (type==="table"){
             tableColumnOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"&&v!='table'){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             const { sourceId } = panelColumn[index];
-            panelColumn[index].columns = [];
-            panelColumn[index]["parallelism"] = 1;
-            panelColumn[index]["cache"] = 'LRU';
-            panelColumn[index]["cacheSize"] = 10000;
-            panelColumn[index]["cacheTTLMs"] = 60000;
             this.getTableColumns(index,sourceId,value)
         }
         this.props.tableParamsChange()//添加数据改变标记
@@ -699,7 +776,7 @@ export default class OutputPanel extends Component {
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输出源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 维表 ${index+1}`}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"

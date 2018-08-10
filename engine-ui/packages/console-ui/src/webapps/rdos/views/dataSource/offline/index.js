@@ -177,21 +177,23 @@ class DataSourceMana extends Component {
             render: (active) => {
                 return active === 1 ? '使用中' : '未使用'
             },
-        }, {
-            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-                        <span>连接状态 &nbsp;
-                            <Icon type="question-circle-o" />
-                        </span>
-                    </Tooltip>,
-            dataIndex: 'linkState',
-            key: 'linkState',
-            width: '10%',
-            render: (linkState) => {
-                return linkState === 1 ? 
-                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-            },
-        }, {
+        }, 
+        // {
+        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+        //                 <span>连接状态 &nbsp;
+        //                     <Icon type="question-circle-o" />
+        //                 </span>
+        //             </Tooltip>,
+        //     dataIndex: 'linkState',
+        //     key: 'linkState',
+        //     width: '10%',
+        //     render: (linkState) => {
+        //         return linkState === 1 ? 
+        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+        //     },
+        // },
+         {
             title: <div className="txt-right m-r-8">操作</div>,
             width: '150',
             className: 'txt-right m-r-8',
@@ -226,7 +228,7 @@ class DataSourceMana extends Component {
                                     //onConfirm={() => { this.remove(record) }}
                                 >
 
-                                    <span>删除</span>
+                                    <span style={{color: "#ccc"}}>删除</span>
                                 </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
