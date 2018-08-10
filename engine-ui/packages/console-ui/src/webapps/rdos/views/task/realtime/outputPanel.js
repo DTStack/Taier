@@ -179,7 +179,15 @@ class OutputOrigin extends Component {
                     panelColumn[index].type == "11" ?
                     <FormItem
                         {...formItemLayout}
-                        label="id"
+                        label={(
+                            <span >
+                                id&nbsp;
+                                <Tooltip title="id生成规则：填写字段的索引位置（从0开始)">
+                                    <Icon type="question-circle-o" /> 
+                                </Tooltip>
+                                &nbsp;
+                            </span>
+                            )}
                     >
                         {getFieldDecorator('esId')(
                             <Input placeholder="请输入id" onChange={e => handleInputChange('esId',index,e.target.value)}/>
