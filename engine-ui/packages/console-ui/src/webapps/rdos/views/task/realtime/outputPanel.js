@@ -503,7 +503,9 @@ export default class OutputPanel extends Component {
             this.getTypeOriginData(index,v.type);
             if(v.type=="1"||v.type=="8"){
                 this.getTableType(index,v.sourceId)
-                this.getTableColumns(index,v.sourceId,v.table)
+                if(v.type=="1"){
+                    this.getTableColumns(index,v.sourceId,v.table)
+                }
             }
         })
         this.setOutputData({ tabTemplate, panelColumn })
@@ -546,7 +548,9 @@ export default class OutputPanel extends Component {
                 this.getTypeOriginData(index,v.type)
                 if(v.type=='1'||v.type=="8"){
                     this.getTableType(index,v.sourceId)
-                    this.getTableColumns(index,v.sourceId,v.table)
+                    if(v.type=='1'){
+                        this.getTableColumns(index,v.sourceId,v.table)
+                    }
                 }
             })
         })
@@ -780,7 +784,9 @@ export default class OutputPanel extends Component {
             panelColumn[index].columns = [];
             panelColumn[index].primaryKey = undefined;
             panelColumn[index].columnsText = undefined;
-            this.getTableColumns(index,sourceId,value)
+            if(panelColumn[index].type=="1"){
+                this.getTableColumns(index,sourceId,value)
+            }
         }
         this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({panelColumn})
