@@ -81,7 +81,6 @@ class WorkflowEditor extends Component {
         graph.cellsResizable = false;
         // 启用辅助线
         mxGraphHandler.prototype.guidesEnabled = true;
-        mxGraphHandler.prototype.previewColor = '#2491F7';
 
         graph.setConnectable(true)
         graph.setTooltips(true)
@@ -116,6 +115,7 @@ class WorkflowEditor extends Component {
         mxConstants.HANDLE_FILLCOLOR = '#ffffff';
         mxConstants.HANDLE_STROKECOLOR = '#2491F7';
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
+        mxConstants.GUIDE_COLOR = '#2491F7';
 
         // enables rubberband
         new mxRubberband(graph)
