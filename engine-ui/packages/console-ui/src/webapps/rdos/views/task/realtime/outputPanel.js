@@ -735,6 +735,7 @@ export default class OutputPanel extends Component {
     }
 
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
+        this._syncEditor=true
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
@@ -755,12 +756,15 @@ export default class OutputPanel extends Component {
         }
         const allParamsType = ["type", "sourceId", "table", "columns", "columnsText", "id", "index", "writePolicy", "esId", "esType", "parallelism", "tableName","primaryKey","rowKey"];
         if(type==="type"){
+            this._syncEditor=true;
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v=>{
                 if(v==="type"){
                     panelColumn[index][v] = value;
+                }else if(v=="parallelism"){
+                    panelColumn[index][v] = 1
                 }else if(v=="columns"){
                     panelColumn[index][v] = [];
                 }else{
@@ -773,10 +777,13 @@ export default class OutputPanel extends Component {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v=>{
+                this._syncEditor=true;
                 if(v !=="type" && v != "sourceId"){
                     console.log(v);
                     if(v=="columns"){
                         panelColumn[index][v] = [];
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
                     }else{
                         panelColumn[index][v] = undefined
                     }
@@ -790,6 +797,7 @@ export default class OutputPanel extends Component {
                 this.getTableType(index,value)
             }
         }else if(type === "table"){
+            this._syncEditor=true;
             tableColumnOptionType[index] = [];
             const { sourceId } = panelColumn[index];
             panelColumn[index].columns = [];
@@ -797,6 +805,8 @@ export default class OutputPanel extends Component {
                 if(v !="type" && v != "sourceId" && v!="table"){
                     if(v=="columns"){
                         panelColumn[index][v] = [];
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
                     }else{
                         panelColumn[index][v] = undefined
                     }

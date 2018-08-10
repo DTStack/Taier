@@ -578,7 +578,7 @@ export default class InputPanel extends Component {
     }
       
     handleInputChange = (type,index,value) => {//监听数据改变
-        const { panelColumn } = this.state;
+        const { panelColumn,timeColumoption,originOptionType,topicOptionType } = this.state;
         // if(type === 'columns'){
         //     panelColumn[index][type].push(value);
         // }else if(type === "deleteColumn"){
@@ -590,6 +590,7 @@ export default class InputPanel extends Component {
         // }else{
         //     panelColumn[index][type] = value;
         // }
+        const allParamsType = ["type", "sourceId", "topic", "table" , "columns", "timeType", "timeColumn", "offset", "columnsText", "parallelism"]
         if(type === "columnsText"){
             this._syncEditor=false;
             this.parseColumnsText(index,value,'changeText')
@@ -597,10 +598,59 @@ export default class InputPanel extends Component {
         panelColumn[index][type] = value;
         if(type==="type"){
             //this.clearCurrentInfo(type,index)
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            originOptionType[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             //this.clearCurrentInfo(type,index)
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             this.getTopicType(index,value);
+        }else if(type==="topic"){
+            this._syncEditor=true;
+            timeColumoption[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"&&v!="topic"){
+                    if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="timeType"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
         }
         this.props.tableParamsChange()//添加数据改变标记
         this.setCurrentSource({panelColumn})
