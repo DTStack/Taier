@@ -72,7 +72,8 @@ class EditCluster extends React.Component {
                                 nodeNumber: cluster.totalNode,
                                 zipConfig: JSON.stringify({
                                     yarnConf: clusterConf.yarnConf,
-                                    hadoopConf: clusterConf.hadoopConf
+                                    hadoopConf: clusterConf.hadoopConf,
+                                    hiveMeta:clusterConf.hiveMeta
                                 }),
                                 flink_params: extParams.flinkKeys,
                                 spark_params: extParams.sparkKeys,
@@ -513,6 +514,7 @@ class EditCluster extends React.Component {
         const flinkExtParams = this.getCustomParams(formValues, "flink")
         clusterConf["hadoopConf"] = zipConfig.hadoopConf;
         clusterConf["yarnConf"] = zipConfig.yarnConf;
+        clusterConf["hiveMeta"] = zipConfig.hiveMeta;
         clusterConf["hiveConf"] = formValues.hiveConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };

@@ -69,7 +69,7 @@ class CodeEditor extends Component {
 
         const editorOpts = {
             value: currentPage.sqlText,
-            language: '',
+            language: 'dtsql',
             options: {
                 readOnly: isLocked,
             },
