@@ -173,7 +173,6 @@ class TaskIndex extends Component {
         const { currentPage, dispatch } = this.props
         if (old !== newVal) {
             currentPage.taskParams = newVal
-             currentPage.notSynced = true; // 添加未保存标记
             dispatch(BrowserAction.setCurrentPage(currentPage))
         }
     }
