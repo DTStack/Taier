@@ -6,7 +6,7 @@ import {
     Table, message, Modal,
     Input, Card, Popconfirm,
     DatePicker, TimePicker,
-    Select, Form,
+    Select, Form,Tooltip,Icon
 } from 'antd'
 
 import utils from 'utils'
@@ -296,6 +296,17 @@ class RealTimeTaskList extends Component {
                             defaultValue={utils.getParameterByName('tname') || ''}
                             onSearch={this.searchTask}
                         />
+                    }
+                    extra={
+                        <Tooltip title="刷新数据">
+                            <Icon type="sync" onClick={this.loadTaskList.bind(this,null)}
+                                style={{
+                                    cursor: 'pointer',
+                                    marginTop: '16px',
+                                    color: '#94A8C6'
+                                }}
+                            />
+                        </Tooltip>
                     }
                 >
                     <Table

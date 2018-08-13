@@ -85,7 +85,7 @@ export default class Sidebar extends Component {
                         </Menu.Item>
                         <Menu.Item key="alarm-config">
                             <Link to={`${base}/alarm-config`}>
-                                自定义配置
+                                告警配置
                             </Link>
                         </Menu.Item>
                     </SubMenu>
