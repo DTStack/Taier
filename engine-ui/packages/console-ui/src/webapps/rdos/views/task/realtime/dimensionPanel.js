@@ -646,39 +646,74 @@ export default class OutputPanel extends Component {
         }else{
             panelColumn[index][type] = value;
         }
+        const allParamsType = ["type", "sourceId", "table", "columns", "parallelism", "cache", "cacheSize", "cacheTTLMs", "tableName", "primaryKey"]
         if(type==="type"){
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
-            panelColumn[index].columns = [];
-            panelColumn[index]["sourceId"] = undefined;
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["tableName"] = undefined;
-            panelColumn[index]["primaryKey"] = undefined;
-            panelColumn[index]["parallelism"] = 1;
-            panelColumn[index]["cache"] = 'LRU';
-            panelColumn[index]["cacheSize"] = 10000;
-            panelColumn[index]["cacheTTLMs"] = 60000;
+            allParamsType.map(v=>{
+                if(v!="type"){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             //this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index,value);
         }else if(type==="sourceId"){
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             panelColumn[index].columns = [];
-            panelColumn[index]["table"] = undefined;
-            panelColumn[index]["tableName"] = undefined;
-            panelColumn[index]["primaryKey"] = undefined;
+
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             //this.clearCurrentInfo(type,index,value)
             this.getTableType(index,value,type)
         }else if (type==="table"){
             tableColumnOptionType[index] = [];
+            allParamsType.map(v=>{
+                if(v!="type"&&v!="sourceId"&&v!='table'){
+                    if(v=="parallelism"){
+                        panelColumn[index][v] = 1
+                    }else if(v=="columns"){
+                        panelColumn[index][v] = [];
+                    }else if(v=="cache"){
+                        panelColumn[index][v] = "LRU"
+                    }else if(v=="cacheSize"){
+                        panelColumn[index][v] = 10000
+                    }else if(v=="cacheTTLMs"){
+                        panelColumn[index][v] = 60000
+                    }else{
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
             const { sourceId } = panelColumn[index];
-            panelColumn[index].columns = [];
-            panelColumn[index]["primaryKey"] = undefined;
-            panelColumn[index]["parallelism"] = 1;
-            panelColumn[index]["cache"] = 'LRU';
-            panelColumn[index]["cacheSize"] = 10000;
-            panelColumn[index]["cacheTTLMs"] = 60000;
             this.getTableColumns(index,sourceId,value)
         }
         this.props.tableParamsChange()//添加数据改变标记
@@ -741,7 +776,7 @@ export default class OutputPanel extends Component {
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输出源 ${index+1} (仅支持Json)`}</span>
+            <span>{` 维表 ${index+1}`}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"

@@ -4,11 +4,11 @@ import { Button, Icon } from 'antd'
 import MyIcon from 'rdos/components/icon';
 import KeyCombiner from 'widgets/keyCombiner';
 
-const isFullScreen = function() {
-    return document.fullscreenEnabled || 
-    document.webkitFullscreenEnabled ||
-    document.mozFullscreenEnabled ||
-    document.msFullscrrenEnabled;
+const isFullScreen = function () {
+    return document.fullscreenEnabled ||
+        document.webkitFullscreenEnabled ||
+        document.mozFullscreenEnabled ||
+        document.msFullscrrenEnabled;
 }
 
 export default class FullScreenButton extends Component {
@@ -16,7 +16,45 @@ export default class FullScreenButton extends Component {
     state = {
         isFullScreen: false,
     }
-
+    componentDidMount() {
+        const domEle = document.body;
+        let callBack = (event) => {
+            let node;
+            if (domEle.requestFullscreen) {
+                node = document.fullscreenElement;
+            } else if (domEle.msRequestFullscreen) { // IE
+                node = document.msFullscreenElement;
+            } else if (domEle.mozRequestFullscreen) { // Firefox (Gecko)
+                node = document.mozFullScreenElement;
+            } else if (domEle.webkitRequestFullscreen) { // Webkit
+                node = document.webkitFullscreenElement;
+            }
+            this.setState({
+                isFullScreen: node ? true : false
+            })
+        }
+        if (domEle.requestFullscreen) {
+            domEle.onfullscreenchange = callBack;
+        } else if (domEle.msRequestFullscreen) { // IE
+            domEle.onmsfullscreenchange = callBack;
+        } else if (domEle.mozRequestFullscreen) { // Firefox (Gecko)
+            domEle.onmozfullscreenchange = callBack;
+        } else if (domEle.webkitRequestFullscreen) { // Webkit
+            domEle.onwebkitfullscreenchange = callBack;
+        }
+    }
+    componentWillUnmount() {
+        const domEle = document.body;
+        if (domEle.requestFullscreen) {
+            document.onfullscreenchange = null;
+        } else if (domEle.msRequestFullscreen) { // IE
+            document.onmsfullscreenchange = null;
+        } else if (domEle.mozRequestFullscreen) { // Firefox (Gecko)
+            document.onmozfullscreenchange = null;
+        } else if (domEle.webkitRequestFullscreen) { // Webkit
+            document.onwebkitfullscreenchange = null;
+        }
+    }
     keyPressFullScreen = (evt) => {
         evt.preventDefault();
         this.fullScreen();

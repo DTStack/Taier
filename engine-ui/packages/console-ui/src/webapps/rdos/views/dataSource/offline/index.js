@@ -195,7 +195,7 @@ class DataSourceMana extends Component {
         // },
          {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '20%',
+            width: '150',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
@@ -228,7 +228,7 @@ class DataSourceMana extends Component {
                                     //onConfirm={() => { this.remove(record) }}
                                 >
 
-                                    <span>删除</span>
+                                    <span style={{color: "#ccc"}}>删除</span>
                                 </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
@@ -292,7 +292,7 @@ class DataSourceMana extends Component {
 
         return (
             <div>
-                <div className="box-2 m-card shadow">
+                <div className="shadow">
                     <Card 
                         title={title} 
                         extra={extra} 

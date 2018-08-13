@@ -228,7 +228,7 @@ class DataSourceMana extends Component {
                                     //onConfirm={() => { this.remove(record) }}
                                 >
 
-                                    <span>删除</span>
+                                    <span style={{color: "#ccc"}}>删除</span>
                                 </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
@@ -293,7 +293,7 @@ class DataSourceMana extends Component {
         console.log('dataSource.data',dataSource.data);
         return (
             <div>
-                <div className="box-2 m-card shadow">
+                <div className="shadow">
                     <Card 
                         title={title} 
                         extra={extra} 
