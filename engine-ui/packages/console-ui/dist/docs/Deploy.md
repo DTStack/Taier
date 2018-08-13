@@ -92,9 +92,5 @@
 上面的 `config`文件主要包含即是 UIC 相关的配置, `dataQuality` 项目中则需要独立配置下的 `API Server` 地址，该配置主要用来提供给第三方 API 调用`远程触发`服务.
 
 
-#### 数据质量（Valid) 相关配置
-远程触发地址修改 `src/public/dataQuality/config/config.js` 中`API_SERVER`设置为数据质量后端服务地址（没有则新增）
-
-
 ###  四、版本验证
 安装成功后，打开首页，在页脚有对应版本号，表示升级文件是否生效。另外，想验证功能的话，可以打开 `dist` 目录中的[README](./README.md)文件，查看升级日志后，进行操作。
