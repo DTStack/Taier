@@ -12,7 +12,7 @@
             background: #fff;
         }
     }
-
+   
     .graph-content {
         position: relative;
         width: 100%;
@@ -225,6 +225,38 @@
                 padding: 10px 20px;
                 border: 1px solid #e1e6eb;
             }
+        }
+    }
+}
+
+.m-card.task-manage {
+    .ant-form-inline .ant-form-item {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+    .select-task{
+        margin-right: 12px;
+    }
+    tr > td:first-child, .m-card .m-table tr > th:first-child {
+        padding-left: 6px
+    }
+    .ant-card .ant-card-body {
+        padding: 0;
+        position: relative;
+        height: 550px;
+    }
+    .m-table {
+        .ant-table-footer {
+            background: #fff;
+            padding: 10 0;
+            border-bottom: 0;
+        }
+        .ant-pagination {
+            position: relative;
+            top: -60px;
+            right: 20;
+            margin-right: 0;
         }
     }
 }
