@@ -3,14 +3,14 @@ import { assign } from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
-    Button, Modal,Input,
+    Button, Modal, Input,
     Popconfirm, message
 } from 'antd'
 
 import utils from 'utils'
 import { hasProject } from 'funcs'
 
-import { MY_APPS } from '../../../consts'
+import { MY_APPS, RDOS_ROLE, APP_ROLE } from '../../../consts'
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
 
@@ -83,13 +83,57 @@ class AdminUser extends Component {
                 currentPage: 1,
             }));
         }
+        this.getOwnRole(active, params);
     }
-
+    getOwnRole(app, params) {
+        const queryParams = {
+            ...params,
+            currentPage: 1,
+            pageSize: 1,
+            name: this.props.user.userName
+        }
+        Api.queryUser(app, queryParams).then((res) => {
+            const roles = res.data && res.data.data[0].roles;
+            let isVisitor = false,
+                isProjectAdmin = false,
+                isProjectOwner = false;
+            for (let role of roles) {
+                const roleValue = role.roleValue;
+                switch (app) {
+                    case MY_APPS.RDOS: {
+                        if (roleValue == RDOS_ROLE.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
+                            isProjectAdmin = true;
+                        } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
+                            isProjectOwner = true;
+                        }
+                    }
+                    case MY_APPS.API:
+                    case MY_APPS.LABEL:
+                    case MY_APPS.DATA_QUALITY: {
+                        if (roleValue == APP_ROLE.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == APP_ROLE.ADMIN) {
+                            isProjectAdmin = true;
+                        }
+                    }
+                }
+            }
+            this.setState({
+                myRoles: {
+                    isVisitor,
+                    isProjectAdmin,
+                    isProjectOwner
+                }
+            })
+        })
+    }
     loadUsers = (app, params) => {
         const { searchName } = this.state;
         const ctx = this
         this.setState({ loading: true })
-        const queryParams = {...params}//复制一份
+        const queryParams = { ...params }//复制一份
         queryParams.name = searchName
         Api.queryUser(app, queryParams).then((res) => {
             ctx.setState({ users: res.data, loading: false })
@@ -333,7 +377,7 @@ class AdminUser extends Component {
     searchProjectUser = (user) => {
         this.setState({
             searchName: user
-        },this.loadData)
+        }, this.loadData)
     }
 
     searchNameChange = (e) => {
@@ -344,7 +388,7 @@ class AdminUser extends Component {
 
     renderTitle = () => {
 
-        const { projects, active, selectedProject,searchName } = this.state;
+        const { projects, active, selectedProject, searchName } = this.state;
 
         const projectOpts = projects && projects.map(project =>
             <Option value={`${project.id}`} key={`${project.id}`}>
@@ -355,8 +399,8 @@ class AdminUser extends Component {
         const title = (
             <span>
                 {
-                    hasProject(active)&&(
-                        <span> 
+                    hasProject(active) && (
+                        <span>
                             选择项目：
                             <Select
                                 showSearch
@@ -375,7 +419,7 @@ class AdminUser extends Component {
                     placeholder="请输入要搜索的账号"
                     value={searchName}
                     onChange={e => this.searchNameChange(e)}
-                    style={{ width: 200 ,marginTop: 10 }}
+                    style={{ width: 200, marginTop: 10 }}
                     onSearch={value => this.searchProjectUser(value)}
                 />
             </span>
@@ -428,7 +472,7 @@ class AdminUser extends Component {
 
         const {
             visible, roles, notProjectUsers,
-            visibleEditRole, editTarget, active
+            visibleEditRole, editTarget, active, myRoles
         } = this.state
 
         const content = this.renderPane();
@@ -451,6 +495,7 @@ class AdminUser extends Component {
                     onCancel={this.onCancel}
                 >
                     <MemberForm
+                        myRoles={myRoles}
                         wrappedComponentRef={(e) => { this.memberForm = e }}
                         roles={roles}
                         app={active}
@@ -465,9 +510,10 @@ class AdminUser extends Component {
                     visible={visibleEditRole}
                     onOk={this.updateMemberRole}
                     onCancel={this.onCancel}
-                    width={Math.min(1000,Math.max(520,(400+(roles?roles.length*60:0))))+"px"}
+                    width={Math.min(1000, Math.max(520, (400 + (roles ? roles.length * 60 : 0)))) + "px"}
                 >
                     <EditMemberRoleForm
+                        myRoles={myRoles}
                         user={editTarget}
                         app={active}
                         roles={roles}

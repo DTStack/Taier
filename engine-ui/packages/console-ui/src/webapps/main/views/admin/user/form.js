@@ -20,27 +20,29 @@ const CheckboxGroup = Checkbox.Group;
 
 
 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-export const isDisabledRole = (app, value, loginUser) => {
+export const isDisabledRole = (app, value, loginUser, myRoles={}) => {
     switch(app) {
         case MY_APPS.RDOS: {
-            if (loginUser.isTenantAdmin) {
+            if (loginUser.isTenantAdmin||myRoles.isProjectOwner) {//租户管理员和项目拥有者
                 return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER)
-            } else {
+            } else if(myRoles.isProjectAdmin){//项目管理员
                 return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
-                value === RDOS_ROLE.VISITOR
+                value === RDOS_ROLE.PROJECT_ADMIN
+            }else{
+                return true;
             }
         }
         case MY_APPS.API:
         case MY_APPS.LABEL:
         case MY_APPS.DATA_QUALITY: {
-            if (loginUser.isTenantAdmin) {
-                return value === RDOS_ROLE.TENANT_OWVER 
+            if (loginUser.isTenantAdmin) {//租户管理员
+                return value === APP_ROLE.TENANT_OWVER 
+            }else if(myRoles.isProjectAdmin){//产品管理员
+                return (value === APP_ROLE.TENANT_OWVER ||value === APP_ROLE.ADMIN)
             } else {
-                return value === APP_ROLE.ADMIN ||
-                value === APP_ROLE.TENANT_OWVER ||
-                value === APP_ROLE.VISITOR
+                return true;
             }
         }
         default: {
@@ -54,7 +56,7 @@ class UserRoleForm extends Component {
     debounceSearch = debounce(this.props.onSearchUsers, 300, { 'maxWait': 2000 })
 
     render() {
-        const { roles, form, notProjectUsers, app, user } = this.props;
+        const { roles, form, notProjectUsers, app, user, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
@@ -73,7 +75,7 @@ class UserRoleForm extends Component {
         let initialValue=[];
         if (roles) {
             roles.forEach(role => {
-                const disabled = isDisabledRole(app, role.roleValue, user)
+                const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
                 if(role.roleValue==APP_ROLE.VISITOR&&MY_APPS.RDOS!=app){
                     initialValue.push(role.id)
                 }else if(role.roleValue==RDOS_ROLE.VISITOR&&MY_APPS.RDOS==app){
