@@ -15,9 +15,12 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
+import com.dtstack.rdos.engine.execution.flink140.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink140.parser.AddJarOperator;
+import com.dtstack.rdos.engine.execution.flink140.util.FLinkConfUtil;
 import com.dtstack.rdos.engine.execution.flink140.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink140.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.flink140.util.PackagedProgramUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,9 +31,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.http.HttpStatus;
@@ -97,6 +104,12 @@ public class FlinkClient extends AbsClient {
 
     private ExecutorService yarnMonitorES;
 
+    private boolean yarnCluster;
+
+    private FlinkYarnMode flinkYarnMode;
+
+    public static ThreadLocal<Properties> propertiesThreadLocal = new ThreadLocal<>();
+
     @Override
     public void init(Properties prop) throws Exception {
 
@@ -107,14 +120,20 @@ public class FlinkClient extends AbsClient {
 
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
-        yarnMonitorES = new ThreadPoolExecutor(1, 1,
-                0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
 
         initHadoopConf(flinkConfig);
         flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
-        if(flinkConfig.getClusterMode().equals(Deploy.yarn.name())){
+
+        yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
+        if (yarnCluster){
+            flinkYarnMode = FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode());
+            if (FlinkYarnMode.isPerJob(flinkYarnMode)){
+                flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig);
+            }
+            yarnMonitorES = new ThreadPoolExecutor(1, 1,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
             //启动守护线程---用于获取当前application状态和更新flink对应的application
             yarnMonitorES.submit(new YarnAppStatusMonitor(this));
         }
@@ -170,41 +189,51 @@ public class FlinkClient extends AbsClient {
             packagedProgram = FlinkUtil.buildProgram(jarPath, tmpFileDirPath, classPaths, entryPointClass,
                     programArgs, spSettings, hadoopConf);
         }catch (Throwable e){
-            JobResult jobResult = JobResult.createErrorResult(e);
             logger.error("", e);
-            return jobResult;
+            return JobResult.createErrorResult(e);
         }
 
         //只有当程序本身没有指定并行度的时候该参数才生效
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
-        JobSubmissionResult result = null;
 
+
+        propertiesThreadLocal.set(jobClient.getConfProperties());
         try {
-            result = client.run(packagedProgram, runParallelism);
+            String taskId = runJob(packagedProgram, runParallelism);
+            return JobResult.createSuccessResult(taskId);
         }catch (Exception e){
             logger.error("", e);
             return JobResult.createErrorResult(e);
         }finally {
             packagedProgram.deleteExtractedLibraries();
+            propertiesThreadLocal.remove();
         }
-
-        if (result.isJobExecutionResult()) {
-            logger.info("Program execution finished");
-            JobExecutionResult execResult = result.getJobExecutionResult();
-            logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
-            logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
-            Map<String, Object> accumulatorsResult = execResult.getAllAccumulatorResults();
-            if (accumulatorsResult.size() > 0) {
-                //System.out.println("Accumulator Results: ");
-                //System.out.println(AccumulatorHelper.getResultsFormated(accumulatorsResult));
-            }
-        } else {
-            logger.info("Job has been submitted with JobID " + result.getJobID());
-        }
-
-        return JobResult.createSuccessResult(result.getJobID().toString());
     }
 
+    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
+        if (FlinkYarnMode.isPerJob(flinkYarnMode)){
+            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification();
+            final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
+            YarnClusterClient clusterClient = flinkClientBuilder.getPerJobYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph);
+            try {
+                clusterClient.shutdown();
+            } catch (Exception e) {
+                logger.info("Could not properly shut down the client.", e);
+            }
+            return clusterClient.getApplicationId().toString();
+        } else {
+            JobSubmissionResult result = client.run(program, parallelism);
+            if (result.isJobExecutionResult()) {
+                logger.info("Program execution finished");
+                JobExecutionResult execResult = result.getJobExecutionResult();
+                logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
+                logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
+            } else {
+                logger.info("Job has been submitted with JobID " + result.getJobID());
+            }
+            return result.getJobID().toString();
+        }
+    }
 
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
 

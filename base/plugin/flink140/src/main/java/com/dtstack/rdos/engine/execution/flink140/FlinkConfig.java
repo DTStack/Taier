@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
@@ -33,9 +33,9 @@ public class FlinkConfig {
 	private String flinkClusterId;
 
 	private String flinkJobMgrUrl;
-	
+
 	private String flinkHighAvailabilityStorageDir;
-	
+
 	private String jarTmpDir;
 
 	private String flinkPluginRoot;
@@ -51,6 +51,10 @@ public class FlinkConfig {
 	private Map<String, Object> hadoopConf;
 
 	private Map<String, Object> yarnConf;
+
+	private String flinkYarnMode;
+
+	private String flinkJarPath;
 
 
 	public String getFlinkZkAddress() {
@@ -199,5 +203,21 @@ public class FlinkConfig {
 
 	public void setQueue(String queue) {
 		this.queue = queue;
+	}
+
+	public String getFlinkYarnMode() {
+		return StringUtils.isBlank(flinkYarnMode) ? "legacy": flinkYarnMode;
+	}
+
+	public void setFlinkYarnMode(String flinkYarnMode) {
+		this.flinkYarnMode = flinkYarnMode;
+	}
+
+	public String getFlinkJarPath() {
+		return flinkJarPath;
+	}
+
+	public void setFlinkJarPath(String flinkJarPath) {
+		this.flinkJarPath = flinkJarPath;
 	}
 }
