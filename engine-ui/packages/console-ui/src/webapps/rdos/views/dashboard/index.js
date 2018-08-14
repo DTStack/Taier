@@ -32,9 +32,16 @@ class Index extends Component {
     componentDidMount() {
         this.getProjectListInfo();
     }
+    componentWillUnmount(){
+        this._isUnmounted=true;
+        clearTimeout(this._timeClock);
+    }
     debounceGetProList(){
+        if(this._isUnmounted){
+            return ;
+        }
        this._timeClock=setTimeout(() => {
-            this.getProjectListInfo();
+            this.getProjectListInfo(null,true);
         }, 3000);
     }
     setCard = (data) => {
@@ -62,12 +69,14 @@ class Index extends Component {
         }
     }
 
-    getProjectListInfo = (params) => {
+    getProjectListInfo = (params,isSilent) => {
         const { projectListParams } = this.state;
         const queryParsms = { ...projectListParams, ...params };
-        this.setState({
-            loading: true,
-        })
+        if(!isSilent){
+            this.setState({
+                loading: true,
+            })
+        }
         clearTimeout(this._timeClock);
         Api.getProjectListInfo(queryParsms).then((res) => {
             if (res.code === 1) {
