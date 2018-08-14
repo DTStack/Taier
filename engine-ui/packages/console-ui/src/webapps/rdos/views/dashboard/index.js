@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, hashHistory } from "react-router";
+import {debounce} from "lodash";
 
 import moment from 'moment'
 
@@ -31,7 +32,11 @@ class Index extends Component {
     componentDidMount() {
         this.getProjectListInfo();
     }
-
+    debounceGetProList(){
+       this._timeClock=setTimeout(() => {
+            this.getProjectListInfo();
+        }, 3000);
+    }
     setCard = (data) => {
         if (data.status == 2 || data.status == 3) {//"删除项目" 
             Api.deleteProject({ projectId: data.id }).then(v => {
@@ -63,8 +68,17 @@ class Index extends Component {
         this.setState({
             loading: true,
         })
+        clearTimeout(this._timeClock);
         Api.getProjectListInfo(queryParsms).then((res) => {
             if (res.code === 1) {
+                if(res.data&&res.data.data){
+                    for(let project of res.data.data){
+                        if(project.status==0){
+                            this.debounceGetProList();
+                            break;
+                        }
+                    }
+                }
                 this.setState({
                     projectListInfo: res.data && res.data.data || [],
                     totalSize: res.data && res.data.totalCount || 0,
