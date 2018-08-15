@@ -19,7 +19,7 @@ import java.util.Properties;
 public class FLinkConfUtil {
 
     public static ClusterSpecification createClusterSpecification() {
-        Properties confProperties = FlinkClient.propertiesThreadLocal.get();
+        Properties confProperties = FlinkClient.jobClientThreadLocal.get().getConfProperties();
         if (confProperties != null
                 && confProperties.containsKey(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB)
                 && confProperties.containsKey(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB)

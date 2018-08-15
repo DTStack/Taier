@@ -61,8 +61,6 @@ public class FlinkClientBuilder {
 
     private static String akka_tcp_timeout = "60 s";
 
-    private AbstractYarnClusterDescriptor perJobYarnClusterDescriptor;
-
     private FlinkClientBuilder(){
     }
 
@@ -223,7 +221,9 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public void createPerJobClusterDescriptor(FlinkConfig flinkConfig) {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
+        Configuration newConf = new Configuration(flinkConfiguration);
+        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
         AbstractYarnClusterDescriptor clusterDescriptor =  new YarnClusterDescriptorV2(flinkConfiguration, ".");
         String flinkJarPath = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
@@ -238,7 +238,7 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
         clusterDescriptor.setQueue(flinkConfig.getQueue());
-        perJobYarnClusterDescriptor = clusterDescriptor;
+        return clusterDescriptor;
     }
 
 
@@ -309,7 +309,4 @@ public class FlinkClientBuilder {
         return flinkConfiguration;
     }
 
-    public AbstractYarnClusterDescriptor getPerJobYarnClusterDescriptor() {
-        return perJobYarnClusterDescriptor;
-    }
 }

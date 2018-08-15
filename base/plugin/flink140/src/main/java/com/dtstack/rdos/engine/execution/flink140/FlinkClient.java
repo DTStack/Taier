@@ -39,6 +39,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
+import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -108,7 +109,7 @@ public class FlinkClient extends AbsClient {
 
     private FlinkYarnMode flinkYarnMode;
 
-    public static ThreadLocal<Properties> propertiesThreadLocal = new ThreadLocal<>();
+    public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -128,9 +129,6 @@ public class FlinkClient extends AbsClient {
         yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
         if (yarnCluster){
             flinkYarnMode = FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode());
-            if (FlinkYarnMode.isPerJob(flinkYarnMode)){
-                flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig);
-            }
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
@@ -197,7 +195,7 @@ public class FlinkClient extends AbsClient {
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
 
 
-        propertiesThreadLocal.set(jobClient.getConfProperties());
+        jobClientThreadLocal.set(jobClient);
         try {
             String taskId = runJob(packagedProgram, runParallelism);
             return JobResult.createSuccessResult(taskId);
@@ -206,7 +204,7 @@ public class FlinkClient extends AbsClient {
             return JobResult.createErrorResult(e);
         }finally {
             packagedProgram.deleteExtractedLibraries();
-            propertiesThreadLocal.remove();
+            jobClientThreadLocal.remove();
         }
     }
 
@@ -214,7 +212,8 @@ public class FlinkClient extends AbsClient {
         if (FlinkYarnMode.isPerJob(flinkYarnMode)){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification();
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
-            YarnClusterClient clusterClient = flinkClientBuilder.getPerJobYarnClusterDescriptor().deployJobCluster(clusterSpecification, jobGraph);
+            AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClientThreadLocal.get().getTaskId());
+            YarnClusterClient clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph);
             try {
                 clusterClient.shutdown();
             } catch (Exception e) {
