@@ -171,11 +171,11 @@ class TestApi extends React.Component {
                         <div className="left_box">
                             <p style={{ color: "#151515" }} className="required-tip middle-title">API({basicProperties.APIName})测试</p>
                             <div>
-                                <p style={{ fontSize: "18px" }}>
+                                <p style={{ fontSize: "18px",marginTop: "2px" }}>
                                     <span className="shadowtext">请求方式：{API_METHOD_key[basicProperties.method]}</span>
                                     <span className="shadowtext" style={{ marginLeft: "8px" }}>返回类型：JSON</span>
                                 </p>
-                                <p style={{ marginTop: "10px", marginBottom: "5px" }} className="middle-title">输入参数：</p>
+                                <p style={{ marginTop: "10px", marginBottom: "6px" }} className="middle-title">输入参数：</p>
                                 <Table
                                     className="m-table shadow"
                                     style={{ background: "#fff" }}

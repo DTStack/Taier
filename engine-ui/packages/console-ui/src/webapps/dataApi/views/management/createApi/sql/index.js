@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Modal, Spin, Button, Checkbox } from "antd";
 
-import CodeEditor from "widgets/code-editor";
+import CodeEditor from "widgets/editor";
 class ApiSqlEditor extends React.Component {
     state = {
         sql: "",
@@ -47,7 +47,7 @@ class ApiSqlEditor extends React.Component {
                         style={{ height: "600px", marginTop: "1px" }}
                         onChange={this.props.sqlOnChange}
                         value={this.props.editor.sql}
-                        cursor={this.props.editor.cursor}
+                        // cursor={this.props.editor.cursor}
                         sync={this.props.editor.sync}
                     />
                     <Modal

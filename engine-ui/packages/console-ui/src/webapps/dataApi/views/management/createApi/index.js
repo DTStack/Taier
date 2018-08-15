@@ -71,7 +71,7 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class NewApi extends Component {
     state = {
-        current: 2,
+        current: 0,
         basicProperties: {},
         paramsConfig: {},
         complete: {},

@@ -78,11 +78,11 @@ class ManageParamsConfig extends Component {
         // this.getDataSource();
         this.props.getDataSourcesType();
     }
-    sqlOnChange(initValue, value, doc) {
+    sqlOnChange(value, doc) {
         this.setState({
             editor: {
                 sql: value,
-                cursor: doc.getCursor(),
+                // cursor: doc.getCursor(),
                 sync: false,
             }
         })
