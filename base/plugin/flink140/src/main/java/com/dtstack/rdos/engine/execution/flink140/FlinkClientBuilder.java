@@ -119,7 +119,7 @@ public class FlinkClientBuilder {
 
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
         try {
-            FileSystem.initialize(flinkConfiguration);
+            FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
