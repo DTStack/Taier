@@ -61,6 +61,8 @@ public class FlinkClientBuilder {
 
     private static String akka_tcp_timeout = "60 s";
 
+    private YarnClient yarnClient;
+
     private FlinkClientBuilder(){
     }
 
@@ -212,10 +214,23 @@ public class FlinkClientBuilder {
         ApplicationId applicationId = acquireApplicationId(flinkConfig);
 
         YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId.toString());
+        setYarnClient(clusterClient);
         clusterClient.setDetached(isDetached);
 
         LOG.warn("---init flink client with yarn session success----");
         return clusterClient;
+    }
+
+    private void setYarnClient(YarnClusterClient clusterClient) {
+        try {
+            Field YarnClientField = clusterClient.getClass().getDeclaredField("yarnClient");
+            YarnClientField.setAccessible(true);
+            YarnClient yarnClient = (YarnClient) YarnClientField.get(clusterClient);
+            this.yarnClient = yarnClient;
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
     }
 
     public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
@@ -327,4 +342,7 @@ public class FlinkClientBuilder {
         return flinkConfiguration;
     }
 
+    public YarnClient getYarnClient() {
+        return yarnClient;
+    }
 }

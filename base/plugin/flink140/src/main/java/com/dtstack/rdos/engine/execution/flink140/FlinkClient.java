@@ -41,6 +41,12 @@ import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.exceptions.YarnException;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,10 +215,11 @@ public class FlinkClient extends AbsClient {
     }
 
     public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
-        if (FlinkYarnMode.isPerJob(flinkYarnMode)){
+        JobClient jobClient = jobClientThreadLocal.get();
+        if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification();
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
-            AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClientThreadLocal.get().getTaskId());
+            AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
             YarnClusterClient clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph);
             try {
                 clusterClient.shutdown();
@@ -334,6 +341,48 @@ public class FlinkClient extends AbsClient {
     		return null;
     	}
 
+    	if (jobId.startsWith("application_")){
+            ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+            try {
+                ApplicationReport report = flinkClientBuilder.getYarnClient().getApplicationReport(appId);
+                YarnApplicationState applicationState = report.getYarnApplicationState();
+                switch(applicationState) {
+                    case KILLED:
+                        return RdosTaskStatus.KILLED;
+                    case NEW:
+                    case NEW_SAVING:
+                        return RdosTaskStatus.CREATED;
+                    case SUBMITTED:
+                        //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                        return RdosTaskStatus.WAITCOMPUTE;
+                    case ACCEPTED:
+                        return RdosTaskStatus.SCHEDULED;
+                    case RUNNING:
+                        return RdosTaskStatus.RUNNING;
+                    case FINISHED:
+                        //state 为finished状态下需要兼顾判断finalStatus.
+                        FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                        if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                            return RdosTaskStatus.FAILED;
+                        }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                            return RdosTaskStatus.FINISHED;
+                        }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                            return RdosTaskStatus.KILLED;
+                        }else{
+                            return RdosTaskStatus.RUNNING;
+                        }
+
+                    case FAILED:
+                        return RdosTaskStatus.FAILED;
+                    default:
+                        throw new RdosException("Unsupported application state");
+                }
+            } catch (YarnException | IOException e) {
+                logger.error("", e);
+                return RdosTaskStatus.NOTFOUND;
+            }
+        }
+
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
         String response = null;
         try{
@@ -440,6 +489,22 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
+        if (jobId.startsWith("application_")){
+            ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
+
+            YarnLog yarnLog = new YarnLog();
+            try {
+                final ApplicationReport appReport = flinkClientBuilder.getYarnClient().getApplicationReport(applicationId);
+                String msgInfo = appReport.getDiagnostics();
+                yarnLog.addAppLog(jobId, msgInfo);
+            } catch (Exception e) {
+                logger.error("", e);
+                yarnLog.addAppLog(jobId, "get log from yarn err:" + e.getMessage());
+            }
+
+            return yarnLog.toString();
+        }
+
         String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
         String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
