@@ -9,7 +9,7 @@ import {
 
 import { Link } from 'react-router';
 
-import Editor from '../../../components/code-editor';
+import Editor from 'widgets/editor';
 import CopyIcon from "main/components/copy-icon";
 import {DDL_placeholder} from "../../../comm/DDLCommon"
 import SlidePane from 'widgets/slidePane';
@@ -141,7 +141,7 @@ class TableList extends Component {
                 if (res.code === 1) {
                     this._DDL = undefined;
                     // 设置值
-                    this.DDLEditor.self.doc.setValue('');
+                    this.DDLEditor.setValue('');
                     this.setState({
                         visible: false
                     });
@@ -157,12 +157,13 @@ class TableList extends Component {
 
     handleCancel() {
         this._DDL = undefined;
+        this.DDLEditor.setValue('');
         this.setState({
             visible: false
         })
     }
 
-    handleDdlChange(previous, value) {
+    handleDdlChange(value) {
         this._DDL = value;
     }
 
@@ -355,8 +356,9 @@ class TableList extends Component {
                             <Editor
                                 style={{ height: "400px" }}
                                 placeholder={DDL_placeholder}
+                                language="dtsql"
                                 onChange={this.handleDdlChange.bind(this)}
-                                value={this._DDL} ref={(e) => { this.DDLEditor = e }}
+                                value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
                             />
                         </Modal>
                     </div>

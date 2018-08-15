@@ -65,7 +65,10 @@ class PatchDataDetail extends Component {
             fillJobName: this.props.params.fillJobName
         }, this.search)
     }
-
+    componentWillUnmount(){
+        this._isUnmounted=true;
+        clearTimeout(this._timeClock);
+    }
     componentWillReceiveProps(nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -75,8 +78,15 @@ class PatchDataDetail extends Component {
             })
         }
     }
-
-    search = () => {
+    debounceSearch(){
+        if(this._isUnmounted){
+            return ;
+        }
+        this._timeClock=setTimeout(() => {
+             this.search(true);
+         }, 5000);
+     }
+    search = (isSilent) => {
         const {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
@@ -111,15 +121,18 @@ class PatchDataDetail extends Component {
         reqParams.execStartSort = execStartSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
-
-        this.loadPatchRecords(reqParams)
+        clearTimeout(this._timeClock);
+        this.loadPatchRecords(reqParams,isSilent)
     }
 
-    loadPatchRecords(params) {
+    loadPatchRecords(params,isSilent) {
         const ctx = this
-        this.setState({ loading: true })
+        if(!(isSilent&&typeof isSilent=="boolean")){
+            this.setState({ loading: true })
+        }
         Api.getFillDataDetail(params).then((res) => {
             if (res.code === 1) {
+                this.debounceSearch();
                 ctx.setState({ table: res.data })
             }
             this.setState({ loading: false })

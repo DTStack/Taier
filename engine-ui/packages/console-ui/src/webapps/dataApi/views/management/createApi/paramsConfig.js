@@ -36,7 +36,7 @@ class ManageParamsConfig extends Component {
 
     componentWillMount() {
         const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql,
-            InputIsEdit, OutputIsEdit,dataSourceType } = this.props;
+            InputIsEdit, OutputIsEdit, dataSourceType } = this.props;
         this.setState({
             InputColumns: inputParam || [],
             OutputColums: outputParam || [],
@@ -48,7 +48,7 @@ class ManageParamsConfig extends Component {
             },
             sqlModeShow: InputIsEdit && OutputIsEdit
         });
-        if(dataSourceType||dataSourceType==0||dataSrcId||dataSrcId==0){
+        if (dataSourceType || dataSourceType == 0 || dataSrcId || dataSrcId == 0) {
             this.getDataSource(dataSourceType);
         }
         if (dataSrcId || dataSrcId == 0) {
@@ -78,15 +78,15 @@ class ManageParamsConfig extends Component {
         // this.getDataSource();
         this.props.getDataSourcesType();
     }
-    sqlOnChange(initValue, value, doc) {
+    sqlOnChange(value, doc) {
         this.setState({
             editor: {
                 sql: value,
-                cursor: doc.getCursor(),
+                // cursor: doc.getCursor(),
                 sync: false,
             }
         })
-        this.props.changeColumnsEditStatus(true,true)
+        this.props.changeColumnsEditStatus(true, true)
     }
     resultPageCheckedChange(evt) {
         this.setState({
@@ -98,8 +98,8 @@ class ManageParamsConfig extends Component {
             resultPage: value
         })
     }
-    changeColumnsEditStatus(input,output) {
-        this.props.changeColumnsEditStatus(input,output)
+    changeColumnsEditStatus(input, output) {
+        this.props.changeColumnsEditStatus(input, output)
     }
     updateColumns(columns, type) {
         switch (type) {
@@ -186,7 +186,7 @@ class ManageParamsConfig extends Component {
             {
                 title: '字段类型',
                 dataIndex: 'type',
-                width:"100px"
+                width: "100px"
             }
         ]
     }
@@ -226,9 +226,9 @@ class ManageParamsConfig extends Component {
                 }
             );
     }
-    dataSourceTypeChange(key){
+    dataSourceTypeChange(key) {
         this.setState({
-            dataSourceList:[],
+            dataSourceList: [],
             tableData: [],
             tableList: [],
             InputColumns: [],
@@ -237,7 +237,7 @@ class ManageParamsConfig extends Component {
         })
         this.props.form.setFieldsValue({
             'tableSource': undefined,
-            "dataSource":undefined
+            "dataSource": undefined
 
         })
         this.getDataSource(key);
@@ -285,10 +285,10 @@ class ManageParamsConfig extends Component {
         const { InputColumns, OutputColums, resultPageChecked, resultPage, editor } = this.state;
         const dataSource = this.props.form.getFieldValue("dataSource");
         const tableSource = this.props.form.getFieldValue("tableSource");
-        const dataSourceType=this.props.form.getFieldValue("dataSourceType");
+        const dataSourceType = this.props.form.getFieldValue("dataSourceType");
         const params = {
             dataSrcId: dataSource,
-            dataSourceType:dataSourceType,
+            dataSourceType: dataSourceType,
             tableName: tableSource,
             inputParam: InputColumns,
             outputParam: OutputColums,
@@ -312,7 +312,7 @@ class ManageParamsConfig extends Component {
         }
         if (isEdit) {
             message.warning("请先完成参数编辑", 2)
-            if(mode==API_MODE.SQL){
+            if (mode == API_MODE.SQL) {
                 this.sqlModeShowChange(true);
             }
             return;
@@ -406,7 +406,7 @@ class ManageParamsConfig extends Component {
                 const cacheColumn = tmpCache[column.paramName];
                 let id, desc, required;
 
-                if (cacheColumn&&cacheColumn.columnName==column.fieldName) {
+                if (cacheColumn && cacheColumn.columnName == column.fieldName) {
                     id = cacheColumn.id;
                     desc = cacheColumn.desc;
                     required = cacheColumn.required;
@@ -424,7 +424,7 @@ class ManageParamsConfig extends Component {
         ) : [];
     }
     sqlFormat() {
-        this.props.sqlFormat(this.state.editor.sql,this.props.dataSourceType)
+        this.props.sqlFormat(this.state.editor.sql, this.props.dataSourceType)
             .then(
                 (res) => {
                     if (res) {
@@ -440,10 +440,10 @@ class ManageParamsConfig extends Component {
     }
     render() {
         const columns = this.initColumns();
-        const { mode, InputIsEdit, OutputIsEdit,dataSource } = this.props;
+        const { mode, InputIsEdit, OutputIsEdit, dataSource, apiEdit, disAbleTipChange, apiManage } = this.props;
         const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, loading } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const dataSourceType=dataSource.sourceType||[];
+        const dataSourceType = dataSource.sourceType || [];
 
         const dataSourceOptions = dataSourceList.map(
             (data) => {
@@ -455,13 +455,13 @@ class ManageParamsConfig extends Component {
                 return <Option value={data}>{data}</Option>
             }
         )
-        const dataSourceTypeOption=dataSourceType.map(
-            (data)=>{
+        const dataSourceTypeOption = dataSourceType.map(
+            (data) => {
                 return <Option value={data.value}>{data.name}</Option>
             }
         )
 
-
+        const dataFieldsClass=mode == API_MODE.SQL?'middle-title':'required-tip middle-title'
         return (
             <div>
                 <div className="steps-content">
@@ -469,7 +469,7 @@ class ManageParamsConfig extends Component {
                         <div className="paramsConfig_data">
                             <p className="required-tip middle-title">数据源配置:</p>
                             <section style={{ paddingTop: "10px" }}>
-                            <FormItem>
+                                <FormItem>
                                     {getFieldDecorator('dataSourceType', {
                                         initialValue: this.props.dataSourceType
                                     })(
@@ -512,7 +512,7 @@ class ManageParamsConfig extends Component {
                                     )}
                                 </FormItem>
                             </section>
-                            <p className="required-tip middle-title">数据字段:</p>
+                            <p className={dataFieldsClass} style={{marginTop:"30px"}}>数据字段:</p>
                             <section style={{ padding: "10px 0px" }}>
                                 <Table
                                     style={{ background: "#fff" }}
@@ -521,7 +521,7 @@ class ManageParamsConfig extends Component {
                                     dataSource={tableData}
                                     pagination={false}
                                     rowSelection={this.rowSelection()}
-                                    scroll={{y:400}}
+                                    scroll={{ y: 286 }}
                                 />
                             </section>
                         </div>
@@ -535,6 +535,10 @@ class ManageParamsConfig extends Component {
                                     sqlFormat={this.sqlFormat.bind(this)}
                                     editor={editor}
                                     loading={loading}
+                                    apiEdit={apiEdit}
+                                    disAbleTipChange={disAbleTipChange}
+                                    disAbleTip={apiManage.disAbleTip}
+
                                 />
                                 : (
                                     <ColumnsConfig

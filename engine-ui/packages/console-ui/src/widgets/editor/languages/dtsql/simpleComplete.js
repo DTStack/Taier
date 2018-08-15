@@ -14,11 +14,11 @@ function keywordsCompleteItemCreater(words,) {
         (word,index) => {
             return {
                 label: word,
-                kind: monaco.languages.CompletionItemKind.Keyword,
+                kind: monaco.languages.CompletionItemKind.Keyword, 
                 // detail: "dtsql关键字",
                 insertText: word + " ",
                 sortText:"0"+index+word
-            }
+            } 
         }
     )
 }

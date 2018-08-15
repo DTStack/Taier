@@ -90,21 +90,29 @@ export default class RemoteTriggerPane extends Component {
             title: '触发接口',
             dataIndex: 'url',
             key: 'url',
-            width: '23%',
+            width: '200px',
             render: (url) => {
                 return <ToolTipCopy value={`${API_SERVER}${url}`} />
             }
-        }, {
+        },  {
+            title: '结果获取接口',
+            dataIndex: 'viewStateUrl',
+            key: 'viewStateUrl',
+            width: '200px',
+            render: (viewStateUrl) => {
+                return <ToolTipCopy value={`${API_SERVER}${viewStateUrl}`} />
+            }
+        },{
             title: '请求方式',
             dataIndex: 'method',
             key: 'method',
-            width: '8%',
+            width: '80px',
             render: (text) => `POST`
         }, {
             title: '最近修改人',
             key: 'modifyUser',
             dataIndex: 'modifyUser',
-            width: '12%',
+            width: '160px',
         }, {
             title: '最近修改时间',
             key: 'gmtModified',
@@ -115,10 +123,10 @@ export default class RemoteTriggerPane extends Component {
             title: '备注',
             dataIndex: 'remark',
             key: 'remark',
-            width: '15%',
+            width: '170px',
         }, {
             title: '操作',
-            width: '10%',
+            width: '120px',
             render: (text, record) => {
                 return (
                     <div>

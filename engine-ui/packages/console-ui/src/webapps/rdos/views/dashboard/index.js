@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, hashHistory } from "react-router";
+import {debounce} from "lodash";
 
 import moment from 'moment'
 
@@ -31,7 +32,18 @@ class Index extends Component {
     componentDidMount() {
         this.getProjectListInfo();
     }
-
+    componentWillUnmount(){
+        this._isUnmounted=true;
+        clearTimeout(this._timeClock);
+    }
+    debounceGetProList(){
+        if(this._isUnmounted){
+            return ;
+        }
+       this._timeClock=setTimeout(() => {
+            this.getProjectListInfo(null,true);
+        }, 3000);
+    }
     setCard = (data) => {
         if (data.status == 2 || data.status == 3) {//"删除项目" 
             Api.deleteProject({ projectId: data.id }).then(v => {
@@ -57,14 +69,25 @@ class Index extends Component {
         }
     }
 
-    getProjectListInfo = (params) => {
+    getProjectListInfo = (params,isSilent) => {
         const { projectListParams } = this.state;
         const queryParsms = { ...projectListParams, ...params };
-        this.setState({
-            loading: true,
-        })
+        if(!isSilent){
+            this.setState({
+                loading: true,
+            })
+        }
+        clearTimeout(this._timeClock);
         Api.getProjectListInfo(queryParsms).then((res) => {
             if (res.code === 1) {
+                if(res.data&&res.data.data){
+                    for(let project of res.data.data){
+                        if(project.status==0){
+                            this.debounceGetProList();
+                            break;
+                        }
+                    }
+                }
                 this.setState({
                     projectListInfo: res.data && res.data.data || [],
                     totalSize: res.data && res.data.totalCount || 0,

@@ -29,6 +29,7 @@ export default {
     FORMAT_SQL:`${DATA_API_BASE_URL}/apis/sqlFormat`,//格式化sql
     PARSER_SQL:`${DATA_API_BASE_URL}/apis/sqlParser`,//sql解析
     TEST_API:`${DATA_API_BASE_URL}/apis/apiTest`,//api测试
+    CHECK_API_IS_EXIST:`${DATA_API_BASE_URL}/apis/checkNameExist`,//api名称是否存在
 
     // ===== 我的api =====//
     GET_APPLY_LIST:`${DATA_API_BASE_URL}/apply/userApplyList`,//获取申请列表

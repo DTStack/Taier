@@ -7,7 +7,7 @@ import {
 import utils from 'utils'
 
 import API from '../../../../api/dataManage'
-import Editor from '../../../../components/code-editor'
+import Editor from 'widgets/editor'
 import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'
@@ -192,7 +192,7 @@ export default class ImportTarget extends Component {
         })
     }
 
-    ddlChange = (origin, newVal) => {
+    ddlChange = (newVal) => {
         const { changeStatus } = this.props
         changeStatus({
             sqlText: newVal
@@ -386,7 +386,7 @@ export default class ImportTarget extends Component {
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
                 >
-                    <Editor placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
+                    <Editor language="dtsql"  placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
                 </Modal>
             </div>
         )
