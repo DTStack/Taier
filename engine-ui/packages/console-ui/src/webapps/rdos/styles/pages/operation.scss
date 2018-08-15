@@ -66,6 +66,9 @@
             text-align: center;
         }
     }
+    .m-table .ant-table-tbody > tr > td {
+        height: 30px;
+    }
 }
 
 .operation-overview {
@@ -172,11 +175,10 @@
 }
 
 .ope-statistics {
-    margin-left: 10px;
     font-weight: bold;
     font-size: 12px;
     span {
-        margin-right: 20px;
+        margin-right: 24px;
     }
 }
 
