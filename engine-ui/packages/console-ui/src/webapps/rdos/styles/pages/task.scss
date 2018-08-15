@@ -414,6 +414,26 @@
                 }
             }
         }
+       
+        .m-scheduling{
+            .ant-collapse-content > .ant-collapse-content-box {
+                padding-top: 16px;
+                padding-bottom: 0;
+            }
+            .schedule-form{//改变右侧form表单之间的间距
+                .ant-form-item {
+                    font-size: 12px;
+                    margin-bottom: 20px;
+                    color: rgba(0, 0, 0, 0.65);
+                    vertical-align: top;
+                }
+            }
+            .ant-collapse-content {
+                overflow: inherit;
+                color: rgba(0, 0, 0, 0.65);
+                padding: 0 16px;
+            }
+        }
     }
 
 
@@ -576,7 +596,7 @@
                 .right-select{
                     width: 100%;
                     .ant-select-selection {
-                        outline: none;
+                        outline: none; 
                         user-select: none;
                         box-sizing: border-box;
                         display: block;

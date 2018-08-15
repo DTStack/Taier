@@ -307,7 +307,7 @@ class SearchTable extends Component {
             current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
-                    <div className="box-1 m-card card-tree-select" style={{ paddingBottom: 20 }}>
+                    <div className="box-1 m-card card-tree-select">
                         <Spin tip="正在加载中..." spinning={cardLoading}>
                             <Card noHovering bordered={false} title={title} >
                                 <div style={{ marginTop: '1px' }}>
