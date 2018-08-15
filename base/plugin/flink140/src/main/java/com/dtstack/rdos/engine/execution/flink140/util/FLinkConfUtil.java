@@ -18,7 +18,7 @@ import java.util.Properties;
  */
 public class FLinkConfUtil {
 
-    public static ClusterSpecification createClusterSpecification() {
+    public static ClusterSpecification createClusterSpecification(Configuration configuration) {
         Properties confProperties = FlinkClient.jobClientThreadLocal.get().getConfProperties();
         if (confProperties != null
                 && confProperties.containsKey(FlinkPerJobResourceInfo.JOBMANAGER_MEMORY_MB)
@@ -42,10 +42,10 @@ public class FLinkConfUtil {
                     .setSlotsPerTaskManager(slotsPerTaskManager)
                     .createClusterSpecification();
         }
-        return createClusterSpecification();
+        return createDefaultClusterSpecification(configuration);
     }
 
-    public static ClusterSpecification createClusterSpecification(Configuration configuration) {
+    public static ClusterSpecification createDefaultClusterSpecification(Configuration configuration) {
         final int numberTaskManagers = 1;
 
         // JobManager Memory

@@ -217,7 +217,7 @@ public class FlinkClient extends AbsClient {
     public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
-            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification();
+            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
             YarnClusterClient clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph);
