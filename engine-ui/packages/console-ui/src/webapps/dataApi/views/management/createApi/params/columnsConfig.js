@@ -369,7 +369,7 @@ class ColumnsConfig extends React.Component {
                     dataSource={InputColumns}
                     pagination={false}
                     rowSelection={this.rowSelection('in')}
-                    scroll={{ y: 300 }}
+                    scroll={{ y: 185 }}
                 />
                 <div className="required-tip middle-title middle-header">
                     输出参数：
@@ -412,7 +412,7 @@ class ColumnsConfig extends React.Component {
                     dataSource={OutputColums}
                     pagination={false}
                     rowSelection={this.rowSelection('out')}
-                    scroll={{ y: 300 }}
+                    scroll={{ y: 185 }}
                 />
             </Card>
         )

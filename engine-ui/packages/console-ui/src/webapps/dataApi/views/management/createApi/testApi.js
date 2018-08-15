@@ -71,12 +71,12 @@ class TestApi extends React.Component {
                                 rules: [{
                                     required: record.required,
                                     message: "该参数为必填项"
-                                },{
-                                    pattern:/^\d*$/,
-                                    message:"请输入数字"
+                                }, {
+                                    pattern: /^\d*$/,
+                                    message: "请输入数字"
                                 }],
                                 initialValue: initialValue
-                            })(<InputNumber min={1} style={{width:"100%"}} />)}
+                            })(<InputNumber min={1} style={{ width: "100%" }} />)}
                         </FormItem>
                     } else {
                         initialValue = data && data[record.paramsName];
@@ -169,14 +169,13 @@ class TestApi extends React.Component {
                 <div className="steps-content">
                     <div className="testApi_box">
                         <div className="left_box">
-                            <p className="required-tip middle-title">API测试：</p>
-                            <div style={{ paddingLeft: "20px" }}>
-                                <p style={{ fontSize: "18px" }} className="middle-title">
-                                    {basicProperties.APIName}
-                                    <span className="shadowtext" style={{ marginLeft: "8px" }}>请求方式：{API_METHOD_key[basicProperties.method]}</span>
-                                    <span className="shadowtext" style={{ marginLeft: "8px" }}>返回类型：{basicProperties.protocol}</span>
+                            <p style={{ color: "#151515" }} className="required-tip middle-title">API({basicProperties.APIName})测试</p>
+                            <div>
+                                <p style={{ fontSize: "18px" }}>
+                                    <span className="shadowtext">请求方式：{API_METHOD_key[basicProperties.method]}</span>
+                                    <span className="shadowtext" style={{ marginLeft: "8px" }}>返回类型：JSON</span>
                                 </p>
-                                <p style={{ marginTop: "5px" }} className="middle-title">输入参数：</p>
+                                <p style={{ marginTop: "10px", marginBottom: "5px" }} className="middle-title">输入参数：</p>
                                 <Table
                                     className="m-table shadow"
                                     style={{ background: "#fff" }}
@@ -184,21 +183,21 @@ class TestApi extends React.Component {
                                     columns={inputTableColumns}
                                     dataSource={wrapInputParams}
                                     pagination={false}
-                                    scroll={{ y: 300 }}
+                                    scroll={{ y: 286 }}
                                 />
                                 <Button loading={loading} style={{ marginTop: 12, float: "right" }} onClick={() => this.testApi()}>开始测试</Button>
                             </div>
                         </div>
                         <div className="right_box">
-                            <p className="middle-title">测试结果：</p>
-                            <div style={{ paddingLeft: "20px" }}>
-                                <p className="middle-title">返回结果：</p>
+                            <p style={{ color: "#151515" }} className="middle-title">测试结果：</p>
+                            <div style={{ marginTop: "5px" }}>
+                                <p className="small-title small-title-box">返回结果</p>
                                 <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: 8, maxRows: 20 }} />
-                                <p style={{ marginTop: "10px" }} className="middle-title">输出结果：</p>
+                                <p style={{ marginTop: "20px" }} className="small-title small-title-box">输出结果</p>
                                 <Table
-                                    className="m-table shadow"
+                                    className="m-table table-border-without-top"
                                     style={{ background: "#fff" }}
-                                    rowKey={(record,index)=>{
+                                    rowKey={(record, index) => {
                                         return index;
                                     }}
                                     columns={outputResultColumns}

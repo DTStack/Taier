@@ -407,9 +407,72 @@
 }
 .shadowtext{
     font-size: 12px;
-    color:rgba(1,1,1,0.34);
+    color:#666666;
 }
 .textarea_white_disable.ant-input-disabled{
-    background: rgba(1,1,1,0.7);
+    background: #000619;
     color:#fff;
+}
+.small-title{
+    color:#333333;
+    font-size: 12px;
+    padding: 6px 0px 7px 10px;
+    line-height: 1;
+}
+.small-title-box{
+    background: #fff;
+    border-width: 1px 1px 0px 1px;
+    border-color:#DDDDDD;
+    border-style: solid; 
+}
+.table-border-without-top{
+    border-width: 0px 1px 1px 1px;
+    border-color:#DDDDDD;
+    border-style: solid; 
+    .ant-table-placeholder{
+        border-bottom-width: 0px;
+    }
+}
+.sql-tip-box{
+    font-size: 14px;
+    p{
+        line-height: 20px;
+    }
+    .title{
+        font-weight: bold;
+    }
+    .title-small{
+        font-size: 12px;
+        color: #666666;
+    }
+    .section{
+        margin-bottom: 20px;
+    }
+    .content{
+        margin-top: 10px;
+        p{
+            margin-bottom: 6px;
+        }
+        &.text{
+            border:1px dashed #DDDDDD;
+            border-radius: 2px;
+            background: #FAFAFA;
+            padding: 12px 10px;
+            font-size: 12px;
+            color: #666666;
+        }
+        &.margin_small{
+            margin-top: 6px;
+        }
+    }
+    .content-title{
+        display: inline-block;
+        background: #E9F4FF;
+        padding: 2px 8px;
+    }
+    .content-text{
+        padding-left: 8px;
+        font-size: 12px;
+        color: #999999;
+    }
 }
