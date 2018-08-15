@@ -156,7 +156,7 @@ public class ExeQueueMgr {
                     }
 
                     //判断资源是否满足
-                    IClient clusterClient = null;
+                    /*IClient clusterClient = null;
 
                     try{
                         clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
@@ -168,6 +168,8 @@ public class ExeQueueMgr {
                         return;
                     }
 
+                    //TODO clusterClient 在获取资源的时候卡死了==》导致其他任务跟随卡死
+                    //要嘛获取资源的时候添加一个超时时间,将之后的处理都设置到线程里面
                     EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
 
                     try{
@@ -179,7 +181,7 @@ public class ExeQueueMgr {
                         gq.remove(jobClient.getTaskId());
                         addJobToFail(jobClient, e);
                         return;
-                    }
+                    }*/
 
                     gq.remove(jobClient.getTaskId());
                     try {
