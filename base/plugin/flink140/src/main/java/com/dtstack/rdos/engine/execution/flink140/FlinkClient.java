@@ -135,6 +135,8 @@ public class FlinkClient extends AbsClient {
         yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
         if (yarnCluster){
             flinkYarnMode = FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode());
+            FlinkResourceInfo.flinkYarnMode = flinkYarnMode;
+            FlinkResourceInfo.yarnClient = flinkClientBuilder.getYarnClient();
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
