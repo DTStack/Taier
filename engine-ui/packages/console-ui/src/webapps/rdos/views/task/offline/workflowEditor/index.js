@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Spin, Icon, Button } from 'antd'
+import { Tooltip, Spin, Icon, Button, Modal } from 'antd'
 
 import KeyEventListener from 'widgets/keyCombiner/listener'
 import KEY_CODE from 'widgets/keyCombiner/keyCode'
@@ -23,6 +23,7 @@ const {
     mxShape,
     mxPoint,
     mxCell,
+    mxText,
     mxGeometry,
     mxUtils,
     mxEvent,
@@ -34,6 +35,7 @@ const {
     mxPerimeter,
     mxRubberband,
     mxUndoManager,
+    mxGraphView,
     mxGraphHandler,
     mxCompactTreeLayout,
     mxConnectionConstraint,
@@ -46,10 +48,21 @@ const VertexSize = { // vertex大小
 
 const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 
+const workflowMockData = [{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},{"vertex":true,"edge":false,"data":{"taskType":9,"name":"新节点"},"x":250,"y":238,"value":"新节点","id":"3"},{"vertex":true,"edge":false,"data":{"taskType":5,"name":"新节点"},"x":520,"y":238,"value":"新节点","id":"4"},{"vertex":false,"edge":true,"x":0,"y":0,"value":null,"id":"5","source":{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},"target":{"vertex":true,"edge":false,"data":{"taskType":9,"name":"新节点"},"x":250,"y":238,"value":"新节点","id":"3"}},{"vertex":false,"edge":true,"x":0,"y":0,"value":null,"id":"6","source":{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},"target":{"vertex":true,"edge":false,"data":{"taskType":5,"name":"新节点"},"x":520,"y":238,"value":"新节点","id":"4"}}];
+
+const applyCellStyle = (cellState, style) => {
+    if (cellState) {
+        cellState.style = Object.assign(cellState.style, style);
+        cellState.shape.apply(cellState)
+        cellState.shape.redraw();
+    }
+}
+
 @connect(state => {
     const { offlineTask } = state;
     return {
         taskTypes: offlineTask.comm.taskTypes,
+        workflow: state.offlineTask.workflow,
     }
 }, workbenchActions )
 class WorkflowEditor extends Component {
@@ -65,25 +78,37 @@ class WorkflowEditor extends Component {
         this.hideMenu()
     }
 
+    componentWillReceiveProps(nextProps) {
+        const old = this.props.workflow;
+        const next = nextProps.workflow;
+        if (old !== next) {
+            if (next.status === 'cancel') {
+                this.graph.removeCells()
+            }
+        }
+    }
+
     shouldComponentUpdate (nextProps, nextState) {
         return false;
     }
 
     loadEditor = (container) => {
         // Disable default context menu
-        mxEvent.disableContextMenu(container)
+        mxGraphView.prototype.optimizeVmlReflows = false;
+        mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
+        // 启用辅助线
+        mxGraphHandler.prototype.guidesEnabled = true;
+        mxEvent.disableContextMenu(container);
+
         const graph = new mxGraph(container)
         this.graph = graph
         // 启用绘制
         graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        graph.keepEdgesInBackground = true;
+        // graph.keepEdgesInBackground = true;
         graph.cellsResizable = false;
-        // 启用辅助线
-        mxGraphHandler.prototype.guidesEnabled = true;
-
-        graph.setConnectable(true)
+        graph.setConnectable(true);
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
@@ -127,6 +152,10 @@ class WorkflowEditor extends Component {
         this.initGraphLayout();
         this.initUndoManager();
         this.initContextMenu();
+        this.initGraphEvent();
+
+        // TODO Test data
+        this.renderData(workflowMockData);
     }
 
     getStyles = (type) => {
@@ -139,11 +168,10 @@ class WorkflowEditor extends Component {
     }
 
     corvertValueToString = (cell) => {
-        console.log('corvertValueToString:', cell)
         if (cell && cell.vertex) {
             const task = cell.data;
-            const taskType = taskTypeText(task.taskType);
             if (task) {
+                const taskType = taskTypeText(task.taskType);
                 return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}</span>
                 </div>`
@@ -152,62 +180,47 @@ class WorkflowEditor extends Component {
         return '';
     }
 
-    listenDoubleClick() {
-        this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
-            }
-        })
-    }
-
-    listenOnClick() {
-        const ctx = this
-        this.graph.addListener(mxEvent.onClick, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                ctx.setState({ selectedData: cell.data || '' })
-            }
-        })
-    }
-
     onkeyDown = (evt) => {
         const keyCode = evt.keyCode;
         const ctx = this;
         switch(keyCode) {
             case KEY_CODE.BACKUP: {
-                // ctx.removeCell()
-                // break;
+                ctx.removeCell()
+                break;
             }
             default:
         }
     }
 
+    toggleCreate = (taskType) => {
+        const { toggleCreateTask, updateWorkflow, data } = this.props
+        const workflow = {
+            workflowId: data.id,
+            taskType: taskType,
+            status: 'create',
+        }
+        toggleCreateTask();
+        updateWorkflow(workflow);
+    }
+
     insertItemVertex = (graph, evt, target, x, y) => {
 
-        console.log('insertItemVertex:', this._currentSourceType)
-        const { toggleCreateTask, data } = this.props;
-
-        const taskType = this._currentSourceType.key; 
+        const taskType = this._currentSourceType.key;
         const newCell = new mxCell(
-            '新节点', 
+            '新节点',
             new mxGeometry(0, 0, VertexSize.width, VertexSize.height)
         )
         newCell.vertex = true;
         newCell.data = {
             taskType: taskType,
-            name: '新节点'
+            name: '新节点',
         }
 
         const cells = graph.importCells([newCell], x, y, target);
         if (cells != null && cells.length > 0) {
-            this._currentCell = cells[0];
-            const createOrigin = {
-                name: 'graph',
-                data: data,
-                taskType: taskType,
-            }
-            toggleCreateTask(createOrigin);
+
+            this.toggleCreate(taskType);
+
             graph.scrollCellToVisible(cells[0]);
             graph.setSelectionCells(cells);
         }
@@ -225,47 +238,28 @@ class WorkflowEditor extends Component {
     }
 
     removeCell(cells) {
+        const ctx = this;
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
         if (cell && cell.length > 0) {
-            this.graph.removeCells(cell)
-        }
-    }
-
-    hideMenu = () => {
-        document.addEventListener('click', (e) => {
-            const graph = this.graph
-            if (graph.popupMenuHandler.isMenuShowing()) {
-                graph.popupMenuHandler.hideMenu()
+            if (cell[0].vertex) {
+                Modal.confirm({
+                    title: '确认对话框',
+                    okText: '确认',
+                    cancelText: '取消',
+                    content: (
+                        <div>
+                            <p>您确认删除当前节点吗？</p>
+                        </div>
+                    ),
+                    onOk() {
+                        ctx.graph.removeCells(cell)
+                    },
+                });
+            } else if (cell[0].edge) {
+                ctx.graph.removeCells(cell)
             }
-        })
-    }
-
-    refresh = () => {
-        this.componentDidMount()
-    }
-
-    graphEnable() {
-        const status = this.graph.isEnabled()
-        this.graph.setEnabled(!status)
-    }
-
-    zoomIn = () => {
-        this.graph.zoomIn()
-    }
-
-    zoomOut = () => {
-        this.graph.zoomOut()
-    }
-
-    layout = () => {
-        this.executeLayout(null, () => {
-            this.graph.center();
-        });
-    }
-
-    undo = () => { // 撤销上一步
-        this.undoMana.undo()
+        }
     }
 
     initUndoManager() {
@@ -293,8 +287,8 @@ class WorkflowEditor extends Component {
                 layout.horizontal = false;
                 layout.useBoundingBox = false;
                 layout.edgeRouting = false;
-                layout.levelDistance = 30;
-                layout.nodeDistance = 10;
+                layout.levelDistance = 40;
+                layout.nodeDistance = 20;
 
                 if (change != null) {
                     change();
@@ -312,11 +306,11 @@ class WorkflowEditor extends Component {
     initContextMenu = () => {
         const ctx = this;
         const graph = this.graph;
-        const { goToTaskDev, tabData } = this.props
+        const { goToTaskDev, tabData } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
-            if (cells.length > 0 && cells[0].vertex) {
+            if (cells.length > 0) {
                 mxPopupMenuShowMenu.apply(this, arguments);
             } else return false
         };
@@ -327,13 +321,18 @@ class WorkflowEditor extends Component {
 
             const currentNode = cell.data || {};
 
-            menu.addItem('保存', null, function() {
-            }, null, null, true) // 正常状态
+            if (cell.vertex) {
+                menu.addItem('保存', null, function() {
 
-            menu.addItem('编辑', null, function() {
-            }, null, null, true) // 正常状态
+                }, null, null, true) // 正常状态
+    
+                menu.addItem('编辑', null, function() {
+                    goToTaskDev(currentNode.id);
+                }, null, null, true) // 正常状态
+            }
 
             menu.addItem('删除', null, function() {
+                ctx.removeCell(cell);
             }, null, null, true) // 正常状态
 
         }
@@ -401,6 +400,128 @@ class WorkflowEditor extends Component {
         }
     }
 
+
+    initGraphEvent = () => {
+
+        const ctx = this;
+        const graph = this.graph;
+        let selectedCell = null;
+        const { 
+            updateTaskField, openTaskInDev,
+         } = this.props;
+
+        graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
+            const cell = evt.getProperty('cell')
+            if (cell) {
+                const data = cell.data;
+                openTaskInDev(data.id);
+            }
+        })
+
+        graph.addListener(mxEvent.CLICK, function(sender, evt) {
+            const cell = evt.getProperty('cell')
+            if (cell && cell.vertex) {
+
+                graph.clearSelection();
+                
+                const cellState = graph.view.getState(cell);
+                const style = {}
+                style[mxConstants.STYLE_FILLCOLOR] = '#90D5FF';
+                applyCellStyle(cellState, style);
+                
+                const edges = graph.getOutgoingEdges(cell);
+                graph.setCellStyle(`strokeColor=#90D5FF;strokeWidth=2;`, edges);
+                selectedCell = cell;
+            }
+        })
+
+        graph.clearSelection = function(evt) {
+            if (selectedCell) {
+                const cellState = graph.view.getState(selectedCell);
+                const style = {}
+                style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
+                applyCellStyle(cellState, style);
+
+                const edges = graph.getOutgoingEdges(selectedCell);
+                graph.setCellStyle(`strokeColor=#9EABB2;strokeWidth=1;`, edges);
+
+                selectedCell = null;
+            }
+        }
+
+        const updateGraphData = (sender, evt) => {
+            const workflow = ctx.getGraphData();
+            console.log('workflow:', JSON.stringify(workflow))
+            updateTaskField({
+                workflow,
+            });
+        }
+
+        // graph.addListener(mxEvent.CELLS_ADDED, addCell)
+        graph.addListener(mxEvent.CELLS_MOVED, updateGraphData)
+        graph.addListener(mxEvent.CELLS_REMOVED, updateGraphData)
+        graph.addListener(mxEvent.CELL_CONNECTED, updateGraphData)
+    }
+
+    getGraphData = () => {
+        const rootCell = this.graph.getDefaultParent();
+        const cells =  this.graph.getChildCells(rootCell);
+        const cellData = [];
+        const getCellData = (cell) => {
+            return cell && {
+                vertex: cell.vertex,
+                edge: cell.edge,
+                data: cell.data,
+                x: cell.geometry.x,
+                y: cell.geometry.y,
+                value: cell.value,
+                id: cell.id,
+            }
+        }
+        for (let i = 0; i < cells.length; i++) {
+            const cell = cells[i];
+            const cellItem = getCellData(cell);
+            if (cell.edge) {
+                cellItem.source = getCellData(cell.source);
+                cellItem.target = getCellData(cell.target);
+            }
+            cellData.push(cellItem);
+        }
+        return cellData;
+    }
+
+    renderData = (data) => {
+        const graph = this.graph;
+        const rootCell = this.graph.getDefaultParent();
+        const cellMap = {};
+        const cellStyle = this.getStyles();
+
+        if (data) {
+            for (let i = 0; i < data.length; i++) {
+                const item = data[i];
+                console.log('data item:', item);
+                if (item.vertex) {
+                    const cell = graph.insertVertex(
+                        rootCell, 
+                        item.id, 
+                        item.value, 
+                        item.x, item.y,
+                        VertexSize.width, VertexSize.height, 
+                        cellStyle,
+                    )
+                    cell.data = item.data;
+                    cellMap[item.id] = cell;
+                } else if (item.edge) {
+                    const source = cellMap[item.source.id];
+                    const target = cellMap[item.target.id];
+                    graph.insertEdge(rootCell, item.id, '', source, target)
+                }
+            }
+
+            graph.center();
+        }
+    }
+
     renderToolBar = () => {
         const { taskTypes } = this.props;
         const widgets = taskTypes.map(item =>
@@ -449,9 +570,9 @@ class WorkflowEditor extends Component {
                         <Tooltip placement="bottom" title="布局">
                             <MyIcon type="flowchart" onClick={this.layout}/>
                         </Tooltip>
-                        <Tooltip placement="bottom" title="撤销">
+                        {/* <Tooltip placement="bottom" title="撤销">
                             <Icon type="rollback" onClick={this.undo}/>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip placement="bottom" title="刷新">
                             <Icon type="reload" onClick={this.refresh}/>
                         </Tooltip>
@@ -465,6 +586,42 @@ class WorkflowEditor extends Component {
                 </div>
             </KeyEventListener>
         )
+    }
+
+    hideMenu = () => {
+        document.addEventListener('click', (e) => {
+            const graph = this.graph
+            if (graph.popupMenuHandler.isMenuShowing()) {
+                graph.popupMenuHandler.hideMenu()
+            }
+        })
+    }
+
+    refresh = () => {
+        this.componentDidMount()
+    }
+
+    graphEnable() {
+        const status = this.graph.isEnabled()
+        this.graph.setEnabled(!status)
+    }
+
+    zoomIn = () => {
+        this.graph.zoomIn()
+    }
+
+    zoomOut = () => {
+        this.graph.zoomOut()
+    }
+
+    layout = () => {
+        this.executeLayout(null, () => {
+            this.graph.center();
+        });
+    }
+
+    undo = () => { // 撤销上一步
+        this.undoMana.undo()
     }
 
     getDefaultVertexStyle() {

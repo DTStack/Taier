@@ -19,7 +19,12 @@ export const modalAction = mc([
     'SHOW_RESVIEW_MODAL',
     'HIDE_RESVIEW_MODAL',
     'TOGGLE_CREATE_SCRIPT',
+    'SET_MODAL_CREATE_ORIGIN',
 ], {prefix: 'offline/modal/'});
+
+export const workflowAction = mc([
+    'UPDATE',
+], {prefix: 'offline/workflow/'});
 
 export const taskTreeAction = mc([
     'RESET_TASK_TREE',

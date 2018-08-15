@@ -67,7 +67,8 @@ class SiderBench extends React.Component {
             <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
                 <TaskView tabData={tabData} />
             </TabPane>
-        ]
+        ];
+
         if (tabData && utils.checkExist(tabData.taskType) && tabData.taskType !== TASK_TYPE.VIRTUAL_NODE) {
             panes.push(
                 <TabPane tab={<span className="title-vertical">任务参数</span>} key="params5">

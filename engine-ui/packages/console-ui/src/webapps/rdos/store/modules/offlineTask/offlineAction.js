@@ -21,6 +21,7 @@ import {
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
+    workflowAction,
 } from './actionType';
 
 const confirm = Modal.confirm;
@@ -187,6 +188,7 @@ export const workbenchActions = (dispatch, ownProps) => {
 
     return {
         dispatch,
+
         /**
          * 更新目录
          */
@@ -229,7 +231,6 @@ export const workbenchActions = (dispatch, ownProps) => {
          * @param {*} res 
          */
         publishTask(res) {
-            console.log('publishTask',res);
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
@@ -756,6 +757,16 @@ export const workbenchActions = (dispatch, ownProps) => {
                 type: modalAction.SHOW_RESVIEW_MODAL,
                 payload: id
             });
+        },
+
+        /**
+         *  The below is workflow actions
+         */
+        updateWorkflow(data) {
+            dispatch({
+                type: workflowAction.UPDATE,
+                payload: data
+            })
         },
     }
 }

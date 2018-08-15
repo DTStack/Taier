@@ -20,11 +20,6 @@ const initModalState = {
     fnId: undefined,
     moveFnData: undefined,
     taskType: '',
-    createOrigin: {
-        name: undefined,
-        data: undefined,
-        taskType: undefined,
-    },
 };
 
 export const modalShowReducer = (state = initModalState, action) => {
@@ -32,7 +27,6 @@ export const modalShowReducer = (state = initModalState, action) => {
         case modalAction.TOGGLE_CREATE_TASK:
             return assign({}, state, {
                 createTask: !state.createTask,
-                createOrigin: action.payload,
             });
 
         case modalAction.TOGGLE_CREATE_SCRIPT:

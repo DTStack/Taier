@@ -155,7 +155,7 @@ class TaskForm extends React.Component {
                         initialValue: initialTaskType,
                     })(
                         <Select
-                            disabled={isCreateNormal ? false : !isCreateFromMenu}
+                            disabled={(isCreateNormal ? false : !isCreateFromMenu) || createFromGraph}
                             onChange={this.handleTaskTypeChange}
                         >
                             {taskOptions}
@@ -501,12 +501,16 @@ class TaskModal extends React.Component {
     }
 
     handleSubmit() {
-        const { addOfflineTask, defaultData } = this.props;
+        const { 
+            addOfflineTask, defaultData, workflow, 
+            createWorkflowNode,
+        } = this.props;
         const form = this.form;
 
         const isCreateNormal = typeof defaultData === 'undefined';
         const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
+        const createFromGraph = workflow && workflow.status === 'create';
 
         form.validateFields((err, values) => {
             if (!err) {
@@ -525,22 +529,34 @@ class TaskModal extends React.Component {
                 this.setState({
                     loading: true
                 })
-                addOfflineTask(values, isEditExist, defaultData)
-                .then(isSuccess => {
-                    this.setState({
-                        loading: false
-                    })
-                    if (isSuccess) {
-                        message.success("操作成功")
-                        form.resetFields();
-                        this.closeModal();
-                    }
-                });
+                if (!createFromGraph) {
+                    addOfflineTask(values, isEditExist, defaultData)
+                    .then(isSuccess => {
+                        this.setState({
+                            loading: false
+                        })
+                        if (isSuccess) {
+                            message.success("操作成功")
+                            form.resetFields();
+                            this.closeModal();
+                        }
+                    });
+                } else {
+                    values.workflowId = workflow.workflowId;
+                    createWorkflowNode(values);
+                }
             }
         })
     }
 
     handleCancel() {
+        const { workflow, updateWorkflow } = this.props;
+        const createFromGraph = workflow && workflow.name === 'graph';
+        if (createFromGraph) {
+            updateWorkflow({
+                status: 'cancel',
+            })
+        }
         this.closeModal();
     }
 
@@ -553,11 +569,11 @@ class TaskModal extends React.Component {
     render() {
         const { 
             isModalShow, taskTreeData, resourceTreeData, 
-            defaultData, taskTypes, createOrigin } = this.props;
+            defaultData, taskTypes, workflow } = this.props;
         const { loading } = this.state;
 
         let isCreate = true;
-        const createFromGraph = createOrigin && createOrigin.name === 'graph';
+        const createFromGraph = workflow && workflow.status === 'create';
         const labelPrefix = createFromGraph ? '节点' : '任务';
 
         if (defaultData && defaultData.name) {
@@ -590,7 +606,7 @@ class TaskModal extends React.Component {
                         treeData={taskTreeData}
                         resTreeData={resourceTreeData}
                         defaultData={defaultData}
-                        createOrigin={createOrigin}
+                        createOrigin={workflow}
                         taskTypes={taskTypes}
                         labelPrefix={labelPrefix}
                         createFromGraph={createFromGraph}
@@ -604,7 +620,7 @@ class TaskModal extends React.Component {
 export default connect(state => {
     return {
         isModalShow: state.offlineTask.modalShow.createTask,
-        createOrigin: state.offlineTask.modalShow.createOrigin,
+        workflow: state.offlineTask.workflow,
         taskTreeData: state.offlineTask.taskTree,
         currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
@@ -618,6 +634,10 @@ export default connect(state => {
         return {
             toggleCreateTask: function () {
                 benchActions.toggleCreateTask();
+            },
+
+            updateWorkflow: function(workflow) {
+                benchActions.updateWorkflow(workflow)
             },
 
             /**
