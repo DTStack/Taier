@@ -246,19 +246,23 @@
     .ant-card .ant-card-body {
         padding: 0;
         position: relative;
-        height: 550px;
     }
     .m-table {
         .ant-table-footer {
             background: #fff;
-            padding: 10 0;
+            padding: 10 0 0;
             border-bottom: 0;
+            border-top: 1px solid #e8e8e8;
         }
         .ant-pagination {
             position: relative;
-            top: -60px;
+            top: -32px;
             right: 20;
             margin-right: 0;
+        }
+        .ant-table-pagination.ant-pagination {
+            margin:  0;
+            float: right;
         }
     }
 }
