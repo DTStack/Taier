@@ -22,6 +22,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -30,6 +31,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
@@ -477,6 +479,8 @@ public class SparkYarnClient extends AbsClient {
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+            float capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
                 Resource used = report.getUsed();
@@ -502,6 +506,23 @@ public class SparkYarnClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+        float capacity = 0;
+        for (QueueInfo queueInfo : queueInfos){
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+            }
+            if (sparkYarnConfig.getQueue().equals(queueInfo.getQueueName())){
+                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity>0){
+                return capacity;
+            }
+        }
+        return capacity;
     }
 
     public void setHadoopUserName(SparkYarnConfig sparkYarnConfig){
