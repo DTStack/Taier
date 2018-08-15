@@ -118,6 +118,12 @@ public class FlinkClientBuilder {
         }
 
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+        try {
+            FileSystem.initialize(flinkConfiguration);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
         flinkConfiguration = config;
     }
 
@@ -201,16 +207,7 @@ public class FlinkClientBuilder {
      */
     public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig){
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(flinkConfiguration, ".");
-        try {
-            FileSystem.initialize(flinkConfiguration);
-            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
-            confField.setAccessible(true);
-            confField.set(clusterDescriptor, yarnConf);
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosException(e.getMessage());
-        }
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration,false);
 
         ApplicationId applicationId = acquireApplicationId(flinkConfig);
 
@@ -224,7 +221,7 @@ public class FlinkClientBuilder {
     public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
-        AbstractYarnClusterDescriptor clusterDescriptor =  new YarnClusterDescriptorV2(flinkConfiguration, ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, true);
         String flinkJarPath = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
@@ -241,6 +238,27 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
+    private AbstractYarnClusterDescriptor getClusterDescriptor(Configuration flinkConfiguration, boolean flip6) {
+        AbstractYarnClusterDescriptor clusterDescriptor;
+        if (flip6) {
+            clusterDescriptor = new YarnClusterDescriptorV2(
+                    flinkConfiguration,
+                    ".");
+        } else {
+            clusterDescriptor = new YarnClusterDescriptor(
+                    flinkConfiguration,
+                    ".");
+        }
+        try {
+            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
+            confField.setAccessible(true);
+            confField.set(clusterDescriptor, yarnConf);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+        return clusterDescriptor;
+    }
 
     private ApplicationId acquireApplicationId(FlinkConfig flinkConfig) {
         try (YarnClient yarnClient = YarnClient.createYarnClient()){
