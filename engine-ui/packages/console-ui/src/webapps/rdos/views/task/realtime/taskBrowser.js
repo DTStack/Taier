@@ -47,26 +47,27 @@ export default class TaskBrowser extends Component {
     }
 
     onEdit = (targetKey, action) => {
-        const { pages, currentPage, dispatch } = this.props
+        const { pages, dispatch } = this.props
+        const targetPage = pages.filter(v=> v.id == targetKey)[0]||{};
         switch (action) {
             case 'remove': {
-                if (currentPage.notSynced) {
+                if (targetPage.notSynced) {
                     confirm({
                         title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                         content: '强制关闭将丢弃这些修改数据',
                         onOk() {
-                            dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
-                            dispatch(BrowserAction.closeCurrentInputData(currentPage.id));
-                            dispatch(BrowserAction.closeCurrentOutputData(currentPage.id));
-                            dispatch(BrowserAction.closeCurrentDimensionData(currentPage.id));
+                            dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                            dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                            dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                            dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
                         },
                         onCancel() { }
                     });
                 } else {
-                    dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, currentPage))
-                    dispatch(BrowserAction.closeCurrentInputData(currentPage.id));
-                    dispatch(BrowserAction.closeCurrentOutputData(currentPage.id));
-                    dispatch(BrowserAction.closeCurrentDimensionData(currentPage.id));
+                    dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                    dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                    dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                    dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
                 }
                 break;
             }
@@ -251,9 +252,13 @@ export default class TaskBrowser extends Component {
         }
     }
 
-    editorParamsChange(){
-        this._syncEditor=false;
-        this.props.editorParamsChange(...arguments);
+    editorParamsChange(a,b,c){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+        if(!this._syncEditor){
+            this.props.editorChange(b);
+        }else{
+            this._syncEditor=false;
+            this.props.editorParamsChange(...arguments);
+        }
     }
 
     tableParamsChange = ()=>{
