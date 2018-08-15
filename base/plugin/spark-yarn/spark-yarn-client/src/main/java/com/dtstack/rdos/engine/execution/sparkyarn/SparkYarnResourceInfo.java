@@ -45,6 +45,7 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
 
     public final static int DEFAULT_MEM_OVERHEAD = 384;
 
+    private float capacity = 1;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
@@ -89,11 +90,11 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         }
 
         int needCores = instances * executorCores;
-        if(needCores > totalCore){
-            throw new RdosException("任务设置的core 大于 集群最大的core");
+        if(needCores > (totalCore * capacity)){
+            throw new RdosException("任务设置的core 大于 分配的最大的core");
         }
 
-        return needCores <= freeCore;
+        return needCores <= (freeCore * capacity);
     }
 
     private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem){
@@ -114,10 +115,18 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         oneNeedMem += executorJvmMem;
         int needTotal = instances * oneNeedMem;
 
-        if(needTotal > totalMem){
+        if(needTotal > (totalMem * capacity)){
             throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
         }
 
-        return needTotal <= freeMem;
+        return needTotal <= (freeMem * capacity);
+    }
+
+    public float getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(float capacity) {
+        this.capacity = capacity;
     }
 }
