@@ -227,7 +227,9 @@ public class SparkYarnClient extends AbsClient {
         setHadoopUserName(sparkYarnConfig);
 
         Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("sql", jobClient.getSql());
+
+        String zipSql = DtStringUtil.zip(jobClient.getSql());
+        paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
 
         String sqlExeJson = null;
@@ -536,7 +538,9 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
-        String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
+        //TODO 忽略引号内的分号正则有问题,暂时先屏蔽
+        //String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
+        String[] sqlArr = sql.split(";");
         if(sqlArr.length == 0){
             return;
         }

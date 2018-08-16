@@ -6,9 +6,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 /**
  * spark sql 代理执行类
@@ -38,8 +42,12 @@ public class SqlProxy {
                 .enableHiveSupport()
                 .getOrCreate();
 
+        //解压sql
+        String unzipSql = SqlProxy.unzip(submitSql);
+
         //屏蔽引号内的 分号
-        String[] sqlArray = submitSql.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)(?=(?:[^']*'[^']*')*[^']*$)");
+        //String[] sqlArray = submitSql.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)(?=(?:[^']*'[^']*')*[^']*$)");
+        String[] sqlArray = unzipSql.split(";");
         for(String sql : sqlArray){
             if(sql == null || sql.trim().length() == 0){
                 continue;
@@ -49,6 +57,57 @@ public class SqlProxy {
         }
 
         spark.close();
+    }
+
+    /**
+     * 使用zip进行解压缩
+     * @param  compressedStr 压缩后的文本
+     * @return 解压后的字符串
+     */
+    public static final String unzip(String compressedStr) {
+        if (compressedStr == null) {
+            return null;
+        }
+
+        ByteArrayOutputStream out = null;
+        ByteArrayInputStream in = null;
+        ZipInputStream zin = null;
+        String decompressed = null;
+        try {
+            byte[] compressed = new sun.misc.BASE64Decoder().decodeBuffer(compressedStr);
+            out = new ByteArrayOutputStream();
+            in = new ByteArrayInputStream(compressed);
+            zin = new ZipInputStream(in);
+            zin.getNextEntry();
+            byte[] buffer = new byte[1024];
+            int offset = -1;
+            while ((offset = zin.read(buffer)) != -1) {
+                out.write(buffer, 0, offset);
+            }
+            decompressed = out.toString();
+        } catch (IOException e) {
+            decompressed = null;
+        } finally {
+            if (zin != null) {
+                try {
+                    zin.close();
+                } catch (IOException e) {
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return decompressed;
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
