@@ -99,7 +99,7 @@ class ScheduleForm extends React.Component {
             </Select>
         }
 
-        return <Form key={ periodType }>
+        return <Form key={ periodType } className="schedule-form" >
             <FormItem
                 {...formItemLayout}
                 label="调度状态"
@@ -113,7 +113,7 @@ class ScheduleForm extends React.Component {
                 >冻结</Checkbox>
             )}
             </FormItem>
-            <FormItem
+            <FormItem 
                 {...formItemLayout}
                 label="生效日期"
             >
@@ -800,17 +800,20 @@ class SchedulingConfig extends React.Component {
                                 />
                             </FormItem>
                         </Form>
-                        <Row>
-                            <Col>
-                                <Table
-                                    className="m-table"
-                                    columns={columns}
-                                    bordered={false}
-                                    dataSource={ tabData.taskVOS }
-                                    rowKey={record => record.id.lable}
-                                />
-                            </Col>
-                        </Row>
+                        {
+                            tabData.taskVOS&&tabData.taskVOS.length>0 ?  
+                            <Row>
+                                <Col>
+                                    <Table
+                                        className="m-table"
+                                        columns={columns}
+                                        bordered={false}
+                                        dataSource={ tabData.taskVOS }
+                                        rowKey={record => record.id.lable}
+                                    />
+                                </Col>
+                            </Row> : ''
+                        }
                     </Panel>
                 }
                 <Panel key="3" header="跨周期依赖">

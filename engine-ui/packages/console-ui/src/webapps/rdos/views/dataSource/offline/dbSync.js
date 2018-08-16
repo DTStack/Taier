@@ -285,7 +285,7 @@ export default class DBSync extends Component {
         };
 
         return (
-            <div className="box-1 m-card shadow">
+            <div className="m-card shadow">
                 <Card 
                     title={<div><GoBack /> {routeParams.sourceName}</div>}
                     extra={false}
