@@ -538,10 +538,8 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
-        //TODO 忽略引号内的分号正则有问题,暂时先屏蔽
-        //String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
-        String[] sqlArr = sql.split(";");
-        if(sqlArr.length == 0){
+        List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
+        if(sqlArr.size() == 0){
             return;
         }
 

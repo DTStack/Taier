@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
@@ -46,8 +48,7 @@ public class SqlProxy {
         String unzipSql = SqlProxy.unzip(submitSql);
 
         //屏蔽引号内的 分号
-        //String[] sqlArray = submitSql.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)(?=(?:[^']*'[^']*')*[^']*$)");
-        String[] sqlArray = unzipSql.split(";");
+        List<String> sqlArray = splitIgnoreQuota(unzipSql, ';');
         for(String sql : sqlArray){
             if(sql == null || sql.trim().length() == 0){
                 continue;
@@ -57,6 +58,43 @@ public class SqlProxy {
         }
 
         spark.close();
+    }
+
+    /**
+     * 根据指定分隔符分割字符串---忽略在引号里面的分隔符
+     * @param str
+     * @param delimiter
+     * @return
+     */
+    public static List<String> splitIgnoreQuota(String str, char delimiter){
+        List<String> tokensList = new ArrayList<>();
+        boolean inQuotes = false;
+        boolean inSingleQuotes = false;
+        StringBuilder b = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            if(c == delimiter){
+                if (inQuotes) {
+                    b.append(c);
+                } else if(inSingleQuotes){
+                    b.append(c);
+                }else {
+                    tokensList.add(b.toString());
+                    b = new StringBuilder();
+                }
+            }else if(c == '\"'){
+                inQuotes = !inQuotes;
+                b.append(c);
+            }else if(c == '\''){
+                inSingleQuotes = !inSingleQuotes;
+                b.append(c);
+            }else{
+                b.append(c);
+            }
+        }
+
+        tokensList.add(b.toString());
+
+        return tokensList;
     }
 
     /**

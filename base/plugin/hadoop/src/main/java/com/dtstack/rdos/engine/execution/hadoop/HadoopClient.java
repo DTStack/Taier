@@ -150,7 +150,7 @@ public class HadoopClient extends AbsClient {
         try {
             JarFileInfo jarFileInfo = null;
             String sql = jobClient.getSql();
-            for(String tmpSql : DtStringUtil.splitIgnoreQuota(sql, ";")){
+            for(String tmpSql : DtStringUtil.splitIgnoreQuota(sql, ';')){
                 if(AddJarOperator.verific(tmpSql)){
                     jarFileInfo = AddJarOperator.parseSql(tmpSql);
                     break;

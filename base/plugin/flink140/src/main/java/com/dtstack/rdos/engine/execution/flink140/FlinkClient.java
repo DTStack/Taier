@@ -451,8 +451,8 @@ public class FlinkClient extends AbsClient {
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
-        String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
-        if(sqlArr.length == 0){
+        List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
+        if(sqlArr.size() == 0){
             return;
         }
 
