@@ -13,14 +13,15 @@ import TestApi from "./testApi"
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
 import { dataSourceActions } from '../../../actions/dataSource';
+import { apiManageActionType } from '../../../consts/apiManageActionType';
 import utils from "../../../../../utils";
 import ColumnsModel from "../../../model/columnsModel";
 
 const Step = Steps.Step;
 
 const mapStateToProps = state => {
-    const { user, apiMarket, dataSource } = state;
-    return { apiMarket, user, dataSource }
+    const { user, apiMarket, dataSource, apiManage } = state;
+    return { apiMarket, user, dataSource, apiManage }
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -59,6 +60,11 @@ const mapDispatchToProps = dispatch => ({
     },
     getDataSourcesType() {
         return dispatch(dataSourceActions.getDataSourcesType());
+    },
+    disAbleTipChange(){
+        return dispatch({
+            type:apiManageActionType.CHANGE_DISABLE_TIP
+        })
     }
 });
 
@@ -429,6 +435,9 @@ class NewApi extends Component {
                                     <Step title="完成" />
                                 </Steps>
                                 <Content
+                                    apiManage={this.props.apiManage}
+                                    disAbleTipChange={this.props.disAbleTipChange}
+                                    apiEdit={apiEdit}
                                     dataSourceId={this.state.basicProperties.dataSource}
                                     tableId={this.state.basicProperties.table}
                                     {...this.props}

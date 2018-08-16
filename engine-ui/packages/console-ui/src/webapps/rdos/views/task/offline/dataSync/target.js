@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio, Modal } from 'antd';
+import { Form, Input, Select, Button, Radio, Modal, Icon } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
@@ -18,7 +18,7 @@ import {
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
-import Editor from '../../../../components/code-editor'
+import Editor from 'widgets/editor'
 
 import { matchTaskParams } from '../../../../comm';
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
@@ -240,7 +240,7 @@ class TargetForm extends React.Component {
                 }
             )
     }
-    ddlChange = (origin, newVal) => {
+    ddlChange = (newVal) => {
         this.setState({
             textSql: newVal,
             sync: false
@@ -266,7 +266,7 @@ class TargetForm extends React.Component {
                 onCancel={this.handleCancel.bind(this)}
                 onOk={this.createTable.bind(this)}
             >
-                <Editor value={this.state.textSql} sync={this.state.sync} placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
+                <Editor language="dtsql" value={this.state.textSql} sync={this.state.sync} placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
             </Modal>
             <Form>
                 <FormItem

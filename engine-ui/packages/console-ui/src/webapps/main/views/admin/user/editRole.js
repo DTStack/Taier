@@ -47,13 +47,13 @@ class EditRoleForm extends Component {
     }
 
     render() {
-        const { roles, form, app, loginUser } = this.props;
+        const { roles, form, app, loginUser, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         let roleOptions = [];
         if (roles) {
             roles.forEach(role => {
-                const disabled = isDisabledRole(app, role.roleValue, loginUser)
+                const disabled = isDisabledRole(app, role.roleValue, loginUser, myRoles)
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }

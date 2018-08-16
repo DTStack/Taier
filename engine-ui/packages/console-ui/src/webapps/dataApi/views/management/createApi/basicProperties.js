@@ -4,6 +4,9 @@ import { Form, Input, Button, Select, Card, Cascader, message } from "antd";
 import DataSourceTable from "./dataSourceTable"
 import { formItemLayout, API_METHOD, API_METHOD_key } from "../../../consts"
 import NewGroupModal from "../../../components/newGroupModal";
+import api from "../../../api/apiManage"
+
+import utils from "utils";
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -29,14 +32,19 @@ class ManageBasicProperties extends Component {
         });
     }
     cancelAndSave() {
-        const {getFieldsValue} = this.props.form;
-        this.props.cancelAndSave({ ...getFieldsValue() });
+        const { validateFields } = this.props.form;
+        validateFields(["APIName"],{},(error,values)=>{
+            if(!error){
+                this.props.cancelAndSave({ ...values });
+            }
+        })
+        
     }
     //数据源改变，获取表
     dataSourceChange(key) {
         this.setState({
             showTable: false
-        }, )
+        })
         this.props.form.setFieldsValue({
             table: ""
         })
@@ -175,7 +183,7 @@ class ManageBasicProperties extends Component {
         })
     }
     groupChange(value) {
-        const tree=this.props.apiMarket.apiCatalogue;
+        const tree = this.props.apiMarket.apiCatalogue;
         let arr = [];
 
         function exchangeTree(data) {
@@ -186,7 +194,7 @@ class ManageBasicProperties extends Component {
             for (let i = 0; i < data.length; i++) {
                 let item = data[i];
 
-                if (item.id == value&&!item.api) {
+                if (item.id == value && !item.api) {
                     arr.push(item.id);
                     return item.id;
                 }
@@ -205,13 +213,40 @@ class ManageBasicProperties extends Component {
         }
 
     }
-    renderMethod(){
-        let arr=[];
-        for(let key in API_METHOD){
-            let value=API_METHOD[key];
+    renderMethod() {
+        let arr = [];
+        for (let key in API_METHOD) {
+            let value = API_METHOD[key];
             arr.push(<Option value={value}>{key}</Option>)
         }
         return arr;
+    }
+    checkNameExist(rule, value, callback) {
+        if (value) {
+            if (this._checkClockObj) {
+                clearTimeout(this._checkClockObj.clock)
+                this._checkClockObj.callback();
+            }
+            this._checkClockObj={};
+            this._checkClockObj.callback=callback;
+            this._checkClockObj.clock=setTimeout(() => {
+                api.checkNameExist({
+                    name: value,
+                    apiId:utils.getParameterByName("apiId")
+                })
+                    .then(
+                        (res) => {
+                            if (res.data) {
+                                callback()
+                            } else {
+                                callback("名称已存在")
+                            }
+                        }
+                    )
+            }, 500)
+        } else {
+            callback()
+        }
     }
     render() {
         const { getFieldDecorator } = this.props.form
@@ -246,8 +281,12 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: '请输入API名称' },
                                 { min: 2, message: "最小字数不能少于2" },
                                 { max: 16, message: "最大字数不能超过16" },
-                                { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' }],
-                                initialValue: this.props.APIName
+                                { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' },
+                                {
+                                    validator: this.checkNameExist.bind(this)
+                                }],
+                                initialValue: this.props.APIName,
+                                validateFirst:true
                             })(
                                 <Input style={{ width: '85%' }} />
                             )}
@@ -270,10 +309,10 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('APIPath', {
                                 rules: [
-                                { max: 200, message: "最大字符不能超过200" },
-                                { min: 2, message: "最小字符不能小于2" },
-                                { pattern: new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
-                                { pattern: new RegExp(/^(([^\/]*\/[^\/]*){1,2}|[^\/]*)$/), message: '最多支持两层路径' }],
+                                    { max: 200, message: "最大字符不能超过200" },
+                                    { min: 2, message: "最小字符不能小于2" },
+                                    { pattern: new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
+                                    { pattern: new RegExp(/^(([^\/]*\/[^\/]*){1,2}|[^\/]*)$/), message: '最多支持两层路径' }],
                                 initialValue: this.props.APIPath
                             })(
                                 <Input style={{ width: '85%' }} />
@@ -321,7 +360,7 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('method', {
                                 rules: [{ required: true, message: "请选择请求方式" }],
-                                initialValue: (this.props.reqType||this.props.reqType==0)?this.props.reqType:API_METHOD.POST
+                                initialValue: (this.props.reqType || this.props.reqType == 0) ? this.props.reqType : API_METHOD.POST
                             })(
                                 <Select style={{ width: '85%' }}>
                                     {this.renderMethod()}

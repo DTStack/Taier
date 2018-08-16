@@ -1,49 +1,31 @@
 import React from "react";
-import { Card, Modal, Spin } from "antd";
+import { Card, Modal, Spin, Button, Checkbox } from "antd";
 
-import CodeEditor from "widgets/code-editor";
+import CodeEditor from "widgets/editor";
 class ApiSqlEditor extends React.Component {
     state = {
         sql: "",
-        loading: false
+        loading: false,
+        visible: true
+    }
+    componentWillMount(){
+        if(this.props.disAbleTip){
+            this.setState({
+                visible:false
+            })
+        }
     }
     showModal() {
-        const centerStyle = { textAlign: "center" };
-        const rightStyle = { float: "right", width: "200px", color: "#333" }
-        const clearStyle = { overflow: "hidden" }
-        Modal.info({
-            title: 'SQL编写提示',
-            width: "500px",
-            content: (
-                <div>
-                    <p>SQL示例语句:</p>
-                    <p>SELECT</p>
-                    <p style={clearStyle}>sales time，<span style={rightStyle}>SELECT查询的字段即为API返回参数。</span></p>
-                    <p style={clearStyle}>addr as address, <span style={rightStyle}>如果定义了字段别名，则返回参数名称为字段别名。</span></p>
-                    <p style={clearStyle}>sum(value) as total_amount <span style={rightStyle}> 支持SQL中sum、count等函数。</span></p>
-                    <br />
-                    <p>FROM</p>
-                    <p>table_user</p>
-                    <br />
-                    <p>WHERE</p>
-                    <p style={clearStyle}>user_id = ${'{'}uid}；<span style={rightStyle}>WHERE条件中的参数为API请求参数，参数格式必须为${'{'}参数名}。</span></p>
-                    <br />
-                    <p>注意：</p>
-                    <p>1.只支持输入一条完整的SQL语句；</p>
-                    <p>2.不支持子语句查询；</p>
-                    <p>3.支持同一数据源下的两张表关联查询；</p>
-                    <p>4.SQL编写完成后，可对参数信息进行设置，填写参数说明、打开分页查询按钮等，参数设置完毕后可进入测试环节。</p>
-                </div>
-            ),
-            onOk() { },
-        });
+        this.setState({
+            visible: true
+        })
     }
     renderTitle() {
         const { loading } = this.props;
         return (
             <span>API配置SQL语句
                 <a style={{ marginLeft: "20px", fontSize: "12px" }} onClick={this.props.sqlFormat}>格式化语句</a>
-                <a style={{ marginLeft: "8px", fontSize: "12px" }} onClick={this.showModal}>SQL编写提示</a>
+                <a style={{ marginLeft: "8px", fontSize: "12px" }} onClick={this.showModal.bind(this)}>SQL编写提示</a>
                 <a style={{ float: "right", marginLeft: "8px", fontSize: "12px" }} onClick={() => {
                     if (loading) {
                         return;
@@ -65,9 +47,71 @@ class ApiSqlEditor extends React.Component {
                         style={{ height: "600px", marginTop: "1px" }}
                         onChange={this.props.sqlOnChange}
                         value={this.props.editor.sql}
-                        cursor={this.props.editor.cursor}
+                        // cursor={this.props.editor.cursor}
                         sync={this.props.editor.sync}
                     />
+                    <Modal
+                        bodyStyle={{ padding: "20px 13px 12px 20px" }}
+                        title="SQL编写提示"
+                        visible={this.state.visible}
+                        width="520px"
+                        footer={
+                            (
+                                <div>
+                                    <Checkbox checked={this.props.disAbleTip} style={{float:"left",marginTop:"5px",marginLeft:"10px"}} onChange={this.props.disAbleTipChange}>不再提示</Checkbox>
+                                    <Button type="primary" onClick={() => { this.setState({ visible: false }) }}>知道了</Button>
+                                </div>
+                            )
+                        }
+                        onCancel={() => { this.setState({ visible: false }) }}
+                    >
+                        <div className="sql-tip-box">
+                            <p className="section">SQL示例语句:</p>
+                            <div className="section">
+                                <p className="title">SELECT</p>
+                                <div className="content">
+                                    <p>
+                                        <span className="content-title">sales time,</span>
+                                        <span className="content-text">SELECT查询的字段即为API返回参数。</span>
+                                    </p>
+                                    <p>
+                                        <span className="content-title">addr as address, </span>
+                                        <span className="content-text">如果定义了字段别名，则返回参数名称为字段别名。</span>
+                                    </p>
+                                    <p>
+                                        <span className="content-title">sum(value) as total_amount</span>
+                                        <span className="content-text"> 支持SQL中sum、count等函数。</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="section">
+                                <p className="title">FROM</p>
+                                <div className="content">
+                                    <p>
+                                        <span className="content-title">table_user</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="section">
+                                <p className="title">WHERE</p>
+                                <div className="content">
+                                    <p>
+                                        <span className="content-title">user_id = ${'{'}uid};</span>
+                                        <span className="content-text">WHERE条件中的参数为API请求参数，参数格式必须为${'{'}参数名}。</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="section">
+                                <p className="title-small">注意：</p>
+                                <div className="content text margin_small">
+                                    <p>1.只支持输入一条完整的SQL语句；</p>
+                                    <p>2.不支持子语句查询；</p>
+                                    <p>3.支持同一数据源下的两张表关联查询；</p>
+                                    <p>4.SQL编写完成后，可对参数信息进行设置，填写参数说明、打开分页查询按钮等，参数设置完毕后可进入测试环节。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
                 </Card>
             </div>
         )

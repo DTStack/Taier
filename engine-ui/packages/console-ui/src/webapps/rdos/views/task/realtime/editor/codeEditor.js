@@ -52,7 +52,7 @@ class CodeEditor extends Component {
                 const updatedData = Object.assign(currentPage, data);
                 setCurrentPage(updatedData);
             }
-        });
+        }); 
     };
 
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })

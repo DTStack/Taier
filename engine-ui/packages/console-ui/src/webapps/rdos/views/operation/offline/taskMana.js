@@ -383,7 +383,7 @@ class OfflineTaskMana extends Component {
         };
 
         return (
-            <div className="box-1 m-card">
+            <div className="box-1 m-card task-manage">
                 <Card 
                     noHovering
                     bordered={false}
@@ -391,7 +391,6 @@ class OfflineTaskMana extends Component {
                     title={
                         <Form
                             style={{marginTop: '10px'}}
-                            className="m-form-inline"
                             layout="inline"
                         >
                             <FormItem label="">
@@ -421,9 +420,9 @@ class OfflineTaskMana extends Component {
                             </FormItem>
                             <FormItem>
                                 <Checkbox.Group value={checkVals} onChange={this.onCheckChange} >
-                                    <Checkbox value="person">我的任务</Checkbox>
-                                    <Checkbox value="todayUpdate">今日修改</Checkbox>
-                                    <Checkbox value="stopped">冻结的任务</Checkbox>
+                                    <Checkbox value="person" className="select-task">我的任务</Checkbox>
+                                    <Checkbox value="todayUpdate" className="select-task">今日修改的任务</Checkbox>
+                                    <Checkbox value="stopped" className="select-task">冻结的任务</Checkbox>
                                 </Checkbox.Group>
                             </FormItem>
                         </Form>
@@ -449,7 +448,7 @@ class OfflineTaskMana extends Component {
                         dataSource={tasks.data || []}
                         onChange={this.handleTableChange}
                         footer={this.tableFooter}
-                        scroll={{ y: '60%' }}
+                        scroll={{ y: '80%' }}
                     />
                     <SlidePane 
                         className="m-tabs bd-top bd-right m-slide-pane"
