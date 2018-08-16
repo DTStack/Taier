@@ -719,15 +719,15 @@ class AuthMana extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange,
         } : null;
-
+        const selectCalssName = isShowRowSelection ? "m-table-fix m-table" : "m-table"
         return <div className="m-tablelist">
-            <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
+            <div className="m-card card-tree-select">
                 <Card noHovering bordered={false} title={title}>
                     <Spin spinning={loading} tip="正在加载中...">
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="applyId"
-                                className="m-table"
+                                className={selectCalssName}
                                 rowSelection={rowSelection}
                                 columns={this.initialColumns()}
                                 dataSource={table.data}
@@ -753,7 +753,7 @@ class AuthMana extends Component {
                     onChange={value => this.changeParams('listType', value)}
 
                 >
-                   {
+                    {
                         isAdminAbove == 0 ? "" : <TabPane tab="待我审批" key={0}>
                                                     {this.renderPane(true)}
                                                     <ApprovalModal 
@@ -770,14 +770,13 @@ class AuthMana extends Component {
                                                         }}
                                                     />
                                                 </TabPane> 
-                   }
-                   {    
+                    }
+                    {    
                        isAdminAbove == 2 ? "" : <TabPane tab="申请记录" key={1}>
                                                     {this.renderPane()}
                                                 </TabPane>
 
-                   }
-                   
+                    }
                     {
                         isAdminAbove == 0 ? "" : <TabPane tab="已处理" key={2}>
                                                     {this.renderPane()}
@@ -788,7 +787,6 @@ class AuthMana extends Component {
                                                     {this.renderPane(true)}
                                                 </TabPane> 
                     }
-
                 </Tabs>
             </div>
         )

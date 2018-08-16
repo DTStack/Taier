@@ -177,7 +177,7 @@
                 text-align: center;
                 width: 60%;
             }
-        }
+        } 
     }
     .m-tabledetail {
         padding: 30px 0;
@@ -244,6 +244,24 @@
             .ant-form-inline .ant-form-item{
                 margin-bottom: 10;
             }
+        }
+    }
+    .m-table-fix {
+        .ant-table-footer {
+            background: #fff;
+            padding: 10 0 0;
+            border-bottom: 0;
+            border-top: 1px solid #e8e8e8;
+        }
+        .ant-pagination {
+            position: relative;
+            top: -32px;
+            right: 20;
+            margin-right: 0;
+        }
+        .ant-table-pagination.ant-pagination {
+            margin:  0;
+            float: right;
         }
     }
 }
