@@ -3,14 +3,14 @@
     "message": "request success.",
     "result": "",
     "data": {
-        "id": 3301,
+        "id": 33013,
         "gmtCreate": 1533728709000,
         "gmtModified": 1533729088000,
         "isDeleted": 0,
         "tenantId": 3,
         "projectId": 11,
         "name": "ceshi02",
-        "taskType": 10,
+        "taskType": 0,
         "computeType": 1,
         "engineType": 1,
         "sqlText": "show tables;",
@@ -205,87 +205,8 @@
             }
         ],
         "cron": "0 23 0 5 * ?",
-        "workflow": [
-            {
-                "vertex": true,
-                "edge": false,
-                "data": { "taskType": 2, "name": "新节点", "id": "2" },
-                "x": 350,
-                "y": 100,
-                "value": "新节点",
-                "id": "2"
-            },
-            {
-                "vertex": true,
-                "edge": false,
-                "data": { "taskType": 9, "name": "新节点", "id": "3" },
-                "x": 250,
-                "y": 238,
-                "value": "新节点",
-                "id": "3"
-            },
-            {
-                "vertex": true,
-                "edge": false,
-                "data": { "taskType": 5, "name": "新节点", "id": "4" },
-                "x": 520,
-                "y": 238,
-                "value": "新节点",
-                "id": "4"
-            },
-            {
-                "vertex": false,
-                "edge": true,
-                "x": 0,
-                "y": 0,
-                "value": null,
-                "id": "5",
-                "source": {
-                    "vertex": true,
-                    "edge": false,
-                    "data": { "taskType": 2, "name": "新节点", "id": "2" },
-                    "x": 350,
-                    "y": 100,
-                    "value": "新节点",
-                    "id": "2"
-                },
-                "target": {
-                    "vertex": true,
-                    "edge": false,
-                    "data": { "taskType": 9, "name": "新节点", "id": "3" },
-                    "x": 250,
-                    "y": 238,
-                    "value": "新节点",
-                    "id": "3"
-                }
-            },
-            {
-                "vertex": false,
-                "edge": true,
-                "x": 0,
-                "y": 0,
-                "value": null,
-                "id": "6",
-                "source": {
-                    "vertex": true,
-                    "edge": false,
-                    "data": { "taskType": 2, "name": "新节点" },
-                    "x": 350,
-                    "y": 100,
-                    "value": "新节点",
-                    "id": "2"
-                },
-                "target": {
-                    "vertex": true,
-                    "edge": false,
-                    "data": { "taskType": 5, "name": "新节点" },
-                    "x": 520,
-                    "y": 238,
-                    "value": "新节点",
-                    "id": "4"
-                }
-            }
-        ]
+        "flowId": 3301,
+        "flowName": "TestFlow"
     },
     "space": "0.3s"
 }

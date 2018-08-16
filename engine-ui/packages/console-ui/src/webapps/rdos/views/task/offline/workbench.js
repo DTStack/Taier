@@ -267,10 +267,19 @@ class Workbench extends React.Component {
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab) => {
-                const title = (<span>
+                let title = (<span>
                     <SyncBadge notSynced={tab.notSynced} />
                     {tab.name}
                 </span>);
+
+                if (tab.flowId) {
+                    title = (<span>
+                        <SyncBadge notSynced={tab.notSynced} />
+                        <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId) }>
+                            {tab.flowName}
+                        </a><span style={{color: 'rgba(0, 0, 0, 0.65)'}}> / {tab.name}</span>
+                    </span>);
+                }
 
                 return (
                     <TabPane

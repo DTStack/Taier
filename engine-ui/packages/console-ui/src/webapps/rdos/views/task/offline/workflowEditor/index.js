@@ -48,8 +48,6 @@ const VertexSize = { // vertex大小
 
 const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 
-const workflowMockData = [{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},{"vertex":true,"edge":false,"data":{"taskType":9,"name":"新节点"},"x":250,"y":238,"value":"新节点","id":"3"},{"vertex":true,"edge":false,"data":{"taskType":5,"name":"新节点"},"x":520,"y":238,"value":"新节点","id":"4"},{"vertex":false,"edge":true,"x":0,"y":0,"value":null,"id":"5","source":{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},"target":{"vertex":true,"edge":false,"data":{"taskType":9,"name":"新节点"},"x":250,"y":238,"value":"新节点","id":"3"}},{"vertex":false,"edge":true,"x":0,"y":0,"value":null,"id":"6","source":{"vertex":true,"edge":false,"data":{"taskType":2,"name":"新节点"},"x":350,"y":100,"value":"新节点","id":"2"},"target":{"vertex":true,"edge":false,"data":{"taskType":5,"name":"新节点"},"x":520,"y":238,"value":"新节点","id":"4"}}];
-
 const applyCellStyle = (cellState, style) => {
     if (cellState) {
         cellState.style = Object.assign(cellState.style, style);
@@ -76,14 +74,22 @@ class WorkflowEditor extends Component {
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
+        const workflowData = this.props.data.workflow;
+        if (workflowData) {
+            this.renderData(workflowData);
+        }
     }
 
     componentWillReceiveProps(nextProps) {
         const old = this.props.workflow;
         const next = nextProps.workflow;
         if (old !== next) {
+            console.log('nextStatus:', nextProps)
             if (next.status === 'cancel') {
-                this.graph.removeCells()
+                // this.graph.removeCells();
+                this._currentNewVertex = null;
+            } else if (next.status === 'created') {
+                this.updateCellData(next.node);
             }
         }
     }
@@ -106,7 +112,8 @@ class WorkflowEditor extends Component {
         graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        // graph.keepEdgesInBackground = true;
+        graph.keepEdgesInBackground = true;
+        graph.allowLoops = false;
         graph.cellsResizable = false;
         graph.setConnectable(true);
         graph.setTooltips(true)
@@ -115,8 +122,8 @@ class WorkflowEditor extends Component {
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
 
-        // 禁止连接
-        // graph.setConnectable(false)
+        // 启用/禁止连接
+        graph.setConnectable(true)
 
         // 禁止Edge对象移动
         graph.isCellsMovable = function(cell) {
@@ -153,9 +160,6 @@ class WorkflowEditor extends Component {
         this.initUndoManager();
         this.initContextMenu();
         this.initGraphEvent();
-
-        // TODO Test data
-        this.renderData(workflowMockData);
     }
 
     getStyles = (type) => {
@@ -203,13 +207,26 @@ class WorkflowEditor extends Component {
         updateWorkflow(workflow);
     }
 
+    updateCellData = (cellData) => {
+        const cell = this._currentNewVertex;
+        if (cell) {
+            const cellState = this.graph.view.getState(cell);
+            if (cellState.text) {
+                cellState.data = cellData;
+                state.text.apply(state);
+                state.text.redraw();
+                this.updateGraphData();
+            }
+        }
+    }
+
     insertItemVertex = (graph, evt, target, x, y) => {
 
         const taskType = this._currentSourceType.key;
         const newCell = new mxCell(
             '新节点',
             new mxGeometry(0, 0, VertexSize.width, VertexSize.height)
-        )
+        );
         newCell.vertex = true;
         newCell.data = {
             taskType: taskType,
@@ -218,9 +235,8 @@ class WorkflowEditor extends Component {
 
         const cells = graph.importCells([newCell], x, y, target);
         if (cells != null && cells.length > 0) {
-
             this.toggleCreate(taskType);
-
+            this._currentNewVertex = cells[0];
             graph.scrollCellToVisible(cells[0]);
             graph.setSelectionCells(cells);
         }
@@ -306,7 +322,7 @@ class WorkflowEditor extends Component {
     initContextMenu = () => {
         const ctx = this;
         const graph = this.graph;
-        const { goToTaskDev, tabData } = this.props;
+        const { goToTaskDev } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -354,10 +370,15 @@ class WorkflowEditor extends Component {
             var source = graph.getModel().getTerminal(edge, true);
             var target = graph.getModel().getTerminal(edge, false);
 
+            // 如果两个直接已存在连接，则禁止新连接
             const edges = graph.getEdgesBetween(source, target);
             if (edges.length > 1) {
                 graph.removeCells([edge])
             }
+            console.log('connection:', target, source)
+            // 是否有循环依赖
+            const have = graph.getEdgesBetween(target, source);
+            console.log('isLoop:', have);
         })
     }
 
@@ -394,21 +415,24 @@ class WorkflowEditor extends Component {
                 };
 
                 draggabledEle.createDragElement = mxDragSource.prototype.createDragElement;
-
-                // Double Click
             }
         }
     }
 
+    updateGraphData = () => {
+        const { 
+            updateTaskField, 
+         } = this.props;
+
+        const workflow = this.getGraphData();
+        updateTaskField({ workflow, });
+    }
 
     initGraphEvent = () => {
 
-        const ctx = this;
         const graph = this.graph;
         let selectedCell = null;
-        const { 
-            updateTaskField, openTaskInDev,
-         } = this.props;
+        const { openTaskInDev, } = this.props;
 
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const cell = evt.getProperty('cell')
@@ -449,18 +473,10 @@ class WorkflowEditor extends Component {
             }
         }
 
-        const updateGraphData = (sender, evt) => {
-            const workflow = ctx.getGraphData();
-            console.log('workflow:', JSON.stringify(workflow))
-            updateTaskField({
-                workflow,
-            });
-        }
-
         // graph.addListener(mxEvent.CELLS_ADDED, addCell)
-        graph.addListener(mxEvent.CELLS_MOVED, updateGraphData)
-        graph.addListener(mxEvent.CELLS_REMOVED, updateGraphData)
-        graph.addListener(mxEvent.CELL_CONNECTED, updateGraphData)
+        graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData)
+        graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData)
+        graph.addListener(mxEvent.CELL_CONNECTED, this.updateGraphData)
     }
 
     getGraphData = () => {
@@ -499,7 +515,6 @@ class WorkflowEditor extends Component {
         if (data) {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
-                console.log('data item:', item);
                 if (item.vertex) {
                     const cell = graph.insertVertex(
                         rootCell, 

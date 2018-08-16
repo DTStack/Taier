@@ -503,7 +503,7 @@ class TaskModal extends React.Component {
     handleSubmit() {
         const { 
             addOfflineTask, defaultData, workflow, 
-            createWorkflowNode,
+            createWorkflowTask,
         } = this.props;
         const form = this.form;
 
@@ -529,21 +529,23 @@ class TaskModal extends React.Component {
                 this.setState({
                     loading: true
                 })
+                
+                const handRes = (isSuccess) => {
+                    this.setState({
+                        loading: false
+                    })
+                    if (isSuccess) {
+                        message.success("操作成功")
+                        form.resetFields();
+                        this.closeModal();
+                    }
+                }
                 if (!createFromGraph) {
                     addOfflineTask(values, isEditExist, defaultData)
-                    .then(isSuccess => {
-                        this.setState({
-                            loading: false
-                        })
-                        if (isSuccess) {
-                            message.success("操作成功")
-                            form.resetFields();
-                            this.closeModal();
-                        }
-                    });
+                    .then(handRes);
                 } else {
-                    values.workflowId = workflow.workflowId;
-                    createWorkflowNode(values);
+                    values.flowId = workflow.workflowId;
+                    createWorkflowTask(values).then(handRes) ;
                 }
             }
         })
@@ -551,7 +553,7 @@ class TaskModal extends React.Component {
 
     handleCancel() {
         const { workflow, updateWorkflow } = this.props;
-        const createFromGraph = workflow && workflow.name === 'graph';
+        const createFromGraph = workflow && workflow.status === 'create';
         if (createFromGraph) {
             updateWorkflow({
                 status: 'cancel',
@@ -640,6 +642,9 @@ export default connect(state => {
                 benchActions.updateWorkflow(workflow)
             },
 
+            createWorkflowTask: function(data) {
+                benchActions.createWorkflowTask(data)
+            },
             /**
              * @description 新建或编辑
              * @param {any} params 表单参数

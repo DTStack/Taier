@@ -139,11 +139,6 @@ export default class MainBench extends React.Component {
     renderBench(tabData) {
         const { taskCustomParams } = this.props
         
-        // TODO 临时测试
-        return <WorkFlowEditor 
-            data={tabData}
-        />
-
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
 

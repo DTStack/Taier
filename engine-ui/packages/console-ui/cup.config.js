@@ -6,12 +6,14 @@
  * > cup config // 按配置文件运行
  */
 
+ const base = "/mock";
+
 module.exports = {
 	"name": "DTinsight build test",
 	"listen": 3001,
 	"root": "dist",
     "location": {
-        // "/api/task/get": `${base}/get.json`,
+        "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
     },
     "proxyTable": {

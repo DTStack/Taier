@@ -269,6 +269,24 @@ export const workbenchActions = (dispatch, ownProps) => {
             });
         },
 
+        createWorkflowTask(data) {
+            return ajax.addOfflineTask(data)
+            .then(res => {
+                if (res.code === 1) {
+                    const newTask = res.data;
+                    dispatch({
+                        type: workflowAction.UPDATE,
+                        payload: {
+                            node: newTask,
+                            status: 'created',
+                        }
+                    })
+                    return true;
+                }
+                return false;
+            });
+        },
+
         /**
          * 保存Tab数据
          * @param {} params 
