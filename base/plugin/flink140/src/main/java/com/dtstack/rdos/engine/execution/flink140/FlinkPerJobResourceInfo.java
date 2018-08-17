@@ -124,16 +124,6 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         return true;
     }
 
-    private boolean allocateResource(int[] nodeManagers, int toAllocate) {
-        for (int i = 0; i < nodeManagers.length; i++) {
-            if (nodeManagers[i] >= toAllocate) {
-                nodeManagers[i] -= toAllocate;
-                return true;
-            }
-        }
-        return false;
-    }
-
     public void setContainerLimit(int containerLimit) {
         this.containerLimit = containerLimit;
     }

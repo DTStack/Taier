@@ -37,6 +37,15 @@ public class EngineResourceInfo {
         return true;
     }
 
+    protected boolean allocateResource(int[] nodeManagers, int toAllocate) {
+        for (int i = 0; i < nodeManagers.length; i++) {
+            if (nodeManagers[i] >= toAllocate) {
+                nodeManagers[i] -= toAllocate;
+                return true;
+            }
+        }
+        return false;
+    }
 
     /***
      * 节点的资源信息
