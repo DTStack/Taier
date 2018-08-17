@@ -479,7 +479,10 @@ public class SparkYarnClient extends AbsClient {
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
-            float capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            float capacity = 1;
+            if (!sparkYarnConfig.getElasticCapacity()){
+                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            }
             resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();

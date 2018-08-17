@@ -7,8 +7,10 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink140.enums.FlinkYarnMode;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
@@ -31,6 +33,10 @@ public class FlinkResourceInfo extends EngineResourceInfo{
     public static FlinkYarnMode flinkYarnMode;
 
     public static YarnClient yarnClient;
+
+    public static String queue;
+
+    public static boolean elasticCapacity;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
@@ -79,6 +85,11 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         try {
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             int containerLimit = 0;
+            float capacity = 1;
+            if (!elasticCapacity){
+                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            }
+            resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
                 Resource used = report.getUsed();
@@ -109,6 +120,23 @@ public class FlinkResourceInfo extends EngineResourceInfo{
             e.printStackTrace();
         }
         return resourceInfo.judgeSlots(jobClient);
+    }
+
+    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+        float capacity = 0;
+        for (QueueInfo queueInfo : queueInfos){
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+            }
+            if (queue.equals(queueInfo.getQueueName())){
+                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity>0){
+                return capacity;
+            }
+        }
+        return capacity;
     }
 
 }

@@ -56,6 +56,7 @@ public class FlinkConfig {
 
 	private String flinkJarPath;
 
+	private String elasticCapacity;
 
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -219,5 +220,13 @@ public class FlinkConfig {
 
 	public void setFlinkJarPath(String flinkJarPath) {
 		this.flinkJarPath = flinkJarPath;
+	}
+
+	public boolean getElasticCapacity() {
+		return  StringUtils.isBlank(elasticCapacity) ? true : Boolean.valueOf(elasticCapacity);
+	}
+
+	public void setElasticCapacity(String elasticCapacity) {
+		this.elasticCapacity = elasticCapacity;
 	}
 }

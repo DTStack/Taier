@@ -46,6 +46,8 @@ public class SparkYarnConfig {
 
     private String queue;
 
+    private String elasticCapacity;
+
     public String getTypeName() {
         return typeName;
     }
@@ -172,5 +174,13 @@ public class SparkYarnConfig {
 
     public void setQueue(String queue) {
         this.queue = queue;
+    }
+
+    public boolean getElasticCapacity() {
+        return  StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
+    }
+
+    public void setElasticCapacity(String elasticCapacity) {
+        this.elasticCapacity = elasticCapacity;
     }
 }

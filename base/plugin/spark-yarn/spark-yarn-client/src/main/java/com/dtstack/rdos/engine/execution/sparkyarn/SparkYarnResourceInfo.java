@@ -122,10 +122,6 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         return needTotal <= (freeMem * capacity);
     }
 
-    public float getCapacity() {
-        return capacity;
-    }
-
     public void setCapacity(float capacity) {
         this.capacity = capacity;
     }
