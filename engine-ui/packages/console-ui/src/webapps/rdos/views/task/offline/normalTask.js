@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { matchTaskParams } from '../../../comm'
 import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
+import ajax from '../../../api';
 
 import FolderPicker from './folderTree';
 
@@ -13,11 +14,26 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {
-
+    state = {
+        taskTypes: []
+    }
+    loadTaskTypes = () => {
+        ajax.getTaskTypes().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    taskTypes: res.data || [],
+                })
+            }
+        })
+    }
+    componentWillMount() {
+        this.loadTaskTypes();
+    }
     render() {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
+        const { taskTypes } = this.state;
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -27,7 +43,7 @@ class NormalTaskForm extends React.Component {
         const isMl = taskType == TASK_TYPE.ML;
         const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
 
-        const acceptType = (isMl||isHadoopMR||isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
+        const acceptType = (isMl || isHadoopMR || isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
 
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
@@ -56,11 +72,9 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        <Radio value={TASK_TYPE.SQL}>SQL</Radio>
-                        <Radio value={TASK_TYPE.MR}>MR</Radio>
-                        <Radio value={TASK_TYPE.SYNC}>数据同步</Radio>
-                        <Radio value={TASK_TYPE.PYTHON}>Python</Radio>
-                        <Radio value={TASK_TYPE.VIRTUAL_NODE}>虚节点</Radio>
+                        {taskTypes.map(item =>
+                            <Radio key={item.key} value={item.key}>{item.value}</Radio>
+                        )}
                     </RadioGroup>
                 )}
             </FormItem>

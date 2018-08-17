@@ -471,7 +471,7 @@ class OfflineTaskList extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
+                <div style={{ padding: '15px 20px 10px 24px', display: "inline-block" }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -524,44 +524,44 @@ class OfflineTaskList extends Component {
                         <span className="ope-statistics">
                             <span style={{ color: "#2E3943" }}>
                                 <Circle style={{ background: '#2E3943' }} />&nbsp;
-                            任务实例总数: {statistics.ALL || 0}
+                            任务实例总数: &nbsp;{statistics.ALL || 0}
                             </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                 <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            等待提交: {statistics.UNSUBMIT || 0}
+                            等待提交: &nbsp;{statistics.UNSUBMIT || 0}
                             </span>&nbsp;
                         <span style={{ color: "#2491F7" }}>
                                 <Circle style={{ background: '#2491F7' }} />&nbsp;
-                            提交中: {statistics.SUBMITTING || 0}
+                            提交中: &nbsp;{statistics.SUBMITTING || 0}
                             </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                 <Circle style={{ background: '#F5A623' }} />&nbsp;
-                            等待运行: {statistics.WAITENGINE || 0}
+                            等待运行: &nbsp;{statistics.WAITENGINE || 0}
                             </span>&nbsp;
                         <span style={{ color: "#2491F7" }}>
                                 <Circle style={{ background: '#2491F7' }} />&nbsp;
-                            运行中: {statistics.RUNNING || 0}
+                            运行中: &nbsp;{statistics.RUNNING || 0}
                             </span>&nbsp;
                         <span style={{ color: "#009944" }}>
                                 <Circle style={{ background: '#009944' }} />&nbsp;
-                            成功: {statistics.FINISHED || 0}
+                            成功: &nbsp;{statistics.FINISHED || 0}
                             </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                 <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            取消: {statistics.CANCELED || 0}
+                            取消: &nbsp;{statistics.CANCELED || 0}
                             </span>&nbsp;
                         <span style={{ color: "#d62119" }}>
                                 <Circle style={{ background: '#d62119' }} />&nbsp;
-                            失败: {statistics.FAILED || 0}
+                            失败: &nbsp;{statistics.FAILED || 0}
                             </span>&nbsp;
                         <span style={{ color: "#26dad2" }}>
                                 <Circle style={{ background: '#26dad2' }} />&nbsp;
-                            冻结: {statistics.FROZEN || 0}
+                            冻结: &nbsp;{statistics.FROZEN || 0}
                             </span>&nbsp;
                     </span>
                     </div>
                 </h1>
-                <div className="box-2 m-card">
+                <div className="box-2 m-card task-manage">
                     <Card
                         noHovering
                         bordered={false}
@@ -653,7 +653,7 @@ class OfflineTaskList extends Component {
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '58%' }}
+                            scroll={{ y: '80%' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"

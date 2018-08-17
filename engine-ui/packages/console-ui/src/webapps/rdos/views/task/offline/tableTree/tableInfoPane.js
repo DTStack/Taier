@@ -54,7 +54,7 @@ export default class TableInfoPane extends React.Component {
     }
 
     getPreview(key, tableId) {
-        if (+key === 2 || +key === 3) {
+        if ( +key === 3) {
             ajax.previewTable({ tableId: tableId || this.props.tableId }).then(res => {
                 if (res.code === 1 && res.data) {
                     this.setState({
