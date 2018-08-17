@@ -1,3 +1,4 @@
+import React from 'react';
 import { message, Modal } from 'antd'
 import { hashHistory } from 'react-router'
 
