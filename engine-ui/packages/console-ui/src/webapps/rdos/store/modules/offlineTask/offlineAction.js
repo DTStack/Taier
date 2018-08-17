@@ -281,7 +281,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                             status: 'created',
                         }
                     })
-                    return true;
+                    true;
                 }
                 return false;
             });

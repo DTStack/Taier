@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Tooltip, Spin, Icon, Button, Modal } from 'antd'
+import { 
+    Tooltip, Spin, Icon, 
+    Button, Modal, message 
+} from 'antd'
 
 import KeyEventListener from 'widgets/keyCombiner/listener'
 import KEY_CODE from 'widgets/keyCombiner/keyCode'
@@ -174,9 +177,11 @@ class WorkflowEditor extends Component {
     corvertValueToString = (cell) => {
         if (cell && cell.vertex) {
             const task = cell.data;
+            console.log('task:', task)
             if (task) {
+                let unSave = task.notSync ? '<span title="未保存" style="color:red;">*</span>' : '';
                 const taskType = taskTypeText(task.taskType);
-                return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}</span>
                 </div>`
             }
@@ -189,7 +194,7 @@ class WorkflowEditor extends Component {
         const ctx = this;
         switch(keyCode) {
             case KEY_CODE.BACKUP: {
-                ctx.removeCell()
+                // ctx.removeCell()
                 break;
             }
             default:
@@ -322,7 +327,8 @@ class WorkflowEditor extends Component {
     initContextMenu = () => {
         const ctx = this;
         const graph = this.graph;
-        const { goToTaskDev } = this.props;
+
+        const { openTaskInDev } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -330,6 +336,7 @@ class WorkflowEditor extends Component {
                 mxPopupMenuShowMenu.apply(this, arguments);
             } else return false
         };
+
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
 
@@ -343,12 +350,12 @@ class WorkflowEditor extends Component {
                 }, null, null, true) // 正常状态
     
                 menu.addItem('编辑', null, function() {
-                    goToTaskDev(currentNode.id);
+                    openTaskInDev(currentNode.id);
                 }, null, null, true) // 正常状态
             }
 
             menu.addItem('删除', null, function() {
-                ctx.removeCell(cell);
+                ctx.removeCell([cell]);
             }, null, null, true) // 正常状态
 
         }
@@ -365,21 +372,29 @@ class WorkflowEditor extends Component {
 
     listenConnection() { // 仅仅限制有效的链接
         const graph = this.graph
-        graph.connectionHandler.addListener(mxEvent.CONNECT, function(sender, evt) {
-            var edge = evt.getProperty('cell');
-            var source = graph.getModel().getTerminal(edge, true);
-            var target = graph.getModel().getTerminal(edge, false);
 
-            // 如果两个直接已存在连接，则禁止新连接
+        graph.isValidConnection = (source, target) => {
+
+            // 限制，只能vertex可连接
+            if (!source.vertex || !target.vertex) return false;
+
+            // 限制连接线条数
             const edges = graph.getEdgesBetween(source, target);
-            if (edges.length > 1) {
-                graph.removeCells([edge])
-            }
-            console.log('connection:', target, source)
-            // 是否有循环依赖
-            const have = graph.getEdgesBetween(target, source);
-            console.log('isLoop:', have);
-        })
+            if (edges.length > 1) return false;
+
+            // 限制循环依赖
+            let isLoop = false;
+            graph.traverse(target, false, function(vertex, edge) {
+                if (source.id === vertex.id) {
+                    isLoop = true;
+                    return false;
+                }
+            });
+            if (isLoop) return false;
+
+            return true;
+        }
+
     }
 
     initDraggableToolBar() {
@@ -436,7 +451,7 @@ class WorkflowEditor extends Component {
 
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const cell = evt.getProperty('cell')
-            if (cell) {
+            if (cell && cell.vertex) {
                 const data = cell.data;
                 openTaskInDev(data.id);
             }
@@ -447,7 +462,6 @@ class WorkflowEditor extends Component {
             if (cell && cell.vertex) {
 
                 graph.clearSelection();
-                
                 const cellState = graph.view.getState(cell);
                 const style = {}
                 style[mxConstants.STYLE_FILLCOLOR] = '#90D5FF';

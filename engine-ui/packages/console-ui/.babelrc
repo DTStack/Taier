@@ -12,7 +12,7 @@
     "plugins": [
         ["import", { "libraryName": "antd", "style": true }],
         "transform-runtime",
-        "transform-decorators-legacy",
-        "react-hot-loader/babel" // 开启 React 代码的模块热替换(HMR)
+        "transform-decorators-legacy"
+        // "react-hot-loader/babel" // 开启 React 代码的模块热替换(HMR)
     ]
 }

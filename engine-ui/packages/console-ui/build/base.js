@@ -61,7 +61,10 @@ module.exports = function() {
                     ],
                     sideEffects: false,
                     // loader: ['babel-loader?cacheDirectory']
-                    loader: ["happypack/loader?id=happy-babel-js"]
+                    loader: [
+                        "react-hot-loader/webpack",
+                        "happypack/loader?id=happy-babel-js"
+                    ]
                 },
                 {
                     test: /\.(jpg|png|gif)$/,

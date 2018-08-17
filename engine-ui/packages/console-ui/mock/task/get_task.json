@@ -209,7 +209,7 @@
             {
                 "vertex": true,
                 "edge": false,
-                "data": { "taskType": 2, "name": "新节点", "id": "2" },
+                "data": { "taskType": 2, "name": "新节点", "id": "2", "notSync": true },
                 "x": 350,
                 "y": 100,
                 "value": "新节点",

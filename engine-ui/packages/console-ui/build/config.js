@@ -1,6 +1,5 @@
 'use strict';
 
-
 module.exports = {
     server: {
         port: 8080,
@@ -13,12 +12,6 @@ module.exports = {
                 // ignorePath: true, 
                 changeOrigin: true,
                 secure: false,
-            },
-            // Mock
-            "/api/rdos/batch/batchTask/getTaskById": {
-                target: function() {
-
-                }
             },
             "/api/rdos": {
                 // target: "http://172.16.8.104:9020", // formal test ser
