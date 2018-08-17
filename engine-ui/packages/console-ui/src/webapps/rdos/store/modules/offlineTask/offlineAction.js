@@ -2,6 +2,7 @@ import React from 'react';
 import { message, Modal } from 'antd'
 import { hashHistory } from 'react-router'
 
+import utils from 'utils';
 import ajax from '../../../api'
 import { MENU_TYPE } from '../../../comm/const'
 

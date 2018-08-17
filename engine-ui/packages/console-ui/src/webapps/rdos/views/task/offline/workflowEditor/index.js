@@ -74,6 +74,7 @@ class WorkflowEditor extends Component {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
         const editor = this.Container;
+        console.log('init workflow:', this.props.data)
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
@@ -171,7 +172,8 @@ class WorkflowEditor extends Component {
 
     formatTooltip = (cell) => {
         const task = cell.data || '';
-        return task ? task.name : ''
+        const tips = task ? `${task.name}${task.notSync ? ' (未保存) ' : ''}` : '';
+        return tips
     }
 
     corvertValueToString = (cell) => {
@@ -179,7 +181,7 @@ class WorkflowEditor extends Component {
             const task = cell.data;
             console.log('task:', task)
             if (task) {
-                let unSave = task.notSync ? '<span title="未保存" style="color:red;">*</span>' : '';
+                let unSave = task.notSync ? '<span style="color:red;">*</span>' : '';
                 const taskType = taskTypeText(task.taskType);
                 return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
                 <span style="font-size:10px; color: #666666;">${taskType}</span>
@@ -547,7 +549,7 @@ class WorkflowEditor extends Component {
                 }
             }
 
-            graph.center();
+            graph.center(true, true, 0.5, 0.4);
         }
     }
 
@@ -645,7 +647,7 @@ class WorkflowEditor extends Component {
 
     layout = () => {
         this.executeLayout(null, () => {
-            this.graph.center();
+            this.graph.center(true, true, 0.5, 0.4);
         });
     }
 
