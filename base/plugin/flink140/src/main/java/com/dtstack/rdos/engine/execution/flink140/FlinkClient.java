@@ -452,6 +452,11 @@ public class FlinkClient extends AbsClient {
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
             String addr = yarnConf.get(key);
+
+            if(addr == null) {
+                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            }
+
             String appId = ((YarnClusterClient) client).getApplicationId().toString();
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
