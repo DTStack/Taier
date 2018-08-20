@@ -75,7 +75,7 @@ CREATE TABLE `rdos_engine_job_cache` (
   `engine_type` varchar(256) NOT NULL COMMENT '任务的执行引擎类型',
   `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
   `stage` tinyint(2) NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
-  `job_info` text NOT NULL COMMENT 'job信息',
+  `job_info` longtext NOT NULL COMMENT 'job信息',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
@@ -86,7 +86,7 @@ DROP TABLE IF EXISTS `rdos_plugin_job_info`;
 CREATE TABLE `rdos_plugin_job_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(255) NOT NULL COMMENT '任务id',
-  `job_info` text NOT NULL COMMENT '任务信息',
+  `job_info` LONGTEXT NOT NULL COMMENT '任务信息',
   `log_info` text COMMENT '任务信息',
   `status` tinyint(2) NOT NULL COMMENT '任务状态',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
@@ -107,16 +107,3 @@ CREATE TABLE `rdos_engine_unique_sign` (
   UNIQUE KEY `index_unique_sign` (`unique_sign`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_plugin_job_info`;
-CREATE TABLE `rdos_plugin_job_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `job_id` varchar(255) NOT NULL COMMENT '任务id',
-  `job_info` text NOT NULL COMMENT '任务信息',
-  `log_info` text COMMENT '任务信息',
-  `status` tinyint(2) NOT NULL COMMENT '任务状态',
-  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_job_id` (`job_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -227,7 +227,9 @@ public class SparkYarnClient extends AbsClient {
         setHadoopUserName(sparkYarnConfig);
 
         Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("sql", jobClient.getSql());
+
+        String zipSql = DtStringUtil.zip(jobClient.getSql());
+        paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
 
         String sqlExeJson = null;
@@ -539,8 +541,8 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public void beforeSubmitFunc(JobClient jobClient) {
         String sql = jobClient.getSql();
-        String[] sqlArr = DtStringUtil.splitIgnoreQuota(sql, ";");
-        if(sqlArr.length == 0){
+        List<String> sqlArr = DtStringUtil.splitIgnoreQuota(sql, ';');
+        if(sqlArr.size() == 0){
             return;
         }
 
