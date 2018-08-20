@@ -12,14 +12,14 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from './form';
 import DbSyncModal from './syncModal';
-import TaskListModal from "../TaskListModal"
+import DataSourceTaskListModal from "../dataSourceTaskListModal"
 import { formItemLayout, StreamDataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 
 const Search = Input.Search
 
-class DataSourceMana extends Component {
+class DataSourceManaStream extends Component {
 
     state = {
         dataSource: {
@@ -176,7 +176,7 @@ class DataSourceMana extends Component {
             key: 'active',
             width: '10%',
             render: (active,record) => {
-                return active === 1 ? <TaskListModal type="stream" dataSource={record}>使用中</TaskListModal> : '未使用'
+                return active === 1 ? <DataSourceTaskListModal type="stream" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
         }, 
         // {
@@ -343,4 +343,4 @@ export default connect((state) => {
             dispatch(getSourceTypes())
         }
     }
-})(DataSourceMana)
+})(DataSourceManaStream)
