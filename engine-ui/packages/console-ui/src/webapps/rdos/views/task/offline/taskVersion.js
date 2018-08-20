@@ -76,6 +76,24 @@ export default class TaskVersion extends React.Component {
             taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
         let sqlTextJSON = taskInfo.sqlText;
         let compareToText = campareTo.sqlText;
+        let language;
+        switch(taskInfo.taskType){
+            case TASK_TYPE.SYNC:{
+                language="json";
+                break;
+            }
+            case TASK_TYPE.PYTHON_23:{
+                language="python";
+                break;
+            }
+            case TASK_TYPE.SQL:{
+                language="dtsql";
+                break;
+            }
+            default:{
+                language="dtsql";
+            }
+        }
 
         // 增加数据同步，JSON配置格式化操作
         // if (taskInfo.taskType === TASK_TYPE.SYNC && taskInfo.sqlText) {
@@ -109,6 +127,7 @@ export default class TaskVersion extends React.Component {
                         modified={{value:compareToText}}
                         options={{readOnly:true}}
                         onChange={this.codeChange}
+                        language={language}
                     />
                 </Modal>
                 <Modal

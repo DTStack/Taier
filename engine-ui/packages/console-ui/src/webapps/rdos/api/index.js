@@ -582,6 +582,12 @@ export default {
     checkSyncConfig(params) {
         return http.post(offlineReq.CHECK_SYNC_CONFIG, params)
     },
+    getTaskOfOfflineSource(params){
+        return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
+    },
+    getTaskOfStreamSource(params){
+        return http.post(stremReq.GET_TASK_LIST_OF_STREAM_SOURCE, params)
+    },
 
     // ============== dataManage 数据管理 ==================
     createTable(params) {

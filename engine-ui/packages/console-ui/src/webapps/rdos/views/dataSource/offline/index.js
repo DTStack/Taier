@@ -15,6 +15,7 @@ import DbSyncModal from './syncModal';
 import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
+import DataSourceTaskListModal from '../dataSourceTaskListModal';
 
 const Search = Input.Search
 
@@ -174,8 +175,8 @@ class DataSourceMana extends Component {
             dataIndex: 'active',
             key: 'active',
             width: '10%',
-            render: (active) => {
-                return active === 1 ? '使用中' : '未使用'
+            render: (active,record) => {
+                return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
         }, 
         {
@@ -195,7 +196,7 @@ class DataSourceMana extends Component {
         },
          {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '150',
+            width: '150px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
