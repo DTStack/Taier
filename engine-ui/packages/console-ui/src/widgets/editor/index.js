@@ -14,11 +14,15 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
-import "./languages/dtsql/dtsql.contribution.js"
+import {provideCompletionItems as dtsqlProvideCompletionItems} from  "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
+
+const provideCompletionItemsMap={
+    dtsql:dtsqlProvideCompletionItems
+}
 
 class Editor extends React.Component {
 
@@ -41,8 +45,13 @@ class Editor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, value, theme } = nextProps;
-
+        const { sync, value, theme, customCompleteItems } = nextProps;
+        if(customCompleteItems!=this.props.customCompleteItems){
+            const provideFunc=provideCompletionItemsMap[nextProps.language];
+            if(provideFunc){
+                provideFunc(customCompleteItems)
+            }
+        }
         if ( this.props.value !== value && sync) {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);

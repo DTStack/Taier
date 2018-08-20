@@ -283,7 +283,7 @@ export default class StepOne extends Component {
     partHintText = () => {
         return (
             <p className="font-14">
-                {"支持填写系统参数，格式为：column=${sys.recentPart}，column为分区字段名，需要您根据情况修改，${sys.recentPart}为系统参数，系统每次执行时会对最新的1个分区的数据做校验"}
+                {"支持填写系统参数，格式为：column=${sys.recentPart}，column为分区字段名，需要您根据情况修改，${sys.recentPart}为系统参数，系统每次执行时会对最新的1个分区的数据做校验。除此之外还支持${bdp.system.premonth}、${bdp.system.cyctime}、${bdp.system.bizdate}、${bdp.system.currmonth}"}
             </p>
         )
     }

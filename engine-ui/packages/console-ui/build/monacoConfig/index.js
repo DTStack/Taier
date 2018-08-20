@@ -38,3 +38,11 @@ exports.features = [
     'wordHighlighter',
     'wordOperations',
     'wordPartOperations'];
+
+exports.languages=[
+    'ini',
+    'json',
+    'sql',
+    'shell',
+    'python'
+]

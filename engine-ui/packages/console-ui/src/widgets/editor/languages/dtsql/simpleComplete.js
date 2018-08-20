@@ -1,5 +1,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 
+let _customCompletionItems=[];
 let cacheKeyWords=[];
 function dtsqlWords() {
     return {
@@ -38,15 +39,33 @@ function functionsCompleteItemCreater(functions) {
         }
     )
 }
-function createDependencyProposals() {
-    if(cacheKeyWords.length){
-        return cacheKeyWords;
+function customCompletionItemsCreater(){
+    if(!_customCompletionItems){
+        return [];
     }
-    const words = dtsqlWords();
-    const functions = [].concat(words.builtinFunctions).concat(words.windowsFunctions).concat(words.innerFunctions).concat(words.otherFunctions);
-    const keywords = [].concat(words.keywords);
-    cacheKeyWords=keywordsCompleteItemCreater(keywords).concat(functionsCompleteItemCreater(functions))
-    return cacheKeyWords;
+    return _customCompletionItems.map(
+        ([name,detail,sortIndex],index)=>{
+            sortIndex=sortIndex||"2";
+            return {
+                label: name,
+                kind: monaco.languages.CompletionItemKind.Text,
+                detail: detail,
+                insertText: {
+                    value: functionName + " "
+                },
+                sortText:sortIndex+index+name
+            }
+        }
+    )
+}
+function createDependencyProposals() {
+    if(!cacheKeyWords.length){
+        const words = dtsqlWords();
+        const functions = [].concat(words.builtinFunctions).concat(words.windowsFunctions).concat(words.innerFunctions).concat(words.otherFunctions);
+        const keywords = [].concat(words.keywords);
+        cacheKeyWords=keywordsCompleteItemCreater(keywords).concat(functionsCompleteItemCreater(functions))
+    }
+    return cacheKeyWords.concat(customCompletionItemsCreater());
 }
 
 monaco.languages.registerCompletionItemProvider("dtsql", {
@@ -54,3 +73,7 @@ monaco.languages.registerCompletionItemProvider("dtsql", {
         return createDependencyProposals();
     }
 });
+
+export function provideCompletionItems(customCompletionItems){
+    _customCompletionItems=customCompletionItems;
+}
