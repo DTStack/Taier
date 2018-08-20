@@ -20,8 +20,8 @@
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
-	   insert into rdos_engine_batch_job(gmt_create,gmt_modified,job_id,status)
-	   values(now(),now(),#{jobId},#{status})
+	   insert into rdos_engine_batch_job(gmt_create,gmt_modified,job_id,status,source_type)
+	   values(now(),now(),#{jobId},#{status}, #{sourceType})
 	   <selectKey resultType="long" keyProperty="id" order="AFTER">
 	      SELECT LAST_INSERT_ID() AS ID
 	   </selectKey>
