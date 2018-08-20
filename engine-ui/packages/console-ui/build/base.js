@@ -104,7 +104,8 @@ module.exports = function() {
         plugins: [
             new webpack.HashedModuleIdsPlugin(),
             new MonacoWebpackPlugin({
-                features:monacoConfig.features
+                features:monacoConfig.features,
+                languages:monacoConfig.languages
             }),
             new HappyPack({
                 id: "happy-babel-js",

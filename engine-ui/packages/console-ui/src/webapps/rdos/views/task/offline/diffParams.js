@@ -410,6 +410,7 @@ class DiffParams extends React.Component {
                     this.state.currentValue.taskType !== TASK_TYPE.SYNC && 
                     <TabPane tab="环境参数" key="params">
                         <DiffCodeEditor
+                            className="merge-text"
                             style={{height:"500px"}}
                             options={{readOnly:true}}
                             sync={true}

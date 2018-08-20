@@ -6,7 +6,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
-import Editor from '../../../components/code-editor'
+import Editor from 'widgets/editor'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree'
 
@@ -252,7 +252,7 @@ export default class TaskBrowser extends Component {
         }
     }
 
-    editorParamsChange(a,b,c){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+    editorParamsChange(b){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
         if(!this._syncEditor){
             this.props.editorChange(b);
         }else{
@@ -326,12 +326,10 @@ export default class TaskBrowser extends Component {
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
                                     key="params-editor"
-                                    options={propEditorOptions}
-                                    onFocus={editorFocus}
-                                    focusOut={editorFocusOut}
                                     sync={this._syncEditor}
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
+                                    language="ini"
                                 />
                             </TabPane>
                         </Tabs>
