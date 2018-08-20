@@ -307,7 +307,7 @@ class ManageParamsConfig extends Component {
         const isEdit = InputIsEdit || OutputIsEdit;
         const { InputColumns, OutputColums, editor } = this.state;
         if (!editor.sql && mode == API_MODE.SQL) {
-            console.log("sql不能为空")
+            message.warning("sql不能为空")
             return
         }
         if (isEdit) {
