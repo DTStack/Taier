@@ -236,7 +236,7 @@ class ManageBasicProperties extends Component {
                 })
                     .then(
                         (res) => {
-                            if (res.data) {
+                            if (res.data||res.code!=1) {
                                 callback()
                             } else {
                                 callback("名称已存在")
