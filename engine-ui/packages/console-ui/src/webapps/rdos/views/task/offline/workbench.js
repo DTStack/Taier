@@ -219,11 +219,11 @@ class Workbench extends React.Component {
                     >
                         <MyIcon className="my-icon" type="fly" />发布
                     </Button>
-                    <Link to={`/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
+                    <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
                             <MyIcon className="my-icon" type="goin" /> 运维
                         </Button>
-                    </Link>
+                    </a>
                 </Col>) : null}
             </header>
             <Row className="task-browser">
