@@ -58,7 +58,7 @@ module.exports = [
         link: 'console.html#/',
         filename: 'console.html',
         target: '_self',
-        enable: true,
+        enable: false,
         apiBase: '/console',
         icon: '/public/main/img/icon_5.png',
         description: '计算资源分配、多集群管理',
