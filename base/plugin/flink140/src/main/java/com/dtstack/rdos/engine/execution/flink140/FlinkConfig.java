@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Map;
 
@@ -57,6 +58,9 @@ public class FlinkConfig {
 	private String flinkJarPath;
 
 	private String elasticCapacity;
+
+	private String yarnAccepterTaskNumber;
+
 
 	public String getFlinkZkAddress() {
 		return flinkZkAddress;
@@ -228,5 +232,13 @@ public class FlinkConfig {
 
 	public void setElasticCapacity(String elasticCapacity) {
 		this.elasticCapacity = elasticCapacity;
+	}
+
+	public int getYarnAccepterTaskNumber() {
+		return StringUtils.isBlank(yarnAccepterTaskNumber) ? 2: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+	}
+
+	public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
+		this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
 	}
 }

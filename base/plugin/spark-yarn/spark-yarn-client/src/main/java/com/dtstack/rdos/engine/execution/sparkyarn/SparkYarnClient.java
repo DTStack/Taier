@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -480,6 +481,12 @@ public class SparkYarnClient extends AbsClient {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
+                return resourceInfo;
+            }
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             float capacity = 1;
             if (!sparkYarnConfig.getElasticCapacity()){

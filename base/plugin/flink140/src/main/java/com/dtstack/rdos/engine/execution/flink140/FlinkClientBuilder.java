@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -233,7 +236,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, true);
@@ -250,6 +253,18 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
         clusterDescriptor.setQueue(flinkConfig.getQueue());
+//        String classPath = flinkJarPath.substring(0,flinkJarPath.lastIndexOf("/"));
+//        File path = new File(classPath);
+//        List<URL> classpaths = new ArrayList<URL>();
+//        if (path.isDirectory() && path.listFiles()!=null){
+//            for (File file:path.listFiles()){
+//                if (file.toURI().toURL().toString().endsWith(flinkJarPath)){
+//                    continue;
+//                }
+//                classpaths.add(file.toURI().toURL());
+//            }
+//        }
+//        clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
     }
 

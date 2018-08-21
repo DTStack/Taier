@@ -59,6 +59,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -220,7 +221,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException {
+    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException, MalformedURLException {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
@@ -540,6 +541,17 @@ public class FlinkClient extends AbsClient {
 
         if(!isClientOn.get()){
             return null;
+        }
+        try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = flinkClientBuilder.getYarnClient().getApplications(enumSet);
+            if (acceptedApps.size() > flinkConfig.getYarnAccepterTaskNumber()) {
+                return new FlinkResourceInfo();
+            }
+        } catch (Exception e){
+            logger.error("", e);
+            return new FlinkResourceInfo();
         }
 
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
