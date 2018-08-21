@@ -57,7 +57,7 @@ export const consoleApp = {
     link: 'console.html#/',
     filename: 'console.html',
     target: '_blank',
-    enable: true,
+    enable: false,
     apiBase: '/console',
     needRoot:true,
     disableExt:true
