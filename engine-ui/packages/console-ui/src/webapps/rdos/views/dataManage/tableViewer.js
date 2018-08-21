@@ -10,7 +10,7 @@ import {
 import GoBack from 'main/components/go-back';
 
 import { APPLY_RESOURCE_TYPE } from "../../comm/const";
-import Editor from '../../components/code-editor';
+import Editor from 'widgets/editor';
 import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import TablePartition from './tablePartition';
@@ -390,7 +390,7 @@ export default class TableViewer extends React.Component {
                     </CopyToClipboard>
                 ]}
             >
-                <Editor value={this.state.code} readOnly style={{ height: '400px' }} />
+                <Editor value={this.state.code} language="dtsql" options={{readOnly:true}} style={{ height: '400px' }} />
             </Modal>
             <TableApplyModal
                 visible={applyModal.visible}

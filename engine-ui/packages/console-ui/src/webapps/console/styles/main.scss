@@ -14,3 +14,9 @@ table{
 .contentBox{
     margin:20px;
 }
+.text-middle{
+    text-align: center;
+}
+.ant-table-thead > tr > th.text-middle{
+    text-align: center;
+}

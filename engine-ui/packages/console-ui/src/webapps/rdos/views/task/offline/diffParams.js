@@ -4,7 +4,7 @@ import { Row, Col, Tabs, Tooltip} from 'antd';
 
 const TabPane = Tabs.TabPane;
 
-import DiffCodeEditor from '../../../components/diff-code-editor';
+import DiffCodeEditor from 'widgets/editor/diff';
 
 import ajax  from '../../../api/index';
 import { TASK_TYPE } from '../../../comm/const';
@@ -154,11 +154,10 @@ class DiffParams extends React.Component {
                 upstreamTask: false,
                 crosscycleDependence: false,
             },
+            currentValue:this.props.taskType==="realTimeTask" ? this.props.currentRealTabData : this.props.currentTabData,
             currentParse:{},
             tabKey: this.props.taskType === "realTimeTask"?"params":"config",
-            tableRefresh: Math.random(),
         }
-        this.currentValue = this.props.taskType==="realTimeTask" ? this.props.currentRealTabData : this.props.currentTabData;
         this.versionId = this.props.diffParams&&this.props.diffParams.id;
     }
 
@@ -167,7 +166,9 @@ class DiffParams extends React.Component {
         if(!this.props.taskType&&nextProps.diffParams.id!=this.props.diffParams.id){
             if(nextProps.diffParams.id){
                 this.getData(nextProps.diffParams.id);
-                this.currentValue = nextProps.currentTabData;
+                this.setState({
+                    currentValue:nextProps.currentTabData
+                })
             }
         
             this.setState({
@@ -175,7 +176,9 @@ class DiffParams extends React.Component {
             }) 
         }else if(this.props.taskType === "realTimeTask"){
             this.getRealData()
-            this.currentValue = nextProps.currentRealTabData;
+            this.setState({
+                currentValue:nextProps.currentRealTabData
+            })
         }
     }
 
@@ -198,8 +201,7 @@ class DiffParams extends React.Component {
 
     getRealData= () => {
         this.setState({
-            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0]||{},
-            tableRefresh: Math.random()
+            historyvalue: this.props.currentRealTabData&&this.props.currentRealTabData.taskVersions[0]||{}
         },this.contrastData)
     }
 
@@ -341,7 +343,7 @@ class DiffParams extends React.Component {
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
         const historyParse = this.parseScheduleConf(historyvalue,1);
-        const currentParse = this.parseScheduleConf(this.currentValue,2);
+        const currentParse = this.parseScheduleConf(this.state.currentValue,2);
         console.log('historyParse',historyParse);
         console.log('currentParse',currentParse);
         
@@ -380,8 +382,7 @@ class DiffParams extends React.Component {
 
     callback = (key) => {
         this.setState({
-            tabKey:key,
-            tableRefresh: Math.random()
+            tabKey:key
         })
     }
     
@@ -406,13 +407,17 @@ class DiffParams extends React.Component {
                         </TabPane>
                 }
                 {
-                    this.currentValue.taskType !== TASK_TYPE.SYNC && 
+                    this.state.currentValue.taskType !== TASK_TYPE.SYNC && 
                     <TabPane tab="环境参数" key="params">
                         <DiffCodeEditor
-                            readOnly={true}
-                            compareTo={historyvalue&&historyvalue.taskParams||" "} 
-                            value={this.currentValue&&this.currentValue.taskParams||" "}
-                            tableRefresh={tableRefresh}
+                            language="ini"
+                            className="merge-text"
+                            style={{height:"500px"}}
+                            options={{readOnly:true}}
+                            sync={true}
+                            modified={{value:historyvalue&&historyvalue.taskParams||" "}}
+                            original={{value:this.state.currentValue&&this.state.currentValue.taskParams||" "}}
+                            value={this.state.currentValue&&this.state.currentValue.taskParams||" "}
                         /> 
                     </TabPane>
                 }

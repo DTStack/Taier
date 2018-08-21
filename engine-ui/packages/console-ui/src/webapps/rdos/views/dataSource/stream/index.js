@@ -12,13 +12,14 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from './form';
 import DbSyncModal from './syncModal';
+import DataSourceTaskListModal from "../dataSourceTaskListModal"
 import { formItemLayout, StreamDataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 
 const Search = Input.Search
 
-class DataSourceMana extends Component {
+class DataSourceManaStream extends Component {
 
     state = {
         dataSource: {
@@ -174,25 +175,25 @@ class DataSourceMana extends Component {
             dataIndex: 'active',
             key: 'active',
             width: '10%',
-            render: (text, record) => {
-                return record.active === 1 ? '使用中' : '未启用'
+            render: (active,record) => {
+                return active === 1 ? <DataSourceTaskListModal type="stream" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
         }, 
-        // {
-        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-        //                 <span>连接状态 &nbsp;
-        //                     <Icon type="question-circle-o" />
-        //                 </span>
-        //             </Tooltip>,
-        //     dataIndex: 'linkState',
-        //     key: 'linkState',
-        //     width: '10%',
-        //     render: (text, record) => {
-        //         return record.linkState === 1 ? 
-        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-        //     },
-        // }, 
+        {
+            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+                        <span>连接状态 &nbsp;
+                            <Icon type="question-circle-o" />
+                        </span>
+                    </Tooltip>,
+            dataIndex: 'linkState',
+            key: 'linkState',
+            width: '10%',
+            render: (text, record) => {
+                return record.linkState === 1 ? 
+                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+            },
+        }, 
         {
             title: <div className="txt-right m-r-8">操作</div>,
             width: '10%',
@@ -342,4 +343,4 @@ export default connect((state) => {
             dispatch(getSourceTypes())
         }
     }
-})(DataSourceMana)
+})(DataSourceManaStream)

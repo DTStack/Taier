@@ -219,7 +219,7 @@ class OfflineStatistics extends Component {
                     </Resize>
                 </Card>
                 <Row className="m-card" style={{marginTop: '20px'}}>
-                    <Col span="12" style={{paddingRight: '10px'}}>
+                    <Col span="14" style={{paddingRight: '10px'}}>
                         <Card 
                             noHovering
                             bordered={false}
@@ -243,7 +243,7 @@ class OfflineStatistics extends Component {
                             />
                         </Card>
                     </Col>
-                    <Col span="12" style={{paddingLeft: '10px'}}>
+                    <Col span="10" style={{paddingLeft: '10px'}}>
                         <Card
                             noHovering
                             bordered={false}

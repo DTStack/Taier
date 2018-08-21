@@ -6,7 +6,7 @@ import {
     Table, message, Modal,
     Input, Card, Popconfirm,
     DatePicker, TimePicker,
-    Select, Form,
+    Select, Form,Tooltip,Icon
 } from 'antd'
 
 import utils from 'utils'
@@ -54,21 +54,34 @@ class RealTimeTaskList extends Component {
         }
     }
 
+    componentWillUnmount(){
+        clearTimeout(this._timeClock);
+        this._isUnmounted = true;
+    }
     searchTask = (query) => {
         this.setState({
             taskName: query,
         }, this.loadTaskList)
     }
-
+    debounceLoadtask(){
+        if(this._isUnmounted){
+            return ;
+        }
+        this._timeClock=setTimeout(() => {
+             this.loadTaskList(null,true);
+         }, 5000);
+     }
     onChange = (e) => {
         this.setState({
             continue: e.target.value,
         });
     }
 
-    loadTaskList(params) { // currentPage, pageSize, isTimeSortDesc, status
+    loadTaskList(params,isSilent) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
-        this.setState({ loading: true })
+        if(!isSilent||typeof isSilent!="boolean"){
+            this.setState({ loading: true })
+        }
         const reqParams = Object.assign({
             currentPage: 1,
             pageSize: 20,
@@ -76,8 +89,10 @@ class RealTimeTaskList extends Component {
             isTimeSortDesc: true,
             status: this.state.filter[0]
         }, params)
+        clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
+                this.debounceLoadtask();
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({ loading: false })
@@ -296,6 +311,17 @@ class RealTimeTaskList extends Component {
                             defaultValue={utils.getParameterByName('tname') || ''}
                             onSearch={this.searchTask}
                         />
+                    }
+                    extra={
+                        <Tooltip title="刷新数据">
+                            <Icon type="sync" onClick={this.loadTaskList.bind(this,null)}
+                                style={{
+                                    cursor: 'pointer',
+                                    marginTop: '16px',
+                                    color: '#94A8C6'
+                                }}
+                            />
+                        </Tooltip>
                     }
                 >
                     <Table

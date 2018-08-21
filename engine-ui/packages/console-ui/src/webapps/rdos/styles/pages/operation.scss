@@ -12,7 +12,7 @@
             background: #fff;
         }
     }
-
+   
     .graph-content {
         position: relative;
         width: 100%;
@@ -65,6 +65,9 @@
             color: #666666;
             text-align: center;
         }
+    }
+    .m-table .ant-table-tbody > tr > td {
+        height: 30px;
     }
 }
 
@@ -172,11 +175,10 @@
 }
 
 .ope-statistics {
-    margin-left: 10px;
     font-weight: bold;
     font-size: 12px;
     span {
-        margin-right: 20px;
+        margin-right: 24px;
     }
 }
 
@@ -225,6 +227,42 @@
                 padding: 10px 20px;
                 border: 1px solid #e1e6eb;
             }
+        }
+    }
+}
+
+.m-card.task-manage {
+    .ant-form-inline .ant-form-item {
+        display: inline-block;
+        margin-right: 20px;
+        margin-bottom: 0;
+    }
+    .select-task{
+        margin-right: 12px;
+    }
+    tr > td:first-child, .m-card .m-table tr > th:first-child {
+        padding-left: 6px
+    }
+    .ant-card .ant-card-body {
+        padding: 0;
+        position: relative;
+    }
+    .m-table {
+        .ant-table-footer {
+            background: #fff;
+            padding: 10 0 0;
+            border-bottom: 0;
+            border-top: 1px solid #e8e8e8;
+        }
+        .ant-pagination {
+            position: relative;
+            top: -32px;
+            right: 20;
+            margin-right: 0;
+        }
+        .ant-table-pagination.ant-pagination {
+            margin:  0;
+            float: right;
         }
     }
 }

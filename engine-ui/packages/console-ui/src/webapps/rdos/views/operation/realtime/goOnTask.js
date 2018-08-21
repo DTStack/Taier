@@ -145,6 +145,7 @@ class GoOnTask extends Component {
                     </span>
                 }
             >
+                {!dateRange&&<Alert style={{marginBottom:"8px"}} message="当前没有可用的checkpoint" type="error" />}
                 <Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" />
                 <div style={{lineHeight: '30px'}}>指定读取数据时间:</div>
                 <div> 
@@ -153,6 +154,7 @@ class GoOnTask extends Component {
                             format="YYYY-MM-DD HH:mm:ss"
                             disabledDate={this.disabledDate}
                             onChange={this.taskReadRangeChange}
+                            disabled={!dateRange}
                         />
                     </span>
                     <span>
@@ -163,6 +165,7 @@ class GoOnTask extends Component {
                             placeholder="时间点"
                             optionFilterProp="name"
                             onChange={this.taskReadTimeChange}
+                            disabled={!dateRange}
                         >
                             { options }
                         </Select>

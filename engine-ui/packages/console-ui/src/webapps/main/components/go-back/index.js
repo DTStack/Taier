@@ -27,26 +27,43 @@ export default class GoBack extends Component {
         let mStyle = {
             cursor: 'pointer'
         }
+        let iconStyle = {
+            cursor: "pointer",
+            fontFamily: "anticon",
+            fontSize: "18px",
+            color: "rgb(148, 168, 198)",
+            letterSpacing: "5px",
+            position: "relative",
+            top: "2px",
+        }
         if (style) {
             mStyle = Object.assign(mStyle, style)
+            iconStyle = Object.assign(iconStyle, style)
         }
-        switch (type) {
-            case "textButton":
-                mStyle.marginRight = '5px';
-                return (
-                    <Button style={mStyle} onClick={this.go} size={size||"small"}>
-                        <Icon type="left" />返回
-                    </Button>
-                );
-            default:
-                return (
-                    <Icon
-                        style={mStyle}
-                        type={type || "left-circle"}
-                        onClick={this.go}
-                    />
-                )
-        }
+        // switch (type) {
+        //     case "textButton":
+        //         mStyle.marginRight = '5px';
+        //         return (
+        //             <Button style={mStyle} onClick={this.go} size={size||"small"}>
+        //                 <Icon type="left" />返回
+        //             </Button>
+        //         );
+        //     default:
+        //         return (
+        //             <Icon
+        //                 style={iconStyle}
+        //                 type={"left-circle-o"}
+        //                 onClick={this.go}
+        //             />
+        //         )
+        // }
+        return (
+            <Icon
+                style={iconStyle}
+                type={"left-circle-o"}
+                onClick={this.go}
+            />
+        )
 
     }
 

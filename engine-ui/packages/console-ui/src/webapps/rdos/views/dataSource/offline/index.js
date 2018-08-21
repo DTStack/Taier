@@ -15,6 +15,7 @@ import DbSyncModal from './syncModal';
 import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
+import DataSourceTaskListModal from '../dataSourceTaskListModal';
 
 const Search = Input.Search
 
@@ -174,28 +175,28 @@ class DataSourceMana extends Component {
             dataIndex: 'active',
             key: 'active',
             width: '10%',
-            render: (active) => {
-                return active === 1 ? '使用中' : '未使用'
+            render: (active,record) => {
+                return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
         }, 
-        // {
-        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-        //                 <span>连接状态 &nbsp;
-        //                     <Icon type="question-circle-o" />
-        //                 </span>
-        //             </Tooltip>,
-        //     dataIndex: 'linkState',
-        //     key: 'linkState',
-        //     width: '10%',
-        //     render: (linkState) => {
-        //         return linkState === 1 ? 
-        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-        //     },
-        // },
+        {
+            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+                        <span>连接状态 &nbsp;
+                            <Icon type="question-circle-o" />
+                        </span>
+                    </Tooltip>,
+            dataIndex: 'linkState',
+            key: 'linkState',
+            width: '10%',
+            render: (linkState) => {
+                return linkState === 1 ? 
+                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+            },
+        },
          {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '150',
+            width: '150px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
