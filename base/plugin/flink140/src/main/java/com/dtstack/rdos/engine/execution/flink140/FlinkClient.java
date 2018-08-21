@@ -547,6 +547,7 @@ public class FlinkClient extends AbsClient {
             enumSet.add(YarnApplicationState.ACCEPTED);
             List<ApplicationReport> acceptedApps = flinkClientBuilder.getYarnClient().getApplications(enumSet);
             if (acceptedApps.size() > flinkConfig.getYarnAccepterTaskNumber()) {
+                logger.warn("yarn 资源不足，任务等待提交");
                 return new FlinkResourceInfo();
             }
         } catch (Exception e){

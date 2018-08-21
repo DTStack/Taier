@@ -485,6 +485,7 @@ public class SparkYarnClient extends AbsClient {
             enumSet.add(YarnApplicationState.ACCEPTED);
             List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
             if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
+                logger.warn("yarn 资源不足，任务等待提交");
                 return resourceInfo;
             }
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
