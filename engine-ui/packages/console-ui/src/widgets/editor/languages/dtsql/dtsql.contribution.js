@@ -4,7 +4,7 @@
 *--------------------------------------------------------------------------------------------*/
 'use strict';
 import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution';
-import "./simpleComplete";
+import {provideCompletionItems} from "./simpleComplete";
 // Allow for running under nodejs/requirejs in tests
 var _monaco = typeof monaco === 'undefined' ? self.monaco : monaco;
 registerLanguage({
@@ -13,3 +13,5 @@ registerLanguage({
     aliases: ['DtSql', 'dtsql'],
     loader: function () { return _monaco.Promise.wrap(import('./dtsql')); },
 });
+export {provideCompletionItems};
+

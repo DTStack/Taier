@@ -5,7 +5,7 @@ import { Tabs } from 'antd';
 
 import utils from 'utils'
 
-import SQLEditor from '../../../components/code-editor';
+import SQLEditor from 'widgets/editor';
 import { propEditorOptions, TASK_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
@@ -28,12 +28,10 @@ class SiderBench extends React.Component {
         super(props);
     }
 
-    handleTaskParamChange(old, newVal) {
-        if (old !== newVal) {
-            this.props.setTaskParams({
-                taskParams: newVal
-            });
-        }
+    handleTaskParamChange(newVal) {
+        this.props.setTaskParams({
+            taskParams: newVal
+        });
     }
 
     handleCustomParamsChange = (params) => {
@@ -85,11 +83,12 @@ class SiderBench extends React.Component {
                 panes.push(
                     <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                         <SQLEditor
-                            options={{...propEditorOptions,readOnly:isLocked}}
+                            options={{ readOnly: isLocked }}
                             key={'params' + tabData.id}
                             value={tabData.taskParams}
                             onFocus={() => { }}
                             focusOut={() => { }}
+                            language="ini"
                             onChange={this.handleTaskParamChange.bind(this)}
                         />
                     </TabPane>,

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Row, Col, Icon } from 'antd';
 import { isEmpty } from 'lodash';
+import utils from "utils";
 
 import MyIcon from '../../../components/icon'
 
@@ -12,6 +13,12 @@ import {
 import Workbench from './workbench';
 
 class Default extends Component {
+    componentDidMount(){
+        const taskId=utils.getParameterByName("taskId")
+        if(taskId){
+            this.props.openTaskInDev(+taskId)
+        }
+    }
     render() {
         const { 
             workbench, scriptTree,

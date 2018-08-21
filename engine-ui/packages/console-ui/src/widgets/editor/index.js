@@ -9,16 +9,20 @@ import React from "react";
 // import 'monaco-editor/esm/vs/editor/editor.all.js';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
-import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
-import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
+// import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
+// import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
-import "./languages/dtsql/dtsql.contribution.js"
+import {provideCompletionItems as dtsqlProvideCompletionItems} from  "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
+
+const provideCompletionItemsMap={
+    dtsql:dtsqlProvideCompletionItems
+}
 
 class Editor extends React.Component {
 
@@ -41,8 +45,13 @@ class Editor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, value, theme } = nextProps;
-
+        const { sync, value, theme, customCompleteItems } = nextProps;
+        if(customCompleteItems!=this.props.customCompleteItems){
+            const provideFunc=provideCompletionItemsMap[nextProps.language];
+            if(provideFunc){
+                provideFunc(customCompleteItems)
+            }
+        }
         if ( this.props.value !== value && sync) {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
@@ -86,26 +95,6 @@ class Editor extends React.Component {
             return;
         }
 
-        window.MonacoEnvironment = {
-            getWorkerUrl: function(moduleId, label) {
-                if (label === "json") {
-                    return "./json.worker.js";
-                }
-                if (label === "css") {
-                    return "./css.worker.js";
-                }
-                if (label === "html") {
-                    return "./html.worker.js";
-                }
-                if (label === "typescript" || label === "javascript") {
-                    return "./typescript.worker.js";
-                }
-                if (label === "sql") {
-                    return "./sql.worker.js";
-                }
-                return "./editor.worker.js";
-            }
-        };
 
         const editorOptions = Object.assign(defaultOptions, options , {
             value,
