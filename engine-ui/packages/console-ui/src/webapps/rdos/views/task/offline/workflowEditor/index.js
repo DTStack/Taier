@@ -86,8 +86,12 @@ class WorkflowEditor extends Component {
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
             this.renderData(JSON.parse(workflowData));
+            this.initGraphEvent();
         }
-        console.log('WorkflowEditor:', this.props)
+    }
+
+    shouldComponentUpdate (nextProps, nextState) {
+        return false;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -102,10 +106,33 @@ class WorkflowEditor extends Component {
                 this.appendWorkflowNode(next.node);
             }
         }
+
+        // if (this.props.data !== nextProps.data) {
+        //     const dataArr = JSON.parse(nextProps.data.sqlText);
+        //     const data = this.ayncTabData(dataArr);
+        //     console.log('nextProps:', nextProps.data)
+        //     this.renderData(data);
+        // }
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
-        return false;
+    // ayncTabData = (cells) => {
+    //     const { tabs } = this.props;
+    //     if (cells) {
+    //         for (let i = 0; i < cells.length; i++) {
+    //             const cell = cells[i];
+    //             if (cell.vertex && cell.data) {
+    //                 const item = tabs.find(i => i.id === cell.data.id)
+    //                 if (item) {
+    //                     cell.data = item;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return cells;
+    // }
+
+    componentWillUnmount () {
+        console.log('WorkflowEditor componentWillUnmount', this)
     }
 
     loadEditor = (container) => {
@@ -169,7 +196,6 @@ class WorkflowEditor extends Component {
         this.initGraphLayout();
         this.initUndoManager();
         this.initContextMenu();
-        this.initGraphEvent();
     }
 
     getStyles = (type) => {
@@ -177,9 +203,11 @@ class WorkflowEditor extends Component {
     }
 
     formatTooltip = (cell) => {
-        const task = cell.data || '';
-        const tips = task ? `${task.name}${task.notSync ? ' (未保存) ' : ''}` : '';
-        return tips
+        if (this.Container) {
+            const task = cell.data || '';
+            const tips = task ? `${task.name}${task.notSync ? ' (未保存) ' : ''}` : '';
+            return tips
+        }
     }
 
     corvertValueToString = (cell) => {
@@ -220,14 +248,12 @@ class WorkflowEditor extends Component {
             data: data,
             taskType: taskType,
             status: 'create',
-            
         }
         toggleCreateTask();
         updateWorkflow(workflow);
     }
 
     appendWorkflowNode = (newNode) => {
-
         const { data, saveTask } = this.props;
 
         this.updateCellData(this._currentNewVertex, newNode);
@@ -240,11 +266,10 @@ class WorkflowEditor extends Component {
     updateCellData = (cell, cellData) => {
         if (cell) {
             const cellState = this.graph.view.getState(cell);
-            console.log('cellState:', cellState, cellData);
             if (cellState.cell) {
+                cellState.cell.id = cellData.id;
                 cellState.cell.data = cellData;
                 this.graph.refresh();
-                this.updateGraphData();
             }
         }
     }
@@ -258,7 +283,6 @@ class WorkflowEditor extends Component {
         })
         if (task) {
             saveTask(task).then(res => {
-                console.log('saveTask succ:', res)
                 targetTask.notSync = false;
                 this.updateCellData(cell, targetTask)
             });
@@ -527,7 +551,6 @@ class WorkflowEditor extends Component {
             }
         }
 
-        // graph.addListener(mxEvent.CELLS_ADDED, addCell)
         graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELL_CONNECTED, this.updateGraphData)

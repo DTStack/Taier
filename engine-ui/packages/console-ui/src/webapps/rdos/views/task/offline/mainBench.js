@@ -191,6 +191,7 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.WORKFLOW: {
                     return <WorkFlowEditor 
                         data={tabData}
+                        key={tabData.id}
                     />
                 }
                 default:
