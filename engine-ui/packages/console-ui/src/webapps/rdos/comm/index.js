@@ -73,6 +73,9 @@ export function taskTypeIcon(type, task = {}) {
             case TASK_TYPE.SHELL: {
                 return 's-shell'
             }
+            case TASK_TYPE.WORKFLOW: {
+                return 's-workflow'
+            }
             default: ''
         }
     } else {

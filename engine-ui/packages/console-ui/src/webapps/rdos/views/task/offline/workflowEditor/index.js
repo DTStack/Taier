@@ -15,6 +15,7 @@ import { taskTypeText } from '../../../../components/display'
 import {
     workbenchActions,
 } from '../../../../store/modules/offlineTask/offlineAction'
+import { TASK_TYPE } from '../../../../comm/const';
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -61,9 +62,14 @@ const applyCellStyle = (cellState, style) => {
 
 @connect(state => {
     const { offlineTask } = state;
+    const { workbench, workflow } = offlineTask;
+    const { currentTab, tabs } = workbench;
+
     return {
+        tabs,
+        workflow,
+        currentTab,
         taskTypes: offlineTask.comm.taskTypes,
-        workflow: state.offlineTask.workflow,
     }
 }, workbenchActions )
 class WorkflowEditor extends Component {
@@ -74,14 +80,14 @@ class WorkflowEditor extends Component {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
         const editor = this.Container;
-        console.log('init workflow:', this.props.data)
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
-        const workflowData = this.props.data.workflow;
+        const workflowData = this.props.data.sqlText;
         if (workflowData) {
-            this.renderData(workflowData);
+            this.renderData(JSON.parse(workflowData));
         }
+        console.log('WorkflowEditor:', this.props)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -90,10 +96,10 @@ class WorkflowEditor extends Component {
         if (old !== next) {
             console.log('nextStatus:', nextProps)
             if (next.status === 'cancel') {
-                // this.graph.removeCells();
+                this.graph.removeCells();
                 this._currentNewVertex = null;
             } else if (next.status === 'created') {
-                this.updateCellData(next.node);
+                this.appendWorkflowNode(next.node);
             }
         }
     }
@@ -179,15 +185,19 @@ class WorkflowEditor extends Component {
     corvertValueToString = (cell) => {
         if (cell && cell.vertex) {
             const task = cell.data;
-            console.log('task:', task)
-            if (task) {
-                let unSave = task.notSync ? '<span style="color:red;">*</span>' : '';
-                const taskType = taskTypeText(task.taskType);
-                return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
-                <span style="font-size:10px; color: #666666;">${taskType}</span>
-                </div>`
-            }
+            return this.convertTaskToHTML(task);
         }
+    }
+
+    convertTaskToHTML = (task) => {
+        if (task) {
+            let unSave = task.notSync ? '<span style="color:red;">*</span>' : '';
+            const taskType = taskTypeText(task.taskType);
+            return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
+            <span style="font-size:10px; color: #666666;">${taskType}</span>
+            </div>`
+        }
+
         return '';
     }
 
@@ -207,23 +217,51 @@ class WorkflowEditor extends Component {
         const { toggleCreateTask, updateWorkflow, data } = this.props
         const workflow = {
             workflowId: data.id,
+            data: data,
             taskType: taskType,
             status: 'create',
+            
         }
         toggleCreateTask();
         updateWorkflow(workflow);
     }
 
-    updateCellData = (cellData) => {
-        const cell = this._currentNewVertex;
+    appendWorkflowNode = (newNode) => {
+
+        const { data, saveTask } = this.props;
+
+        this.updateCellData(this._currentNewVertex, newNode);
+        const workflow = this.getGraphData();
+
+        data.sqlText = JSON.stringify(workflow);
+        saveTask(data);
+    }
+
+    updateCellData = (cell, cellData) => {
         if (cell) {
             const cellState = this.graph.view.getState(cell);
-            if (cellState.text) {
-                cellState.data = cellData;
-                state.text.apply(state);
-                state.text.redraw();
+            console.log('cellState:', cellState, cellData);
+            if (cellState.cell) {
+                cellState.cell.data = cellData;
+                this.graph.refresh();
                 this.updateGraphData();
             }
+        }
+    }
+
+    saveTask = (cell) => {
+        const targetTask = cell.data || {};
+        const { saveTask, tabs } = this.props;
+
+        const task = tabs.find(item => {
+            return item.id === targetTask.id;
+        })
+        if (task) {
+            saveTask(task).then(res => {
+                console.log('saveTask succ:', res)
+                targetTask.notSync = false;
+                this.updateCellData(cell, targetTask)
+            });
         }
     }
 
@@ -348,7 +386,7 @@ class WorkflowEditor extends Component {
 
             if (cell.vertex) {
                 menu.addItem('保存', null, function() {
-
+                    ctx.saveTask(cell);
                 }, null, null, true) // 正常状态
     
                 menu.addItem('编辑', null, function() {
@@ -438,11 +476,11 @@ class WorkflowEditor extends Component {
 
     updateGraphData = () => {
         const { 
-            updateTaskField, 
+            updateTaskField,
          } = this.props;
 
         const workflow = this.getGraphData();
-        updateTaskField({ workflow, });
+        updateTaskField({ sqlText: JSON.stringify(workflow), });
     }
 
     initGraphEvent = () => {
@@ -535,7 +573,7 @@ class WorkflowEditor extends Component {
                     const cell = graph.insertVertex(
                         rootCell, 
                         item.id, 
-                        item.value, 
+                        null, 
                         item.x, item.y,
                         VertexSize.width, VertexSize.height, 
                         cellStyle,
@@ -556,7 +594,7 @@ class WorkflowEditor extends Component {
     renderToolBar = () => {
         const { taskTypes } = this.props;
         const widgets = taskTypes.map(item =>
-            <Button
+            item.key !== TASK_TYPE.WORKFLOW && <Button
                 id={`${WIDGETS_PREFIX}${item.key}`}
                 className="widgets-items"
                 key={item.key}
@@ -648,6 +686,7 @@ class WorkflowEditor extends Component {
     layout = () => {
         this.executeLayout(null, () => {
             this.graph.center(true, true, 0.5, 0.4);
+            this.updateGraphData();
         });
     }
 

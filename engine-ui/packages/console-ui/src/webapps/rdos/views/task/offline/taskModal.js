@@ -544,6 +544,7 @@ class TaskModal extends React.Component {
                     addOfflineTask(values, isEditExist, defaultData)
                     .then(handRes);
                 } else {
+                    // 如果是任务流创建节点，则执行保存任务工作流节点
                     values.flowId = workflow.workflowId;
                     createWorkflowTask(values).then(handRes) ;
                 }
@@ -566,6 +567,9 @@ class TaskModal extends React.Component {
         this.props.toggleCreateTask();
         this.props.emptyModalDefault();
         this.dtcount++;
+        this.setState({
+            loading: false
+        })
     }
 
     render() {
@@ -643,7 +647,7 @@ export default connect(state => {
             },
 
             createWorkflowTask: function(data) {
-                benchActions.createWorkflowTask(data)
+                return benchActions.createWorkflowTask(data)
             },
             /**
              * @description 新建或编辑

@@ -14,26 +14,12 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {
-    state = {
-        taskTypes: []
-    }
-    loadTaskTypes = () => {
-        ajax.getTaskTypes().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    taskTypes: res.data || [],
-                })
-            }
-        })
-    }
-    componentWillMount() {
-        this.loadTaskTypes();
-    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes } = this.state;
+        const { taskTypes } = this.props;
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -267,6 +253,7 @@ const mapState = (state, ownProps) => {
         resTreeData: offlineTask.resourceTree,
         pathTreeData: offlineTask.taskTree,
         taskCustomParams: offlineTask.workbench.taskCustomParams,
+        taskTypes: offlineTask.comm.taskTypes,
     }
 };
 
