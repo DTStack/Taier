@@ -10,9 +10,9 @@ import utils from 'utils';
 
 import { Circle } from 'widgets/circle';
 import Api from '../../../api';
-import DataSourceForm from './form';
-import DbSyncModal from './syncModal';
-import { formItemLayout, DataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
+import DataSourceForm from '../form';
+import DbSyncModal from '../syncModal';
+import { DataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 import DataSourceTaskListModal from '../dataSourceTaskListModal';
@@ -38,7 +38,7 @@ class DataSourceMana extends Component {
             pageSize: 10,
             currentPage: 1,
         })
-        // this.props.getSourceTypes();
+        this.props.getSourceTypes();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -260,13 +260,13 @@ class DataSourceMana extends Component {
     }
 
     render() {
-        const { visible, syncModalVisible, source, dataSource } = this.state
-        const { project } = this.props
+        const { visible, title , status, source, syncModalVisible, dataSource } = this.state
+        const {  sourceTypes } = this.props;
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
         };
-        const title = (
+        const titles = (
             <div>
                 <Search
                     placeholder="数据源名称"
@@ -295,7 +295,7 @@ class DataSourceMana extends Component {
             <div>
                 <div className="shadow">
                     <Card 
-                        title={title} 
+                        title={titles} 
                         extra={extra} 
                         noHovering 
                         bordered={false}
@@ -313,12 +313,13 @@ class DataSourceMana extends Component {
                 </div>
                 
                 <DataSourceForm
-                    title={this.state.title}
-                    visible={this.state.visible}
-                    status={this.state.status}
+                    title={title}
+                    visible={visible}
+                    status={status}
                     handOk={this.addOrUpdateDataSource}
                     testConnection={this.testConnection}
-                    sourceData={this.state.source}
+                    sourceData={source}
+                    sourceTypes={sourceTypes}
                     handCancel={() => { this.setState({ visible: false }) }}
                 />
 
@@ -332,6 +333,8 @@ class DataSourceMana extends Component {
     }
 }
 export default connect((state) => {
+    console.log('connect',state);
+    
     return {
         project: state.project,
         sourceTypes: state.dataSource.sourceTypes,

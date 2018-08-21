@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { 
     Table, Card, Form, Radio, 
     Checkbox, Button, Input, Select, 
@@ -10,7 +9,7 @@ import moment from 'moment';
 
 import TransformModal from './transformModal';
 import GoBack from 'main/components/go-back';
-import Api from '../../../api';
+import Api from '../../api';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -43,7 +42,7 @@ export default class DBSync extends Component {
     }
 
     componentDidMount() {
-        //this.getTableList(this.props.routeParams.sourceId);
+        this.getTableList(this.props.routeParams.sourceId);
     }
 
     // 获取所有表
@@ -285,7 +284,7 @@ export default class DBSync extends Component {
         };
 
         return (
-            <div className="box-1 m-card shadow">
+            <div className="m-card shadow">
                 <Card 
                     title={<div><GoBack /> {routeParams.sourceName}</div>}
                     extra={false}

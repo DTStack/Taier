@@ -15,14 +15,12 @@ import {
     formItemLayout,
     tailFormItemLayout,
     DATA_SOURCE,
-} from '../../../comm/const';
+} from '../../comm/const';
 import {
     jdbcUrlExample
-} from '../../../comm/JDBCCommon';
+} from '../../comm/JDBCCommon';
 
-
-import Api from '../../../api';
-import HelpDoc from '../../helpDoc';
+import HelpDoc from '../helpDoc';
 import CopyIcon from "main/components/copy-icon";
 
 const FormItem = Form.Item
@@ -49,21 +47,6 @@ const hBaseConf =
 "hbase.cluster.distributed": "true",
 "hbase.zookeeper.quorum": "***"
 }`
-
-function getConnectionConfig(sourceType) {
-    switch (sourceType) {
-        case DATA_SOURCE.HDFS:
-            return hdfsConf
-        case DATA_SOURCE.HBASE:
-            return hBaseConf
-        case DATA_SOURCE.MYSQL:
-        case DATA_SOURCE.ORACLE:
-        case DATA_SOURCE.SQLSERVER:
-        case DATA_SOURCE.HIVE:
-        default:
-            return defaultConf
-    }
-}
 
 class BaseForm extends Component {
 
@@ -108,7 +91,6 @@ class BaseForm extends Component {
 
     testConnection = (e) => {
         const { testConnection, form } = this.props
-        
         form.validateFields((err, source) => {
             if (!err) {
                 this.preHandFormValues(source);
@@ -124,6 +106,7 @@ class BaseForm extends Component {
         if (source.dataJson.defaultFS) {
             source.dataJson.defaultFS = utils.trim(source.dataJson.defaultFS)
         }
+
         // 端口转为整型
         if (source.dataJson.port) {
             source.dataJson.port = parseInt(source.dataJson.port, 10)
@@ -192,6 +175,8 @@ class BaseForm extends Component {
         
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
+        console.log('renderDynamic',config);
+        
         const jdbcRulePattern = {
             pattern: this.getJDBCRule(sourceType),
             message: '请检查您的JDBC地址格式！',
@@ -816,14 +801,9 @@ class BaseForm extends Component {
 
     render() {
         
-        const { form, sourceData, status } = this.props;
+        const { form, sourceData, status, types } = this.props;
         const { getFieldDecorator } = form;
-        const types = [
-            {name: "MySQL", value: 1},
-            {name: "HBase", value: 8},
-            {name: "ElasticSearch", value: 11},
-            {name: "Kafka", value: 14}
-        ]
+
         const sourceTypeList = types.map(
             item => (
                 <Option
@@ -919,22 +899,6 @@ class BaseForm extends Component {
 
 class DataSourceForm extends Component {
 
-    state = {
-        types: [],
-    }
-
-    componentDidMount() {
-        //this.loadSourceTypes()
-    }
-
-    loadSourceTypes = () => {
-        Api.getDataSourceTypes().then(res => {
-            this.setState({
-                types: res.data || [],
-            })
-        })
-    }
-
     cancle = () => {
         const { handCancel } = this.props
         this.myFrom.resetFields()
@@ -942,7 +906,7 @@ class DataSourceForm extends Component {
     }
 
     render() {
-        const { visible, form, title, status } = this.props
+        const { visible , title, sourceTypes } = this.props
        
         const FormWrapper = Form.create()(BaseForm)
 
@@ -956,7 +920,7 @@ class DataSourceForm extends Component {
                 maskClosable={false}
             >
                 <FormWrapper 
-                    types={this.state.types} 
+                    types={sourceTypes} 
                     ref={el => this.myFrom = el} 
                     {...this.props} 
                 />
