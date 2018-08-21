@@ -50,6 +50,10 @@ module.exports = function() {
                 name: "manifest"
             }
         },
+        node:{
+            fs:'empty',
+            path:'empty'
+        },
         module: {
             rules: [
                 {
