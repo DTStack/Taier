@@ -8,12 +8,15 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink140.enums.FlinkYarnMode;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +40,8 @@ public class FlinkResourceInfo extends EngineResourceInfo{
     public static String queue;
 
     public static boolean elasticCapacity;
+
+    public static int yarnAccepterTaskNumber;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
@@ -83,6 +88,12 @@ public class FlinkResourceInfo extends EngineResourceInfo{
     private boolean judgePerjobResource(JobClient jobClient) {
         FlinkPerJobResourceInfo resourceInfo = new FlinkPerJobResourceInfo();
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            if (acceptedApps.size() > yarnAccepterTaskNumber) {
+                return false;
+            }
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             int containerLimit = 0;
             float capacity = 1;

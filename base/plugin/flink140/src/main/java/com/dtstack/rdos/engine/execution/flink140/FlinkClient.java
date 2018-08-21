@@ -140,6 +140,7 @@ public class FlinkClient extends AbsClient {
             FlinkResourceInfo.flinkYarnMode = flinkYarnMode;
             FlinkResourceInfo.queue = flinkConfig.getQueue();
             FlinkResourceInfo.elasticCapacity = flinkConfig.getElasticCapacity();
+            FlinkResourceInfo.yarnAccepterTaskNumber = flinkConfig.getYarnAccepterTaskNumber();
             FlinkResourceInfo.yarnClient = flinkClientBuilder.getYarnClient();
 
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
@@ -541,18 +542,6 @@ public class FlinkClient extends AbsClient {
 
         if(!isClientOn.get()){
             return null;
-        }
-        try {
-            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
-            enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = flinkClientBuilder.getYarnClient().getApplications(enumSet);
-            if (acceptedApps.size() > flinkConfig.getYarnAccepterTaskNumber()) {
-                logger.warn("yarn 资源不足，任务等待提交");
-                return new FlinkResourceInfo();
-            }
-        } catch (Exception e){
-            logger.error("", e);
-            return new FlinkResourceInfo();
         }
 
         String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
