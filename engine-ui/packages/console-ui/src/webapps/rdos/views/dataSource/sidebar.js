@@ -21,12 +21,8 @@ export default class Sidebar extends Component {
 
     updateSelected = () => {
         const routes = this.props.router.routes
-        console.log("routes",routes);
-        
         if (routes.length > 3) {
             let current = routes[3].path;
-            console.log('current',current);
-            
             if (current) {
                 current = current.split('/')[0];
             }
@@ -43,8 +39,6 @@ export default class Sidebar extends Component {
  
     render() {
         const props = this.props
-        console.log('this.state.current',this.state.current);
-        
         return (
             <div className="sidebar m-ant-menu">
                 <Menu

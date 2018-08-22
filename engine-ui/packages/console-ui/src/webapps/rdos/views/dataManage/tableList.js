@@ -303,7 +303,7 @@ class TableList extends Component {
         };
 
         return <div className="m-tablelist">
-            <div className="m-card card-tree-select" style={{ paddingBottom: 20 }}>
+            <div className="m-card card-tree-select">
                 <Spin spinning={loading} tip="正在加载中...">
                     <Card noHovering bordered={false} title={title}>
                         <div style={{ marginTop: '1px' }}>

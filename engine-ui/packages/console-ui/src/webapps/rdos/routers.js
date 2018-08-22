@@ -51,8 +51,7 @@ import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
 import DataSourceOffline from './views/dataSource/offline';
 import DataSourceStream from './views/dataSource/stream';
-import DataSourceMigrationOffline from './views/dataSource/offline/dbSync'
-import DataSourceMigrationStream from './views/dataSource/stream/dbSync'
+import DataSourceMigrationOffline from './views/dataSource/dbSync';
 
 // ======= 数据管理 =======
 import TableManage from './views/dataManage/tableManage';
@@ -170,7 +169,6 @@ export default (
                 <Route path="offLineData" component={DataSourceOffline} />
                 <Route path="offLineData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
                 <Route path="streamData" component={DataSourceStream} />
-                <Route path="streamData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationStream} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>
