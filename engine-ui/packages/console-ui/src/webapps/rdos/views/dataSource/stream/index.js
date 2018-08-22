@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { 
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip
@@ -10,12 +9,10 @@ import utils from 'utils';
 
 import { Circle } from 'widgets/circle';
 import Api from '../../../api';
-import DataSourceForm from './form';
-import DbSyncModal from './syncModal';
+import DataSourceForm from '../form';
 import DataSourceTaskListModal from "../dataSourceTaskListModal"
-import { formItemLayout, StreamDataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
+import { StreamDataSourceTypeFilter } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
-import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 
 const Search = Input.Search
 
@@ -38,7 +35,6 @@ class DataSourceManaStream extends Component {
             pageSize: 10,
             currentPage: 1,
         })
-        // this.props.getSourceTypes();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -179,21 +175,21 @@ class DataSourceManaStream extends Component {
                 return active === 1 ? <DataSourceTaskListModal type="stream" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
         }, 
-        // {
-        //     title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-        //                 <span>连接状态 &nbsp;
-        //                     <Icon type="question-circle-o" />
-        //                 </span>
-        //             </Tooltip>,
-        //     dataIndex: 'linkState',
-        //     key: 'linkState',
-        //     width: '10%',
-        //     render: (text, record) => {
-        //         return record.linkState === 1 ? 
-        //             <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-        //             <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-        //     },
-        // }, 
+        {
+            title: <Tooltip placement="top" title={text} arrowPointAtCenter>
+                        <span>连接状态 &nbsp;
+                            <Icon type="question-circle-o" />
+                        </span>
+                    </Tooltip>,
+            dataIndex: 'linkState',
+            key: 'linkState',
+            width: '10%',
+            render: (text, record) => {
+                return record.linkState === 1 ? 
+                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
+                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+            },
+        }, 
         {
             title: <div className="txt-right m-r-8">操作</div>,
             width: '10%',
@@ -261,8 +257,6 @@ class DataSourceManaStream extends Component {
 
     render() {
         const { visible, syncModalVisible, source, dataSource } = this.state
-        
-        const { project } = this.props
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
@@ -291,6 +285,12 @@ class DataSourceManaStream extends Component {
                 }}
             >新增数据源</Button>
         )
+        const sourceTypes = [
+            {name: "MySQL", value: 1},
+            {name: "HBase", value: 8},
+            {name: "ElasticSearch", value: 11},
+            {name: "Kafka", value: 14}
+        ];
         console.log('dataSource.data',dataSource.data);
         return (
             <div>
@@ -320,13 +320,8 @@ class DataSourceManaStream extends Component {
                     handOk={this.addOrUpdateDataSource}
                     testConnection={this.testConnection}
                     sourceData={this.state.source}
+                    sourceTypes={sourceTypes}
                     handCancel={() => { this.setState({ visible: false }) }}
-                />
-
-                <DbSyncModal
-                    visible={syncModalVisible}
-                    source={source}
-                    cancel={this.closeSyncModal}
                 />
             </div>
         )
@@ -336,11 +331,5 @@ export default connect((state) => {
     return {
         project: state.project,
         sourceTypes: state.dataSource.sourceTypes,
-    }
-}, dispatch => {
-    return {
-        getSourceTypes: function() {
-            dispatch(getSourceTypes())
-        }
     }
 })(DataSourceManaStream)
