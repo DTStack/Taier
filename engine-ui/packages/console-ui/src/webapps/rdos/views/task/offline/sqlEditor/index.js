@@ -48,7 +48,9 @@ class EditorContainer extends Component {
         this.initFuncList();
     }
     initTableList() {
-        API.getTableListByName()
+        API.getTableListByName({
+            appointProjectId:this.props.project.id
+        })
             .then(
                 (res) => {
                     if (res.code == 1) {
@@ -57,7 +59,7 @@ class EditorContainer extends Component {
                             tableList: data.children || [],
                             tableCompleteItems: data.children && data.children.map(
                                 (table) => {
-                                    return [table.name, 'Table', '2']
+                                    return [table.name, '表名', '1200','Field']
                                 }
                             )
                         })
@@ -75,7 +77,7 @@ class EditorContainer extends Component {
                             funcList: data || [],
                             funcCompleteItems: data && data.map(
                                 (funcName) => {
-                                    return [funcName, '函数', '1', "Function"]
+                                    return [funcName, '函数', '2000', "Function"]
                                 }
                             )
                         })
@@ -265,7 +267,7 @@ class EditorContainer extends Component {
                             defaultItems = defaultItems.concat(
                                 customCompletionItemsCreater(value[1].map(
                                     (columnName) => {
-                                        return [columnName, value[0], '0z', "Field"]
+                                        return [columnName, value[0], '1100', "Variable"]
                                     }
                                 ))
                             )
@@ -289,8 +291,8 @@ class EditorContainer extends Component {
             .then(
                 (res) => {
                     if (res.code == 1) {
-                        tableColumns[tableName] = res.data;
-                        return [tableName,res.data];
+                        tableColumns[tableName] = [tableName,res.data];
+                        return tableColumns[tableName];
                     } else {
                         console.log("get table columns error")
                     }
