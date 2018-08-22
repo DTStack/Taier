@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import {connect} from "react-redux"
+import {hashHistory} from "react-router";
 import PropTypes from 'prop-types'
 import { Layout } from 'antd'
 
@@ -13,7 +15,18 @@ const defaultPro = {
     children: [],
 }
 
+@connect(state=>{
+    return {
+        project:state.project
+    }
+})
 class Container extends Component {
+    componentWillReceiveProps(nextProps){
+        const {params={},project={}} = nextProps;
+        if(params.pid!=project.id){
+            hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i,`$1${project.id}$2`))
+        }
+    }
     render() {
         const { children } = this.props
         return (

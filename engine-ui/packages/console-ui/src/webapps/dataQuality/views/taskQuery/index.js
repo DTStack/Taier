@@ -157,7 +157,7 @@ export default class TaskQuery extends Component {
                 text: TRIG_MODE_TEXT[TRIG_MODE.HAND],
                 value: TRIG_MODE.HAND,
             }],
-            filterMultiple:false
+            filterMultiple: false
         }, {
             title: '配置人',
             dataIndex: 'configureUserName',
@@ -184,7 +184,7 @@ export default class TaskQuery extends Component {
             currentPage: page.current,
             statusFilter: filter.status && filter.status.length > 0 ? filter.status.join(',') : undefined,
             alarmSort: undefined,
-            trigMode: filter.trigMode && filter.trigMode.length > 0 ?filter.trigMode.join(',') : undefined,
+            trigMode: filter.trigMode && filter.trigMode.length > 0 ? filter.trigMode.join(',') : undefined,
             executeTimeSort: undefined,
         };
 
@@ -472,6 +472,17 @@ export default class TaskQuery extends Component {
                 <div className="box-2 m-card shadow">
                     <Card
                         title={cardTitle}
+                        extra={(
+                            <Tooltip title="刷新数据">
+                                <Icon type="sync" onClick={()=>{this.props.getTaskList(params);}}
+                                    style={{
+                                        cursor: 'pointer',
+                                        marginTop: '18px',
+                                        color: '#94A8C6'
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
                         noHovering
                         bordered={false}
                     >

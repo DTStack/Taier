@@ -5,7 +5,7 @@ export default {
     colors: {
         'editorSuggestWidget.background':"#fff",
         'editorSuggestWidget.border':"#fff",
-        'editorSuggestWidget.foreground':"#acbdc5",
+        'editorSuggestWidget.foreground':"#88adbf",
         'editorSuggestWidget.selectedBackground':"#dfeeff"
 
     }

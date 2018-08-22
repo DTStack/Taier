@@ -488,6 +488,12 @@ export default {
     getRecommentTask(params){
         return http.post(req.GET_RECOMMEND_TASK,params)
     },
+    getColumnsOfTable(params){
+        return http.post(req.GET_COLUMNS_OF_TABLE,params)
+    },
+    getAllFunction(params){
+        return http.post(req.GET_ALL_FUNCTION_NAME,params)
+    },
     
 
     // =========== 离线文件操作 ==================//

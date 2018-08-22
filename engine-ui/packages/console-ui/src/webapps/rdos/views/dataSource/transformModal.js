@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Row, Col, Form, Input, Select, Button, Icon } from 'antd';
 
-import { originTypeTransformRule, targetTypeTransformRule } from '../../../comm/const';
-import Api from '../../../api';
+import { originTypeTransformRule, targetTypeTransformRule } from '../../comm/const';
+import Api from '../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

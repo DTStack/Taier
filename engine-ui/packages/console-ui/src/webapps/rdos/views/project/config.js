@@ -73,6 +73,7 @@ class ProjectConfig extends Component {
                         const newProject = Object.assign(project, projectForm)
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
+                        formEle.resetFields();
                         ctx.setState({ visibleUpdateDesc: false })
                         message.success('项目更新成功！')
                     }
@@ -130,7 +131,7 @@ class ProjectConfig extends Component {
                     wrapClassName="vertical-center-modal"
                     visible={visibleUpdateDesc}
                     onOk={this.updateProjectDesc}
-                    onCancel={() => this.setState({ visibleUpdateDesc: false })}
+                    onCancel={() => {this.setState({ visibleUpdateDesc: false });this.myForm.resetFields();}}
                     >
                         <DescForm ref={(e) => { this.myForm = e }} {...this.props} />
                 </Modal>
