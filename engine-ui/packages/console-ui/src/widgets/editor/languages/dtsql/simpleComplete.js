@@ -26,7 +26,7 @@ function keywordsCompleteItemCreater(words,) {
                 kind: monaco.languages.CompletionItemKind.Keyword, 
                 detail: "关键字",
                 insertText: word + " ",
-                sortText:"0"+index+word,
+                sortText:"1000"+index+word,
                 filterText:word.toLowerCase()
             } 
         }
@@ -42,7 +42,7 @@ function functionsCompleteItemCreater(functions) {
                 insertText: {
                     value: functionName + "($1) "
                 },
-                sortText:"1"+index+functionName,
+                sortText:"2000"+index+functionName,
                 filterText:functionName.toLowerCase()
             }
         }
@@ -54,7 +54,7 @@ function customCompletionItemsCreater(_customCompletionItems){
     }
     return _customCompletionItems.map(
         ([name,detail,sortIndex,type],index)=>{
-            sortIndex=sortIndex||"2";
+            sortIndex=sortIndex||"3000";
             return {
                 label: name,
                 kind: monaco.languages.CompletionItemKind[type||"Text"],
