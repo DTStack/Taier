@@ -49,7 +49,7 @@ class EditorContainer extends Component {
     }
     initTableList() {
         API.getTableListByName({
-            appointProjectId:this.props.project.id
+            appointProjectId: this.props.project.id
         })
             .then(
                 (res) => {
@@ -59,7 +59,7 @@ class EditorContainer extends Component {
                             tableList: data.children || [],
                             tableCompleteItems: data.children && data.children.map(
                                 (table) => {
-                                    return [table.name, '表名', '1200','Field']
+                                    return [table.name, '表名', '1200', 'Field']
                                 }
                             )
                         })
@@ -171,7 +171,13 @@ class EditorContainer extends Component {
 
     reqExecSQL = (task, params, sqls, index) => {
         const { currentTab, execSql } = this.props;
-        execSql(currentTab, task, params, sqls);
+        execSql(currentTab, task, params, sqls)
+            .then((complete) => {
+                if (complete) {
+                    this._tableColumns={};
+                    this.initTableList();
+                }
+            });
     };
 
     stopSQL = () => {
@@ -253,17 +259,17 @@ class EditorContainer extends Component {
             Promise.all(promiseList)
                 .then(
                     (values) => {
-                        let _tmpCache={}
+                        let _tmpCache = {}
                         for (let value of values) {
                             //去除未存在的表
-                            if (!value || !value[1]||!value[1].length) {
+                            if (!value || !value[1] || !value[1].length) {
                                 continue;
                             }
                             //防止添加重复的表
-                            if(_tmpCache[value[0]]){
+                            if (_tmpCache[value[0]]) {
                                 continue;
                             }
-                            _tmpCache[value[0]]=true;
+                            _tmpCache[value[0]] = true;
                             defaultItems = defaultItems.concat(
                                 customCompletionItemsCreater(value[1].map(
                                     (columnName) => {
@@ -291,7 +297,7 @@ class EditorContainer extends Component {
             .then(
                 (res) => {
                     if (res.code == 1) {
-                        tableColumns[tableName] = [tableName,res.data];
+                        tableColumns[tableName] = [tableName, res.data];
                         return tableColumns[tableName];
                     } else {
                         console.log("get table columns error")
@@ -325,13 +331,13 @@ class EditorContainer extends Component {
                 readOnly: isLocked,
             },
             customCompleteProvider: this.completeProvider.bind(this),
-            languageConfig:{
+            languageConfig: {
                 ...language,
-                builtinFunctions:[],
-                windowsFunctions:[],
-                innerFunctions:[],
-                otherFunctions:[],
-                customFunctions:funcList
+                builtinFunctions: [],
+                windowsFunctions: [],
+                innerFunctions: [],
+                otherFunctions: [],
+                customFunctions: funcList
             },
             cursorPosition: cursorPosition,
             theme: editor.options.theme || "white",

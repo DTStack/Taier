@@ -99,7 +99,7 @@ function selectData(dispatch, jobId, currentTab) {
     )
 }
 
-function exec(dispatch, currentTab, task, params, sqls, index) {
+function exec(dispatch, currentTab, task, params, sqls, index, resolve, reject) {
     const key = getUniqueKey(task.id)
 
     params.sql = `${sqls[index]}`
@@ -111,7 +111,7 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
             stopSign[currentTab] = false;
             return;
         }
-        exec(dispatch, currentTab, task, params, sqls, index + 1)
+        exec(dispatch, currentTab, task, params, sqls, index + 1, resolve, reject)
     }
     const succCall = (res) => {
         //假如已经是停止状态，则弃用结果
@@ -142,6 +142,7 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
                             }
                             if (index >= sqls.length - 1) {
                                 dispatch(removeLoadingTab(currentTab))
+                                resolve(true)
                             }
                         }
                     )
@@ -153,6 +154,7 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
                     execContinue();
                 } else {
                     dispatch(removeLoadingTab(currentTab))
+                    resolve(true)
                 }
             }
 
@@ -173,7 +175,9 @@ function exec(dispatch, currentTab, task, params, sqls, index) {
 export function execSql(currentTab, task, params, sqls) {
     return (dispatch) => {
         stopSign[currentTab] = false;
-        exec(dispatch, currentTab, task, params, sqls, 0);
+        return new Promise((resolve, reject) => {
+            exec(dispatch, currentTab, task, params, sqls, 0, resolve, reject);
+        })
     }
 }
 
