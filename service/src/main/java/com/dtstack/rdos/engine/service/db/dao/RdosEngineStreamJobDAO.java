@@ -138,4 +138,18 @@ public class RdosEngineStreamJobDAO {
             }
         });
 	}
+
+	public void submitFail(String taskId, Integer status, String s) {
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.submitFail(taskId, status, s);
+				return null;
+			}
+
+		});
+	}
 }

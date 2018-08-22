@@ -71,8 +71,8 @@ public class ActionServiceImpl {
     private Random random = new Random();
 
     /**
-     * 接受来自客户端的请求, 目的是在master节点上组织成一个优先级队列
-     * 1：处理 重复发送的问题 2：rdos-web端的发送需要修改为向master节点发送--避免转发
+     * 接受来自客户端的请求, 在当前节点直接处理任务
+     *
      * @param params
      */
     public void start(Map<String, Object> params){
@@ -87,27 +87,27 @@ public class ActionServiceImpl {
                 return;
             }
 
-            //判断当前节点是不是master
-            if(zkDistributed.localIsMaster()){
-
+//            //判断当前节点是不是master
+//            if(zkDistributed.localIsMaster()){
+//
                 //直接提交到本地master的优先级队列,会对重复数据做校验
                 JobClient jobClient = new JobClient(paramAction);
                 masterNode.addStartJob(jobClient);
-                return;
-            }
-
-            //转发送到master节点
-            String masterAddr = zkDistributed.isHaveMaster();
-            if(masterAddr == null){
-                //如果遇到master 地址为null --- 直接将job 缓存到cache.
-                addJobCache(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
-                        EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
-                logger.error("---------serious error can't get master address-------");
-                throw new RdosException(ErrorCode.NO_MASTER_NODE);
-            }
-
-            paramAction.setRequestStart(RequestStart.NODE.getStart());
-            HttpSendClient.actionStart(masterAddr, paramAction);
+//                return;
+//            }
+//
+//            //转发送到master节点
+//            String masterAddr = zkDistributed.isHaveMaster();
+//            if(masterAddr == null){
+//                //如果遇到master 地址为null --- 直接将job 缓存到cache.
+//                addJobCache(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
+//                        EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
+//                logger.error("---------serious error can't get master address-------");
+//                throw new RdosException(ErrorCode.NO_MASTER_NODE);
+//            }
+//
+//            paramAction.setRequestStart(RequestStart.NODE.getStart());
+//            HttpSendClient.actionStart(masterAddr, paramAction);
         }catch (Exception e){
             logger.info("", e);
         }

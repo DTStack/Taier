@@ -39,7 +39,7 @@
     </logger>
 
 
-    <root level="warn">
+    <root level="info">
         <appender-ref ref="allAppender" />
     </root>
 

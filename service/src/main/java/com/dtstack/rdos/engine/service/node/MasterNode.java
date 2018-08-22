@@ -253,8 +253,9 @@ public class MasterNode {
             rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
 
         }else if(ComputeType.STREAM.typeEqual(computeType)){
-            rdosEngineStreamJobDao.updateTaskStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
-            rdosEngineStreamJobDao.updateSubmitLog(taskId, generateErrorMsg(errorMsg));
+            rdosEngineStreamJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
+//            rdosEngineStreamJobDao.updateTaskStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
+//            rdosEngineStreamJobDao.updateSubmitLog(taskId, generateErrorMsg(errorMsg));
 
         }else{
             LOG.error("not support compute type:" + computeType);

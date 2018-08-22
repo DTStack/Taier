@@ -7,7 +7,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import java.util.List;
 
 /**
- * 
+ *
  * Reason: TODO ADD REASON(可选)
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
@@ -15,9 +15,9 @@ import java.util.List;
  *
  */
 public interface RdosEngineStreamJobMapper {
-	
+
     void insert(RdosEngineStreamJob rdosEngineStreamJob);
-	
+
 	void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 
 	void updateTaskPluginId(@Param("taskId") String taskId, @Param("pluginId") long pluginId);
@@ -34,4 +34,5 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateSubmitLog(@Param("taskId")String taskId, @Param("submitLog")String submitLog);
 
+	void submitFail(@Param("taskId") String taskId,@Param("status") Integer status,@Param("submitLog") String s);
 }

@@ -24,6 +24,10 @@
 	    </selectKey>
     </insert>
 
+    <update id="submitFail">
+        update rdos_engine_stream_job set log_info = #{submitLog}, exec_start_time=now(), exec_end_time=now(), exec_time = 0, gmt_modified=now(), status=#{status} where task_id = #{taskId}
+    </update>
+
     <update id="updateTaskStatus" parameterType="java.util.HashMap">
 	    update rdos_engine_stream_job set gmt_modified=now(),status=#{status} where task_id=#{taskId};
     </update>
