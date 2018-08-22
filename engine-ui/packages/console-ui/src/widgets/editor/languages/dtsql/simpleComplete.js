@@ -3,9 +3,10 @@ import {filter} from "dt-sql-parser";
 
 /**
  * Select thing from table, table, table;
- * select __+ (thing __+)? from __+ Table (__* , __*table)* __*;
+ * select __+ thing __+ from __+ Table (__* , __*table)* __*;
+ * thing=([,.\w])
  */
-const selectRegExp=/Select\s+((.+\n?)+\s+)?from(\s+\w+)((\s*,\s*\w+)*)?\s*;/i;
+const selectRegExp=/Select\s+[\s\S]+\s+from(\s+\w+)((\s*,\s*\w+)*)\s*;/i;
 let cacheKeyWords=[];
 let _completeProvideFunc;
 function dtsqlWords() {
@@ -89,8 +90,8 @@ monaco.languages.registerCompletionItemProvider("dtsql", {
                     (sql)=>{
                         const result=selectRegExp.exec(sql.trim());
                         if(result){
-                            let firstTable=result[3]&&result[3].trim();
-                            let otherTables=result[4]&&result[4].replace(/\s/g,'').split(",")
+                            let firstTable=result[1]&&result[1].trim();
+                            let otherTables=result[2]&&result[2].replace(/\s/g,'').split(",")
                             return [].concat(firstTable).concat(otherTables).filter(Boolean);
                         }
                     }
