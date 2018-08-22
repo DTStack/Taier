@@ -76,7 +76,9 @@ class DataSync extends React.Component{
     // 组件离开保存数据到tabs中
     componentWillUnmount() {
         const { id, dataSync } = this.props;
-
+        if(this.state.loading){
+            return ;
+        }
         this.props.saveDataSyncToTab({
             id: id,
             data: dataSync

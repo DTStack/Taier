@@ -251,14 +251,21 @@ class EditorContainer extends Component {
             Promise.all(promiseList)
                 .then(
                     (values) => {
+                        let _tmpCache={}
                         for (let value of values) {
-                            if (!value || !value.length) {
+                            //去除未存在的表
+                            if (!value || !value[1]||!value[1].length) {
                                 continue;
                             }
+                            //防止添加重复的表
+                            if(_tmpCache[value[0]]){
+                                continue;
+                            }
+                            _tmpCache[value[0]]=true;
                             defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(value.map(
+                                customCompletionItemsCreater(value[1].map(
                                     (columnName) => {
-                                        return [columnName, 'Column', '0z', "Field"]
+                                        return [columnName, value[0], '0z', "Field"]
                                     }
                                 ))
                             )
@@ -283,7 +290,7 @@ class EditorContainer extends Component {
                 (res) => {
                     if (res.code == 1) {
                         tableColumns[tableName] = res.data;
-                        return res.data;
+                        return [tableName,res.data];
                     } else {
                         console.log("get table columns error")
                     }

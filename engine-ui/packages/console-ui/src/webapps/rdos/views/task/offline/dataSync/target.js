@@ -20,7 +20,6 @@ import {
 import HelpDoc from '../../../helpDoc';
 import Editor from 'widgets/editor'
 
-import { matchTaskParams } from '../../../../comm';
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
 
 const FormItem = Form.Item;
@@ -322,8 +321,7 @@ class TargetForm extends React.Component {
         const sourceType = sourceMap.type.type;
         let formItem;
         const showCreateTable =
-            targetMap.name == project.projectName
-            && (sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
+            (sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
                 || sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL
                 || sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.MYSQL
                 || sourceType == DATA_SOURCE.HIVE || sourceType == DATA_SOURCE.MAXCOMPUTE);
