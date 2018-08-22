@@ -53,19 +53,32 @@ class SiderBench extends React.Component {
         const { tabData } = this.props;
         if (!tabData) return null;
 
-        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
+        const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+        const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
 
         const panes = [
             <TabPane tab={<span className="title-vertical">任务属性</span>} key="params1">
-                <TaskDetail tabData={tabData}></TaskDetail>
+                <TaskDetail 
+                    isWorkflowNode={isWorkflowNode}
+                    tabData={tabData}
+                ></TaskDetail>
             </TabPane>,
             <TabPane tab={<span className="title-vertical">调度依赖</span>} key="params2">
-                <SchedulingConfig tabData={tabData}></SchedulingConfig>
+                <SchedulingConfig 
+                    isWorkflowNode={isWorkflowNode}
+                    tabData={tabData}
+                >
+                </SchedulingConfig>
             </TabPane>,
-            <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
-                <TaskView tabData={tabData} />
-            </TabPane>
         ];
+
+        if (!isWorkflowNode) {
+            panes.push(
+                <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
+                    <TaskView tabData={tabData} />
+                </TabPane>
+            )
+        }
 
         if (tabData && utils.checkExist(tabData.taskType) && 
             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&

@@ -53,9 +53,8 @@ class ScheduleForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf } = this.props;
+        const { status, scheduleConf, isWorkflowNode } = this.props;
         const { periodType } = scheduleConf;
-
 
 
         const generateHours = () => {
@@ -113,47 +112,53 @@ class ScheduleForm extends React.Component {
                 >冻结</Checkbox>
             )}
             </FormItem>
-            <FormItem 
-                {...formItemLayout}
-                label="生效日期"
-            >
-            {getFieldDecorator('beginDate', {
-                initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
-            })(
-                <DatePicker
-                    onChange={ this.changeScheduleConf.bind(this) }
-                />
-            )}
-            <span className="split-text" style={{float:"none"}} >-</span>
-            {getFieldDecorator('endDate', {
-                initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
-            })(
-                <DatePicker
-                    onChange={ this.changeScheduleConf.bind(this) }
-                />
-            )}
-            </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="调度周期"
-            >
-                <Col span="6">
-                    {getFieldDecorator('periodType', {
-                        initialValue: `${scheduleConf.periodType}`,
-                        rules: [{
-                            required: true,
-                        }]
+            {
+                !isWorkflowNode && <div>
+
+                    <FormItem 
+                        {...formItemLayout}
+                        label="生效日期"
+                    >
+                    {getFieldDecorator('beginDate', {
+                        initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
-                        <Select onChange={ this.changeScheduleType.bind(this) }>
-                            <Option key={0} value="0">分钟</Option>
-                            <Option key={1} value="1">小时</Option>
-                            <Option key={2} value="2">天</Option>
-                            <Option key={3} value="3">周</Option>
-                            <Option key={4} value="4">月</Option>
-                        </Select>
+                        <DatePicker
+                            onChange={ this.changeScheduleConf.bind(this) }
+                        />
                     )}
-                </Col>
-            </FormItem>
+                    <span className="split-text" style={{float:"none"}} >-</span>
+                    {getFieldDecorator('endDate', {
+                        initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
+                    })(
+                        <DatePicker
+                            onChange={ this.changeScheduleConf.bind(this) }
+                        />
+                    )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="调度周期"
+                    >
+                        <Col span="6">
+                            {getFieldDecorator('periodType', {
+                                initialValue: `${scheduleConf.periodType}`,
+                                rules: [{
+                                    required: true,
+                                }]
+                            })(
+                                <Select onChange={ this.changeScheduleType.bind(this) }>
+                                    <Option key={0} value="0">分钟</Option>
+                                    <Option key={1} value="1">小时</Option>
+                                    <Option key={2} value="2">天</Option>
+                                    <Option key={3} value="3">周</Option>
+                                    <Option key={4} value="4">月</Option>
+                                </Select>
+                            )}
+                        </Col>
+                    </FormItem>
+                </div>
+            }
+           
             <FormItem style={{display: 'none'}}>
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
@@ -725,11 +730,11 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
-        const {recommentTaskModalVisible,recommentTaskList,loading} = this.state;
-        const { tabData } = this.props;
+        const {recommentTaskModalVisible, recommentTaskList, loading} = this.state;
+        const { tabData, isWorkflowNode } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let initConf = tabData.scheduleConf;
-        const isSql=tabData.taskType==TASK_TYPE.SQL;
+        const isSql = tabData.taskType == TASK_TYPE.SQL;
         const scheduleConf = initConf === '' ?
             Object.assign(this.getDefaultScheduleConf(0), {
                 beginDate: '2001-01-01',
@@ -778,6 +783,7 @@ class SchedulingConfig extends React.Component {
                     <FormWrap
                         scheduleConf={ scheduleConf }
                         status={ tabData.scheduleStatus }
+                        isWorkflowNode={isWorkflowNode}
                         handleScheduleStatus={ this.handleScheduleStatus.bind(this) }
                         handleScheduleConf={ this.handleScheduleConf.bind(this) }
                         handleScheduleType={ this.handleScheduleType.bind(this) }
@@ -786,7 +792,8 @@ class SchedulingConfig extends React.Component {
                     />
                 </Panel>
                 {
-                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
+                    !isWorkflowNode &&
+                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && 
                     <Panel key="2" header="任务间依赖">
                         {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px"}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
                         <Form>
@@ -816,28 +823,31 @@ class SchedulingConfig extends React.Component {
                         }
                     </Panel>
                 }
-                <Panel key="3" header="跨周期依赖">
-                    <Row>
-                        <Col span="1" />
-                        <Col>
-                            <RadioGroup onChange={ this.setSelfReliance.bind(this) }
-                                value={ this._selfReliance }
-                            >
-                                <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
-                                <Radio style={radioStyle} value={3}>
-                                    自依赖，等待上一调度周期结束，才能继续运行&nbsp;
-                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
-                                </Radio>
-                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
-                                <Radio style={radioStyle} value={4}>
-                                    等待下游任务的上一周期结束，才能继续运行&nbsp;
-                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
-                                </Radio>
-                            </RadioGroup>
-                        </Col>
-                    </Row>
-                </Panel>
+                {
+                    !isWorkflowNode &&
+                    <Panel key="3" header="跨周期依赖">
+                        <Row>
+                            <Col span="1" />
+                            <Col>
+                                <RadioGroup onChange={ this.setSelfReliance.bind(this) }
+                                    value={ this._selfReliance }
+                                >
+                                    <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
+                                    <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
+                                    <Radio style={radioStyle} value={3}>
+                                        自依赖，等待上一调度周期结束，才能继续运行&nbsp;
+                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                    </Radio>
+                                    <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
+                                    <Radio style={radioStyle} value={4}>
+                                        等待下游任务的上一周期结束，才能继续运行&nbsp;
+                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                    </Radio>
+                                </RadioGroup>
+                            </Col>
+                        </Row>
+                    </Panel>
+                }
             </Collapse>
             <RecommentTaskModal 
                 visible={recommentTaskModalVisible}

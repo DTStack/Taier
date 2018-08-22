@@ -267,7 +267,6 @@ export function getRandomInt(min, max) {
  */
 export function scrollToView(id) {
     const ele = document.getElementById(id);
-    console.log('scrollToView:', ele)
     if (ele && ele.scrollIntoViewIfNeeded) {
         ele.scrollIntoViewIfNeeded()
     } else if (ele && ele.scrollIntoView) {

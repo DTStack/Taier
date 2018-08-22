@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router'
 import {
     Row, Col, Button, message, Input, Form,
     Tabs, Menu, Dropdown, Icon, Modal,
@@ -171,8 +170,9 @@ class Workbench extends React.Component {
         isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd;
 
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
+        const isWorkflowNode = currentTabData && currentTabData.flowId && currentTabData.flowId !== 0;
 
-        const disablePublish = !isTask || currentTabData.notSynced
+        const disablePublish = !isTask || currentTabData.notSynced || isWorkflowNode;
         const showPublish = isTask;
 
         return <Row className="m-workbench task-editor">
@@ -296,6 +296,17 @@ class Workbench extends React.Component {
     saveTab(isSave) {
         this.setState({ theReqIsEnd: false, })
         const { saveTab, dataSync, currentTabData } = this.props;
+
+        // 如果是工作流任务，需要对保存操作提前做校验
+        if (
+            currentTabData.taskType === TASK_TYPE.WORKFLOW 
+            && currentTabData.toUpdateTasks && 
+            currentTabData.toUpdateTasks.length > 0
+        ) {
+            message.warning('您有工作流节点任务未保存！')
+            return false;
+        }
+
         let result = this.generateRqtBody(dataSync);
         let type = 'task'
         // 非任务类型，脚本类型
@@ -353,8 +364,8 @@ class Workbench extends React.Component {
     }
 
     switchTab(currentTab, tabId) {
-        const { openTab } = this.props;
-        +tabId !== currentTab && openTab({id: + tabId } );
+        const { openTab, tabs } = this.props;
+        +tabId !== currentTab && openTab({id: + tabId, tabs, } );
     }
 
     closeTab(tabId) {

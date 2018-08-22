@@ -188,118 +188,6 @@ export const workbenchActions = (dispatch, ownProps) => {
         })
     };
 
-    /**
-     * 保存Tab数据
-     * @param {*} params 
-     * @param {*} isSave 
-     * @param {*} type 
-     */
-    const saveTabData = (params, isSave, type) => {
-
-        const updateTaskInfo = function (data) {
-
-            dispatch({
-                type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: data
-            });
-            dispatch({
-                type: workbenchAction.MAKE_TAB_CLEAN
-            })
-        }
-
-        const succCallback = (res) => {
-            if (res.code === 1) {
-                const fileData = res.data;
-                const lockInfo = fileData.readWriteLockVO;
-                const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
-                if (lockStatus === 0) {
-                    message.success(isSave ? '保存成功！' : '发布成功！');
-                    updateTaskInfo({
-                        version: fileData.version,
-                        readWriteLockVO: fileData.readWriteLockVO,
-                    })
-                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                } else if (lockStatus === 1) { // 2-被锁定
-                    confirm({
-                        title: '锁定提醒', // 锁定提示
-                        content: <span>
-                            文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                            {utils.formatDateTime(lockInfo.gmtModified)}。
-                            强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                        </span>,
-                        okText: '确定保存',
-                        okType: 'danger',
-                        cancelText: '取消',
-                        onOk() {
-                            const succCall = (res) => {
-                                if (res.code === 1) {
-                                    message.success('保存成功！')
-                                    updateTaskInfo({
-                                        version: res.data.version,
-                                        readWriteLockVO: res.data.readWriteLockVO,
-                                    })
-                                }
-                            }
-                            if (type === 'task') {
-                                ajax.forceUpdateOfflineTask(params).then(succCall)
-                            } else if (type === 'script') {
-                                ajax.forceUpdateOfflineScript(params).then(succCall)
-                            }
-                        },
-                    });
-                    // 如果同步状态，则提示会覆盖代码，
-                    // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                } else if (lockStatus === 2) { // 2-需同步
-                    confirm({
-                        title: '保存警告',
-                        content: <span>
-                            文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                            {utils.formatDateTime(lockInfo.gmtModified)}。
-                            点击确认按钮会<Tag color="orange">覆盖</Tag>
-                            您本地的代码，请您提前做好备份！
-                        </span>,
-                        okText: '确定覆盖',
-                        okType: 'danger',
-                        cancelText: '取消',
-                        onOk() {
-                            const reqParams = {
-                                id: params.id,
-                                lockVersion: lockInfo.version,
-                            }
-                            if (type === 'task') {
-                                // 更新version, getLock信息
-                                ajax.getOfflineTaskDetail(reqParams).then(res => {
-                                    if (res.code === 1) {
-                                        const taskInfo = res.data
-                                        taskInfo.merged = true;
-                                        updateTaskInfo(taskInfo)
-                                    }
-                                })
-                            } else if (type === 'script') {
-                                ajax.getScriptById(reqParams).then(res => {
-                                    if (res.code === 1) {
-                                        const scriptInfo = res.data
-                                        scriptInfo.merged = true;
-                                        updateTaskInfo(scriptInfo)
-                                    }
-                                })
-                            }
-                        },
-                    });
-                }
-                return res;
-            }
-        }
-
-        params.lockVersion = params.readWriteLockVO.version;
-        if (type === 'task') {
-            return ajax.saveOfflineJobData(params).then(succCallback);
-        }
-        else if (type === 'script') {
-            return ajax.saveScript(params).then(succCallback);
-        }
-    }
-
     return {
         dispatch,
 
@@ -414,7 +302,78 @@ export const workbenchActions = (dispatch, ownProps) => {
                 task.taskVOS = null;
             }
 
-            return saveTabData(task, true, 'task');
+
+            const succCallback = (res) => {
+
+                const updateTabData = (res) => {
+                    const resData = res.data;
+                    const data = {
+                        id: task.id,
+                        version: resData.version,
+                        readWriteLockVO: resData.readWriteLockVO,
+                    }
+
+                    dispatch({
+                        type: workbenchAction.UPDATE_TASK_TAB,
+                        payload: data
+                    });
+                }
+
+                if (res.code === 1) {
+
+                    const fileData = res.data;
+                    const lockInfo = fileData.readWriteLockVO;
+                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
+
+                    if (lockStatus === 0) {
+                        updateTabData(res);
+                        message.success('保存成功！');
+
+                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) { // 2-被锁定
+                        confirm({
+                            title: '锁定提醒', // 锁定提示
+                            content: <span>
+                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                            </span>,
+                            okText: '确定保存',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                ajax.forceUpdateOfflineTask(params).then(updateTabData)
+                            },
+                        });
+                        // 如果同步状态，则提示会覆盖代码，
+                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    } else if (lockStatus === 2) { // 2-需同步
+                        confirm({
+                            title: '保存警告',
+                            content: <span>
+                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                您本地的代码，请您提前做好备份！
+                            </span>,
+                            okText: '确定覆盖',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const reqParams = {
+                                    id: task.id,
+                                    lockVersion: lockInfo.version,
+                                }
+                                // 更新version, getLock信息
+                                ajax.getOfflineTaskDetail(reqParams).then(updateTabData);
+                            },
+                        });
+                    }
+                    return res;
+                }
+            }
+
+            return ajax.saveOfflineJobData(task).then(succCallback);
         },
 
         /**
@@ -424,13 +383,115 @@ export const workbenchActions = (dispatch, ownProps) => {
          * @param {*} type 
          */
         saveTab(params, isSave, type) {
-            saveTabData(params, isSave, type);
+
+            const updateTaskInfo = function (data) {
+
+                dispatch({
+                    type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                    payload: data
+                });
+                dispatch({
+                    type: workbenchAction.MAKE_TAB_CLEAN
+                })
+            }
+
+            const succCallback = (res) => {
+                if (res.code === 1) {
+                    const fileData = res.data;
+                    const lockInfo = fileData.readWriteLockVO;
+                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
+                    if (lockStatus === 0) {
+                        message.success(isSave ? '保存成功！' : '发布成功！');
+                        updateTaskInfo({
+                            version: fileData.version,
+                            readWriteLockVO: fileData.readWriteLockVO,
+                        })
+                        // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) { // 2-被锁定
+                        confirm({
+                            title: '锁定提醒', // 锁定提示
+                            content: <span>
+                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                            </span>,
+                            okText: '确定保存',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const succCall = (res) => {
+                                    if (res.code === 1) {
+                                        message.success('保存成功！')
+                                        updateTaskInfo({
+                                            version: res.data.version,
+                                            readWriteLockVO: res.data.readWriteLockVO,
+                                        })
+                                    }
+                                }
+                                if (type === 'task') {
+                                    ajax.forceUpdateOfflineTask(params).then(succCall)
+                                } else if (type === 'script') {
+                                    ajax.forceUpdateOfflineScript(params).then(succCall)
+                                }
+                            },
+                        });
+                        // 如果同步状态，则提示会覆盖代码，
+                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    } else if (lockStatus === 2) { // 2-需同步
+                        confirm({
+                            title: '保存警告',
+                            content: <span>
+                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                您本地的代码，请您提前做好备份！
+                            </span>,
+                            okText: '确定覆盖',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const reqParams = {
+                                    id: params.id,
+                                    lockVersion: lockInfo.version,
+                                }
+                                if (type === 'task') {
+                                    // 更新version, getLock信息
+                                    ajax.getOfflineTaskDetail(reqParams).then(res => {
+                                        if (res.code === 1) {
+                                            const taskInfo = res.data
+                                            taskInfo.merged = true;
+                                            updateTaskInfo(taskInfo)
+                                        }
+                                    })
+                                } else if (type === 'script') {
+                                    ajax.getScriptById(reqParams).then(res => {
+                                        if (res.code === 1) {
+                                            const scriptInfo = res.data
+                                            scriptInfo.merged = true;
+                                            updateTaskInfo(scriptInfo)
+                                        }
+                                    })
+                                }
+                            },
+                        });
+                    }
+                    return res;
+                }
+            }
+
+            params.lockVersion = params.readWriteLockVO.version;
+            if (type === 'task') {
+                return ajax.saveOfflineJobData(params).then(succCallback);
+            }
+            else if (type === 'script') {
+                return ajax.saveScript(params).then(succCallback);
+            }
         },
 
         openTab: function (data) {
             const { id, tabs, currentTab, treeType, lockInfo } = data
-
-            if (tabs && tabs.map(o => o.id).indexOf(id) === -1) {
+            const isExist = tabs && tabs.find(tab => tab.id === id);
+            if (!isExist) {
                 const succCallBack = (res) => {
                     if (res.code === 1) {
                         dispatch({
@@ -439,12 +500,12 @@ export const workbenchActions = (dispatch, ownProps) => {
                         });
                     }
                 }
-                if (treeType === MENU_TYPE.TASK_DEV) { // 任务类型
-                    ajax.getOfflineTaskDetail({
+                if (treeType && treeType === MENU_TYPE.SCRIPT) { // 脚本类型
+                    ajax.getScriptById({
                         id: id,
                     }).then(succCallBack);
-                } else if (treeType === MENU_TYPE.SCRIPT) { // 脚本类型
-                    ajax.getScriptById({
+                } else { // 默认任务类型
+                    ajax.getOfflineTaskDetail({
                         id: id,
                     }).then(succCallBack);
                 }

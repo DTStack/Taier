@@ -138,7 +138,8 @@ export default class MainBench extends React.Component {
 
     renderBench(tabData) {
         const { taskCustomParams } = this.props
-        
+        const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
+
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
 
@@ -148,7 +149,11 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:
                 case TASK_TYPE.HAHDOOPMR:
-                    return <NormalTaskForm key={tabData.id} {...tabData} />
+                    return <NormalTaskForm 
+                            isWorkflowNode={isWorkflowNode}
+                            key={tabData.id} 
+                            {...tabData} 
+                        />
                 case TASK_TYPE.SYNC: // 数据同步
                     if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                         return <DataSyncScript

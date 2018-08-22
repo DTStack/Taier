@@ -27,6 +27,7 @@ const {
     mxGeometry,
     mxPerimeter,
     mxUndoManager,
+    mxCompactTreeLayout,
     mxUtils,
     mxDragSource,
     // mxCylinder,
@@ -113,6 +114,14 @@ export default class Editor extends Component {
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
 
+
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 40;
+        layout.nodeDistance = 20;
+
         // enables rubberband
         new mxRubberband(graph)
         // First root
@@ -130,14 +139,26 @@ export default class Editor extends Component {
             const v3 = graph.insertVertex(parent, null, 'block3', 300, 150, 
             VertexSize.width, VertexSize.height)
 
+            const v4 = graph.insertVertex(v3, null, 'block4', 10, 150, 
+            VertexSize.width, VertexSize.height)
+
+            const v5 = graph.insertVertex(v3, null, 'block5', 10, 250, 
+            VertexSize.width, VertexSize.height)
+
             const e1 = graph.insertEdge(parent, null, '', v1, v3)
             const e2 = graph.insertEdge(parent, null, '', v2, v3)
+            const e3 = graph.insertEdge(parent, null, '', v4, v5)
+
+            layout.execute(parent);
+            layout.execute(v3);
+
         } finally {
             model.endUpdate()
         }
         this.initContextMenu(graph);
         this.initDragItem();
     }
+
 
     getDefaultVertexStyle() {
         let style = [];
@@ -158,7 +179,7 @@ export default class Editor extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#18a689';
+        style[mxConstants.STYLE_STROKECOLOR] = '#dddddd';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;

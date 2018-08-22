@@ -85,7 +85,7 @@ class WorkflowEditor extends Component {
         this.hideMenu()
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
-            this.renderData(JSON.parse(workflowData));
+            this.initGraphData(workflowData);
             this.initGraphEvent();
         }
     }
@@ -106,30 +106,7 @@ class WorkflowEditor extends Component {
                 this.appendWorkflowNode(next.node);
             }
         }
-
-        // if (this.props.data !== nextProps.data) {
-        //     const dataArr = JSON.parse(nextProps.data.sqlText);
-        //     const data = this.ayncTabData(dataArr);
-        //     console.log('nextProps:', nextProps.data)
-        //     this.renderData(data);
-        // }
     }
-
-    // ayncTabData = (cells) => {
-    //     const { tabs } = this.props;
-    //     if (cells) {
-    //         for (let i = 0; i < cells.length; i++) {
-    //             const cell = cells[i];
-    //             if (cell.vertex && cell.data) {
-    //                 const item = tabs.find(i => i.id === cell.data.id)
-    //                 if (item) {
-    //                     cell.data = item;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return cells;
-    // }
 
     componentWillUnmount () {
         console.log('WorkflowEditor componentWillUnmount', this)
@@ -205,7 +182,7 @@ class WorkflowEditor extends Component {
     formatTooltip = (cell) => {
         if (this.Container) {
             const task = cell.data || '';
-            const tips = task ? `${task.name}${task.notSync ? ' (未保存) ' : ''}` : '';
+            const tips = task ? `${task.name}${task.notSynced ? ' (未保存) ' : ''}` : '';
             return tips
         }
     }
@@ -219,7 +196,7 @@ class WorkflowEditor extends Component {
 
     convertTaskToHTML = (task) => {
         if (task) {
-            let unSave = task.notSync ? '<span style="color:red;">*</span>' : '';
+            let unSave = task.notSynced ? '<span style="color:red;">*</span>' : '';
             const taskType = taskTypeText(task.taskType);
             return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
             <span style="font-size:10px; color: #666666;">${taskType}</span>
@@ -274,6 +251,34 @@ class WorkflowEditor extends Component {
         }
     }
 
+    initGraphData = (workflowData) => {
+        const { tabs, updateTaskField } = this.props;
+        const cells = JSON.parse(workflowData);
+
+        const waitUpdateTabs = [];
+        if (cells) {
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+                if (cell.vertex && cell.data) {
+                    const item = tabs.find(i => i.id === cell.data.id)
+                    if (item && item.notSynced) {
+                        cell.data = item;
+                        waitUpdateTabs.push(item);
+                    }
+                }
+            }
+        }
+        console.log('WorkflowEditor initGraphData:', cells)
+        this.renderData(cells);
+
+        // 如果节点有需要同步的数据, 则更新当前workflow的状态和待更数据字段
+        if (waitUpdateTabs.length > 0) {
+            updateTaskField({
+                toUpdateTasks: waitUpdateTabs,
+            });
+        }
+    }
+
     saveTask = (cell) => {
         const targetTask = cell.data || {};
         const { saveTask, tabs } = this.props;
@@ -282,9 +287,13 @@ class WorkflowEditor extends Component {
             return item.id === targetTask.id;
         })
         if (task) {
+            task.notSynced = false;
             saveTask(task).then(res => {
-                targetTask.notSync = false;
-                this.updateCellData(cell, targetTask)
+                console.log('res:', res);
+                if (res.code === 1) {
+                    this.updateCellData(cell, task);
+                    this.updateGraphData();
+                }
             });
         }
     }
@@ -504,7 +513,10 @@ class WorkflowEditor extends Component {
          } = this.props;
 
         const workflow = this.getGraphData();
-        updateTaskField({ sqlText: JSON.stringify(workflow), });
+        const toUpdateTasks = workflow.filter(item => {
+            return item.vertex && item.data && item.data.notSynced === true;
+        })
+        updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks });
     }
 
     initGraphEvent = () => {

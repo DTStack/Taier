@@ -83,9 +83,7 @@ class OfflineTabPane extends Component {
         }
         // 字段任务定位滚动
         if (
-            this.props.currentTab !== nextProps.currentTab &&
-            !nextProps.currentTabData.flowId
-        ) {
+            this.props.currentTab !== nextProps.currentTab ) {
             let type = MENU_TYPE.TASK_DEV, menu = MENU_TYPE.TASK;
             if (nextTab && nextTab.scriptText !== undefined) {
                 type = MENU_TYPE.SCRIPT;

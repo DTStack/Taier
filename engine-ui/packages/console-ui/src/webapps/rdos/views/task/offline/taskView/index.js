@@ -269,15 +269,6 @@ export default class TaskView extends Component {
         return '';
     }
 
-    listenDoubleClick() {
-        this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
-            }
-        })
-    }
-
     listenOnClick() {
         const ctx = this
         this.graph.addListener(mxEvent.onClick, function(sender, evt) {
@@ -328,7 +319,15 @@ export default class TaskView extends Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}>
+                        <p style={{
+                            verticalAlign: 'middle',
+                            textAlign: 'center',
+                            lineHeight: '20'
+                        }}>
+                            “未发布”的任务无发查看依赖视图
+                        </p>
+                    </div>
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">

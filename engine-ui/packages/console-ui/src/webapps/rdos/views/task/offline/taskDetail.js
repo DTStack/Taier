@@ -21,16 +21,17 @@ const Panel = Collapse.Panel;
 
 function TaskInfo(props) {
     const taskInfo = props.taskInfo
+    const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
             <Row>
-                <Col span="10" className="txt-right">任务名称：</Col>
+                <Col span="10" className="txt-right">{labelPrefix}名称：</Col>
                 <Col span="14">
                     {taskInfo.name}
                 </Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">任务类型：</Col>
+                <Col span="10" className="txt-right">{labelPrefix}类型：</Col>
                 <Col span="14">
                     <TaskType value={taskInfo.taskType} />
                 </Col>
@@ -126,13 +127,16 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers } = this.props;
+        const { tabData, projectUsers, isWorkflowNode } = this.props;
+
+        const labelPrefix = isWorkflowNode ? '节点' : '任务';
 
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2']}>
-                <Panel key="1" header="任务属性">
+                <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
                         taskInfo={tabData} 
+                        labelPrefix={labelPrefix}
                         modifyTaskOwner={() => {this.setState({visible: true})}}
                     />
                     <UpdateTaskOwnerModal 

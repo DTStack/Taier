@@ -19,7 +19,7 @@ class NormalTaskForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes } = this.props;
+        const { taskTypes, isWorkflowNode } = this.props;
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -155,27 +155,30 @@ class NormalTaskForm extends React.Component {
                     )}
                 </FormItem>
             }
-            <FormItem
-                {...formItemLayout}
-                label="存储位置"
-            >
-                {getFieldDecorator('nodePid', {
-                    rules: [{
-                        required: true, message: '存储位置必选！',
-                    }],
-                    initialValue: taskData.nodePid
-                })(
-                    <Input type="hidden"></Input>
-                )}
-                <FolderPicker
-                    type={MENU_TYPE.TASK}
-                    ispicker
-                    isFilepicker={false}
-                    treeData={this.props.pathTreeData}
-                    onChange={this.handlePathChange.bind(this)}
-                    defaultNode={taskData.nodePName}
-                ></FolderPicker>
-            </FormItem>
+            {
+                !isWorkflowNode && 
+                <FormItem
+                    {...formItemLayout}
+                    label="存储位置"
+                >
+                    {getFieldDecorator('nodePid', {
+                        rules: [{
+                            required: true, message: '存储位置必选！',
+                        }],
+                        initialValue: taskData.nodePid
+                    })(
+                        <Input type="hidden"></Input>
+                    )}
+                    <FolderPicker
+                        type={MENU_TYPE.TASK}
+                        ispicker
+                        isFilepicker={false}
+                        treeData={this.props.pathTreeData}
+                        onChange={this.handlePathChange.bind(this)}
+                        defaultNode={taskData.nodePName}
+                    ></FolderPicker>
+                </FormItem>
+            }
             <FormItem
                 {...formItemLayout}
                 label="描述"
