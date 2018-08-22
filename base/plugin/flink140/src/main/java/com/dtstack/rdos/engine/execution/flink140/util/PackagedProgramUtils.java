@@ -90,6 +90,14 @@ public class PackagedProgramUtils {
 			jobGraph = jobGraphGenerator.compileJobGraph((OptimizedPlan) flinkPlan);
 		}
 
+        for (URL url : jobGraph.getClasspaths()) {
+            try {
+                jobGraph.addJar(new Path(url.toURI()));
+            } catch (URISyntaxException e) {
+                throw new ProgramInvocationException("Invalid URL for jar file: " + url + '.', e);
+            }
+        }
+
 		for (URL url : packagedProgram.getAllLibraries()) {
 			try {
 				jobGraph.addJar(new Path(url.toURI()));
@@ -100,6 +108,9 @@ public class PackagedProgramUtils {
 
 		jobGraph.setClasspaths(packagedProgram.getClasspaths());
 
+		// we have to allow queued scheduling in Flip-6 mode because we need to request slots
+		// from the ResourceManager
+		jobGraph.setAllowQueuedScheduling(true);
 		return jobGraph;
 	}
 
