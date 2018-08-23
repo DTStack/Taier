@@ -235,28 +235,31 @@ public class RestartDealer {
                     for(ResubmitQueue queue : resubmitQueueMap.values()){
                         Long lastExeTime = queue.getLastSubmitTime();
                         if(lastExeTime + SUBMIT_INTERVAL <= currentTime){
-                            JobClient jobClient = queue.getJobClient();
-                            if(jobClient != null){
+                            //对阻塞队列进行遍历（如果为空会被阻塞）
+                            while (queue.queue.size() != 0){
+                                JobClient jobClient = queue.getJobClient();
+                                if(jobClient != null){
 
-                                String finalJobId = jobClient.getTaskId();
-                                Integer finalComputeType = jobClient.getComputeType().getType();
-                                String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
-                                jobClient.setJobClientCallBack(new JobClientCallBack() {
+                                    String finalJobId = jobClient.getTaskId();
+                                    Integer finalComputeType = jobClient.getComputeType().getType();
+                                    String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
+                                    jobClient.setJobClientCallBack(new JobClientCallBack() {
 
-                                    @Override
-                                    public void execute(Map<String, ? extends Object> params) {
+                                        @Override
+                                        public void execute(Map<String, ? extends Object> params) {
 
-                                        if(!params.containsKey(JOB_STATUS)){
-                                            return;
+                                            if(!params.containsKey(JOB_STATUS)){
+                                                return;
+                                            }
+
+                                            int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                                            zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
+                                            updateJobStatus(finalJobId, finalComputeType, jobStatus);
                                         }
+                                    });
 
-                                        int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                                        zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
-                                        updateJobStatus(finalJobId, finalComputeType, jobStatus);
-                                    }
-                                });
-
-                                ExeQueueMgr.getInstance().add(jobClient);
+                                    ExeQueueMgr.getInstance().add(jobClient);
+                                }
                             }
                         }
                     }
@@ -285,7 +288,8 @@ public class RestartDealer {
 
         public JobClient getJobClient(){
             try {
-                JobClient jobClient = queue.poll(2, TimeUnit.SECONDS);
+                //while循环每间隔 CHECK_INTERVAL 会遍历队列（队列为空线程会被阻塞，超时时间设置小一点）
+                JobClient jobClient = queue.poll(500, TimeUnit.MILLISECONDS);
                 if(jobClient != null){
                     this.lastExeTime = System.currentTimeMillis();
                 }
