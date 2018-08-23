@@ -107,6 +107,9 @@ class DiffEditor extends React.Component {
         const editorOptions = Object.assign(defaultOptions, options, {
             originalEditable: options?!options.readOnly:true,//支持源可编辑
             renderIndicators: false,
+            scrollbar:{
+                horizontal:"visible"
+            }
         });
 
         this._originalModel = monaco.editor.createModel(original.value, language || "sql")
@@ -207,7 +210,7 @@ class DiffEditor extends React.Component {
             minHeight: "400px",
             // height: '100%',
             width: '100%',
-            // marginTop:"20px"
+            marginTop:"20px"
         };
 
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle;
