@@ -129,6 +129,7 @@ $activeColor: #262e36; // 主色
             text-overflow: ellipsis;
             display: inline-block;
             overflow: hidden;
+            white-space: nowrap;
         }
 
         .ant-menu-submenu {
