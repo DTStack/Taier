@@ -9,16 +9,23 @@ import React from "react";
 // import 'monaco-editor/esm/vs/editor/editor.all.js';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
-import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
-import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
+// import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
+// import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
-import "./languages/dtsql/dtsql.contribution.js"
+import { registeCompleteItemsProvider as dtsql_registeCompleteItemsProvider, disposeProvider as dtsql_dispose } from "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
+
+const provideCompletionItemsMap = {
+    dtsql: {
+        register: dtsql_registeCompleteItemsProvider,
+        dispose: dtsql_dispose
+    }
+}
 
 class Editor extends React.Component {
 
@@ -28,24 +35,46 @@ class Editor extends React.Component {
         this.monacoInstance = null;
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
+    shouldComponentUpdate(nextProps, nextState) {
         // // 此处禁用render， 直接用editor实例更新编辑器
         return false;
     }
 
     componentDidMount() {
         this.initMonaco();
-        if(typeof this.props.editorInstanceRef=="function"){
+        if (typeof this.props.editorInstanceRef == "function") {
             this.props.editorInstanceRef(this.monacoInstance)
         }
     }
+    providerProxy = (completeItems, resolve, customCompletionItemsCreater, ext) => {
+        const { customCompleteProvider } = this.props;
+        if (customCompleteProvider) {
+            customCompleteProvider(completeItems, resolve, customCompletionItemsCreater, ext);
+        } else {
+            resolve(completeItems)
+        }
+    }
 
+    initProviderProxy() {
+        const keyAndValues = Object.entries(provideCompletionItemsMap);
+        for (let [type, language] of keyAndValues) {
+            language.register(this.providerProxy);
+        }
+    }
+    disposeProviderProxy() {
+        const keyAndValues = Object.entries(provideCompletionItemsMap);
+        for (let [type, language] of keyAndValues) {
+            language.dispose();
+        }
+    }
     componentWillReceiveProps(nextProps) {
-        const { sync, value, theme } = nextProps;
-
-        if ( this.props.value !== value && sync) {
+        const { sync, value, theme, languageConfig, language } = nextProps;
+        if (this.props.value !== value && sync) {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
+        }
+        if(languageConfig!==this.props.languageConfig){
+            this.updateMonarch(languageConfig,language)
         }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)
@@ -58,8 +87,13 @@ class Editor extends React.Component {
 
     componentWillUnmount() {
         this.destroyMonaco();
+        this.disposeProviderProxy();
     }
-
+    updateMonarch(config,language){
+        if(config&&language){
+            monaco.languages.setMonarchTokensProvider(language,config);
+        }
+    }
     isValueExist(props) {
         const keys = Object.keys(props);
         if (keys.includes("value")) {
@@ -86,28 +120,8 @@ class Editor extends React.Component {
             return;
         }
 
-        window.MonacoEnvironment = {
-            getWorkerUrl: function(moduleId, label) {
-                if (label === "json") {
-                    return "./json.worker.js";
-                }
-                if (label === "css") {
-                    return "./css.worker.js";
-                }
-                if (label === "html") {
-                    return "./html.worker.js";
-                }
-                if (label === "typescript" || label === "javascript") {
-                    return "./typescript.worker.js";
-                }
-                if (label === "sql") {
-                    return "./sql.worker.js";
-                }
-                return "./editor.worker.js";
-            }
-        };
 
-        const editorOptions = Object.assign(defaultOptions, options , {
+        const editorOptions = Object.assign(defaultOptions, options, {
             value,
             language: language || "sql"
         });
@@ -126,10 +140,11 @@ class Editor extends React.Component {
     initEditor() {
         this.initTheme();
         this.initEditorEvent();
+        this.initProviderProxy();
     }
-    initTheme(){
-        monaco.editor.defineTheme("white",whiteTheme);
-        this.props.theme&&monaco.editor.setTheme(this.props.theme);
+    initTheme() {
+        monaco.editor.defineTheme("white", whiteTheme);
+        this.props.theme && monaco.editor.setTheme(this.props.theme);
     }
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
@@ -154,7 +169,7 @@ class Editor extends React.Component {
                 onBlur(value, oldValue);
             }
         });
-    
+
         this.monacoInstance.onDidFocusEditor(event => {
             this.log("编辑器事件 onDidFocus");
             const { onFocus, value } = this.props;
@@ -193,11 +208,11 @@ class Editor extends React.Component {
         };
 
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle;
-        
-        return <div 
+
+        return <div
             className={renderClass}
             style={renderStyle}
-            ref={(domIns) => { this.monacoDom = domIns; }} 
+            ref={(domIns) => { this.monacoDom = domIns; }}
         />;
     }
 }

@@ -8,6 +8,7 @@ const os = require("os");
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
 
 const MY_PATH = require("./consts");
+const monacoConfig=require("./monacoConfig");
 const splitChunksConfig = require("./splitChunksConfig");
 const VERSION = JSON.stringify(require("../package.json").version); // app version.
 const theme = require("../src/theme")();
@@ -48,6 +49,10 @@ module.exports = function() {
             runtimeChunk: {
                 name: "manifest"
             }
+        },
+        node:{
+            fs:'empty',
+            path:'empty'
         },
         module: {
             rules: [
@@ -105,7 +110,10 @@ module.exports = function() {
         },
         plugins: [
             new webpack.HashedModuleIdsPlugin(),
-            new MonacoWebpackPlugin(),
+            new MonacoWebpackPlugin({
+                features:monacoConfig.features,
+                languages:monacoConfig.languages
+            }),
             new HappyPack({
                 id: "happy-babel-js",
                 loaders: ["babel-loader?cacheDirectory=true"],

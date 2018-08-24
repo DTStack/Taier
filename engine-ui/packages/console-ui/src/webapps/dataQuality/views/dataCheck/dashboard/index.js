@@ -89,8 +89,8 @@ export default class DataCheck extends Component {
         }, {
             title: <span>
                 校验结果
-                <Tooltip 
-                    placement="bottom" 
+                <Tooltip
+                    placement="bottom"
                     overlayClassName="m-tooltip"
                     title={
                         <div>
@@ -109,25 +109,25 @@ export default class DataCheck extends Component {
             render: (text, record) => {
                 return (
                     text == 3 ?
-                    <span>
-                        <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
-                        &nbsp;
-                        <Tooltip 
-                            placement="right" 
-                            title={record.report}
-                            overlayClassName="m-tooltip">
-                            <Icon className="font-14" type="info-circle-o" />
-                        </Tooltip>
-                    </span>
-                    :
-                    <DataCheckStatus value={text} />
-                )   
+                        <span>
+                            <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
+                            &nbsp;
+                        <Tooltip
+                                placement="right"
+                                title={record.report}
+                                overlayClassName="m-tooltip">
+                                <Icon className="font-14" type="info-circle-o" />
+                            </Tooltip>
+                        </span>
+                        :
+                        <DataCheckStatus value={text} />
+                )
             }
         }, {
             title: <div>
                 差异总数
-                <Tooltip 
-                    placement="bottom" 
+                <Tooltip
+                    placement="bottom"
                     overlayClassName="m-tooltip"
                     title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
                 >
@@ -141,8 +141,8 @@ export default class DataCheck extends Component {
         }, {
             title: <div>
                 差异比例
-                    <Tooltip 
-                    placement="bottom" 
+                    <Tooltip
+                    placement="bottom"
                     overlayClassName="m-tooltip"
                     title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
                 >
@@ -183,12 +183,14 @@ export default class DataCheck extends Component {
                             <Link to={`dq/dataCheck/edit/${record.verifyId}`}>再次运行</Link>
                         </Menu.Item>
                         {
-                            record.dataSourceType === DATA_SOURCE.HIVE && 
+                            record.dataSourceType === DATA_SOURCE.HIVE &&
                             <Menu.Item>
-                                <a onClick={() => { this.setState({
-                                    selectedRecord: record,
-                                    visibleEnvModal: true,
-                                })}}>环境参数</a>
+                                <a onClick={() => {
+                                    this.setState({
+                                        selectedRecord: record,
+                                        visibleEnvModal: true,
+                                    })
+                                }}>环境参数</a>
                             </Menu.Item>
                         }
                         {/* <Menu.Item>
@@ -214,9 +216,9 @@ export default class DataCheck extends Component {
     // 是否能查看报告
     enableCheckReport = (status) => {
         return status === CHECK_STATUS.SUCCESS ||
-        status === CHECK_STATUS.PASS ||
-        status === CHECK_STATUS.UNPASS ||
-        status === CHECK_STATUS.EXPIRED;
+            status === CHECK_STATUS.PASS ||
+            status === CHECK_STATUS.UNPASS ||
+            status === CHECK_STATUS.EXPIRED;
     }
 
     // 删除逐行校验
@@ -233,7 +235,7 @@ export default class DataCheck extends Component {
     updateEnvParams = (value) => {
         if (!value) {
             message.error('环境参数为空！');
-            return; 
+            return;
         }
         const { selectedRecord } = this.state;
 
@@ -248,10 +250,11 @@ export default class DataCheck extends Component {
             }
         });
     }
-    
+
     // 表格回调
     onTableChange = (page, filter, sorter) => {
-        let params = {...this.state.params, 
+        let params = {
+            ...this.state.params,
             currentPage: page.current,
             // sortBy: sorter.columnKey ? sorter.columnKey : '',
             // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
@@ -265,8 +268,8 @@ export default class DataCheck extends Component {
         return data.map((source) => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
 
-            return <Option 
-                key={source.id} 
+            return <Option
+                key={source.id}
                 value={source.id.toString()}
                 title={title}>
                 {title}
@@ -277,11 +280,11 @@ export default class DataCheck extends Component {
     // 数据源筛选
     onUserSourceChange = (id) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             dataSourceId: id ? id : undefined
         };
-        
+
         this.props.getLists(params);
         this.setState({ params });
     }
@@ -289,8 +292,8 @@ export default class DataCheck extends Component {
     // 校验状态下拉框
     renderCheckStatus = (data) => {
         return data.map((item) => {
-            return <Option 
-                key={item.value} 
+            return <Option
+                key={item.value}
                 value={item.value}
                 title={item.text}>
                 {item.text}
@@ -301,11 +304,11 @@ export default class DataCheck extends Component {
     // 校验状态筛选
     onCheckStatusChange = (status) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             status: status ? status : undefined
         };
-        
+
         this.props.getLists(params);
         this.setState({ params });
     }
@@ -313,8 +316,8 @@ export default class DataCheck extends Component {
     // user的select选项
     renderUserList = (data) => {
         return data.map((item) => {
-            return <Option 
-                key={item.id} 
+            return <Option
+                key={item.id}
                 value={item.id.toString()}
                 name={item.userName}>
                 {item.userName}
@@ -325,7 +328,7 @@ export default class DataCheck extends Component {
     // 监听userList的select
     onUserChange = (value) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             lastModifyUserId: value ? value : undefined
         };
@@ -337,11 +340,11 @@ export default class DataCheck extends Component {
     // 执行时间改变
     onDateChange = (date, dateString) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             executeTime: date ? date.valueOf() : undefined
         };
-        
+
         this.props.getLists(params);
         this.setState({ params });
     }
@@ -349,7 +352,7 @@ export default class DataCheck extends Component {
     // table搜索
     onTableSearch = (name) => {
         let params = {
-            ...this.state.params, 
+            ...this.state.params,
             currentPage: 1,
             tableName: name ? name : undefined
         };
@@ -387,8 +390,8 @@ export default class DataCheck extends Component {
 
                 <div className="m-l-8">
                     数据源：
-                    <Select 
-                        allowClear 
+                    <Select
+                        allowClear
                         showSearch
                         style={{ width: 150 }}
                         optionFilterProp="title"
@@ -402,8 +405,8 @@ export default class DataCheck extends Component {
 
                 <div className="m-l-8">
                     校验结果：
-                    <Select 
-                        allowClear 
+                    <Select
+                        allowClear
                         style={{ width: 150 }}
                         placeholder="选择校验结果"
                         onChange={this.onCheckStatusChange}>
@@ -415,8 +418,8 @@ export default class DataCheck extends Component {
 
                 <div className="m-l-8">
                     最近修改人：
-                    <Select 
-                        allowClear 
+                    <Select
+                        allowClear
                         showSearch
                         style={{ width: 150 }}
                         optionFilterProp="name"
@@ -438,6 +441,17 @@ export default class DataCheck extends Component {
                         disabledDate={this.disabledDate}
                     />
                 </div>
+                <div className="m-l-8">
+                    <Tooltip title="刷新数据">
+                        <Icon type="sync" onClick={() => { this.props.getLists(params); }}
+                            style={{
+                                cursor: 'pointer',
+                                marginTop: '18px',
+                                color: '#94A8C6'
+                            }}
+                        />
+                    </Tooltip>
+                </div>
             </div>
         )
 
@@ -450,22 +464,22 @@ export default class DataCheck extends Component {
         )
 
         return (
-        	<div className="check-dashboard">
+            <div className="check-dashboard">
                 <h1 className="box-title">
                     逐行校验
                 </h1>
 
                 <div className="box-2 m-card shadow">
-                    <Card 
-                        title={cardTitle} 
-                        extra={cardExtra} 
-                        noHovering 
+                    <Card
+                        title={cardTitle}
+                        extra={cardExtra}
+                        noHovering
                         bordered={false}
                     >
-                        <Table 
+                        <Table
                             rowKey="id"
                             className="m-table"
-                            columns={this.initColumns()} 
+                            columns={this.initColumns()}
                             loading={loading}
                             pagination={pagination}
                             dataSource={lists.data}
@@ -473,7 +487,7 @@ export default class DataCheck extends Component {
                         />
                     </Card>
                 </div>
-                <EnvModal 
+                <EnvModal
                     key="ruleConfigEnvModal"
                     title="配置环境参数"
                     visible={visibleEnvModal}
@@ -485,7 +499,7 @@ export default class DataCheck extends Component {
                     value={selectedRecord && selectedRecord.taskParams}
                     onOk={this.updateEnvParams}
                 />
-        	</div>
+            </div>
         )
     }
 }

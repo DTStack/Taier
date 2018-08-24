@@ -9,6 +9,7 @@ import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import Editor from 'widgets/editor';
 import { commonFileEditDelegator } from "widgets/editor/utils";
+import { language } from "widgets/editor/languages/dtsql/dtsql";
 import pureRender from 'utils/pureRender';
 
 import reqOfflineUrl from "../../../../api/reqOffline";
@@ -31,15 +32,59 @@ class EditorContainer extends Component {
     state = {
         confirmCode: "",
         execConfirmVisible: false,
+        tableList: [],
+        funcList: [],
+        tableCompleteItems: [],
+        funcCompleteItems: []
     }
-
+    _tableColumns = {}
     componentDidMount() {
+
         const currentNode = this.props.currentTabData;
         if (currentNode) {
             this.props.getTab(currentNode.id)//初始化console所需的数据结构
         }
+        this.initTableList();
+        this.initFuncList();
     }
-
+    initTableList() {
+        API.getTableListByName({
+            appointProjectId: this.props.project.id
+        })
+            .then(
+                (res) => {
+                    if (res.code == 1) {
+                        let { data } = res;
+                        this.setState({
+                            tableList: data.children || [],
+                            tableCompleteItems: data.children && data.children.map(
+                                (table) => {
+                                    return [table.name, '表名', '1200', 'Field']
+                                }
+                            )
+                        })
+                    }
+                }
+            )
+    }
+    initFuncList() {
+        API.getAllFunction()
+            .then(
+                (res) => {
+                    if (res.code == 1) {
+                        let { data } = res;
+                        this.setState({
+                            funcList: data || [],
+                            funcCompleteItems: data && data.map(
+                                (funcName) => {
+                                    return [funcName, '函数', '2000', "Function"]
+                                }
+                            )
+                        })
+                    }
+                }
+            )
+    }
     componentWillReceiveProps(nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
@@ -126,11 +171,17 @@ class EditorContainer extends Component {
 
     reqExecSQL = (task, params, sqls, index) => {
         const { currentTab, execSql } = this.props;
-        execSql(currentTab, task, params, sqls);
+        execSql(currentTab, task, params, sqls)
+            .then((complete) => {
+                if (complete) {
+                    this._tableColumns={};
+                    this.initTableList();
+                }
+            });
     };
 
     stopSQL = () => {
-        const { currentTabData, currentTab, stopSql} = this.props;
+        const { currentTabData, currentTab, stopSql } = this.props;
         stopSql(currentTab, currentTabData);
     };
 
@@ -191,7 +242,69 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
+    completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}) {
+        const { tables = [] } = status;
+        const { tableCompleteItems, funcCompleteItems } = this.state;
+        let defaultItems = completeItems
+            .concat(customCompletionItemsCreater(tableCompleteItems))
+            .concat(customCompletionItemsCreater(funcCompleteItems));
 
+        if (tables.length) {
+            let promiseList = [];
+            for (let tableList of tables) {
+                for (let tableName of tableList) {
+                    promiseList.push(this.getTableColumns(tableName))
+                }
+            }
+            Promise.all(promiseList)
+                .then(
+                    (values) => {
+                        let _tmpCache = {}
+                        for (let value of values) {
+                            //去除未存在的表
+                            if (!value || !value[1] || !value[1].length) {
+                                continue;
+                            }
+                            //防止添加重复的表
+                            if (_tmpCache[value[0]]) {
+                                continue;
+                            }
+                            _tmpCache[value[0]] = true;
+                            defaultItems = defaultItems.concat(
+                                customCompletionItemsCreater(value[1].map(
+                                    (columnName) => {
+                                        return [columnName, value[0], '1100', "Variable"]
+                                    }
+                                ))
+                            )
+                        }
+                        resolve(defaultItems);
+                    }
+                ).catch((e) => {
+                    console.log(e)
+                    resolve(defaultItems);
+                })
+        } else {
+            resolve(defaultItems)
+        }
+    }
+    getTableColumns(tableName) {
+        let tableColumns = this._tableColumns;
+        if (tableColumns[tableName]) {
+            return Promise.resolve(tableColumns[tableName])
+        }
+        return API.getColumnsOfTable({ tableName })
+            .then(
+                (res) => {
+                    if (res.code == 1) {
+                        tableColumns[tableName] = [tableName, res.data];
+                        return tableColumns[tableName];
+                    } else {
+                        console.log("get table columns error")
+                    }
+                }
+            )
+    }
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
@@ -206,7 +319,7 @@ class EditorContainer extends Component {
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode } = this.state;
+        const { execConfirmVisible, confirmCode, funcList } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
@@ -217,8 +330,17 @@ class EditorContainer extends Component {
             options: {
                 readOnly: isLocked,
             },
+            customCompleteProvider: this.completeProvider.bind(this),
+            languageConfig: {
+                ...language,
+                builtinFunctions: [],
+                windowsFunctions: [],
+                innerFunctions: [],
+                otherFunctions: [],
+                customFunctions: funcList
+            },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme||"white",
+            theme: editor.options.theme || "white",
             onChange: this.debounceChange,
             sync: currentTabData.merged || undefined,
             onCursorSelection: this.debounceSelectionChange
@@ -234,7 +356,7 @@ class EditorContainer extends Component {
             onFormat: this.sqlFormat,
             onFileEdit: commonFileEditDelegator(this._editor),
             onThemeChange: (key) => {
-                this.props.updateEditorOptions({theme: key})
+                this.props.updateEditorOptions({ theme: key })
             },
         }
 
@@ -242,13 +364,13 @@ class EditorContainer extends Component {
             data: data,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
-            downloadUri:reqOfflineUrl.DOWNLOAD_SQL_RESULT
+            downloadUri: reqOfflineUrl.DOWNLOAD_SQL_RESULT
         }
 
         return (
-            <div className="m-editor" style={{height: '100%'}}>
-                <IDEEditor 
-                    editorInstanceRef={(instance)=>{this._editor=instance}}
+            <div className="m-editor" style={{ height: '100%' }}>
+                <IDEEditor
+                    editorInstanceRef={(instance) => { this._editor = instance }}
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
@@ -282,9 +404,9 @@ class EditorContainer extends Component {
                     }
                 >
                     <div style={{ height: "400px" }}>
-                        <Editor 
-                            value={confirmCode} 
-                            sync={true} 
+                        <Editor
+                            value={confirmCode}
+                            sync={true}
                             language="sql"
                             options={{
                                 readOnly: true,

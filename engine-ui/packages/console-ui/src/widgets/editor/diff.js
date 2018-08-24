@@ -41,7 +41,7 @@ class DiffEditor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, original={},modified={} } = nextProps;
+        const { sync, original={},modified={}, options={} } = nextProps;
         if (this.props.original&&this.props.original.value !== original.value && sync) {
             const editorText = !original.value ? '' : original.value;
             this.updateValueWithNoEvent(editorText);
@@ -49,8 +49,8 @@ class DiffEditor extends React.Component {
         if(this.props.modified&&this.props.modified.value !== modified.value){
             this._modifiedEditor.setValue(modified.value)
         }
-        if (this.props.options !== nextProps.options) {
-            this.monacoInstance.updateOptions(nextProps.options)
+        if (this.props.options !== options) {
+            this.monacoInstance.updateOptions({...options,originalEditable:!options.readOnly})
         }
     }
 
@@ -73,6 +73,8 @@ class DiffEditor extends React.Component {
 
     destroyMonaco() {
         if (this.monacoInstance) {
+            this._modifiedEditor.dispose();
+            this._originalEditor.dispose();
             this.monacoInstance.dispose();
         }
     }
@@ -103,8 +105,11 @@ class DiffEditor extends React.Component {
         };
 
         const editorOptions = Object.assign(defaultOptions, options, {
-            originalEditable: true,//支持源可编辑
+            originalEditable: options?!options.readOnly:true,//支持源可编辑
             renderIndicators: false,
+            scrollbar:{
+                horizontal:"visible"
+            }
         });
 
         this._originalModel = monaco.editor.createModel(original.value, language || "sql")
@@ -203,8 +208,9 @@ class DiffEditor extends React.Component {
         let renderStyle = {
             position: 'relative',
             minHeight: "400px",
-            height: '100%',
+            // height: '100%',
             width: '100%',
+            marginTop:"20px"
         };
 
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle;
@@ -217,7 +223,7 @@ class DiffEditor extends React.Component {
     }
 }
 
-DiffEditor.prototype={
+DiffEditor.propTypes={
     /**
      * 该方法的入参为源文件Editor的引用
      */
@@ -263,4 +269,4 @@ DiffEditor.prototype={
      */
     isLog:PropTypes.bool
 }
-export default Editor;
+export default DiffEditor;

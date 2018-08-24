@@ -62,7 +62,8 @@ export default {
     },
     apiTest(params){
         return http.post(req.TEST_API,params);
-    }
-    
-
+    },
+    checkNameExist(params){
+        return http.post(req.CHECK_API_IS_EXIST,params);
+    },
 }

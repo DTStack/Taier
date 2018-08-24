@@ -60,6 +60,8 @@
      GET_TOPIC_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/getKafkaTopics`,//获取Topic
      GET_STREM_TABLE_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/tablelist`,//获取数据源列表
      GET_CREATE_TARGET_TABLE:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/getCreateTargetTableSql`,//获取目标表创建sql
+     GET_COLUMNS_OF_TABLE:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/simpleTableColumns`,//获取表的列名
+     GET_ALL_FUNCTION_NAME:`${RDOS_BASE_URL}/batch/batchFunction/getAllFunctionName`,//获取系统函数
  
      GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
      UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录

@@ -1,5 +1,6 @@
 import mc from 'mirror-creator';
 
 export const apiManageActionType = mc([
-    'GET_ALL_API_LIST'
+    'GET_ALL_API_LIST',
+    'CHANGE_DISABLE_TIP'
 ], { prefix: 'apiManage/' })
