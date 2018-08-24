@@ -4,7 +4,8 @@
 	<title>DTinsight-数栈</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
 	<meta charset="utf-8">
-	<link rel="Shortcut Icon" href="public/favicon.png">
+    <link rel="Shortcut Icon" href="public/favicon.png">
+    <!-- <link rel="manifest" href="manifest.json"> -->
 	<base href="/" />
 	<style type="text/css">
         .laoding-wrapper {
@@ -158,7 +159,22 @@
             </div>
         </div>
     </div>
-	<script type="text/javascript" src="/public/main/config/config.js"></script>
+    <script type="text/javascript" src="/public/main/config/config.js"></script>
+    <script>
+        if (navigator.serviceWorker!=null) {
+                console.log("main");
+                const version="sw_version_1";
+                navigator.serviceWorker.register("/sw.js")
+                .then(function(registration){
+                    if (localStorage.getItem('sw_version_1') !== version) {
+                        registration.update().then(function () {
+                            localStorage.setItem('sw_version_1', version)
+                        });
+                    }
+                    console.log('Registered events as scopet',registration.scope);
+                })
+            };
+    </script>
 </body>
 
 </html>
