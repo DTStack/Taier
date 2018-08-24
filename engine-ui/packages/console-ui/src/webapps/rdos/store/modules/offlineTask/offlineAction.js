@@ -288,7 +288,7 @@ export const workbenchActions = (dispatch, ownProps) => {
             });
         },
 
-        saveTask(task) {
+        saveTask(task, noMsg) {
             console.log('saveTask:', task)
             // 删除不必要的字段
             delete task.taskVersions;
@@ -327,8 +327,7 @@ export const workbenchActions = (dispatch, ownProps) => {
 
                     if (lockStatus === 0) {
                         updateTabData(res);
-                        message.success('保存成功！');
-
+                        if (!noMsg) message.success('保存成功！');
                     // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
                         confirm({
@@ -681,7 +680,7 @@ export const workbenchActions = (dispatch, ownProps) => {
         },
 
         delOfflineTask(params, nodePid, type) {
-            ajax.delOfflineTask(params)
+            return ajax.delOfflineTask(params)
                 .then(res => {
                     if (res.code == 1) {
                         message.success('删除成功');
@@ -696,6 +695,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: res.data
                         });
+                        return true;
                     }
                 });
         },

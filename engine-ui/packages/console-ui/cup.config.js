@@ -13,7 +13,7 @@ module.exports = {
 	"listen": 3001,
 	"root": "dist",
     "location": {
-        "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
+        // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
     },
     "proxyTable": {

@@ -546,6 +546,7 @@ class TaskModal extends React.Component {
                 } else {
                     // 如果是任务流创建节点，则执行保存任务工作流节点
                     values.flowId = workflow.workflowId;
+                    values.nodePid = workflow.data.nodePid;
                     createWorkflowTask(values).then(handRes) ;
                 }
             }

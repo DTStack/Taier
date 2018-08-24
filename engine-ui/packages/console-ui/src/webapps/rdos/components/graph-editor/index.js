@@ -101,9 +101,9 @@ export default class Editor extends Component {
         mxGraphHandler.prototype.guidesEnabled = true;
 
         // 禁止Edge对象移动
-        graph.isCellsMovable = function(cell) {
+        graph.isCellsMovable = function() {
             var cell = graph.getSelectionCell()
-            console.log('isCellsMovable movable:', cell)
+            // return !cell.isPart;
             return !(cell && cell.edge)
         }
         // 设置Vertex样式
@@ -114,6 +114,12 @@ export default class Editor extends Component {
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
 
+        graph.isPart = function(cell) { 
+            // var state = this.view.getState(cell);
+            // var style = (state != null) ? state.style : this.getCellStyle(cell);
+            console.log('isPart:', cell);
+            // return style['constituent'] == '1';
+        };
 
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = false;
@@ -140,10 +146,12 @@ export default class Editor extends Component {
             VertexSize.width, VertexSize.height)
 
             const v4 = graph.insertVertex(v3, null, 'block4', 10, 150, 
-            VertexSize.width, VertexSize.height)
+            VertexSize.width, VertexSize.height);
+            v4.isPart = true;
 
             const v5 = graph.insertVertex(v3, null, 'block5', 10, 250, 
             VertexSize.width, VertexSize.height)
+            v5.isPart = true;
 
             const e1 = graph.insertEdge(parent, null, '', v1, v3)
             const e2 = graph.insertEdge(parent, null, '', v2, v3)

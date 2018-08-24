@@ -15,7 +15,7 @@ import { taskTypeText } from '../../../../components/display'
 import {
     workbenchActions,
 } from '../../../../store/modules/offlineTask/offlineAction'
-import { TASK_TYPE } from '../../../../comm/const';
+import { TASK_TYPE, MENU_TYPE } from '../../../../comm/const';
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -231,13 +231,45 @@ class WorkflowEditor extends Component {
     }
 
     appendWorkflowNode = (newNode) => {
-        const { data, saveTask } = this.props;
+        const { data, saveTask, loadTreeNode } = this.props;
 
         this.updateCellData(this._currentNewVertex, newNode);
         const workflow = this.getGraphData();
 
         data.sqlText = JSON.stringify(workflow);
-        saveTask(data);
+        saveTask(data, 'noMsg');
+        
+        loadTreeNode(data.id, MENU_TYPE.TASK_DEV, {
+            taskType: TASK_TYPE.WORKFLOW,
+            parentId: data.nodePid,
+        })
+    }
+
+    deleteTask = (cell) => {
+        const { delOfflineTask, data } = this.props;
+        const ctx = this;
+        const taskData = cell.data;
+        if (taskData && cell.vertex) {
+            Modal.confirm({
+                title: '确认对话框',
+                okText: '确认',
+                cancelText: '取消',
+                content: (
+                    <div>
+                        <p>您确认删除当前节点吗？</p>
+                    </div>
+                ),
+                onOk() {
+                    delOfflineTask({taskId: taskData.id }, data.id).then(succ => {
+                        if (succ) {
+                            ctx.removeCell([cell]);
+                        }
+                    })
+                },
+            });
+        } else {
+            this.removeCell([cell]);
+        }
     }
 
     updateCellData = (cell, cellData) => {
@@ -268,7 +300,6 @@ class WorkflowEditor extends Component {
                 }
             }
         }
-        console.log('WorkflowEditor initGraphData:', cells)
         this.renderData(cells);
 
         // 如果节点有需要同步的数据, 则更新当前workflow的状态和待更数据字段
@@ -336,23 +367,7 @@ class WorkflowEditor extends Component {
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
         if (cell && cell.length > 0) {
-            if (cell[0].vertex) {
-                Modal.confirm({
-                    title: '确认对话框',
-                    okText: '确认',
-                    cancelText: '取消',
-                    content: (
-                        <div>
-                            <p>您确认删除当前节点吗？</p>
-                        </div>
-                    ),
-                    onOk() {
-                        ctx.graph.removeCells(cell)
-                    },
-                });
-            } else if (cell[0].edge) {
-                ctx.graph.removeCells(cell)
-            }
+            ctx.graph.removeCells(cell)
         }
     }
 
@@ -428,7 +443,7 @@ class WorkflowEditor extends Component {
             }
 
             menu.addItem('删除', null, function() {
-                ctx.removeCell([cell]);
+                ctx.deleteTask(cell);
             }, null, null, true) // 正常状态
 
         }
@@ -457,7 +472,7 @@ class WorkflowEditor extends Component {
 
             // 限制循环依赖
             let isLoop = false;
-            graph.traverse(target, false, function(vertex, edge) {
+            graph.traverse(target, true, function(vertex, edge) {
                 if (source.id === vertex.id) {
                     isLoop = true;
                     return false;
@@ -467,7 +482,6 @@ class WorkflowEditor extends Component {
 
             return true;
         }
-
     }
 
     initDraggableToolBar() {

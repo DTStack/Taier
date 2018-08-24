@@ -57,7 +57,6 @@ export const APPLY_RESOURCE_TYPE = {
     SOURCE: 2,
 }
 
-
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
@@ -330,6 +329,10 @@ export const offlineTaskTypeFilter = [
         id: 3,
         text: '数据同步',
         value: TASK_TYPE.SYNC,
+    }, {
+        id: 11,
+        text: '工作流',
+        value: TASK_TYPE.WORKFLOW,
     }, {
         id: 5,
         text: 'PySpark',

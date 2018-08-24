@@ -219,8 +219,10 @@
             }
         }
         .s-workflow {
-            .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/workflow.svg)
+            &>.ant-tree-node-content-wrapper {
+                .ant-tree-iconEle {
+                    background-image: url(/public/rdos/img/workflow.svg)
+                }
             }
         }
         .s-table {
