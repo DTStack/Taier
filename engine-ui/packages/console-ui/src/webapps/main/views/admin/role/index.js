@@ -31,9 +31,10 @@ class AdminRole extends Component {
         if (apps && apps.length > 0 ) {
             const initialApp = utils.getParameterByName('app');
 
-            const key = initialApp || apps[1].id;
+            const defaultApp = apps.find(app => app.default);
+            const appKey = initialApp || defaultApp.id;
 
-            this.setState({ active: key }, this.loadData)
+            this.setState({ active: appKey }, this.loadData)
         }
     }
 

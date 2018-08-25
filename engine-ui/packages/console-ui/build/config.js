@@ -14,9 +14,10 @@ module.exports = {
                 secure: false,
             },
             "/api/rdos": {
-                target: "http://172.16.0.42:9020", // formal test ser
-                // target: "http://localhost:3001", // tmp test server
+                // target: "http://172.16.0.42:9020", // formal test ser
+                target: "http://localhost:3001", // tmp test server
                 // ignorePath: true, 
+                // Mock
                 changeOrigin: true,
                 secure: false,
             },

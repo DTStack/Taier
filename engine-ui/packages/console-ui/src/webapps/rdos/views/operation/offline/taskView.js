@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
-import { Link, hashHistory } from 'react-router'
+import { hashHistory } from 'react-router'
 
 import {
-    Button, Tooltip, Spin, message,
-    Modal, notification, Icon,
+    Tooltip, Spin, message, Icon,
 } from 'antd'
 
 import utils from 'utils'
@@ -61,7 +60,6 @@ export default class TaskView extends Component {
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
-        this.listenDoubleClick()
         this.listenOnClick();
         this.hideMenu()
         this.loadTaskChidren({
@@ -128,16 +126,16 @@ export default class TaskView extends Component {
         if (exist) {
             const edges = graph.getEdgesBetween(parent, exist)
             if (edges.length === 0) {
-                graph.insertEdge(parent, null, '', parent, exist)
+                graph.insertEdge(rootCell, null, '', parent, exist)
             }
             return exist;
         } else {// 如果该节点为新节点， 则从新生成并创建
             const style = this.getStyles(data)
 
-            let newVertex = graph.insertVertex(rootCell, null, data, 0, 0,
+            let newVertex = graph.insertVertex(parent, null, data, 0, 0,
                 VertexSize.width, VertexSize.height, style
             )
-            graph.insertEdge(parent, null, '', parent, newVertex)
+            graph.insertEdge(rootCell, null, '', parent, newVertex)
             graph.view.refresh(newVertex)
   
             // 缓存节点
@@ -147,11 +145,37 @@ export default class TaskView extends Component {
         }
     }
 
-    loopTree = (graph, treeNodeData) => {
+    renderWorkflowNods = (root, treeNodeData, parent) => {
+        const graph = this.graph;
+        const rootCell = graph.getDefaultParent()
+
+        console.log('Root:', root)
+        const childNodes = treeNodeData.subTaskVOS; // 子节点
+        
+        const currentNodeData = getVertexNode(treeNodeData);
+        const style = this.getStyles(currentNodeData);
+
+        let newVertex = graph.insertVertex(root, null, currentNodeData, 0, 0,
+            VertexSize.width, VertexSize.height, style
+        )
+        if (parent) {
+            graph.insertEdge(rootCell, null, '', parent, newVertex)
+        }
+
+        if (childNodes && childNodes.length > 0) {
+            for (let i = 0; i < childNodes.length; i++) {
+                this.renderWorkflowNods(root, childNodes[i], newVertex);
+            }
+        }
+        
+    }
+
+    loopTree = (graph, treeNodeData, parent) => {
 
         if (treeNodeData) {
 
             const rootCell = graph.getDefaultParent()
+            const parentCell = parent || rootCell;
 
             const parentNodes = treeNodeData.taskVOS; // 父节点
             const childNodes = treeNodeData.subTaskVOS; // 子节点
@@ -164,7 +188,7 @@ export default class TaskView extends Component {
                 for (let i = 0; i < parentNodes.length; i++) {
                     const nodeData = getVertexNode(parentNodes[i])
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const newNode = this.insertVertex(parentCell, nodeData)
                     // 创建连接线
                     const newEdge = this.insertVertex(newNode, currentNodeData)
 
@@ -178,11 +202,19 @@ export default class TaskView extends Component {
             if (childNodes && childNodes.length > 0) {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
+
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const newNode = this.insertVertex(parentCell, nodeData)
                     const newEdge = this.insertVertex(currentNode, nodeData)
+
+                    if (nodeData.taskType === TASK_TYPE.WORKFLOW) {
+                        const workflowData = nodeData.subNodes;
+                        if (workflowData) {
+                            this.renderWorkflowNods(currentNode, workflowData);
+                        }
+                    }
                     if (childNodes[i].subTaskVOS) {
-                        this.loopTree(graph, childNodes[i])
+                        this.loopTree(graph, childNodes[i], parentCell)
                     }
                 }
             }
@@ -368,6 +400,7 @@ export default class TaskView extends Component {
         const ctx = this
         this.graph.addListener(mxEvent.onClick, function(sender, evt) {
             const cell = evt.getProperty('cell')
+            console.log('currentCell:', cell)
             if (cell && cell.vertex) {
                 let data = cell.value;
                 ctx.setState({ selectedTask: data })
