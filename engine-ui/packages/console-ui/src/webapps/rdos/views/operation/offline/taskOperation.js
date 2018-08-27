@@ -388,7 +388,6 @@ class OfflineTaskList extends Component {
             },
         }, {
             title: '状态',
-            width: 100,
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
@@ -399,7 +398,6 @@ class OfflineTaskList extends Component {
             filteredValue: taskStatus
         }, {
             title: '任务类型',
-            width: 100,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
@@ -407,7 +405,6 @@ class OfflineTaskList extends Component {
             },
             filters: offlineTaskTypeFilter,
         }, {
-            width: 100,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -416,38 +413,32 @@ class OfflineTaskList extends Component {
             },
             filters: offlineTaskPeriodFilter,
         }, {
-            width: 120,
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate',
             sorter: true,
         }, {
-            width: 120,
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
             sorter: true,
         }, {
-            width: 120,
             title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
             sorter: true,
         }, {
-            width: 120,
             title: '结束时间',
             dataIndex: 'execEndDate',
             key: 'execEndDate',
             sorter: true,
         }, {
             title: '运行时长',
-            width: 100,
             dataIndex: 'execTime',
             key: 'execTime',
             sorter: true,
         }, {
             title: '责任人',
-            width: 100,
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
@@ -471,7 +462,7 @@ class OfflineTaskList extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 20px 10px 24px', display: "inline-block" }}>
+                <div style={{ padding: '15px 20px 10px 23px', display: "inline-block" }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -479,8 +470,8 @@ class OfflineTaskList extends Component {
                     </Checkbox>
                 </div>
                 <div style={{ display: "inline-block" }}>
-                    <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
+                    <Button type="primary" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
+                    <Button type="primary" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                 </div>
             </div>
         )
@@ -653,7 +644,6 @@ class OfflineTaskList extends Component {
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '80%' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
