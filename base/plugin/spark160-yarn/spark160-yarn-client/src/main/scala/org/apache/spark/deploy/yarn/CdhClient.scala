@@ -55,13 +55,13 @@ import org.apache.spark.launcher.{LauncherBackend, SparkAppHandle, YarnCommandBu
 import org.apache.spark.util.Utils
 import org.apache.spark.SecurityManager
 
-private[spark] class DtClient(
+private[spark] class CdhClient(
                                val args: ClientArguments,
                                val hadoopConf: Configuration,
                                val sparkConf: SparkConf)
   extends Logging {
 
-  import DtClient._
+  import CdhClient._
 
   def this(clientArgs: ClientArguments, spConf: SparkConf) =
     this(clientArgs, SparkHadoopUtil.get.newConfiguration(spConf), spConf)
@@ -449,6 +449,65 @@ private[spark] class DtClient(
       }
     }
 
+    // TODO: read spark conf into classpath
+    /*val sparkArchive = sparkConf.get(SPARK_ARCHIVE)
+    if (sparkArchive.isDefined) {
+      val archive = sparkArchive.get
+      require(!isLocalUri(archive), s"${SPARK_ARCHIVE.key} cannot be a local URI.")
+      distribute(Utils.resolveURI(archive).toString,
+        resType = LocalResourceType.ARCHIVE,
+        destName = Some(LOCALIZED_LIB_DIR))
+    } else {
+      sparkConf.get(SPARK_JARS) match {
+        case Some(jars) =>
+          // Break the list of jars to upload, and resolve globs.
+          val localJars = new ArrayBuffer[String]()
+          jars.foreach { jar =>
+            if (!isLocalUri(jar)) {
+              val path = getQualifiedLocalPath(Utils.resolveURI(jar), hadoopConf)
+              val pathFs = FileSystem.get(path.toUri(), hadoopConf)
+              pathFs.globStatus(path).filter(_.isFile()).foreach { entry =>
+                val uri = entry.getPath().toUri()
+                statCache.update(uri, entry)
+                distribute(uri.toString(), targetDir = Some(LOCALIZED_LIB_DIR))
+              }
+            } else {
+              localJars += jar
+            }
+          }
+
+          // Propagate the local URIs to the containers using the configuration.
+          sparkConf.set(SPARK_JARS, localJars)
+
+        case None =>
+          // No configuration, so fall back to uploading local jar files.
+          logWarning(s"Neither ${SPARK_JARS.key} nor ${SPARK_ARCHIVE.key} is set, falling back " +
+            "to uploading libraries under SPARK_HOME.")
+          val jarsDir = new File(YarnCommandBuilderUtils.findJarsDir(
+            sparkConf.getenv("SPARK_HOME")))
+          val jarsArchive = File.createTempFile(LOCALIZED_LIB_DIR, ".zip",
+            new File(Utils.getLocalDir(sparkConf)))
+          val jarsStream = new ZipOutputStream(new FileOutputStream(jarsArchive))
+
+          try {
+            jarsStream.setLevel(0)
+            jarsDir.listFiles().foreach { f =>
+              if (f.isFile && f.getName.toLowerCase().endsWith(".jar") && f.canRead) {
+                jarsStream.putNextEntry(new ZipEntry(f.getName))
+                Files.copy(f, jarsStream)
+                jarsStream.closeEntry()
+              }
+            }
+          } finally {
+            jarsStream.close()
+          }
+
+          distribute(jarsArchive.toURI.getPath,
+            resType = LocalResourceType.ARCHIVE,
+            destName = Some(LOCALIZED_LIB_DIR))
+      }
+    }*/
+
     /**
       * Do the same for any additional resources passed in through ClientArguments.
       * Each resource category is represented by a 3-tuple of:
@@ -702,7 +761,9 @@ private[spark] class DtClient(
              |
             |Please instead use:
              | - ./spark-submit with conf/spark-defaults.conf to set defaults for an application
-             | - ./spark-submit with --driver-java-options to set -X options for a driver
+             | - ./spark-submit with --
+             |
+             |  to set -X options for a driver
              | - spark.executor.extraJavaOptions to set -X options for executors
           """.stripMargin
         logWarning(warning)
@@ -1075,7 +1136,7 @@ private[spark] class DtClient(
 
 }
 
-object DtClient extends Logging {
+object CdhClient extends Logging {
 
   def main(argStrings: Array[String]) {
     if (!sys.props.contains("SPARK_SUBMIT")) {
@@ -1093,7 +1154,7 @@ object DtClient extends Logging {
     if (!Utils.isDynamicAllocationEnabled(sparkConf)) {
       sparkConf.setIfMissing("spark.executor.instances", args.numExecutors.toString)
     }
-    new DtClient(args, sparkConf).run()
+    new CdhClient(args, sparkConf).run()
   }
 
   // Alias for the Spark assembly jar and the user jar

@@ -3,7 +3,7 @@ package com.dtstack.sql.main;
 import com.google.common.base.Charsets;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
-import org.apache.spark.sql.hive.HiveContext;
+import org.apache.spark.sql.SQLContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,14 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
-
-/**
- * spark sql 代理执行类
- * 需要单独打成jar 放到hdfs上 用于执行sql的时候调用
- * Date: 2017/4/11
- * Company: www.dtstack.com
- * @author xuchao
- */
 
 public class SqlProxy {
 
@@ -41,8 +33,11 @@ public class SqlProxy {
         }
 
         SparkConf confs = new SparkConf();
+        //confs.set("spark.driver.extraLibraryPath", "hdfs://kudu1:9000/sparkjars/lib");
+        //confs.set("spark.yarn.archive", "hdfs://kudu1:9000/sparkjars/lib");
+        //confs.set("spark.driver.userClassPathFirst", "hdfs://kudu1:9000/sparkjars/lib");
         SparkContext sparkContext = new SparkContext(confs);
-        HiveContext spark =  new HiveContext(sparkContext);
+        SQLContext spark = new SQLContext(sparkContext);
 
         //解压sql
         String unzipSql = SqlProxy.unzip(submitSql);

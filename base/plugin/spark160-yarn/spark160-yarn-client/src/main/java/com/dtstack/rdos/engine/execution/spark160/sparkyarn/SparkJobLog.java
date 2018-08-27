@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.google.common.collect.Lists;
@@ -6,13 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-/**
- * 从spark上获取的任务日志
- * Date: 2017/11/24
- * Company: www.dtstack.com
- * @author xuchao
- */
 
 public class SparkJobLog {
 

@@ -1,14 +1,12 @@
-package com.dtstack.rdos.engine.execution.sparkyarn.enums;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn.enums;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.List;
-import com.google.common.collect.Lists;
 
-/**
- * Created by sishu.yss on 2018/6/27.
- */
 public class ExceptionInfoConstrant {
 
     private static Logger logger = LoggerFactory.getLogger(ExceptionInfoConstrant.class);

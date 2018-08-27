@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import org.apache.spark.SparkConf;
 import org.slf4j.Logger;
@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
-/**
- * Created by sishu.yss on 2018/3/9.
- */
 public class SparkConfig {
 
     private static Logger logger = LoggerFactory.getLogger(SparkConfig.class);

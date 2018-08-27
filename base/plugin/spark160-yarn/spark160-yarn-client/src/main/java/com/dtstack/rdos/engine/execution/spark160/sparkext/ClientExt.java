@@ -1,28 +1,22 @@
-package com.dtstack.rdos.engine.execution.sparkext;
+package com.dtstack.rdos.engine.execution.spark160.sparkext;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnConfig;
-import com.dtstack.rdos.engine.execution.sparkyarn.util.FileUtil;
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkYarnConfig;
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.util.FileUtil;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.ClientArguments;
-import org.apache.spark.deploy.yarn.DtClient;
+import org.apache.spark.deploy.yarn.CdhClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
-/**
- * 修改Saprk yarn client ---> 修改提交之前的配置包打包
- * Date: 2018/5/9
- * Company: www.dtstack.com
- * @author xuchao
- */
 
-public class ClientExt extends DtClient {
+public class ClientExt extends CdhClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientExt.class);
 

@@ -1,19 +1,12 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
-import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
-import org.apache.commons.lang3.StringUtils;
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.enums.ExceptionInfoConstrant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
 
-/**
- * Reason:
- * Date: 2018/1/25
- * Company: www.dtstack.com
- * @author xuchao
- */
+import java.util.List;
 
 public class SparkRestartStrategy extends IRestartStrategy {
     

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn.util;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn.util;
 
 
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
@@ -15,11 +15,6 @@ import java.io.FilenameFilter;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author sishu.yss
- *
- */
 public class HadoopConf {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);

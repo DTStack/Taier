@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
@@ -7,13 +7,6 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 
 import java.util.Properties;
-
-/**
- * spark yarn 资源相关
- * Date: 2017/11/30
- * Company: www.dtstack.com
- * @author xuchao
- */
 
 public class SparkYarnResourceInfo extends EngineResourceInfo {
 

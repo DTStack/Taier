@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 
 import com.google.common.base.Strings;
@@ -6,9 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
-/**
- * Created by softfly on 17/8/10.
- */
 public class SparkYarnConfig {
 
     private static final String DEFAULT_SPARK_YARN_ARCHIVE = "%s/sparkjars/jars";

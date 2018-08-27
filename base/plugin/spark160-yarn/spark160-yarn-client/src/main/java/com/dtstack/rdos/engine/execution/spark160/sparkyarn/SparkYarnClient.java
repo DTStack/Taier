@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
@@ -15,9 +15,9 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
-import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
-import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
-import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.parser.AddJarOperator;
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.spark160.sparkext.ClientExt;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -26,14 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
-import org.apache.hadoop.yarn.api.records.QueueInfo;
-import org.apache.hadoop.yarn.api.records.Resource;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -46,16 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
-/**
- * Created by softfly on 17/8/10.
- */
 public class SparkYarnClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(SparkYarnClient.class);
@@ -128,7 +113,7 @@ public class SparkYarnClient extends AbsClient {
 
 
         String[] appArgs = new String[]{};
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
+        if(StringUtils.isNotBlank(exeArgsStr)){
             appArgs = exeArgsStr.split("\\s+");
         }
 
@@ -190,7 +175,7 @@ public class SparkYarnClient extends AbsClient {
         argList.add(PYTHON_RUNNER_CLASS);
 
         String[] appArgs = new String[]{};
-        if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
+        if(StringUtils.isNotBlank(exeArgsStr)){
             appArgs = exeArgsStr.split("\\s+");
         }
 
@@ -228,7 +213,7 @@ public class SparkYarnClient extends AbsClient {
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
 
-        Map<String, Object> paramsMap = new HashMap<>();
+            Map<String, Object> paramsMap = new HashMap<>();
 
         String zipSql = DtStringUtil.zip(jobClient.getSql());
         paramsMap.put("sql", zipSql);

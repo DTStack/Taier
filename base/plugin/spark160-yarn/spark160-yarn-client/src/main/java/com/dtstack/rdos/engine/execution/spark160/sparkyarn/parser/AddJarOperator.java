@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn.parser;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn.parser;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;

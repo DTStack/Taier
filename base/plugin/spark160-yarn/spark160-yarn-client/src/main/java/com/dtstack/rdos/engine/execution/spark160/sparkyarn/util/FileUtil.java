@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.execution.sparkyarn.util;
+package com.dtstack.rdos.engine.execution.spark160.sparkyarn.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.google.common.collect.Lists;
@@ -15,26 +15,17 @@ import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * http,hdfs文件下载
- * Date: 2017/2/21
- * Company: www.dtstack.com
- * @author xuchao
- */
 public class FileUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
