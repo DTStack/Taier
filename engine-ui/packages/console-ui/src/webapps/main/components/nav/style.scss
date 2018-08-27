@@ -43,6 +43,7 @@ $activeColor: #262e36; // 主色
         .ant-menu-submenu {
             background: #263645;
         }
+        
     }
 
     .ant-menu-sub {
@@ -157,4 +158,21 @@ $activeColor: #262e36; // 主色
     white-space: nowrap;
     overflow: hidden;
     vertical-align: top;
+}
+@media(min-width:1300px){
+    .menu_large{
+        display: inline-block;
+    }
+    .menu_mini{
+        display: none !important;
+    }
+}
+
+@media(max-width:1300px){
+    .menu_large{
+        display: none !important;
+    }
+    .menu_mini{
+        display: inline-block;
+    }
 }
