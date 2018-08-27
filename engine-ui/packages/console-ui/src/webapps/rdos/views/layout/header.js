@@ -18,7 +18,7 @@ const confirm = Modal.confirm;
 @connect(state => {
     const { workbench } = state.offlineTask;
     const { pages } = state.realtimeTask;
-    
+
     return {
         realTimeTabs: pages,
         offlineTabs: workbench.tabs,
@@ -159,7 +159,7 @@ class Header extends Component {
             project && project.projectName
                 ? project.projectAlias || project.projectName
                 : "项目选择";
-    
+
         const menu = (
             <Menu
                 onClick={this.selectedProject}
@@ -172,10 +172,10 @@ class Header extends Component {
                     width: '145px'
                 }}
             >
-                { this.getProjectItems() }
+                {this.getProjectItems()}
             </Menu>
         )
-   
+
         return (
             <SubMenu
                 className="my-menu-item"
@@ -185,7 +185,7 @@ class Header extends Component {
                         trigger={['click']}
                         placement="bottomCenter"
                     >
-                        <span 
+                        <span
                             style={{
                                 display: 'inline-block',
                                 height: '47px',
@@ -221,7 +221,7 @@ class Header extends Component {
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
-            pathname.indexOf("/data-manage") > -1 || pathname === "/"  ? false : true;
+            pathname.indexOf("/data-manage") > -1 || pathname === "/" ? false : true;
 
         return (
             <div className="header">
@@ -273,7 +273,7 @@ class Header extends Component {
                             <a href={`${basePath}/operation`}>运维中心</a>
                         </Menu.Item>
                         <Menu.Item
-                            className="my-menu-item"
+                            className="my-menu-item menu_large"
                             key="data-manage"
                             style={{ display }}
                         >
@@ -282,7 +282,7 @@ class Header extends Component {
                             </a>
                         </Menu.Item>
                         <Menu.Item
-                            className="my-menu-item"
+                            className="my-menu-item menu_large"
                             key="data-model"
                             style={{ display }}
                         >
@@ -291,7 +291,7 @@ class Header extends Component {
                             </a>
                         </Menu.Item>
                         <Menu.Item
-                            className="my-menu-item"
+                            className="my-menu-item menu_large"
                             key="project"
                             style={{ display }}
                         >
@@ -299,6 +299,49 @@ class Header extends Component {
                                 项目管理
                             </a>
                         </Menu.Item>
+                        <SubMenu
+                            className="my-menu-item menu_mini"
+                            title={(<span
+                                style={{
+                                    display: 'inline-block',
+                                    height: '47px',
+                                }}
+                                className="my-menu-item"
+                            >
+                                <span
+                                    className="menu-text-ellipsis"
+                                >
+                                    其他
+                                </span>
+                                &nbsp;
+                            <Icon type="caret-down" />
+                            </span>)}
+                        >
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="data-manage"
+                            >
+                                <a href={`${basePath}/data-manage/assets`}>
+                                    数据地图
+                            </a>
+                            </Menu.Item>
+                            <Menu.Item
+                                className="my-menu-item no-border"
+                                key="data-model"
+                            >
+                                <a href={`${basePath}/data-model/overview`}>
+                                    数据模型
+                            </a>
+                            </Menu.Item>
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="project"
+                            >
+                                <a href={`${basePath}/project/${pid}/config`}>
+                                    项目管理
+                            </a>
+                            </Menu.Item>
+                        </SubMenu>
                     </Menu>
                 </div>
 

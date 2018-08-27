@@ -4,6 +4,7 @@ import { hashHistory } from 'react-router'
 
 import ajax from '../../../api'
 import { MENU_TYPE } from '../../../comm/const'
+import utils from "utils";
 
 import {
     stopSql
