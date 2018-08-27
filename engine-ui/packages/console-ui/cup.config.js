@@ -15,7 +15,7 @@ module.exports = {
     "location": {
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
-        "/api/rdos/batch/batchTaskTask/displayOffSpring": `${base}/task/get_task_tree.json`, 
+        // "/api/rdos/batch/batchTaskTask/displayOffSpring": `${base}/task/get_task_tree.json`, 
     },
     "proxyTable": {
         "/api/dq": {
@@ -24,7 +24,7 @@ module.exports = {
             secure: false,
         },
         "/api/rdos": {
-            target: "http://172.16.8.104:9020", // formal test ser
+            target: "http://172.16.0.226:9020", // formal test ser
             changeOrigin: true,
             secure: false,
         },
