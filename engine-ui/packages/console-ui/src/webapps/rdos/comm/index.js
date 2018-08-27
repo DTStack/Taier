@@ -43,6 +43,9 @@ export function taskTypeIcon(type, task = {}) {
             case TASK_TYPE.MR: {
                 return 's-mricon'
             }
+            case TASK_TYPE.HAHDOOPMR: {
+                return 's-mricon'
+            }
             case TASK_TYPE.SYNC: {
                 return 's-datasyncicon'
             }

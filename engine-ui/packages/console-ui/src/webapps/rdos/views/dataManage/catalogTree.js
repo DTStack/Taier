@@ -151,7 +151,7 @@ class CatalogueTree extends Component {
     }
 
     onInitAdd = (data) => {
-        const expendKeys = [...this.state.expendKeys]
+        const expendKeys = [...this.state.expendKeys];
         expendKeys.push(`${data.bindData.id}`)
         this.setState({
             expendKeys,
@@ -309,7 +309,7 @@ class CatalogueTree extends Component {
                 onSelect={onSelect}
                 onChange={onChange}
                 onExpand={this.onExpand}
-                expandedKeys={ this.state.expendKeys } 
+                //expandedKeys={ this.state.expendKeys } 
                 autoExpandParent={ this.state.autoExpandParent }
             >
                 { this.renderTreeNodes() }
