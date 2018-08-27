@@ -16,6 +16,7 @@ module.exports = {
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
         // "/api/rdos/batch/batchTaskTask/displayOffSpring": `${base}/task/get_task_tree.json`, 
+        // "/api/rdos/batch/batchJobJob/displayOffSpring": `${base}/task/get_task_instances.json`, 
     },
     "proxyTable": {
         "/api/dq": {

@@ -10,7 +10,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 import { taskTypeText } from '../../../components/display'
-import { TASK_STATUS, TASK_TYPE, SCHEDULE_STATUS } from '../../../comm/const'
+import { TASK_TYPE, SCHEDULE_STATUS } from '../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -28,10 +28,10 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
-    mxSwimlaneManager,
     mxPerimeter,
     mxGraphHandler,
     mxCompactTreeLayout,
+    mxHierarchicalLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -57,8 +57,8 @@ export default class TaskView extends Component {
     initGraph = (id) => {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
-        this._vertexCells = []; // 用于缓存创建的顶点节点
-
+        this._vertexCells = {}; // 用于缓存创建的顶点节点
+    
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -82,7 +82,6 @@ export default class TaskView extends Component {
 
     loadTaskChidren = (params) => {
         const ctx = this
-
         params.type = 2;
 
         this.setState({ loading: 'loading' })
@@ -105,8 +104,8 @@ export default class TaskView extends Component {
         Api.getTaskChildren(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                ctx.setState({ data, selectedJob: data })
-                ctx.doInsertVertex(res.data)
+                ctx.setState({ data, selectedJob: data });
+                ctx.doInsertVertex(res.data);
             }
             ctx.setState({ loading: 'success'})
         })
@@ -138,9 +137,10 @@ export default class TaskView extends Component {
             let newVertex = graph.insertVertex(rootCell, null, data, 0, 0,
                 width, height, style
             )
-            newVertex.isPart = data.flowId && data.flowId !== 0;
+            newVertex.isPart = (data.flowId && data.flowId !== 0) ? true : false;
             // 缓存节点
-            this._vertexCells[data.id] = newVertex
+            this._vertexCells[data.id] = newVertex;
+
             return newVertex;
         }
     }
@@ -154,6 +154,15 @@ export default class TaskView extends Component {
 
             const currentNodeData = getVertexNode(treeNodeData)
             const currentNode = this.insertVertex(rootCell, parent, currentNodeData)
+
+            if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                const workflowData = treeNodeData.subNodes;
+                if (workflowData) {
+                    this.executeLayout(currentNode, () => {
+                        this.loopTree(currentNode, workflowData, null);
+                    })
+                }
+            }
 
             // 处理依赖节点
             if (parentNodes && parentNodes.length > 0) {
@@ -179,14 +188,6 @@ export default class TaskView extends Component {
                     const newNode = this.insertVertex(rootCell, currentNode, nodeData)
                     graph.insertEdge(rootCell, null, '', currentNode, newNode);
 
-                    if (nodeData.taskType === TASK_TYPE.WORKFLOW) {
-                        const workflowData = nodeData.subNodes;
-                        if (workflowData) {
-                            this.executeLayout(newNode, () => {
-                                this.loopTree(newNode, workflowData, null);
-                            })
-                        }
-                    }
                     if (childNodes[i].subTaskVOS) {
                         this.loopTree(rootCell, childNodes[i], null)
                     }
@@ -200,9 +201,7 @@ export default class TaskView extends Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        new mxSwimlaneManager(graph);
-
-        const layout = new mxCompactTreeLayout(graph)
+        const layout = new mxCompactTreeLayout(graph);
         layout.horizontal = false;
         layout.useBoundingBox = false;
         layout.edgeRouting = false;
@@ -224,7 +223,7 @@ export default class TaskView extends Component {
         }
 
         this.executeLayout(parent, () => {
-            this.loopTree(parent, data, parent);
+            this.loopTree(parent, data, null);
         }, () => {
             graph.center();
         })
@@ -354,19 +353,22 @@ export default class TaskView extends Component {
             if (!cell) return
 
             const currentNode = cell.value || {};
+            const isWorkflowNode = currentNode.flowId && currentNode.flowId !== 0;
 
-            menu.addItem('展开上游（6层）', null, function() {
-                ctx.loadTaskParent({
-                    taskId: currentNode.id,
-                    level: 6,
+            if (!isWorkflowNode) {
+                menu.addItem('展开上游（6层）', null, function() {
+                    ctx.loadTaskParent({
+                        taskId: currentNode.id,
+                        level: 6,
+                    })
                 })
-            })
-            menu.addItem('展开下游（6层）', null, function() {
-                ctx.loadTaskChidren({
-                    taskId: currentNode.id,
-                    level: 6,
+                menu.addItem('展开下游（6层）', null, function() {
+                    ctx.loadTaskChidren({
+                        taskId: currentNode.id,
+                        level: 6,
+                    })
                 })
-            })
+            }
             menu.addItem('补数据', null, function() {
                 clickPatchData(currentNode)
             })
@@ -381,23 +383,18 @@ export default class TaskView extends Component {
                 ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.NORMAL);
             }, null, null, currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED) // 冻结状态
 
-            menu.addItem('查看实例', null, function() {
-                hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
-            })
+            if (!isWorkflowNode) {
+                menu.addItem('查看实例', null, function() {
+                    hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
+                })
+            }
         }
     }
 
     initGraphEvent = () => {
 
-        const ctx = this
+        const ctx = this;
         const graph = this.graph;
-        
-        graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
-            }
-        })
 
         graph.addListener(mxEvent.onClick, function(sender, evt) {
             const cell = evt.getProperty('cell')
@@ -405,17 +402,6 @@ export default class TaskView extends Component {
                 let data = cell.value;
                 ctx.setState({ selectedTask: data })
             }
-        })
-
-        graph.addListener(mxEvent.FOLD_CELLS, function(sender, evt) {
-            const cells = evt.getProperty('cells');
-            const collapse = evt.getProperty('collapse');
-            const cell = cells[0];
-            // if (cell && collapse) {
-            //     cell.style = cell.style += 'verticalLabelPosition=middle;verticalAlign=middle;';
-            // } else {
-            //     cell.style = cell.style += 'verticalLabelPosition=top;verticalAlign=bottom;';
-            // }
         })
     }
 
@@ -457,13 +443,12 @@ export default class TaskView extends Component {
                     height: '100%',
                 }}
             >
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">

@@ -211,7 +211,6 @@ class WorkflowEditor extends Component {
         const ctx = this;
         switch(keyCode) {
             case KEY_CODE.BACKUP: {
-                // ctx.removeCell()
                 break;
             }
             default:
