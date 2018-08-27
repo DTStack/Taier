@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS `rdos_plugin_info`;
 CREATE TABLE `rdos_plugin_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `plugin_key` varchar(255) NOT NULL COMMENT '插件配置信息md5值',
@@ -11,7 +10,6 @@ CREATE TABLE `rdos_plugin_info` (
   UNIQUE KEY `index_plugin_id` (`plugin_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_batch_job`;
 CREATE TABLE `rdos_engine_batch_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
@@ -33,7 +31,6 @@ CREATE TABLE `rdos_engine_batch_job` (
   KEY `index_status` (`status`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_stream_job`;
 CREATE TABLE `rdos_engine_stream_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
@@ -54,7 +51,6 @@ CREATE TABLE `rdos_engine_stream_job` (
   KEY `index_status` (`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_stream_task_checkpoint`;
 create table `rdos_stream_task_checkpoint`(
 	`id` int(11) not null AUTO_INCREMENT,
 	`task_id` varchar(64) not null COMMENT '任务id',
@@ -68,7 +64,6 @@ create table `rdos_stream_task_checkpoint`(
 	PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_job_cache`;
 CREATE TABLE `rdos_engine_job_cache` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(256) NOT NULL COMMENT '任务id',
@@ -82,7 +77,6 @@ CREATE TABLE `rdos_engine_job_cache` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_plugin_job_info`;
 CREATE TABLE `rdos_plugin_job_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_id` varchar(255) NOT NULL COMMENT '任务id',
@@ -96,7 +90,6 @@ CREATE TABLE `rdos_plugin_job_info` (
   UNIQUE KEY `index_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `rdos_engine_unique_sign`;
 CREATE TABLE `rdos_engine_unique_sign` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `unique_sign` varchar(255) NOT NULL COMMENT '唯一标识',

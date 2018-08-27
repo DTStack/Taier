@@ -2,11 +2,12 @@ package com.dtstack.rdos.engine.execution.flink140;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Map;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
@@ -33,9 +34,9 @@ public class FlinkConfig {
 	private String flinkClusterId;
 
 	private String flinkJobMgrUrl;
-	
+
 	private String flinkHighAvailabilityStorageDir;
-	
+
 	private String jarTmpDir;
 
 	private String flinkPluginRoot;
@@ -51,6 +52,14 @@ public class FlinkConfig {
 	private Map<String, Object> hadoopConf;
 
 	private Map<String, Object> yarnConf;
+
+	private String flinkYarnMode;
+
+	private String flinkJarPath;
+
+	private String elasticCapacity;
+
+	private String yarnAccepterTaskNumber;
 
 
 	public String getFlinkZkAddress() {
@@ -199,5 +208,37 @@ public class FlinkConfig {
 
 	public void setQueue(String queue) {
 		this.queue = queue;
+	}
+
+	public String getFlinkYarnMode() {
+		return StringUtils.isBlank(flinkYarnMode) ? "legacy": flinkYarnMode;
+	}
+
+	public void setFlinkYarnMode(String flinkYarnMode) {
+		this.flinkYarnMode = flinkYarnMode;
+	}
+
+	public String getFlinkJarPath() {
+		return flinkJarPath;
+	}
+
+	public void setFlinkJarPath(String flinkJarPath) {
+		this.flinkJarPath = flinkJarPath;
+	}
+
+	public boolean getElasticCapacity() {
+		return  StringUtils.isBlank(elasticCapacity) ? true : Boolean.valueOf(elasticCapacity);
+	}
+
+	public void setElasticCapacity(String elasticCapacity) {
+		this.elasticCapacity = elasticCapacity;
+	}
+
+	public int getYarnAccepterTaskNumber() {
+		return StringUtils.isBlank(yarnAccepterTaskNumber) ? 2: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+	}
+
+	public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
+		this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
 	}
 }

@@ -55,6 +55,8 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         int totalCore = 0;
         int totalMem = 0;
 
+        int[] nmFree = new int[nodeResourceMap.size()];
+        int index = 0;
         for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
             int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
             int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
@@ -65,6 +67,8 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
             totalFreeCore += nodeFreeCores;
             totalCore += nodeCores;
             totalMem += nodeMem;
+
+            nmFree[index++] = nodeFreeMem;
         }
 
         if(totalFreeCore == 0 || totalFreeMem == 0){
@@ -78,7 +82,7 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         }
 
         return judgeCores(jobClient, instances, totalFreeCore, totalCore)
-                && judgeMem(jobClient, instances, totalFreeMem, totalMem);
+                && judgeMem(jobClient, instances, totalFreeMem, totalMem, nmFree);
     }
 
     private boolean judgeCores(JobClient jobClient, int instances, int freeCore, int totalCore){
@@ -97,7 +101,7 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         return needCores <= (freeCore * capacity);
     }
 
-    private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem){
+    private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem, int[] nmFree){
         Properties properties = jobClient.getConfProperties();
 
         int oneNeedMem = DEFAULT_MEM;
@@ -118,12 +122,16 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
         if(needTotal > (totalMem * capacity)){
             throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
         }
+        if (needTotal > (freeMem * capacity)){
+            return false;
+        }
 
-        return needTotal <= (freeMem * capacity);
-    }
-
-    public float getCapacity() {
-        return capacity;
+        for (int i = 1; i <= instances; i++) {
+            if (!allocateResource(nmFree, oneNeedMem)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void setCapacity(float capacity) {

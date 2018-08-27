@@ -1,5 +1,6 @@
-package com.dtstack.rdos.engine.execution.flink150;
+package com.dtstack.rdos.engine.execution.flink140;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -39,19 +40,28 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
     private int slotsPerTaskManager = 1;
     private int containerLimit;
 
+    private float capacity = 1;
+
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         int totalFreeCore = 0;
         int totalFreeMem = 0;
+
+        int totalCore = 0;
+        int totalMem = 0;
 
         int[] nmFree = new int[nodeResourceMap.size()];
         int index = 0;
         for (NodeResourceInfo tmpMap : nodeResourceMap.values()) {
             int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
             int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
+            int nodeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_TOTAL_KEY));
+            int nodeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_TOTAL_KEY));
 
             totalFreeMem += nodeFreeMem;
             totalFreeCore += nodeFreeCores;
+            totalCore += nodeCores;
+            totalMem += nodeMem;
 
             nmFree[index++] = nodeFreeMem;
         }
@@ -65,7 +75,10 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         if (properties != null && properties.containsKey(SLOTS)) {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
-        if (totalFreeCore < slotsPerTaskManager) {
+        if ((totalCore * capacity) < slotsPerTaskManager) {
+            throw new RdosException("任务设置的core 大于 分配的最大的core");
+        }
+        if ((totalFreeCore * capacity) < slotsPerTaskManager) {
             return false;
         }
 
@@ -88,7 +101,10 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
         }
 
         int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
-        if (totalFreeMem < totalMemoryRequired) {
+        if ((totalMem * capacity) < totalMemoryRequired) {
+            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
+        }
+        if ((totalFreeMem * capacity) < totalMemoryRequired) {
             return false;
         }
         if (taskmanagerMemoryMb > containerLimit || jobmanagerMemoryMb > containerLimit) {
@@ -110,5 +126,9 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
     public void setContainerLimit(int containerLimit) {
         this.containerLimit = containerLimit;
+    }
+
+    public void setCapacity(float capacity) {
+        this.capacity = capacity;
     }
 }

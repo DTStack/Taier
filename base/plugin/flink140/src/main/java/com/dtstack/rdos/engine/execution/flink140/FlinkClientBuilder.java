@@ -18,13 +18,21 @@ import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
 import org.apache.flink.yarn.YarnClusterDescriptor;
+import org.apache.flink.yarn.YarnClusterDescriptorV2;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -48,11 +56,15 @@ public class FlinkClientBuilder {
 
     private org.apache.hadoop.conf.Configuration yarnConf;
 
+    private Configuration flinkConfiguration;
+
     private static String akka_ask_timeout = "50 s";
 
     private static String akka_client_timeout="300 s";
 
     private static String akka_tcp_timeout = "60 s";
+
+    private YarnClient yarnClient;
 
     private FlinkClientBuilder(){
     }
@@ -82,10 +94,42 @@ public class FlinkClientBuilder {
         if(clusterMode.equals( Deploy.standalone.name())) {
             return createStandalone(flinkConfig);
         } else if (clusterMode.equals(Deploy.yarn.name())) {
+            initFLinkConf(flinkConfig);
             return createYarnClient(flinkConfig);
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
+    }
+
+    private void initFLinkConf(FlinkConfig flinkConfig) {
+        Configuration config = new Configuration();
+        //FIXME 浙大环境测试修改,暂时写在这
+        config.setString("akka.client.timeout",akka_client_timeout);
+        config.setString("akka.ask.timeout",akka_ask_timeout);
+        config.setString("akka.tcp.timeout",akka_tcp_timeout);
+
+        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
+            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
+            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
+        }
+
+        if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
+        }
+
+        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+        }
+
+        config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+        try {
+            FileSystem.initialize(config);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+        flinkConfiguration = config;
     }
 
     private ClusterClient createStandalone(FlinkConfig flinkConfig){
@@ -168,34 +212,89 @@ public class FlinkClientBuilder {
      */
     public ClusterClient initYarnClusterClient(FlinkConfig flinkConfig){
 
-        Configuration config = new Configuration();
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration,false);
 
-        //FIXME 浙大环境测试修改,暂时写在这
-        config.setString("akka.client.timeout",akka_client_timeout);
-        config.setString("akka.ask.timeout",akka_ask_timeout);
-        config.setString("akka.tcp.timeout",akka_tcp_timeout);
+        ApplicationId applicationId = acquireApplicationId(flinkConfig);
 
-        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
-            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
-            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }
+        YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId.toString());
+        setYarnClient(clusterClient);
+        clusterClient.setDetached(isDetached);
 
-        if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
-        }
+        LOG.warn("---init flink client with yarn session success----");
+        return clusterClient;
+    }
 
-        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
-        }
-
-        YarnClient yarnClient = YarnClient.createYarnClient();
-        yarnClient.init(yarnConf);
-        yarnClient.start();
-        String applicationId = null;
-
+    private void setYarnClient(YarnClusterClient clusterClient) {
         try {
-            config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+            Field YarnClientField = clusterClient.getClass().getDeclaredField("yarnClient");
+            YarnClientField.setAccessible(true);
+            YarnClient yarnClient = (YarnClient) YarnClientField.get(clusterClient);
+            this.yarnClient = yarnClient;
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+    }
+
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
+        Configuration newConf = new Configuration(flinkConfiguration);
+        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, true);
+        String flinkJarPath = null;
+        if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
+            if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
+                throw new RdosException("The Flink jar path is not exist");
+            }
+            flinkJarPath = flinkConfig.getFlinkJarPath();
+        }
+        if (flinkJarPath != null) {
+            clusterDescriptor.setLocalJarPath(new Path(flinkJarPath));
+        } else {
+            throw new RdosException("The Flink jar path is null");
+        }
+        clusterDescriptor.setQueue(flinkConfig.getQueue());
+//        String classPath = flinkJarPath.substring(0,flinkJarPath.lastIndexOf("/"));
+//        File path = new File(classPath);
+//        List<URL> classpaths = new ArrayList<URL>();
+//        if (path.isDirectory() && path.listFiles()!=null){
+//            for (File file:path.listFiles()){
+//                if (file.toURI().toURL().toString().endsWith(flinkJarPath)){
+//                    continue;
+//                }
+//                classpaths.add(file.toURI().toURL());
+//            }
+//        }
+//        clusterDescriptor.setProvidedUserJarFiles(classpaths);
+        return clusterDescriptor;
+    }
+
+    private AbstractYarnClusterDescriptor getClusterDescriptor(Configuration flinkConfiguration, boolean flip6) {
+        AbstractYarnClusterDescriptor clusterDescriptor;
+        if (flip6) {
+            clusterDescriptor = new YarnClusterDescriptorV2(
+                    flinkConfiguration,
+                    ".");
+        } else {
+            clusterDescriptor = new YarnClusterDescriptor(
+                    flinkConfiguration,
+                    ".");
+        }
+        try {
+            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
+            confField.setAccessible(true);
+            confField.set(clusterDescriptor, yarnConf);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+        return clusterDescriptor;
+    }
+
+    private ApplicationId acquireApplicationId(FlinkConfig flinkConfig) {
+        try (YarnClient yarnClient = YarnClient.createYarnClient()){
+            yarnClient.init(yarnConf);
+            yarnClient.start();
+
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
@@ -204,6 +303,7 @@ public class FlinkClientBuilder {
 
             int maxMemory = -1;
             int maxCores = -1;
+            ApplicationId applicationId = null;
             for(ApplicationReport report : reportList) {
                 if(!report.getName().startsWith("Flink session")){
                     continue;
@@ -222,38 +322,19 @@ public class FlinkClientBuilder {
                 if(thisMemory > maxMemory || thisMemory == maxMemory && thisCores > maxCores) {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
-                    applicationId = report.getApplicationId().toString();
+                    applicationId = report.getApplicationId();
                 }
 
             }
 
-            if(StringUtils.isEmpty(applicationId)) {
+            if (applicationId == null) {
                 throw new RdosException("No flink session found on yarn cluster.");
             }
-
+            return applicationId;
         } catch (Exception e) {
             LOG.error("",e);
             throw new RdosException(e.getMessage());
         }
-
-        yarnClient.stop();
-
-        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(config, ".");
-        try {
-            FileSystem.initialize(config);
-            Field confField = AbstractYarnClusterDescriptor.class.getDeclaredField("conf");
-            confField.setAccessible(true);
-            confField.set(clusterDescriptor, yarnConf);
-        } catch (Exception e) {
-            LOG.error("", e);
-            throw new RdosException(e.getMessage());
-        }
-
-        YarnClusterClient clusterClient = clusterDescriptor.retrieve(applicationId);
-        clusterClient.setDetached(isDetached);
-
-        LOG.warn("---init flink client with yarn session success----");
-        return clusterClient;
     }
 
     public org.apache.hadoop.conf.Configuration getHadoopConf() {
@@ -272,4 +353,11 @@ public class FlinkClientBuilder {
         this.yarnConf = yarnConf;
     }
 
+    public Configuration getFlinkConfiguration() {
+        return flinkConfiguration;
+    }
+
+    public YarnClient getYarnClient() {
+        return yarnClient;
+    }
 }

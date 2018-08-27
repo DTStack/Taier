@@ -285,7 +285,8 @@ public class RestartDealer {
 
         public JobClient getJobClient(){
             try {
-                JobClient jobClient = queue.poll(2, TimeUnit.SECONDS);
+                //while循环每间隔 CHECK_INTERVAL 会遍历队列（队列为空线程会被阻塞，超时时间设置小一点）
+                JobClient jobClient = queue.poll(100, TimeUnit.MILLISECONDS);
                 if(jobClient != null){
                     this.lastExeTime = System.currentTimeMillis();
                 }
