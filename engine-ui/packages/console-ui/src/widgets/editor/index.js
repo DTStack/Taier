@@ -14,7 +14,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
-import { registeCompleteItemsProvider as dtsql_registeCompleteItemsProvider, disposeProvider as dtsql_dispose } from "./languages/dtsql/dtsql.contribution.js"
+import { registeCompleteItemsProvider as dtsql_registeCompleteItemsProvider, disposeProvider as dtsql_dispose, onChange as dtsql_onChange } from "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
@@ -23,10 +23,21 @@ import { defaultOptions } from './config';
 const provideCompletionItemsMap = {
     dtsql: {
         register: dtsql_registeCompleteItemsProvider,
-        dispose: dtsql_dispose
+        dispose: dtsql_dispose,
+        onChange: dtsql_onChange
     }
 }
-
+function delayFunctionWrap(func){
+    let delayTime=200;
+    let _timeClock;
+    return function(){
+        const arg=arguments;
+        _timeClock&&clearTimeout(_timeClock);
+        _timeClock=setTimeout(()=>{
+            func(...arg);
+        },delayTime)
+    }
+}
 class Editor extends React.Component {
 
     constructor(props) {
@@ -73,8 +84,8 @@ class Editor extends React.Component {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
         }
-        if(languageConfig!==this.props.languageConfig){
-            this.updateMonarch(languageConfig,language)
+        if (languageConfig !== this.props.languageConfig) {
+            this.updateMonarch(languageConfig, language)
         }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)
@@ -89,9 +100,9 @@ class Editor extends React.Component {
         this.destroyMonaco();
         this.disposeProviderProxy();
     }
-    updateMonarch(config,language){
-        if(config&&language){
-            monaco.languages.setMonarchTokensProvider(language,config);
+    updateMonarch(config, language) {
+        if (config && language) {
+            monaco.languages.setMonarchTokensProvider(language, config);
         }
     }
     isValueExist(props) {
@@ -149,12 +160,23 @@ class Editor extends React.Component {
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
+    languageValueOnChange() {
+        const newValue = this.monacoInstance.getValue();
+        const languageId = this.monacoInstance.getModel().getModeId();
+        if (provideCompletionItemsMap[languageId] && provideCompletionItemsMap[languageId].onChange) {
+            provideCompletionItemsMap[languageId].onChange(newValue, this.monacoInstance);
+        }
+    }
+
+    delayLanguageValueOnChange=delayFunctionWrap(this.languageValueOnChange.bind(this))
 
     initEditorEvent() {
+        this.languageValueOnChange();
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");
             const { onChange, value } = this.props;
             const newValue = this.monacoInstance.getValue();
+            this.delayLanguageValueOnChange();
             if (onChange) {
                 this.log("订阅事件触发");
                 onChange(newValue, this.monacoInstance);

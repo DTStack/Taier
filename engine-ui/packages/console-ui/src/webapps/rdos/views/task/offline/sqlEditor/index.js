@@ -38,6 +38,7 @@ class EditorContainer extends Component {
         funcCompleteItems: []
     }
     _tableColumns = {}
+    _tableLoading={}
     componentDidMount() {
 
         const currentNode = this.props.currentTabData;
@@ -174,7 +175,7 @@ class EditorContainer extends Component {
         execSql(currentTab, task, params, sqls)
             .then((complete) => {
                 if (complete) {
-                    this._tableColumns={};
+                    this._tableColumns = {};
                     this.initTableList();
                 }
             });
@@ -243,17 +244,18 @@ class EditorContainer extends Component {
         this.props.resetConsole(currentTab)
     }
     completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}) {
-        const { tables = [] } = status;
+        const { autoComplete = {}, syntax = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
-
-        if (tables.length) {
+        if (autoComplete && autoComplete.locations) {
             let promiseList = [];
-            for (let tableList of tables) {
-                for (let tableName of tableList) {
-                    promiseList.push(this.getTableColumns(tableName))
+            for (let location of autoComplete.locations) {
+                if (location.type == "table") {
+                    for (let identifierChain of location.identifierChain) {
+                        promiseList.push(this.getTableColumns(identifierChain.name))
+                    }
                 }
             }
             Promise.all(promiseList)
@@ -293,17 +295,21 @@ class EditorContainer extends Component {
         if (tableColumns[tableName]) {
             return Promise.resolve(tableColumns[tableName])
         }
-        return API.getColumnsOfTable({ tableName })
-            .then(
-                (res) => {
-                    if (res.code == 1) {
-                        tableColumns[tableName] = [tableName, res.data];
-                        return tableColumns[tableName];
-                    } else {
-                        console.log("get table columns error")
-                    }
+        if(this._tableLoading[tableName]){
+            return this._tableLoading[tableName]
+        }
+        this._tableLoading[tableName]=API.getColumnsOfTable({ tableName })
+        .then(
+            (res) => {
+                if (res.code == 1) {
+                    tableColumns[tableName] = [tableName, res.data];
+                    return tableColumns[tableName];
+                } else {
+                    console.log("get table columns error")
                 }
-            )
+            }
+        )
+        return this._tableLoading[tableName];
     }
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })

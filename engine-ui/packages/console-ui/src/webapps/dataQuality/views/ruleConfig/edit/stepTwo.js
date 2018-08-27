@@ -148,14 +148,7 @@ export default class StepTwo extends Component {
 
     renderColumns(text, record, type) {
         let obj = {
-            children: <Form layout="inline">
-                {
-                    record.editable ?
-                        this.renderEditTD(text, record, type)
-                        :
-                        this.renderTD(text, record, type)
-                }
-            </Form>,
+            children: null,
             props: {},
         };
 
@@ -166,15 +159,22 @@ export default class StepTwo extends Component {
                     break;
                 case 'functionId':
                     obj.props.colSpan = 0;
-                    break;
+                    return obj;
                 case 'filter':
                     obj.props.colSpan = 0;
-                    break;
+                    return obj;
                 default:
                     break;
             }
         }
-
+        obj.children = <Form layout="inline">
+            {
+                record.editable ?
+                    this.renderEditTD(text, record, type)
+                    :
+                    this.renderTD(text, record, type)
+            }
+        </Form>;
         return obj;
     }
 
@@ -188,15 +188,15 @@ export default class StepTwo extends Component {
 
     // 校验字段回调
     onColumnNameChange = (name) => {
-        const {currentRule} = this.state;
+        const { currentRule } = this.state;
         const { form, ruleConfig } = this.props;
         const { tableColumn, monitorFunction } = ruleConfig;
 
         let columnType = tableColumn.filter(item => item.key === name)[0].type,
             functionList = monitorFunction[columnType];
 
-        let fields={};
-        fields[`functionId@${currentRule.id}`]=undefined;
+        let fields = {};
+        fields[`functionId@${currentRule.id}`] = undefined;
 
         form.setFieldsValue(fields);
         this.setState({
@@ -212,7 +212,7 @@ export default class StepTwo extends Component {
     // 统计函数变化回调
     onFunctionChange = (id) => {
         const { form } = this.props;
-        const { functionList, currentRule:currentRuleState } = this.state;
+        const { functionList, currentRule: currentRuleState } = this.state;
 
         let isPercentage = functionList.filter(item => item.id == id)[0].isPercent,
             nameZc = functionList.filter(item => item.id == id)[0].nameZc,
@@ -228,9 +228,9 @@ export default class StepTwo extends Component {
             percentType: isPercentage === 1 ? 'limit' : 'free'
         };
 
-        let fields={};
-        fields[`verifyType@${currentRuleState.id}`]=isEnum ? '1' : undefined;
-        fields[`operator@${currentRuleState.id}`]=undefined;
+        let fields = {};
+        fields[`verifyType@${currentRuleState.id}`] = isEnum ? '1' : undefined;
+        fields[`operator@${currentRuleState.id}`] = undefined;
 
         form.setFieldsValue(fields);
 
@@ -500,7 +500,7 @@ export default class StepTwo extends Component {
 
         let newData = [...this.props.editParams.rules],
             target = newData.filter(item => id === item.id)[0];
-            
+
 
         if (!isEmpty(currentRule)) {
             let current = newData.filter(item => currentRule.id === item.id)[0];
@@ -567,12 +567,12 @@ export default class StepTwo extends Component {
         for (let i = 0; i < newData.length; i++) {
             const item = newData[i];
             let itemPass = false; //当前元素校验是否通过
-                 
+
             if (item.id == currentRule.id) {
                 continue;
             }
 
-            for (let j=0;j<keys.length;j++) {
+            for (let j = 0; j < keys.length; j++) {
                 let key = keys[j];
                 if (currentRule[key] != item[key]) {
                     itemPass = true;//检测到一项不同，通过。
@@ -600,11 +600,11 @@ export default class StepTwo extends Component {
         if (currentRule.operator === 'in') {
             fields = enumFields;
         }
-        if(!this.checkRepeat()){
+        if (!this.checkRepeat()) {
             message.error("规则不能重复！");
-            return;  
+            return;
         }
-        this.props.form.validateFields(null, { force: true }, (err, values) => {
+        this.props.form.validateFields(null, {}, (err, values) => {
             console.log(err, values)
             if (!err) {
                 delete currentRule.editStatus;
