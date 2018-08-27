@@ -60,7 +60,7 @@ function customCompletionItemsCreater(_customCompletionItems){
                 kind: monaco.languages.CompletionItemKind[type||"Text"],
                 detail: detail,
                 insertText: {
-                    value: type=="Function"?(name + "($1) "):(name + " ")
+                    value: type=="Function"?(name + "($1) "):(name)
                 },
                 sortText:sortIndex+index+name
             }
