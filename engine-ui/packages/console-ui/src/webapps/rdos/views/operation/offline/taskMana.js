@@ -266,7 +266,7 @@ class OfflineTaskMana extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :
                 <a onClick={() => { this.showTask(record) }}>
@@ -275,7 +275,6 @@ class OfflineTaskMana extends Component {
                 return content;
             },
         }, {
-            width: 120,
             title: '发布时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
@@ -283,7 +282,6 @@ class OfflineTaskMana extends Component {
                 return <span>{utils.formatDateTime(text)}</span>
             },
         }, {
-            width: 120,
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
@@ -292,7 +290,6 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskTypeFilter,
         }, {
-            width: 120,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -301,7 +298,6 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskPeriodFilter,
         }, {
-            width: 100,
             title: '责任人',
             dataIndex: 'userName',
             key: 'userName',
@@ -327,7 +323,7 @@ class OfflineTaskMana extends Component {
     tableFooter = (currentPageData) => {
         return (
             <Row>
-                <Col className="inline" style={{ padding: '15px 10px 10px 38px' }}>
+                <Col className="inline" style={{ padding: '15px 10px 10px 23px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -448,7 +444,6 @@ class OfflineTaskMana extends Component {
                         dataSource={tasks.data || []}
                         onChange={this.handleTableChange}
                         footer={this.tableFooter}
-                        scroll={{ y: '80%' }}
                     />
                     <SlidePane 
                         className="m-tabs bd-top bd-right m-slide-pane"
