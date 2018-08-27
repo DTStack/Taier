@@ -6,8 +6,8 @@
     "theme_color": "#8888ff",
     "background_color": "#aaaaff",
     "icons": [{
-        "src": "public/favicon.png",
-        "sizes": "120x120",
+        "src": "public/main/img/icon_5.png",
+        "sizes": "144x144",
         "type": "image/png"
     }]
 }

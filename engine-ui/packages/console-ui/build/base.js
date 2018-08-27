@@ -138,6 +138,9 @@ module.exports = function() {
                 }, {
                     from: path.resolve(MY_PATH.PWA,'sw.js'), 
                     to: path.resolve(MY_PATH.BUILD_PATH),
+                }, {
+                    from: path.resolve(MY_PATH.PWA,'manifest.json'), 
+                    to: path.resolve(MY_PATH.BUILD_PATH),
                 }
             ]),
 
