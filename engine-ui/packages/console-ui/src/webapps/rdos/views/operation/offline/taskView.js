@@ -105,24 +105,75 @@ export default class TaskView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data });
-                ctx.doInsertVertex(res.data);
+                ctx.doInsertVertex(data);
             }
             ctx.setState({ loading: 'success'})
         })
     }
 
-    insertVertex = (rootCell, parent, data) => {
+    preHandGraphTree = (data) => {
 
-        const graph = this.graph;
-        const exist = this._vertexCells[data.id];
+        const relationTree = [];
 
-        if (exist) {
-            const edges = graph.getEdgesBetween(parent, exist)
-            if (edges.length === 0) {
-                graph.insertEdge(rootCell, null, '', parent, exist)
+        const loop = (treeNodeData, parent) => {
+
+            if (treeNodeData) {
+                const parentNodes = treeNodeData.taskVOS; // 父节点
+                const childNodes = treeNodeData.subTaskVOS; // 子节点
+                const currentNodeData = getVertexNode(treeNodeData)
+
+                if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                    const workflowData = treeNodeData.subNodes;
+                    if (workflowData) {
+                        loop(workflowData, currentNodeData)
+                    }
+                }
+
+                const dataItem = {
+                    parent: parent,
+                    source: currentNodeData,
+                }
+
+                // 处理依赖节点
+                if (parentNodes && parentNodes.length > 0) {
+                    for (let i = 0; i < parentNodes.length; i++) {
+                        const nodeData = getVertexNode(parentNodes[i])
+                        dataItem.source = nodeData;
+                        dataItem.target = currentNodeData;
+                        if (parentNodes[i].taskVOS) {
+                            loop(parentNodes[i])
+                        }
+                    }
+                }
+    
+                // 处理被依赖节点
+                if (childNodes && childNodes.length > 0) {
+                    for (let i = 0; i < childNodes.length; i++) {
+                        const nodeData = getVertexNode(childNodes[i])
+                        dataItem.target = nodeData;
+                        if (childNodes[i].subTaskVOS) {
+                            loop(childNodes[i])
+                        }
+                    }
+                }
+
+                relationTree.push(dataItem);
             }
-            return exist;
-        } else {// 如果该节点为新节点， 则从新生成并创建
+        }
+
+        loop(data);
+
+        return relationTree;
+    }
+
+    renderGraph = (dataArr) => {
+        const cellCache = this._vertexCells;
+        const graph = this.graph;
+        const defaultParent = graph.getDefaultParent();
+
+        const getVertex = (parentCell, data) => {
+            if (!data) return null;
+
             let style = this.getStyles(data.taskType);
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
 
@@ -134,64 +185,51 @@ export default class TaskView extends Component {
                 style += 'shape=swimlane;';
             }
 
-            let newVertex = graph.insertVertex(rootCell, null, data, 0, 0,
-                width, height, style
+            const cell = graph.insertVertex(
+                parentCell,
+                data.id, 
+                data, 
+                0, 0,
+                width, height, 
+                style,
             )
-            newVertex.isPart = (data.flowId && data.flowId !== 0) ? true : false;
-            // 缓存节点
-            this._vertexCells[data.id] = newVertex;
 
-            return newVertex;
+            return cell
         }
-    }
 
-    loopTree = (rootCell, treeNodeData, parent) => {
+        if (dataArr) {
+            for (let i = 0; i < dataArr.length; i++) {
+                const { source, target, parent } = dataArr[i];
 
-        if (treeNodeData) {
-            const graph = this.graph;
-            const parentNodes = treeNodeData.taskVOS; // 父节点
-            const childNodes = treeNodeData.subTaskVOS; // 子节点
+                let sourceCell = source ? cellCache[source.id] : undefined;
+                let targetCell = target ? cellCache[target.id] : undefined;
+                let parentCell = defaultParent;
 
-            const currentNodeData = getVertexNode(treeNodeData)
-            const currentNode = this.insertVertex(rootCell, parent, currentNodeData)
-
-            if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
-                const workflowData = treeNodeData.subNodes;
-                if (workflowData) {
-                    this.executeLayout(currentNode, () => {
-                        this.loopTree(currentNode, workflowData, null);
-                    })
-                }
-            }
-
-            // 处理依赖节点
-            if (parentNodes && parentNodes.length > 0) {
-                for (let i = 0; i < parentNodes.length; i++) {
-                    const nodeData = getVertexNode(parentNodes[i])
-                    // 插入新节点
-                    const newNode = this.insertVertex(rootCell, null, nodeData)
-                    // 创建连接线
-                    graph.insertEdge(rootCell, null, '', newNode, currentNode)
-
-                    if (parentNodes[i].taskVOS) {
-                        this.loopTree(rootCell, parentNodes[i], null)
+                if (parent) {
+                    const existCell = cellCache[parent.id];
+                    if (existCell) {
+                        parentCell = existCell
+                    } else {
+                        parentCell = getVertex(defaultParent, parent);
+                        cellCache[parent.id] = parentCell;
                     }
                 }
-            }
 
-            // 处理被依赖节点
-            if (childNodes && childNodes.length > 0) {
-                for (let i = 0; i < childNodes.length; i++) {
-                    const nodeData = getVertexNode(childNodes[i])
-
-                    // 插入新节点
-                    const newNode = this.insertVertex(rootCell, currentNode, nodeData)
-                    graph.insertEdge(rootCell, null, '', currentNode, newNode);
-
-                    if (childNodes[i].subTaskVOS) {
-                        this.loopTree(rootCell, childNodes[i], null)
-                    }
+                if (source && !sourceCell) {
+                    sourceCell = getVertex(parentCell, source);
+                    cellCache[source.id] = sourceCell;
                 }
+                if (target && !targetCell) {
+                    targetCell = getVertex(parentCell, target);
+                    cellCache[target.id] = targetCell;
+                }
+
+                const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                if (edges.length === 0) {
+                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
+                }
+
+                this.executeLayout(parentCell);
             }
         }
     }
@@ -199,7 +237,6 @@ export default class TaskView extends Component {
     doInsertVertex = (data) => {
         const graph = this.graph;
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
         const layout = new mxCompactTreeLayout(graph);
         layout.horizontal = false;
@@ -222,11 +259,9 @@ export default class TaskView extends Component {
             }
         }
 
-        this.executeLayout(parent, () => {
-            this.loopTree(parent, data, null);
-        }, () => {
-            graph.center();
-        })
+        const arrayData = this.preHandGraphTree(data);
+        this.renderGraph(arrayData);
+        graph.center();
     }
 
     loadEditor = (container) => {
