@@ -125,6 +125,7 @@ class WorkflowEditor extends Component {
     componentWillUnmount () {
         console.log('WorkflowEditor componentWillUnmount', this)
         mxEvent.removeAllListeners();
+        this.props.resetWorkflow();
     }
 
     loadEditor = (container) => {
@@ -573,11 +574,11 @@ class WorkflowEditor extends Component {
                 graph.clearSelection();
                 const cellState = graph.view.getState(cell);
                 const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#90D5FF';
+                style[mxConstants.STYLE_FILLCOLOR] = '#dbeffc';
                 applyCellStyle(cellState, style);
-                
+
                 const edges = graph.getOutgoingEdges(cell);
-                graph.setCellStyle(`strokeColor=#90D5FF;strokeWidth=2;`, edges);
+                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, edges);
                 selectedCell = cell;
             }
         })
@@ -785,6 +786,7 @@ class WorkflowEditor extends Component {
                             width: '400px',
                             height: '80px',
                             top: '150px',
+                            left: '100px',
                         }}
                         visible={this.state.showSearch}
                         onCancel={() => this.setState({showSearch: false})}
@@ -823,7 +825,7 @@ class WorkflowEditor extends Component {
     }
 
     refresh = () => {
-        this.componentDidMount()
+        this.graph.refresh()
     }
 
     graphEnable() {

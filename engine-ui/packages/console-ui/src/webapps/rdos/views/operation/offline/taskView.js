@@ -140,7 +140,7 @@ export default class TaskView extends Component {
                         dataItem.source = nodeData;
                         dataItem.target = currentNodeData;
                         if (parentNodes[i].taskVOS) {
-                            loop(parentNodes[i])
+                            loop(parentNodes[i], parent)
                         }
                     }
                 }
@@ -151,7 +151,7 @@ export default class TaskView extends Component {
                         const nodeData = getVertexNode(childNodes[i])
                         dataItem.target = nodeData;
                         if (childNodes[i].subTaskVOS) {
-                            loop(childNodes[i])
+                            loop(childNodes[i], parent)
                         }
                     }
                 }
