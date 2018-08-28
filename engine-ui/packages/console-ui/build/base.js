@@ -64,7 +64,7 @@ module.exports = function() {
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
                         path.resolve(MY_PATH.WEB_PUBLIC)
                     ],
-                    sideEffects: false,
+                    // sideEffects: false,
                     // loader: ['babel-loader?cacheDirectory']
                     loader: [
                         "react-hot-loader/webpack",
