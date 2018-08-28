@@ -26,7 +26,6 @@ const {
     mxEdgeStyle,
     mxPerimeter,
     mxCompactTreeLayout,
-    mxUtils,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -349,21 +348,24 @@ export default class TaskView extends Component {
             <div className="graph-editor" 
                 style={{  position: 'relative', }}
             >
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}>
-                        <p style={{
-                            verticalAlign: 'middle',
-                            textAlign: 'center',
-                            lineHeight: '20'
-                        }}>
-                            “未发布”的任务无发查看依赖视图
-                        </p>
-                    </div>
+                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                    {
+                        !this.state.data &&
+                        <div className="absolute-middle" style={{ width: '100%', height: '100%' }}>
+                            <p style={{
+                                verticalAlign: 'middle',
+                                textAlign: 'center',
+                                lineHeight: '20'
+                            }}>
+                                “未发布”的任务无发查看依赖视图
+                            </p>
+                        </div>
+                    }
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">

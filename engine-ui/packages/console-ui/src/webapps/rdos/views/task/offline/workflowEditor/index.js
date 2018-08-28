@@ -87,6 +87,7 @@ class WorkflowEditor extends Component {
         if (workflowData) {
             console.log('didMount:', this.props.data);
             this.initGraphData(workflowData);
+            this.listenGraphUpdate();
         }
     }
 
@@ -283,7 +284,7 @@ class WorkflowEditor extends Component {
     }
 
     initGraphData = (workflowData) => {
-        const { tabs, updateTaskField } = this.props;
+        const { tabs, updateTabData, data } = this.props;
         const cells = JSON.parse(workflowData);
 
         const waitUpdateTabs = [];
@@ -304,11 +305,11 @@ class WorkflowEditor extends Component {
         this.renderData(cells);
 
         // 如果节点有需要同步的数据, 则更新当前workflow的状态和待更数据字段
-        if (waitUpdateTabs.length > 0) {
-            updateTaskField({
-                toUpdateTasks: waitUpdateTabs,
-            });
-        }
+        updateTabData({
+            id: data.id,
+            toUpdateTasks: waitUpdateTabs,
+            notSynced: waitUpdateTabs.length > 0 ? true : false
+        });
     }
 
     saveTask = (cell) => {
@@ -579,7 +580,10 @@ class WorkflowEditor extends Component {
                 selectedCell = null;
             }
         }
+    }
 
+    listenGraphUpdate = () => {
+        const graph = this.graph;
         graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELL_CONNECTED, this.updateGraphData)

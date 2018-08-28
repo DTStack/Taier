@@ -33,7 +33,6 @@ class FolderTree extends React.Component {
 
     onLoadData(type, treeNode) {
         const { loadTreeNode, ispicker } = this.props;
-        const ctx = this;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType

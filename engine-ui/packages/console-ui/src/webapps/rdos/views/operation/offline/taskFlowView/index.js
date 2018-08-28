@@ -275,7 +275,7 @@ class TaskFlowView extends Component {
                 this._vertexCells[cacheKey] = newVertex;
                 
                 // 遍历工作流节点
-                if (isWorkflow && data.subNodes) {
+                if (isWorkflow) {
                     newVertex.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
                     this.executeLayout(newVertex, () => {
                         this.insertVertex(newVertex, data.subNodes, null, type);
