@@ -2,14 +2,12 @@ package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.ClientCache;
-import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.JobSubmitProcessor;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
-import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,9 +17,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 管理任务执行队列
@@ -40,7 +44,9 @@ public class ExeQueueMgr {
 
     private Map<String, EngineTypeQueue> engineTypeQueueMap = Maps.newConcurrentMap();
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService;
+
+    private ExecutorService jobPool;
 
     private String localAddress = ConfigParse.getLocalAddress();
 
@@ -56,21 +62,24 @@ public class ExeQueueMgr {
             typeList.add(engineTypeStr);
             engineTypeQueueMap.put(engineTypeStr, new EngineTypeQueue(engineTypeStr));
         });
-
+        executorService =new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("timerClear"));
         executorService.submit(new TimerClear(typeList));
+        jobPool = new ThreadPoolExecutor(3, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(true), new CustomThreadFactory("jobExecutor"));
     }
 
     public static ExeQueueMgr getInstance(){
         return exeQueueMgr;
     }
 
-    public void add(JobClient jobClient) throws InterruptedException {
-        EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(jobClient.getEngineType());
-        if(engineTypeQueue == null){
-            throw new RdosException("not support engineType:" + jobClient.getEngineType());
+    public boolean add(JobClient jobClient) {
+        boolean check = checkCanAddToWaitQueue(jobClient.getEngineType(),jobClient.getGroupName());
+        if (check){
+            EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(jobClient.getEngineType());
+            engineTypeQueue.add(jobClient);
         }
-
-        engineTypeQueue.add(jobClient);
+        return check;
     }
 
     public boolean remove(String engineType, String groupName, String taskId){
@@ -106,12 +115,7 @@ public class ExeQueueMgr {
             return false;
         }
 
-        EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(engineType);
-        if(engineTypeQueue == null){
-            engineTypeQueue = new EngineTypeQueue(engineType);
-            engineTypeQueueMap.put(engineType, engineTypeQueue);
-        }
-
+        EngineTypeQueue engineTypeQueue = engineTypeQueueMap.computeIfAbsent(engineType, k->new EngineTypeQueue(engineType));
         return engineTypeQueue.checkCanAddToWaitQueue(groupName);
     }
 
@@ -135,76 +139,37 @@ public class ExeQueueMgr {
     }
 
     public void checkQueueAndSubmit(){
+        CompletionService<JobSubmitProcessor> cService = new ExecutorCompletionService<>(jobPool);
+        Semaphore semaphore = new Semaphore(0);
         for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
-
-            final boolean[] needBreak = {false};
-
-            try{
-                String engineType = engineTypeQueue.getEngineType();
-                Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
-
-                engineTypeQueueMap.values().forEach(gq ->{
-
+            String engineType = engineTypeQueue.getEngineType();
+            Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
+            engineTypeQueueMap.values().forEach(gq ->{
+                try{
                     //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
                     if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
                         return;
                     }
-
                     JobClient jobClient = gq.getTop();
                     if(jobClient == null){
                         return;
                     }
-
-                    //判断资源是否满足
-                    /*IClient clusterClient = null;
-
-                    try{
-                        clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-                    }catch (Exception e){
-                        LOG.info("get engine client exception, type:{}, plugin info:{}", jobClient.getEngineType(), jobClient.getPluginInfo());
-                        LOG.info("", e);
-                        gq.remove(jobClient.getTaskId());
-                        addJobToFail(jobClient, e);
-                        return;
-                    }
-
-                    //TODO clusterClient 在获取资源的时候卡死了==》导致其他任务跟随卡死
-                    //要嘛获取资源的时候添加一个超时时间,将之后的处理都设置到线程里面
-                    EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-
-                    try{
-                        if(resourceInfo == null || !resourceInfo.judgeSlots(jobClient)){
-                            return;
-                        }
-                    }catch (RdosException e){
-                        //判断资源的时候抛出异常,直接将任务设置为失败
-                        gq.remove(jobClient.getTaskId());
-                        addJobToFail(jobClient, e);
-                        return;
-                    }*/
-
-                    gq.remove(jobClient.getTaskId());
-                    try {
-                        JobSubmitExecutor.getInstance().addJobToProcessor(new JobSubmitProcessor(jobClient));
-                    } catch (RejectedExecutionException e) {
-                        //如果添加到执行线程池失败则添加回等待队列
-                        try {
-                            needBreak[0] = true;
-                            add(jobClient);
-                        } catch (InterruptedException e1) {
-                            LOG.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e1);
-                        }
-                    } catch (Exception e){
-                        LOG.error("", e);
-                    }
-
-                });
-            }catch (Exception e){
-                LOG.error("", e);
-            }
-
-            if(needBreak[0]){
-                break;
+                    cService.submit(new JobSubmitProcessor(jobClient, gq));
+                    semaphore.release();
+                }catch (Exception e){
+                    LOG.error("", e);
+                }
+            });
+        }
+        while (semaphore.tryAcquire()){
+            try {
+                Future<JobSubmitProcessor> future = cService.take();
+                JobSubmitProcessor processor = future.get();
+                if (processor!=null){
+                    processor.getGq().remove(processor.getJobClient().getTaskId());
+                }
+            } catch (Exception e){
+                LOG.error("{}",e);
             }
         }
     }

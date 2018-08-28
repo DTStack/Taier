@@ -252,8 +252,8 @@ public class JobClient extends OrderObject{
         this.classArgs = classArgs;
     }
 
-	public void submitJob() throws Exception {
-		JobSubmitExecutor.getInstance().submitJob(this);
+	public boolean submitJob() {
+		return JobSubmitExecutor.getInstance().submitJob(this);
 	}
 
 	public void stopJob() throws Exception {

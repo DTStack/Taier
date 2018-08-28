@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,12 +30,6 @@ public class JobSubmitExecutor implements Closeable{
 
     /**循环任务等待队列的间隔时间：mills*/
     private static final int CHECK_INTERVAL = 2000;
-
-    private int minPollSize = 5;
-
-    private int maxPoolSize = 10;
-
-    private ExecutorService jobExecutor;
 
     private ExecutorService queExecutor;
 
@@ -69,14 +62,8 @@ public class JobSubmitExecutor implements Closeable{
     public void init(){
         try{
             if(!hasInit){
-                this.maxPoolSize = ConfigParse.getSlots();
-                this.jobExecutor = new ThreadPoolExecutor(minPollSize, maxPoolSize,
-                        0L, TimeUnit.MILLISECONDS,
-                        new ArrayBlockingQueue<>(1), new CustomThreadFactory("jobExecutor"));
-
-                this.queExecutor = new ThreadPoolExecutor(3, 3,
-                        0L, TimeUnit.MILLISECONDS,
-                        new ArrayBlockingQueue<>(2), new CustomThreadFactory("queExecutor"));
+                this.queExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(1), new CustomThreadFactory("queExecutor"));
 
                 clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
                 RestartStrategyUtil.getInstance();
@@ -114,18 +101,13 @@ public class JobSubmitExecutor implements Closeable{
     }
 
 
-    public void submitJob(JobClient jobClient) throws Exception{
-        ExeQueueMgr.getInstance().add(jobClient);
+    public boolean submitJob(JobClient jobClient) {
+        return exeQueueMgr.add(jobClient);
     }
-
-    public void addJobToProcessor(JobSubmitProcessor processor){
-        jobExecutor.submit(processor);
-    }
-
 
     public JobResult stopJob(JobClient jobClient) throws Exception {
 
-        if(ExeQueueMgr.getInstance().remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())){
+        if(exeQueueMgr.remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())){
             //直接移除
             Map<String, Integer> jobStatus = Maps.newHashMap();
             jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
@@ -150,10 +132,6 @@ public class JobSubmitExecutor implements Closeable{
 
     @Override
     public void close() throws IOException {
-        if(jobExecutor != null){
-            jobExecutor.shutdown();
-        }
-
         if(queExecutor != null){
             queExecutor.shutdown();
         }

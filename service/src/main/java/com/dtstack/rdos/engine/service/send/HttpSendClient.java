@@ -51,26 +51,6 @@ public class HttpSendClient {
         return MathUtil.getBoolean(sendData.get("send"));
     }
 
-    public static boolean actionCheck(String address, Map<String, Object> paramMap) throws IOException {
-        String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.CHECK), paramMap);
-        if(dataJson == null){
-            return false;
-        }
-
-        Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
-        if(!resultMap.containsKey("data")){
-            return false;
-        }
-
-        Map<String, Object> sendData = (Map<String, Object>) resultMap.get("data");
-
-        if(!sendData.containsKey("result")){
-            return false;
-        }
-
-        return MathUtil.getBoolean(sendData.get("result"));
-    }
-
     public static void actionStopJob(String address, Map<String, Object> params) throws IOException {
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.STOP), params);
     }

@@ -23,7 +23,7 @@ public class EngineTypeQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngineTypeQueue.class);
 
-    private static int MAX_QUEUE_LENGTH = 1;
+    private static int MAX_QUEUE_LENGTH = 2;
 
     private String engineType;
 
@@ -42,7 +42,7 @@ public class EngineTypeQueue {
         LOG.info("instance {} with queue size:{}", engineType, MAX_QUEUE_LENGTH);
     }
 
-    public void add(JobClient jobClient) throws InterruptedException {
+    public void add(JobClient jobClient) {
         String groupName = jobClient.getGroupName();
         groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);

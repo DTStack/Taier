@@ -131,7 +131,7 @@ public class ActionServiceImpl {
                 }
             });
 
-            saveCache(jobId, jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+            saveCache(jobId, jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
             zkDistributed.updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
@@ -152,19 +152,19 @@ public class ActionServiceImpl {
         }
     }
 
-    /**
-     * 检查是否可以下发任务
-     * @param params
-     */
-    public Map<String, Object> checkCanDistribute(Map<String, Object> params){
-        Map<String, Object> resultMap = Maps.newHashMap();
-        String groupName = MathUtil.getString(params.get("groupName"));
-        String engineType = MathUtil.getString(params.get("engineType"));
-
-        Boolean canAdd = ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
-        resultMap.put("result", canAdd);
-        return resultMap;
-    }
+//    /**
+//     * 检查是否可以下发任务
+//     * @param params
+//     */
+//    public Map<String, Object> checkCanDistribute(Map<String, Object> params){
+//        Map<String, Object> resultMap = Maps.newHashMap();
+//        String groupName = MathUtil.getString(params.get("groupName"));
+//        String engineType = MathUtil.getString(params.get("engineType"));
+//
+//        Boolean canAdd = ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
+//        resultMap.put("result", canAdd);
+//        return resultMap;
+//    }
 
 
     /**

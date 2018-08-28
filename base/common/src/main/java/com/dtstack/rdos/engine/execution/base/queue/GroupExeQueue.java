@@ -25,14 +25,18 @@ public class GroupExeQueue {
     }
 
 
-    public void addJobClient(JobClient jobClient) throws InterruptedException {
-        orderList.put(jobClient);
-        if(jobClient.getGenerateTime() > maxTime){
-            maxTime = jobClient.getGenerateTime();
-        }
+    public void addJobClient(JobClient jobClient) {
+        try {
+            orderList.put(jobClient);
+            if(jobClient.getGenerateTime() > maxTime){
+                maxTime = jobClient.getGenerateTime();
+            }
 
-        if(jobClient.getPriority() > maxPriority){
-            maxPriority = jobClient.getPriority();
+            if(jobClient.getPriority() > maxPriority){
+                maxPriority = jobClient.getPriority();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

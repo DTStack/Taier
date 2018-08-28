@@ -1,11 +1,8 @@
 package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
@@ -14,7 +11,6 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
-import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -81,11 +77,7 @@ public class WorkNode {
         boolean distribute = distributeTask(jobClient,0,Lists.newArrayList());
         if (!distribute){
             dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), "engine master 下发任务异常");
-            return;
         }
-
-        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(),
-                EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
     }
 
     public void addSubmitJob(JobClient jobClient){
@@ -203,8 +195,6 @@ public class WorkNode {
 
         private Map<String, GroupPriorityQueue> groupPriorityQueueMap;
 
-        private volatile boolean isRun = true;
-
         public SubmitDealer(Map<String, GroupPriorityQueue> groupPriorityQueueMap){
             this.groupPriorityQueueMap = groupPriorityQueueMap;
         }
@@ -213,7 +203,7 @@ public class WorkNode {
         public void run() {
             LOG.info("-----{}:优先级队列发送任务线程触发开始执行----");
 
-            while (isRun){
+            while (true){
                 try{
                     for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
                         for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
@@ -231,12 +221,6 @@ public class WorkNode {
                     }
                 }
             }
-
-            LOG.info("-----{}:优先级队列发送线程停止执行----");
-        }
-
-        public void stop(){
-            isRun = false;
         }
 
         /**
@@ -246,13 +230,12 @@ public class WorkNode {
         public void submitJobClient(OrderLinkedBlockingQueue<JobClient> priorityQueue){
 
             for(JobClient jobClient : priorityQueue){
-                List<String> excludeNodes = Lists.newArrayList();
-                //todo 提交到生产者消费者队列
-//                if (sendTask(jobClient, 0, excludeNodes)) {
-//                    priorityQueue.remove(jobClient);
-//                } else {
-//                    break;
-//                }
+                //提交到生产者消费者队列
+                if (jobClient.submitJob()) {
+                    priorityQueue.remove(jobClient);
+                } else {
+                    break;
+                }
             }
 
             //更新剩余任务的优先级数据
