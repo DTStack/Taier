@@ -57,7 +57,6 @@ export const APPLY_RESOURCE_TYPE = {
     SOURCE: 2,
 }
 
-
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
@@ -106,7 +105,8 @@ export const TASK_TYPE = { // 任务类型
     PYTHON_23:6,
     SHELL:7,
     ML:8,
-    HAHDOOPMR:9
+    HAHDOOPMR: 9,
+    WORKFLOW: 10, // 工作流
 }
 
 export const LEARNING_TYPE={//深度学习框架
@@ -335,6 +335,10 @@ export const offlineTaskTypeFilter = [
         id: 3,
         text: '数据同步',
         value: TASK_TYPE.SYNC,
+    }, {
+        id: 11,
+        text: '工作流',
+        value: TASK_TYPE.WORKFLOW,
     }, {
         id: 5,
         text: 'PySpark',

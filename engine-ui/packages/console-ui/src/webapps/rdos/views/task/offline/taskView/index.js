@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 
-
 import {
     Tooltip, Spin, Icon,
 } from 'antd'
 
-
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
+import { TASK_TYPE } from '../../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -26,8 +25,8 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
-    mxCompactTreeLayout,
     mxHierarchicalLayout,
+    mxCompactTreeLayout,
     mxUtils,
 } = Mx
 
@@ -78,17 +77,10 @@ export default class TaskView extends Component {
         })
     }
 
-    insertVertex = (parent, data) => {
+    insertVertex = (rootCell, parent, data) => {
 
         const graph = this.graph;
-        const rootCell = graph.getDefaultParent()
-
-        const exist = this._vertexCells.find((cell) => {
-            const dataStr = cell.getAttribute('data')
-            if (!dataStr) return null
-            const itemData = JSON.parse(dataStr)
-            return itemData.id === data.id
-        })
+        const exist = this._vertexCells[data.id];
 
         if (exist) {
             const edges = graph.getEdgesBetween(parent, exist)
@@ -97,50 +89,61 @@ export default class TaskView extends Component {
             }
             return exist;
         } else {// 如果该节点为新节点， 则从新生成并创建
-            const style = this.getStyles(data)
+            let style = this.getStyles(data.taskType);
+            const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
 
-            // 创建节点
-            const doc = mxUtils.createXmlDocument()
-            const tableInfo = doc.createElement('Task')
-            tableInfo.setAttribute('id', data.id)
-            tableInfo.setAttribute('data', JSON.stringify(data))
+            let width = VertexSize.width;
+            let height = VertexSize.height;
+            if (isWorkflow) {
+                width = width + 20;
+                height = height + 100;
+                style += 'shape=swimlane;';
+            }
 
-            let newVertex = graph.insertVertex(rootCell, null, tableInfo, 1, 1,
-                VertexSize.width, VertexSize.height, style
+            let newVertex = graph.insertVertex(rootCell, null, data, 0, 0,
+                width, height, style
             )
-            graph.insertEdge(rootCell, null, '', parent, newVertex)
-            graph.view.refresh(newVertex)
-
+            newVertex.isPart = (data.flowId && data.flowId !== 0) ? true : false;
             // 缓存节点
-            this._vertexCells.push(newVertex)
+            this._vertexCells[data.id] = newVertex;
 
+            console.log('data:', newVertex);
             return newVertex;
         }
     }
 
-    loopTree = (graph, treeNodeData) => {
+    
+    loopTree = (rootCell, treeNodeData, parent) => {
 
         if (treeNodeData) {
-
-            const rootCell = graph.getDefaultParent()
-
+            const graph = this.graph;
             const parentNodes = treeNodeData.taskVOS; // 父节点
             const childNodes = treeNodeData.subTaskVOS; // 子节点
 
             const currentNodeData = getVertexNode(treeNodeData)
-            const currentNode = this.insertVertex(rootCell, currentNodeData)
+            const currentNode = this.insertVertex(rootCell, parent, currentNodeData)
+
+            if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                const workflowData = treeNodeData.subNodes;
+                if (workflowData) {
+                    this.loopTree(currentNode, workflowData, null);
+                    // this.executeLayout(currentNode, () => {
+                    //     console.log('layout:', currentNode)
+                    // })
+                }
+            }
 
             // 处理依赖节点
             if (parentNodes && parentNodes.length > 0) {
                 for (let i = 0; i < parentNodes.length; i++) {
                     const nodeData = getVertexNode(parentNodes[i])
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
+                    const newNode = this.insertVertex(rootCell, null, nodeData)
                     // 创建连接线
-                    const newEdge = this.insertVertex(newNode, currentNodeData)
+                    graph.insertEdge(rootCell, null, '', newNode, currentNode)
 
                     if (parentNodes[i].taskVOS) {
-                        this.loopTree(graph, parentNodes[i])
+                        this.loopTree(rootCell, parentNodes[i], null)
                     }
                 }
             }
@@ -149,11 +152,13 @@ export default class TaskView extends Component {
             if (childNodes && childNodes.length > 0) {
                 for (let i = 0; i < childNodes.length; i++) {
                     const nodeData = getVertexNode(childNodes[i])
+
                     // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
-                    const newEdge = this.insertVertex(currentNode, nodeData)
+                    const newNode = this.insertVertex(rootCell, currentNode, nodeData)
+                    graph.insertEdge(rootCell, null, '', currentNode, newNode);
+
                     if (childNodes[i].subTaskVOS) {
-                        this.loopTree(graph, childNodes[i])
+                        this.loopTree(rootCell, childNodes[i], null)
                     }
                 }
             }
@@ -169,21 +174,23 @@ export default class TaskView extends Component {
         const model = graph.getModel();
         const parent = graph.getDefaultParent();
 
-        this.executeLayout = function(change, post) {
+        const layout = new mxCompactTreeLayout(graph);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 30;
+        layout.nodeDistance = 10;
+        layout.resizeParent = true;
+
+        this.executeLayout = function(layoutTarget, change, post) {
 
             model.beginUpdate();
 
             try {
-                const layout = new mxHierarchicalLayout(graph, false);
-                layout.orientation = 'north';
-                layout.disableEdgeStyle = false;
-                layout.interRankCellSpacing = 40;
-                layout.intraCellSpacing = 10;
-
                 if (change != null) {
                     change();
                 }
-                layout.execute(parent);
+                layout.execute(layoutTarget);
             } catch (e) {
                 throw e;
             } finally {
@@ -192,12 +199,20 @@ export default class TaskView extends Component {
             }
         }
 
-        this.executeLayout(() => {
-            this.loopTree(graph, data);
+        this.executeLayout(parent, () => {
+            this.loopTree(parent, data, parent);
         }, () => {
-            graph.view.setTranslate(cx, cy);
+            const cells = this._vertexCells;
+            for (let id in cells) {
+                const cell = cells[id];
+                console.log('id:', id, cell);
+                const isWorkflow = cell.value && cell.value.taskType === TASK_TYPE.WORKFLOW;
+                if (isWorkflow) {
+                    layout.execute(cell);
+                }
+            }
+            graph.center();
         });
-
     }
 
 
@@ -251,34 +266,21 @@ export default class TaskView extends Component {
     }
 
     formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const task = data ? JSON.parse(data) : ''; 
+        const task = cell.value || ''; 
         return task ? task.name : ''
     }
 
     corvertValueToString = (cell) => {
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'task') {
-                const data = cell.getAttribute('data');
-                const task = data ? JSON.parse(data) : '';
-                const taskType = taskTypeText(task.taskType);
-                if (task) {
-                    return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}</span>
-                    </div>`
-                }
+        if (cell.vertex && cell.value) {
+            const task = cell.value || {};
+            const taskType = taskTypeText(task.taskType);
+            if (task) {
+                return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
+                <span style="font-size:10px; color: #666666;">${taskType}</span>
+                </div>`
             }
         }
         return '';
-    }
-
-    listenDoubleClick() {
-        this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
-            }
-        })
     }
 
     listenOnClick() {
@@ -313,7 +315,6 @@ export default class TaskView extends Component {
     hideMenu = () => {
         document.addEventListener('click', (e) => {
             const graph = this.graph
-            const menu = graph.popupMenuHandler
             if (graph.popupMenuHandler.isMenuShowing()) {
                 graph.popupMenuHandler.hideMenu()
             }
@@ -322,8 +323,6 @@ export default class TaskView extends Component {
 
     /* eslint-enable */
     render() {
-        const task = this.state.selectedTask
-        const project = this.props.project
         return (
             <div className="graph-editor" 
                 style={{  position: 'relative', }}
@@ -334,7 +333,15 @@ export default class TaskView extends Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}>
+                        <p style={{
+                            verticalAlign: 'middle',
+                            textAlign: 'center',
+                            lineHeight: '20'
+                        }}>
+                            “未发布”的任务无发查看依赖视图
+                        </p>
+                    </div>
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">

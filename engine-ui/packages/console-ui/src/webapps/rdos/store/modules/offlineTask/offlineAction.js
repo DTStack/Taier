@@ -1,13 +1,14 @@
 import React from 'react';
-import { message, Modal } from 'antd'
+import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
 
+import utils from 'utils';
 import ajax from '../../../api'
 import { MENU_TYPE } from '../../../comm/const'
-import utils from "utils";
 
 import {
-    stopSql
+    stopSql,
+    setSelectionContent,
 } from '../../../store/modules/editor/editorAction';
 
 import {
@@ -19,10 +20,10 @@ import {
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
-    editorAction,
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
+    workflowAction,
 } from './actionType';
 
 const confirm = Modal.confirm;
@@ -189,6 +190,7 @@ export const workbenchActions = (dispatch, ownProps) => {
 
     return {
         dispatch,
+
         /**
          * 更新目录
          */
@@ -231,7 +233,6 @@ export const workbenchActions = (dispatch, ownProps) => {
          * @param {*} res 
          */
         publishTask(res) {
-            console.log('publishTask',res);
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
@@ -268,6 +269,110 @@ export const workbenchActions = (dispatch, ownProps) => {
                     hashHistory.push('/offline/task');
                 }
             });
+        },
+
+        createWorkflowTask(data) {
+            return ajax.addOfflineTask(data)
+            .then(res => {
+                if (res.code === 1) {
+                    const newTask = res.data;
+                    dispatch({
+                        type: workflowAction.UPDATE,
+                        payload: {
+                            node: newTask,
+                            status: 'created',
+                        }
+                    })
+                    return true;
+                }
+            });
+        },
+
+        saveTask(task, noMsg) {
+            console.log('saveTask:', task)
+            // 删除不必要的字段
+            delete task.taskVersions;
+
+            task.preSave = true;
+            task.submitStatus = 0;
+
+            // 接口要求上游任务字段名修改为dependencyTasks
+            if (task.taskVOS) {
+                task.dependencyTasks = task.taskVOS.map(o => o);
+                task.taskVOS = null;
+            }
+
+
+            const succCallback = (res) => {
+
+                const updateTabData = (res) => {
+                    const resData = res.data;
+                    const data = {
+                        id: task.id,
+                        version: resData.version,
+                        readWriteLockVO: resData.readWriteLockVO,
+                    }
+
+                    dispatch({
+                        type: workbenchAction.UPDATE_TASK_TAB,
+                        payload: data
+                    });
+                }
+
+                if (res.code === 1) {
+
+                    const fileData = res.data;
+                    const lockInfo = fileData.readWriteLockVO;
+                    const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
+
+                    if (lockStatus === 0) {
+                        updateTabData(res);
+                        if (!noMsg) message.success('保存成功！');
+                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) { // 2-被锁定
+                        confirm({
+                            title: '锁定提醒', // 锁定提示
+                            content: <span>
+                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                            </span>,
+                            okText: '确定保存',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                ajax.forceUpdateOfflineTask(params).then(updateTabData)
+                            },
+                        });
+                        // 如果同步状态，则提示会覆盖代码，
+                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    } else if (lockStatus === 2) { // 2-需同步
+                        confirm({
+                            title: '保存警告',
+                            content: <span>
+                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
+                                点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                您本地的代码，请您提前做好备份！
+                            </span>,
+                            okText: '确定覆盖',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const reqParams = {
+                                    id: task.id,
+                                    lockVersion: lockInfo.version,
+                                }
+                                // 更新version, getLock信息
+                                ajax.getOfflineTaskDetail(reqParams).then(updateTabData);
+                            },
+                        });
+                    }
+                    return res;
+                }
+            }
+
+            return ajax.saveOfflineJobData(task).then(succCallback);
         },
 
         /**
@@ -369,22 +474,23 @@ export const workbenchActions = (dispatch, ownProps) => {
                             },
                         });
                     }
+                    return res;
                 }
             }
 
             params.lockVersion = params.readWriteLockVO.version;
             if (type === 'task') {
-                ajax.saveOfflineJobData(params).then(succCallback);
+                return ajax.saveOfflineJobData(params).then(succCallback);
             }
             else if (type === 'script') {
-                ajax.saveScript(params).then(succCallback);
+                return ajax.saveScript(params).then(succCallback);
             }
         },
 
         openTab: function (data) {
             const { id, tabs, currentTab, treeType, lockInfo } = data
-
-            if (tabs && tabs.map(o => o.id).indexOf(id) === -1) {
+            const isExist = tabs && tabs.find(tab => tab.id === id);
+            if (!isExist) {
                 const succCallBack = (res) => {
                     if (res.code === 1) {
                         dispatch({
@@ -393,12 +499,12 @@ export const workbenchActions = (dispatch, ownProps) => {
                         });
                     }
                 }
-                if (treeType === MENU_TYPE.TASK_DEV) { // 任务类型
-                    ajax.getOfflineTaskDetail({
+                if (treeType && treeType === MENU_TYPE.SCRIPT) { // 脚本类型
+                    ajax.getScriptById({
                         id: id,
                     }).then(succCallBack);
-                } else if (treeType === MENU_TYPE.SCRIPT) { // 脚本类型
-                    ajax.getScriptById({
+                } else { // 默认任务类型
+                    ajax.getOfflineTaskDetail({
                         id: id,
                     }).then(succCallBack);
                 }
@@ -409,10 +515,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                     payload: id
                 });
             }
-            dispatch({
-                type: editorAction.SET_SELECTION_CONTENT,
-                data: '',
-            })
+            dispatch(setSelectionContent(''));
         },
 
         closeTab: (tabId, tabs) => {
@@ -577,7 +680,7 @@ export const workbenchActions = (dispatch, ownProps) => {
         },
 
         delOfflineTask(params, nodePid, type) {
-            ajax.delOfflineTask(params)
+            return ajax.delOfflineTask(params)
                 .then(res => {
                     if (res.code == 1) {
                         message.success('删除成功');
@@ -592,6 +695,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: res.data
                         });
+                        return true;
                     }
                 });
         },
@@ -678,9 +782,10 @@ export const workbenchActions = (dispatch, ownProps) => {
             });
         },
 
-        toggleCreateTask: function () {
+        toggleCreateTask: function (data) {
             dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK
+                type: modalAction.TOGGLE_CREATE_TASK,
+                payload: data,
             });
         },
 
@@ -761,5 +866,16 @@ export const workbenchActions = (dispatch, ownProps) => {
                 payload: id
             });
         },
+
+        /**
+         *  The below is workflow actions
+         */
+        updateWorkflow(data) {
+            dispatch({
+                type: workflowAction.UPDATE,
+                payload: data
+            })
+        },
     }
 }
+

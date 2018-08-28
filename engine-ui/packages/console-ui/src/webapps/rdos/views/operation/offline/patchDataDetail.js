@@ -636,7 +636,7 @@ class PatchDataDetail extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView
                                 visibleSlidePane={visibleSlidePane}

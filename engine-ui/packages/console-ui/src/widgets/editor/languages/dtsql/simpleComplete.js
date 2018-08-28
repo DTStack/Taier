@@ -1,5 +1,4 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
-import { filter, parser } from "dt-sql-parser";
 
 let _DtParser;
 function loadDtParser(){
