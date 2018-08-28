@@ -89,24 +89,33 @@ function createDependencyProposals() {
 }
 
 monaco.languages.registerCompletionItemProvider("dtsql", {
-    provideCompletionItems:  function (model, position) {
+    triggerCharacters:["."],
+    provideCompletionItems:  function (model, position,token,CompletionContext) {
         const completeItems = createDependencyProposals();
         return new Promise(async (resolve, reject) => {
             if (_completeProvideFunc) {
                 const textValue = model.getValue();
                 const cursorIndex = model.getOffsetAt(position);
-                const word = model.getWordAtPosition(position);
                 const dtParser=await loadDtParser();
-                console.log(dtParser)
-                let autoComplete = dtParser.parser.parserSql(textValue);
-                // let syntax=parser.parseSyntax(textValue);
+                let autoComplete = dtParser.parser.parserSql([textValue.substr(0,cursorIndex),textValue.substr(cursorIndex)]);
+                let columnContext;
+                if(autoComplete.suggestColumns&&autoComplete.suggestColumns.tables&&autoComplete.suggestColumns.tables.length){
+                    columnContext=autoComplete.suggestColumns.tables.map(
+                        (table)=>{
+                            return table.identifierChain[0].name;
+                        }
+                    )
+                }
                 _completeProvideFunc(completeItems, resolve, customCompletionItemsCreater, {
                     status: 0,
                     model: model,
                     position: position,
-                    word: word,
+                    word: model.getWordAtPosition(position),
                     autoComplete: autoComplete,
-                    // syntax:syntax
+                    context:{
+                        columnContext:columnContext,
+                        completionContext:CompletionContext
+                    }
                 });
             } else {
                 resolve(completeItems)
@@ -138,7 +147,7 @@ export async function onChange(value, _editor) {
     } else {
         monaco.editor.setModelMarkers(model, model.getModeId(), [])
     }
-    console.log(syntax);
+    console.log(syntax)
 }
 
 function messageCreate(syntax){
