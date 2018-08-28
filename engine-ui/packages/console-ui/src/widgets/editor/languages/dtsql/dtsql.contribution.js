@@ -11,7 +11,7 @@ registerLanguage({
     id: 'dtsql',
     extensions: ['.dtsql', '.dtsql'],
     aliases: ['DtSql', 'dtsql'],
-    loader: function () { debugger; return _monaco.Promise.wrap(import('./dtsql')); },
+    loader: function () { return _monaco.Promise.wrap(import('./dtsql')); },
 });
 export { registeCompleteItemsProvider, disposeProvider, onChange };
 
