@@ -7,7 +7,6 @@ import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contrib
 import { registeCompleteItemsProvider, disposeProvider, onChange } from "./simpleComplete";
 // Allow for running under nodejs/requirejs in tests
 var _monaco = typeof monaco === 'undefined' ? self.monaco : monaco;
-debugger;
 registerLanguage({
     id: 'dtsql',
     extensions: ['.dtsql', '.dtsql'],
