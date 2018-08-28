@@ -131,6 +131,7 @@ export function disposeProvider() {
     _completeProvideFunc = null;
 }
 export async function onChange(value, _editor) {
+    return ;
     const dtParser=await loadDtParser();
     const model = _editor.getModel();
     let syntax = dtParser.parser.parseSyntax(value);
