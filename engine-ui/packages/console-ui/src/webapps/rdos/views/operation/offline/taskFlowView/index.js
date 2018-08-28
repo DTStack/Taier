@@ -268,7 +268,7 @@ class TaskFlowView extends Component {
                 );
                 
                 newVertex.data = data;
-                newVertex.isPart = (data.flowId && data.flowId !== 0) ? true : false;
+                newVertex.isPart = (data.batchTask && data.batchTask.flowId && data.batchTask.flowId !== 0) ? true : false;
 
                 this.insertEdge(graph, type, parent, newVertex);
                 // 缓存节点
@@ -289,8 +289,6 @@ class TaskFlowView extends Component {
                     this.insertVertex(rootCell, children[i], newVertex, type);
                 }
             }
-
-            console.log('subNodes:', newVertex)
         }
     }
 
@@ -343,7 +341,7 @@ class TaskFlowView extends Component {
             if (!cell) return
             const currentNode = cell.data;
 
-            const isWorkflowNode = currentNode.flowId && currentNode.flowId !== 0;
+            const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
 
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
