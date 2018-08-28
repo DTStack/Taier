@@ -30,8 +30,10 @@ public enum RdosTaskStatus {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus(), ENGINEACCEPTED.getStatus(),
-            ENGINEDISTRIBUTE.getStatus());
+//            ENGINEACCEPTED.getStatus(),
+//            ENGINEDISTRIBUTE.getStatus(),
+            WAITCOMPUTE.getStatus()
+    );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 	

@@ -10,6 +10,8 @@ import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -22,6 +24,9 @@ import java.util.Map;
 
 public class JobStopAction {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JobStopAction.class);
+
+
     private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
@@ -30,10 +35,26 @@ public class JobStopAction {
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
-    public JobStopAction(){
+    private WorkNode workNode;
+
+    public JobStopAction(WorkNode workNode){
+        this.workNode = workNode;
     }
 
     public void stopJob(ParamAction paramAction) throws Exception {
+
+        //在work节点等待队列中查找，状态流转时engineaccept和enginedistribute无法停止
+        if(workNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
+            LOG.info("stop job:{} success." + paramAction.getTaskId());
+            return;
+        }
+
+        //cache记录被删除说明已经在引擎上执行了,往对应的引擎发送停止任务指令
+        //如果已经在执行引擎上，在任意节点都能执行stop
+        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) != null){
+            LOG.info("stop job:{} failed." + paramAction.getTaskId());
+            return;
+        }
 
         String jobId = paramAction.getTaskId();
         Integer computeType  = paramAction.getComputeType();
@@ -59,6 +80,7 @@ public class JobStopAction {
         });
 
         jobClient.stopJob();
+        LOG.info("stop job:{} success." + paramAction.getTaskId());
     }
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {

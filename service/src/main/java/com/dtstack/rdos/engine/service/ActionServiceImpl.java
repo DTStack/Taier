@@ -6,24 +6,22 @@ import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
-import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.node.JobStopAction;
-import com.dtstack.rdos.engine.service.node.MasterNode;
+import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
-import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -62,9 +60,9 @@ public class ActionServiceImpl {
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
 
-    private JobStopAction stopAction = new JobStopAction();
+    private WorkNode workNode = WorkNode.getInstance();
 
-    private MasterNode masterNode = MasterNode.getInstance();
+    private JobStopAction stopAction = new JobStopAction(workNode);
 
     private static int length = 8;
 
@@ -76,38 +74,17 @@ public class ActionServiceImpl {
      * @param params
      */
     public void start(Map<String, Object> params){
-
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
-
+            //taskId唯一去重，并发请求时以数据库taskId主键去重返回false
             boolean canAccepted = receiveStartJob(paramAction);
-
-            if(!canAccepted){
-                return;
-            }
-
-//            //判断当前节点是不是master
-//            if(zkDistributed.localIsMaster()){
-//
-                //直接提交到本地master的优先级队列,会对重复数据做校验
+            //会对重复数据做校验
+            if(canAccepted){
+                //选择节点间队列负载最小的node，做任务分发
                 JobClient jobClient = new JobClient(paramAction);
-                masterNode.addStartJob(jobClient);
-//                return;
-//            }
-//
-//            //转发送到master节点
-//            String masterAddr = zkDistributed.isHaveMaster();
-//            if(masterAddr == null){
-//                //如果遇到master 地址为null --- 直接将job 缓存到cache.
-//                addJobCache(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
-//                        EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
-//                logger.error("---------serious error can't get master address-------");
-//                throw new RdosException(ErrorCode.NO_MASTER_NODE);
-//            }
-//
-//            paramAction.setRequestStart(RequestStart.NODE.getStart());
-//            HttpSendClient.actionStart(masterAddr, paramAction);
+                workNode.addStartJob(jobClient);
+            }
         }catch (Exception e){
             logger.info("", e);
         }
@@ -121,6 +98,7 @@ public class ActionServiceImpl {
      */
     public Map<String, Object> submit(Map<String, Object> params){
         Map<String, Object> result = Maps.newHashMap();
+        result.put("send", true);
         String jobId = null;
         Integer computeType = null;
 
@@ -128,22 +106,16 @@ public class ActionServiceImpl {
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
             if(!checkSubmitted(paramAction)){
-                result.put("send", true);
                 return result;
             }
 
             jobId = paramAction.getTaskId();
             computeType = paramAction.getComputeType();
-
-            String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
-            zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
-            updateJobStatus(jobId, computeType, RdosTaskStatus.ENGINEDISTRIBUTE.getStatus());
             if(paramAction.getPluginInfo() != null){
                 updateJobClientPluginInfo(jobId, computeType, PublicUtil.objToString(paramAction.getPluginInfo()));
             }
+            String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
             JobClient jobClient = new JobClient(paramAction);
-            String finalJobId = jobId;
-            Integer finalComputeType = computeType;
             jobClient.setJobClientCallBack(new JobClientCallBack() {
 
                 @Override
@@ -155,16 +127,17 @@ public class ActionServiceImpl {
 
                     int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
                     zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
-                    updateJobStatus(finalJobId, finalComputeType, jobStatus);
+                    updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
                 }
             });
 
-            addJobCache(jobId, paramAction.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), paramAction.toString());
+            saveCache(jobId, jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
             zkDistributed.updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
             updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-            jobClient.submitJob();
 
-            result.put("send", true);
+            //加入节点的优先级队列
+            workNode.addSubmitJob(jobClient);
+
             return result;
 
         }catch (Exception e){
@@ -175,7 +148,6 @@ public class ActionServiceImpl {
             }
 
             //也是处理成功的一种
-            result.put("send", true);
             return result;
         }
     }
@@ -217,25 +189,12 @@ public class ActionServiceImpl {
         }
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
-        if(!zkDistributed.localIsMaster()){
-            String masterAddr = zkDistributed.isHaveMaster();
-
-            if(masterAddr == null){
-                //如果遇到master 地址为null
-                logger.error("---------serious error can't get master address-------");
-                throw new RdosException(ErrorCode.NO_MASTER_NODE);
-            }
-
-            //转发给master
-            HttpSendClient.actionStopJob(masterAddr, params);
-            return;
-        }
 
         for(Map<String, Object> param : paramList){
             ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
             checkParam(paramAction);
             fillJobClientEngineId(paramAction);
-            masterNode.addStopJob(paramAction);
+            workNode.addStopJob(paramAction);
         }
     }
 
@@ -289,53 +248,45 @@ public class ActionServiceImpl {
     }
 
     /**
-     * 处理从客户的发送过来的任务
-     * 修改任务状态为已经接收
+     * 处理从客户的发送过来的任务，会插入到engine_batch/stream_job 表
+     * 修改任务状态为 ENGINEACCEPTED, 没有更新的逻辑
+     *
      * @param paramAction
      * @return
      */
-    public boolean receiveStartJob(ParamAction paramAction){
-        boolean result;
+    private boolean receiveStartJob(ParamAction paramAction){
+        boolean result = false;
         String jobId = paramAction.getTaskId();
         Integer computerType = paramAction.getComputeType();
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
         if(engineJobCacheDao.getJobById(jobId) != null){
-            return false;
+            return result;
         }
-
-        if (ComputeType.STREAM.getType().equals(computerType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineStreamJob == null){
-                rdosEngineStreamJob = new RdosEngineStreamJob();
-                rdosEngineStreamJob.setTaskId(jobId);
-                rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                engineStreamTaskDAO.insert(rdosEngineStreamJob);
-                result =  true;
+        try {
+            if (ComputeType.STREAM.getType().equals(computerType)) {
+                RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+                if(rdosEngineStreamJob == null){
+                    rdosEngineStreamJob = new RdosEngineStreamJob();
+                    rdosEngineStreamJob.setTaskId(jobId);
+                    rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                    engineStreamTaskDAO.insert(rdosEngineStreamJob);
+                    result =  true;
+                }
             }else{
-
-                result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
-                if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
-                    engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+                if(rdosEngineBatchJob == null){
+                    rdosEngineBatchJob = new RdosEngineBatchJob();
+                    rdosEngineBatchJob.setJobId(jobId);
+                    rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
+                    rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                    batchJobDAO.insert(rdosEngineBatchJob);
+                    result =  true;
                 }
             }
-        }else{
-            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineBatchJob == null){
-                rdosEngineBatchJob = new RdosEngineBatchJob();
-                rdosEngineBatchJob.setJobId(jobId);
-                rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
-                rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                batchJobDAO.insert(rdosEngineBatchJob);
-                result =  true;
-            }else{
-
-                result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
-                if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
-                    batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                }
-            }
+        } catch (Exception e){
+            logger.error("{}",e);
         }
         return result;
     }
@@ -373,15 +324,11 @@ public class ActionServiceImpl {
     }
 
     /**
-     * master接受到任务的时候也需要将数据缓存
-     * @param jobId
-     * @param engineType
-     * @param computeType
-     * @param stage
-     * @param jobInfo
+     * 1. 接受到任务的时候需要将数据缓存
+     * 2. 添加到优先级队列之后保存
+     * 3. cache的移除在任务发送完毕之后
      */
-    @Forbidden
-    public void addJobCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+    private void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
         if(engineJobCacheDao.getJobById(jobId) != null){
             engineJobCacheDao.updateJobStage(jobId, stage);
         }else{

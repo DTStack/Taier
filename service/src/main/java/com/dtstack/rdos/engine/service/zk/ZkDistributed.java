@@ -126,9 +126,9 @@ public class ZkDistributed implements Closeable{
 	}
 
 	public ZkDistributed zkRegistration() throws Exception {
-		createNodeIfExists(this.distributeRootNode,"");
-		createNodeIfExists(this.brokersNode, BrokersNode.initBrokersNode());
-		createNodeIfExists(this.localNode,"");
+		createNodeIfNotExists(this.distributeRootNode,"");
+		createNodeIfNotExists(this.brokersNode, BrokersNode.initBrokersNode());
+		createNodeIfNotExists(this.localNode,"");
 		initNeedLock();
 		createLocalBrokerHeartNode();
 		createLocalBrokerDataNode();
@@ -377,7 +377,7 @@ public class ZkDistributed implements Closeable{
 	}
 
 
-	public void createNodeIfExists(String node,Object obj) throws Exception{
+	public void createNodeIfNotExists(String node, Object obj) throws Exception{
 		if (zkClient.checkExists().forPath(node) == null) {
 			zkClient.create().forPath(node,
 					objectMapper.writeValueAsBytes(obj));
@@ -452,39 +452,41 @@ public class ZkDistributed implements Closeable{
         return null;
     }
 
-	public String getExecutionNode(List<String> excludeNodes){
+	/**
+	 * 选择节点间队列负载最小的node，做任务分发
+	 */
+	public String getDistributeNode(List<String> excludeNodes){
 		int def = Integer.MAX_VALUE;
 		String node = null;
+
 		if(memTaskStatus.size() > 0){
 			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
-
 			for(Map.Entry<String, BrokerDataNode> entry : entrys){
-				int size = getWaitingJobCount(entry.getValue());
+				String targetNode = entry.getKey();
+				if(excludeNodes.contains(targetNode)){
+					continue;
+				}
+				int size = getDistributeJobCount(entry.getValue());
 				if(size < def){
 					def = size;
-					String targetNode = entry.getKey();
-					if(excludeNodes.contains(targetNode)){
-                        continue;
-					}
-
 					node = targetNode;
-					break;
 				}
 			}
 		}
 		return node;
 	}
 
-	public int getWaitingJobCount(BrokerDataNode brokerDataNode){
-	    int count = 0;
-        for(byte status : brokerDataNode.getMetas().values()){
-            if(status == RdosTaskStatus.WAITCOMPUTE.getStatus()
-                    || status == RdosTaskStatus.WAITENGINE.getStatus()){
-                count++;
-            }
-        }
-        return count;
-    }
+	private int getDistributeJobCount(BrokerDataNode brokerDataNode){
+		int count = 0;
+		for(byte status : brokerDataNode.getMetas().values()){
+			if(status == RdosTaskStatus.ENGINEDISTRIBUTE.getStatus()
+					|| status == RdosTaskStatus.WAITCOMPUTE.getStatus()
+					|| status == RdosTaskStatus.WAITENGINE.getStatus()){
+				count++;
+			}
+		}
+		return count;
+	}
 
 	public boolean checkIsAlreadyInThisNode(String taskId){
 
@@ -579,9 +581,12 @@ public class ZkDistributed implements Closeable{
 		// TODO Auto-generated method stub
 		try {
 			if(this.brokerDataLock.acquire(30, TimeUnit.SECONDS)){
-				Map<String,Byte> datas = cleanNoNeed(nodeAddress);
 				BrokerHeartNode bNode = this.getBrokerHeartNode(nodeAddress);
-				if(!bNode.getAlive()&&datas.size() >0){
+				if(!bNode.getAlive()){
+					Map<String,Byte> datas = cleanNoNeed(nodeAddress);
+					if (datas.size() <=0){
+						return;
+					}
 					int total = datas.size();
 					Map<String,Map<String,Byte>> others = Maps.newConcurrentMap();
 					List<String> brokers = getBrokersChildren();

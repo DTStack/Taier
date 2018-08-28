@@ -30,16 +30,11 @@ public class EngineTypeQueue {
     private Map<String, GroupExeQueue> groupExeQueueMap = Maps.newConcurrentMap();
 
     /**按时间排序*/
-    /**
-     * TODO 修改为线程安全的SkipList
-     */
-    private Set<GroupExeQueue> groupExeQueueSet;
 
     private Map<String, Integer> groupMaxPriority = Maps.newHashMap();
 
     public EngineTypeQueue(String engineType) {
         this.engineType = engineType;
-        groupExeQueueSet = Sets.newTreeSet((gq1, gq2) -> MathUtil.getIntegerVal(gq1.getMaxTime() - gq2.getMaxTime()));
         GroupExeQueue defaultQueue = new GroupExeQueue(ConfigConstant.DEFAULT_GROUP_NAME);
         groupExeQueueMap.put(defaultQueue.getGroupName(), defaultQueue);
         MAX_QUEUE_LENGTH = ConfigParse.getExeQueueSize();
@@ -58,7 +53,6 @@ public class EngineTypeQueue {
 
         exeQueue.addJobClient(jobClient);
         //重新更新下队列的排序
-        groupExeQueueSet.add(exeQueue);
         groupMaxPriority.put(groupName, exeQueue.getMaxPriority());
     }
 
@@ -117,17 +111,12 @@ public class EngineTypeQueue {
         return true;
     }
 
-    public Set<GroupExeQueue> getGroupExeQueueSet() {
-        return groupExeQueueSet;
-    }
-
     public Map<String, GroupExeQueue> getGroupExeQueueMap() {
         return groupExeQueueMap;
     }
 
     public GroupExeQueue remove(String groupName) {
         GroupExeQueue groupExeQueue = groupExeQueueMap.remove(groupName);
-        groupExeQueueSet.remove(groupExeQueue);
         groupMaxPriority.remove(groupName);
         return groupExeQueue;
     }
@@ -145,7 +134,6 @@ public class EngineTypeQueue {
         return "EngineTypeQueue{" +
                 "engineType='" + engineType + '\'' +
                 ", groupExeQueueMap=" + groupExeQueueMap +
-                ", groupExeQueueSet=" + groupExeQueueSet +
                 ", groupMaxPriority=" + groupMaxPriority +
                 '}';
     }

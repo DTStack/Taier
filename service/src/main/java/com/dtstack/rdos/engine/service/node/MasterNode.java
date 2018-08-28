@@ -43,14 +43,8 @@ public class MasterNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
 
-    /**经过每轮的判断之后剩下的job优先级数值增量*/
-    private static final int PRIORITY_ADD_VAL = 1;
-
-    /***循环间隔时间2s*/
-    private static final int WAIT_INTERVAL = 5 * 1000;
-
-    /**任务分发到执行engine上最多重试3次*/
-    private static final int DISPATCH_RETRY_LIMIT = 3;
+    /***循环间隔时间20s*/
+    private static final int WAIT_INTERVAL = 20 * 1000;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -60,187 +54,39 @@ public class MasterNode {
 
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
-    /**key: 执行引擎的名称*/
-    private Map<String, GroupPriorityQueue> priorityQueueMap = Maps.newConcurrentMap();
-
-    private SendDealer sendDealer;
+    private RecoverDealer recoverDealer;
 
     private String localAddress = ConfigParse.getLocalAddress();
 
-    private JobStopQueue jobStopQueue;
-
     private ExecutorService senderExecutor;
 
-    private static MasterNode singleton = new MasterNode();
+    private static MasterNode masterNode = new MasterNode();
 
     private boolean currIsMaster = false;
 
     public static MasterNode getInstance(){
-        return singleton;
+        return masterNode;
     }
 
     private MasterNode(){
-
-        for(Map<String, Object> params : ConfigParse.getEngineTypeList()) {
-            String clientTypeStr = (String) params.get(ConfigParse.TYPE_NAME_KEY);
-            String key = EngineType.getEngineTypeWithoutVersion(clientTypeStr);
-            priorityQueueMap.put(key, new GroupPriorityQueue());
-        }
-
-        senderExecutor = Executors.newSingleThreadExecutor();
-        jobStopQueue = new JobStopQueue(this);
-        jobStopQueue.start();
-    }
-
-    public void addStartJob(JobClient jobClient){
-
-        try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
-            if(groupQueue == null){
-                groupQueue = new GroupPriorityQueue();
-                priorityQueueMap.put(jobClient.getEngineType(), groupQueue);
-            }
-
-            groupQueue.add(jobClient);
-        }catch (Exception e){
-            LOG.error("add to priority queue error:", e);
-            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
-            return;
-        }
-
-        saveCache(jobClient.getParamAction());
-    }
-
-    public void addStopJob(ParamAction paramAction){
-        jobStopQueue.addJob(paramAction);
-    }
-
-    /**
-     * TODO 需要和send Task线程做同步
-     * @param engineType
-     * @param groupName
-     * @param jobId
-     * @return
-     */
-    public boolean stopTaskIfExists(String engineType, String groupName, String jobId, Integer computeType){
-        GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
-        if(groupPriorityQueue == null){
-            throw new RdosException("not support engine type:" + engineType);
-        }
-
-        boolean result = groupPriorityQueue.remove(groupName, jobId);
-        if(result){
-            engineJobCacheDao.deleteJob(jobId);
-            //修改任务状态
-            if(ComputeType.BATCH.getType().equals(computeType)){
-                rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            }else if(ComputeType.STREAM.getType().equals(computeType)){
-                rdosEngineStreamJobDao.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-            }
-        }
-
-        return result;
     }
 
     public void setIsMaster(boolean isMaster){
         if(isMaster && !currIsMaster){
             currIsMaster = true;
             if(senderExecutor.isShutdown()){
-                senderExecutor = Executors.newFixedThreadPool(priorityQueueMap.size());
+                senderExecutor = Executors.newSingleThreadExecutor();
             }
 
-            sendDealer = new SendDealer(priorityQueueMap);
-            senderExecutor.submit(sendDealer);
+            recoverDealer = new RecoverDealer();
+            senderExecutor.submit(recoverDealer);
             LOG.warn("---start master node deal thread------");
         }else if (!isMaster && currIsMaster){
             currIsMaster = false;
-
-            if(sendDealer != null){
-                sendDealer.stop();
-            }
-
             senderExecutor.shutdownNow();
             LOG.warn("---stop master node deal thread------");
         }
     }
-
-    /**
-     * 下发任务到slave
-     * @param jobClient
-     * @param retryNum
-     * @param excludeNodes 排除的slave节点，用于重试过滤
-     * @return
-     */
-    public boolean sendTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
-
-        String address = zkDistributed.getExecutionNode(excludeNodes);
-        if(Strings.isNullOrEmpty(address)){
-            return false;
-        }
-
-        //不做严格的队列长度限制,只要请求的时候返回true就认为可以发送
-        if(!checkCanSend(address, jobClient.getEngineType(), jobClient.getGroupName())){
-            excludeNodes.add(address);
-            return sendTask(jobClient, retryNum, excludeNodes);
-        }
-
-
-        try {
-            ParamAction paramAction = jobClient.getParamAction();
-            paramAction.setRequestStart(RequestStart.NODE.getStart());
-            if(HttpSendClient.actionSubmit(address, paramAction)){
-                return true;
-            }else{
-                //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
-                if(retryNum >= DISPATCH_RETRY_LIMIT){
-                    return false;
-                }
-
-                retryNum++;
-                return sendTask(jobClient, retryNum, excludeNodes);
-            }
-
-        } catch (Exception e) {
-            //只有json 解析的异常才会抛出到这个地方,这应该是不可能发生的
-            LOG.error("---not impossible,please check your program ----", e);
-            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), "engine master 下发任务异常");
-            return true;
-        }
-    }
-
-    /**
-     * 添加到优先级队列之后保存
-     * cache的移除在任务发送完毕之后
-     */
-    public void saveCache(ParamAction paramAction){
-        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) != null){
-            engineJobCacheDao.updateJobStage(paramAction.getTaskId(), EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
-        }else{
-            engineJobCacheDao.insertJob(paramAction.getTaskId(), paramAction.getEngineType(), paramAction.getComputeType(),
-                    EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), paramAction.toString());
-        }
-
-    }
-
-    /**
-     * 在发送失败之后向slave询问是否可以发送任务请求
-     */
-    public boolean checkCanSend(String address, String engineType, String groupName){
-        if(address.equals(localAddress)){
-            return ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
-        }else{
-            Map<String, Object> param = Maps.newHashMap();
-            param.put("engineType", engineType);
-            param.put("groupName", groupName);
-            try{
-                return HttpSendClient.actionCheck(localAddress, param);
-            }catch (Exception e){
-                LOG.error("", e);
-                return false;
-            }
-        }
-    }
-
 
     /**
      * master 节点分发任务失败
@@ -254,8 +100,6 @@ public class MasterNode {
 
         }else if(ComputeType.STREAM.typeEqual(computeType)){
             rdosEngineStreamJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
-//            rdosEngineStreamJobDao.updateTaskStatus(taskId, RdosTaskStatus.SUBMITFAILD.getStatus());
-//            rdosEngineStreamJobDao.updateSubmitLog(taskId, generateErrorMsg(errorMsg));
 
         }else{
             LOG.error("not support compute type:" + computeType);
@@ -282,7 +126,8 @@ public class MasterNode {
                 JobClient jobClient = new JobClient(paramAction);
                 //更新任务状态为engineAccepted
                 rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                MasterNode.getInstance().addStartJob(jobClient);
+                //todo - 解决重启时任务都在master节点上的问题
+                WorkNode.getInstance().addSubmitJob(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
                 LOG.error("", e);
@@ -292,91 +137,17 @@ public class MasterNode {
         });
     }
 
-    /**
-     * FIXME 暂时不添加也是可以的，使用老的处理逻辑
-     * 注意对已经提交完成的任务的处理(这些任务需要获取任务状态和任务日志)
-     */
-    public void getKilledSlaveNodeJob(){
-
-    }
-
-    class SendDealer implements Runnable{
-
-        private Map<String, GroupPriorityQueue> groupPriorityQueueMap;
-
-        private boolean isRun = true;
-
-        public SendDealer(Map<String, GroupPriorityQueue> groupPriorityQueueMap){
-            this.groupPriorityQueueMap = groupPriorityQueueMap;
-        }
+    class RecoverDealer implements Runnable{
 
         @Override
         public void run() {
-            LOG.info("-----{}:优先级队列发送任务线程触发开始执行----");
-
-            try{
-                loadQueueFromDB();
-            }catch (Exception e){
-                LOG.error("----load data from DB error:", e);
-            }
-
-            while (isRun){
+            LOG.info("-----重启后任务开始恢复----");
                 try{
-                    for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
-                        for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
-                            sendJobClient(queue);
-                        }
-                    }
-
+                    loadQueueFromDB();
                 }catch (Exception e){
-                    LOG.error("", e);
-                }finally {
-                    try {
-                        Thread.sleep(WAIT_INTERVAL);
-                    } catch (InterruptedException e) {
-                        LOG.error("", e);
-                    }
+                    LOG.error("----load data from DB error:{}", e);
                 }
-            }
-
-            LOG.info("-----{}:优先级队列发送线程停止执行----");
-        }
-
-        public void stop(){
-            isRun = false;
-        }
-
-        /**
-         * 循环group优先级队列发送任务--直到不能发送
-         * @param priorityQueue
-         */
-        public void sendJobClient(OrderLinkedBlockingQueue<JobClient> priorityQueue){
-
-            for(JobClient jobClient : priorityQueue){
-                List<String> excludeNodes = Lists.newArrayList();
-                if (sendTask(jobClient, 0, excludeNodes)) {
-                    priorityQueue.remove(jobClient);
-                } else {
-                    break;
-                }
-            }
-
-            //更新剩余任务的优先级数据
-            updateQueuePriority(priorityQueue);
-
-        }
-
-        /**
-         * 每次判断过后对剩下的任务的priority值加上一个固定值
-         */
-        public void updateQueuePriority(OrderLinkedBlockingQueue<JobClient> priorityQueue){
-
-            for(JobClient jobClient: priorityQueue){
-                int currPriority = jobClient.getPriority();
-                currPriority = currPriority + PRIORITY_ADD_VAL;
-                jobClient.setPriority(currPriority);
-            }
-
+            LOG.info("-----重启后任务结束恢复-----");
         }
 
     }
