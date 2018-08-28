@@ -31,7 +31,6 @@ const {
     mxPerimeter,
     mxGraphHandler,
     mxCompactTreeLayout,
-    mxHierarchicalLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
