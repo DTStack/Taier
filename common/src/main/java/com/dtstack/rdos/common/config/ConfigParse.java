@@ -57,7 +57,7 @@ public class ConfigParse {
 
     public static int getExeQueueSize(){
         Object exeQueueSize = configs.get("exeQueueSize");
-        return exeQueueSize == null ? 2 : MathUtil.getIntegerVal(exeQueueSize);
+        return exeQueueSize == null ? 1 : MathUtil.getIntegerVal(exeQueueSize);
     }
 
     public static boolean isDebug(){

@@ -18,6 +18,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -39,8 +40,8 @@ public class WorkNode {
     /**经过每轮的判断之后剩下的job优先级数值增量*/
     private static final int PRIORITY_ADD_VAL = 1;
 
-    /***循环间隔时间2s*/
-    private static final int WAIT_INTERVAL = 5 * 1000;
+    /***循环间隔时间3s*/
+    private static final int WAIT_INTERVAL = 3 * 1000;
 
     /**任务分发到执行engine上最多重试3次*/
     private static final int DISPATCH_RETRY_LIMIT = 3;
@@ -229,18 +230,25 @@ public class WorkNode {
          */
         public void submitJobClient(OrderLinkedBlockingQueue<JobClient> priorityQueue){
 
-            for(JobClient jobClient : priorityQueue){
+            Iterator<JobClient> it = priorityQueue.iterator();
+            while (it.hasNext()){
+                JobClient jobClient = it.next();
+                boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
+                if (!isRestartJobCanSubmit){
+                    it.remove();
+                    updateQueuePriority(priorityQueue);
+                    addSubmitJob(jobClient);
+                    break;
+                }
                 //提交到生产者消费者队列
                 if (jobClient.submitJob()) {
                     priorityQueue.remove(jobClient);
                 } else {
+                    //更新剩余任务的优先级数据
+                    updateQueuePriority(priorityQueue);
                     break;
                 }
             }
-
-            //更新剩余任务的优先级数据
-            updateQueuePriority(priorityQueue);
-
         }
 
         /**

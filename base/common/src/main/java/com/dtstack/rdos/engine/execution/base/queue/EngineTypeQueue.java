@@ -23,7 +23,7 @@ public class EngineTypeQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngineTypeQueue.class);
 
-    private static int MAX_QUEUE_LENGTH = 2;
+    private static int MAX_QUEUE_LENGTH = 1;
 
     private String engineType;
 
@@ -43,14 +43,8 @@ public class EngineTypeQueue {
     }
 
     public void add(JobClient jobClient) {
-        String groupName = jobClient.getGroupName();
-        groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
-        GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
-        if (exeQueue == null) {
-            exeQueue = new GroupExeQueue(groupName);
-            groupExeQueueMap.put(groupName, exeQueue);
-        }
-
+        final String groupName = jobClient.getGroupName() == null ? ConfigConstant.DEFAULT_GROUP_NAME : jobClient.getGroupName();
+        GroupExeQueue exeQueue = groupExeQueueMap.computeIfAbsent(groupName,k->new GroupExeQueue(groupName));
         exeQueue.addJobClient(jobClient);
         //重新更新下队列的排序
         groupMaxPriority.put(groupName, exeQueue.getMaxPriority());

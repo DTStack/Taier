@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.service.task;
 
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -8,30 +7,20 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.enums.SourceType;
+import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
-import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 注意如果是由于资源不足导致的任务失败应该减慢发送速度
@@ -46,8 +35,6 @@ public class RestartDealer {
 
     private static final Integer SUBMIT_INTERVAL = 2 * 60 * 1000;
 
-    private static final Integer CHECK_INTERVAL = 10 * 1000;
-
     private RdosEngineJobCacheDAO engineJobCacheDAO = new RdosEngineJobCacheDAO();
 
     private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
@@ -58,16 +45,9 @@ public class RestartDealer {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
-    private Map<String, ResubmitQueue> resubmitQueueMap = Maps.newConcurrentMap();
-
-    private ExecutorService es =  new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(), new CustomThreadFactory("restart_dealer"));
-
     private static RestartDealer sigleton = new RestartDealer();
 
     private RestartDealer(){
-        startDealer();
     }
 
     public static RestartDealer getInstance(){
@@ -206,13 +186,13 @@ public class RestartDealer {
         //更新rdos_engine_batch_task/rdos_engine_stream_task 状态
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-        zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.WAITCOMPUTE.getStatus());
+        zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.WAITENGINE.getStatus());
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
+            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITENGINE.getStatus());
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITCOMPUTE.getStatus());
+            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITENGINE.getStatus());
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{
@@ -221,96 +201,7 @@ public class RestartDealer {
     }
 
     private void addToRestart(JobClient jobClient){
-        String engineTypeName = jobClient.getEngineType();
-        ResubmitQueue resubmitQueue = resubmitQueueMap.computeIfAbsent(engineTypeName, key -> new ResubmitQueue(engineTypeName));
-        resubmitQueue.addJobClient(jobClient);
-    }
-
-    private void startDealer(){
-        es.submit(() -> {
-            LOG.warn("------restartDealer thread start------");
-            while (true){
-                try {
-                    Long currentTime = System.currentTimeMillis();
-                    for(ResubmitQueue queue : resubmitQueueMap.values()){
-                        Long lastExeTime = queue.getLastSubmitTime();
-                        if(lastExeTime + SUBMIT_INTERVAL <= currentTime){
-                            JobClient jobClient = queue.getJobClient();
-                            if(jobClient != null){
-
-                                String finalJobId = jobClient.getTaskId();
-                                Integer finalComputeType = jobClient.getComputeType().getType();
-                                String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
-                                jobClient.setJobClientCallBack(new JobClientCallBack() {
-
-                                    @Override
-                                    public void execute(Map<String, ? extends Object> params) {
-
-                                        if(!params.containsKey(JOB_STATUS)){
-                                            return;
-                                        }
-
-                                        int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                                        zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
-                                        updateJobStatus(finalJobId, finalComputeType, jobStatus);
-                                    }
-                                });
-
-                                ExeQueueMgr.getInstance().add(jobClient);
-                            }
-                        }
-                    }
-                }catch (Exception e){
-                    LOG.error("", e);
-                }finally {
-                    Thread.sleep(CHECK_INTERVAL);
-                }
-
-            }
-        });
-    }
-
-
-    class ResubmitQueue{
-
-        private String engineTypeName;
-
-        private Long lastExeTime = -1L;
-
-        private BlockingQueue<JobClient> queue = Queues.newLinkedBlockingQueue();
-
-        public ResubmitQueue(String engineTypeName){
-            this.engineTypeName = engineTypeName;
-        }
-
-        public JobClient getJobClient(){
-            try {
-                //while循环每间隔 CHECK_INTERVAL 会遍历队列（队列为空线程会被阻塞，超时时间设置小一点）
-                JobClient jobClient = queue.poll(100, TimeUnit.MILLISECONDS);
-                if(jobClient != null){
-                    this.lastExeTime = System.currentTimeMillis();
-                }
-
-                return jobClient;
-            } catch (InterruptedException e) {
-                return null;
-            }
-        }
-
-        public void addJobClient(JobClient jobClient){
-            queue.add(jobClient);
-        }
-
-        public Long getLastSubmitTime(){
-            return lastExeTime;
-        }
-    }
-
-    public void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            engineStreamJobDAO.updateTaskStatus(jobId, status);
-        } else {
-            engineBatchJobDAO.updateJobStatus(jobId, status);
-        }
+        jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
+        WorkNode.getInstance().addSubmitJob(jobClient);
     }
 }

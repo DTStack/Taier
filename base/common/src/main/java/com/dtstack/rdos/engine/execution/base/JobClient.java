@@ -76,6 +76,8 @@ public class JobClient extends OrderObject{
 
     private String pluginInfo;
 
+    private long restartTime = 0;
+
     /***
      * 获取engine上job执行的状态
      * @param engineTaskId engine jobId
@@ -109,6 +111,7 @@ public class JobClient extends OrderObject{
         this.externalPath = paramAction.getExternalPath();
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
+        this.restartTime = paramAction.getRestartTime();
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
@@ -140,6 +143,7 @@ public class JobClient extends OrderObject{
         action.setEngineType(engineType);
         action.setExeArgs(classArgs);
         action.setGroupName(groupName);
+        action.setRestartTime(restartTime);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -316,6 +320,14 @@ public class JobClient extends OrderObject{
         this.coreJarInfo = coreJarInfo;
     }
 
+    public long getRestartTime() {
+        return restartTime;
+    }
+
+    public void setRestartTime(long restartTime) {
+        this.restartTime = restartTime;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -336,6 +348,7 @@ public class JobClient extends OrderObject{
                 ", classArgs='" + classArgs +
                 ", again=" + again +
                 ", groupName=" + groupName +
+                ", restartTime=" + restartTime +
                 '}';
     }
 }

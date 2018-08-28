@@ -50,7 +50,9 @@ public class ParamAction {
 	private Integer requestStart = 0;
 
 	private Integer sourceType;
-	
+
+	private long restartTime;
+
 	
 	public Integer getRequestStart() {
 		return requestStart;
@@ -164,6 +166,14 @@ public class ParamAction {
 
 	public void setSourceType(Integer sourceType) {
 		this.sourceType = sourceType;
+	}
+
+	public long getRestartTime() {
+		return restartTime;
+	}
+
+	public void setRestartTime(long restartTime) {
+		this.restartTime = restartTime;
 	}
 
 	@Override
