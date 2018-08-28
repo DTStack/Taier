@@ -85,8 +85,8 @@ class WorkflowEditor extends Component {
         this.hideMenu()
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
+            console.log('didMount:', this.props.data);
             this.initGraphData(workflowData);
-            this.initGraphEvent();
         }
     }
 
@@ -98,7 +98,6 @@ class WorkflowEditor extends Component {
         const old = this.props.workflow;
         const next = nextProps.workflow;
         if (old !== next) {
-            console.log('nextStatus:', nextProps)
             if (next.status === 'cancel') {
                 this.graph.removeCells();
                 this._currentNewVertex = null;
@@ -165,7 +164,7 @@ class WorkflowEditor extends Component {
         mxConstants.GUIDE_COLOR = '#2491F7';
 
         // enables rubberband
-        new mxRubberband(graph)
+        new mxRubberband(graph);
 
         // Initial draggable elements
         this.listenConnection();
@@ -173,9 +172,10 @@ class WorkflowEditor extends Component {
         this.initGraphLayout();
         this.initUndoManager();
         this.initContextMenu();
+        this.initGraphEvent();
     }
 
-    getStyles = (type) => {
+    getStyles = () => {
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
@@ -292,9 +292,11 @@ class WorkflowEditor extends Component {
                 const cell = cells[i];
                 if (cell.vertex && cell.data) {
                     const item = tabs.find(i => i.id === cell.data.id)
-                    if (item && item.notSynced) {
+                    if (item) {
                         cell.data = item;
-                        waitUpdateTabs.push(item);
+                        if (item.notSynced) {
+                            waitUpdateTabs.push(item);
+                        }
                     }
                 }
             }
@@ -316,15 +318,19 @@ class WorkflowEditor extends Component {
         const task = tabs.find(item => {
             return item.id === targetTask.id;
         })
+        
         if (task) {
             task.notSynced = false;
             saveTask(task).then(res => {
-                console.log('res:', res);
                 if (res.code === 1) {
                     this.updateCellData(cell, task);
                     this.updateGraphData();
                 }
             });
+        } else {
+            targetTask.notSynced = false;
+            this.updateCellData(cell, targetTask);
+            this.updateGraphData();
         }
     }
 
@@ -384,19 +390,17 @@ class WorkflowEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const model = graph.getModel();
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 40;
+        layout.nodeDistance = 20;
 
-        this.executeLayout = function(change, post) {
-
-            const parent = graph.getDefaultParent();
+        this.executeLayout = function(layoutTarget, change, post) {
+            const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
-
             try {
-                const layout = new mxCompactTreeLayout(graph, false);
-                layout.horizontal = false;
-                layout.useBoundingBox = false;
-                layout.edgeRouting = false;
-                layout.levelDistance = 40;
-                layout.nodeDistance = 20;
 
                 if (change != null) {
                     change();
