@@ -70,9 +70,9 @@ export default class TaskView extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const currentTask = this.props.tabData
-        const { tabData, visibleSlidePane, tabKey } = nextProps
-        if ((!currentTask&&tabData)||tabData && visibleSlidePane && tabData.id !== currentTask.id) {
+        const currentTask = this.props.tabData;
+        const { tabData, visibleSlidePane, tabKey } = nextProps;
+        if (((!currentTask && tabData) || (tabData && tabData.id !== currentTask.id)) && visibleSlidePane) {
             this.initGraph(tabData.id)
         }
         if (tabKey && this.props.tabKey !== tabKey && tabKey === 'taskFlow') {
@@ -193,6 +193,8 @@ export default class TaskView extends Component {
                 width, height, 
                 style,
             )
+
+            cell.isPart = data.flowId && data.flowId !== 0;
 
             return cell
         }
@@ -373,7 +375,7 @@ export default class TaskView extends Component {
 
     initContextMenu = (graph) => {
         const ctx = this
-        const { goToTaskDev, clickPatchData, tabData } = this.props
+        const { goToTaskDev, clickPatchData } = this.props
 
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {

@@ -159,6 +159,8 @@ export default class TaskView extends Component {
                 style,
             )
 
+            cell.isPart = data.flowId && data.flowId !== 0;
+
             return cell
         }
 
@@ -205,7 +207,6 @@ export default class TaskView extends Component {
         this._vertexCells = {}; // 用于缓存创建的顶点节点
 
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
         const layout = new mxCompactTreeLayout(graph);
         layout.horizontal = false;
