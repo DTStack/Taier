@@ -109,6 +109,7 @@ class WorkflowEditor extends Component {
 
     componentWillUnmount () {
         console.log('WorkflowEditor componentWillUnmount', this)
+        this.props.resetWorkflow();
     }
 
     loadEditor = (container) => {

@@ -24,6 +24,7 @@ export const modalAction = mc([
 
 export const workflowAction = mc([
     'UPDATE',
+    'RESET',
 ], {prefix: 'offline/workflow/'});
 
 export const taskTreeAction = mc([

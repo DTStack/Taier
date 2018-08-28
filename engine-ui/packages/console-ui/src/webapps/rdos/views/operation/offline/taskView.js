@@ -262,7 +262,6 @@ export default class TaskView extends Component {
         }
 
         const arrayData = this.preHandGraphTree(data);
-        console.log('arrayData:', arrayData)
         this.renderGraph(arrayData);
         graph.center();
     }
