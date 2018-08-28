@@ -85,6 +85,7 @@ class WorkflowEditor extends Component {
         this.hideMenu()
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
+            console.log('didMount:', this.props.data);
             this.initGraphData(workflowData);
         }
     }
@@ -291,9 +292,11 @@ class WorkflowEditor extends Component {
                 const cell = cells[i];
                 if (cell.vertex && cell.data) {
                     const item = tabs.find(i => i.id === cell.data.id)
-                    if (item && item.notSynced) {
+                    if (item) {
                         cell.data = item;
-                        waitUpdateTabs.push(item);
+                        if (item.notSynced) {
+                            waitUpdateTabs.push(item);
+                        }
                     }
                 }
             }
@@ -315,6 +318,7 @@ class WorkflowEditor extends Component {
         const task = tabs.find(item => {
             return item.id === targetTask.id;
         })
+        
         if (task) {
             task.notSynced = false;
             saveTask(task).then(res => {
@@ -323,6 +327,10 @@ class WorkflowEditor extends Component {
                     this.updateGraphData();
                 }
             });
+        } else {
+            targetTask.notSynced = false;
+            this.updateCellData(cell, targetTask);
+            this.updateGraphData();
         }
     }
 
@@ -382,19 +390,17 @@ class WorkflowEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const model = graph.getModel();
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 40;
+        layout.nodeDistance = 20;
 
-        this.executeLayout = function(change, post) {
-
-            const parent = graph.getDefaultParent();
+        this.executeLayout = function(layoutTarget, change, post) {
+            const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
-
             try {
-                const layout = new mxCompactTreeLayout(graph, false);
-                layout.horizontal = false;
-                layout.useBoundingBox = false;
-                layout.edgeRouting = false;
-                layout.levelDistance = 40;
-                layout.nodeDistance = 20;
 
                 if (change != null) {
                     change();
