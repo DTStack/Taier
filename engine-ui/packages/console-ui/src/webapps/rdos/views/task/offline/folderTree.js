@@ -457,8 +457,7 @@ class FolderTree extends React.Component {
                             title={name} 
                             className={claName}>
                             { this.renderStatusBadge(treeType, data) }
-                            { name } 
-                            <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                            { name } <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
                                 { this.renderFileInfo(treeType, data) }
                             </i>
                         </span>

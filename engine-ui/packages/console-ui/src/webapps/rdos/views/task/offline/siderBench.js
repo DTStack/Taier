@@ -63,7 +63,7 @@ class SiderBench extends React.Component {
                     tabData={tabData}
                 ></TaskDetail>
             </TabPane>,
-            <TabPane tab={<span className="title-vertical">调度依赖</span>} key="params2">
+            <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '调度配置' : '调度依赖'}</span>} key="params2">
                 <SchedulingConfig 
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}

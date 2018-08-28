@@ -85,7 +85,6 @@ class WorkflowEditor extends Component {
         this.hideMenu()
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
-            console.log('didMount:', this.props.data);
             this.initGraphData(workflowData);
             this.listenGraphUpdate();
         }
@@ -558,11 +557,11 @@ class WorkflowEditor extends Component {
                 graph.clearSelection();
                 const cellState = graph.view.getState(cell);
                 const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#90D5FF';
+                style[mxConstants.STYLE_FILLCOLOR] = '#dbeffc';
                 applyCellStyle(cellState, style);
-                
+
                 const edges = graph.getOutgoingEdges(cell);
-                graph.setCellStyle(`strokeColor=#90D5FF;strokeWidth=2;`, edges);
+                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, edges);
                 selectedCell = cell;
             }
         })
@@ -723,7 +722,7 @@ class WorkflowEditor extends Component {
     }
 
     refresh = () => {
-        this.componentDidMount()
+        this.graph.refresh()
     }
 
     graphEnable() {
