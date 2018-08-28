@@ -86,7 +86,6 @@ class WorkflowEditor extends Component {
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
             this.initGraphData(workflowData);
-            this.initGraphEvent();
         }
     }
 
@@ -98,7 +97,6 @@ class WorkflowEditor extends Component {
         const old = this.props.workflow;
         const next = nextProps.workflow;
         if (old !== next) {
-            console.log('nextStatus:', nextProps)
             if (next.status === 'cancel') {
                 this.graph.removeCells();
                 this._currentNewVertex = null;
@@ -165,7 +163,7 @@ class WorkflowEditor extends Component {
         mxConstants.GUIDE_COLOR = '#2491F7';
 
         // enables rubberband
-        new mxRubberband(graph)
+        new mxRubberband(graph);
 
         // Initial draggable elements
         this.listenConnection();
@@ -173,9 +171,10 @@ class WorkflowEditor extends Component {
         this.initGraphLayout();
         this.initUndoManager();
         this.initContextMenu();
+        this.initGraphEvent();
     }
 
-    getStyles = (type) => {
+    getStyles = () => {
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
@@ -319,7 +318,6 @@ class WorkflowEditor extends Component {
         if (task) {
             task.notSynced = false;
             saveTask(task).then(res => {
-                console.log('res:', res);
                 if (res.code === 1) {
                     this.updateCellData(cell, task);
                     this.updateGraphData();

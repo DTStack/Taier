@@ -201,7 +201,6 @@ export default class TaskView extends Component {
         }
     }
 
-
     doInsertVertex = (data) => {
         const graph = this.graph;
         this._vertexCells = {}; // 用于缓存创建的顶点节点
