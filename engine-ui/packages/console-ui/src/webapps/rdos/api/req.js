@@ -28,6 +28,8 @@
      GET_PROJECT_LIST_INFO: `${RDOS_BASE_URL}/common/project/getProjectList`, // 首页project查询
      SET_STICKY: `${RDOS_BASE_URL}/common/project/setSticky`, // 首页project查询
      DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
+     UPDATE_PROJECT_SCHEDULE:`${RDOS_BASE_URL}/common/project/closeOrOpenSchedule`,// 开启或关闭项目调度
+     BIND_PRODUCTION_PROJECT:`${RDOS_BASE_URL}/common/project/bindingProject`,//绑定生产项目
      
      // ===== 角色管理 ===== //
      GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表

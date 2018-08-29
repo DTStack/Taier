@@ -46,7 +46,7 @@ export default {
         utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
         window.location.href = `${UIC_URL_TARGET}/#/login`
     },
-   
+
     addRoleUser(user) {
         return http.post(req.ADD_ROLE_USRE, user)
     },
@@ -106,6 +106,12 @@ export default {
     },
     deleteProject(params) {
         return http.post(req.DELETE_PROJECT, params)
+    },
+    updateProjectSchedule(params) {
+        return http.post(req.UPDATE_PROJECT_SCHEDULE, params)
+    },
+    bindProductionProject(params) {
+        return http.post(req.BIND_PRODUCTION_PROJECT, params)
     },
     // ========== Role ========== //
     getRoleList(params) {
@@ -176,22 +182,22 @@ export default {
     getCheckPoints(params) {
         return http.post(req.GET_CHECK_POINTS, params)
     },
-    publishRealtimeTask(params){
+    publishRealtimeTask(params) {
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },
-    taskVersionScheduleConf(params){
+    taskVersionScheduleConf(params) {
         return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF, params)
     },
     updateTaskOwner(params) {
         return http.post(offlineReq.UPDATE_TASK_OWNER, params)
     },
-    getTypeOriginData(params){
+    getTypeOriginData(params) {
         return http.post(req.GET_TYPE_ORIGIN_DATA, params)
     },
-    getTopicType(params){
+    getTopicType(params) {
         return http.post(req.GET_TOPIC_TYPE, params)
     },
-    getStremTableType(params){
+    getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
 
@@ -275,11 +281,11 @@ export default {
     saveOfflineTask(task) {
         return http.post(offlineReq.SAVE_TASK, task)
     },
-    
+
     forceUpdateOfflineTask(task) {
         return http.post(offlineReq.FORCE_UPDATE_TASK, task)
     },
-    
+
     getOfflineTaskByID(params) {
         return http.post(offlineReq.GET_TASK, params)
     },
@@ -307,11 +313,11 @@ export default {
     getCustomParams(params) {
         return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
     },
-    getSyncTemplate(params){
-        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE,params)
+    getSyncTemplate(params) {
+        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE, params)
     },
-    getCreateTargetTable(params){
-        return http.post(req.GET_CREATE_TARGET_TABLE,params)
+    getCreateTargetTable(params) {
+        return http.post(req.GET_CREATE_TARGET_TABLE, params)
     },
     // =========== 脚本模块 ==================//
     saveScript(params) {
@@ -482,22 +488,22 @@ export default {
     addOfflineFunction(params) {
         return http.post(offlineReq.ADD_OFFLINE_FUNCTION, params)
     },
-    getTableListByName(params){
-        return http.post(req.GET_TABLE_LIST_BY_NAME,params)
+    getTableListByName(params) {
+        return http.post(req.GET_TABLE_LIST_BY_NAME, params)
     },
-    getRecommentTask(params){
-        return http.post(req.GET_RECOMMEND_TASK,params)
+    getRecommentTask(params) {
+        return http.post(req.GET_RECOMMEND_TASK, params)
     },
-    getColumnsOfTable(params){
-        return http.post(req.GET_COLUMNS_OF_TABLE,params)
+    getColumnsOfTable(params) {
+        return http.post(req.GET_COLUMNS_OF_TABLE, params)
     },
-    getAllFunction(params){
-        return http.post(req.GET_ALL_FUNCTION_NAME,params)
+    getAllFunction(params) {
+        return http.post(req.GET_ALL_FUNCTION_NAME, params)
     },
-    
+
 
     // =========== 离线文件操作 ==================//
-    delOfflineTask(params){
+    delOfflineTask(params) {
         return http.post(offlineReq.DEL_OFFLINE_TASK, params)
     },
     delOfflineFolder(params) {
@@ -587,10 +593,10 @@ export default {
     checkSyncConfig(params) {
         return http.post(offlineReq.CHECK_SYNC_CONFIG, params)
     },
-    getTaskOfOfflineSource(params){
+    getTaskOfOfflineSource(params) {
         return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
     },
-    getTaskOfStreamSource(params){
+    getTaskOfStreamSource(params) {
         return http.post(stremReq.GET_TASK_LIST_OF_STREAM_SOURCE, params)
     },
 
