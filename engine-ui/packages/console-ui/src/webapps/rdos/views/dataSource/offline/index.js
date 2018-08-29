@@ -293,7 +293,7 @@ class DataSourceMana extends Component {
 
         return (
             <div>
-                <div className="shadow">
+                <div className="shadow rdos-data-source">
                     <Card 
                         title={titles} 
                         extra={extra} 
