@@ -695,8 +695,8 @@ export const workbenchActions = (dispatch, ownProps) => {
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: res.data
                         });
-                        return true;
                     }
+                    return res;
                 });
         },
 

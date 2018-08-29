@@ -730,7 +730,7 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
-        const {recommentTaskModalVisible, recommentTaskList, loading} = this.state;
+        const { recommentTaskModalVisible, recommentTaskList, loading } = this.state;
         const { tabData, isWorkflowNode } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         let initConf = tabData.scheduleConf;
