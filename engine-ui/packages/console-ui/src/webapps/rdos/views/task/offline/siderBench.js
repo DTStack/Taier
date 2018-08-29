@@ -72,7 +72,7 @@ class SiderBench extends React.Component {
                         tabData={tabData}
                     >
                     </SchedulingConfig>
-                </TabPane>,
+                </TabPane>
             )
 
             if (tabData.taskType !== TASK_TYPE.WORKFLOW) {
