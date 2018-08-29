@@ -585,8 +585,10 @@ class WorkflowEditor extends Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#dbeffc';
                 applyCellStyle(cellState, style);
 
-                const edges = graph.getOutgoingEdges(cell);
-                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, edges);
+                const outEdges = graph.getOutgoingEdges(cell);
+                const inEdges = graph.getIncomingEdges(cell);
+                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, outEdges.concat(inEdges));
+
                 selectedCell = cell;
             }
         })
@@ -598,8 +600,10 @@ class WorkflowEditor extends Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
                 applyCellStyle(cellState, style);
 
-                const edges = graph.getOutgoingEdges(selectedCell);
-                graph.setCellStyle(`strokeColor=#9EABB2;strokeWidth=1;`, edges);
+                const outEdges = graph.getOutgoingEdges(selectedCell);
+                const inEdges = graph.getIncomingEdges(selectedCell);
+
+                graph.setCellStyle(`strokeColor=#9EABB2;strokeWidth=1;`, outEdges.concat(inEdges));
 
                 selectedCell = null;
             }

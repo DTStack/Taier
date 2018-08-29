@@ -65,7 +65,7 @@ class SiderBench extends React.Component {
             </TabPane>,
         ];
 
-        if (!isWorkflowNode && tabData.taskType !== TASK_TYPE.WORKFLOW) {
+        if (!isWorkflowNode) {
             panes.push(
                 <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
                     <SchedulingConfig 
@@ -73,10 +73,15 @@ class SiderBench extends React.Component {
                     >
                     </SchedulingConfig>
                 </TabPane>,
-                <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
-                    <TaskView tabData={tabData} />
-                </TabPane>
             )
+
+            if (tabData.taskType !== TASK_TYPE.WORKFLOW) {
+                panes.push(
+                    <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
+                        <TaskView tabData={tabData} />
+                    </TabPane>
+                )
+            }
         }
 
         if (tabData && utils.checkExist(tabData.taskType) && 

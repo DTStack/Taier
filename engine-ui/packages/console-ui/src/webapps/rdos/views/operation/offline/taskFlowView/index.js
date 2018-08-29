@@ -276,7 +276,7 @@ class TaskFlowView extends Component {
                 
                 // 遍历工作流节点
                 if (isWorkflow) {
-                    newVertex.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
+                    newVertex.geometry.alternateBounds = new mxRectangle(ctx.cx, ctx.cy, VertexSize.width, VertexSize.height);
                     this.executeLayout(newVertex, () => {
                         this.insertVertex(newVertex, data.subNodes, null, type);
                     })
@@ -312,6 +312,7 @@ class TaskFlowView extends Component {
             model.beginUpdate();
             try {
                 if (change != null) { change(); }
+                console.log('layout:', layoutNode)
                 layout.execute(layoutNode);
             } catch (e) {
                 throw e;
