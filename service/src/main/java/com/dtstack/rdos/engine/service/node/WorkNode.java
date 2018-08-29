@@ -301,6 +301,8 @@ public class WorkNode {
                 }
                 //提交到生产者消费者队列
                 if (jobClient.submitJob()) {
+                    saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(),
+                            EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getPluginInfo());
                     priorityQueue.remove(jobClient);
                 } else {
                     //更新剩余任务的优先级数据
