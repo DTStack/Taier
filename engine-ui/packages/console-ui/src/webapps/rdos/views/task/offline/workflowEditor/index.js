@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { debounce } from 'lodash';
+
 import { 
     Tooltip, Spin, Icon, 
-    Button, Modal, message 
+    Button, Modal, Select, 
 } from 'antd'
 
 import KeyEventListener from 'widgets/keyCombiner/listener'
@@ -41,6 +43,8 @@ const {
     mxUndoManager,
     mxGraphView,
     mxGraphHandler,
+    mxEventObject,
+    mxEventSource,
     mxCompactTreeLayout,
     mxConnectionConstraint,
 } = Mx;
@@ -51,6 +55,7 @@ const VertexSize = { // vertex大小
 }
 
 const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
+const Option = Select.Option;
 
 const applyCellStyle = (cellState, style) => {
     if (cellState) {
@@ -74,23 +79,33 @@ const applyCellStyle = (cellState, style) => {
 }, workbenchActions )
 class WorkflowEditor extends Component {
 
-    state = {}
+    state = {
+        showSearch: false,
+    }
 
     componentDidMount() {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
         const editor = this.Container;
+        this._cacheCells = {};
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
         const workflowData = this.props.data.sqlText;
         if (workflowData) {
-            console.log('didMount:', this.props.data);
             this.initGraphData(workflowData);
+            this.listenGraphUpdate();
         }
     }
 
     shouldComponentUpdate (nextProps, nextState) {
+        if (nextState.showSearch !== this.state.showSearch) {
+            return true;
+        }
+        if (nextState.searchResult !== this.state.searchResult) {
+            return true;
+        }
+
         return false;
     }
 
@@ -109,6 +124,7 @@ class WorkflowEditor extends Component {
 
     componentWillUnmount () {
         console.log('WorkflowEditor componentWillUnmount', this)
+        this.props.resetWorkflow();
     }
 
     loadEditor = (container) => {
@@ -283,7 +299,7 @@ class WorkflowEditor extends Component {
     }
 
     initGraphData = (workflowData) => {
-        const { tabs, updateTaskField } = this.props;
+        const { tabs, updateTabData, data } = this.props;
         const cells = JSON.parse(workflowData);
 
         const waitUpdateTabs = [];
@@ -304,11 +320,11 @@ class WorkflowEditor extends Component {
         this.renderData(cells);
 
         // 如果节点有需要同步的数据, 则更新当前workflow的状态和待更数据字段
-        if (waitUpdateTabs.length > 0) {
-            updateTaskField({
-                toUpdateTasks: waitUpdateTabs,
-            });
-        }
+        updateTabData({
+            id: data.id,
+            toUpdateTasks: waitUpdateTabs,
+            notSynced: waitUpdateTabs.length > 0 ? true : false
+        });
     }
 
     saveTask = (cell) => {
@@ -557,11 +573,11 @@ class WorkflowEditor extends Component {
                 graph.clearSelection();
                 const cellState = graph.view.getState(cell);
                 const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#90D5FF';
+                style[mxConstants.STYLE_FILLCOLOR] = '#dbeffc';
                 applyCellStyle(cellState, style);
-                
+
                 const edges = graph.getOutgoingEdges(cell);
-                graph.setCellStyle(`strokeColor=#90D5FF;strokeWidth=2;`, edges);
+                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, edges);
                 selectedCell = cell;
             }
         })
@@ -579,7 +595,10 @@ class WorkflowEditor extends Component {
                 selectedCell = null;
             }
         }
+    }
 
+    listenGraphUpdate = () => {
+        const graph = this.graph;
         graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData)
         graph.addListener(mxEvent.CELL_CONNECTED, this.updateGraphData)
@@ -587,7 +606,7 @@ class WorkflowEditor extends Component {
 
     getGraphData = () => {
         const rootCell = this.graph.getDefaultParent();
-        const cells =  this.graph.getChildCells(rootCell);
+        const cells = this.graph.getChildCells(rootCell);
         const cellData = [];
         const getCellData = (cell) => {
             return cell && {
@@ -612,10 +631,11 @@ class WorkflowEditor extends Component {
         return cellData;
     }
 
+
     renderData = (data) => {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
-        const cellMap = {};
+        const cellMap = this._cacheCells;
         const cellStyle = this.getStyles();
 
         if (data) {
@@ -640,6 +660,55 @@ class WorkflowEditor extends Component {
             }
 
             graph.center(true, true, 0.5, 0.4);
+        }
+    }
+
+    onSearchChange = (searchText) => {
+        if (searchText) {
+            const rootCell = this.graph.getDefaultParent();
+            const cells = this.graph.getChildCells(rootCell);
+            const result = [];
+            for (let i = 0; i < cells.length; i++) {
+                const cell = cells[i];
+                const data = cell.data;
+                if (cell.vertex && data) {
+                    if (data.name.indexOf(searchText) > -1) {
+                        result.push({
+                            id: data.id,
+                            name: data.name,
+                        })
+                    }
+                }
+            }
+            this.setState({
+                searchResult: result,
+            })
+        }
+    }
+
+    debounceSearch = debounce(this.onSearchChange, 500, { 'maxWait': 2000 })
+
+    initShowSearch = (e) => {
+        this.setState({
+            showSearch: true,
+        }, () => {
+            const selectEle = document.getElementById('JS_Search_Node');
+            if (selectEle) {
+                selectEle.focus();
+                // fix autoComplete问题
+                selectEle.setAttribute('autocomplete', 'off');
+            }
+        })
+    }
+
+    onSelectResult = (id) => {
+        const cell = this._cacheCells[id];
+        if (cell) {
+            const mxe = new mxEventObject(mxEvent.CLICK, 'cell', cell);
+            this.graph.fireEvent(mxe);
+            this.setState({
+                showSearch: false,
+            })
         }
     }
 
@@ -668,6 +737,11 @@ class WorkflowEditor extends Component {
 
     /* eslint-enable */
     render() {
+        
+        const { searchResult } = this.state;
+        const options = searchResult && searchResult.map(d => {
+            return <Option key={`${d.id}`} value={`${d.id}`}>{d.name}</Option>
+        })
 
         return (
             <KeyEventListener 
@@ -679,7 +753,7 @@ class WorkflowEditor extends Component {
                     }}
                 >
                     { this.renderToolBar() }
-                    <div className="editor pointer graph-bg" ref={(e) => { this.Container = e }} />
+                    <div className="editor pointer graph-bg grid-bg" ref={(e) => { this.Container = e }} />
                     <Spin
                         tip="Loading..."
                         size="large"
@@ -694,16 +768,47 @@ class WorkflowEditor extends Component {
                         {/* <Tooltip placement="bottom" title="撤销">
                             <Icon type="rollback" onClick={this.undo}/>
                         </Tooltip> */}
-                        <Tooltip placement="bottom" title="刷新">
-                            <Icon type="reload" onClick={this.refresh}/>
-                        </Tooltip>
                         <Tooltip placement="bottom" title="放大">
                             <MyIcon onClick={this.zoomIn} type="zoom-in"/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="缩小">
                             <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                         </Tooltip>
+                        <Tooltip placement="bottom" title="搜索节点">
+                            <Icon type="search" onClick={this.initShowSearch} style={{fontSize: '17px'}}/>
+                        </Tooltip>
                     </div>
+                    <Modal 
+                        closable={false}
+                        mask={false}
+                        style={{
+                            width: '400px',
+                            height: '80px',
+                            top: '150px',
+                            left: '100px',
+                        }}
+                        visible={this.state.showSearch}
+                        onCancel={() => this.setState({showSearch: false})}
+                        footer={null}
+                    >
+                         <Select
+                            id="JS_Search_Node"
+                            mode="combobox"
+                            showSearch
+                            style={{width: '100%'}}
+                            placeholder="按子节点名称搜索"
+                            notFoundContent="没有发现相关节点"
+                            defaultActiveFirstOption={false}
+                            showArrow={false}
+                            filterOption={false}
+                            autoComplete="off"
+                            value={this.state.searchText}
+                            onChange={this.debounceSearch}
+                            onSelect={this.onSelectResult}
+                        >
+                            {options}
+                        </Select>
+                    </Modal>
                 </div>
             </KeyEventListener>
         )
@@ -719,7 +824,7 @@ class WorkflowEditor extends Component {
     }
 
     refresh = () => {
-        this.componentDidMount()
+        this.graph.refresh()
     }
 
     graphEnable() {

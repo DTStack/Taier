@@ -17,6 +17,8 @@ export const workflowReducer = (state = initState, action) => {
     switch(action.type) {
         case workflowAction.UPDATE:
             return assign({}, state, action.payload);
+        case workflowAction.RESET:
+            return initState;
         default:
             return state;
     }

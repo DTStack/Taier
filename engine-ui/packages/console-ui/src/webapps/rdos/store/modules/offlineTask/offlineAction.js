@@ -876,6 +876,11 @@ export const workbenchActions = (dispatch, ownProps) => {
                 payload: data
             })
         },
+        resetWorkflow() {
+            dispatch({
+                type: workflowAction.RESET,
+            })
+        },
     }
 }
 

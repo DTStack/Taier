@@ -33,7 +33,6 @@ class FolderTree extends React.Component {
 
     onLoadData(type, treeNode) {
         const { loadTreeNode, ispicker } = this.props;
-        const ctx = this;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType
@@ -458,8 +457,7 @@ class FolderTree extends React.Component {
                             title={name} 
                             className={claName}>
                             { this.renderStatusBadge(treeType, data) }
-                            { name } 
-                            <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                            { name } <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
                                 { this.renderFileInfo(treeType, data) }
                             </i>
                         </span>
