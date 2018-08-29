@@ -88,6 +88,7 @@ class WorkflowEditor extends Component {
         this.graph = "";
         const editor = this.Container;
         this._cacheCells = {};
+        this._currentNewVertex = null;
         this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
@@ -105,25 +106,33 @@ class WorkflowEditor extends Component {
         if (nextState.searchResult !== this.state.searchResult) {
             return true;
         }
-
         return false;
     }
 
     componentWillReceiveProps(nextProps) {
         const old = this.props.workflow;
         const next = nextProps.workflow;
+
+        const oldData = this.props.data;
+        const nextData = nextProps.data;
+
         if (old !== next) {
-            if (next.status === 'cancel') {
+            if (this._currentNewVertex && next.status === 'cancel') {
                 this.graph.removeCells();
                 this._currentNewVertex = null;
             } else if (next.status === 'created') {
                 this.appendWorkflowNode(next.node);
             }
         }
+
+        // // 如果版本不同则执行更新
+        // if (oldData.readWriteLockVO.version === nextData.readWriteLockVO.version ) {
+        //     console.log('diff version:', oldData.readWriteLockVO, nextData.readWriteLockVO)
+        //     // this.initGraphData(nextData.sqlText);
+        // }
     }
 
     componentWillUnmount () {
-        console.log('WorkflowEditor componentWillUnmount', this)
         this.props.resetWorkflow();
     }
 
@@ -275,8 +284,8 @@ class WorkflowEditor extends Component {
                     </div>
                 ),
                 onOk() {
-                    delOfflineTask({taskId: taskData.id }, data.id).then(succ => {
-                        if (succ) {
+                    delOfflineTask({taskId: taskData.id }, data.id).then(res => {
+                        if (res.code === 1 || res.code === 250) {
                             ctx.removeCell([cell]);
                         }
                     })
@@ -714,13 +723,35 @@ class WorkflowEditor extends Component {
 
     renderToolBar = () => {
         const { taskTypes } = this.props;
-        const widgets = taskTypes.map(item =>
-            item.key !== TASK_TYPE.WORKFLOW && <Button
-                id={`${WIDGETS_PREFIX}${item.key}`}
-                className="widgets-items"
-                key={item.key}
-                value={item.key}>{item.value}
-            </Button>
+        const showTitle = (type, title) => {
+            switch(type) {
+                case TASK_TYPE.SQL:
+                    return '以Spark作为计算引擎，兼容HiveSQL语法';
+                case TASK_TYPE.MR:
+                    return '基于Java、Scala的Spark节点任务';
+                case TASK_TYPE.ML:
+                    return '基于Spark MLLib的机器学习节点任务';
+                case TASK_TYPE.DEEP_LEARNING:
+                return '基于TensorFlow、MXNet的深度学习节点任务';
+                default:
+                    return title;
+            }
+        }
+        const widgets = taskTypes.map(item => {
+                return item.key !== TASK_TYPE.WORKFLOW && 
+                <Tooltip 
+                    placement="right" 
+                    title={showTitle(item.key, item.value)}
+                >
+                    <Button
+                        id={`${WIDGETS_PREFIX}${item.key}`}
+                        className="widgets-items"
+                        key={item.key}
+                        value={item.key}>
+                        {item.value}
+                    </Button>
+                </Tooltip>
+            }
         )
 
         return (
