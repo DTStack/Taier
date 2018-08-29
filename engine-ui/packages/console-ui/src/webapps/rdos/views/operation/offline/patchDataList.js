@@ -173,7 +173,17 @@ class PatchDataList extends Component {
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
             },
-        }, {
+        }, 
+        {
+            width: 150,
+            title: '已完成/总实例',
+            dataIndex: 'doneJobSum',
+            key: 'doneJobSum',
+            render: (text, record) => {
+                return <span>{record.doneJobSum != record.allJobSum ? <span style={{color:"#f00",fontWeight: 600}}> {record.doneJobSum}</span> : record.doneJobSum }/{record.allJobSum}</span>
+            },
+        },
+        {
             width: 150,
             title: '业务日期',
             dataIndex: 'fromDay',
