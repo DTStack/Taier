@@ -90,19 +90,20 @@ public enum RdosTaskStatus {
         return false;
     }
     
-    public static boolean canStartAgain(Byte status){
-		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()
-                || sta == RdosTaskStatus.ENGINEACCEPTED.getStatus()){
-    	    return true;
-        }
+//    public static boolean canStartAgain(Byte status){
+//		int sta = status.intValue();
+//        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()
+//                || sta == RdosTaskStatus.ENGINEACCEPTED.getStatus()){
+//    	    return true;
+//        }
+//
+//        return false;
+//    }
 
-        return false;
-    }
-
+    //只接受从节点分发的任务
     public static boolean canSubmitAgain(Byte status){
         int sta = status.intValue();
-        if(sta == RdosTaskStatus.ENGINEACCEPTED.getStatus() || sta == RdosTaskStatus.SUBMITTING.getStatus()){
+        if(sta == RdosTaskStatus.ENGINEACCEPTED.getStatus()){ // sta == RdosTaskStatus.SUBMITTING.getStatus()
             return true;
         }
 

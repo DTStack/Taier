@@ -126,8 +126,7 @@ public class MasterNode {
                 JobClient jobClient = new JobClient(paramAction);
                 //更新任务状态为engineAccepted
                 rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                //todo - 解决重启时任务都在master节点上的问题
-                WorkNode.getInstance().addSubmitJob(jobClient);
+                WorkNode.getInstance().addStartJob(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
                 LOG.error("", e);

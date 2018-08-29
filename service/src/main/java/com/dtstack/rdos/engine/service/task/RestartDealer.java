@@ -65,11 +65,28 @@ public class RestartDealer {
         if(!checkNeedReSubmitForSubmitResult(jobClient)){
             return false;
         }
-
         resetStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobClient.getEngineType());
         addToRestart(jobClient);
         LOG.info("------ job: {} add into orderLinkedBlockingQueue again.", jobClient.getTaskId());
         return true;
+    }
+
+    private boolean checkNeedReSubmitForSubmitResult(JobClient jobClient){
+        if(jobClient.getJobResult() == null){
+            //未提交过
+            return true;
+        }
+        if(jobClient.getJobResult() == null || !jobClient.getJobResult().isErr()){
+            return false;
+        }
+        try{
+            String engineType = jobClient.getEngineType();
+            String resultMsg = jobClient.getJobResult().getMsgInfo();
+            return RestartStrategyUtil.getInstance().retrySubmitFail(jobClient.getTaskId(), engineType, resultMsg);
+        }catch (Exception e){
+            LOG.error("", e);
+        }
+        return false;
     }
 
     /***
@@ -84,23 +101,19 @@ public class RestartDealer {
      */
     public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String engineType,
                                           Integer computeType, String pluginInfo){
-
         if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
             return false;
         }
-
         try {
             if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType)){
                 return false;
             }
-
             resetStatus(jobId, computeType, engineType);
             RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             if(jobCache == null){
                 LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
                 return false;
             }
-
             String jobInfo = jobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
@@ -117,7 +130,6 @@ public class RestartDealer {
         if(Strings.isNullOrEmpty(engineJobId)){
             return false;
         }
-
         if(ComputeType.STREAM.getType().equals(computeType)){
             //do nothing
         }else{
@@ -127,72 +139,29 @@ public class RestartDealer {
                 LOG.error("batch job {} can't find.", jobId);
                 return false;
             }
-
             if(engineBatchJob.getSourceType() != null && SourceType.TEMP_QUERY.getType().equals(engineBatchJob.getSourceType())){
                 return false;
             }
-
         }
-
         IClient client = clientCache.getClient(engineType, pluginInfo);
         if(client == null){
             LOG.error("can't get client by engineType:{}", engineJobId);
             return false;
         }
-
         return RestartStrategyUtil.getInstance().checkCanRestart(jobId, engineJobId, engineType, client);
-    }
-
-
-    private boolean checkNeedReSubmitForSubmitResult(JobClient jobClient){
-
-        if(jobClient.getJobResult() == null){
-            //未提交过
-            return true;
-        }
-
-        return retrySubmitFail(jobClient);
-    }
-
-    private boolean isSubmitFail(JobClient jobClient){
-
-        if(jobClient.getJobResult() != null && jobClient.getJobResult().isErr()){
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean retrySubmitFail(JobClient jobClient){
-
-        if(!isSubmitFail(jobClient)){
-            return false;
-        }
-
-        try{
-            String engineType = jobClient.getEngineType();
-            String resultMsg = jobClient.getJobResult().getMsgInfo();
-            return RestartStrategyUtil.getInstance().retrySubmitFail(jobClient.getTaskId(), engineType, resultMsg);
-
-        }catch (Exception e){
-            LOG.error("", e);
-        }
-
-        return false;
-
     }
 
     private void resetStatus(String jobId, Integer computeType, String engineType){
         //更新rdos_engine_batch_task/rdos_engine_stream_task 状态
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-        zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.WAITENGINE.getStatus());
+        zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITENGINE.getStatus());
+            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus());
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITENGINE.getStatus());
+            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus());
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{

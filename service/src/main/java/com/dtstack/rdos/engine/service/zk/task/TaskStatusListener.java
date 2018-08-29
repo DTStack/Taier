@@ -156,7 +156,7 @@ public class TaskStatusListener implements Runnable{
 
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
-
+            //todo 注意失败重试的任务也没有engineTaskId
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
                 if(rdosTask.getPluginInfoId() > 0 ){
@@ -256,8 +256,8 @@ public class TaskStatusListener implements Runnable{
     private void dealWaitingJobForMigrationJob(String zkJobId, Integer status) throws Exception {
         if(status != RdosTaskStatus.WAITENGINE.getStatus().intValue()
                 && status != RdosTaskStatus.WAITCOMPUTE.getStatus().intValue()
-                && status != RdosTaskStatus.SUBMITTED.getStatus().intValue()
-                && status != RdosTaskStatus.ENGINEDISTRIBUTE.getStatus().intValue()){
+                && status != RdosTaskStatus.RESTARTING.getStatus().intValue()
+                && status != RdosTaskStatus.SUBMITTED.getStatus().intValue()){
             return;
         }
 

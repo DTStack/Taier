@@ -479,7 +479,7 @@ public class ZkDistributed implements Closeable{
 	private int getDistributeJobCount(BrokerDataNode brokerDataNode){
 		int count = 0;
 		for(byte status : brokerDataNode.getMetas().values()){
-			if(status == RdosTaskStatus.ENGINEDISTRIBUTE.getStatus()
+			if(status == RdosTaskStatus.RESTARTING.getStatus()
 					|| status == RdosTaskStatus.WAITCOMPUTE.getStatus()
 					|| status == RdosTaskStatus.WAITENGINE.getStatus()){
 				count++;

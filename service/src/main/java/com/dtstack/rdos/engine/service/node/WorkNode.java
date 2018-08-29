@@ -150,27 +150,6 @@ public class WorkNode {
         }
     }
 
-    private void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            rdosEngineStreamJobDao.updateTaskStatus(jobId, status);
-        } else {
-            rdosEngineBatchJobDao.updateJobStatus(jobId, status);
-        }
-    }
-
-    /**
-     * 1. master接受到任务的时候也需要将数据缓存
-     * 2. 添加到优先级队列之后保存
-     * 3. cache的移除在任务发送完毕之后
-     */
-    private void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
-        if(engineJobCacheDao.getJobById(jobId) != null){
-            engineJobCacheDao.updateJobStage(jobId, stage);
-        }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
-        }
-    }
-
     /**
      * master 节点分发任务失败
      * @param taskId
@@ -234,6 +213,7 @@ public class WorkNode {
             while (it.hasNext()){
                 JobClient jobClient = it.next();
                 boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
+                //重试任务时间未满足条件，出队后进行优先级计算完后重新入队
                 if (!isRestartJobCanSubmit){
                     it.remove();
                     updateQueuePriority(priorityQueue);

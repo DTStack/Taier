@@ -627,8 +627,7 @@ public class FlinkClient extends AbsClient {
             return false;
         }
 
-        if(taskStatus == RdosTaskStatus.RESTARTING
-                || taskStatus == RdosTaskStatus.RUNNING){
+        if(taskStatus == RdosTaskStatus.RUNNING){
             return true;
         }
 
