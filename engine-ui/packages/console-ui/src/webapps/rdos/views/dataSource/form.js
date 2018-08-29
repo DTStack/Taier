@@ -362,7 +362,7 @@ class BaseForm extends Component {
                 return [
                     <FormItem
                         {...formItemLayout}
-                        label="Zookeeper集群地址"
+                        label="集群地址"
                         key="hbase_quorum"
                         hasFeedback
                     >
@@ -375,7 +375,7 @@ class BaseForm extends Component {
                             <Input
                                 type="textarea"
                                 rows={5}
-                                placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
+                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />,
                         )}
                     </FormItem>,
@@ -571,19 +571,19 @@ class BaseForm extends Component {
                 return [
                     <FormItem
                         {...formItemLayout}
-                        label="Address"
+                        label="集群地址"
                         key="Address"
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.address', {
                             rules: [{
-                                required: true, message: 'Address不可为空！',
+                                required: true, message: '集群地址不可为空！',
                             }],
                             initialValue: config.address || '',
                         })(
                             <Input
                                 type="textarea" rows={4}
-                                placeholder="Elasticsearch地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
+                                placeholder="集群地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
                             />,
                         )}
                     </FormItem>,
@@ -610,19 +610,19 @@ class BaseForm extends Component {
                 return [
                     <FormItem
                         {...formItemLayout}
-                        label="Address"
+                        label="集群地址"
                         key="Address"
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.address', {
                             rules: [{
-                                required: true, message: 'Address不可为空！',
+                                required: true, message: '集群地址不可为空！',
                             }],
                             initialValue: config.address || '',
                         })(
                             <Input
                                 type="textarea" rows={4}
-                                placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
+                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />,
                         )}
                     </FormItem>
