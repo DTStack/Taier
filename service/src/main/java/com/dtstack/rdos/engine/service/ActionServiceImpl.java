@@ -2,28 +2,18 @@ package com.dtstack.rdos.engine.service;
 
 import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.annotation.Forbidden;
 import com.dtstack.rdos.common.annotation.Param;
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.node.JobStopAction;
 import com.dtstack.rdos.engine.service.node.WorkNode;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
-import com.dtstack.rdos.engine.service.util.TaskIdUtil;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,15 +38,11 @@ public class ActionServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionServiceImpl.class);
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-
     private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
-
-    private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
 
@@ -69,9 +55,8 @@ public class ActionServiceImpl {
     private Random random = new Random();
 
     /**
-     * 接受来自客户端的请求, 在当前节点直接处理任务
-     *
-     * @param params
+     * 接受来自客户端的请求, 并判断节点队列长度。
+     * 如在当前节点,则直接处理任务
      */
     public void start(Map<String, Object> params){
         try{
@@ -91,81 +76,24 @@ public class ActionServiceImpl {
     }
 
     /**
-     * 执行从master上下发的任务
-     * 不需要判断等待队列是否满了，由master节点主动判断
-     * @param params
-     * @return
+     * 执行从 work node 上下发的任务
      */
     public Map<String, Object> submit(Map<String, Object> params){
         Map<String, Object> result = Maps.newHashMap();
         result.put("send", true);
-        String jobId = null;
-        Integer computeType = null;
-
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
             if(!checkSubmitted(paramAction)){
                 return result;
             }
-
-            jobId = paramAction.getTaskId();
-            computeType = paramAction.getComputeType();
-            if(paramAction.getPluginInfo() != null){
-                updateJobClientPluginInfo(jobId, computeType, PublicUtil.objToString(paramAction.getPluginInfo()));
-            }
-            String zkTaskId = TaskIdUtil.getZkTaskId(paramAction.getComputeType(), paramAction.getEngineType(), paramAction.getTaskId());
             JobClient jobClient = new JobClient(paramAction);
-            jobClient.setJobClientCallBack(new JobClientCallBack() {
-
-                @Override
-                public void execute(Map<String, ? extends Object> params) {
-
-                    if(!params.containsKey(JOB_STATUS)){
-                        return;
-                    }
-
-                    int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                    zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
-                    updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
-                }
-            });
-
-            saveCache(jobId, jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
-            zkDistributed.updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
-            updateJobStatus(jobId, computeType, RdosTaskStatus.WAITENGINE.getStatus());
-
-            //加入节点的优先级队列
             workNode.addSubmitJob(jobClient);
-
-            return result;
-
         }catch (Exception e){
-            //提交失败,修改对应的提交jobid为提交失败
             logger.error("", e);
-            if (jobId != null) {
-                updateJobStatus(jobId, computeType, RdosTaskStatus.FAILED.getStatus());
-            }
-
-            //也是处理成功的一种
-            return result;
         }
+        return result;
     }
-
-//    /**
-//     * 检查是否可以下发任务
-//     * @param params
-//     */
-//    public Map<String, Object> checkCanDistribute(Map<String, Object> params){
-//        Map<String, Object> resultMap = Maps.newHashMap();
-//        String groupName = MathUtil.getString(params.get("groupName"));
-//        String engineType = MathUtil.getString(params.get("engineType"));
-//
-//        Boolean canAdd = ExeQueueMgr.getInstance().checkCanAddToWaitQueue(engineType, groupName);
-//        resultMap.put("result", canAdd);
-//        return resultMap;
-//    }
-
 
     /**
      * 只允许发到master节点上
@@ -289,55 +217,6 @@ public class ActionServiceImpl {
             logger.error("{}",e);
         }
         return result;
-    }
-
-
-    @Forbidden
-    public void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            engineStreamTaskDAO.updateTaskStatus(jobId, status);
-        } else {
-            batchJobDAO.updateJobStatus(jobId, status);
-        }
-    }
-
-    public void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
-        Long refPluginInfoId = -1L;
-
-        //请求不带插件的连接信息的话则默认为使用本地默认的集群配置---pluginInfoId = -1;
-        if(!Strings.isNullOrEmpty(pluginInfoStr)){
-            RdosPluginInfo pluginInfo = pluginInfoDao.getByPluginInfo(pluginInfoStr);
-            if(pluginInfo == null){
-                refPluginInfoId = pluginInfoDao.replaceInto(pluginInfoStr, EPluginType.DYNAMIC.getType());
-            }else{
-                refPluginInfoId = pluginInfo.getId();
-            }
-        }
-
-        //更新任务ref的pluginInfo
-        if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamTaskDAO.updateTaskPluginId(jobId, refPluginInfoId);
-        } else{
-            batchJobDAO.updateJobPluginId(jobId, refPluginInfoId);
-        }
-
-    }
-
-    /**
-     * 1. 接受到任务的时候需要将数据缓存
-     * 2. 添加到优先级队列之后保存
-     * 3. cache的移除在任务发送完毕之后
-     */
-    private void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
-        if(engineJobCacheDao.getJobById(jobId) != null){
-            engineJobCacheDao.updateJobStage(jobId, stage);
-        }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
-        }
-    }
-
-    public void deleteJobCache(String jobId){
-        engineJobCacheDao.deleteJob(jobId);
     }
 
     /**

@@ -171,6 +171,6 @@ public class RestartDealer {
 
     private void addToRestart(JobClient jobClient){
         jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
-        WorkNode.getInstance().addSubmitJob(jobClient);
+        WorkNode.getInstance().redirectSubmitJob(jobClient);
     }
 }

@@ -111,7 +111,7 @@ engineTypes:
         flinkJarPath: /opt/dtstack/flinkjars/flink-dist_2.11-1.4-SNAPSHOT.jar
         cluster: default
         jarTmpDir: ../tmp140
-        flinkYarnMode: per_job
+        flinkYarnMode: legacy
         hadoopConf:
             fs.defaultFS: hdfs://ns1
             dfs.ha.namenodes.ns1: nn1,nn2

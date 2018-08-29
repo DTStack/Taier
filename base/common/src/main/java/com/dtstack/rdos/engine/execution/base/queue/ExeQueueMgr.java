@@ -4,11 +4,9 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.JobSubmitProcessor;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
-import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -110,7 +108,7 @@ public class ExeQueueMgr {
     }
 
 
-    public boolean checkCanAddToWaitQueue(String engineType, String groupName){
+    private boolean checkCanAddToWaitQueue(String engineType, String groupName){
         if(engineType == null){
             return false;
         }
@@ -119,7 +117,7 @@ public class ExeQueueMgr {
         return engineTypeQueue.checkCanAddToWaitQueue(groupName);
     }
 
-    public boolean checkLocalPriorityIsMax(String engineType, String groupName, String localAddress) {
+    private boolean checkLocalPriorityIsMax(String engineType, String groupName, String localAddress) {
         if(clusterQueueInfo == null){
             //等待第一次从zk上获取信息
             return false;
@@ -173,17 +171,6 @@ public class ExeQueueMgr {
             }
         }
     }
-
-    private void addJobToFail(JobClient jobClient, Exception e){
-        JobResult jobResult = JobResult.createErrorResult(e);
-        jobClient.setJobResult(jobResult);
-        JobSubmitExecutor.getInstance().addJobIntoTaskListenerQueue(jobClient);
-    }
-
-    public Map<String, EngineTypeQueue> getEngineTypeQueueMap() {
-        return engineTypeQueueMap;
-    }
-
 
     class TimerClear implements Runnable{
 
