@@ -31,9 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 处理任务优先级队列
- * 1--n 数值越大表明优先级越高
- * 任务停止队列
+ * 处理重启后任务恢复
+ *
  * Date: 2018/1/8
  * Company: www.dtstack.com
  * @author xuchao
