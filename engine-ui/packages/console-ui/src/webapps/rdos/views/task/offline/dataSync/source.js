@@ -91,14 +91,23 @@ class SourceForm extends React.Component {
         });
     }
 
-    getTableColumn(tableName) {
+    getTableColumn(tableName,type) {
+        const { form, handleTableColumnChange, handleTableCopateChange } = this.props;
+
         if (tableName instanceof Array) {
             tableName = tableName[0];
         }
         if (!tableName) {
+            console.log('tableName',tableName);
+            handleTableCopateChange([]);
+            //form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
+            form.setFields({
+                splitPK: {
+                  value: '',
+                }
+            })
             return;
         }
-        const { form, handleTableColumnChange } = this.props;
         const { sourceMap } = this.props
 
         if (sourceMap.type &&
@@ -108,6 +117,18 @@ class SourceForm extends React.Component {
         }
 
         const sourceId = form.getFieldValue('sourceId');
+        if(type){
+            ajax.getOfflineColumnForSyncopate({
+                sourceId,
+                tableName
+            }).then(res => {
+                if (res.code === 1) {
+                    handleTableCopateChange(res.data);
+                } else {
+                    handleTableCopateChange([]);
+                }
+            })
+        }
         ajax.getOfflineTableColumn({
             sourceId,
             tableName
@@ -161,6 +182,7 @@ class SourceForm extends React.Component {
                 form.resetFields([key])
             } else {
                 form.resetFields(['table'])
+                form.resetFields(["splitPK"])
             }
             this.setState({
                 selectHack: false
@@ -169,10 +191,10 @@ class SourceForm extends React.Component {
 
     }
 
-    changeTable(value) {
+    changeTable(type,value) {
         console.log(value);
         if (value) {
-            this.getTableColumn(value);
+            this.getTableColumn(value,type);
         }
         this.submitForm();
         this.setState({
@@ -524,7 +546,7 @@ class SourceForm extends React.Component {
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
-                                onChange={this.debounceTableSearch.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this,sourceMap.type.type)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -572,13 +594,19 @@ class SourceForm extends React.Component {
                             rules: [],
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.splitPK
                         })(
-                            <Input
-                                type="text"
-                                placeholder="根据配置的字段进行数据分片，实现并发读取"
+                            <Select
+                                showSearch
+                                showArrow={true}
                                 onChange={this.submitForm.bind(this)}
-                            ></Input>
+                            >
+                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.type).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
+                                    return <Option key={`copate-${index}`} value={copateValue}>
+                                        {copateValue}
+                                    </Option>
+                                })}
+                            </Select>
                         )}
-                        <HelpDoc doc="switchKey" />
+                        <HelpDoc doc="selectKey" />
                     </FormItem>
                 ];
                 break;
@@ -997,6 +1025,13 @@ const mapDispatch = dispatch => {
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+
+        handleTableCopateChange: copateData => {
+            dispatch({
+                type: sourceMapAction.SOURCE_TABLE_COPATE_CHANGE,
+                payload: copateData
             });
         },
 
