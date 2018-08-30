@@ -695,8 +695,8 @@ export const workbenchActions = (dispatch, ownProps) => {
                             type: workbenchAction.CLOSE_TASK_TAB,
                             payload: res.data
                         });
-                        return true;
                     }
+                    return res;
                 });
         },
 
@@ -874,6 +874,11 @@ export const workbenchActions = (dispatch, ownProps) => {
             dispatch({
                 type: workflowAction.UPDATE,
                 payload: data
+            })
+        },
+        resetWorkflow() {
+            dispatch({
+                type: workflowAction.RESET,
             })
         },
     }

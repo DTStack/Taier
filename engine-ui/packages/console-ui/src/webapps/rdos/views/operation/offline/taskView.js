@@ -31,7 +31,6 @@ const {
     mxPerimeter,
     mxGraphHandler,
     mxCompactTreeLayout,
-    mxHierarchicalLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -134,6 +133,8 @@ export default class TaskView extends Component {
                     source: currentNodeData,
                 }
 
+                relationTree.push(dataItem);
+
                 // 处理依赖节点
                 if (parentNodes && parentNodes.length > 0) {
                     for (let i = 0; i < parentNodes.length; i++) {
@@ -141,8 +142,13 @@ export default class TaskView extends Component {
                         dataItem.source = nodeData;
                         dataItem.target = currentNodeData;
                         if (parentNodes[i].taskVOS) {
-                            loop(parentNodes[i])
+                            loop(parentNodes[i], parent)
                         }
+                        relationTree.push({
+                            parent: parent,
+                            source: nodeData,
+                            target: currentNodeData,
+                        });
                     }
                 }
     
@@ -150,14 +156,16 @@ export default class TaskView extends Component {
                 if (childNodes && childNodes.length > 0) {
                     for (let i = 0; i < childNodes.length; i++) {
                         const nodeData = getVertexNode(childNodes[i])
-                        dataItem.target = nodeData;
                         if (childNodes[i].subTaskVOS) {
-                            loop(childNodes[i])
+                            loop(childNodes[i], parent)
                         }
+                        relationTree.push({
+                            parent: parent,
+                            source: currentNodeData,
+                            target: nodeData,
+                        });
                     }
                 }
-
-                relationTree.push(dataItem);
             }
         }
 

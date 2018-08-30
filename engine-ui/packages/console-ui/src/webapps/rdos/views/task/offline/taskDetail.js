@@ -17,6 +17,7 @@ import { workbenchActions } from '../../../store/modules/offlineTask/offlineActi
 
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
 import { PROJECT_TYPE } from '../../../comm/const';
+import SchedulingConfig from './schedulingConfig';
 
 const Panel = Collapse.Panel;
 
@@ -134,7 +135,7 @@ class TaskDetail extends React.Component {
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
         const pre=isPro?'发布':'提交'
         return <div className="m-taksdetail">
-            <Collapse bordered={false} defaultActiveKey={['1', '2']}>
+            <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
                         taskInfo={tabData} 
@@ -150,12 +151,22 @@ class TaskDetail extends React.Component {
                         onCancel={() => {this.setState({visible: false})}}
                     />
                 </Panel>
-                <Panel key="2" header={`历史${pre}版本`}>
+            </Collapse>
+            {
+                isWorkflowNode ? 
+                <SchedulingConfig 
+                    isWorkflowNode={isWorkflowNode}
+                    tabData={tabData}
+                >
+                </SchedulingConfig> : ''
+            }
+            <Collapse bordered={false} defaultActiveKey={['3']}>
+                <Panel key="3" header={`历史${pre}版本`}>
                     <TaskVersion
                         isPro={isPro}
                         taskInfo={tabData}
                         changeSql={this.setSqlText}
-                    />
+                        />
                 </Panel>
             </Collapse>
         </div>

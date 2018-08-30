@@ -264,7 +264,7 @@ class Workbench extends React.Component {
                                 <Menu.Item key="ALL">关闭所有</Menu.Item>
                             </Menu>
                         }>
-                            <Icon type="bars" style={{ margin: '10 0 0 0' }} />
+                            <Icon type="bars" size="" style={{ margin: '7 0 0 0',fontSize: 18, }} />
                         </Dropdown>}
                     >
                         {this.renderTabs(tabs)}

@@ -72,8 +72,6 @@ export default class TaskVersion extends React.Component {
         const { taskInfo, taskType } = this.props;
         const { showDiff, campareTo, diffParams } = this.state;
 
-        const isLocked =
-            taskInfo.readWriteLockVO && !taskInfo.readWriteLockVO.getLock;
         let sqlTextJSON = taskInfo.sqlText;
         let compareToText = campareTo.sqlText;
         let language;
@@ -153,6 +151,10 @@ export default class TaskVersion extends React.Component {
                     <a onClick={() => this.diffParams(record)}>参数</a>
                 </div>
             );
+        } else if(taskInfo.taskType === TASK_TYPE.WORKFLOW) {
+            return <div>
+                <a onClick={() => this.diffParams(record)}>参数</a>
+            </div>
         } else {
             return "-";
         }

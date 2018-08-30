@@ -339,9 +339,10 @@ class Header extends Component {
                         </Menu.Item>
                         <SubMenu
                             className="my-menu-item menu_mini"
+                            style={{display}}
                             title={(<span
                                 style={{
-                                    display: 'inline-block',
+                                    display,
                                     height: '47px',
                                 }}
                                 className="my-menu-item"

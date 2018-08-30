@@ -92,7 +92,9 @@
                 margin-bottom: 0;
                 font-size: 12px;
             }
-
+            .ant-tabs-tab:hover{
+                background:#eef6fe;
+            }
             .ant-tabs-tab-active {
                 border-top: 1px solid #dddddd;
                 border-bottom: 1px solid #dddddd;
@@ -422,6 +424,10 @@
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
         }
+
+        .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
+            background:#eef6fe;
+        }
        
         .m-scheduling{
             .ant-collapse-content > .ant-collapse-content-box {
@@ -512,6 +518,9 @@
             //     padding: 20px;
             //     border-right: 1px solid #e9e9e9;
             // }
+            .ant-tabs-tab:hover{
+                background:#eef6fe;
+            }
         }
         .editor-container {
             height: 100%;
@@ -542,7 +551,7 @@
             .ant-tabs-tab {
                 width: 30px;
                 line-height: 20px;
-                height: 80px;
+                height: auto;
                 padding-left: 0 !important;
                 padding-right: 5px !important;
                 writing-mode: tb-rl;
