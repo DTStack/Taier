@@ -143,7 +143,7 @@ public class WorkNode {
      * 2. 添加到优先级队列之后保存
      * 3. cache的移除在任务发送完毕之后
      */
-    private void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+    public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
         if(engineJobCacheDao.getJobById(jobId) != null){
             engineJobCacheDao.updateJobStage(jobId, stage);
         }else{

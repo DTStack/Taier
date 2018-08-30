@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.service.task;
 
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -152,6 +153,8 @@ public class RestartDealer {
     }
 
     private void resetStatus(String jobId, Integer computeType, String engineType){
+        //重试的时候，更改cache状态
+        WorkNode.getInstance().saveCache(jobId,engineType,computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),null);
         //更新rdos_engine_batch_task/rdos_engine_stream_task 状态
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
