@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.service.task;
 
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -21,6 +23,8 @@ import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 /**
@@ -118,6 +122,20 @@ public class RestartDealer {
             String jobInfo = jobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
+            String finalJobId = jobClient.getTaskId();
+            Integer finalComputeType = jobClient.getComputeType().getType();
+            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
+            jobClient.setJobClientCallBack(new JobClientCallBack() {
+                @Override
+                public void execute(Map<String, ? extends Object> params) {
+                    if(!params.containsKey(JOB_STATUS)){
+                        return;
+                    }
+                    int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
+                    zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
+                    updateJobStatus(finalJobId, finalComputeType, jobStatus);
+                }
+            });
             addToRestart(jobClient);
             LOG.warn("jobName:{}---jobId:{} resubmit again...",jobClient.getJobName(), jobClient.getTaskId());
             return true;
@@ -169,6 +187,14 @@ public class RestartDealer {
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{
             LOG.error("not support for computeType:{}", computeType);
+        }
+    }
+
+    private void updateJobStatus(String jobId, Integer computeType, Integer status) {
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            engineStreamJobDAO.updateTaskStatus(jobId, status);
+        } else {
+            engineBatchJobDAO.updateJobStatus(jobId, status);
         }
     }
 
