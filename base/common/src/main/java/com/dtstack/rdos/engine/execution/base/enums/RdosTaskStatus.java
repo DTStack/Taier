@@ -89,6 +89,13 @@ public enum RdosTaskStatus {
         }
         return false;
     }
+
+    public static boolean needUpdateStatus(Byte status){
+        if(RdosTaskStatus.ENGINEACCEPTED.getStatus().equals(status.intValue())){
+            return false;
+        }
+        return true;
+    }
     
     public static boolean canStartAgain(Byte status){
 		int sta = status.intValue();
