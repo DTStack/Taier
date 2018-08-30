@@ -143,12 +143,13 @@ public class ExeQueueMgr {
             Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
             engineTypeQueueMap.values().forEach(gq ->{
                 try{
-                    //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                    if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
-                        return;
-                    }
+                    //队列为空
                     JobClient jobClient = gq.getTop();
                     if(jobClient == null){
+                        return;
+                    }
+                    //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
+                    if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
                         return;
                     }
                     cService.submit(new JobSubmitProcessor(jobClient, gq));
