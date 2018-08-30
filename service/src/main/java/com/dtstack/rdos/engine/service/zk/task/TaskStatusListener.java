@@ -133,7 +133,7 @@ public class TaskStatusListener implements Runnable{
             try{
                 Integer oldStatus = Integer.valueOf(entry.getValue());
 
-                if(RdosTaskStatus.needUpdateStatus(entry.getValue()) && !RdosTaskStatus.needClean(entry.getValue())){
+                if(!RdosTaskStatus.needClean(entry.getValue())){
                     String zkTaskId = entry.getKey();
                     int computeType = TaskIdUtil.getComputeType(zkTaskId);
                     String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
