@@ -201,6 +201,12 @@ public class ActionServiceImpl {
                     rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                     engineStreamTaskDAO.insert(rdosEngineStreamJob);
                     result =  true;
+                }else{
+
+                    result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
+                    if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
+                        engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    }
                 }
             }else{
                 RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
@@ -211,6 +217,12 @@ public class ActionServiceImpl {
                     rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                     batchJobDAO.insert(rdosEngineBatchJob);
                     result =  true;
+                }else{
+
+                    result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
+                    if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
+                        batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                    }
                 }
             }
         } catch (Exception e){
