@@ -112,7 +112,6 @@ public class ExeQueueMgr {
         if(engineType == null){
             return false;
         }
-
         EngineTypeQueue engineTypeQueue = engineTypeQueueMap.computeIfAbsent(engineType, k->new EngineTypeQueue(engineType));
         return engineTypeQueue.checkCanAddToWaitQueue(groupName);
     }

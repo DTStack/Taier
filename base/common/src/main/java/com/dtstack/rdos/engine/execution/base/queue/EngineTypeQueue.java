@@ -1,21 +1,19 @@
 package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 指定引擎类型对应的执行等待队列
  * Date: 2018/1/15
  * Company: www.dtstack.com
+ *
  * @author xuchao
  */
 
@@ -29,7 +27,9 @@ public class EngineTypeQueue {
 
     private Map<String, GroupExeQueue> groupExeQueueMap = Maps.newConcurrentMap();
 
-    /**按时间排序*/
+    /**
+     * 按时间排序
+     */
 
     private Map<String, Integer> groupMaxPriority = Maps.newHashMap();
 
@@ -44,7 +44,7 @@ public class EngineTypeQueue {
 
     public void add(JobClient jobClient) {
         final String groupName = jobClient.getGroupName() == null ? ConfigConstant.DEFAULT_GROUP_NAME : jobClient.getGroupName();
-        GroupExeQueue exeQueue = groupExeQueueMap.computeIfAbsent(groupName,k->new GroupExeQueue(groupName));
+        GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
         exeQueue.addJobClient(jobClient);
         //重新更新下队列的排序
         groupMaxPriority.put(groupName, exeQueue.getMaxPriority());
@@ -70,7 +70,7 @@ public class EngineTypeQueue {
         localPriority = localPriority == null ? 0 : localPriority;
 
         boolean result = true;
-        for(Map.Entry<String, ClusterQueueZKInfo.GroupQueueZkInfo> zkInfoEntry : zkInfo.getGroupQueueZkInfoMap().entrySet()){
+        for (Map.Entry<String, ClusterQueueZKInfo.GroupQueueZkInfo> zkInfoEntry : zkInfo.getGroupQueueZkInfoMap().entrySet()) {
             String address = zkInfoEntry.getKey();
             ClusterQueueZKInfo.GroupQueueZkInfo groupQueueZkInfo = zkInfoEntry.getValue();
 
@@ -90,18 +90,14 @@ public class EngineTypeQueue {
     }
 
     public boolean checkCanAddToWaitQueue(String groupName) {
-
-        groupName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
-        GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
-
+        final String groupExeName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
+        GroupExeQueue exeQueue = groupExeQueueMap.putIfAbsent(groupName, new GroupExeQueue(groupExeName));
         if (exeQueue == null) {
             return true;
         }
-
         if (exeQueue.size() >= MAX_QUEUE_LENGTH) {
             return false;
         }
-
         return true;
     }
 
