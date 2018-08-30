@@ -264,6 +264,31 @@ public class ZkDistributed implements Closeable{
 		}
 	}
 
+	public void updateSynchronizedBrokerDataCleanRecoverTask(String localAddress, List<String> zkTaskIds){
+		String nodePath = String.format("%s/%s/%s",this.brokersNode,localAddress,metaDataNode);
+		try {
+			if(this.brokerDataLock.acquire(30, TimeUnit.SECONDS)){
+				BrokerDataNode target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataNode.class);
+				for (String zkTaskId:zkTaskIds){
+					target.getMetas().remove(zkTaskId);
+				}
+				zkClient.setData().forPath(nodePath,
+						objectMapper.writeValueAsBytes(target));
+			}
+		} catch (Exception e) {
+			logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
+					ExceptionUtil.getErrorMessage(e));
+		} finally{
+			try {
+				if (this.brokerDataLock.isAcquiredInThisProcess()) {
+					this.brokerDataLock.release();
+				}
+			} catch (Exception e) {
+				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
+						ExceptionUtil.getErrorMessage(e));
+			}
+		}
+	}
 
 	public void updateSyncLocalBrokerDataAndCleanNoNeedTask(String taskId, Integer status){
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);

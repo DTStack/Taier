@@ -3,11 +3,13 @@ package com.dtstack.rdos.engine.service.node;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
+import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
@@ -25,10 +27,14 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 处理重启后任务恢复
@@ -53,7 +59,7 @@ public class MasterNode {
 
     private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
 
-    private RecoverDealer recoverDealer;
+    private RecoverDealer recoverDealer = new RecoverDealer();
 
     private String localAddress = ConfigParse.getLocalAddress();
 
@@ -68,16 +74,17 @@ public class MasterNode {
     }
 
     private MasterNode(){
+        senderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
     }
 
     public void setIsMaster(boolean isMaster){
         if(isMaster && !currIsMaster){
             currIsMaster = true;
             if(senderExecutor.isShutdown()){
-                senderExecutor = Executors.newSingleThreadExecutor();
+                senderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
             }
-
-            recoverDealer = new RecoverDealer();
             senderExecutor.submit(recoverDealer);
             LOG.warn("---start master node deal thread------");
         }else if (!isMaster && currIsMaster){
@@ -117,26 +124,32 @@ public class MasterNode {
         if(CollectionUtils.isEmpty(jobCaches)){
             return;
         }
-
+        Map<String,List<String>> zkTaskIdAdds = Maps.newConcurrentMap();
+        List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
         jobCaches.forEach(jobCache ->{
-
             try{
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
-                //更新任务状态为engineAccepted
-                rdosEngineBatchJobDao.updateJobStatus(jobCache.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
-                WorkNode.getInstance().addStartJob(jobClient);
+                String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
+                String addr = zkDistributed.getJobLocationAddr(zkTaskId);
+                List<String> zkTaskIds = zkTaskIdAdds.computeIfAbsent(addr,k->new ArrayList<>());
+                zkTaskIds.add(zkTaskId);
+                jobClients.add(jobClient);
             }catch (Exception e){
                 //数据转换异常--打日志
                 LOG.error("", e);
                 dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
             }
-
         });
+        for (Map.Entry<String,List<String>> entry : zkTaskIdAdds.entrySet()){
+            zkDistributed.updateSynchronizedBrokerDataCleanRecoverTask(entry.getKey(),entry.getValue());
+        }
+        for (JobClient jobClient:jobClients){
+            WorkNode.getInstance().addStartJob(jobClient);
+        }
     }
 
     class RecoverDealer implements Runnable{
-
         @Override
         public void run() {
             LOG.info("-----重启后任务开始恢复----");
@@ -147,7 +160,6 @@ public class MasterNode {
                 }
             LOG.info("-----重启后任务结束恢复-----");
         }
-
     }
 
 }

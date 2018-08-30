@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -29,7 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 处理任务优先级队列
@@ -75,7 +78,8 @@ public class WorkNode {
     }
 
     private WorkNode(){
-        ExecutorService senderExecutor = Executors.newSingleThreadExecutor();
+        ExecutorService senderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("submitDealer"));
         SubmitDealer submitDealer = new SubmitDealer(priorityQueueMap);
         senderExecutor.submit(submitDealer);
 

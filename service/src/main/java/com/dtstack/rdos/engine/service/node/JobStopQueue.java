@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.service.node;
 
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -18,7 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务停止消息
@@ -46,7 +49,8 @@ public class JobStopQueue {
 
     private JobStopAction jobStopAction;
 
-    private ExecutorService simpleES = Executors.newSingleThreadExecutor();
+    private ExecutorService simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
 
     private StopProcessor stopProcessor = new StopProcessor();
 
@@ -57,7 +61,8 @@ public class JobStopQueue {
 
     public void start(){
         if(simpleES.isShutdown()){
-            simpleES = Executors.newSingleThreadExecutor();
+            simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
             stopProcessor.reStart();
         }
 
