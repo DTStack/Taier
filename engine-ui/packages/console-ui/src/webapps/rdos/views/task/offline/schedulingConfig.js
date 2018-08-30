@@ -62,7 +62,7 @@ class ScheduleForm extends React.Component {
             wFScheduleConf.periodType === "0" ||
             wFScheduleConf.periodType === "1" );
         
-        console.log('disabledInvokeTime:', disabledInvokeTime)
+        console.log('disabledInvokeTime:', disabledInvokeTime, scheduleConf)
 
         const generateHours = () => {
             let options = [];
@@ -576,19 +576,15 @@ class SchedulingConfig extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state={
+
+        this.state = {
             recommentTaskModalVisible: false,
             recommentTaskList: [],
             wFScheduleConf: undefined,
         }
+
         const { tabData, isWorkflowNode } = this.props;
-        let initConf = tabData.scheduleConf;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
-                beginDate: '2001-01-01',
-                endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
+        const scheduleConf = tabData.scheduleConf;
 
         // scheduleConf.selfReliance兼容老代码true or false 值
         if (scheduleConf.selfReliance !== 'undefined') {
@@ -602,12 +598,9 @@ class SchedulingConfig extends React.Component {
         } else {
             this._selfReliance = 0;
         }
-
-        console.log('isWorkflowNode:', isWorkflowNode);
     }
 
     componentDidMount() {
-        console.log('loadWorkflowNodeConfig:', this.props);
         this.loadWorkflowConfig();
     }
 
@@ -638,7 +631,7 @@ class SchedulingConfig extends React.Component {
     }
 
     showRecommentTask() {
-        const {tabData} = this.props;
+        const { tabData } = this.props;
         this.setState({
             loading:true
         })
@@ -789,14 +782,22 @@ class SchedulingConfig extends React.Component {
         const { recommentTaskModalVisible, recommentTaskList, loading, wFScheduleConf } = this.state;
         const { tabData, isWorkflowNode } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
-        let initConf = tabData.scheduleConf;
         const isSql = tabData.taskType == TASK_TYPE.SQL;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
+        
+        let initConf = tabData.scheduleConf;
+        let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
+            beginDate: '2001-01-01',
+            endDate: '2021-01-01'
+        });
+        // 工作流更改默认调度时间配置
+        if (isWorkflowNode) {
+            scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
+            })
+        } else if (initConf !== '') {
+            scheduleConf = JSON.parse(initConf);
+        }
 
         const columns = [
             {
