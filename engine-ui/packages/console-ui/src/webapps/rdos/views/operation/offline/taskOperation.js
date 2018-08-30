@@ -20,6 +20,7 @@ import {
     ScheduleTypeFilter, TASK_STATUS,
     offlineTaskTypeFilter,
     offlineTaskPeriodFilter,
+    PROJECT_TYPE,
 } from '../../../comm/const'
 
 import {
@@ -492,7 +493,7 @@ class OfflineTaskList extends Component {
                     {item.user.userName}
                 </Option>)
             }) : []
-
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
@@ -652,6 +653,7 @@ class OfflineTaskList extends Component {
                             style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView
+                                isPro={isPro}
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev}
                                 reload={this.search}

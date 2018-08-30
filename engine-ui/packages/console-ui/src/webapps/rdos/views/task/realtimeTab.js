@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
 import { union } from 'lodash';
 
-import { 
-    Menu, message, Tabs,  Dropdown, 
+import {
+    Menu, message, Tabs, Dropdown,
     Popconfirm, Icon, Tooltip,
 } from 'antd'
 
@@ -34,7 +34,7 @@ import FnViewModal from './realtime/function/fnViewModal'
 import Api from '../../api'
 import { showSeach } from '../../store/modules/comm';
 
-import { MENU_TYPE } from '../../comm/const';
+import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
 
 const TabPane = Tabs.TabPane
 
@@ -195,7 +195,7 @@ class RealTimeTabPane extends Component {
 
             task.id = activeNode.id
             task.version = taskInfo.version
-            task.readWriteLockVO = Object.assign({}, taskInfo.readWriteLockVO); 
+            task.readWriteLockVO = Object.assign({}, taskInfo.readWriteLockVO);
 
             Api.saveTask(task).then((res) => {
                 if (res.code === 1) {
@@ -242,7 +242,7 @@ class RealTimeTabPane extends Component {
                 dispatch(ResAction.getResources())
                 dispatch(TreeAction.getRealtimeTree({
                     id: file.nodePid,
-                    catalogueType: MENU_TYPE.RESOURCE 
+                    catalogueType: MENU_TYPE.RESOURCE
                 }))
             }
         })
@@ -262,19 +262,19 @@ class RealTimeTabPane extends Component {
     updateFolder = (cateInfo) => {
         const { dispatch, modal } = this.props
         const { activeNode } = this.state
-        const params = { id: cateInfo.nodePid,}
+        const params = { id: cateInfo.nodePid, }
         switch (modal) {
             case modalAction.ADD_RES_CATA_VISIBLE:
             case modalAction.EDIT_RES_CATA_VISIBLE:
-                params.catalogueType = MENU_TYPE.RESOURCE 
+                params.catalogueType = MENU_TYPE.RESOURCE
                 break;
             case modalAction.ADD_TASK_CATA_VISIBLE:
             case modalAction.EDIT_TASK_CATA_VISIBLE:
-                params.catalogueType = MENU_TYPE.TASK_DEV 
+                params.catalogueType = MENU_TYPE.TASK_DEV
                 break;
             case modalAction.ADD_FUNC_CATA_VISIBLE:
             case modalAction.EDIT_FUNC_CATA_VISIBLE: {
-                params.catalogueType = MENU_TYPE.COSTOMFUC 
+                params.catalogueType = MENU_TYPE.COSTOMFUC
                 break;
             }
             default: return []
@@ -296,7 +296,7 @@ class RealTimeTabPane extends Component {
                     this.closeModal()
                 }
             })
-        } 
+        }
     }
 
     deleteResource = () => {
@@ -337,7 +337,7 @@ class RealTimeTabPane extends Component {
                 })
                 dispatch(TreeAction.getRealtimeTree({
                     id: fnObj.nodePid,
-                    catalogueType: MENU_TYPE.COSTOMFUC 
+                    catalogueType: MENU_TYPE.COSTOMFUC
                 }))
             }
         })
@@ -478,7 +478,7 @@ class RealTimeTabPane extends Component {
             }
             case 'resource:newFolder': {
                 this.setState({ activeNode: {} })
-                this.doAction(modalAction.ADD_RES_CATA_VISIBLE) 
+                this.doAction(modalAction.ADD_RES_CATA_VISIBLE)
                 return;
             }
             case 'resource:upload': {
@@ -499,8 +499,9 @@ class RealTimeTabPane extends Component {
     }
 
     renderTabPanes = () => {
-        const { realtimeTree, currentPage } = this.props;
+        const { realtimeTree, currentPage, project } = this.props;
         const { expandedKeys, expandedKeys2 } = this.state;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
         const menus = []
         if (realtimeTree && realtimeTree.length > 0) {
             for (let i = 0; i < realtimeTree.length; i++) {
@@ -520,27 +521,27 @@ class RealTimeTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        style={{fontSize: '12px'}}
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => this.reloadTreeNodes(menuItem.children[0].id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="task:newTask">
+                                        {!isPro && <Menu.Item key="task:newTask">
                                             新建任务
-                                        </Menu.Item>
+                                        </Menu.Item>}
                                         <Menu.Item key="task:search">
                                             搜索任务（Ctrl + P）
                                         </Menu.Item>
-                                        <Menu.Item key="task:newFolder">
+                                        {!isPro && <Menu.Item key="task:newFolder">
                                             新建文件夹
-                                        </Menu.Item>
+                                        </Menu.Item>}
                                     </Menu>
                                 } trigger={['click']}>
                                     <Icon type="bars" />
                                 </Dropdown>
                             </header>
-                            <FolderTree 
+                            <FolderTree
                                 onRightClick={this.rightClick}
                                 onSelect={this.chooseTask}
                                 loadData={this.loadTreeData}
@@ -556,7 +557,7 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.RESOURCE: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Dropdown overlay={
+                                {!isPro && <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="resource:upload">
                                             上传资源
@@ -567,7 +568,7 @@ class RealTimeTabPane extends Component {
                                     </Menu>
                                 } trigger={['click']}>
                                     <Icon type="bars" />
-                                </Dropdown>
+                                </Dropdown>}
                             </header>
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -588,10 +589,10 @@ class RealTimeTabPane extends Component {
                         const systemTreeData = menuItem.children.find(item => {
                             return item.catalogueType === MENU_TYPE.SYSFUC
                         })
-                        
+
                         menuContent = <div className="menu-content">
                             <header>
-                                <Dropdown overlay={
+                                {!isPro && <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="function:newFunc">
                                             新建函数
@@ -602,7 +603,7 @@ class RealTimeTabPane extends Component {
                                     </Menu>
                                 } trigger={['click']}>
                                     <Icon type="bars" />
-                                </Dropdown>
+                                </Dropdown>}
                             </header>
                             <FolderTree
                                 onRightClick={this.rightClick}
@@ -660,13 +661,13 @@ class RealTimeTabPane extends Component {
     }
 
     getCataFormTreeData = () => {
-        switch(this.props.modal) {
+        switch (this.props.modal) {
             case modalAction.ADD_RES_CATA_VISIBLE:
             case modalAction.EDIT_RES_CATA_VISIBLE:
                 return this.props.resourceTree
             case modalAction.ADD_TASK_CATA_VISIBLE:
             case modalAction.EDIT_TASK_CATA_VISIBLE:
-                return this.props.taskTree 
+                return this.props.taskTree
             case modalAction.ADD_FUNC_CATA_VISIBLE:
             case modalAction.EDIT_FUNC_CATA_VISIBLE: {
                 const customFuncs = this.props.functionTree.find(item => item.catalogueType === MENU_TYPE.COSTOMFUC)
@@ -686,7 +687,9 @@ class RealTimeTabPane extends Component {
         const {
             taskTree, modal,
             resourceTree, functionTree,
+            project,
         } = this.props
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
 
         const disableEdit = activeNode && activeNode.level === 1 ? 'none' : 'block'
         const visibleTask = modal.indexOf('TASK_VISIBLE') > -1
@@ -722,7 +725,7 @@ class RealTimeTabPane extends Component {
                     loadTreeData={this.loadTreeData}
                     treeData={this.getCataFormTreeData()}
                     handOk={this.updateFolder}
-                    handCancel={() => { 
+                    handCancel={() => {
                         this.setState({ activeNode: {} })
                         this.closeModal()
                     }}
@@ -753,24 +756,24 @@ class RealTimeTabPane extends Component {
                     handCancel={() => { this.setState({ visibleResRename: false }) }}
                 />
 
-                <FnMoveModal 
+                <FnMoveModal
                     defaultData={activeNode}
                     visible={visibleMoveFn}
                     loadTreeData={this.loadTreeData}
-                    fnTreeData={ functionTree }
+                    fnTreeData={functionTree}
                     handOk={this.moveFn}
                     handCancel={() => {
                         this.setState({ visibleMoveFn: false, activeNode: {} })
                     }}
                 />
 
-                <FnModal 
+                <FnModal
                     activeNode={activeNode}
                     handOk={this.createFn}
                     visible={visibleFn}
-                    fnTreeData={ functionTree }
-                    resTreeData={ resourceTree }
-                    loadTreeData={ this.loadTreeData }
+                    fnTreeData={functionTree}
+                    resTreeData={resourceTree}
+                    loadTreeData={this.loadTreeData}
                     handCancel={() => { this.setState({ visibleFn: false }) }}
                 />
 
@@ -780,140 +783,144 @@ class RealTimeTabPane extends Component {
                     handCancel={() => { this.setState({ visibleFnInfo: false }) }}
                 />
 
-                <ContextMenu forEle=".task-folder-item">
-                    <MenuItem
-                      onClick={this.initAddTask}>
-                        新建任务
+                {!isPro && (
+                    <div>
+                        <ContextMenu forEle=".task-folder-item">
+                            <MenuItem
+                                onClick={this.initAddTask}>
+                                新建任务
                       </MenuItem>
-                    <MenuItem onClick={() => {
-                        this.doAction(modalAction.ADD_TASK_CATA_VISIBLE)
-                    }}>
-                        新建文件夹
+                            <MenuItem onClick={() => {
+                                this.doAction(modalAction.ADD_TASK_CATA_VISIBLE)
+                            }}>
+                                新建文件夹
                     </MenuItem>
-                    <MenuItem
-                      style={{ display: disableEdit }}
-                      onClick={() => { 
-                            this.doAction(modalAction.EDIT_TASK_CATA_VISIBLE)
-                        }}>
-                      编辑
+                            <MenuItem
+                                style={{ display: disableEdit }}
+                                onClick={() => {
+                                    this.doAction(modalAction.EDIT_TASK_CATA_VISIBLE)
+                                }}>
+                                编辑
                     </MenuItem>
-                        <Popconfirm
-                          title="确定删除这个文件夹吗?"
-                          onConfirm={this.deleteFolder}
-                          okText="确定"
-                          cancelText="取消"
-                        >
-                        <MenuItem style={{ display: disableEdit }}>
-                            删除
+                            <Popconfirm
+                                title="确定删除这个文件夹吗?"
+                                onConfirm={this.deleteFolder}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem style={{ display: disableEdit }}>
+                                    删除
                         </MenuItem>
-                        </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
 
-                <ContextMenu forEle=".task-item">
-                    <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
-                    <Popconfirm
-                        title="确定删除这个任务吗?"
-                        onConfirm={this.deleteTask}
-                        okText="确定"
-                        cancelText="取消"
-                    >
-                    <MenuItem>
-                        删除
+                        <ContextMenu forEle=".task-item">
+                            <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
+                            <Popconfirm
+                                title="确定删除这个任务吗?"
+                                onConfirm={this.deleteTask}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem>
+                                    删除
                     </MenuItem>
-                    </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
 
-                <ContextMenu forEle=".resource-folder-item">
-                    <MenuItem
-                      onClick={() => this.doAction(modalAction.ADD_RES_VISIBLE) }
-                    >
-                        上传资源
+                        <ContextMenu forEle=".resource-folder-item">
+                            <MenuItem
+                                onClick={() => this.doAction(modalAction.ADD_RES_VISIBLE)}
+                            >
+                                上传资源
                       </MenuItem>
-                    <MenuItem
-                      onClick={() => this.doAction(modalAction.ADD_RES_CATA_VISIBLE) }>
-                        新建文件夹
+                            <MenuItem
+                                onClick={() => this.doAction(modalAction.ADD_RES_CATA_VISIBLE)}>
+                                新建文件夹
                     </MenuItem>
-                    <MenuItem
-                        style={{ display: disableEdit }}
-                        onClick={() => this.doAction(modalAction.EDIT_RES_CATA_VISIBLE)}>
-                    编辑
+                            <MenuItem
+                                style={{ display: disableEdit }}
+                                onClick={() => this.doAction(modalAction.EDIT_RES_CATA_VISIBLE)}>
+                                编辑
                     </MenuItem>
-                    <Popconfirm
-                        title="确定删除这个文件夹吗?"
-                        onConfirm={this.deleteFolder}
-                        okText="确定"
-                        cancelText="取消"
-                    >
-                        <MenuItem style={{ display: disableEdit }}>
-                            删除
+                            <Popconfirm
+                                title="确定删除这个文件夹吗?"
+                                onConfirm={this.deleteFolder}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem style={{ display: disableEdit }}>
+                                    删除
                         </MenuItem>
-                    </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
 
-                <ContextMenu forEle=".resource-item">
-                    <MenuItem
-                      onClick={() => { this.setState({ visibleResRename: true }) }}>重命名</MenuItem>
-                    <Popconfirm
-                      title="确定删除这个资源吗?"
-                      onConfirm={this.deleteResource}
-                      okText="确定"
-                      cancelText="取消"
-                    >
-                        <MenuItem>
-                            删除
+                        <ContextMenu forEle=".resource-item">
+                            <MenuItem
+                                onClick={() => { this.setState({ visibleResRename: true }) }}>重命名</MenuItem>
+                            <Popconfirm
+                                title="确定删除这个资源吗?"
+                                onConfirm={this.deleteResource}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem>
+                                    删除
                         </MenuItem>
-                    </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
 
-                <ContextMenu forEle=".function-folder-item">
-                    <MenuItem
-                         onClick={() => {
-                            this.setState({ visibleFn: true })
-                        }}
-                    >
-                        新建函数
+                        <ContextMenu forEle=".function-folder-item">
+                            <MenuItem
+                                onClick={() => {
+                                    this.setState({ visibleFn: true })
+                                }}
+                            >
+                                新建函数
                     </MenuItem>
-                    <MenuItem 
-                        onClick={() => this.doAction(modalAction.ADD_FUNC_CATA_VISIBLE)}>
-                        新建文件夹
+                            <MenuItem
+                                onClick={() => this.doAction(modalAction.ADD_FUNC_CATA_VISIBLE)}>
+                                新建文件夹
                     </MenuItem>
-                    <MenuItem 
-                        style={{ display: disableEdit }}
-                        onClick={() => this.doAction(modalAction.EDIT_FUNC_CATA_VISIBLE)
-                    }>
-                        编辑
+                            <MenuItem
+                                style={{ display: disableEdit }}
+                                onClick={() => this.doAction(modalAction.EDIT_FUNC_CATA_VISIBLE)
+                                }>
+                                编辑
                     </MenuItem>
-                    <Popconfirm
-                          title="确定删除这个文件夹吗?"
-                          onConfirm={this.deleteFolder}
-                          okText="确定"
-                          cancelText="取消"
-                        >
-                        <MenuItem
-                            style={{ display: disableEdit }}
-                        >
-                            删除
+                            <Popconfirm
+                                title="确定删除这个文件夹吗?"
+                                onConfirm={this.deleteFolder}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem
+                                    style={{ display: disableEdit }}
+                                >
+                                    删除
                         </MenuItem>
-                    </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
 
-                <ContextMenu forEle=".function-item">
-                    <MenuItem onClick={ () => {
-                        this.setState({  visibleMoveFn: true })
-                    }}>
-                        移动
+                        <ContextMenu forEle=".function-item">
+                            <MenuItem onClick={() => {
+                                this.setState({ visibleMoveFn: true })
+                            }}>
+                                移动
                     </MenuItem>
-                    <Popconfirm
-                      title="确定删除这个函数吗?"
-                      onConfirm={this.delFn}
-                      okText="确定"
-                      cancelText="取消"
-                    >
-                        <MenuItem>
-                            删除
+                            <Popconfirm
+                                title="确定删除这个函数吗?"
+                                onConfirm={this.delFn}
+                                okText="确定"
+                                cancelText="取消"
+                            >
+                                <MenuItem>
+                                    删除
                         </MenuItem>
-                    </Popconfirm>
-                </ContextMenu>
+                            </Popconfirm>
+                        </ContextMenu>
+                    </div>
+                )}
             </div>
         )
     }
@@ -921,7 +928,7 @@ class RealTimeTabPane extends Component {
 
 export default connect(state => {
 
-    const { 
+    const {
         modal, resources,
         realtimeTree, pages, currentPage
     } = state.realtimeTask

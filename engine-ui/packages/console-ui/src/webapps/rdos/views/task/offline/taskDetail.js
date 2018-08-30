@@ -16,6 +16,7 @@ import {
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
+import { PROJECT_TYPE } from '../../../comm/const';
 
 const Panel = Collapse.Panel;
 
@@ -127,10 +128,11 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, project } = this.props;
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
-
+        const pre=isPro?'发布':'提交'
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
@@ -148,8 +150,9 @@ class TaskDetail extends React.Component {
                         onCancel={() => {this.setState({visible: false})}}
                     />
                 </Panel>
-                <Panel key="2" header="历史发布版本">
+                <Panel key="2" header={`历史${pre}版本`}>
                     <TaskVersion
+                        isPro={isPro}
                         taskInfo={tabData}
                         changeSql={this.setSqlText}
                     />
@@ -162,6 +165,7 @@ class TaskDetail extends React.Component {
 export default connect((state, ownProps) => {
     return {
         projectUsers: state.projectUsers,
+        project:state.project
     };
 
 }, workbenchActions)(TaskDetail);

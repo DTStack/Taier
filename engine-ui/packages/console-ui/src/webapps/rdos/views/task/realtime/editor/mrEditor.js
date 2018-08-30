@@ -2,18 +2,21 @@ import React, { Component } from 'react'
 import {
     Form, Input, Radio,
  } from 'antd'
+ import {connect} from "react-redux"
  
-import { formItemLayout } from '../../../../comm/const'
+import { formItemLayout, PROJECT_TYPE } from '../../../../comm/const'
 import * as BrowserAction from '../../../../store/modules/realtimeTask/browser'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
+
 class MrEditor extends Component {
 
     render() {
-        const { form, currentPage } = this.props
+        const { form, currentPage, project, isPro } = this.props
         const { getFieldDecorator } = form
+
         return (
             <div style={{ padding: '60px' }}>
             <Form>
@@ -31,7 +34,7 @@ class MrEditor extends Component {
                         }],
                         initialValue: currentPage ? currentPage.name : '',
                     })(
-                        <Input />,
+                        <Input disabled={isPro} />,
                     )}
                 </FormItem>
                 <FormItem
@@ -65,7 +68,7 @@ class MrEditor extends Component {
                         rules: [{}],
                         initialValue: currentPage && currentPage.mainClass,
                     })(
-                        <Input placeholder="请输入mainClass" />,
+                        <Input disabled={isPro} placeholder="请输入mainClass" />,
                     )}
                 </FormItem>
                 <FormItem
@@ -76,7 +79,7 @@ class MrEditor extends Component {
                         rules: [{}],
                         initialValue: currentPage && currentPage.exeArgs,
                     })(
-                        <Input placeholder="请输入任务参数" />,
+                        <Input disabled={isPro} placeholder="请输入任务参数" />,
                     )}
                 </FormItem>
                 <FormItem
@@ -88,7 +91,7 @@ class MrEditor extends Component {
                         rules: [],
                         initialValue: currentPage ? currentPage.taskDesc : '',
                     })(
-                        <Input type="textarea" rows={4} />,
+                        <Input disabled={isPro} type="textarea" rows={4} />,
                     )}
                 </FormItem>
             </Form>

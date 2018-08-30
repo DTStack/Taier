@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
     Row, Col, Button, message, Input, Form,
-    Tabs, Menu, Dropdown, Icon, Modal,
+    Tabs, Menu, Dropdown, Icon, Modal, Tooltip
 } from 'antd';
 
 import { cloneDeep, isEmpty } from 'lodash';
@@ -12,7 +12,7 @@ import FullScreenButton from 'widgets/fullscreen';
 
 import ajax from '../../../api';
 
-import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const';
+import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../../comm/const';
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 
@@ -81,23 +81,23 @@ class Workbench extends React.Component {
         const { taskType, createModel } = currentTabData;
         let vaildPass = true;
 
-        switch(taskType){
-            case TASK_TYPE.SYNC:{
-                if(currentTabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+        switch (taskType) {
+            case TASK_TYPE.SYNC: {
+                if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                     vaildPass = this.checkSyncScript(currentTabData);
                 }
             }
         }
 
-        if(vaildPass){
+        if (vaildPass) {
             this.setState({ showPublish: true })
         }
     }
 
-    checkSyncScript(currentTabData){
+    checkSyncScript(currentTabData) {
         const sql = currentTabData.sqlText;
 
-        if(utils.jsonFormat(sql)){
+        if (utils.jsonFormat(sql)) {
             return true;
         }
         message.error("请确认JSON格式是否正确");
@@ -110,7 +110,7 @@ class Workbench extends React.Component {
         return (
             <Modal
                 wrapClassName="vertical-center-modal"
-                title="发布任务"
+                title="提交任务"
                 style={{ height: '600px', width: '600px' }}
                 visible={this.state.showPublish}
                 onCancel={this.closePublish}
@@ -120,7 +120,7 @@ class Workbench extends React.Component {
                 <Form>
                     <FormItem
                         {...formItemLayout}
-                        label="发布人"
+                        label="提交人"
                         hasFeedback
                     >
                         <span>{user.userName}</span>
@@ -128,7 +128,7 @@ class Workbench extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label={(
-                            <span className="ant-form-item-required">备注</span>
+                            <span>备注</span>
                         )}
                         hasFeedback
                     >
@@ -140,19 +140,25 @@ class Workbench extends React.Component {
                         />
                     </FormItem>
                 </Form>
+                <Row>
+                    <Col offset={6} span={15}>
+                        注意：提交过的任务才能被调度执行及发布到其他项
+                    </Col>
+                </Row>
             </Modal>
         )
     }
 
     render() {
-        const { 
+        const {
             tabs, currentTab, currentTabData,
-            dataSync, taskCustomParams, 
-            closeTab, closeAllorOthers
+            dataSync, taskCustomParams,
+            closeTab, closeAllorOthers, project
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
         let isSaveAvaliable = false;
 
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
@@ -178,19 +184,24 @@ class Workbench extends React.Component {
         return <Row className="m-workbench task-editor">
             <header className="toolbar bd-bottom clear">
                 <Col className="left">
-                    <Dropdown overlay={this.createMenu()} trigger={['click']}>
-                        <Button title="创建">
-                            <MyIcon className="my-icon" type="focus" />
-                            新建<Icon type="down" />
-                        </Button>
-                    </Dropdown>
-                    <Button
-                        onClick={this.saveTab.bind(this, true)}
-                        title="保存任务"
-                        disabled={!isSaveAvaliable}
-                    >
-                        <MyIcon className="my-icon" type="save" />保存
-                    </Button>
+
+                    {!isPro && (
+                        <span>
+                            <Dropdown overlay={this.createMenu()} trigger={['click']}>
+                                <Button title="创建">
+                                    <MyIcon className="my-icon" type="focus" />
+                                    新建<Icon type="down" />
+                                </Button>
+                            </Dropdown>
+                            <Button
+                                onClick={this.saveTab.bind(this, true)}
+                                title="保存任务"
+                                disabled={!isSaveAvaliable}
+                            >
+                                <MyIcon className="my-icon" type="save" />保存
+                            </Button>
+                        </span>
+                    )}
                     <Dropdown overlay={this.importMenu()} trigger={['click']}>
                         <Button>
                             <MyIcon className="my-icon" type="import" />
@@ -201,13 +212,34 @@ class Workbench extends React.Component {
                 </Col>
 
                 {showPublish ? (<Col className="right">
-                    <Button
-                        disabled={disablePublish}
-                        onClick={this.showPublish.bind(this)}
-                        title="发布任务"
-                    >
-                        <MyIcon className="my-icon" type="fly" />发布
-                    </Button>
+
+                    {!isPro && (<span>
+                        <Tooltip
+                            placement="bottom"
+                            title="提交到调度系统"
+                            mouseLeaveDelay={0}
+                        >
+                            <Button
+                                disabled={disablePublish}
+                                onClick={this.showPublish.bind(this)}
+                            >
+                                <Icon type="upload" style={{ color: "#000" }} />提交
+                        </Button>
+                        </Tooltip>
+                        <Tooltip
+                            placement="bottom"
+                            title="发布到目标项目"
+                            mouseLeaveDelay={0}
+                        >
+                            <Button
+                                disabled={disablePublish}
+                                onClick={this.showPublish.bind(this)}
+                            >
+                                <MyIcon className="my-icon" type="fly" />发布
+                        </Button>
+                        </Tooltip>
+                    </span>)}
+
                     <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
                             <MyIcon className="my-icon" type="goin" /> 运维
@@ -226,7 +258,7 @@ class Workbench extends React.Component {
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}
-                                onClick={({key}) =>closeAllorOthers(key, tabs, currentTab)}
+                                onClick={({ key }) => closeAllorOthers(key, tabs, currentTab)}
                             >
                                 <Menu.Item key="OHTERS">关闭其他</Menu.Item>
                                 <Menu.Item key="ALL">关闭所有</Menu.Item>
@@ -275,9 +307,9 @@ class Workbench extends React.Component {
                 if (tab.flowId) {
                     title = (<span>
                         <SyncBadge notSynced={tab.notSynced} />
-                        <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId) }>
+                        <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
-                        </a><span style={{color: 'rgba(0, 0, 0, 0.65)'}}> / {tab.name}</span>
+                        </a><span style={{ color: 'rgba(0, 0, 0, 0.65)' }}> / {tab.name}</span>
                     </span>);
                 }
 
@@ -299,8 +331,8 @@ class Workbench extends React.Component {
 
         // 如果是工作流任务，需要对保存操作提前做校验
         if (
-            currentTabData.taskType === TASK_TYPE.WORKFLOW 
-            && currentTabData.toUpdateTasks && 
+            currentTabData.taskType === TASK_TYPE.WORKFLOW
+            && currentTabData.toUpdateTasks &&
             currentTabData.toUpdateTasks.length > 0
         ) {
             message.warning('您有工作流节点任务未保存！')
@@ -317,7 +349,7 @@ class Workbench extends React.Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.submitStatus = 0;
-        saveTab(result, isSave, type); 
+        saveTab(result, isSave, type);
         setTimeout(() => {
             this.setState({
                 theReqIsEnd: true,
@@ -335,29 +367,29 @@ class Workbench extends React.Component {
         const { publishDesc } = this.state
         const result = this.generateRqtBody(dataSync)
 
-        // 添加发布描述信息
-        if (publishDesc) { 
-            if (publishDesc.length > 200) {
-                message.error('备注信息不可超过200个字符！')
-                return false;
-            }
+        // 添加提交描述信息
+        if (publishDesc) {
+            // if (publishDesc.length > 200) {
+            //     message.error('备注信息不可超过200个字符！')
+            //     return false;
+            // }
             // 修改task配置时接口要求的标记位
             result.preSave = true;
             result.submitStatus = 1; // 1-提交，0-保存
-            result.publishDesc = publishDesc;//发布信息
-            ajax.publishOfflineTask(result).then(res =>{
+            result.publishDesc = publishDesc;//提交信息
+            ajax.publishOfflineTask(result).then(res => {
                 if (res.code === 1) {
-                    message.success('发布成功！');
+                    message.success('提交成功！');
                     publishTask(res);
                     reloadTabTask(currentTab);
                     this.closePublish();
-                }else{
-                    message.error('发布失败！');
+                } else {
+                    message.error('提交失败！');
                     this.closePublish();
                 }
             });
         } else {
-            message.error('发布备注不可为空！')
+            message.error('提交备注不可为空！')
             return false;
         }
 
@@ -365,7 +397,7 @@ class Workbench extends React.Component {
 
     switchTab(currentTab, tabId) {
         const { openTab, tabs } = this.props;
-        +tabId !== currentTab && openTab({id: + tabId, tabs, } );
+        +tabId !== currentTab && openTab({ id: + tabId, tabs, });
     }
 
     closeTab(tabId) {
@@ -473,7 +505,8 @@ const mapState = state => {
         dataSync,
         taskCustomParams,
         user: state.user,
-        scriptTreeData: scriptTree
+        scriptTreeData: scriptTree,
+        project: state.project
     };
 };
 

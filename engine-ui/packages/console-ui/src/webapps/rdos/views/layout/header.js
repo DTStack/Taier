@@ -6,6 +6,7 @@ import { MenuRight } from "main/components/nav";
 
 import Api from "../../api";
 import { inOffline, inRealtime } from '../../comm';
+import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from "../../store/modules/project";
 
 /* eslint-disable */
@@ -207,7 +208,38 @@ class Header extends Component {
             </SubMenu>
         );
     };
+    renderProjectType() {
+        const { project } = this.props;
+        switch (project.projectType) {
+            case PROJECT_TYPE.TEST: {
+                return (
+                    <div
+                        className="head-project-tip"
+                    >
+                        <span className="content">
 
+                            <img src="/public/rdos/img/icon/develop.svg" />测试项目
+                    </span>
+                    </div>
+                )
+            }
+            case PROJECT_TYPE.PRO: {
+                return (
+                    <div
+                        className="head-project-tip"
+                    >
+                        <span className="content">
+
+                            <img src="/public/rdos/img/icon/produce.svg" />生产项目
+                        </span>
+                    </div>
+                )
+            }
+            default: {
+                return null;
+            }
+        }
+    }
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
@@ -222,7 +254,11 @@ class Header extends Component {
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
             pathname.indexOf("/data-manage") > -1 || pathname === "/" ? false : true;
-
+        const menuParentClass = showProjectSelect&&(
+            project.projectType == PROJECT_TYPE.PRO
+            ||
+            project.projectType == PROJECT_TYPE.TEST
+        ) ? "my-menu menu-margin" : "my-menu";
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -243,9 +279,10 @@ class Header extends Component {
                         DTinsight.IDE
                     </span>
                 </div>
-                <div className="menu left">
+                <div className="menu left" style={{ position: "relative" }}>
+                    {showProjectSelect&&this.renderProjectType()}
                     <Menu
-                        className="my-menu"
+                        className={menuParentClass}
                         onClick={this.handleClick}
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
@@ -255,6 +292,7 @@ class Header extends Component {
                             className="my-menu-item"
                             key="database"
                             style={{ display }}
+
                         >
                             <a href={`${basePath}/database`}>数据集成</a>
                         </Menu.Item>

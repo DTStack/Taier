@@ -11,51 +11,53 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction';
 
 import Workbench from './workbench';
+import { PROJECT_TYPE } from '../../../comm/const';
 
 class Default extends Component {
-    componentDidMount(){
-        const taskId=utils.getParameterByName("taskId")
-        if(taskId){
+    componentDidMount() {
+        const taskId = utils.getParameterByName("taskId")
+        if (taskId) {
             this.props.openTaskInDev(+taskId)
         }
     }
     render() {
-        const { 
+        const {
             workbench, scriptTree,
-            toggleCreateTask, toggleUpload, toggleCreateScript
+            toggleCreateTask, toggleUpload, toggleCreateScript, project
         } = this.props;
-        const iconStyle = { width: '60px', height: '60px', marginTop: '25px'}
+        const iconStyle = { width: '60px', height: '60px', marginTop: '25px' }
+        const isPro = project.projectType == PROJECT_TYPE.PRO
         return (
             workbench.tabs.length ?
-            <Workbench />:
-            <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
-                <Col className="operation-card" >
-                    <div
-                      onClick={ toggleCreateTask }
-                      className="operation-content">
-                        <MyIcon style={iconStyle}  type="add-file" />
-                    </div>
-                    <p className="txt-center">创建离线任务</p>
-                </Col>
-                <Col className="operation-card">
-                    <div
-                      onClick={ toggleUpload }
-                      className="operation-content">
-                        <MyIcon style={iconStyle} type="upload" />
-                    </div>
-                    <p className="txt-center">上传离线计算资源</p>
-                </Col>
-                {
-                    !isEmpty(scriptTree) && <Col className="operation-card">
+                <Workbench /> :
+                (!isPro && <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
+                    <Col className="operation-card" >
                         <div
-                            onClick={toggleCreateScript}
+                            onClick={toggleCreateTask}
                             className="operation-content">
-                            <Icon style={iconStyle} type="code-o" />
+                            <MyIcon style={iconStyle} type="add-file" />
                         </div>
-                        <p className="txt-center">创建脚本</p>
+                        <p className="txt-center">创建离线任务</p>
                     </Col>
-                }
-            </Row>
+                    <Col className="operation-card">
+                        <div
+                            onClick={toggleUpload}
+                            className="operation-content">
+                            <MyIcon style={iconStyle} type="upload" />
+                        </div>
+                        <p className="txt-center">上传离线计算资源</p>
+                    </Col>
+                    {
+                        !isEmpty(scriptTree) && <Col className="operation-card">
+                            <div
+                                onClick={toggleCreateScript}
+                                className="operation-content">
+                                <Icon style={iconStyle} type="code-o" />
+                            </div>
+                            <p className="txt-center">创建脚本</p>
+                        </Col>
+                    }
+                </Row>)
         )
     }
 }
@@ -63,5 +65,5 @@ class Default extends Component {
 export default connect((state) => {
     const { createTask, upload } = state.offlineTask.modalShow;
     const { workbench, scriptTree } = state.offlineTask;
-    return { createTask, upload, workbench, scriptTree };
+    return { createTask, upload, workbench, scriptTree, project: state.project };
 }, workbenchActions)(Default);

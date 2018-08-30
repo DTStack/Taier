@@ -5,7 +5,8 @@ import { debounce, cloneDeep } from 'lodash';
 
 import {
     Row, Col, Button,
-    message, Modal, Tag, Form, Input
+    message, Modal, Tag, Form, Input, Icon,
+    Tooltip,
 } from 'antd'
 
 import utils from 'utils'
@@ -19,7 +20,7 @@ import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import * as TreeAction from '../../../store/modules/realtimeTask/tree'
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
-import { MENU_TYPE, TASK_TYPE, formItemLayout } from '../../../comm/const';
+import { MENU_TYPE, TASK_TYPE, formItemLayout, PROJECT_TYPE } from '../../../comm/const';
 
 import TaskBrowser from './taskBrowser'
 
@@ -37,54 +38,54 @@ class TaskIndex extends Component {
 
     saveTask = () => {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
-        console.log('saveTask',this.props);
-        
+        console.log('saveTask', this.props);
+
         //检查页面输入输出参数配置
-        const { checkFormParams=[], panelColumn=[] } = inputData[currentPage.id]||{};
-        const { checkFormParams:outputCheckFormParams=[], panelColumn:outputPanelColumn=[]} = outputData[currentPage.id]||{};
-        const { checkFormParams:dimensionCheckFormParams=[], panelColumn:dimensionPanelColumn=[]} = dimensionData[currentPage.id]||{};
+        const { checkFormParams = [], panelColumn = [] } = inputData[currentPage.id] || {};
+        const { checkFormParams: outputCheckFormParams = [], panelColumn: outputPanelColumn = [] } = outputData[currentPage.id] || {};
+        const { checkFormParams: dimensionCheckFormParams = [], panelColumn: dimensionPanelColumn = [] } = dimensionData[currentPage.id] || {};
         // if (panelColumn.length === 0){
         //     return message.error("源表至少添加一个输入源");
         // }
-        for (let index = 0,len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+        for (let index = 0, len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
-            console.log('result',result);
-            
-            if(!result.status){
-                return message.error(`源表--输入源${checkFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+            console.log('result', result);
+
+            if (!result.status) {
+                return message.error(`源表--输入源${checkFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
             }
         }
         // if (outputPanelColumn.length === 0){
         //     return message.error("结果表至少添加一个输出源");
         // }
-        if(outputCheckFormParams.length>0){
-            for (let index = 0,len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+        if (outputCheckFormParams.length > 0) {
+            for (let index = 0, len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
-                    if(!result.status){
-                        return  message.error(`结果表--输出源${outputCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                if (!result.status) {
+                    return message.error(`结果表--输出源${outputCheckFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
                 }
             }
         }
-        if(dimensionCheckFormParams.length>0){
-            for (let index = 0,len = dimensionCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+        if (dimensionCheckFormParams.length > 0) {
+            for (let index = 0, len = dimensionCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = dimensionCheckFormParams[index].checkParams();
-                    if(!result.status){
-                        return  message.error(`维表--维表${dimensionCheckFormParams[index].props.index+1}: ${result.message||"您还有未填选项"}`);
+                if (!result.status) {
+                    return message.error(`维表--维表${dimensionCheckFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
                 }
             }
         }
-        console.log('inputData,outputData',inputData,outputData,currentPage);
+        console.log('inputData,outputData', inputData, outputData, currentPage);
         const resList = currentPage.resourceList;
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
-        if(panelColumn.length>0){
+        if (panelColumn.length > 0) {
             currentPage.source = panelColumn;
         }
-        if(outputPanelColumn.length>0){
+        if (outputPanelColumn.length > 0) {
             currentPage.sink = outputPanelColumn;
         }
-        if(dimensionPanelColumn.length>0){
+        if (dimensionPanelColumn.length > 0) {
             currentPage.side = dimensionPanelColumn;
         }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
@@ -229,7 +230,7 @@ class TaskIndex extends Component {
         const { publishDesc } = this.state
         const result = cloneDeep(currentPage);
 
-        // 添加发布描述信息
+        // 添加提交描述信息
         if (publishDesc) {
 
             if (publishDesc.length > 200) {
@@ -239,7 +240,7 @@ class TaskIndex extends Component {
 
             result.publishDesc = publishDesc;
         } else {
-            message.error('发布备注不可为空！')
+            message.error('提交备注不可为空！')
             return false;
         }
         // 修改task配置时接口要求的标记位
@@ -247,22 +248,22 @@ class TaskIndex extends Component {
         result.submitStatus = 1; // 1-提交，0-保存
 
         BrowserAction.publishTask(result)
-        .then(
-            (result)=>{
-                this.closePublish();
-                if(result){
-                    message.success('发布成功！');
-                    Api.getTask({id:currentPage.id}).then(res => {
-                        if (res.code === 1) {
-                            const taskInfo = res.data
-                            taskInfo.merged = true;
-                            taskInfo.notSynced = false;// 添加已保存标记
-                            dispatch(BrowserAction.setCurrentPage(taskInfo))
-                        }
-                    })
+            .then(
+                (result) => {
+                    this.closePublish();
+                    if (result) {
+                        message.success('提交成功！');
+                        Api.getTask({ id: currentPage.id }).then(res => {
+                            if (res.code === 1) {
+                                const taskInfo = res.data
+                                taskInfo.merged = true;
+                                taskInfo.notSynced = false;// 添加已保存标记
+                                dispatch(BrowserAction.setCurrentPage(taskInfo))
+                            }
+                        })
+                    }
                 }
-            }
-        );
+            );
     }
 
     publishChange = (e) => {
@@ -277,7 +278,7 @@ class TaskIndex extends Component {
         return (
             <Modal
                 wrapClassName="vertical-center-modal"
-                title="发布任务"
+                title="提交任务"
                 style={{ height: '600px', width: '600px' }}
                 visible={this.state.showPublish}
                 onCancel={this.closePublish}
@@ -287,7 +288,7 @@ class TaskIndex extends Component {
                 <Form>
                     <FormItem
                         {...formItemLayout}
-                        label="发布人"
+                        label="提交人"
                         hasFeedback
                     >
                         <span>{user.userName}</span>
@@ -312,34 +313,59 @@ class TaskIndex extends Component {
     }
 
     render() {
-        const { dispatch, currentPage } = this.props
+        const { dispatch, currentPage, project } = this.props
         const disablePublish = currentPage.notSynced
- 
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
         return (
             <Row className="task-editor">
                 <header className="toolbar bd-bottom clear">
                     <Col className="left">
-                        <Button
-                            onClick={() => {
-                                dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
-                            }}
-                            title="创建任务"
-                        >
-                            <MyIcon className="my-icon" type="focus" /> 新建任务
-                        </Button>
-                        <Button
-                            disabled={currentPage.invalid}
-                            onClick={this.saveTask}
-                            title="保存任务"
-                        >
-                            <MyIcon className="my-icon" type="save" />保存
-                        </Button>
+                        {!isPro && (
+                            <span>
+                                <Button
+                                    onClick={() => {
+                                        dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
+                                    }}
+                                    title="创建任务"
+                                >
+                                    <MyIcon className="my-icon" type="focus" /> 新建任务
+                                </Button>
+                                <Button
+                                    disabled={currentPage.invalid}
+                                    onClick={this.saveTask}
+                                    title="保存任务"
+                                >
+                                    <MyIcon className="my-icon" type="save" />保存
+                                </Button>
+                            </span>
+                        )}
                         <FullScreenButton />
                     </Col>
                     <Col className="right">
-                        <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
-                            <MyIcon className="my-icon" type="fly" /> 发布
-                        </Button>
+                        {!isPro && (
+                            <span>
+                                <Tooltip
+                                    placement="bottom"
+                                    title="提交到调度系统"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
+                                        <Icon type="upload" style={{ color: "#000" }} /> 提交
+                            </Button>
+                                </Tooltip>
+                                <Tooltip
+                                    placement="bottom"
+                                    title="发布到目标项目"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <Button
+                                        disabled={disablePublish}
+                                    >
+                                        <MyIcon className="my-icon" type="fly" />发布
+                            </Button>
+                                </Tooltip>
+                            </span>
+                        )}
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
                                 <MyIcon className="my-icon" type="goin" /> 运维
@@ -348,6 +374,7 @@ class TaskIndex extends Component {
                     </Col>
                 </header>
                 <TaskBrowser
+                    isPro={isPro}
                     {...this.props}
                     ayncTree={this.loadTreeData}
                     editorParamsChange={this.editorParamsChange}
@@ -361,7 +388,7 @@ class TaskIndex extends Component {
 
 export default connect((state) => {
     const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
-    const { user } = state;
+    const { user, project } = state;
     return {
         currentPage,
         pages,
@@ -369,6 +396,7 @@ export default connect((state) => {
         user,
         inputData,
         outputData,
-        dimensionData
+        dimensionData,
+        project
     }
 })(TaskIndex) 
