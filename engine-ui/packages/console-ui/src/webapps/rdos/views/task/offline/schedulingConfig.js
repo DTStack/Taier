@@ -61,8 +61,6 @@ class ScheduleForm extends React.Component {
         const disabledInvokeTime = wFScheduleConf && (
             wFScheduleConf.periodType === "0" ||
             wFScheduleConf.periodType === "1" );
-        
-        console.log('disabledInvokeTime:', disabledInvokeTime, scheduleConf)
 
         const generateHours = () => {
             let options = [];
@@ -383,10 +381,11 @@ class ScheduleForm extends React.Component {
                     break;
 
                     case 2: { // 天
+                        const prefix = isWorkflowNode ? '起调' : '具体';
                         dom = <span key={type}>
                                 <FormItem
                                     {...formItemLayout}
-                                    label="具体时间"
+                                    label={`${prefix}时间`}
                                 >
                                 <Col span="6">
                                 {getFieldDecorator('hour', {
@@ -418,7 +417,7 @@ class ScheduleForm extends React.Component {
                     }
                     break;
 
-                    case 3: // 周
+                    case 3: { // 周
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -466,9 +465,10 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 4: // 月
+                    case 4: { // 月
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -518,6 +518,7 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
                     default: dom = <span>something wrong</span>;

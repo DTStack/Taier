@@ -139,7 +139,6 @@ export default class MainBench extends React.Component {
     renderBench(tabData) {
         const { taskCustomParams } = this.props
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
-
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
 
