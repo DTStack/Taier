@@ -215,84 +215,136 @@ class TaskFlowView extends Component {
         return str;
     }
 
-    corvertValueToString = (cell) => {
-        if (cell.vertex && cell.value) {
-            const dataParse = cell.value ? cell.value : {};
-            const task = dataParse.batchTask || '';
-            const taskType = taskTypeText(task.taskType);
-            const taskStatus = taskStatusText(dataParse.status);
-            if (task) {
-                return `<div class="vertex"><span class="vertex-title"><span>${task.name || ''}</span>
-                <span style="font-size:10px; color: #666666;">${taskType}(${taskStatus})</span></span>
-                </div>`
+    preHandGraphTree = (data, nodeType) => {
+
+        const relationTree = [];
+
+        const loop = (treeNodeData, parent) => {
+
+            if (treeNodeData) {
+                const childNodes = treeNodeData.jobVOS; // 子节点
+
+                if (treeNodeData.batchTask.taskType === TASK_TYPE.WORKFLOW) {
+                    const workflowData = treeNodeData.subNodes;
+                    if (workflowData) {
+                        loop(workflowData, treeNodeData)
+                    }
+                }
+
+                relationTree.push({
+                    parent: parent,
+                    source: treeNodeData,
+                });
+
+                // 处理被依赖节点
+                if (childNodes && childNodes.length > 0) {
+                    for (let i = 0; i < childNodes.length; i++) {
+                        const nodeData = childNodes[i];
+                        if (!nodeData) continue;
+
+                        if (nodeData.jobVOS) {
+                            loop(nodeData, parent)
+                        }
+                        if (nodeType === 'children') {
+                            relationTree.push({
+                                parent: parent,
+                                source: treeNodeData,
+                                target: nodeData,
+                            });
+                        } else {
+                            relationTree.push({
+                                parent: parent,
+                                source: nodeData,
+                                target: treeNodeData,
+                            });
+                        }
+                    }
+                }
             }
         }
+
+        loop(data);
+
+        return relationTree;
     }
 
-    insertEdge = (graph, type, parent, child) => {
-        if (type === 'children' && parent) {
-            graph.insertEdge(graph.getDefaultParent(), null, '', parent, child)
-        } else {
-            graph.insertEdge(graph.getDefaultParent(), null, '', child, parent)
-        }
-    }
+    renderGraph = (dataArr) => {
+        const cellCache = this._vertexCells;
+        const graph = this.graph;
+        const defaultParent = graph.getDefaultParent();
 
-    insertVertex = (rootCell, data, parent, type) => {
+        const getVertex = (parentCell, data) => {
+            if (!data) return null;
 
-        if (data) {
-            const ctx = this;
-            const graph = this.graph;
-            const cacheKey = data.id;
             let style = getVertxtStyle(data.status)
-            const isWorkflow = data.batchTask && data.batchTask.taskType === TASK_TYPE.WORKFLOW;
+            const valueStr = this.getShowStr(data);
 
-            const exist = this._vertexCells[cacheKey];
-            let newVertex = exist;
+            const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
 
-            if (exist && parent !== graph.getDefaultParent()) {
-                this.insertEdge(graph, type, parent, exist);
-            } else if (!exist) {
-                // 插入当前节点
-                const str = this.getShowStr(data);
-               
-                let width = VertexSize.width;
-                let height = VertexSize.height;
-                if (isWorkflow) {
-                    width = width + 20;
-                    height = height + 100;
-                    style += 'shape=swimlane;';
-                }
-                newVertex = graph.insertVertex(
-                    rootCell, null, str, ctx.cx, ctx.cy,
-                    width, height, style
-                );
-                
-                newVertex.data = data;
-                newVertex.isPart = (data.batchTask && data.batchTask.flowId && data.batchTask.flowId !== 0) ? true : false;
-
-                this.insertEdge(graph, type, parent, newVertex);
-                // 缓存节点
-                this._vertexCells[cacheKey] = newVertex;
-                
-                // 遍历工作流节点
-                if (isWorkflow) {
-                    newVertex.geometry.alternateBounds = new mxRectangle(ctx.cx, ctx.cy, VertexSize.width, VertexSize.height);
-                    this.executeLayout(newVertex, () => {
-                        this.insertVertex(newVertex, data.subNodes, null, type);
-                    })
-                }
+            let width = VertexSize.width;
+            let height = VertexSize.height;
+            if (isWorkflow) {
+                width = width + 20;
+                height = height + 100;
+                style += 'shape=swimlane;';
             }
 
-            if (data.jobVOS) {
-                const children = data.jobVOS;
-                for (let i = 0; i < children.length; i++) {
-                    this.insertVertex(rootCell, children[i], newVertex, type);
+            const cell = graph.insertVertex(
+                parentCell,
+                data.id, 
+                valueStr, 
+                0, 0,
+                width, height, 
+                style,
+            )
+            cell.data = data;
+            cell.isPart = data.batchTask.flowId && data.batchTask.flowId !== 0;
+
+            return cell
+        }
+
+        if (dataArr) {
+            for (let i = 0; i < dataArr.length; i++) {
+                const { source, target, parent } = dataArr[i];
+
+                let sourceCell = source ? cellCache[source.id] : undefined;
+                let targetCell = target ? cellCache[target.id] : undefined;
+                let parentCell = defaultParent;
+
+                if (parent) {
+                    const existCell = cellCache[parent.id];
+                    if (existCell) {
+                        parentCell = existCell
+                    } else {
+                        parentCell = getVertex(defaultParent, parent);
+                        cellCache[parent.id] = parentCell;
+                    }
+                }
+
+                if (source && !sourceCell) {
+                    sourceCell = getVertex(parentCell, source);
+                    cellCache[source.id] = sourceCell;
+                }
+                if (target && !targetCell) {
+                    targetCell = getVertex(parentCell, target);
+                    cellCache[target.id] = targetCell;
+                }
+
+                const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                if (edges.length === 0) {
+                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
+                }
+
+                const isWorkflowNode = parentCell.data && parentCell.data.batchTask.flowId && parentCell.data.batchTask.flowId !== 0;
+                if (isWorkflowNode) {
+                    this.executeLayout(parentCell);
                 }
             }
         }
     }
 
-    doInsertVertex = (data, type) => {
+
+    doInsertVertex = (data, nodeType) => {
 
         const graph = this.graph;
         const parent = graph.getDefaultParent();
@@ -312,7 +364,6 @@ class TaskFlowView extends Component {
             model.beginUpdate();
             try {
                 if (change != null) { change(); }
-                console.log('layout:', layoutNode)
                 layout.execute(layoutNode);
             } catch (e) {
                 throw e;
@@ -322,9 +373,10 @@ class TaskFlowView extends Component {
             }
         }
 
-        this.executeLayout(parent, () => {
-            this.insertVertex(parent, data, null, type);
-        })
+        const arrayData = this.preHandGraphTree(data, nodeType);
+        this.renderGraph(arrayData);
+        this.executeLayout(parent);
+        graph.center();
     }
 
     initContextMenu = (graph) => {
