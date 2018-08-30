@@ -36,7 +36,7 @@ export default class Sidebar extends Component {
             current: e.key,
         });
     }
- 
+  
     render() {
         const props = this.props
         return (
@@ -49,10 +49,16 @@ export default class Sidebar extends Component {
                   mode='inline'
                 >
                     <Menu.Item key="offLineData">
-                        <Link to={`/database/offLineData`}>离线数据源</Link>
+                        <Link to={`/database/offLineData`}>
+                            <img className="tabs-icon" src="/public/rdos/img/icon/offline.png" style={{width: 18, position: "relative", top: 4}}/>
+                            <span style={{paddingLeft: 5}}>离线数据源</span>
+                        </Link>
                     </Menu.Item>
                     <Menu.Item key="streamData">
-                        <Link to={`/database/streamData`}>实时数据源</Link>
+                        <Link to={`/database/streamData`}>
+                            <img className="tabs-icon" src="/public/rdos/img/icon/realtime.png" style={{width: 18, position: "relative", top: 4}}/>
+                            <span style={{paddingLeft: 5}}>实时数据源</span>
+                        </Link>
                     </Menu.Item>
                 </Menu>
             </div>

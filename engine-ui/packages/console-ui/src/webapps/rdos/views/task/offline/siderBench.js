@@ -57,27 +57,31 @@ class SiderBench extends React.Component {
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
         const prefixLabel = isWorkflowNode ? '节点' : '任务';
         const panes = [
-            <TabPane tab={<span className="title-vertical">{prefixLabel}属性</span>} key="params1">
+            <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
                 <TaskDetail 
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
                 ></TaskDetail>
             </TabPane>,
-            <TabPane tab={<span className="title-vertical">调度依赖</span>} key="params2">
-                <SchedulingConfig 
-                    isWorkflowNode={isWorkflowNode}
-                    tabData={tabData}
-                >
-                </SchedulingConfig>
-            </TabPane>,
         ];
 
-        if (!isWorkflowNode && tabData.taskType !== TASK_TYPE.WORKFLOW) {
+        if (!isWorkflowNode) {
             panes.push(
-                <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
-                    <TaskView tabData={tabData} />
+                <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
+                    <SchedulingConfig 
+                        tabData={tabData}
+                    >
+                    </SchedulingConfig>
                 </TabPane>
             )
+
+            if (tabData.taskType !== TASK_TYPE.WORKFLOW) {
+                panes.push(
+                    <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
+                        <TaskView tabData={tabData} />
+                    </TabPane>
+                )
+            }
         }
 
         if (tabData && utils.checkExist(tabData.taskType) && 

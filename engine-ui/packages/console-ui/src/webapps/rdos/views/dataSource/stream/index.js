@@ -265,7 +265,7 @@ class DataSourceManaStream extends Component {
             <div>
                 <Search
                     placeholder="数据源名称"
-                    style={{ width: 200 }}
+                    style={{ width: 200,padding: 0 }}
                     onSearch={this.searchDataSources}
                 />&nbsp;&nbsp;
             </div>
@@ -294,7 +294,7 @@ class DataSourceManaStream extends Component {
         console.log('dataSource.data',dataSource.data);
         return (
             <div>
-                <div className="shadow">
+                <div className="shadow rdos-data-source">
                     <Card 
                         title={title} 
                         extra={extra} 
