@@ -81,9 +81,14 @@ class OfflineTabPane extends Component {
                 expandedKeys2: [],
             })
         }
+<<<<<<< HEAD
         // 字段任务定位滚动
         if (
             this.props.currentTab !== nextProps.currentTab ) {
+=======
+        // 任务定位滚动
+        if (this.props.currentTab !== nextProps.currentTab) {
+>>>>>>> hotfix_v2.7.0
             let type = MENU_TYPE.TASK_DEV, menu = MENU_TYPE.TASK;
             if (nextTab && nextTab.scriptText !== undefined) {
                 type = MENU_TYPE.SCRIPT;
