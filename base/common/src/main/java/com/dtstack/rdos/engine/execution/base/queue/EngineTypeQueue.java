@@ -91,7 +91,7 @@ public class EngineTypeQueue {
 
     public boolean checkCanAddToWaitQueue(String groupName) {
         final String groupExeName = groupName == null ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
-        GroupExeQueue exeQueue = groupExeQueueMap.putIfAbsent(groupName, new GroupExeQueue(groupExeName));
+        GroupExeQueue exeQueue = groupExeQueueMap.putIfAbsent(groupExeName, new GroupExeQueue(groupExeName));
         if (exeQueue == null) {
             return true;
         }
