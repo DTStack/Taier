@@ -210,7 +210,7 @@ public class SparkYarnClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
+    public JobResult submitSparkSqlJobForBatch(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
 
             Map<String, Object> paramsMap = new HashMap<>();
@@ -260,7 +260,7 @@ public class SparkYarnClient extends AbsClient {
         SparkConf sparkConf = new SparkConf();
         sparkConf.remove("spark.jars");
         sparkConf.remove("spark.files");
-        sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
+        sparkConf.set("spark.dependence.jars", sparkYarnConfig.getSparkSqlDependenceJars());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
@@ -551,4 +551,5 @@ public class SparkYarnClient extends AbsClient {
 
         jobClient.setSql(String.join(";", sqlList));
     }
+
 }

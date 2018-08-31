@@ -70,7 +70,6 @@ private[spark] class CdhClient(
   private val yarnConf = new YarnConfiguration(hadoopConf)
   private var credentials: Credentials = null
   private val amMemoryOverhead = args.amMemoryOverhead // MB
-  private val executorMemoryOverhead = args.executorMemoryOverhead // MB
   private val distCacheMgr = new ClientDistributedCacheManager()
   private val isClusterMode = args.isClusterMode
 
@@ -271,13 +270,20 @@ private[spark] class CdhClient(
     * Fail fast if we have requested more resources per container than is available in the cluster.
     */
   private def verifyClusterResources(newAppResponse: GetNewApplicationResponse): Unit = {
+    import YarnSparkHadoopUtil._
+
+    val executorMemory = args.executorMemory.getOrElse(
+      Utils.memoryStringToMb(sparkConf.get("spark.executor.memory", "512m")).toInt)
+    val executorMemoryOverhead = sparkConf.getInt("spark.yarn.executor.memoryOverhead",
+      math.max((MEMORY_OVERHEAD_FACTOR * executorMemory).toInt, MEMORY_OVERHEAD_MIN))
+
     val maxMem = newAppResponse.getMaximumResourceCapability().getMemory()
     logInfo("Verifying our application has not requested more than the maximum " +
       s"memory capability of the cluster ($maxMem MB per container)")
-    val executorMem = args.executorMemory + executorMemoryOverhead
+    val executorMem = executorMemory + executorMemoryOverhead
     if (executorMem > maxMem) {
       throw new IllegalArgumentException(s"Required executor memory (${args.executorMemory}" +
-        s"+$executorMemoryOverhead MB) is above the max threshold ($maxMem MB) of this cluster! " +
+        s"+ $executorMemoryOverhead MB) is above the max threshold ($maxMem MB) of this cluster! " +
         "Please check the values of 'yarn.scheduler.maximum-allocation-mb' and/or " +
         "'yarn.nodemanager.resource.memory-mb'.")
     }
@@ -449,65 +455,6 @@ private[spark] class CdhClient(
       }
     }
 
-    // TODO: read spark conf into classpath
-    /*val sparkArchive = sparkConf.get(SPARK_ARCHIVE)
-    if (sparkArchive.isDefined) {
-      val archive = sparkArchive.get
-      require(!isLocalUri(archive), s"${SPARK_ARCHIVE.key} cannot be a local URI.")
-      distribute(Utils.resolveURI(archive).toString,
-        resType = LocalResourceType.ARCHIVE,
-        destName = Some(LOCALIZED_LIB_DIR))
-    } else {
-      sparkConf.get(SPARK_JARS) match {
-        case Some(jars) =>
-          // Break the list of jars to upload, and resolve globs.
-          val localJars = new ArrayBuffer[String]()
-          jars.foreach { jar =>
-            if (!isLocalUri(jar)) {
-              val path = getQualifiedLocalPath(Utils.resolveURI(jar), hadoopConf)
-              val pathFs = FileSystem.get(path.toUri(), hadoopConf)
-              pathFs.globStatus(path).filter(_.isFile()).foreach { entry =>
-                val uri = entry.getPath().toUri()
-                statCache.update(uri, entry)
-                distribute(uri.toString(), targetDir = Some(LOCALIZED_LIB_DIR))
-              }
-            } else {
-              localJars += jar
-            }
-          }
-
-          // Propagate the local URIs to the containers using the configuration.
-          sparkConf.set(SPARK_JARS, localJars)
-
-        case None =>
-          // No configuration, so fall back to uploading local jar files.
-          logWarning(s"Neither ${SPARK_JARS.key} nor ${SPARK_ARCHIVE.key} is set, falling back " +
-            "to uploading libraries under SPARK_HOME.")
-          val jarsDir = new File(YarnCommandBuilderUtils.findJarsDir(
-            sparkConf.getenv("SPARK_HOME")))
-          val jarsArchive = File.createTempFile(LOCALIZED_LIB_DIR, ".zip",
-            new File(Utils.getLocalDir(sparkConf)))
-          val jarsStream = new ZipOutputStream(new FileOutputStream(jarsArchive))
-
-          try {
-            jarsStream.setLevel(0)
-            jarsDir.listFiles().foreach { f =>
-              if (f.isFile && f.getName.toLowerCase().endsWith(".jar") && f.canRead) {
-                jarsStream.putNextEntry(new ZipEntry(f.getName))
-                Files.copy(f, jarsStream)
-                jarsStream.closeEntry()
-              }
-            }
-          } finally {
-            jarsStream.close()
-          }
-
-          distribute(jarsArchive.toURI.getPath,
-            resType = LocalResourceType.ARCHIVE,
-            destName = Some(LOCALIZED_LIB_DIR))
-      }
-    }*/
-
     /**
       * Do the same for any additional resources passed in through ClientArguments.
       * Each resource category is represented by a 3-tuple of:
@@ -519,10 +466,10 @@ private[spark] class CdhClient(
     List(
       (args.addJars, LocalResourceType.FILE, true),
       (args.files, LocalResourceType.FILE, false),
-      (args.archives, LocalResourceType.ARCHIVE, false)
+      (args.archives, LocalResourceType.ARCHIVE, true)
     ).foreach { case (flist, resType, addToClasspath) =>
       if (flist != null && !flist.isEmpty()) {
-        flist.split(',').foreach { file =>
+        flist.split(',').distinct.foreach { file =>
           val (_, localizedPath) = distribute(file, resType = resType)
           require(localizedPath != null)
           if (addToClasspath) {
@@ -924,8 +871,8 @@ private[spark] class CdhClient(
     val amArgs =
       Seq(amClass) ++ userClass ++ userJar ++ primaryPyFile ++ primaryRFile ++
         userArgs ++ Seq(
-        "--executor-memory", args.executorMemory.toString + "m",
-        "--executor-cores", args.executorCores.toString,
+//        "--executor-memory", args.executorMemory.toString + "m",
+//        "--executor-cores", args.executorCores.toString,
         "--properties-file", buildPath(YarnSparkHadoopUtil.expandEnvironment(Environment.PWD),
           LOCALIZED_CONF_DIR, SPARK_CONF_FILE))
 
@@ -1344,6 +1291,10 @@ object CdhClient extends Logging {
       }
     }
     addFileToClasspath(sparkConf, conf, new URI(sparkJar(sparkConf)), SPARK_JAR, env)
+
+    //获取外部依赖jars并加到classpath中
+    addDependenceJarsToClasspath(sparkConf.get("spark.dependence.jars"), env)
+
     populateHadoopClasspath(conf, env)
     sys.env.get(ENV_DIST_CLASSPATH).foreach { cp =>
       addClasspathEntry(getClusterPath(sparkConf, cp), env)
@@ -1411,6 +1362,19 @@ object CdhClient extends Logging {
     */
   private def addClasspathEntry(path: String, env: HashMap[String, String]): Unit =
     YarnSparkHadoopUtil.addPathToEnvironment(env, Environment.CLASSPATH.name, path)
+
+  /**
+    *
+    * @param path
+    * @param env
+    */
+  private def addDependenceJarsToClasspath(path: String, env: HashMap[String, String]): Unit ={
+    if (!path.isEmpty){
+      path.split(",").foreach(jars => addClasspathEntry(jars, env))
+    } else{
+      logError("There is no dependent jars, please set the configuration！")
+    }
+  }
 
   /**
     * Returns the path to be sent to the NM for a path that is valid on the gateway.

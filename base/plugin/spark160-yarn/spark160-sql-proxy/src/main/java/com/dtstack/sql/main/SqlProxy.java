@@ -3,7 +3,7 @@ package com.dtstack.sql.main;
 import com.google.common.base.Charsets;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
-import org.apache.spark.sql.SQLContext;
+import org.apache.spark.sql.hive.HiveContext;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +33,9 @@ public class SqlProxy {
         }
 
         SparkConf confs = new SparkConf();
-        //confs.set("spark.driver.extraLibraryPath", "hdfs://kudu1:9000/sparkjars/lib");
-        //confs.set("spark.yarn.archive", "hdfs://kudu1:9000/sparkjars/lib");
-        //confs.set("spark.driver.userClassPathFirst", "hdfs://kudu1:9000/sparkjars/lib");
+        confs.setAppName(appName);
         SparkContext sparkContext = new SparkContext(confs);
-        SQLContext spark = new SQLContext(sparkContext);
+        HiveContext spark = new HiveContext(sparkContext);
 
         //解压sql
         String unzipSql = SqlProxy.unzip(submitSql);

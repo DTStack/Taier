@@ -39,7 +39,7 @@ public class RestartStrategyUtil {
         dealerClassNameMap.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkRestartStrategy");
         dealerClassNameMap.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkRestartStrategy");
         dealerClassNameMap.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkRestartStrategy");
-        dealerClassNameMap.put("cdhspark", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkRestartStrategy");
+        dealerClassNameMap.put("spark_yarn_cdh", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkRestartStrategy");
 
         List<Map<String,Object>> configList = ConfigParse.getEngineTypeList();
         List<String> typeList = Lists.newArrayList();

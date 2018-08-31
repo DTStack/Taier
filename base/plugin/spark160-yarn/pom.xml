@@ -19,9 +19,9 @@
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spark.version>1.6.0</spark.version>
-        <scala.version>2.11.7</scala.version>
-        <spark.hadoop.version>2.6.0</spark.hadoop.version>
+        <spark.version>1.6.0-cdh5.13.0</spark.version>
+        <scala.version>2.10.5</scala.version>
+        <spark.hadoop.version>2.6.0-cdh5.13.0</spark.hadoop.version>
     </properties>
 
     <dependencies>
@@ -34,7 +34,7 @@
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_2.10</artifactId>
             <version>${spark.version}</version>
             <exclusions>
                 <exclusion>
@@ -60,7 +60,7 @@
 
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-yarn_2.11</artifactId>
+            <artifactId>spark-yarn_2.10</artifactId>
             <version>${spark.version}</version>
             <exclusions>
                 <exclusion>
@@ -115,4 +115,12 @@
             <version>${spark.hadoop.version}</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <!-- cloudera 的仓库 -->
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
 </project>

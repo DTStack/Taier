@@ -28,6 +28,8 @@ public class SparkYarnConfig {
 
     private String sparkPythonExtLibPath;
 
+    private String sparkSqlDependenceJars;
+
     private String md5sum;
 
     /**如果不是使用默认的配置---需要设置配置文件所在的hdfs路径*/
@@ -66,6 +68,14 @@ public class SparkYarnConfig {
 
     public void setSparkYarnArchive(String sparkYarnArchive) {
         this.sparkYarnArchive = sparkYarnArchive;
+    }
+
+    public void setSparkSqlDependenceJars(String sparkSqlDependenceJars) {
+        this.sparkSqlDependenceJars = sparkSqlDependenceJars;
+    }
+
+    public String getSparkSqlDependenceJars() {
+        return sparkSqlDependenceJars;
     }
 
     public String getSparkSqlProxyPath() {

@@ -28,7 +28,7 @@ public class ClientFactory {
         typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
         typeRefClassName.put("datax", "com.dtstack.rdos.engine.execution.datax.DataxClient");
         typeRefClassName.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient");
-        typeRefClassName.put("cdhspark", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkYarnClient");
+        typeRefClassName.put("spark_yarn_cdh", "com.dtstack.rdos.engine.execution.spark160.sparkyarn.SparkYarnClient");
         typeRefClassName.put("mysql", "com.dtstack.rdos.engine.execution.mysql.MysqlClient");
         typeRefClassName.put("oracle", "com.dtstack.rdos.engine.execution.oracle.OracleClient");
         typeRefClassName.put("sqlserver", "com.dtstack.rdos.engine.execution.sqlserver.SqlserverClient");

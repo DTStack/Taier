@@ -12,9 +12,9 @@
     <artifactId>spark160-yarn-client</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spark.version>1.6.0</spark.version>
+        <spark.version>1.6.0-cdh5.13.0</spark.version>
         <hadoop.version>2.6.0</hadoop.version>
-        <scala.version>2.11.8</scala.version>
+        <scala.version>2.10.5</scala.version>
         <akka.version>2.3.11</akka.version>
         <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
     </properties>
