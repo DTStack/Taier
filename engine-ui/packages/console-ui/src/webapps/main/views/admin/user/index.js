@@ -409,6 +409,7 @@ class AdminUser extends Component {
                                 placeholder="按项目名称搜索"
                                 optionFilterProp="name"
                                 onSelect={this.onProjectSelect}
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {projectOpts}
                             </Select>
