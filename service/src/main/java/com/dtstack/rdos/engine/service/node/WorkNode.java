@@ -184,7 +184,8 @@ public class WorkNode {
 
         boolean result = groupPriorityQueue.remove(groupName, jobId);
         if(result){
-            zkDistributed.updateJobZKStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
+            zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.deleteJob(jobId);
             //修改任务状态
             if(ComputeType.BATCH.getType().equals(computeType)){
