@@ -31,7 +31,9 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType, tableName, pId, pageIndex, catalogueId } = props.location.query;
+        const { listType, pId, pageIndex, catalogueId } = props.location.query;
+        const tableNameArr = props.location.query.tableName&&props.location.query.tableName.split('.')||[];
+        const tableName = tableNameArr.length > 1 ? tableNameArr[1] : tableNameArr[0];
         this.state = {
             table: [],
             editRecord: {},
