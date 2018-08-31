@@ -236,7 +236,7 @@ class DirtyData extends Component {
     getSeries = data => {
         const arr = [];
         if (data && data.y) {
-            const legend = data && data.type ? data.type.data : [];
+            const legend = data && data.type ? data.type.data : ['无'];
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
@@ -245,6 +245,12 @@ class DirtyData extends Component {
                     data: data.y[i].data
                 });
             }
+        }else{
+            arr.push({
+                name: '无',
+                type: "line",
+                data: [0]
+            }); 
         }
         return arr;
     };
@@ -272,9 +278,8 @@ class DirtyData extends Component {
         };
 
         option.yAxis[0].minInterval = 1;
-        option.legend.data =
-            chartData && chartData.type ? chartData.type.data : [];
-        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];
+        option.legend.data = chartData && chartData.type ? chartData.type.data : ['无'];
+        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [(new Date()).getTime()];
         option.series = this.getSeries(chartData);
         // 绘制图表
         console.log(option);
