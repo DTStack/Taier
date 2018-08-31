@@ -51,8 +51,8 @@ public class JobStopAction {
 
         //cache记录被删除说明已经在引擎上执行了,往对应的引擎发送停止任务指令
         //如果已经在执行引擎上，在任意节点都能执行stop
-        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) != null){
-            LOG.info("stop job:{} failed." + paramAction.getTaskId());
+        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) == null){
+            LOG.info("job cache is null, stop job:{} interrupt." + paramAction.getTaskId());
             return;
         }
 
