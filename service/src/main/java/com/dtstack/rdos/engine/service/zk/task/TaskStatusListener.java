@@ -156,7 +156,6 @@ public class TaskStatusListener implements Runnable{
 
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
-            //todo 注意失败重试的任务也没有engineTaskId
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
                 if(rdosTask.getPluginInfoId() > 0 ){
@@ -271,6 +270,7 @@ public class TaskStatusListener implements Runnable{
         String jobId = TaskIdUtil.getTaskId(zkJobId);
         RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDao.getJobById(jobId);
         if(rdosEngineJobCache == null){
+            zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkJobId, RdosTaskStatus.FAILED.getStatus());
             logger.error("can't not get engineJobCache from db by jobId:{}.", jobId);
             return;
         }
