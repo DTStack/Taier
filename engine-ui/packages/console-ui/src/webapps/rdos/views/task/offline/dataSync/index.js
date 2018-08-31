@@ -62,7 +62,7 @@ class DataSync extends React.Component{
 
             if (!res.data) {
                 this.props.setTabNew();
-                this.navtoStep(1)
+                this.navtoStep(0)
             } else {
                 this.props.setTabSaved();
                 if(!dataSyncSaved){
