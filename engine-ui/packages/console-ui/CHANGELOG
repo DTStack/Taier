@@ -14,3 +14,8 @@
 - 【数据质量】任务查询模块增加`触发方式`过滤
 - 【数据质量】新增`4`中系统变量
 - 【其他】总计100多项Bugfix, 更多请看 [Redmine](http://redmine.prod.dtstack.cn/projects/dtinsihgt-v2-4-0/issues)
+
+
+ > 版本：DTinsight v2.7.1 <br>
+ > 日期：2018-08-31
+- 【开发套件】修复编辑脚本时，导致脚本编辑内容丢失的问题
