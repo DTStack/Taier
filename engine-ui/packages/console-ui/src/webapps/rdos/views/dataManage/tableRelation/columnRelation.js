@@ -170,7 +170,6 @@ export default class TableRelation extends React.Component {
             }
         })
         graph.center();
-
     }
 
     doInsertVertex = (data) => {
@@ -202,7 +201,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout(() => {
             this.insertRootTree(data);
         })
-        graph.view.setTranslate(this.cx, this.cy);
+        graph.view.setTranslate(this.cx, 50);
     }
 
     loadEditor = (container) => {
@@ -336,7 +335,9 @@ export default class TableRelation extends React.Component {
                     spinning={this.state.loading === 'loading'}
                 >
                     <div className="absolute-middle txt-bg">字段血缘信息</div>
-                    <div className="editor pointer" ref={(e) => { this.Container = e }}/>
+                    <div 
+                        className="editor pointer" ref={(e) => { this.Container = e }}
+                    />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
