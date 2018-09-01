@@ -25,6 +25,7 @@ import {
 import { updateUser } from "../../../../store/modules/user";
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
+import { PROJECT_TYPE } from '../../../../comm/const';
 
 @pureRender
 class EditorContainer extends Component {
@@ -335,7 +336,7 @@ class EditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value } = this.props;
+        const { editor, currentTabData, value, project } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -348,12 +349,12 @@ class EditorContainer extends Component {
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
         const editorOpts = {
             value: value,
             language: 'dtsql',
             options: {
-                readOnly: isLocked,
+                readOnly: isPro||isLocked,
             },
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
@@ -374,7 +375,8 @@ class EditorContainer extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: true,
-            enableFormat: true,
+            enableFormat: !isPro,
+            disAbleEdit: isPro,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,

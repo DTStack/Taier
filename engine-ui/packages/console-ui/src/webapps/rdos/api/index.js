@@ -732,4 +732,11 @@ export default {
     getStreamTableColumn(params) {
         return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
+    linkSource(params,type="offline") {
+        if(type=="offline"){
+            return http(offlineReq.LINK_SOURCE, params)
+        }else{
+            return http(stremReq.LINK_SOURCE, params)
+        }
+    }
 }

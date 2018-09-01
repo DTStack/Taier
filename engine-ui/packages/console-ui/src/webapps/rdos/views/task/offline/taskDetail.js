@@ -23,6 +23,7 @@ const Panel = Collapse.Panel;
 
 function TaskInfo(props) {
     const taskInfo = props.taskInfo
+    const isPro=props.isPro;
     const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
@@ -52,7 +53,7 @@ function TaskInfo(props) {
                 <Col span="14">
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
-                    } <a onClick={props.modifyTaskOwner}>修改</a>
+                    }{!isPro&&<a onClick={props.modifyTaskOwner}>修改</a>} 
                 </Col>
             </Row>
             <Row>
@@ -138,6 +139,7 @@ class TaskDetail extends React.Component {
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
+                        isPro={isPro}
                         taskInfo={tabData} 
                         labelPrefix={labelPrefix}
                         modifyTaskOwner={() => {this.setState({visible: true})}}

@@ -85,6 +85,7 @@ export default {
     GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
     SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,
+    LINK_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`,//关联映射数据源
 
     // 离线文件操作
     DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`,

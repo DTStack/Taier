@@ -6,7 +6,7 @@ import { Tabs } from 'antd';
 import utils from 'utils'
 
 import SQLEditor from 'widgets/editor';
-import { propEditorOptions, TASK_TYPE } from '../../../comm/const';
+import { propEditorOptions, TASK_TYPE, PROJECT_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
 import TaskDetail from './taskDetail';
@@ -50,7 +50,8 @@ class SiderBench extends React.Component {
     }
 
     getTabPanes = () => {
-        const { tabData } = this.props;
+        const { tabData, project } = this.props;
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
         if (!tabData) return null;
 
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
@@ -59,6 +60,7 @@ class SiderBench extends React.Component {
         const panes = [
             <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
                 <TaskDetail 
+                    isPro={isPro}
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
                 ></TaskDetail>
@@ -69,6 +71,7 @@ class SiderBench extends React.Component {
             panes.push(
                 <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
                     <SchedulingConfig 
+                        isPro={isPro}
                         tabData={tabData}
                     >
                     </SchedulingConfig>
@@ -78,7 +81,7 @@ class SiderBench extends React.Component {
             if (tabData.taskType !== TASK_TYPE.WORKFLOW) {
                 panes.push(
                     <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
-                        <TaskView tabData={tabData} />
+                        <TaskView tabData={tabData} isPro={isPro} />
                     </TabPane>
                 )
             }
@@ -91,6 +94,7 @@ class SiderBench extends React.Component {
             panes.push(
                 <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
                     <TaskParams
+                        isPro={isPro}
                         tabData={tabData}
                         onChange={this.handleCustomParamsChange}
                     />
@@ -113,7 +117,7 @@ class SiderBench extends React.Component {
             }
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
-                <ScriptDetail tabData={tabData} />
+                <ScriptDetail tabData={tabData} isPro={isPro} />
             </TabPane>;
         }
         return panes;
@@ -135,7 +139,9 @@ class SiderBench extends React.Component {
 }
 
 export default connect(state => {
-    return {}
+    return {
+        project:state.project
+    }
 }, dispatch => {
     return {
         setTaskParams(params) {
