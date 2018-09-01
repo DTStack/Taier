@@ -371,19 +371,19 @@ export default class InputPanel extends Component {
 
     parseColumnsText = (index,text="")=>{
         const { timeColumoption,panelColumn } = this.state;
-        const columns =  text.split('\n').filter(v => !!v).map(v=> {
+        const columns = text.split('\n').filter(v => !!v).map(v => {
             let column;
             if(v.trim().includes(" as ")){
-                column = v.trim().split(" as ")
-            }else{
+                column = v.trim().replace(/\(.*\)/, '').split(" as ");
+            } else {
                 column = v.trim().split(" ");
             }
-            return { column: column[0],type: column[1] }
+            return { column: column[0], type: column[1] }
         })
-        console.log('columns',columns);
+        console.log('columns', columns);
         
         const filterColumns = columns.filter(v=>{
-            return v.column&&v.type
+            return v.column && v.type
         })
         timeColumoption[index] = filterColumns;
         console.log( ' filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]',filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]);
