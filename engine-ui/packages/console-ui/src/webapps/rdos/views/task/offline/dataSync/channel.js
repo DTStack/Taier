@@ -184,7 +184,6 @@ class ChannelForm extends React.Component{
                     </span>
                     <HelpDoc 
                         doc="errorPercentConfig" 
-                        style={{ position: 'initial', marginLeft: '6px' }}
                     />
                 </FormItem>
             </Form>
