@@ -207,7 +207,7 @@ class RestartModal extends Component {
             >
                 <Row>
                     <Col span="12">请选择要重跑的任务:</Col>
-                    <Col span="12" className="txt-right">业务日期：{restartNode.businessDate}</Col>  
+                    <Col span="12" className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>  
                 </Row>
                 <Row className="section patch-data">
                     <Row className="patch-header">

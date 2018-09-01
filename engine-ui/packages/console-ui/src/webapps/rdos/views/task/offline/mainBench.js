@@ -5,7 +5,6 @@ import utils from 'utils'
 
 import Api from '../../../api'
 import {
-    defaultEditorOptions,
     TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, DEAL_MODEL_TYPE, SCRIPT_TYPE,
 } from '../../../comm/const'
 
@@ -14,8 +13,8 @@ import DataSyncScript from "./dataSync/dataSyncScript"
 import NormalTaskForm from './normalTask';
 
 import EditorContainer from './sqlEditor';
-
-import CommonEditor from "./commonEditor"
+import CommonEditor from "./commonEditor";
+import WorkFlowEditor from './workflowEditor';
 
 const confirm = Modal.confirm;
 
@@ -139,19 +138,22 @@ export default class MainBench extends React.Component {
 
     renderBench(tabData) {
         const { taskCustomParams } = this.props
-        defaultEditorOptions.autofocus = true;
-        defaultEditorOptions.indentUnit = 4;
-        defaultEditorOptions.indentWithTabs = false;
+        const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
 
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
+
             switch (tabData.taskType) {
                 case TASK_TYPE.MR:
                 case TASK_TYPE.PYTHON:
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:
                 case TASK_TYPE.HAHDOOPMR:
-                    return <NormalTaskForm key={tabData.id} {...tabData} />
+                    return <NormalTaskForm 
+                            isWorkflowNode={isWorkflowNode}
+                            key={tabData.id} 
+                            {...tabData} 
+                        />
                 case TASK_TYPE.SYNC: // 数据同步
                     if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                         return <DataSyncScript
@@ -191,6 +193,12 @@ export default class MainBench extends React.Component {
                     } else {
                         return <NormalTaskForm key={tabData.id} {...tabData} />
                     }
+                case TASK_TYPE.WORKFLOW: {
+                    return <WorkFlowEditor 
+                        data={tabData}
+                        key={tabData.id}
+                    />
+                }
                 default:
                     return <p className="txt-center" style={{ lineHeight: '60px' }}>
                         未知任务类型
@@ -208,18 +216,15 @@ export default class MainBench extends React.Component {
                         currentTabData={tabData}
                     />
                 }
+                case SCRIPT_TYPE.SHELL:
                 case SCRIPT_TYPE.PYTHON2:
                 case SCRIPT_TYPE.PYTHON3: {
+                    let mode = 'python';
+                    if (tabData.type === '') {
+                        mode = 'shell';
+                    }
                     return <CommonEditor
-                        mode="python"
-                        key={tabData.id}
-                        value={tabData.scriptText}
-                        currentTab={tabData.id}
-                        currentTabData={tabData} />;
-                }
-                case SCRIPT_TYPE.SHELL: {
-                    return <CommonEditor
-                        mode="shell"
+                        mode={mode}
                         key={tabData.id}
                         value={tabData.scriptText}
                         currentTab={tabData.id}

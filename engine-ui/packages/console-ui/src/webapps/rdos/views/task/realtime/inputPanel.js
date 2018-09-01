@@ -255,7 +255,7 @@ class InputOrigin extends Component {
                                 {...formItemLayout}
                                 label={(
                                     <span >
-                                        偏移量(ms)&nbsp;
+                                        偏移量(ms)
                                         <Tooltip title="watermark值与event time值的偏移量">
                                             <Icon type="question-circle-o" /> 
                                         </Tooltip>

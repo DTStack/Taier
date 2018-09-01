@@ -2,6 +2,7 @@ import React from 'react';
 
 
 export default class KeyCombiner extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -45,13 +46,11 @@ export default class KeyCombiner extends React.Component {
 
             let keyAllRight = true;
             for (let key in keyMap) {
-                console.log('key:', currentKeys[key], keyMap, currentKeys)
                 if (!currentKeys[key]) {
                     keyAllRight = false;
                     break;
                 }
             }
-            console.log('allRigth:', keyAllRight)
             if (keyAllRight) {
                 onTrigger(target);
             }

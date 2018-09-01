@@ -6,13 +6,17 @@
  * > cup config // 按配置文件运行
  */
 
+ const base = "/mock";
+
 module.exports = {
 	"name": "DTinsight build test",
 	"listen": 3001,
 	"root": "dist",
     "location": {
-        // "/api/task/get": `${base}/get.json`,
+        // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
+        // "/api/rdos/batch/batchTaskTask/displayOffSpring": `${base}/task/get_task_tree.json`, 
+        // "/api/rdos/batch/batchJobJob/displayOffSpring": `${base}/task/get_task_instances.json`, 
     },
     "proxyTable": {
         "/api/dq": {
@@ -21,7 +25,7 @@ module.exports = {
             secure: false,
         },
         "/api/rdos": {
-            target: "http://172.16.8.104:9020", // formal test ser
+            target: "http://172.16.0.226:9020", // formal test ser
             changeOrigin: true,
             secure: false,
         },

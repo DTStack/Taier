@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router'
 import moment from 'moment'
 
 import {
-    Table, message, Modal,
+    Table, message,
     Row, Col, Card, Input,
-    Radio, Button, Select,
-    Menu, Dropdown, Icon,
-    DatePicker, Tag, Form,
+    Button, Select,
+    DatePicker, Form,
     Checkbox, Tabs,
  } from 'antd'
 
@@ -16,11 +14,9 @@ import {
  import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
-import { taskStatusFilter, offlineTaskTypeFilter, offlineTaskPeriodFilter, SCHEDULE_STATUS } from '../../../comm/const'
+import { offlineTaskTypeFilter, offlineTaskPeriodFilter, SCHEDULE_STATUS } from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
-import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { TaskScheduleStatus } from '../../../components/display'
 
 import PatchDataModal from './patchDataModal'
 import TaskView from './taskView'
@@ -34,7 +30,6 @@ const FormItem = Form.Item
 const Option = Select.Option
 const Search = Input.Search
 const TabPane = Tabs.TabPane
-const RangePicker = DatePicker.RangePicker
 
 class OfflineTaskMana extends Component {
 
@@ -46,12 +41,12 @@ class OfflineTaskMana extends Component {
         patchDataVisible: false,
         visibleSlidePane: false,
         checkAll: false,
-
         current: 1, // 当前页
         tabKey: 'taskFlow',
         person: undefined,
         taskName: utils.getParameterByName('tname') ? utils.getParameterByName('tname') : '',
         selectedTask: '',
+        patchTargetTask: '', // 补数据对象
         startTime: '',
         endTime: '',
         taskType: '',
@@ -149,7 +144,7 @@ class OfflineTaskMana extends Component {
         this.setState({ 
             checkAll: false, 
             selectedRowKeys: [], 
-            current: pagination.current, 
+            current: pagination.current,
             taskType: filters.taskType,
             taskPeriodId: filters.taskPeriodId,
         }, this.search)
@@ -158,7 +153,7 @@ class OfflineTaskMana extends Component {
     clickPatchData = (task) => {
         this.setState({
             patchDataVisible: true,
-            selectedTask: task
+            patchTargetTask: task
         })
     }
 
@@ -171,7 +166,6 @@ class OfflineTaskMana extends Component {
 
     clickMenu = (target) => {
         const task = target.item.props.value
-        const { workbench } = this.props
         if (target.key === 'edit') {
             this.props.goToTaskDev(task.id)
         }
@@ -266,7 +260,7 @@ class OfflineTaskMana extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-            width: 150,
+            width: 200,
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)` :
                 <a onClick={() => { this.showTask(record) }}>
@@ -275,7 +269,6 @@ class OfflineTaskMana extends Component {
                 return content;
             },
         }, {
-            width: 120,
             title: '发布时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
@@ -283,7 +276,6 @@ class OfflineTaskMana extends Component {
                 return <span>{utils.formatDateTime(text)}</span>
             },
         }, {
-            width: 120,
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
@@ -292,7 +284,6 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskTypeFilter,
         }, {
-            width: 120,
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -301,7 +292,6 @@ class OfflineTaskMana extends Component {
             },
             filters: offlineTaskPeriodFilter,
         }, {
-            width: 100,
             title: '责任人',
             dataIndex: 'userName',
             key: 'userName',
@@ -327,7 +317,7 @@ class OfflineTaskMana extends Component {
     tableFooter = (currentPageData) => {
         return (
             <Row>
-                <Col className="inline" style={{ padding: '15px 10px 10px 38px' }}>
+                <Col className="inline" style={{ padding: '15px 10px 10px 23px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -354,9 +344,9 @@ class OfflineTaskMana extends Component {
     }
 
     render() {
-        const { projectUsers, project } = this.props
+        const { projectUsers } = this.props
         const { 
-            tasks, patchDataVisible, selectedTask, person, checkVals,
+            tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
             current, taskName, visibleSlidePane, selectedRowKeys, tabKey,
         } = this.state;
 
@@ -448,7 +438,6 @@ class OfflineTaskMana extends Component {
                         dataSource={tasks.data || []}
                         onChange={this.handleTableChange}
                         footer={this.tableFooter}
-                        scroll={{ y: '80%' }}
                     />
                     <SlidePane 
                         className="m-tabs bd-top bd-right m-slide-pane"
@@ -478,8 +467,8 @@ class OfflineTaskMana extends Component {
                 </Card>
                 <PatchDataModal
                   visible={patchDataVisible}
-                  task={selectedTask}
-                  handCancel={() => { this.setState({ patchDataVisible: false }) }}
+                  task={patchTargetTask}
+                  handCancel={() => { this.setState({ patchDataVisible: false, patchTargetTask: '', }) }}
                 />
             </div>
         )

@@ -28,7 +28,8 @@ function loadFolderContent(action, state) {
         arr.forEach((node, i) => {
             if( node.id === id && 
                 node.level === level &&
-                node.type === 'folder'
+                (node.type === 'folder' ||
+                node.type === 'flow')
             ) {
                 node.children = data.children;
                 node._hasLoaded = true;

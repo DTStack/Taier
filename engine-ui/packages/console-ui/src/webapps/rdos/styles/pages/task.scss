@@ -29,7 +29,6 @@
     .task-dev-switcher {
         bottom: 0;
         height: 100%;
-
         & >.ant-tabs-bar {
             margin-bottom: 0;
             border-bottom: 0;
@@ -73,7 +72,6 @@
                 color: #fff !important;
             }
         }
-
         .ant-menu-inline, .ant-menu-vertical {
             border-right: 0;
         }
@@ -94,7 +92,9 @@
                 margin-bottom: 0;
                 font-size: 12px;
             }
-
+            .ant-tabs-tab:hover{
+                background:#eef6fe;
+            }
             .ant-tabs-tab-active {
                 border-top: 1px solid #dddddd;
                 border-bottom: 1px solid #dddddd;
@@ -216,6 +216,13 @@
         .s-shell {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/shell.svg)
+            }
+        }
+        .s-workflow {
+            &>.ant-tree-node-content-wrapper {
+                .ant-tree-iconEle {
+                    background-image: url(/public/rdos/img/workflow.svg)
+                }
             }
         }
         .s-table {
@@ -395,7 +402,7 @@
         height: 100%;
         width: 100%;
         position: relative;
-        margin-top: 9px;
+        margin-top: -1px;
         margin-left: -2px;
         padding-right: 30px;
         padding-bottom: 40px;
@@ -413,6 +420,13 @@
                     background: #2491F7;
                 }
             }
+        }
+        .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            margin-right: -1px;
+        }
+
+        .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
+            background:#eef6fe;
         }
        
         .m-scheduling{
@@ -498,12 +512,15 @@
             overflow: auto;
             right: -1px;
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {
-                margin-bottom: 2px;
+                margin-bottom: -1px;
             }
             // .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
             //     padding: 20px;
             //     border-right: 1px solid #e9e9e9;
             // }
+            .ant-tabs-tab:hover{
+                background:#eef6fe;
+            }
         }
         .editor-container {
             height: 100%;
@@ -528,13 +545,13 @@
                 border-bottom: 1px solid #e9e9e9;
                 border-radius: 4px;
             }
-            .ant-tabs-nav-scroll {
-                margin-top: 30px;
-            }
+            // .ant-tabs-nav-scroll {
+            //     margin-top: 30px;
+            // }
             .ant-tabs-tab {
                 width: 30px;
                 line-height: 20px;
-                height: 80px;
+                height: auto;
                 padding-left: 0 !important;
                 padding-right: 5px !important;
                 writing-mode: tb-rl;
