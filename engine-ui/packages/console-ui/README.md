@@ -20,6 +20,10 @@
  > 日期：2018-08-31
 - 【开发套件】修复编辑脚本时，导致脚本编辑内容丢失的问题
 
+ > 版本：DTinsight v2.7.2 <br>
+ > 日期：2018-09-01
+- 【开发套件】实时源表字段解析Bug修复
+
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
