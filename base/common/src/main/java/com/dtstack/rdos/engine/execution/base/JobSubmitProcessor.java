@@ -34,14 +34,12 @@ public class JobSubmitProcessor implements Callable<JobSubmitProcessor> {
     @Override
     public JobSubmitProcessor call(){
 
-            Map<String, Integer> updateStatus = Maps.newHashMap();
-            updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
-
+        Map<String, Integer> updateStatus = Maps.newHashMap();
+        JobResult jobResult = null;
+        updateStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.WAITCOMPUTE.getStatus());
+        try {
             jobClient.doJobClientCallBack(updateStatus);
-            JobResult jobResult = null;
-
-            try {
-                IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+            IClient clusterClient = ClientCache.getInstance().getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
 
                 if(clusterClient == null){
                     jobResult = JobResult.createErrorResult("client type (" + jobClient.getEngineType()  +") don't found.");
