@@ -473,6 +473,9 @@ export default {
     getOfflineTableColumn(params) {
         return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
     },
+    getOfflineColumnForSyncopate(params) {
+        return http.post(offlineReq.GET_OFFLINE_COLUMNFORSYNCOPATE, params)
+    },
     getOfflineJobData(params) {
         return http.post(offlineReq.GET_OFFLINE_JOBDATA, params)
     },

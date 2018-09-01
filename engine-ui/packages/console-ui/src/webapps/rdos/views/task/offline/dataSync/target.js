@@ -469,7 +469,7 @@ class TargetForm extends React.Component {
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                placeholder="pt=${bdp.system.bizdate},"
+                                placeholder="pt=${bdp.system.bizdate}"
                             ></Input>
                         )}
                         <HelpDoc doc="partitionDesc" />

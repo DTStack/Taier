@@ -6,7 +6,7 @@ import { Tabs } from 'antd';
 import utils from 'utils'
 
 import SQLEditor from 'widgets/editor';
-import { propEditorOptions, TASK_TYPE } from '../../../comm/const';
+import { TASK_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
 import TaskDetail from './taskDetail';

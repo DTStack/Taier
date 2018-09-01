@@ -115,17 +115,14 @@ export default class FieldCheck extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
             title: '字段描述',
             dataIndex: 'columnDesc',
             key: 'columnDesc',
         }, {
-            width: 80,
             title: '字段类型',
             dataIndex: 'columnType',
             key: 'columnType',
         }, {
-            width: 80,
             title: '所属表',
             dataIndex: 'tableName',
             key: 'tableName',
@@ -139,7 +136,6 @@ export default class FieldCheck extends Component {
             dataIndex: 'checkResult',
             key: 'checkResult',
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {

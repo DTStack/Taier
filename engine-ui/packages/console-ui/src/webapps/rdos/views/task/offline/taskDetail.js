@@ -128,7 +128,7 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, tabs } = this.props;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
 
@@ -155,6 +155,7 @@ class TaskDetail extends React.Component {
                 <SchedulingConfig 
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
+                    tabs={tabs}
                 >
                 </SchedulingConfig> : ''
             }
@@ -163,7 +164,7 @@ class TaskDetail extends React.Component {
                     <TaskVersion
                         taskInfo={tabData}
                         changeSql={this.setSqlText}
-                        />
+                    />
                 </Panel>
             </Collapse>
         </div>
@@ -171,8 +172,10 @@ class TaskDetail extends React.Component {
 }
 
 export default connect((state, ownProps) => {
+    const { workbench } = state.offlineTask;
     return {
         projectUsers: state.projectUsers,
+        tabs: workbench.tabs,
     };
 
 }, workbenchActions)(TaskDetail);

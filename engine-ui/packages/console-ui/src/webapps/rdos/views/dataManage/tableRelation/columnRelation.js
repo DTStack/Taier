@@ -28,7 +28,6 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxHierarchicalLayout,
-    mxLayoutManager,
     mxUtils,
 } = Mx
 
@@ -171,7 +170,6 @@ export default class TableRelation extends React.Component {
             }
         })
         graph.center();
-
     }
 
     doInsertVertex = (data) => {
@@ -180,7 +178,6 @@ export default class TableRelation extends React.Component {
         this.cy = 100;
 
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
         this.executeLayout = function(change, post) {
             model.beginUpdate();
@@ -204,7 +201,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout(() => {
             this.insertRootTree(data);
         })
-        graph.view.setTranslate(this.cx, this.cy);
+        graph.view.setTranslate(this.cx, 50);
     }
 
     loadEditor = (container) => {
@@ -264,7 +261,7 @@ export default class TableRelation extends React.Component {
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
                     const col = table.columns[i]
-                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '##595959'}">${col}</li>`
+                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '#595959'}">${col}</li>`
                 }
                 return `<ul class="t-vertext"><li key="tableTitle" class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li key="tableName" class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
             } else {
@@ -287,7 +284,6 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
-        const tableInfo = this.state.tableInfo;
 
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
@@ -331,7 +327,6 @@ export default class TableRelation extends React.Component {
     }
 
     render() {
-        const { tableInfo, relationTasks } = this.state
         return (
             <div className="graph-editor col-relation" style={{position: 'relative'}}>
                 <Spin
@@ -339,8 +334,10 @@ export default class TableRelation extends React.Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle graph-bg">字段血缘信息</div>
-                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                    <div className="absolute-middle txt-bg">字段血缘信息</div>
+                    <div 
+                        className="editor pointer" ref={(e) => { this.Container = e }}
+                    />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
