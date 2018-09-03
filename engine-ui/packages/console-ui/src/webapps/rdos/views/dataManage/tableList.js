@@ -260,7 +260,7 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="类目">
-                    <span style={{ width: 150, display: 'inline-block' }}>
+                    <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
