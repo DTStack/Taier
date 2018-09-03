@@ -460,8 +460,9 @@ class ManageParamsConfig extends Component {
                 return <Option value={data.value}>{data.name}</Option>
             }
         )
-
-        const dataFieldsClass=mode == API_MODE.SQL?'middle-title':'required-tip middle-title'
+        const modeType = mode == API_MODE.SQL;
+        const dataFieldsClass = modeType?'middle-title':'required-tip middle-title';
+        const paramsConfigClass = modeType?'paramsSql_arrow':'paramsConfig_arrow';
         return (
             <div>
                 <div className="steps-content">
@@ -525,7 +526,7 @@ class ManageParamsConfig extends Component {
                                 />
                             </section>
                         </div>
-                        <div className="paramsConfig_arrow"></div>
+                        <div className={paramsConfigClass}></div>
                         <div className="paramsConfig_param">
                             {mode == API_MODE.SQL && sqlModeShow ?
                                 <ApiSqlEditor
