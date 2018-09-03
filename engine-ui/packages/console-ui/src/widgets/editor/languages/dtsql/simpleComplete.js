@@ -131,6 +131,7 @@ export function disposeProvider() {
     _completeProvideFunc = null;
 }
 export async function onChange(value, _editor) {
+    //语法文件定位有问题，暂时屏蔽错误提示
     return ;
     const dtParser=await loadDtParser();
     const model = _editor.getModel();
