@@ -386,7 +386,7 @@ class OfflineTaskMana extends Component {
                             <FormItem label="">
                                 <Search
                                     placeholder="按任务名称"
-                                    style={{ width: 150 }}
+                                    style={{ width: 200 }}
                                     value={taskName}
                                     size="default"
                                     onChange={this.changeTaskName}
@@ -399,7 +399,8 @@ class OfflineTaskMana extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 150 }}
+                                    size='Default'
+                                    style={{ width: 126 }}
                                     placeholder="责任人"
                                     optionFilterProp="name"
                                     value={person}
