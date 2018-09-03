@@ -30,7 +30,7 @@ public class ZkShardListener implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardListener.class);
 
-    private static final int DATA_LENGTH = 200;
+    private static final float DATA_LENGTH = 200;
     private static final long CHECK_INTERVAL = 5;
     private static final long SHARD_IDLE_TIMES = 10;
     private static final int NUMBER_OF_REPLICAS = 5;
@@ -47,7 +47,7 @@ public class ZkShardListener implements Runnable {
 
     public ZkShardListener() {
         shardsCsist = new ConsistentHash<>(NUMBER_OF_REPLICAS, Lists.newArrayList());
-        createShardNode();
+        createShardNode(1);
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -68,9 +68,10 @@ public class ZkShardListener implements Runnable {
                 totalSize += size;
                 brokerDataNodeMap.put(dShard, size);
             }
-            if (totalSize / dataShards.size() >= DATA_LENGTH) {
-                createShardNode();
-            } else if (dataShards.size() > 1) {
+            if (totalSize > DATA_LENGTH) {
+                float needNode = totalSize / DATA_LENGTH - brokerDataNodeMap.size();
+                createShardNode(needNode);
+            } else if (brokerDataNodeMap.size() > 1) {
                 for (Map.Entry<String, Integer> entry : brokerDataNodeMap.entrySet()) {
                     shardIdleDoubleCheck(entry.getKey(), entry.getValue());
                 }
@@ -90,7 +91,6 @@ public class ZkShardListener implements Runnable {
                         BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(dShard);
                         if (brokerDataNode != null && brokerDataNode.getMetas().size() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
-                            zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
                             shardIdles.remove(dShard);
                             shardsCsist.remove(dShard);
                         }
@@ -104,6 +104,7 @@ public class ZkShardListener implements Runnable {
                             mutexs.get(dShard).release();
                         }
                         mutexs.remove(dShard);
+                        zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
                     } catch (Exception e) {
                         logger.error("{} {}:shardIdleDoubleCheck error:{}", zkDistributed.getLocalAddress(), dShard,
                                 ExceptionUtil.getErrorMessage(e));
@@ -115,11 +116,13 @@ public class ZkShardListener implements Runnable {
         }
     }
 
-    private void createShardNode() {
-        String shardName = SHARD_NODE + shardSequence.getAndIncrement();
-        zkDistributed.createBrokerDataShard(shardName);
-        InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
-        mutexs.put(shardName, mutex);
-        shardsCsist.add(shardName);
+    private void createShardNode(float nodeNum) {
+        for (int i = 0; i < nodeNum; i++) {
+            String shardName = SHARD_NODE + shardSequence.getAndIncrement();
+            zkDistributed.createBrokerDataShard(shardName);
+            InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
+            mutexs.put(shardName, mutex);
+            shardsCsist.add(shardName);
+        }
     }
 }
