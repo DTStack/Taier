@@ -148,7 +148,7 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnType', {
                             rules: [],
-                            initialValue: data ? data.columnType.toString() : 1,
+                            initialValue: data ? data.columnType : 1,
                         })(
                             <Select>
                                 {
