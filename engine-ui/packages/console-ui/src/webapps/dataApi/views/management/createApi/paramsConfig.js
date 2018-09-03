@@ -512,8 +512,8 @@ class ManageParamsConfig extends Component {
                                     )}
                                 </FormItem>
                             </section>
-                            <p className={dataFieldsClass} style={{marginTop:"30px"}}>数据字段:</p>
-                            <section style={{ padding: "10px 0px" }}>
+                            <p className={dataFieldsClass} >数据字段:</p>
+                            <section style={{ padding: "15px 0px 10px" }}>
                                 <Table
                                     style={{ background: "#fff" }}
                                     className="shadow m-table m-table-showselect"
@@ -521,7 +521,7 @@ class ManageParamsConfig extends Component {
                                     dataSource={tableData}
                                     pagination={false}
                                     rowSelection={this.rowSelection()}
-                                    scroll={{ y: 286 }}
+                                    scroll={{ y: 297 }}
                                 />
                             </section>
                         </div>

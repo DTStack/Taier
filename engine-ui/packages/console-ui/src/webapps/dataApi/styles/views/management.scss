@@ -329,6 +329,9 @@
     flex-basis: 250px;
     flex-grow: 1;
     flex-shrink: 1;
+    .ant-form-item{
+        margin-bottom: 20px;
+    }
 }
 .paramsConfig_arrow{
     padding: 0px 30px;
@@ -341,6 +344,9 @@
     flex-basis: 700px;
     flex-grow: 1;
     flex-shrink: 1;
+    .ant-card-head-title{
+        overflow: visible;
+    }
 }
 .required-tip:before{
     content:"*";
@@ -366,7 +372,7 @@
 }
 .params_exchange_box{
     position: absolute;
-    left:-100px;
+    left:-120px;
     top:0px;
 }
 .params_exchange_button{
