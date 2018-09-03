@@ -342,7 +342,7 @@ public class ZkDistributed implements Closeable{
 
 	}
 
-	public InterProcessMutex createDistributeLock(String nodePath){
+	private InterProcessMutex createDistributeLock(String nodePath){
 		return new InterProcessMutex(zkClient,nodePath);
 	}
 
@@ -445,7 +445,7 @@ public class ZkDistributed implements Closeable{
 			String nodePath = String.format("%s/%s", this.localNode,this.metaDataNode);
 			return zkClient.getChildren().forPath(nodePath);
 		} catch (Exception e) {
-			logger.error("getBrokersChildren error:{}",
+			logger.error("getBrokerDataChildren error:{}",
 					ExceptionUtil.getErrorMessage(e));
 		}
 		return Lists.newArrayList();
@@ -458,7 +458,7 @@ public class ZkDistributed implements Closeable{
 					.forPath(nodePath), BrokerDataNode.class);
 			return nodeSign;
 		} catch (Exception e) {
-			logger.error("{}:getBrokerNodeData error:{}", this.localNode, ExceptionUtil.getErrorMessage(e));
+			logger.error("{}/{}/{}:getBrokerDataShard error:{}", this.localNode, this.metaDataNode, shard, ExceptionUtil.getErrorMessage(e));
 		}
 		return null;
 	}
@@ -472,9 +472,22 @@ public class ZkDistributed implements Closeable{
 				return true;
 			}
 		} catch (Exception e) {
-			logger.error("{}/{}:getBrokerNodeData error:{}", this.localNode, this.metaDataNode, ExceptionUtil.getErrorMessage(e));
+			logger.error("{}/{}/{}:createBrokerDataShard error:{}", this.localNode, this.metaDataNode, shard, ExceptionUtil.getErrorMessage(e));
 		}
 		return false;
+	}
+
+	public InterProcessMutex createBrokerDataShardLock(String shardLock) {
+			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shardLock);
+		return new InterProcessMutex(zkClient,nodePath);
+	}
+
+	public void deleteBrokerDataShard(String shardPath) {
+		try {
+			zkClient.delete().forPath(shardPath);
+		} catch (Exception e) {
+			logger.error("{}/{}:deleteBrokerDataShard error:{}", this.localNode, this.metaDataNode, ExceptionUtil.getErrorMessage(e));
+		}
 	}
 
 	public BrokerHeartNode getBrokerHeartNode(String node) {
@@ -759,4 +772,5 @@ public class ZkDistributed implements Closeable{
 			logger.error("",e);
 		}
 	}
+
 }
