@@ -285,7 +285,7 @@ class RealTimeConfig extends Component {
                                 <Input
                                     allowClear
                                     placeholder="任务名称"
-                                    style={{ width: 200 }}
+                                    style={{ width: 126 }}
                                     size="default"
                                     onChange={this.changeTaskName} 
                                 />
@@ -294,7 +294,7 @@ class RealTimeConfig extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 200 }}
+                                    style={{ width: 126 }}
                                     placeholder="选择创建人"
                                     optionFilterProp="name"
                                     onChange={this.changeReceive}

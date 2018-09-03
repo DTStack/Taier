@@ -161,7 +161,7 @@ class GoOnTask extends Component {
                         <Select
                             showSearch
                             size="default"
-                            style={{width: '160px'}}
+                            style={{width: '126px'}}
                             placeholder="时间点"
                             optionFilterProp="name"
                             onChange={this.taskReadTimeChange}

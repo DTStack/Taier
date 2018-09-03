@@ -453,7 +453,7 @@ class DirtyData extends Component {
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: 150 }}
+                        style={{ width: 126 }}
                         placeholder="选择任务"
                         optionFilterProp="name"
                         onChange={this.onTableSelectTask}
@@ -464,7 +464,7 @@ class DirtyData extends Component {
                 <FormItem>
                     <Search
                         placeholder="按表名称搜索"
-                        style={{ width: 150 }}
+                        style={{ width: 200 }}
                         size="default"
                         onChange={this.onTableNameChange}
                         onSearch={this.search}

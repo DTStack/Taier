@@ -247,7 +247,7 @@ class OfflinePanel extends Component {
                                     size="default"
                                     placeholder="任务名称"
                                     allowClear
-                                    style={{ width: 120 }}
+                                    style={{ width: 126 }}
                                     onChange={this.changeTaskName} 
                                     onPressEnter={this.search}
                                 />
@@ -258,12 +258,11 @@ class OfflinePanel extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 120 }}
+                                    size='Default'
+                                    style={{ width: 126 }}
                                     placeholder="请选择接收人"
                                     optionFilterProp="name"
                                     onChange={this.changeReceive}
-                                    
-                                    
                                 >
                                     {userItems}
                                 </Select>
