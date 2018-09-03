@@ -65,6 +65,7 @@ public class ZkDistributed implements Closeable{
 	private String heartNode = "heart";
 
 	private String metaDataNode = "data";
+	private String metaDataLock = "dataLock";
 
 	private String queueNode = "queue";
 
@@ -132,6 +133,7 @@ public class ZkDistributed implements Closeable{
 		initNeedLock();
 		createLocalBrokerHeartNode();
 		createLocalBrokerDataNode();
+		createLocalBrokerDataLock();
 		createLocalBrokerQueueNode();
 		initMemTaskStatus();
 		registrationDB();
@@ -142,6 +144,7 @@ public class ZkDistributed implements Closeable{
 
 	private void initScheduledExecutorService() {
         masterListener = new MasterListener();
+		executors.execute(new ZkShardListener());
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
@@ -180,6 +183,13 @@ public class ZkDistributed implements Closeable{
 		if (zkClient.checkExists().forPath(nodePath) == null) {
 			zkClient.create().forPath(nodePath,
 					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
+		}
+	}
+	private void createLocalBrokerDataLock() throws Exception{
+		String nodePath = String.format("%s/%s", this.localNode,metaDataLock);
+		if (zkClient.checkExists().forPath(nodePath) == null) {
+			zkClient.create().forPath(nodePath,
+					objectMapper.writeValueAsBytes(""));
 		}
 	}
 
@@ -478,15 +488,24 @@ public class ZkDistributed implements Closeable{
 	}
 
 	public InterProcessMutex createBrokerDataShardLock(String shardLock) {
-			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shardLock);
+			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataLock,shardLock);
 		return new InterProcessMutex(zkClient,nodePath);
 	}
 
-	public void deleteBrokerDataShard(String shardPath) {
+	public void deleteBrokerDataShard(String shard) {
+		String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shard);
 		try {
-			zkClient.delete().forPath(shardPath);
+			zkClient.delete().forPath(nodePath);
 		} catch (Exception e) {
-			logger.error("{}/{}:deleteBrokerDataShard error:{}", this.localNode, this.metaDataNode, ExceptionUtil.getErrorMessage(e));
+			logger.error("{}:deleteBrokerDataShard error:{}", nodePath, ExceptionUtil.getErrorMessage(e));
+		}
+	}
+	public void deleteBrokerDataShardLock(String shard) {
+		String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataLock,shard);
+		try {
+			zkClient.delete().forPath(nodePath);
+		} catch (Exception e) {
+			logger.error("{}:deleteBrokerDataShard error:{}", nodePath, ExceptionUtil.getErrorMessage(e));
 		}
 	}
 
@@ -772,5 +791,4 @@ public class ZkDistributed implements Closeable{
 			logger.error("",e);
 		}
 	}
-
 }
