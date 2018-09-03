@@ -79,7 +79,7 @@ public class ZkDistributed implements Closeable{
 
 	private static ZkDistributed zkDistributed;
 
-	private Map<String,BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
+	private Map<String, Map<String,BrokerDataNode>> memTaskStatus = Maps.newConcurrentMap();
 
 	private InterProcessMutex masterLock;
 
@@ -92,6 +92,8 @@ public class ZkDistributed implements Closeable{
 	private String masterAddrCache = "";
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
+
+	private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
 
 	private ExecutorService executors  = new ThreadPoolExecutor(8, 8,
 			0L, TimeUnit.MILLISECONDS,
@@ -182,7 +184,7 @@ public class ZkDistributed implements Closeable{
 		String nodePath = String.format("%s/%s", this.localNode,metaDataNode);
 		if (zkClient.checkExists().forPath(nodePath) == null) {
 			zkClient.create().forPath(nodePath,
-					objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
+					objectMapper.writeValueAsBytes(""));
 		}
 	}
 	private void createLocalBrokerDataLock() throws Exception{
@@ -397,17 +399,22 @@ public class ZkDistributed implements Closeable{
 			for(String broker:brokers){
 				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
 				if(brokerHeartNode.getAlive()){
-					memTaskStatus.put(broker, getBrokerDataNode(broker));
-				}else{
+					Map<String,BrokerDataNode> shardMap = memTaskStatus.computeIfAbsent(broker,k->Maps.newHashMap());
+					for (String shard:getBrokerDataChildren(broker)){
+						String shardKey = String.format("%s/%s/%s",broker,metaDataNode,shard);
+						shardMap.put(shardKey,getBrokerDataShard(broker,shard));
+					}
+				} else {
 					memTaskStatus.remove(broker);
 				}
 			}
 		}
 	}
 
-	public void updateLocalMemTaskStatus(BrokerDataNode brokerDataNode){
+	public void updateLocalMemTaskStatus(String zkTaskId,BrokerDataNode brokerDataNode){
+		String shard = shardsCsist.get(zkTaskId);
 		synchronized(memTaskStatus){
-			memTaskStatus.get(this.getLocalAddress()).getMetas().putAll(brokerDataNode.getMetas());
+			memTaskStatus.get(this.getLocalAddress()).get(shard).getMetas().putAll(brokerDataNode.getMetas());
 		}
 	}
 
@@ -450,9 +457,9 @@ public class ZkDistributed implements Closeable{
 		return null;
 	}
 
-	public List<String> getBrokerDataChildren() {
+	public List<String> getBrokerDataChildren(String node) {
 		try {
-			String nodePath = String.format("%s/%s", this.localNode,this.metaDataNode);
+			String nodePath = String.format("%s/%s/%s", this.brokersNode, node,this.metaDataNode);
 			return zkClient.getChildren().forPath(nodePath);
 		} catch (Exception e) {
 			logger.error("getBrokerDataChildren error:{}",
@@ -461,9 +468,9 @@ public class ZkDistributed implements Closeable{
 		return Lists.newArrayList();
 	}
 
-	public BrokerDataNode getBrokerDataShard(String shard) {
+	public BrokerDataNode getBrokerDataShard(String node,String shard) {
 		try {
-			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shard);
+			String nodePath = String.format("%s/%s/%s/%s", this.brokersNode, node,this.metaDataNode,shard);
 			BrokerDataNode nodeSign = objectMapper.readValue(zkClient.getData()
 					.forPath(nodePath), BrokerDataNode.class);
 			return nodeSign;
@@ -554,13 +561,16 @@ public class ZkDistributed implements Closeable{
 		String node = null;
 
 		if(memTaskStatus.size() > 0){
-			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
-			for(Map.Entry<String, BrokerDataNode> entry : entrys){
+			Set<Map.Entry<String, Map<String,BrokerDataNode>>> entrys = memTaskStatus.entrySet();
+			for(Map.Entry<String, Map<String,BrokerDataNode>> entry : entrys){
 				String targetNode = entry.getKey();
 				if(excludeNodes.contains(targetNode)){
 					continue;
 				}
-				int size = getDistributeJobCount(entry.getValue());
+				int size =0;
+				for (Map.Entry<String,BrokerDataNode> shardEntry:entry.getValue().entrySet()){
+					size += getDistributeJobCount(shardEntry.getValue());
+				}
 				if(size < def){
 					def = size;
 					node = targetNode;
@@ -583,15 +593,13 @@ public class ZkDistributed implements Closeable{
 	}
 
 	public boolean checkIsAlreadyInThisNode(String taskId){
-
-		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
-			for(String tmpId : entry.getValue().getMetas().keySet()){
-				if(tmpId.equals(taskId)){
-					return true;
-				}
+		String shard = shardsCsist.get(taskId);
+		for(Map.Entry<String, Map<String,BrokerDataNode>> entry : memTaskStatus.entrySet()){
+			Map<String,BrokerDataNode> shardMap = entry.getValue();
+			if (shardMap.containsKey(shard)){
+				return shardMap.get(shard).getMetas().containsKey(taskId);
 			}
 		}
-
 		return false;
 	}
 
@@ -631,18 +639,20 @@ public class ZkDistributed implements Closeable{
 		return localAddress;
 	}
 
-	public Map<String, BrokerDataNode> getMemTaskStatus(){
+	public Map<String, Map<String,BrokerDataNode>> getMemTaskStatus(){
 		return memTaskStatus;
 	}
 
 	public String getJobLocationAddr(String zkTaskId){
-
-        for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
+		String shard = shardsCsist.get(zkTaskId);
+		for(Map.Entry<String, Map<String,BrokerDataNode>> entry : memTaskStatus.entrySet()){
             String addr = entry.getKey();
-            BrokerDataNode dataNode = entry.getValue();
-            if(dataNode.getMetas().containsKey(zkTaskId)){
-                return addr;
-            }
+			Map<String,BrokerDataNode> shardMap = entry.getValue();
+			if (shardMap.containsKey(shard)){
+				if (shardMap.get(shard).getMetas().containsKey(zkTaskId)){
+					return addr;
+				}
+			}
         }
 
         return null;
@@ -773,7 +783,7 @@ public class ZkDistributed implements Closeable{
 		BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
 		brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
 		zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
-		zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+		zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataNode);
 
 	}
 

@@ -63,7 +63,7 @@ public class TaskStatusListener implements Runnable{
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
-	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
+	private Map<String,Map<String,BrokerDataNode>> brokerDatas = zkDistributed.getMemTaskStatus();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
@@ -126,29 +126,28 @@ public class TaskStatusListener implements Runnable{
     }
 	
 	private void updateTaskStatus(){
-		Set<Map.Entry<String,Byte>> entrys = brokerDatas.get(zkDistributed.getLocalAddress()).getMetas().entrySet();
+        for (Map.Entry<String,BrokerDataNode> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).entrySet()) {
+            for (Map.Entry<String, Byte> entry : shardEntry.getValue().getMetas().entrySet()) {
+                try {
+                    Integer oldStatus = Integer.valueOf(entry.getValue());
 
-      	for(Map.Entry<String,Byte> entry : entrys){
+                    if (!RdosTaskStatus.needClean(entry.getValue())) {
+                        String zkTaskId = entry.getKey();
+                        int computeType = TaskIdUtil.getComputeType(zkTaskId);
+                        String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
+                        String taskId = TaskIdUtil.getTaskId(zkTaskId);
 
-            try{
-                Integer oldStatus = Integer.valueOf(entry.getValue());
-
-                if(!RdosTaskStatus.needClean(entry.getValue())){
-                    String zkTaskId = entry.getKey();
-                    int computeType = TaskIdUtil.getComputeType(zkTaskId);
-                    String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
-                    String taskId  = TaskIdUtil.getTaskId(zkTaskId);
-
-                    if(computeType == ComputeType.STREAM.getType()){
-                        dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
-                    }else if(computeType == ComputeType.BATCH.getType()){
-                        dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                        if (computeType == ComputeType.STREAM.getType()) {
+                            dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                        } else if (computeType == ComputeType.BATCH.getType()) {
+                            dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                        }
                     }
+                } catch (Throwable e) {
+                    logger.error("", e);
                 }
-            }catch (Throwable e){
-                logger.error("", e);
             }
-      	}
+        }
 	}
 
 	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
@@ -396,7 +395,7 @@ public class TaskStatusListener implements Runnable{
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
         brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
         zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
-        zkDistributed.updateLocalMemTaskStatus(brokerDataNode);
+        zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataNode);
 
     }
 

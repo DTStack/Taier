@@ -2,10 +2,9 @@ package com.dtstack.rdos.engine.service.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
-import com.dtstack.rdos.engine.service.zk.ConsistentHash;
+import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.slf4j.Logger;
@@ -33,20 +32,18 @@ public class ZkShardListener implements Runnable {
     private static final float DATA_LENGTH = 200;
     private static final long CHECK_INTERVAL = 5;
     private static final long SHARD_IDLE_TIMES = 10;
-    private static final int NUMBER_OF_REPLICAS = 5;
 
     private static final String SHARD_NODE = "shard";
     private static final String SHARD_LOCK = "_lock";
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private final AtomicInteger shardSequence = new AtomicInteger(1);
-    //一致性hash
-    private ConsistentHash<String> shardsCsist = null;
+    private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
+
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newHashMap();
 
     public ZkShardListener() {
-        shardsCsist = new ConsistentHash<>(NUMBER_OF_REPLICAS, Lists.newArrayList());
         createShardNode(1);
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
@@ -59,11 +56,11 @@ public class ZkShardListener implements Runnable {
     @Override
     public void run() {
         try {
-            List<String> dataShards = zkDistributed.getBrokerDataChildren();
+            List<String> dataShards = zkDistributed.getBrokerDataChildren(zkDistributed.getLocalAddress());
             Map<String, Integer> brokerDataNodeMap = new HashMap<>(dataShards.size());
             int totalSize = 0;
             for (String dShard : dataShards) {
-                BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(dShard);
+                BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
                 int size = brokerDataNode.getMetas().size();
                 totalSize += size;
                 brokerDataNodeMap.put(dShard, size);
@@ -88,7 +85,7 @@ public class ZkShardListener implements Runnable {
             if (idleCount >= SHARD_IDLE_TIMES) {
                 try {
                     if (mutexs.get(dShard).acquire(30, TimeUnit.SECONDS)) {
-                        BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(dShard);
+                        BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
                         if (brokerDataNode != null && brokerDataNode.getMetas().size() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
