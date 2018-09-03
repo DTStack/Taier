@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 
 import utils from 'utils'
+import { debounce, cloneDeep } from 'lodash';
  
 import Api from '../../../api'
 import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
@@ -21,7 +23,7 @@ import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
 
-export default class TaskBrowser extends Component {
+class TaskBrowser extends Component {
 
     state = {
         selected: '',
@@ -252,13 +254,28 @@ export default class TaskBrowser extends Component {
         }
     }
 
-    editorParamsChange(b){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+    editorParamsChange(value){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
         if(!this._syncEditor){
-            this.props.editorChange(b);
+            this.debounceChange(value);
         }else{
             this._syncEditor=false;
-            this.props.editorParamsChange(...arguments);
+            this.editorParamsChange(value);
         }
+    }
+
+    editorChange = (newVal) => {
+        let { currentPage, dispatch } = this.props;
+        currentPage = cloneDeep(currentPage);
+        currentPage.taskParams = newVal
+        currentPage.notSynced = true; // 添加未保存标记
+        dispatch(BrowserAction.setCurrentPage(currentPage));
+    }
+
+    debounceChange = debounce(this.editorChange, 300, { 'maxWait': 2000 })
+    editorParamsChange = (newVal) => {
+        const { currentPage, dispatch } = this.props
+        currentPage.taskParams = newVal
+        dispatch(BrowserAction.setCurrentPage(currentPage))
     }
 
     tableParamsChange = ()=>{
@@ -339,3 +356,12 @@ export default class TaskBrowser extends Component {
         )
     }
 }
+
+export default connect((state) => {
+    const { resources, pages, currentPage } = state.realtimeTask;
+    return {
+        currentPage,
+        pages,
+        resources,
+    }
+})(TaskBrowser) 

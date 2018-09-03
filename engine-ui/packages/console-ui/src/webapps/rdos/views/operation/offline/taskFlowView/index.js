@@ -196,6 +196,7 @@ class TaskFlowView extends Component {
         this.graph = graph;
         this.initContextMenu(graph);
         this.initGraphEvent();
+        this.initGraphLayout();
     }
 
     formatTooltip = (cell) => {
@@ -218,6 +219,8 @@ class TaskFlowView extends Component {
     preHandGraphTree = (data, nodeType) => {
 
         const relationTree = [];
+        
+
 
         const loop = (treeNodeData, parent) => {
 
@@ -227,7 +230,8 @@ class TaskFlowView extends Component {
                 if (treeNodeData.batchTask.taskType === TASK_TYPE.WORKFLOW) {
                     const workflowData = treeNodeData.subNodes;
                     if (workflowData) {
-                        loop(workflowData, treeNodeData)
+                        loop(workflowData, treeNodeData);
+                        this._rootCells.push(treeNodeData.id);
                     }
                 }
 
@@ -334,11 +338,6 @@ class TaskFlowView extends Component {
                 if (edges.length === 0) {
                     graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
                 }
-
-                const isWorkflowNode = parentCell.data && parentCell.data.batchTask.flowId && parentCell.data.batchTask.flowId !== 0;
-                if (isWorkflowNode) {
-                    this.executeLayout(parentCell);
-                }
             }
         }
     }
@@ -348,35 +347,24 @@ class TaskFlowView extends Component {
 
         const graph = this.graph;
         const parent = graph.getDefaultParent();
-        const model = graph.getModel();
-        this.cx = (graph.container.clientWidth - VertexSize.width) / 2;
-        this.cy = 200;
-
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = false;
-        layout.useBoundingBox = false;
-        layout.edgeRouting = false;
-        layout.levelDistance = 30;
-        layout.nodeDistance = 10;
-        layout.resizeParent = true;
-
-        this.executeLayout = function (layoutNode, change, post) {
-            model.beginUpdate();
-            try {
-                if (change != null) { change(); }
-                layout.execute(layoutNode);
-            } catch (e) {
-                throw e;
-            } finally {
-                graph.getModel().endUpdate();
-                if (post != null) { post(); }
-            }
-        }
+        this._rootCells = [];
+        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
+        const cy = 200;
 
         const arrayData = this.preHandGraphTree(data, nodeType);
         this.renderGraph(arrayData);
         this.executeLayout(parent);
-        graph.center();
+        const rootCells = this._rootCells;
+        if (rootCells.length > 0) {
+            for (let i = 0; i < rootCells.length; i++){
+                const id = rootCells[i];
+                const layoutTarget = this._vertexCells[id];
+                if (layoutTarget) {
+                    this.executeLayout(layoutTarget);
+                }
+            }
+        }
+        graph.view.setTranslate(cx, cy)
     }
 
     initContextMenu = (graph) => {
@@ -490,6 +478,33 @@ class TaskFlowView extends Component {
             }
             this.refresh()
         })
+    }
+
+    initGraphLayout = () => {
+
+        const graph = this.graph;
+        const model = graph.getModel();
+
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 30;
+        layout.nodeDistance = 10;
+        layout.resizeParent = true;
+
+        this.executeLayout = function (layoutNode, change, post) {
+            model.beginUpdate();
+            try {
+                if (change != null) { change(); }
+                layout.execute(layoutNode);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
     }
 
     initGraphEvent = () => {

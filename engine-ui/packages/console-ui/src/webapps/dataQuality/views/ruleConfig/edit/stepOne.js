@@ -425,7 +425,7 @@ export default class StepOne extends Component {
     render() {
         const { form, editParams, dataSource, havePart } = this.props;
         const { getFieldDecorator } = form;
-        const { dataSourceId, tableName } = editParams;
+        const { dataSourceId, tableName, isSubscribe } = editParams;
         const { sourceList, sourceTable, tableLoading } = dataSource;
         const { showPreview, sourcePreview, loading } = this.state;
 
@@ -479,7 +479,7 @@ export default class StepOne extends Component {
                             {
                                 tableName
                                 &&
-                                <Checkbox checked={true} onChange={this.onSubscribeChange}>订阅</Checkbox>
+                                <Checkbox checked={isSubscribe == 1} onChange={this.onSubscribeChange}>订阅</Checkbox>
                             }
                         </FormItem>
 

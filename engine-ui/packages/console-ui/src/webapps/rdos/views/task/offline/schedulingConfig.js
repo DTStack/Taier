@@ -44,6 +44,7 @@ const formItemLayout = { // 表单正常布局
 
 
 class ScheduleForm extends React.Component {
+
     constructor(props) {
         super(props);
         this.changeScheduleStatus = this.props.handleScheduleStatus;
@@ -53,23 +54,37 @@ class ScheduleForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf, isWorkflowNode } = this.props;
+        const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
         const { periodType } = scheduleConf;
 
+        // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
+        const disabledInvokeTime = wFScheduleConf && (
+            wFScheduleConf.periodType === "0" ||
+            wFScheduleConf.periodType === "1" );
 
         const generateHours = () => {
             let options = [];
             for(let i = 0; i <= 23; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`:i}</Option>)
             }
-            return <Select onChange={ this.changeScheduleConf.bind(this) }>{ options }</Select>;
+            return <Select 
+                    disabled={disabledInvokeTime}
+                    onChange={ this.changeScheduleConf.bind(this) }
+                >
+                    { options }
+                </Select>;
         };
         const generateMins = () => {
             let options = [];
             for(let i = 0, l = 59; i <= l; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>)
             }
-            return <Select onChange={ this.changeScheduleConf.bind(this) }>{ options }</Select>;
+            return <Select 
+                    disabled={disabledInvokeTime}
+                    onChange={ this.changeScheduleConf.bind(this) }
+                >
+                    { options }
+                </Select>;
         };
         const generateDate = () => {
             let options = [];
@@ -158,7 +173,7 @@ class ScheduleForm extends React.Component {
                     </FormItem>
                 </div>
             }
-           
+
             <FormItem style={{display: 'none'}}>
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
@@ -169,7 +184,7 @@ class ScheduleForm extends React.Component {
             {(function(type, ctx) {
                 let dom;
                 switch(type) {
-                    case 0: //分钟
+                    case 0:  { // 分钟
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -264,9 +279,10 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 1: //小时
+                    case 1: { //小时
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -361,44 +377,47 @@ class ScheduleForm extends React.Component {
                             <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 2: // 天
-                        dom = <span  key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="具体时间"
-                            >
-                            <Col span="6">
-                            {getFieldDecorator('hour', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: `${scheduleConf.hour}`
-                            })(
-                                generateHours()
-                            )}
-                            </Col>
+                    case 2: { // 天
+                        const prefix = isWorkflowNode ? '起调' : '具体';
+                        dom = <span key={type}>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={`${prefix}时间`}
+                                >
+                                <Col span="6">
+                                {getFieldDecorator('hour', {
+                                    rules: [{
+                                        required: true
+                                    }],
+                                    initialValue: `${scheduleConf.hour}`
+                                })(
+                                    generateHours()
+                                )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                            {getFieldDecorator('min', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: `${scheduleConf.min}`
+                                {getFieldDecorator('min', {
+                                    rules: [{
+                                        required: true
+                                    }],
+                                    initialValue: `${scheduleConf.min}`
 
-                            })(
-                                    generateMins()
-                            )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
+                                })(
+                                        generateMins()
+                                )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
                     break;
 
-                    case 3: // 周
+                    case 3: { // 周
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -446,9 +465,10 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 4: // 月
+                    case 4: { // 月
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -498,6 +518,7 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
                     default: dom = <span>something wrong</span>;
@@ -553,23 +574,19 @@ class ScheduleForm extends React.Component {
 const FormWrap = Form.create()(ScheduleForm);
 
 class SchedulingConfig extends React.Component {
+
     constructor(props) {
         super(props);
-        this.state={
-            recommentTaskModalVisible:false,
-            recommentTaskList:[]
-        }
-        const { tabData } = this.props;
-        let initConf = tabData.scheduleConf;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
-                beginDate: '2001-01-01',
-                endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
 
-        // this._selfReliance = typeof scheduleConf.selfReliance === 'undefined' ?
-        //     false : scheduleConf.selfReliance;
+        this.state = {
+            recommentTaskModalVisible: false,
+            recommentTaskList: [],
+            wFScheduleConf: undefined,
+        }
+
+        const { tabData, isWorkflowNode } = this.props;
+        const scheduleConf = tabData.scheduleConf;
+
         // scheduleConf.selfReliance兼容老代码true or false 值
         if (scheduleConf.selfReliance !== 'undefined') {
             if (scheduleConf.selfReliance === false) {
@@ -583,8 +600,39 @@ class SchedulingConfig extends React.Component {
             this._selfReliance = 0;
         }
     }
-    showRecommentTask(){
-        const {tabData} = this.props;
+
+    componentDidMount() {
+        this.loadWorkflowConfig();
+    }
+
+    loadWorkflowConfig = () => {
+
+        const { tabData, isWorkflowNode, tabs } = this.props;
+        if (!isWorkflowNode) return;
+        const workflowId = tabData.flowId;
+        const workflow = tabs && tabs.find(item => item.id === workflowId);
+
+        const setWfConf = (task) => {
+            const wFScheduleConf = JSON.parse(task.scheduleConf);
+            this.setState({
+                wFScheduleConf,
+            })
+        }
+        if (workflow) {
+            setWfConf(workflow);
+        } else {
+            ajax.getOfflineTaskDetail({
+                id: workflowId
+            }).then(res => {
+                if (res.code === 1) {
+                    setWfConf(res.data);
+                }
+            });
+        }
+    }
+
+    showRecommentTask() {
+        const { tabData } = this.props;
         this.setState({
             loading:true
         })
@@ -605,6 +653,7 @@ class SchedulingConfig extends React.Component {
             }
         )
     }
+
     recommentTaskChoose(list){
         console.log(list);
         for(let i =0;i<list.length;i++){
@@ -614,12 +663,13 @@ class SchedulingConfig extends React.Component {
             recommentTaskModalVisible:false,
         })
     }
+
     recommentTaskClose(){
         this.setState({
             recommentTaskModalVisible:false,
         })
     }
-    
+
     handleScheduleStatus(evt) {
         const { checked } = evt.target;
         // mutate
@@ -730,17 +780,25 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
-        const { recommentTaskModalVisible, recommentTaskList, loading } = this.state;
         const { tabData, isWorkflowNode, isPro } = this.props;
+        const { recommentTaskModalVisible, recommentTaskList, loading, wFScheduleConf } = this.state;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
-        let initConf = tabData.scheduleConf;
         const isSql = tabData.taskType == TASK_TYPE.SQL;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
+        
+        let initConf = tabData.scheduleConf;
+        let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
+            beginDate: '2001-01-01',
+            endDate: '2021-01-01'
+        });
+        // 工作流更改默认调度时间配置
+        if (isWorkflowNode) {
+            scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
+            })
+        } else if (initConf !== '') {
+            scheduleConf = JSON.parse(initConf);
+        }
 
         const columns = [
             {
@@ -782,6 +840,7 @@ class SchedulingConfig extends React.Component {
                 <Panel key="1" header="调度属性">
                     <FormWrap
                         scheduleConf={ scheduleConf }
+                        wFScheduleConf={ wFScheduleConf }
                         status={ tabData.scheduleStatus }
                         isWorkflowNode={isWorkflowNode}
                         handleScheduleStatus={ this.handleScheduleStatus.bind(this) }
@@ -859,6 +918,7 @@ class SchedulingConfig extends React.Component {
         </div>
     }
 }
+
 
 class TaskSelector extends React.Component {
     constructor(props) {

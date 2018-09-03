@@ -623,7 +623,7 @@ export default class TableRelation extends React.Component {
                     size="large"
                     spinning={loading === 'loading'}
                 >
-                    <div className="absolute-middle graph-bg">血缘关系</div>
+                    <div className="absolute-middle txt-bg">血缘关系</div>
                     <div className="editor pointer" style={{ height: '600px' }} ref={(e) => { this.Container = e }} />
                 </Spin>
                 <div className="graph-toolbar">

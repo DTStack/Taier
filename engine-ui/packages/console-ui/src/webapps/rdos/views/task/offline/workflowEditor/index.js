@@ -461,18 +461,22 @@ class WorkflowEditor extends Component {
             const currentNode = cell.data || {};
 
             if (cell.vertex) {
-                menu.addItem('保存', null, function() {
+                menu.addItem('保存节点', null, function() {
                     ctx.saveTask(cell);
                 }, null, null, true) // 正常状态
     
-                menu.addItem('编辑', null, function() {
+                menu.addItem('查看节点内容', null, function() {
                     openTaskInDev(currentNode.id);
+                }, null, null, true) // 正常状态
+                menu.addItem('删除节点', null, function() {
+                    ctx.deleteTask(cell);
+                }, null, null, true) // 正常状态
+            } else {
+                menu.addItem('删除依赖关系', null, function() {
+                    ctx.deleteTask(cell);
                 }, null, null, true) // 正常状态
             }
 
-            menu.addItem('删除', null, function() {
-                ctx.deleteTask(cell);
-            }, null, null, true) // 正常状态
 
         }
     }
@@ -876,7 +880,7 @@ class WorkflowEditor extends Component {
     }
 
     layout = () => {
-        this.executeLayout(null, () => {
+        this.executeLayout(null, null, () => {
             this.graph.center(true, true, 0.5, 0.4);
             this.updateGraphData();
         });

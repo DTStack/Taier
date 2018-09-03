@@ -82,6 +82,7 @@ export default {
     GET_OFFLINE_DATASOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/list`,
     GET_OFFLINE_TABLELIST: `${RDOS_BASE_URL}/batch/batchDataSource/tablelist`,
     GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batch/batchDataSource/tablecolumn`,
+    GET_OFFLINE_COLUMNFORSYNCOPATE:  `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
     GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
     SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,

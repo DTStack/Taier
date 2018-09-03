@@ -44,6 +44,10 @@ export default class TaskDetailPane extends Component {
                 }
             });
         }
+        
+        if (this.props.currentTab !== nextProps.currentTab) {
+            this.resize();
+        }
     }
 
     isSnapshotChange(e) {

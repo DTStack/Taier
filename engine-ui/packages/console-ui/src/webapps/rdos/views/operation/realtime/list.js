@@ -266,7 +266,7 @@ class RealTimeTaskList extends Component {
 
                 return (
                     <div key={record.id}>
-                        <a onClick={() => { this.logInfo(record) }}>修改</a>
+                        <a onClick={() => { this.logInfo(record) }}>日志</a>
                         {goOn ? <span className="ant-divider" /> : ''}
                         <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
                         {normal ? <span className="ant-divider" /> : ''}
