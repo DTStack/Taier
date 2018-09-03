@@ -264,7 +264,7 @@ class SearchTable extends Component {
                 <FormItem label="授权状态">
                     <Select
                         allowClear
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择指标类型"
                         value={queryParams.permissionStatus}
                         onChange={(value) => this.changeParams('permissionStatus', value)}
@@ -280,7 +280,7 @@ class SearchTable extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}

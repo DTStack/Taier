@@ -35,12 +35,12 @@ class LogSearchForm extends React.Component {
                     {getFieldDecorator('range', {
                         initialValue: [moment().subtract(7, 'days'), moment()]
                     })(
-                        <RangePicker size="default" style={{ width: 180 }} format="YYYY-MM-DD" />
+                        <RangePicker size="default" style={{ width: 200 }} format="YYYY-MM-DD" />
                     )}
                 </FormItem>
                 <FormItem label="操作人">
                     {getFieldDecorator('actionUserId')(
-                        <Select allowClear placeholder="请选择操作人" style={{ width: 120 }}>
+                        <Select allowClear placeholder="请选择操作人" style={{ width: 126 }}>
                             {projectUsers.map(o => <Option value={`${o.userId}`}
                                 key={o.userId}
                             >
@@ -51,7 +51,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{ width: 110 }}></Input>
+                        <Input placeholder="变更语句" size="default" style={{ width: 126 }}></Input>
                     )}
                 </FormItem>
                 <FormItem>
