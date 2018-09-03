@@ -160,7 +160,6 @@ class ChannelForm extends React.Component{
                     条, 任务自动结束 
                     <HelpDoc 
                         doc="errorCount" 
-                        style={{position: 'initial', marginLeft: '6px'}}
                     />
                 </span>
                 </FormItem>
@@ -184,7 +183,6 @@ class ChannelForm extends React.Component{
                     </span>
                     <HelpDoc 
                         doc="errorPercentConfig" 
-                        style={{ position: 'initial', marginLeft: '6px' }}
                     />
                 </FormItem>
             </Form>

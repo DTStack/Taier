@@ -120,9 +120,35 @@ export default class TaskLog extends Component {
         }
     }
 
-    initLineChart(chartData) {
+    handNullData = (data) => {
+        const xAxis = [moment(new Date).format('YYYY-MM-DD HH:mm:ss')];
+        const legend = ['无数据'];
+        const noData = [0]
+        return {
+            legend,
+            xAxis,
+            series: [
+                {
+                    name: '无数据',
+                    type:'line',
+                    yAxisIndex: 0,
+                    markLine: {
+                        precision: 1,
+                    },
+                    data: noData,
+                }
+            ]
+        }
+    }
 
-        const data = this.handData(chartData);
+    initLineChart(chartData) {
+        let data;
+        if(chartData.length>0){
+          data = this.handData(chartData);
+
+        }else{
+            data = this.handNullData();
+        }
 
         let myChart = echarts.init(document.getElementById('RunTimeTrend'));
         const option = cloneDeep(lineAreaChartOptions);
