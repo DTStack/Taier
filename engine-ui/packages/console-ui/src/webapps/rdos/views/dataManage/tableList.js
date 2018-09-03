@@ -260,7 +260,7 @@ class TableList extends Component {
         const title = (
             <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="类目">
-                    <span style={{ width: 200, display: 'inline-block' }}>
+                    <span style={{ width: 150, display: 'inline-block' }}>
                         <CatalogueTree
                             id="filter-catalogue"
                             isPicker
@@ -277,7 +277,7 @@ class TableList extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
@@ -331,7 +331,7 @@ class TableList extends Component {
                 <Tabs
                     activeKey={queryParams.listType}
                     animated={false}
-                    style={{ height: 'auto' }}
+                    style={{ height: 'auto' ,overflow:'visible'}}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">
