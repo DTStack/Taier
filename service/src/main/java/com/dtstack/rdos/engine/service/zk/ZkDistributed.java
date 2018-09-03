@@ -342,7 +342,7 @@ public class ZkDistributed implements Closeable{
 
 	}
 
-	private InterProcessMutex createDistributeLock(String nodePath){
+	public InterProcessMutex createDistributeLock(String nodePath){
 		return new InterProcessMutex(zkClient,nodePath);
 	}
 
@@ -438,6 +438,43 @@ public class ZkDistributed implements Closeable{
 					ExceptionUtil.getErrorMessage(e));
 		}
 		return null;
+	}
+
+	public List<String> getBrokerDataChildren() {
+		try {
+			String nodePath = String.format("%s/%s", this.localNode,this.metaDataNode);
+			return zkClient.getChildren().forPath(nodePath);
+		} catch (Exception e) {
+			logger.error("getBrokersChildren error:{}",
+					ExceptionUtil.getErrorMessage(e));
+		}
+		return Lists.newArrayList();
+	}
+
+	public BrokerDataNode getBrokerDataShard(String shard) {
+		try {
+			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shard);
+			BrokerDataNode nodeSign = objectMapper.readValue(zkClient.getData()
+					.forPath(nodePath), BrokerDataNode.class);
+			return nodeSign;
+		} catch (Exception e) {
+			logger.error("{}:getBrokerNodeData error:{}", this.localNode, ExceptionUtil.getErrorMessage(e));
+		}
+		return null;
+	}
+
+	public boolean createBrokerDataShard(String shard) {
+		try {
+			String nodePath = String.format("%s/%s/%s", this.localNode,this.metaDataNode,shard);
+			if (zkClient.checkExists().forPath(nodePath) == null) {
+				zkClient.create().forPath(nodePath,
+						objectMapper.writeValueAsBytes(BrokerDataNode.initBrokerDataNode()));
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error("{}/{}:getBrokerNodeData error:{}", this.localNode, this.metaDataNode, ExceptionUtil.getErrorMessage(e));
+		}
+		return false;
 	}
 
 	public BrokerHeartNode getBrokerHeartNode(String node) {
