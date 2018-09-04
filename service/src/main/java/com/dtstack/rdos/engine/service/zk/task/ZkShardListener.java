@@ -7,9 +7,12 @@ import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * author: toutian
  * create: 2018/9/1
  */
-public class ZkShardListener implements Runnable {
+public class ZkShardListener implements Runnable,Closeable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardListener.class);
 
-    private static final float DATA_LENGTH = 200;
+    private static final float DATA_LENGTH = 2;
     private static final long CHECK_INTERVAL = 5;
     private static final long SHARD_IDLE_TIMES = 10;
 
@@ -51,6 +54,14 @@ public class ZkShardListener implements Runnable {
                 0,
                 CHECK_INTERVAL,
                 TimeUnit.SECONDS);
+    }
+
+    public InterProcessMutex getShardLockByZkTaskId(String zkTaskId){
+        String shard = shardsCsist.get(zkTaskId);
+        return mutexs.get(shard);
+    }
+    public InterProcessMutex getShardLock(String shard){
+        return mutexs.get(shard);
     }
 
     @Override
@@ -120,6 +131,29 @@ public class ZkShardListener implements Runnable {
             InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
             mutexs.put(shardName, mutex);
             shardsCsist.add(shardName);
+        }
+    }
+
+    public void lockRelease() {
+        try {
+            close();
+        } catch (IOException e){
+            logger.error("{}",e);
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (MapUtils.isNotEmpty(mutexs)){
+            for (Map.Entry<String, InterProcessMutex> entry:mutexs.entrySet()){
+                try{
+                    if(entry.getValue().isAcquiredInThisProcess()){
+                        entry.getValue().release();
+                    }
+                }catch (Exception e){
+                    logger.error("",e);
+                }
+            }
         }
     }
 }

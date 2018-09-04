@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
@@ -67,6 +68,8 @@ public class MasterNode {
 
     private static MasterNode masterNode = new MasterNode();
 
+    private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
+
     private boolean currIsMaster = false;
 
     public static MasterNode getInstance(){
@@ -120,11 +123,12 @@ public class MasterNode {
      * 转变为master之后
      */
     public void loadQueueFromDB(){
+        //todo 重启后 多节点数据分发，要启动延时，或分配数据分配
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         if(CollectionUtils.isEmpty(jobCaches)){
             return;
         }
-        Map<String,List<String>> zkTaskIdAdds = Maps.newConcurrentMap();
+        Map<String,Map<String,List<String>>> zkTaskIdAdds = Maps.newConcurrentMap();
         List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
         jobCaches.forEach(jobCache ->{
             try{
@@ -132,7 +136,9 @@ public class MasterNode {
                 JobClient jobClient = new JobClient(paramAction);
                 String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
                 String addr = zkDistributed.getJobLocationAddr(zkTaskId);
-                List<String> zkTaskIds = zkTaskIdAdds.computeIfAbsent(addr,k->new ArrayList<>());
+                Map<String,List<String>> shardMap= zkTaskIdAdds.computeIfAbsent(addr,k->Maps.newHashMap());
+                String shard = shardsCsist.get(zkTaskId);
+                List<String> zkTaskIds = shardMap.computeIfAbsent(shard,k->new ArrayList<>());
                 zkTaskIds.add(zkTaskId);
                 jobClients.add(jobClient);
             }catch (Exception e){
@@ -141,8 +147,10 @@ public class MasterNode {
                 dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
             }
         });
-        for (Map.Entry<String,List<String>> entry : zkTaskIdAdds.entrySet()){
-            zkDistributed.updateSynchronizedBrokerDataCleanRecoverTask(entry.getKey(),entry.getValue());
+        for (Map.Entry<String,Map<String,List<String>>> entry : zkTaskIdAdds.entrySet()){
+            for (Map.Entry<String,List<String>> shardEntry : entry.getValue().entrySet()){
+                zkDistributed.updateSynchronizedBrokerDataCleanRecoverTask(entry.getKey(),shardEntry.getKey(),shardEntry.getValue());
+            }
         }
         for (JobClient jobClient:jobClients){
             WorkNode.getInstance().addStartJob(jobClient);

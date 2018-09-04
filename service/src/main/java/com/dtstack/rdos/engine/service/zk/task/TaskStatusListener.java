@@ -394,7 +394,7 @@ public class TaskStatusListener implements Runnable{
     public void updateJobZookStatus(String zkTaskId, Integer status){
         BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
         brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
-        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), brokerDataNode, false);
+        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), zkTaskId, brokerDataNode, false);
         zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataNode);
 
     }

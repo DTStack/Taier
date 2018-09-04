@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
+
 /**
  * Created by sishu.yss on 2017/3/14.
  */
@@ -33,10 +35,21 @@ public class DataMigrationListener implements Runnable{
                 if(masterListener.isMaster()){
                     List<String> brokers =  zkDistributed.getBrokersChildren();
                     for(String node:brokers){
-                        BrokerDataNode brokerDataNode =  zkDistributed.getBrokerDataNode(node);
                         BrokerHeartNode brokerHeartNode = zkDistributed.getBrokerHeartNode(node);
-                        if(brokerHeartNode!=null&&!brokerHeartNode.getAlive()&&brokerDataNode!=null&&brokerDataNode.getMetas()!=null&&brokerDataNode.getMetas().size()>0){
-                            zkDistributed.dataMigration(node);
+                        if(brokerHeartNode!=null&&!brokerHeartNode.getAlive()) {
+                            Map<String,BrokerDataNode> brokerDataNodeMap =  zkDistributed.getBrokerDataNode(node);
+                            boolean data = false;
+                            if (brokerDataNodeMap!=null){
+                                for (Map.Entry<String,BrokerDataNode> entry:brokerDataNodeMap.entrySet()){
+                                    if (entry.getValue().getMetas().size()>0){
+                                        data = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (data) {
+                                zkDistributed.dataMigration(node);
+                            }
                         }
                     }
                 }
