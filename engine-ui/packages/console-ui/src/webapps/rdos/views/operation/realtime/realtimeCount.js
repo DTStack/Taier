@@ -74,13 +74,13 @@ class RealtimeCount extends Component {
         const { data } = this.state
         return (
             <div>
-                <h1 className="box-title box-title-bolder">
+                <h1 className="box-title box-title-bolder" style={{padding:"0 20 0 10"}}>
                     实时任务
                     <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
                         <Link to="/operation/realtime">实时任务运维</Link>
                     </Button>
                 </h1>
-                <div className="box-4 m-card m-card-small">
+                <div className="box-4 m-card m-card-small" style={{margin:"0 20 0 10"}}>
                     <Card
                         noHovering
                         bordered={false}

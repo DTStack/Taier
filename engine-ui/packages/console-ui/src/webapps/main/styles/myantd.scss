@@ -239,10 +239,17 @@
     }
 }
 
+.full-screen-table-47{
+    height: 'auto';
+    min-height: calc(100% - 47px);
+}
+
 .full-screen-table-90{
-    height: calc(100% - 90px);
+    height: 'auto';
+    min-height: calc(100% - 90px);
 }
 
 .full-screen-table-120{
-    height: calc(100% - 120px);
+    height: 'auto';
+    min-height: calc(100% - 120px);
 }

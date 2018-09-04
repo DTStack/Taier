@@ -10,7 +10,7 @@ export default class AlarmList extends Component {
     render() {
         return (
             <div className="box-1 m-tabs">
-                <Tabs animated={false} style={{height: 'auto'}}>
+                <Tabs animated={false} style={{height: "calc(100% - 40px)"}}>
                     <TabPane tab="离线任务" key="1">
                         <OfflinePane />
                     </TabPane>

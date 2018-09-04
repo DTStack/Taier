@@ -226,7 +226,7 @@ export default class TableViewer extends React.Component {
         }];
 
         return <div className="g-tableviewer box-1">
-            <div className="box-card">
+            <div className="box-card" style={{minHeight: "calc(100% - 40px)"}}>
                 <main>
                     <div >
                         <h1 className="card-title">

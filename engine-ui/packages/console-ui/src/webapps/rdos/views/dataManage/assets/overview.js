@@ -106,7 +106,6 @@ export default class ProjectList extends Component {
     loadDataOverview(projectId) { // 默认最近7天
         const ctx = this
         const { selectedDate } = this.state
-
         if (!projectId) return;
 
         const params = { pId: projectId }
@@ -305,7 +304,6 @@ export default class ProjectList extends Component {
         myChart.setOption(option);
         myChart.on('click', (params) => {
             let tableName = params.value&&params.value.split('.')[1];
-            console.log('tableName',tableName);
             if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}&`)
         });
         this.setState({ chart3: myChart })
@@ -403,6 +401,7 @@ export default class ProjectList extends Component {
                                         <RangePicker
                                             style={{ width: '230px' }}
                                             format="YYYY-MM-DD"
+                                            defaultValue={[moment().subtract(6, 'days'), moment()]}
                                             disabledDate={this.disabledDate}
                                             onChange={this.changeDate}
                                             ranges={{
