@@ -36,36 +36,58 @@
     }
 
     .preview-drag-vertex {
-        border: 1px solid #90D5FF;
-        background: #E6F7FF;
-        line-height: 30px;
+        border: 1px solid #2491F7;
+        background: #DEEFFF;
+        padding: 2px 0;
         text-align: center;
-        font-size:  12px;
+        font-size: 14px;
+
+        .preview-title {
+            font-family: PingFang-SC-Medium;
+            font-size: 14px;
+            color: #333333;
+            letter-spacing: 0;
+            line-height: 20px;
+            display: block;
+        }
+
+        .preview-desc {
+            font-family: PingFang-SC-Medium;
+            font-size: 10px;
+            color: #666666;
+            letter-spacing: 0;
+            line-height: 14px;
+        }
     }
 
     .graph-widgets {
-        width: 140px;
+        width: 150px;
         position: absolute;
+        border: 1px solid #DDDDDD;
         left: 20px;
-        top: 50px;
+        top: 20px;
         z-index: 3;
         text-align: center;
-        background: #fafafa;
+        background: #ffffff;
 
         .widgets-header {
             height: 30px;
             line-height: 30px;
+            background: #F7F7F7;
+            color: #333333;
+            font-size: 12px;
         }
 
         .widgets-content {
-            padding-top: 10px;
+            padding-top: 15px;
 
             .widgets-items {
-                width: 120px;
+                width: 110px;
+                height: 32px;
                 cursor: move;
-                margin-bottom: 10px;
-                border: 1px solid #ddd;
-                background: #E6F7FF;
+                margin-bottom: 15px;
+                border: 1px solid #A7CDF0;
+                background: #EDF6FF;
             }
         }
     }
@@ -165,22 +187,28 @@ table.mxPopupMenu tr {
 
 .vertex {
     user-select: none;
+    margin-top: -2px;
     .vertex-title {
-        padding: 2px 0 0 0;
         width: 120px;
         text-align: center;
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: PingFangSC-Regular;
-        font-size: 12px;
+        font-size: 14px;
         color: #333333;
+        letter-spacing: 0;
+        line-height: 18px;
+        font-weight: normal;
     }
 
     .vertex-desc {
-        font-family: PingFangSC-Regular;
+        font-family: PingFang-SC-Medium;
         font-size: 10px;
         color: #666666;
+        letter-spacing: 0;
+        line-height: 14px;
+        font-weight: initial;
     }
 }
 
