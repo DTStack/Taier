@@ -192,7 +192,7 @@ class DataSourceManaStream extends Component {
         }, 
         {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '10%',
+            width: '80px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
@@ -224,15 +224,14 @@ class DataSourceManaStream extends Component {
                                     okText="确定" cancelText="取消"
                                     //onConfirm={() => { this.remove(record) }}
                                 >
-
-                                    <span style={{color: "#ccc"}}>删除</span>
+                                    <span style={{color: "#ccc",paddingRight:8}}>删除</span>
                                 </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
                                     okText="确定" cancelText="取消"
                                     onConfirm={() => { this.remove(record) }}
                                 >
-                                    <a>删除</a>
+                                    <a style={{paddingRight:8}}>删除</a>
                                 </Popconfirm>
                         }
                     </span>
@@ -304,6 +303,7 @@ class DataSourceManaStream extends Component {
                         <Table
                             className="m-table"
                             rowKey="id"
+                            className="m-table full-screen-table-47"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}

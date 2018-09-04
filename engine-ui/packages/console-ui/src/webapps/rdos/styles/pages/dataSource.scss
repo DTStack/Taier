@@ -104,4 +104,7 @@
 	.m-table tr>td:first-child, .m-table tr>th:first-child{
 		padding-left: 20px;
 	}
+	.m-table tr>td:last-child, .m-table tr>th:last-child{
+		padding-right: 15px;
+	}
 }
