@@ -15,7 +15,6 @@ import Api from '../../../api'
 import {
     offlineTaskStatusFilter,
     TASK_STATUS,
-    offlineTaskTypeFilter,
 } from '../../../comm/const'
 
 import {
@@ -359,6 +358,7 @@ class PatchDataDetail extends Component {
     }
 
     initTaskColumns = () => {
+        const { taskTypeFilter } = this.props;
         return [{
             title: '任务名称',
             dataIndex: 'jobName',
@@ -388,7 +388,7 @@ class PatchDataDetail extends Component {
             render: (text, record) => {
                 return <TaskType value={text} />
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '业务日期',
             dataIndex: 'bizDay',
@@ -658,6 +658,7 @@ export default connect((state) => {
     return {
         project: state.project,
         projectUsers: state.projectUsers,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

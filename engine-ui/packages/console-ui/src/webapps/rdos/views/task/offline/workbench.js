@@ -147,7 +147,7 @@ class Workbench extends React.Component {
     render() {
         const { 
             tabs, currentTab, currentTabData,
-            dataSync, taskCustomParams, 
+            dataSync, taskCustomParams,
             closeTab, closeAllorOthers
         } = this.props;
 
@@ -352,7 +352,6 @@ class Workbench extends React.Component {
                     reloadTabTask(currentTab);
                     this.closePublish();
                 }else{
-                    message.error('发布失败！');
                     this.closePublish();
                 }
             });

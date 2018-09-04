@@ -23,7 +23,6 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
 })
 
 const {
@@ -152,9 +151,8 @@ class WorkflowEditor extends Component {
         mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
         mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
 
+        // Constraint highlight color
         mxConstraintHandler.prototype.highlightColor = BASE_COLOR;
-        // mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
-        // mxConstants.STYLE_STROKECOLOR = BASE_COLOR;
 
         // Disable default context menu
         mxGraphView.prototype.optimizeVmlReflows = false;
@@ -802,7 +800,6 @@ class WorkflowEditor extends Component {
     render() {
 
         const { searchResult, showGuidePic } = this.state;
-        const { data } = this.props;
         const options = searchResult && searchResult.map(d => {
             return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
         })
