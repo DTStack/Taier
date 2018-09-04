@@ -55,7 +55,7 @@ const selectStatusList = [
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         user: state.user,
     }
 })
