@@ -295,7 +295,8 @@ export default class ProjectList extends Component {
         }
         option.yAxis.axisLabel.formatter = (value) => {
             if (value.length > 16) {
-                return value.substring(0, 16) + "...";
+                return value.slice(0, 16) + "...";
+                //return "..." + value.slice(-20) ;
             } else {
                 return value;
             }
@@ -303,7 +304,8 @@ export default class ProjectList extends Component {
         // 绘制图表
         myChart.setOption(option);
         myChart.on('click', (params) => {
-            let tableName = params.value;
+            let tableName = params.value&&params.value.split('.')[1];
+            console.log('tableName',tableName);
             if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}&`)
         });
         this.setState({ chart3: myChart })

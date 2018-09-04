@@ -217,7 +217,7 @@ class RealTimePanel extends Component {
                                 placeholder="任务名称"
                                 size="default"
                                 allowClear
-                                style={{ width: 120 }}
+                                style={{ width: 126 }}
                                 onChange={this.changeTaskName} 
                                 onPressEnter={this.search}
                             />
@@ -228,7 +228,7 @@ class RealTimePanel extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 120 }}
+                                    style={{ width: 126 }}
                                     placeholder="请选择接收人"
                                     optionFilterProp="name"
                                     onChange={this.changeReceive}

@@ -28,12 +28,23 @@ const provideCompletionItemsMap = {
     }
 }
 function delayFunctionWrap(func){
-    let delayTime=200;
+    let delayTime=500;
+    let outTime;
     let _timeClock;
     return function(){
         const arg=arguments;
         _timeClock&&clearTimeout(_timeClock);
+        //这边设置在一定时间内，必须执行一次函数
+        if(outTime){
+            let now=new Date();
+            if(now-outTime>1000){
+                func(...arg);
+            }
+        }else{
+            outTime=new Date();
+        }
         _timeClock=setTimeout(()=>{
+            outTime=null;
             func(...arg);
         },delayTime)
     }

@@ -432,7 +432,7 @@ class EditorContainer extends Component {
                         <Editor
                             value={confirmCode}
                             sync={true}
-                            language="sql"
+                            language="dtsql"
                             options={{
                                 readOnly: true,
                                 minimap: {

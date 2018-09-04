@@ -411,8 +411,11 @@
         margin-left: -2px;
         padding-right: 30px;
         padding-bottom: 40px;
-
+ 
         .browser-tabs {
+            .ant-tabs-nav-container{
+                font-size: 12px;
+            }
             .ant-tabs-bar .ant-tabs-tab-active {
                 background: #fff;
                 &:after{
@@ -421,7 +424,8 @@
                     top:0px;
                     left:0px;
                     right: 0px;
-                    height: 1px;
+                    height: 3px;
+                    opacity: 0.8;
                     background: #2491F7;
                 }
             }
@@ -432,6 +436,10 @@
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
             background:#eef6fe;
+        }
+
+        .ant-collapse-header{
+            font-size: 14px;
         }
        
         .m-scheduling{
@@ -519,10 +527,6 @@
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {
                 margin-bottom: -1px;
             }
-            // .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
-            //     padding: 20px;
-            //     border-right: 1px solid #e9e9e9;
-            // }
             .ant-tabs-tab:hover{
                 background:#eef6fe;
             }
@@ -544,16 +548,15 @@
         .task-params {
             width: 100%;
             height: 100%;
+
             .ant-tabs-content {
                 height: 100%;
                 border-top: 1px solid #e9e9e9;
                 border-bottom: 1px solid #e9e9e9;
                 border-radius: 4px;
             }
-            // .ant-tabs-nav-scroll {
-            //     margin-top: 30px;
-            // }
             .ant-tabs-tab {
+                font-size: 12px;
                 width: 30px;
                 line-height: 20px;
                 height: auto;
@@ -561,6 +564,38 @@
                 padding-right: 5px !important;
                 writing-mode: tb-rl;
                 letter-spacing: 3px;
+                border: 0;
+                border-bottom: 2px solid #f9f9f9;
+                border-top: 1px solid #f9f9f9;
+            }
+            .ant-tabs-bar .ant-tabs-tab-active {
+                background: #fff;
+                border-bottom: 2px solid #ddd;
+                border-top: 1px solid #ddd;
+                &:after{
+                    content:"";
+                    position: absolute;
+                    top:0px;
+                    right: -2px;
+                    width: 3px;
+                    height: 100%;
+                    opacity: 0.8;
+                    z-index: 999;
+                    background: #2491F7;
+                }
+                &:before{
+                    content:"";
+                    position: absolute;
+                    top:0px;
+                    left: -1px;
+                    width: 3px;
+                    height: 100%;
+                    z-index: 999;
+                    background: #fff;
+                }
+            }
+            .ant-tabs-tab-active{
+                margin-left: 1!important;
             }
             .task-info {
                 padding: 10px;

@@ -297,24 +297,10 @@ class ColumnsConfig extends React.Component {
             }
         })
     }
-    getCardTitle(){
-        const { mode,sqlModeShowChange } =this.props;
-        return mode==API_MODE.SQL?(
-            <span>
-                API参数配置
-                <span style={{float:"right",marginLeft:"8px",fontSize:"12px",color:"#888"}}>编辑参数</span>
-                <a onClick={sqlModeShowChange} style={{float:"right",fontSize:"12px",}}>代码</a>
-                </span>
-        ):"API参数配置"
-    }
 
-    render() {
-        const { InputColumns, OutputColums, addColumns, removeColumns, selectedRows,
-            resultPageChecked, resultPage, resultPageCheckedChange, resultPageChange, mode,
-            InputIsEdit,OutputIsEdit } = this.props;
-        const { InputSelectedRows, OutSelectedRows } = this.state;
-        const inputTableColumns = this.initColumns('in');
-        const outputTableColumns = this.initColumns('out');
+    apiParamsConfig = ()=>{
+        const { mode, InputIsEdit, selectedRows, addColumns} =this.props;
+        const { InputSelectedRows } = this.state;
 
         const inputAdd = classnames('params_exchange_button', {
             'params_exchange_button_disable': !selectedRows || selectedRows.length == 0
@@ -322,99 +308,120 @@ class ColumnsConfig extends React.Component {
         const inputRemove = classnames('params_exchange_button', {
             'params_exchange_button_disable': !InputSelectedRows || InputSelectedRows.length == 0
         })
+        return <p className="required-tip middle-title middle-header">
+                输入参数：
+                {InputIsEdit ?
+                    <span>
+                        <a onClick={this.paramsChange.bind(this, 'in')} style={{ float: "right" }}>完成</a>
+                        <a onClick={this.cancelEdit.bind(this, 'in')} style={{ float: "right", marginRight: "8px" }}>取消</a>
+                    </span>
+                    :
+                    <a onClick={this.onEdit.bind(this, 'in')} style={{ float: "right" }}>编辑</a>}
+                {mode == API_MODE.GUIDE && (
+                    <div className="params_exchange_box">
+                        <Icon
+                            type="right-square-o"
+                            className={inputAdd}
+                            onClick={addColumns.bind(null, 'in')}
+                        />
+                        <Icon
+                            type="left-square-o"
+                            className={inputRemove}
+                            onClick={() => {
+                                this.filterSelectRow(InputSelectedRows, 'in');
+                                removeColumns(InputSelectedRows, 'in')
+                            }}
+                        />
+                    </div>
+                )}
+            </p>
+    }
+    
+    outputParams = () => {
+        const { addColumns, removeColumns, selectedRows,resultPageChecked, resultPage, 
+            resultPageCheckedChange, resultPageChange, mode,OutputIsEdit } = this.props;
+        const { OutSelectedRows } = this.state;
         const outAdd = classnames('params_exchange_button', {
             'params_exchange_button_disable': !selectedRows || selectedRows.length == 0
         })
         const outRemove = classnames('params_exchange_button', {
             'params_exchange_button_disable': !OutSelectedRows || OutSelectedRows.length == 0
         })
-
-        return (
-            <Card
-                noHovering
-                title={this.getCardTitle()}
-            >
-                <p className="required-tip middle-title middle-header">
-                    输入参数：
-                    {InputIsEdit ?
-                        <span>
-                            <a onClick={this.paramsChange.bind(this, 'in')} style={{ float: "right" }}>完成</a>
-                            <a onClick={this.cancelEdit.bind(this, 'in')} style={{ float: "right", marginRight: "8px" }}>取消</a>
-                        </span>
-                        :
-                        <a onClick={this.onEdit.bind(this, 'in')} style={{ float: "right" }}>编辑</a>}
-                    {mode == API_MODE.GUIDE && (
-                        <div className="params_exchange_box">
-                            <Icon
-                                type="right-square-o"
-                                className={inputAdd}
-                                onClick={addColumns.bind(null, 'in')}
-                            />
-                            <Icon
-                                type="left-square-o"
-                                className={inputRemove}
-                                onClick={() => {
-                                    this.filterSelectRow(InputSelectedRows, 'in');
-                                    removeColumns(InputSelectedRows, 'in')
-                                }}
-                            />
-                        </div>
-                    )}
-                </p>
-                <Table
-                    rowKey="id"
-                    className="m-table m-table-showselect"
-                    style={{ background: "#fff" }}
-                    columns={inputTableColumns}
-                    dataSource={InputColumns}
-                    pagination={false}
-                    rowSelection={this.rowSelection('in')}
-                    scroll={{ y: 185 }}
-                />
-                <div className="required-tip middle-title middle-header">
-                    输出参数：
-                    <span className="params_result_check">
-                        <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} >返回结果分页</Checkbox>
-                        <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">
-                            <Icon type="question-circle-o" />
-                        </Tooltip>
-                        {resultPageChecked?<InputNumber  placeholder="请输入分页大小" style={{ marginLeft: "8px",width:"115px" }} min={1} max={1000} value={resultPage} onChange={resultPageChange} />:null}
+        return <div className="required-tip middle-title middle-header">
+                输出参数：
+                <span className="params_result_check">
+                    <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} >返回结果分页</Checkbox>
+                    <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">
+                        <Icon type="question-circle-o" />
+                    </Tooltip>
+                    {resultPageChecked?<InputNumber  placeholder="请输入分页大小" style={{ marginLeft: "8px",width:"115px" }} min={1} max={1000} value={resultPage} onChange={resultPageChange} />:null}
+                </span>
+                {OutputIsEdit ?
+                    <span>
+                        <a onClick={this.paramsChange.bind(this, 'out')} style={{ float: "right" }}>完成</a>
+                        <a onClick={this.cancelEdit.bind(this, 'out')} style={{ float: "right", marginRight: "8px" }}>取消</a>
                     </span>
-                    {OutputIsEdit ?
-                        <span>
-                            <a onClick={this.paramsChange.bind(this, 'out')} style={{ float: "right" }}>完成</a>
-                            <a onClick={this.cancelEdit.bind(this, 'out')} style={{ float: "right", marginRight: "8px" }}>取消</a>
+                    :
+                    <a onClick={this.onEdit.bind(this, 'out')} style={{ float: "right" }}>编辑</a>}
+                {mode == API_MODE.GUIDE && (
+                    <div className="params_exchange_box">
+                        <Icon
+                            type="right-square-o"
+                            className={outAdd}
+                            onClick={addColumns.bind(null, 'out')}
+                        />
+                        <Icon
+                            type="left-square-o"
+                            className={outRemove}
+                            onClick={() => {
+                                this.filterSelectRow(OutSelectedRows, 'out');
+                                removeColumns(OutSelectedRows, 'out')
+                            }} />
+                    </div>
+                )}
+            </div>
+    }
+
+    render() {
+        const { InputColumns, OutputColums, mode, sqlModeShowChange } = this.props;
+        const inputTableColumns = this.initColumns('in');
+        const outputTableColumns = this.initColumns('out');
+        return (
+            <div>
+                {
+                    mode==API_MODE.SQL
+                    ?<span>
+                            API参数配置
+                            <span style={{float:"right",marginLeft:"8px",fontSize:"12px",color:"#888"}}>编辑参数</span>
+                            <a onClick={sqlModeShowChange} style={{float:"right",fontSize:"12px",}}>代码</a>
                         </span>
-                        :
-                        <a onClick={this.onEdit.bind(this, 'out')} style={{ float: "right" }}>编辑</a>}
-                    {mode == API_MODE.GUIDE && (
-                        <div className="params_exchange_box">
-                            <Icon
-                                type="right-square-o"
-                                className={outAdd}
-                                onClick={addColumns.bind(null, 'out')}
-                            />
-                            <Icon
-                                type="left-square-o"
-                                className={outRemove}
-                                onClick={() => {
-                                    this.filterSelectRow(OutSelectedRows, 'out');
-                                    removeColumns(OutSelectedRows, 'out')
-                                }} />
-                        </div>
-                    )}
-                </div>
-                <Table
-                    rowKey="id"
-                    className="m-table m-table-showselect"
-                    style={{ background: "#fff" }}
-                    columns={outputTableColumns}
-                    dataSource={OutputColums}
-                    pagination={false}
-                    rowSelection={this.rowSelection('out')}
-                    scroll={{ y: 185 }}
-                />
-            </Card>
+                    :<p className='middle-title'>API参数配置</p>
+                }
+                <Card title={this.apiParamsConfig()} style={{marginTop: 10}}>
+                    <Table
+                        rowKey="id"
+                        className="m-table m-table-showselect"
+                        style={{ background: "#fff" }}
+                        columns={inputTableColumns}
+                        dataSource={InputColumns}
+                        pagination={false}
+                        rowSelection={this.rowSelection('in')}
+                        scroll={{ y: 175 }}
+                    />
+                </Card>
+                <Card title={this.outputParams()} style={{marginTop: 20}}>
+                    <Table
+                        rowKey="id"
+                        className="m-table m-table-showselect"
+                        style={{ background: "#fff" }}
+                        columns={outputTableColumns}
+                        dataSource={OutputColums}
+                        pagination={false}
+                        rowSelection={this.rowSelection('out')}
+                        scroll={{ y: 175 }}
+                    />
+                </Card>
+            </div>
         )
     }
 }

@@ -160,7 +160,7 @@ class DeriveIndexModal extends Component {
                     showSearch
                     placeholder="请选择"
                     value={indexName}
-                    style={{ width: 100, marginRight: '5px' }}
+                    style={{ width: 126, marginRight: '5px' }}
                     onSelect={(value, option) => this.changeIndexName(value, index)}
                 >
                     {options}
