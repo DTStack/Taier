@@ -166,7 +166,6 @@ public class TaskStatusListener implements Runnable{
                     } finally {
                         ctl.countDown();
                     }
-                    return true;
                 });
             }
             ctl.await();
