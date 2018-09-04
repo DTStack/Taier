@@ -264,7 +264,16 @@
             float: right;
         }
     }
+    .vertical-middle:after{
+        content: '';
+        vertical-align: middle;
+        display: inline-block;
+        width: 0;
+        height: 100%;
+    }
 }
+
+
 
 .m-codemodal {
     .ant-modal-body {
