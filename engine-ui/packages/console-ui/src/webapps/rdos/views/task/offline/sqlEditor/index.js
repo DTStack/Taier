@@ -320,6 +320,7 @@ class EditorContainer extends Component {
         this._tableLoading[tableName] = API.getColumnsOfTable({ tableName })
             .then(
                 (res) => {
+                    this._tableLoading[tableName]=null;
                     if (res.code == 1) {
                         tableColumns[tableName] = [tableName, res.data];
                         return tableColumns[tableName];
