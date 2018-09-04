@@ -41,7 +41,7 @@ const {
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 36,
+    height: 40,
 }
 
 // 遍历树形节点，用新节点替换老节点
@@ -79,7 +79,6 @@ class TaskFlowView extends Component {
         this._vertexCells = {} // 缓存创建的节点
 
         const editor = this.Container
-        this.initEditor()
         this.loadEditor(editor)
         this.hideMenu();
         this.loadTaskChidren({
@@ -284,15 +283,20 @@ class TaskFlowView extends Component {
             const valueStr = this.getShowStr(data);
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
+            const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId;
 
             let width = VertexSize.width;
             let height = VertexSize.height;
             if (isWorkflow) {
                 width = width + 20;
                 height = height + 100;
-                style += 'shape=swimlane;';
+                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
             }
 
+            if (isWorkflowNode && parentCell !== defaultParent) {
+                style += 'rounded=1;arcSize=60;'
+            }
+            
             const cell = graph.insertVertex(
                 parentCell,
                 data.id, 
@@ -301,8 +305,11 @@ class TaskFlowView extends Component {
                 width, height, 
                 style,
             )
+            if (isWorkflow) {
+                cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
+            }
             cell.data = data;
-            cell.isPart = data.batchTask.flowId && data.batchTask.flowId !== 0;
+            cell.isPart = isWorkflowNode;
 
             return cell
         }
@@ -314,6 +321,7 @@ class TaskFlowView extends Component {
                 let sourceCell = source ? cellCache[source.id] : undefined;
                 let targetCell = target ? cellCache[target.id] : undefined;
                 let parentCell = defaultParent;
+                const isWorkflowNode = source && source.batchTask.flowId && source.batchTask.flowId;
 
                 if (parent) {
                     const existCell = cellCache[parent.id];
@@ -334,9 +342,11 @@ class TaskFlowView extends Component {
                     cellCache[target.id] = targetCell;
                 }
 
-                const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                const edges = graph.getEdgesBetween(sourceCell, targetCell);
+                const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
+
                 if (edges.length === 0) {
-                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
+                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell, edgeStyle)
                 }
             }
         }
@@ -672,13 +682,14 @@ class TaskFlowView extends Component {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
-        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
+        style[mxConstants.STYLE_STROKECOLOR] = '#A7CDF0';
+        style[mxConstants.STYLE_FILLCOLOR] = '#EDF6FF';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
+        style[mxConstants.FONT_BOLD] = 0;
         style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 
         return style;
@@ -687,48 +698,15 @@ class TaskFlowView extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
+        style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
+        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style;
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
     }
 }
 export default TaskFlowView;

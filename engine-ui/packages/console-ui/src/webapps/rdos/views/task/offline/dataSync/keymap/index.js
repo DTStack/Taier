@@ -606,7 +606,7 @@ class Keymap extends React.Component{
     renderTarget() {
         const { w, h, W, H, padding } = this.state;
         const { 
-            targetCol, sourceCol, keymap, readonly, targetMap,
+            targetCol, sourceCol, readonly, targetMap,
             targetFileType, removeTargetKeyRow,
             sourceSrcType, targetSrcType, 
         } = this.props;
