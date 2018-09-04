@@ -52,7 +52,7 @@ class OfflineTaskList extends Component {
         current: 1,
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
+        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : utils.getParameterByName("status").split(','),
         bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date')||0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
