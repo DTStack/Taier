@@ -393,7 +393,8 @@ class PatchData extends Component {
                             <Select
                                 allowClear
                                 showSearch
-                                style={{ width: '200px' }}
+                                size='Default'
+                                style={{ width: '126px' }}
                                 placeholder="责任人"
                                 optionFilterProp="name"
                                 value={owner}

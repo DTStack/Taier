@@ -649,7 +649,7 @@ class AuthMana extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.belongProjectId}
                         onChange={(value) => this.changeParams('belongProjectId', value)}
@@ -663,7 +663,7 @@ class AuthMana extends Component {
                             allowClear
                             showSearch
                             optionFilterProp="name"
-                            style={{ width: 120 }}
+                            style={{ width: 126}}
                             placeholder="选择申请人"
                             value={queryParams.applyUserId}
                             onChange={(value) => this.changeParams('applyUserId', value)}
@@ -678,7 +678,7 @@ class AuthMana extends Component {
                                 allowClear
                                 showSearch
                                 optionFilterProp="status"
-                                style={{ width: 120 }}
+                                style={{ width: 126 }}
                                 placeholder="选择状态"
                                 value={queryParams.status}
                                 onChange={(value) => this.changeParams('status', value ? [value] : undefined)}

@@ -28,6 +28,7 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
+    mxRectangle,
     mxPerimeter,
     mxGraphHandler,
     mxCompactTreeLayout,
@@ -35,7 +36,7 @@ const {
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 36,
+    height: 40,
 }
 
 const getVertexNode = (obj) => {
@@ -59,7 +60,7 @@ export default class TaskView extends Component {
         this._vertexCells = {}; // 用于缓存创建的顶点节点
     
         const editor = this.Container
-        this.initEditor()
+        // this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
         this.loadTaskChidren({
@@ -121,12 +122,7 @@ export default class TaskView extends Component {
                 const childNodes = treeNodeData.subTaskVOS; // 子节点
                 const currentNodeData = getVertexNode(treeNodeData)
 
-                if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
-                    const workflowData = treeNodeData.subNodes;
-                    if (workflowData) {
-                        loop(workflowData, currentNodeData)
-                    }
-                }
+    
 
                 const dataItem = {
                     parent: parent,
@@ -139,8 +135,6 @@ export default class TaskView extends Component {
                 if (parentNodes && parentNodes.length > 0) {
                     for (let i = 0; i < parentNodes.length; i++) {
                         const nodeData = getVertexNode(parentNodes[i])
-                        dataItem.source = nodeData;
-                        dataItem.target = currentNodeData;
                         if (parentNodes[i].taskVOS) {
                             loop(parentNodes[i], parent)
                         }
@@ -166,6 +160,13 @@ export default class TaskView extends Component {
                         });
                     }
                 }
+
+                if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                    const workflowData = treeNodeData.subNodes;
+                    if (workflowData) {
+                        loop(workflowData, currentNodeData)
+                    }
+                }
             }
         }
 
@@ -183,14 +184,20 @@ export default class TaskView extends Component {
             if (!data) return null;
 
             let style = this.getStyles(data.taskType);
+            let edgeStyle = '';
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
+            const isWorkflowNode = data.flowId && data.flowId !== 0;
 
             let width = VertexSize.width;
             let height = VertexSize.height;
             if (isWorkflow) {
                 width = width + 20;
                 height = height + 100;
-                style += 'shape=swimlane;';
+                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
+            }
+
+            if (isWorkflowNode) {
+                style += 'rounded=1;arcSize=60;'
             }
 
             const cell = graph.insertVertex(
@@ -201,8 +208,10 @@ export default class TaskView extends Component {
                 width, height, 
                 style,
             )
-
-            cell.isPart = data.flowId && data.flowId !== 0;
+            if (isWorkflow) {
+                cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
+            }
+            cell.isPart = isWorkflowNode;
 
             return cell
         }
@@ -214,7 +223,7 @@ export default class TaskView extends Component {
                 let sourceCell = source ? cellCache[source.id] : undefined;
                 let targetCell = target ? cellCache[target.id] : undefined;
                 let parentCell = defaultParent;
-
+                const isWorkflowNode = source && source.flowId && source.flowId !== 0;
                 if (parent) {
                     const existCell = cellCache[parent.id];
                     if (existCell) {
@@ -224,6 +233,7 @@ export default class TaskView extends Component {
                         cellCache[parent.id] = parentCell;
                     }
                 }
+
 
                 if (source && !sourceCell) {
                     sourceCell = getVertex(parentCell, source);
@@ -235,10 +245,11 @@ export default class TaskView extends Component {
                 }
 
                 const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
+              
                 if (edges.length === 0) {
-                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
+                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell, edgeStyle)
                 }
-
                 this.executeLayout(parentCell);
             }
         }
@@ -246,31 +257,9 @@ export default class TaskView extends Component {
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const model = graph.getModel();
-
-        const layout = new mxCompactTreeLayout(graph);
-        layout.horizontal = false;
-        layout.useBoundingBox = false;
-        layout.edgeRouting = false;
-        layout.levelDistance = 30;
-        layout.nodeDistance = 10;
-        layout.resizeParent = true;
-
-        this.executeLayout = function(layoutNode, change, post) {
-            model.beginUpdate();
-            try {
-                if (change != null) { change(); }
-                layout.execute(layoutNode);
-            } catch (e) {
-                throw e;
-            } finally {
-                graph.getModel().endUpdate();
-                if (post != null) { post();}
-            }
-        }
-
         const arrayData = this.preHandGraphTree(data);
         this.renderGraph(arrayData);
+        // this.executeLayout(graph.getDefaultParent());
         graph.center();
     }
 
@@ -343,6 +332,7 @@ export default class TaskView extends Component {
 
         this.initContextMenu(graph);
         this.initGraphEvent();
+        this.initGraphLayout();
     }
 
     formatTooltip = (cell) => {
@@ -356,7 +346,7 @@ export default class TaskView extends Component {
             const taskType = taskTypeText(task.taskType);
             if (task) {
                 return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
-                <span style="font-size:10px; color: #666666;">${taskType}</span>
+                <span class="vertex-desc">${taskType}</span>
                 </div>`
             }
         }
@@ -364,7 +354,7 @@ export default class TaskView extends Component {
     }
 
     getStyles = (type) => {
-        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
+        return 'whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;';
     }
 
     forzenTasks = (ids, mode) => {
@@ -436,6 +426,33 @@ export default class TaskView extends Component {
         }
     }
 
+    initGraphLayout = () => {
+
+        const graph = this.graph;
+        const model = graph.getModel();
+
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 30;
+        layout.nodeDistance = 10;
+        layout.resizeParent = true;
+
+        this.executeLayout = function (layoutNode, change, post) {
+            model.beginUpdate();
+            try {
+                if (change != null) { change(); }
+                layout.execute(layoutNode);
+            } catch (e) {
+                throw e;
+            } finally {
+                graph.getModel().endUpdate();
+                if (post != null) { post(); }
+            }
+        }
+    }
+
     initGraphEvent = () => {
 
         const ctx = this;
@@ -497,7 +514,7 @@ export default class TaskView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} />
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -522,14 +539,14 @@ export default class TaskView extends Component {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
+        style[mxConstants.STYLE_STROKECOLOR] = '#A7CDF0';
         // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
-        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
+        style[mxConstants.STYLE_FILLCOLOR] = '#EDF6FF';
         // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
-        style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
+        style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_FONTSIZE] = '12';
+        style[mxConstants.STYLE_FONTSIZE] = '14';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
         return style;
     }
@@ -537,47 +554,14 @@ export default class TaskView extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
+        style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
+        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
-        return style
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
+        style[mxConstants.STYLE_ROUNDED] = false;
+        return style;
     }
 }
