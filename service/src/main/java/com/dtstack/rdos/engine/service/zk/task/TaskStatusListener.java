@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.service.zk.task;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -35,6 +36,11 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -81,6 +87,10 @@ public class TaskStatusListener implements Runnable{
 	/**失败任务的额外处理：当前只是对失败任务继续更新日志*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
+    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(true), new CustomThreadFactory("taskStatusListener"));
+
+
     @Override
 	public void run() {
 	  	int index = 0;
@@ -126,27 +136,42 @@ public class TaskStatusListener implements Runnable{
     }
 	
 	private void updateTaskStatus(){
-        for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).getShards().entrySet()) {
-            for (Map.Entry<String, Byte> entry : shardEntry.getValue().getShardData().entrySet()) {
-                try {
-                    Integer oldStatus = Integer.valueOf(entry.getValue());
+        try {
+            Map<String, BrokerDataNode.BrokerDataInner> shards = brokerDatas.get(zkDistributed.getLocalAddress()).getShards();
+            CountDownLatch ctl = new CountDownLatch(shards.size());
+            for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry: shards.entrySet()) {
+                taskStatusPool.submit(()->{
+                    try {
+                        for (Map.Entry<String, Byte> entry : shardEntry.getValue().getShardData().entrySet()) {
+                            try {
+                                Integer oldStatus = Integer.valueOf(entry.getValue());
+                                if (!RdosTaskStatus.needClean(entry.getValue())) {
+                                    String zkTaskId = entry.getKey();
+                                    int computeType = TaskIdUtil.getComputeType(zkTaskId);
+                                    String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
+                                    String taskId = TaskIdUtil.getTaskId(zkTaskId);
 
-                    if (!RdosTaskStatus.needClean(entry.getValue())) {
-                        String zkTaskId = entry.getKey();
-                        int computeType = TaskIdUtil.getComputeType(zkTaskId);
-                        String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
-                        String taskId = TaskIdUtil.getTaskId(zkTaskId);
-
-                        if (computeType == ComputeType.STREAM.getType()) {
-                            dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
-                        } else if (computeType == ComputeType.BATCH.getType()) {
-                            dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                                    if (computeType == ComputeType.STREAM.getType()) {
+                                        dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                                    } else if (computeType == ComputeType.BATCH.getType()) {
+                                        dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                                    }
+                                }
+                            } catch (Throwable e) {
+                                logger.error("", e);
+                            }
                         }
+                    } catch (Throwable e) {
+                        logger.error("{}", e);
+                    } finally {
+                        ctl.countDown();
                     }
-                } catch (Throwable e) {
-                    logger.error("", e);
-                }
+                    return true;
+                });
             }
+            ctl.await();
+        } catch (Throwable e) {
+            logger.error("{}", e);
         }
 	}
 
