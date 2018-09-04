@@ -18,7 +18,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         dataCatalogues: state.dataManage.dataCatalogues,
     }
 })
