@@ -8,13 +8,11 @@ import { Row,
     Checkbox,
     Form,
     DatePicker,
-    TimePicker,
     Select,
     Collapse,
     Table,
     Radio,
     Input,
-    Spin,
     message,
     Button
  } from 'antd';
@@ -582,26 +580,26 @@ class SchedulingConfig extends React.Component {
             recommentTaskModalVisible: false,
             recommentTaskList: [],
             wFScheduleConf: undefined,
-        }
-
-        const { tabData, isWorkflowNode } = this.props;
-        const scheduleConf = tabData.scheduleConf;
-
-        // scheduleConf.selfReliance兼容老代码true or false 值
-        if (scheduleConf.selfReliance !== 'undefined') {
-            if (scheduleConf.selfReliance === false) {
-                this._selfReliance = 0;
-            } else if (scheduleConf.selfReliance === true) {
-                this._selfReliance = 1;
-            } else {
-                this._selfReliance = scheduleConf.selfReliance;
-            }
-        } else {
-            this._selfReliance = 0;
+            selfReliance: undefined,
         }
     }
-
+    
     componentDidMount() {
+        const { tabData } = this.props;
+        const scheduleConf = JSON.parse(tabData.scheduleConf);
+        let selfReliance = 0;
+        // scheduleConf.selfReliance兼容老代码true or false 值
+        if (scheduleConf.selfReliance !== 'undefined') {
+            if (scheduleConf.selfReliance === true) {
+                selfReliance = 1;
+            } else if (scheduleConf.selfReliance !== false) {
+                selfReliance = scheduleConf.selfReliance;
+            }
+        } 
+
+        this.setState({
+            selfReliance: selfReliance,
+        })
         this.loadWorkflowConfig();
     }
 
@@ -703,8 +701,7 @@ class SchedulingConfig extends React.Component {
             this.form.validateFields((err, values) => {
                 if(!err) {
                     const formData = this.form.getFieldsValue();
-
-                    formData.selfReliance = this._selfReliance;
+                    formData.selfReliance = this.state.selfReliance;//this._selfReliance;
                     delete formData.scheduleStatus;
                     this.props.changeScheduleConf(formData);
                 }
@@ -775,12 +772,17 @@ class SchedulingConfig extends React.Component {
 
     setSelfReliance(evt) {
         const value = evt.target.value;
-        this._selfReliance = value;
+        this.setState({
+            selfReliance: value,
+        })
         this.handleScheduleConf();
     }
 
     render() {
-        const { recommentTaskModalVisible, recommentTaskList, loading, wFScheduleConf } = this.state;
+        const { 
+            recommentTaskModalVisible, recommentTaskList, 
+            loading, wFScheduleConf, selfReliance
+        } = this.state;
         const { tabData, isWorkflowNode } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
@@ -796,7 +798,9 @@ class SchedulingConfig extends React.Component {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
             })
-        } else if (initConf !== '') {
+        }
+
+        if (initConf !== '') {
             scheduleConf = JSON.parse(initConf);
         }
 
@@ -889,7 +893,7 @@ class SchedulingConfig extends React.Component {
                             <Col span="1" />
                             <Col>
                                 <RadioGroup onChange={ this.setSelfReliance.bind(this) }
-                                    value={ this._selfReliance }
+                                    value={ selfReliance }
                                 >
                                     <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
                                     <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
