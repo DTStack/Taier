@@ -182,7 +182,7 @@ class AtomIndexDefine extends BasePane {
                             <FormItem label="指标类型">
                                 <Select
                                     allowClear
-                                    style={{ width: 200 }}
+                                    style={{ width: 126 }}
                                     placeholder="选择指标类型"
                                     onChange={(value) => this.changeParams('columnType', value)}
                                 >

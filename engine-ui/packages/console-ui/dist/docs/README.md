@@ -16,6 +16,11 @@
 - 【其他】修复其余20+bug和优化
 
 
+ > 版本：DTinsight v2.7.1 <br>
+ > 日期：2018-08-31
+- 【开发套件】修复编辑脚本时，导致脚本编辑内容丢失的问题
+
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明

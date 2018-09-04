@@ -51,9 +51,11 @@ const {
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 36,
+    height: 40,
 }
 
+
+const BASE_COLOR = '#2491F7';
 const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const Option = Select.Option;
 
@@ -124,12 +126,6 @@ class WorkflowEditor extends Component {
                 this.appendWorkflowNode(next.node);
             }
         }
-
-        // // 如果版本不同则执行更新
-        // if (oldData.readWriteLockVO.version === nextData.readWriteLockVO.version ) {
-        //     console.log('diff version:', oldData.readWriteLockVO, nextData.readWriteLockVO)
-        //     // this.initGraphData(nextData.sqlText);
-        // }
     }
 
     componentWillUnmount () {
@@ -137,6 +133,19 @@ class WorkflowEditor extends Component {
     }
 
     loadEditor = (container) => {
+
+        mxConstants.HANDLE_FILLCOLOR = '#F5F5F5';
+        mxConstants.HANDLE_STROKECOLOR = '#C5C5C5';
+        mxConstants.VERTEX_SELECTION_COLOR = BASE_COLOR;
+        mxConstants.GUIDE_COLOR = BASE_COLOR;
+        mxConstants.EDGE_SELECTION_COLOR = BASE_COLOR;
+        mxConstants.HANDLE_FILLCOLOR = BASE_COLOR;
+        mxConstants.HIGHLIGHT_COLOR = BASE_COLOR;
+        mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
+        mxConstants.CURSOR_LABEL_HANDLE = 'move';
+        mxConstants.CURSOR_TERMINAL_HANDLE = 'move';
+
+
         // Disable default context menu
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
@@ -147,21 +156,20 @@ class WorkflowEditor extends Component {
         const graph = new mxGraph(container)
         this.graph = graph
         // 启用绘制
-        graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.keepEdgesInBackground = true;
         graph.allowLoops = false;
+        // // Enable cell resize 
         graph.cellsResizable = false;
+        graph.setPanning(true);
         graph.setConnectable(true);
         graph.setTooltips(true)
         graph.view.setScale(1)
-        // Enables HTML labels
+        // // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
-
-        // 启用/禁止连接
-        graph.setConnectable(true)
+        // // 启用/禁止连接
 
         // 禁止Edge对象移动
         graph.isCellsMovable = function(cell) {
@@ -172,6 +180,11 @@ class WorkflowEditor extends Component {
         graph.isCellEditable = function() {
             return false
         }
+
+        // 默认边界样式
+        let edgeStyle = this.getDefaultEdgeStyle();
+        graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
+
         // 设置Vertex样式
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
@@ -179,15 +192,6 @@ class WorkflowEditor extends Component {
         graph.convertValueToString = this.corvertValueToString
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
-        // 默认边界样式
-        let edgeStyle = this.getDefaultEdgeStyle();
-        graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
-
-        mxConstants.HANDLE_FILLCOLOR = '#ffffff';
-        mxConstants.HANDLE_STROKECOLOR = '#2491F7';
-        mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
-        mxConstants.GUIDE_COLOR = '#2491F7';
-
         // enables rubberband
         new mxRubberband(graph);
 
@@ -201,9 +205,10 @@ class WorkflowEditor extends Component {
     }
 
     getStyles = () => {
-        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
+        return 'whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#C5C5C5;'
     }
 
+   
     formatTooltip = (cell) => {
         if (this.Container) {
             const task = cell.data || '';
@@ -224,7 +229,7 @@ class WorkflowEditor extends Component {
             let unSave = task.notSynced ? '<span style="color:red;">*</span>' : '';
             const taskType = taskTypeText(task.taskType);
             return `<div class="vertex"><span class="vertex-title">${unSave} ${task.name || ''}</span>
-            <span style="font-size:10px; color: #666666;">${taskType}</span>
+            <span class="vertex-desc">${taskType}</span>
             </div>`
         }
 
@@ -275,12 +280,12 @@ class WorkflowEditor extends Component {
         const taskData = cell.data;
         if (taskData && cell.vertex) {
             Modal.confirm({
-                title: '确认对话框',
+                title: '注意',
                 okText: '确认',
                 cancelText: '取消',
                 content: (
                     <div>
-                        <p>您确认删除当前节点吗？</p>
+                        <p>确定是否要删除节点: <a>{taskData.name}</a></p>
                     </div>
                 ),
                 onOk() {
@@ -476,17 +481,17 @@ class WorkflowEditor extends Component {
                     ctx.deleteTask(cell);
                 }, null, null, true) // 正常状态
             }
-
-
         }
     }
 
-    getPreviewEle() {
+    getPreviewEle = (taskType) => {
+        const typeText = taskTypeText(taskType);
         const previewDragTarget = document.createElement('div');
         previewDragTarget.style.width = VertexSize.width + 'px';
         previewDragTarget.style.height = VertexSize.height + 'px';
         previewDragTarget.className = 'preview-drag-vertex';
-        previewDragTarget.innerHTML = '新节点';
+        previewDragTarget.innerHTML = `<span class="preview-title">新节点</span>
+        <span class="preview-desc">${typeText}</span>`;
         return previewDragTarget;
     }
 
@@ -521,12 +526,12 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
         const { taskTypes } = this.props;
-        const previewDragTarget = this.getPreviewEle();
-
+        
         for (let i = 0; i < taskTypes.length; i++ ) {
             const type = taskTypes[i];
             const dragTarget = document.getElementById(`${WIDGETS_PREFIX}${type.key}`);
             if (dragTarget) {
+                const previewDragTarget = ctx.getPreviewEle(type.key);
                 previewDragTarget.setAttribute('data-item', type.key)
                 const draggabledEle = mxUtils.makeDraggable(
                     dragTarget,
@@ -586,14 +591,18 @@ class WorkflowEditor extends Component {
                 graph.clearSelection();
                 const cellState = graph.view.getState(cell);
                 const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#dbeffc';
+                style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
+                style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
 
                 const outEdges = graph.getOutgoingEdges(cell);
                 const inEdges = graph.getIncomingEdges(cell);
-                graph.setCellStyle(`strokeColor=#2196F3;strokeWidth=2;`, outEdges.concat(inEdges));
+                graph.setCellStyle(`strokeColor=#2491F7;`, outEdges.concat(inEdges));
 
                 selectedCell = cell;
+            } else if (cell === undefined) {
+                const cells = graph.getSelectionCells();
+                graph.removeSelectionCells(cells);
             }
         })
 
@@ -601,7 +610,8 @@ class WorkflowEditor extends Component {
             if (selectedCell) {
                 const cellState = graph.view.getState(selectedCell);
                 const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
+                style[mxConstants.STYLE_FILLCOLOR] = '#F5F5F5';
+                style[mxConstants.STYLE_STROKECOLOR] = '#C5C5C5';
                 applyCellStyle(cellState, style);
 
                 const outEdges = graph.getOutgoingEdges(selectedCell);
@@ -676,7 +686,7 @@ class WorkflowEditor extends Component {
                 }
             }
 
-            graph.center(true, true, 0.5, 0.4);
+            graph.center(true, true, 0.65, 0.4);
         }
     }
 
@@ -763,7 +773,7 @@ class WorkflowEditor extends Component {
         )
 
         return (
-            <div className="graph-widgets bd">
+            <div className="graph-widgets">
                 <header className="widgets-header bd-bottom">
                     节点组件
                 </header>
@@ -814,7 +824,7 @@ class WorkflowEditor extends Component {
                             <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="搜索节点">
-                            <Icon type="search" onClick={this.initShowSearch} style={{fontSize: '17px'}}/>
+                            <Icon type="search" onClick={this.initShowSearch} style={{fontSize: '17px', color: '#333333'}}/>
                         </Tooltip>
                     </div>
                     <Modal 
@@ -881,7 +891,7 @@ class WorkflowEditor extends Component {
 
     layout = () => {
         this.executeLayout(null, null, () => {
-            this.graph.center(true, true, 0.5, 0.4);
+            this.graph.center(true, true, 0.65, 0.4);
             this.updateGraphData();
         });
     }
@@ -894,8 +904,8 @@ class WorkflowEditor extends Component {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
-        style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
+        style[mxConstants.STYLE_STROKECOLOR] = '#C5C5C5';
+        style[mxConstants.STYLE_FILLCOLOR] = '#F5F5F5';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -907,12 +917,12 @@ class WorkflowEditor extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
+        style[mxConstants.STYLE_STROKECOLOR] = '#999';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
-        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;// mxEdgeStyle.EDGESTYLE_TOPTOBOTTOM;
+        style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
@@ -934,20 +944,15 @@ class WorkflowEditor extends Component {
             }
             return null;
         };
+
         // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
+        mxShape.prototype.constraints = [
+            new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+            new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+            new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+            new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+        ];
+        // // Edges have no connection points
         mxPolyline.prototype.constraints = null;
     }
 }

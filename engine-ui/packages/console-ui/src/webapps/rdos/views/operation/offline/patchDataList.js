@@ -251,7 +251,7 @@ class PatchDataList extends Component {
                 <FormItem>
                     <Search
                         placeholder="按任务名称搜索"
-                        style={{ width: '130px' }}
+                        style={{ width: '200px' }}
                         value={jobName}
                         size="default"
                         onChange={this.onChangeJobName}
@@ -283,7 +283,8 @@ class PatchDataList extends Component {
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: '120px' }}
+                        size='Default'
+                        style={{ width: '126px' }}
                         placeholder="操作人"
                         optionFilterProp="name"
                         value={dutyUserId}

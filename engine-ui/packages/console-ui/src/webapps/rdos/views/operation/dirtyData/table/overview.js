@@ -125,7 +125,7 @@ export default class TableOverview extends React.Component{
                     <Select  
                         showSearch
                         defaultValue="7"
-                        style={{ width: 150, marginTop: '10px' }}
+                        style={{ width: 126, marginTop: '10px' }}
                         placeholder="请选择次数"
                         onChange={this.onExecCountChange}
                     >

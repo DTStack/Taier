@@ -567,7 +567,7 @@ class OfflineTaskList extends Component {
                                 <FormItem label="">
                                     <Search
                                         placeholder="按任务名称搜索"
-                                        style={{ width: 150 }}
+                                        style={{ width: 200 }}
                                         size="default"
                                         value={jobName}
                                         onChange={this.changeTaskName}
@@ -580,7 +580,8 @@ class OfflineTaskList extends Component {
                                     <Select
                                         allowClear
                                         showSearch
-                                        style={{ width: 150 }}
+                                        size='Default'
+                                        style={{ width: 126 }}
                                         placeholder="责任人"
                                         optionFilterProp="name"
                                         onChange={this.changePerson}

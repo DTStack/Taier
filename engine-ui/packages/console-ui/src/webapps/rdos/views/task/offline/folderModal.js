@@ -10,7 +10,6 @@ import {
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
-    sysFnTreeActon,
     scriptTreeAction,
     modalAction
 } from '../../../store/modules/offlineTask/actionType';
@@ -31,7 +30,6 @@ class FolderForm extends React.Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         const { defaultData } = this.props;
-
         // 没有默认数据
         const isCreateNormal = typeof defaultData === 'undefined';
 
@@ -156,8 +154,6 @@ class FolderModal extends React.Component {
     }
 
     handleCancel() {
-        const { isModalShow, toggleCreateFolder } = this.props;
-
         this.closeModal();
     }
 
@@ -189,7 +185,7 @@ class FolderModal extends React.Component {
     }
 
     render() {
-        const { isModalShow, toggleCreateFolder, cateType, defaultData } = this.props;
+        const { isModalShow, cateType, defaultData } = this.props;
 
         if(!defaultData) this.isCreate = true;
         else {
@@ -273,7 +269,7 @@ dispatch => {
                         //     type: action.ADD_FOLDER_CHILD,
                         //     payload: data
                         // });
-                        benchActions.loadTreeNode(params.nodePid,cateType)
+                        benchActions.loadTreeNode(params.nodePid, cateType)
                         return true;
                     }
                 });
@@ -284,37 +280,31 @@ dispatch => {
                 .then(res => {
                     if(res.code === 1) {
                         let newData = defaultData;
-                        let action;
-
-                        switch(cateType) {
-                            case MENU_TYPE.TASK:
-                            case MENU_TYPE.TASK_DEV:
-                                action = taskTreeAction;
-                                break;
-                            case MENU_TYPE.RESOURCE:
-                                action = resTreeAction;
-                                break;
-                            case MENU_TYPE.FUNCTION:
-                            case MENU_TYPE.SYSFUC:
-                            case MENU_TYPE.COSTOMFUC:
-                                action = fnTreeAction;
-                                break;
-                            case MENU_TYPE.SCRIPT:
-                                action = scriptTreeAction;
-                                break;
-                            default:
-                                action = taskTreeAction;
-                        }
-
+                        // let action;
+                        // switch(cateType) {
+                        //     case MENU_TYPE.TASK:
+                        //     case MENU_TYPE.TASK_DEV:
+                        //         action = taskTreeAction;
+                        //         break;
+                        //     case MENU_TYPE.RESOURCE:
+                        //         action = resTreeAction;
+                        //         break;
+                        //     case MENU_TYPE.FUNCTION:
+                        //     case MENU_TYPE.SYSFUC:
+                        //     case MENU_TYPE.COSTOMFUC:
+                        //         action = fnTreeAction;
+                        //         break;
+                        //     case MENU_TYPE.SCRIPT:
+                        //         action = scriptTreeAction;
+                        //         break;
+                        //     default:
+                        //         action = taskTreeAction;
+                        // }
                         newData.name = params.nodeName;
                         newData.originPid = defaultData.parentId;
                         newData.parentId = params.nodePid;
 
-                        // dispatch({
-                        //     type: action.EDIT_FOLDER_CHILD,
-                        //     payload: newData
-                        // });
-                        benchActions.loadTreeNode(params.nodePid,MENU_TYPE.TASK_DEV)
+                        benchActions.loadTreeNode(params.nodePid, cateType)
                         return true;
                     }
                 })

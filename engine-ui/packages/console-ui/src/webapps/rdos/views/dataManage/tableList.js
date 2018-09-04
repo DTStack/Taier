@@ -31,9 +31,8 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType, pId, pageIndex, catalogueId } = props.location.query;
-        const tableNameArr = props.location.query.tableName&&props.location.query.tableName.split('.')||[];
-        const tableName = tableNameArr.length > 1 ? tableNameArr[1] : tableNameArr[0];
+        const { listType, pId, tableName, pageIndex, catalogueId } = props.location.query;
+        
         this.state = {
             table: [],
             editRecord: {},
@@ -278,7 +277,7 @@ class TableList extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
@@ -332,7 +331,7 @@ class TableList extends Component {
                 <Tabs
                     activeKey={queryParams.listType}
                     animated={false}
-                    style={{ height: 'auto' }}
+                    style={{ height: 'auto' ,overflow:'visible'}}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">

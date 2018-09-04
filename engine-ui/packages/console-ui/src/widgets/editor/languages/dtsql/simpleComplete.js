@@ -131,8 +131,6 @@ export function disposeProvider() {
     _completeProvideFunc = null;
 }
 export async function onChange(value, _editor) {
-    //语法文件定位有问题，暂时屏蔽错误提示
-    return ;
     const dtParser=await loadDtParser();
     const model = _editor.getModel();
     let syntax = dtParser.parser.parseSyntax(value);
@@ -143,7 +141,7 @@ export async function onChange(value, _editor) {
             startColumn: syntax.loc.first_column+1,
             endLineNumber: syntax.loc.last_line,
             endColumn: syntax.loc.last_column+1,
-            message: `[语法错误！] ${message}`,
+            message: `[语法错误！] \n${message}`,
             MarkerSeverity: 8
         }])
     } else {
@@ -153,13 +151,13 @@ export async function onChange(value, _editor) {
 }
 
 function messageCreate(syntax){
-    const expected=syntax.expected||[];
+    let expected=syntax.expected||[];
     if(expected.length){
         return `您可能想输入是${expected.map(
             (item)=>{
                 return ` '${item.text}'`
             }
-        ).join(",")}?`
+        ).filter((value,index)=>{return index<20}).join(",")}?`
     }else{
         return '请检查您的语法！'
     }

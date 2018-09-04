@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Tree, TreeSelect,
-    Modal, Badge
+    Modal, Badge ,Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -438,31 +438,35 @@ class FolderTree extends React.Component {
             }
 
             let claName = type === 'file' ? 'file-item' : 'folder-item';
-
+ 
             return <TreeNode
                 title={
-                    ispicker ?
-                        <span className={claName}>
-                            {name}
-                            <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                                {createUser}
-                            </i>
-                        </span> :
-                        <CtxMenu
-                            id={id}
-                            key={`${taskType}-ctxmenu-${id}`}
-                            operations={isPro?[]:this.generateCtxMenu(type, treeType, data)} >
-                            <span
-                                id={`JS_${id}`}
-                                title={name}
-                                className={claName}>
-                                {this.renderStatusBadge(treeType, data)}
-                                {name}
-                                <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                                    {this.renderFileInfo(treeType, data)}
-                                </i>
+                    ispicker?
+                    <span className={claName}>
+                        { name }
+                        <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                            {createUser}
+                        </i>
+                    </span> :
+                    <CtxMenu
+                        id={ id }
+                        key={ `${taskType}-ctxmenu-${id}` }
+                        operations={ isPro?[]:this.generateCtxMenu(type, treeType, data) }
+                    >
+                        {
+                            (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
+                            ? <Tooltip title={this.renderFileInfo(treeType, data)}>
+                                <span id={`JS_${id}`} title={name} className={claName}>
+                                        { this.renderStatusBadge(treeType, data) }
+                                        { name } 
+                                </span>
+                            </Tooltip>
+                            : <span id={`JS_${id}`} title={name} className={claName}>
+                                { this.renderStatusBadge(treeType, data) }
+                                { name } 
                             </span>
-                        </CtxMenu>
+                        }
+                    </CtxMenu>
                 }
                 value={id}
                 name={name}

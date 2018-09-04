@@ -137,7 +137,7 @@ class ModelDefineRule extends Component {
                 <Select
                     placeholder="请选择"
                     value={rule.value}
-                    style={{ width: 100, marginRight: '5px' }}
+                    style={{ width: 126, marginRight: '5px' }}
                     onSelect={(value, option) => this.changeTbNameRule(option, index)}
                 >
                     {options}
