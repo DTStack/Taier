@@ -328,10 +328,12 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="taskName"
+                    style={{height: "calc(100% - 50px)"}}
                     pagination={false}
                     loading={loadingTop}
                     columns={columns}
                     dataSource={top30 || []}
+                    scroll={{ y: 251 }}
                 />
             </Card>
         );
@@ -496,7 +498,7 @@ class DirtyData extends Component {
                     rowKey="tableName"
                     className="m-table"
                     pagination={pagination}
-                    style={{ minHeight: "0" }}
+                    style={{ minHeight: "0",height: "calc(100% - 482px)" }}
                     loading={loading}
                     columns={columns}
                     onChange={this.onTableChange}
@@ -539,7 +541,7 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{ margin: "0 20px" }}>
+                <Row style={{ margin: "0 20px" ,height:350}}>
                     <Col span={12} style={{ paddingRight: "10px" }}>
                         <Card
                             className="shadow"

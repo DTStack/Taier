@@ -393,7 +393,6 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    padding-bottom: 50px;
     background: #f2f3f8;
 }
 
@@ -432,6 +431,7 @@
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
+            padding-top: 7px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{

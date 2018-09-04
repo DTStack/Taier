@@ -326,7 +326,7 @@ class RealTimeTaskList extends Component {
                 >
                     <Table
                         rowKey="id"
-                        className="m-table"
+                        className="m-table full-screen-table-90"
                         style={{ marginTop: '1px' }}
                         pagination={pagination}
                         loading={this.state.loading}

@@ -455,13 +455,13 @@ class FolderTree extends React.Component {
                     >
                         {
                             (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
-                            ? <Tooltip title={this.renderFileInfo(treeType, data)}>
-                                <span id={`JS_${id}`} title={name} className={claName}>
+                            ? <Tooltip placement="right" title={this.renderFileInfo(treeType, data)} mouseEnterDelay={2} mouseLeaveDelay={0}>
+                                <span id={`JS_${id}`} className={claName}>
                                         { this.renderStatusBadge(treeType, data) }
                                         { name } 
                                 </span>
                             </Tooltip>
-                            : <span id={`JS_${id}`} title={name} className={claName}>
+                            : <span id={`JS_${id}`} className={claName}>
                                 { this.renderStatusBadge(treeType, data) }
                                 { name } 
                             </span>

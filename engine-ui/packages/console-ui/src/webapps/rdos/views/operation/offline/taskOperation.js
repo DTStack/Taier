@@ -52,7 +52,7 @@ class OfflineTaskList extends Component {
         current: 1,
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
+        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : utils.getParameterByName("status").split(','),
         bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date')||0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
@@ -637,7 +637,7 @@ class OfflineTaskList extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table"
+                            className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}

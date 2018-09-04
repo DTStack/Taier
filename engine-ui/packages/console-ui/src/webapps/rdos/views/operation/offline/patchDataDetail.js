@@ -524,7 +524,7 @@ class PatchDataDetail extends Component {
                     </span>
                     </div>
                 </h1>
-                <div className="box-2 m-card">
+                <div className="box-2 m-card task-manage">
                     <Card
                         noHovering
                         bordered={false}
@@ -623,7 +623,7 @@ class PatchDataDetail extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table"
+                            className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}

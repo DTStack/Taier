@@ -139,12 +139,10 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '15%',
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            width: '10%',
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
@@ -155,12 +153,10 @@ class DataSourceMana extends Component {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '15%',
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserId',
             key: 'modifyUserId',
-            width: '10%',
             render: (text, record) => {
                 return record.modifyUser ? record.modifyUser.userName : ''
             }
@@ -168,13 +164,11 @@ class DataSourceMana extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            width: '10%',
             render: text => utils.formatDateTime(text),
         }, {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
-            width: '10%',
             render: (active,record) => {
                 return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
@@ -187,7 +181,6 @@ class DataSourceMana extends Component {
                     </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
-            width: '10%',
             render: (linkState) => {
                 return linkState === 1 ? 
                     <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
@@ -196,7 +189,7 @@ class DataSourceMana extends Component {
         },
          {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '150px',
+            width: '200px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {

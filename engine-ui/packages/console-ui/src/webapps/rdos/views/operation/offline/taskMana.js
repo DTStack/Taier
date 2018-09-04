@@ -431,7 +431,7 @@ class OfflineTaskMana extends Component {
                             }
                         }
                         style={{marginTop: '1px'}}
-                        className="m-table"
+                        className="m-table full-screen-table-90"
                         pagination={pagination}
                         rowSelection={rowSelection} 
                         loading={this.state.loading}

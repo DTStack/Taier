@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 
 import {
-    Card, Button, Row,
-    Col, Table, DatePicker,
+    Card, Button, Row, Icon,
+    Col ,Tooltip,
  } from 'antd'
 
 import { taskStatus } from '../../../comm/const'
@@ -42,25 +42,24 @@ class OfflineCount extends Component {
     }
 
     jumpToOfflineList(status){
+        const joinStatus = status&&status.join(',');
         hashHistory.push({
             pathname:"/operation/offline-operation",
             query:{
-                status:(status||status==0)?status:undefined
+                status: joinStatus
             }
         })
     }
 
     render() {
         const { data } = this.state
-        const flex = {
-            flexGrow: 1,
-            flex: 1
-        }
+        const colSpan = 5;
+        const notRunCount = (data.UNSUBMIT || 0) + (data.SUBMITTING || 0) + (data.WAITENGINE || 0)
         return (
-            <div style={{marginTop: '10px'}}>
+            <div>
                 <h1 className="box-title box-title-bolder">
                     离线任务
-                    <Button type="primary" className="right" style={{marginTop: '8px'}}>
+                    <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
                         <Link to="/operation/offline-operation">离线任务运维</Link>
                     </Button>
                 </h1>
@@ -71,61 +70,67 @@ class OfflineCount extends Component {
                         loading={false} 
                         title="今日周期实例完成情况" 
                     >
-                        <Row className="m-count" style={{display: 'flex'}}>
-                            <Col style={flex}>
+                        <Row className="m-count" >
+                            {/* <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">全部</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
                                 </section>
-                            </Col>
-                            <Col style={flex}>
+                            </Col> */}
+                            <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this,taskStatus.FAILED)} className="m-count-content font-red">{data.FAILED || 0}</a>
+                                    <a onClick={this.jumpToOfflineList.bind(this,[taskStatus.FAILED])} className="m-count-content font-red">{data.FAILED || 0}</a>
                                 </section>
                             </Col>
-                            <Col style={flex}>
+                            <Col span={colSpan}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行中</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this,taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
+                                    <a onClick={this.jumpToOfflineList.bind(this,[taskStatus.RUNNING])} className="m-count-content font-blue">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
-                            <Col style={flex}>
+                            <Col span={colSpan}>
+                                <section className="m-count-section" style={{width:60}}>
+                                    <span className="m-count-title">未运行 <Tooltip title="包括等待提交、提交中、等待运行3种状态"><Icon type="question-circle-o" /></Tooltip></span>
+                                    <a onClick={this.jumpToOfflineList.bind(this,[taskStatus.UNSUBMIT,taskStatus.SUBMITTING,taskStatus.WAITING_RUN])} className="m-count-content font-organge">{notRunCount}</a>
+                                </section>
+                            </Col>
+                            <Col span={colSpan}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">成功</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this,taskStatus.FINISHED)} className="m-count-content font-green">{data.FINISHED || 0}</a>
+                                    <a onClick={this.jumpToOfflineList.bind(this,[taskStatus.FINISHED])} className="m-count-content font-green">{data.FINISHED || 0}</a>
                                 </section>
                             </Col>
-                            <Col style={flex}>
+                            {/* <Col style={flex}>
                                 <section className="m-count-section" style={{width:"60px"}}>
                                     <span className="m-count-title">等待提交</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.UNSUBMIT)} className="m-count-content font-gray">{data.UNSUBMIT || 0}</a>
                                 </section>
-                            </Col>
-                            <Col style={flex}>
+                            </Col> */}
+                            {/* <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">提交中</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.SUBMITTING)} className="m-count-content font-organge">{data.SUBMITTING || 0}</a>
                                 </section>
-                            </Col>
-                            <Col style={flex}>
+                            </Col> */}
+                            {/* <Col style={flex}>
                                 <section className="m-count-section" style={{width:"60px"}}>
                                     <span className="m-count-title" >等待运行</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.WAITING_RUN)} className="m-count-content font-organge">{data.WAITENGINE || 0}</a>
                                 </section>
-                            </Col>
-                            <Col style={flex}>
-                                <section className="m-count-section">
-                                    <span className="m-count-title">冻结</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this,taskStatus.FROZEN)} className="m-count-content font-blue">{data.FROZEN || 0}</a>
+                            </Col> */}
+                            <Col span={colSpan}>
+                                <section className="m-count-section" style={{width:60}}>
+                                    <span className="m-count-title">冻结/取消</span>
+                                    <a onClick={this.jumpToOfflineList.bind(this,[taskStatus.FROZEN,taskStatus.CANCELED])} className="m-count-content font-gray">{(data.FROZEN || 0)+(data.CANCELED || 0)}</a>
                                 </section>
                             </Col>
-                            <Col style={flex}>
+                            {/* <Col style={flex}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">取消</span>
                                     <a onClick={this.jumpToOfflineList.bind(this,taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>
                                 </section>
-                            </Col>
+                            </Col> */}
                         </Row>
                     </Card> 
                 </div>
