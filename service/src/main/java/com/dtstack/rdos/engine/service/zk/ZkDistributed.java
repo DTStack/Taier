@@ -830,6 +830,16 @@ public class ZkDistributed implements Closeable{
 	private BrokerDataNode cleanNoNeed(String nodeAddress){
 		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(nodeAddress);
 		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
+		for (Map.Entry<String, BrokerDataNode.BrokerDataInner> entry : brokerDataNode.getShards().entrySet()) {
+			Map<String, Byte> dataMap = entry.getValue().getShardData();
+			Iterator<Map.Entry<String, Byte>> it = dataMap.entrySet().iterator();
+			while (it.hasNext()){
+				Map.Entry<String, Byte> data = it.next();
+				if (RdosTaskStatus.needClean(data.getValue())) {
+					it.remove();
+				}
+			}
+		}
 		return brokerDataNode;
 	}
 

@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,18 +13,10 @@ public class BrokerDataNode {
 
     public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
         this.consistentHash = new ShardConsistentHash(5, Lists.newArrayList());
-        this.shards = new HashMap<>(brokerDataShardMap.size());
         if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
+            this.shards = new HashMap<>(brokerDataShardMap.size());
             for (Map.Entry<String, BrokerDataShard> entry : brokerDataShardMap.entrySet()) {
                 Map<String, Byte> dataMap = entry.getValue().getMetas();
-                for (Map.Entry<String, Byte> data : dataMap.entrySet()) {
-                    if (RdosTaskStatus.needClean(data.getValue())) {
-                        dataMap.remove(data.getKey());
-                    }
-                }
-                if (MapUtils.isEmpty(dataMap)) {
-                    continue;
-                }
                 BrokerDataInner inner = new BrokerDataInner(entry.getKey(), dataMap);
                 consistentHash.add(entry.getKey());
                 this.shards.put(entry.getKey(), inner);
