@@ -189,6 +189,10 @@ export default class TaskView extends Component {
                 width = width + 20;
                 height = height + 100;
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
+                
+                if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
+                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#26dad12e;';
+                }
             }
 
             if (isWorkflowNode) {
