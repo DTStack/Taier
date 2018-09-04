@@ -12,6 +12,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
@@ -62,7 +63,7 @@ public class TaskStatusListener implements Runnable{
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
-	private Map<String,Map<String,BrokerDataShard>> brokerDatas = zkDistributed.getMemTaskStatus();
+	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
@@ -125,8 +126,8 @@ public class TaskStatusListener implements Runnable{
     }
 	
 	private void updateTaskStatus(){
-        for (Map.Entry<String,BrokerDataShard> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).entrySet()) {
-            for (Map.Entry<String, Byte> entry : shardEntry.getValue().getMetas().entrySet()) {
+        for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).getShards().entrySet()) {
+            for (Map.Entry<String, Byte> entry : shardEntry.getValue().getShardData().entrySet()) {
                 try {
                     Integer oldStatus = Integer.valueOf(entry.getValue());
 

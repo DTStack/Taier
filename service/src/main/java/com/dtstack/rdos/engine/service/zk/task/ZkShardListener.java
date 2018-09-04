@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -28,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * author: toutian
  * create: 2018/9/1
  */
-public class ZkShardListener implements Runnable,Closeable {
+public class ZkShardListener implements Runnable, Closeable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardListener.class);
 
@@ -46,8 +47,17 @@ public class ZkShardListener implements Runnable,Closeable {
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newHashMap();
 
-    public ZkShardListener() {
-        createShardNode(1);
+    public ZkShardListener(Map<String,BrokerDataNode> memTaskStatus) {
+        if (memTaskStatus != null) {
+            BrokerDataNode brokerDataNode = memTaskStatus.get(zkDistributed.getLocalAddress());
+            if (brokerDataNode!=null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
+                for (String shardName : brokerDataNode.getShards().keySet()) {
+                    initShardNode(shardName);
+                }
+            } else {
+                createShardNode(1);
+            }
+        }
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
@@ -56,11 +66,13 @@ public class ZkShardListener implements Runnable,Closeable {
                 TimeUnit.SECONDS);
     }
 
-    public InterProcessMutex getShardLockByZkTaskId(String zkTaskId){
+
+    public InterProcessMutex getShardLockByZkTaskId(String zkTaskId) {
         String shard = shardsCsist.get(zkTaskId);
         return mutexs.get(shard);
     }
-    public InterProcessMutex getShardLock(String shard){
+
+    public InterProcessMutex getShardLock(String shard) {
         return mutexs.get(shard);
     }
 
@@ -71,7 +83,7 @@ public class ZkShardListener implements Runnable,Closeable {
             Map<String, Integer> brokerDataNodeMap = new HashMap<>(dataShards.size());
             int totalSize = 0;
             for (String dShard : dataShards) {
-                BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
+                BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
                 int size = brokerDataShard.getMetas().size();
                 totalSize += size;
                 brokerDataNodeMap.put(dShard, size);
@@ -96,7 +108,7 @@ public class ZkShardListener implements Runnable,Closeable {
             if (idleCount >= SHARD_IDLE_TIMES) {
                 try {
                     if (mutexs.get(dShard).acquire(30, TimeUnit.SECONDS)) {
-                        BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
+                        BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
                         if (brokerDataShard != null && brokerDataShard.getMetas().size() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
@@ -124,6 +136,12 @@ public class ZkShardListener implements Runnable,Closeable {
         }
     }
 
+    private void initShardNode(String shardName) {
+        InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
+        mutexs.put(shardName, mutex);
+        shardsCsist.add(shardName);
+    }
+
     private void createShardNode(float nodeNum) {
         for (int i = 0; i < nodeNum; i++) {
             String shardName = SHARD_NODE + shardSequence.getAndIncrement();
@@ -137,21 +155,21 @@ public class ZkShardListener implements Runnable,Closeable {
     public void lockRelease() {
         try {
             close();
-        } catch (IOException e){
-            logger.error("{}",e);
+        } catch (IOException e) {
+            logger.error("{}", e);
         }
     }
 
     @Override
     public void close() throws IOException {
-        if (MapUtils.isNotEmpty(mutexs)){
-            for (Map.Entry<String, InterProcessMutex> entry:mutexs.entrySet()){
-                try{
-                    if(entry.getValue().isAcquiredInThisProcess()){
+        if (MapUtils.isNotEmpty(mutexs)) {
+            for (Map.Entry<String, InterProcessMutex> entry : mutexs.entrySet()) {
+                try {
+                    if (entry.getValue().isAcquiredInThisProcess()) {
                         entry.getValue().release();
                     }
-                }catch (Exception e){
-                    logger.error("",e);
+                } catch (Exception e) {
+                    logger.error("", e);
                 }
             }
         }

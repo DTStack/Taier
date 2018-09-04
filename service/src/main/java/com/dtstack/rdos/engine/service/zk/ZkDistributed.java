@@ -85,7 +85,7 @@ public class ZkDistributed implements Closeable{
 
 	private static ZkDistributed zkDistributed;
 
-	private Map<String, Map<String,BrokerDataShard>> memTaskStatus = Maps.newConcurrentMap();
+	private Map<String, BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
 
 	private InterProcessMutex masterLock;
 
@@ -152,7 +152,7 @@ public class ZkDistributed implements Closeable{
 
 	private void initScheduledExecutorService() {
         masterListener = new MasterListener();
-		zkShardListener = new ZkShardListener();
+		zkShardListener = new ZkShardListener(memTaskStatus);
 		executors.execute(zkShardListener);
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
@@ -408,11 +408,8 @@ public class ZkDistributed implements Closeable{
 			for(String broker:brokers){
 				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
 				if(brokerHeartNode.getAlive()){
-					Map<String,BrokerDataShard> shardMap = memTaskStatus.computeIfAbsent(broker, k->Maps.newHashMap());
-					for (String shard:getBrokerDataChildren(broker)){
-						String shardKey = String.format("%s/%s/%s",broker,metaDataNode,shard);
-						shardMap.put(shardKey,getBrokerDataShard(broker,shard));
-					}
+					Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(broker);
+					BrokerDataNode brokerDataNode = memTaskStatus.computeIfAbsent(broker, k-> new BrokerDataNode(brokerDataShardMap));
 				} else {
 					memTaskStatus.remove(broker);
 				}
@@ -423,7 +420,8 @@ public class ZkDistributed implements Closeable{
 	public void updateLocalMemTaskStatus(String zkTaskId,BrokerDataShard brokerDataShard){
 		String shard = shardsCsist.get(zkTaskId);
 		synchronized(memTaskStatus){
-			memTaskStatus.get(this.getLocalAddress()).get(shard).getMetas().putAll(brokerDataShard.getMetas());
+			BrokerDataNode brokerDataNode = memTaskStatus.get(this.getLocalAddress());
+			brokerDataNode.getShards().get(shard).getShardData().putAll(brokerDataShard.getMetas());
 		}
 	}
 
@@ -573,14 +571,14 @@ public class ZkDistributed implements Closeable{
 		String node = null;
 
 		if(memTaskStatus.size() > 0){
-			Set<Map.Entry<String, Map<String,BrokerDataShard>>> entrys = memTaskStatus.entrySet();
-			for(Map.Entry<String, Map<String,BrokerDataShard>> entry : entrys){
+			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
+			for(Map.Entry<String, BrokerDataNode> entry : entrys){
 				String targetNode = entry.getKey();
 				if(excludeNodes.contains(targetNode)){
 					continue;
 				}
 				int size =0;
-				for (Map.Entry<String,BrokerDataShard> shardEntry:entry.getValue().entrySet()){
+				for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry:entry.getValue().getShards().entrySet()){
 					size += getDistributeJobCount(shardEntry.getValue());
 				}
 				if(size < def){
@@ -592,9 +590,9 @@ public class ZkDistributed implements Closeable{
 		return node;
 	}
 
-	private int getDistributeJobCount(BrokerDataShard brokerDataShard){
+	private int getDistributeJobCount(BrokerDataNode.BrokerDataInner brokerDataInner){
 		int count = 0;
-		for(byte status : brokerDataShard.getMetas().values()){
+		for(byte status : brokerDataInner.getShardData().values()){
 			if(status == RdosTaskStatus.RESTARTING.getStatus()
 					|| status == RdosTaskStatus.WAITCOMPUTE.getStatus()
 					|| status == RdosTaskStatus.WAITENGINE.getStatus()){
@@ -606,10 +604,10 @@ public class ZkDistributed implements Closeable{
 
 	public boolean checkIsAlreadyInThisNode(String taskId){
 		String shard = shardsCsist.get(taskId);
-		for(Map.Entry<String, Map<String,BrokerDataShard>> entry : memTaskStatus.entrySet()){
-			Map<String,BrokerDataShard> shardMap = entry.getValue();
+		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
+			Map<String, BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
 			if (shardMap.containsKey(shard)){
-				return shardMap.get(shard).getMetas().containsKey(taskId);
+				return shardMap.get(shard).getShardData().containsKey(taskId);
 			}
 		}
 		return false;
@@ -651,17 +649,17 @@ public class ZkDistributed implements Closeable{
 		return localAddress;
 	}
 
-	public Map<String, Map<String,BrokerDataShard>> getMemTaskStatus(){
+	public Map<String, BrokerDataNode> getMemTaskStatus(){
 		return memTaskStatus;
 	}
 
 	public String getJobLocationAddr(String zkTaskId){
 		String shard = shardsCsist.get(zkTaskId);
-		for(Map.Entry<String, Map<String,BrokerDataShard>> entry : memTaskStatus.entrySet()){
+		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
             String addr = entry.getKey();
-			Map<String,BrokerDataShard> shardMap = entry.getValue();
+			Map<String,BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
 			if (shardMap.containsKey(shard)){
-				if (shardMap.get(shard).getMetas().containsKey(zkTaskId)){
+				if (shardMap.get(shard).getShardData().containsKey(zkTaskId)){
 					return addr;
 				}
 			}
