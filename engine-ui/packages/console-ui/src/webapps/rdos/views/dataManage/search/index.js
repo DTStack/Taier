@@ -39,6 +39,7 @@ class SearchTable extends Component {
                 catalogueId,
                 permissionStatus,
                 tableName,
+                pageSize: 20,
             },
         }
     }
@@ -303,7 +304,7 @@ class SearchTable extends Component {
 
         const pagination = {
             total: Number(table.totalCount),
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
@@ -313,7 +314,7 @@ class SearchTable extends Component {
                                 <div style={{ marginTop: '1px' }}>
                                     <Table
                                         rowKey="id"
-                                        className="m-table"
+                                        className="m-table full-screen-table-90"
                                         columns={this.initialColumns()}
                                         dataSource={table.data}
                                         pagination={pagination}
