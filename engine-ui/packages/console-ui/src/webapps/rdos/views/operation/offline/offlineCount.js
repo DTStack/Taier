@@ -57,13 +57,13 @@ class OfflineCount extends Component {
         const notRunCount = (data.UNSUBMIT || 0) + (data.SUBMITTING || 0) + (data.WAITENGINE || 0)
         return (
             <div>
-                <h1 className="box-title box-title-bolder">
+                <h1 className="box-title box-title-bolder" style={{padding:"0 10 0 20"}}>
                     离线任务
                     <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
                         <Link to="/operation/offline-operation">离线任务运维</Link>
                     </Button>
                 </h1>
-                <div className="box-4 m-card m-card-small">
+                <div className="box-4 m-card m-card-small" style={{margin:"0 10 0 20"}}>
                     <Card
                         noHovering
                         bordered={false}
