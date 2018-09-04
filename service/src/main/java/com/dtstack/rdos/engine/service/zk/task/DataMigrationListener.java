@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.task;
 
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +37,10 @@ public class DataMigrationListener implements Runnable{
                     for(String node:brokers){
                         BrokerHeartNode brokerHeartNode = zkDistributed.getBrokerHeartNode(node);
                         if(brokerHeartNode!=null&&!brokerHeartNode.getAlive()) {
-                            Map<String,BrokerDataNode> brokerDataNodeMap =  zkDistributed.getBrokerDataNode(node);
+                            Map<String,BrokerDataShard> brokerDataNodeMap =  zkDistributed.getBrokerDataNode(node);
                             boolean data = false;
                             if (brokerDataNodeMap!=null){
-                                for (Map.Entry<String,BrokerDataNode> entry:brokerDataNodeMap.entrySet()){
+                                for (Map.Entry<String,BrokerDataShard> entry:brokerDataNodeMap.entrySet()){
                                     if (entry.getValue().getMetas().size()>0){
                                         data = true;
                                         break;

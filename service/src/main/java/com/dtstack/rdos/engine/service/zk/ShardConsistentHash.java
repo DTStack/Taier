@@ -37,7 +37,7 @@ public class ShardConsistentHash {
     private ShardConsistentHash() {
     }
 
-    private ShardConsistentHash(int numberOfReplicas, Collection<String> shards) {
+    public ShardConsistentHash(int numberOfReplicas, Collection<String> shards) {
         this.numberOfReplicas = numberOfReplicas;
         for (String shard : shards) {
             add(shard);

@@ -1,44 +1,104 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.MapUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * @author toutian
  */
 public class BrokerDataNode {
 
-    /**FIXME 如果存储的key格式发生改变--需要修改 BrokerDataTreeMap 的构造函数*/
-	private BrokerDataTreeMap metas;
+    public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
+        this.consistentHash = new ShardConsistentHash(5, Lists.newArrayList());
+        this.shards = new HashMap<>(brokerDataShardMap.size());
+        if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
+            for (Map.Entry<String, BrokerDataShard> entry : brokerDataShardMap.entrySet()) {
+                Map<String, Byte> dataMap = entry.getValue().getMetas();
+                for (Map.Entry<String, Byte> data : dataMap.entrySet()) {
+                    if (RdosTaskStatus.needClean(data.getValue())) {
+                        dataMap.remove(data.getKey());
+                    }
+                }
+                if (MapUtils.isEmpty(dataMap)) {
+                    continue;
+                }
+                BrokerDataInner inner = new BrokerDataInner(entry.getKey(), dataMap);
+                consistentHash.add(entry.getKey());
+                this.shards.put(entry.getKey(), inner);
+            }
+        }
+    }
 
-	public BrokerDataTreeMap getMetas() {
-		return metas;
-	}
+    private Map<String, BrokerDataInner> shards;
+    private ShardConsistentHash consistentHash;
 
-	public void setMetas(BrokerDataTreeMap metas) {
-		this.metas = metas;
-	}
-	
-	public static void copy(BrokerDataNode source, BrokerDataNode target, boolean isCover){
-    	if(source.getMetas()!=null){
-    		if(isCover){
-        		target.setMetas(source.getMetas());
-    		}else{
-    			target.getMetas().putAll(source.getMetas());
-    		}
-    	}
-	}
-	
-	public static BrokerDataNode initBrokerDataNode(){
-		BrokerDataNode brokerNode = new BrokerDataNode();
-		brokerNode.setMetas(new BrokerDataTreeMap());
-		return brokerNode;
-	}
-	
-	public static BrokerDataNode initNullBrokerNode(){
-		BrokerDataNode brokerNode = new BrokerDataNode();
-		return brokerNode;
-	}
+    public String getShard(String zkTaskId) {
+        return consistentHash.get(zkTaskId);
+    }
+
+    public long getDataSize() {
+        return shards.values().stream().map(t -> t.getSize()).reduce(Long::sum).orElse(0L);
+    }
+
+    public Map<String, BrokerDataInner> getShards() {
+        return shards;
+    }
+
+    public void putElement(String key, Byte value) {
+        String shard = getShard(key);
+        shards.get(shard).getShardData().put(key, value);
+    }
+
+    public class BrokerDataInner {
+        private String shardName;
+        private Map<String, Byte> shardData;
+
+        public BrokerDataInner(String shardName, Map<String, Byte> shardData) {
+            this.shardName = shardName;
+            this.shardData = shardData;
+        }
+
+        public String getShardName() {
+            return shardName;
+        }
+
+        public void setShardName(String shardName) {
+            this.shardName = shardName;
+        }
+
+        public Map<String, Byte> getShardData() {
+            return shardData;
+        }
+
+        public void setShardData(Map<String, Byte> shardData) {
+            this.shardData = shardData;
+        }
+
+        public long getSize() {
+            return shardData == null ? 0 : shardData.size();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            BrokerDataInner inner = (BrokerDataInner) o;
+
+            if (shardName != null ? !shardName.equals(inner.shardName) : inner.shardName != null) return false;
+            return shardData != null ? shardData.equals(inner.shardData) : inner.shardData == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = shardName != null ? shardName.hashCode() : 0;
+            result = 31 * result + (shardData != null ? shardData.hashCode() : 0);
+            return result;
+        }
+    }
 }

@@ -4,7 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.MapUtils;
@@ -71,8 +71,8 @@ public class ZkShardListener implements Runnable,Closeable {
             Map<String, Integer> brokerDataNodeMap = new HashMap<>(dataShards.size());
             int totalSize = 0;
             for (String dShard : dataShards) {
-                BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
-                int size = brokerDataNode.getMetas().size();
+                BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
+                int size = brokerDataShard.getMetas().size();
                 totalSize += size;
                 brokerDataNodeMap.put(dShard, size);
             }
@@ -96,8 +96,8 @@ public class ZkShardListener implements Runnable,Closeable {
             if (idleCount >= SHARD_IDLE_TIMES) {
                 try {
                     if (mutexs.get(dShard).acquire(30, TimeUnit.SECONDS)) {
-                        BrokerDataNode brokerDataNode = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
-                        if (brokerDataNode != null && brokerDataNode.getMetas().size() == 0) {
+                        BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(),dShard);
+                        if (brokerDataShard != null && brokerDataShard.getMetas().size() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
                             shardsCsist.remove(dShard);

@@ -12,7 +12,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 
@@ -63,7 +62,7 @@ public class TaskStatusListener implements Runnable{
 	
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	
-	private Map<String,Map<String,BrokerDataNode>> brokerDatas = zkDistributed.getMemTaskStatus();
+	private Map<String,Map<String,BrokerDataShard>> brokerDatas = zkDistributed.getMemTaskStatus();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
@@ -126,7 +125,7 @@ public class TaskStatusListener implements Runnable{
     }
 	
 	private void updateTaskStatus(){
-        for (Map.Entry<String,BrokerDataNode> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).entrySet()) {
+        for (Map.Entry<String,BrokerDataShard> shardEntry: brokerDatas.get(zkDistributed.getLocalAddress()).entrySet()) {
             for (Map.Entry<String, Byte> entry : shardEntry.getValue().getMetas().entrySet()) {
                 try {
                     Integer oldStatus = Integer.valueOf(entry.getValue());
@@ -392,10 +391,10 @@ public class TaskStatusListener implements Runnable{
     }
 
     public void updateJobZookStatus(String zkTaskId, Integer status){
-        BrokerDataNode brokerDataNode = BrokerDataNode.initBrokerDataNode();
-        brokerDataNode.getMetas().put(zkTaskId, status.byteValue());
-        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), zkTaskId, brokerDataNode, false);
-        zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataNode);
+        BrokerDataShard brokerDataShard = BrokerDataShard.initBrokerDataShard();
+        brokerDataShard.getMetas().put(zkTaskId, status.byteValue());
+        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), zkTaskId, brokerDataShard, false);
+        zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataShard);
 
     }
 
