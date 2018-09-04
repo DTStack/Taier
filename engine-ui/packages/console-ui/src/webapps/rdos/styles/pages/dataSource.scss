@@ -13,7 +13,7 @@
 .m-r-8 {
 	margin-right: 8px;
 }
-
+ 
 .sync-content {
 	margin: 20px;
 	
@@ -94,10 +94,14 @@
 }
 
 .rdos-data-source {
+
 	.ant-card-wider-padding .ant-card-head{
 		padding: 0 20px;
 	}
 	.ant-card-wider-padding .ant-card-body{
-		padding: 24px 20px;
+		padding: 0;
+	}
+	.m-table tr>td:first-child, .m-table tr>th:first-child{
+		padding-left: 20px;
 	}
 }
