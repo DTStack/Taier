@@ -261,8 +261,9 @@ public class ZkDistributed implements Closeable{
 	public void updateSynchronizedBrokerData(String localAddress, String zkTaskId, BrokerDataShard source, boolean isCover){
 		String shard = shardsCsist.get(zkTaskId);
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,localAddress,metaDataNode,shard);
+		InterProcessMutex lock = zkShardListener.getShardLock(shard);
 		try {
-			if(zkShardListener.getShardLock(shard).acquire(30, TimeUnit.SECONDS)){
+			if(lock!=null&&lock.acquire(30, TimeUnit.SECONDS)){
 				BrokerDataShard target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataShard.class);
 				BrokerDataShard.copy(source, target, isCover);
 				zkClient.setData().forPath(nodePath,
@@ -273,8 +274,8 @@ public class ZkDistributed implements Closeable{
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (zkShardListener.getShardLock(shard).isAcquiredInThisProcess()) {
-					zkShardListener.getShardLock(shard).release();
+				if (lock!=null&&lock.isAcquiredInThisProcess()) {
+					lock.release();
 				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
@@ -285,8 +286,9 @@ public class ZkDistributed implements Closeable{
 
 	public void updateSynchronizedBrokerDataCleanRecoverTask(String localAddress,String shard, List<String> zkTaskIds){
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,localAddress,metaDataNode,shard);
+		InterProcessMutex lock = zkShardListener.getShardLock(shard);
 		try {
-			if(zkShardListener.getShardLock(shard).acquire(30, TimeUnit.SECONDS)){
+			if(lock!=null&&lock.acquire(30, TimeUnit.SECONDS)){
 				BrokerDataShard target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataShard.class);
 				for (String zkTaskId:zkTaskIds){
 					target.getMetas().remove(zkTaskId);
@@ -299,8 +301,8 @@ public class ZkDistributed implements Closeable{
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (zkShardListener.getShardLock(shard).isAcquiredInThisProcess()) {
-					zkShardListener.getShardLock(shard).release();
+				if (lock!=null&&lock.isAcquiredInThisProcess()) {
+					lock.release();
 				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,
@@ -312,8 +314,9 @@ public class ZkDistributed implements Closeable{
 	public void updateSyncLocalBrokerDataAndCleanNoNeedTask(String zkTaskId, Integer status){
 		String shard = shardsCsist.get(zkTaskId);
 		String nodePath = String.format("%s/%s/%s", this.localNode,metaDataNode,shard);
+		InterProcessMutex lock = zkShardListener.getShardLock(shard);
 		try {
-			if(zkShardListener.getShardLock(shard).acquire(10, TimeUnit.SECONDS)){
+			if(lock!=null&&lock.acquire(10, TimeUnit.SECONDS)){
 				BrokerDataShard target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataShard.class);
 				Map<String,Byte> datas = target.getMetas();
 				datas.put(zkTaskId, status.byteValue());
@@ -331,8 +334,8 @@ public class ZkDistributed implements Closeable{
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (zkShardListener.getShardLock(shard).isAcquiredInThisProcess()) {
-					zkShardListener.getShardLock(shard).release();
+				if (lock!=null&&lock.isAcquiredInThisProcess()) {
+					lock.release();
 				}
 			} catch (Exception e) {
 				logger.error("{}:updateSyncLocalBrokerDataAndCleanNoNeedTask error:{}", nodePath,

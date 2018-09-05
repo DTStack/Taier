@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 
 /**
+ * 切忌要保证线程安全
+ * <p>
  * company: www.dtstack.com
  * author: toutian
  * create: 2018/9/1
@@ -36,6 +38,10 @@ public class ShardConsistentHash {
     private ShardConsistentHash() {
     }
 
+    /**
+     * 仅用于节点宕机后数据迁移，计算其他机器节点任务分配的分片.
+     * 其他情况下请使用单例引用对象
+     */
     public ShardConsistentHash(int numberOfReplicas, Collection<String> shards) {
         this.numberOfReplicas = numberOfReplicas;
         for (String shard : shards) {

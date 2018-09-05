@@ -106,6 +106,7 @@ public class ZkShardListener implements Runnable, Closeable {
         int idleCount = c.getAndIncrement();
         if (size == 0) {
             if (idleCount >= SHARD_IDLE_TIMES) {
+                boolean destroy = false;
                 try {
                     if (mutexs.get(dShard).acquire(30, TimeUnit.SECONDS)) {
                         BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
@@ -113,6 +114,7 @@ public class ZkShardListener implements Runnable, Closeable {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
                             shardsCsist.remove(dShard);
+                            destroy=true;
                         }
                     }
                 } catch (Exception e) {
@@ -123,8 +125,11 @@ public class ZkShardListener implements Runnable, Closeable {
                         if (mutexs.get(dShard).isAcquiredInThisProcess()) {
                             mutexs.get(dShard).release();
                         }
-                        mutexs.remove(dShard);
-                        zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
+                        if (destroy){
+                            mutexs.remove(dShard);
+                            zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
+                            logger.info("{} {} SHARD IDLE TIMES out, destroy success", zkDistributed.getLocalAddress(), dShard);
+                        }
                     } catch (Exception e) {
                         logger.error("{} {}:shardIdleDoubleCheck error:{}", zkDistributed.getLocalAddress(), dShard,
                                 ExceptionUtil.getErrorMessage(e));
