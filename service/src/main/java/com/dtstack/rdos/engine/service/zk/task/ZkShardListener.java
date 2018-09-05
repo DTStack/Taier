@@ -107,14 +107,15 @@ public class ZkShardListener implements Runnable, Closeable {
         if (size == 0) {
             if (idleCount >= SHARD_IDLE_TIMES) {
                 boolean destroy = false;
+                InterProcessMutex lock = this.getShardLock(dShard);
                 try {
-                    if (mutexs.get(dShard).acquire(30, TimeUnit.SECONDS)) {
+                    if (lock.acquire(30, TimeUnit.SECONDS)) {
                         BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
                         if (brokerDataShard != null && brokerDataShard.getMetas().size() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
                             shardsCsist.remove(dShard);
-                            destroy=true;
+                            destroy = true;
                         }
                     }
                 } catch (Exception e) {
@@ -122,13 +123,18 @@ public class ZkShardListener implements Runnable, Closeable {
                             ExceptionUtil.getErrorMessage(e));
                 } finally {
                     try {
-                        if (mutexs.get(dShard).isAcquiredInThisProcess()) {
-                            mutexs.get(dShard).release();
-                        }
-                        if (destroy){
-                            mutexs.remove(dShard);
-                            zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
-                            logger.info("{} {} SHARD IDLE TIMES out, destroy success", zkDistributed.getLocalAddress(), dShard);
+                        if (lock.isAcquiredInThisProcess()) {
+                            //先从内存中将锁移除
+                            if (destroy) {
+                                mutexs.remove(dShard);
+                            }
+                            //再释放锁
+                            lock.release();
+                            //清楚锁zk路径
+                            if (destroy) {
+                                zkDistributed.deleteBrokerDataShardLock(dShard + SHARD_LOCK);
+                                logger.info("{} {} SHARD IDLE TIMES out, destroy success", zkDistributed.getLocalAddress(), dShard);
+                            }
                         }
                     } catch (Exception e) {
                         logger.error("{} {}:shardIdleDoubleCheck error:{}", zkDistributed.getLocalAddress(), dShard,
