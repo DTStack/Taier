@@ -427,7 +427,7 @@ class SourceForm extends React.Component {
         const sourceList = sourceMap.sourceList;
 
         if (!sourceList) {
-            return null;
+            return [];
         }
 
         return sourceList.filter(
@@ -599,7 +599,7 @@ class SourceForm extends React.Component {
                                 showArrow={true}
                                 onChange={this.submitForm.bind(this)}
                             >
-                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.type).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
+                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.key).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
                                     return <Option key={`copate-${index}`} value={copateValue}>
                                         {copateValue}
                                     </Option>
