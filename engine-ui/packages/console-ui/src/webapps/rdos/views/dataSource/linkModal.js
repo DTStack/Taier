@@ -15,11 +15,23 @@ class LinkModal extends React.Component {
     }
 
     getTargetList(sourceId) {
-        console.log(sourceId);
+        const { type } = this.props;
+        Api.getLinkSourceList({
+            dataSourceId:sourceId
+        },type)
+        .then(
+            (res)=>{
+                if(res.code==1){
+                    this.setState({
+                        targetList:[].concat(res.data.linkProjectSources).concat([res.data.linkSource]).filter(Boolean)
+                    })
+                }
+            }
+        )
     }
 
     componentDidMount() {
-        if (this.props.sourceData) {
+        if (this.props.sourceData&&this.props.sourceData.id) {
             this.getTargetList(this.props.sourceData.id);
         }
     }

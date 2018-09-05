@@ -13,14 +13,18 @@ const TabPane=Tabs.TabPane;
 class PackageContainer extends React.Component {
 
     state={
-
+        tabKey:1024
     }
+
     onChange(key){
         const {location} = this.props;
-
+        this.setState({
+            tabKey:~~(Math.random()*100000)
+        })
         hashHistory.push({pathname:`/package/${key}`,query:location.query})
     }
     render() {
+        const {tabKey} = this.state;
         const {params} = this.props;
         const mode=utils.getParameterByName("type")
         const title=`${mode=="realtime"?'实时':'离线'}任务发布`
@@ -39,10 +43,10 @@ class PackageContainer extends React.Component {
                     tabBarStyle={{background:"transparent",borderWidth:"0px"}}
                 >
                     <TabPane className="m-panel2" tab="创建发布包" key="create">
-                        <PackageCreate mode={mode} />
+                        <PackageCreate key={tabKey} mode={mode} />
                     </TabPane>
                     <TabPane className="m-panel2" tab="发布包" key="publish">
-                        <PackagePublish mode={mode} />
+                        <PackagePublish key={tabKey} mode={mode} />
                     </TabPane>
                 </Tabs>
                 {this.props.children}

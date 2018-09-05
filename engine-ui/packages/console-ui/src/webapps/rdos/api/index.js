@@ -735,11 +735,35 @@ export default {
     getStreamTableColumn(params) {
         return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
+    //================ 实时离线合并接口 ===============/
     linkSource(params,type="offline") {
         if(type=="offline"){
-            return http(offlineReq.LINK_SOURCE, params)
+            return http.post(offlineReq.LINK_SOURCE, params)
         }else{
-            return http(stremReq.LINK_SOURCE, params)
+            return http.post(stremReq.LINK_SOURCE, params)
         }
-    }
+    },
+    getLinkSourceList(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
+        }else{
+            return http.post(req.GET_REALTIME_LINK_SOURCE, params)
+        }
+    },
+    getRePublishList(params,type="offline",listType="task") {
+        const urlMap={
+            offline:{
+                task:req.GET_OFFLINE_TASKS,
+                func:req.GET_OFFLINE_FUNCTION,
+                resource:req.GET_OFFLINE_RESOURCE,
+                table:req.GET_OFFLINE_TABLELIST,
+            },
+            realtime:{
+                task:req.GET_REALTIME_TASKS,
+                func:req.GET_REALTIME_FUNCTION,
+                resource:req.GET_REALTIME_RESOURCE
+            }
+        }
+        return http.post(urlMap[type][listType], params)
+    },
 }

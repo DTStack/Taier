@@ -99,5 +99,20 @@
      // ==== 实时运维模块 ===== //
      GET_CHECK_POINT_RANGE: `${RDOS_BASE_URL}/stream/streamTaskCheckpoint/getCheckpointTimeRange`, // 获取指定任务的保存点可选时间范围
      GET_CHECK_POINTS: `${RDOS_BASE_URL}/stream/streamTaskCheckpoint/getCheckpointList`, // 获取指定任务时间范围内的保存点
+
+     // ==== 发布包 ===== //
+     PUBLISH_REALTIME_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/publishPackage`,//发布包
+     PUBLISH_OFFLINE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/publishPackage`,
+     GET_OFFLINE_FUNCTION:`${RDOS_BASE_URL}/batch/batchFunction/pageQuery`,//函数分页
+     GET_REALTIME_FUNCTION:`${RDOS_BASE_URL}/stream/streamFunction/pageQuery`,
+     GET_OFFLINE_RESOURCE:`${RDOS_BASE_URL}/batch/batchResource/pageQuery`,//资源分页
+     GET_REALTIME_RESOURCE:`${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
+     GET_OFFLINE_RESOURCE:`${RDOS_BASE_URL}/batch/batchResource/pageQuery`,//资源分页
+     GET_REALTIME_RESOURCE:`${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
+     GET_OFFLINE_TASKS:`${RDOS_BASE_URL}/batch/batchTaskShade/pageQuery`,//已提交任务分页查询
+     GET_REALTIME_TASKS:`${RDOS_BASE_URL}/stream/streamTaskShade/pageQuery`,
+     GET_OFFLINE_LINK_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceInBingProject`,//获取当前项目关联的项目下的数据源列表
+     GET_REALTIME_LINK_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/getDataSourceInBingProject`,
+     GET_TABLES:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/simplePageQuery`,//获取表
  }
  

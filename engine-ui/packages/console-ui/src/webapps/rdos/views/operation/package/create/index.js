@@ -5,7 +5,9 @@ import {
     Button, Icon, Checkbox
 } from "antd";
 import moment from "moment";
+import utils from "utils";
 
+import Api from "../../../../api"
 import AddLinkModal from "./addLinkModal"
 
 const { RangePicker } = DatePicker;
@@ -17,7 +19,7 @@ const Search = Input.Search;
 class PackageCreate extends React.Component {
 
     state = {
-        addLinkVisible:false,
+        addLinkVisible: false,
         tableParams: {
             filter: {},
             sorter: {},
@@ -27,8 +29,14 @@ class PackageCreate extends React.Component {
                 total: 0
             }
         },
-        selectedRowKeys:[],
-        selectedRows:[],
+        pagination: {
+            current: 1,
+            pageSize: 8
+        },
+        listType: "task",
+        packageList: [],
+        selectedRowKeys: [],
+        selectedRows: [],
     }
 
     componentDidMount() {
@@ -36,7 +44,14 @@ class PackageCreate extends React.Component {
     }
 
     getTaskList() {
-
+        const { mode } = this.props;
+        const { listType, tableParams } = this.state;
+        const pagination = tableParams.pagination;
+        Api.getRePublishList({
+            pageSize:pagination.pageSize,
+            pageIndex:pagination.pageIndex,
+            pageSize:pagination.pageSize
+        },mode,listType)
     }
 
     onTableChange(pagination, filters, sorter) {
@@ -50,27 +65,147 @@ class PackageCreate extends React.Component {
     }
 
     initColumns() {
-        return [{
-            title: "名称",
-            dataIndex: "name"
-        }, {
-            title: "负责人",
-            dataIndex: "a"
-        }, {
-            title: "提交人",
-            dataIndex: "s"
-        }, {
-            title: "提交时间",
-            dataIndex: "d",
-            sorter: true
-        }, {
-            title: "备注",
-            dataIndex: "f"
-        }, {
-            title: "操作",
-            dataIndex: "deal",
-            width: "200px"
-        }]
+        const { listType } = this.state;
+        switch (listType) {
+            case "task": {
+                return [{
+                    title: "名称",
+                    dataIndex: "taskName"
+                }, {
+                    title: "负责人",
+                    dataIndex: "chargeUser"
+                }, {
+                    title: "提交人",
+                    dataIndex: "modifyUser"
+                }, {
+                    title: "提交时间",
+                    dataIndex: "modifyTime",
+                    sorter: true,
+                    render(text) {
+                        return utils.formatDateTime(text)
+                    }
+                }, {
+                    title: "备注",
+                    dataIndex: "taskDesc"
+                }, {
+                    title: "操作",
+                    dataIndex: "deal",
+                    width: "200px",
+                    render() {
+                        return <span>
+                            <a>添加</a>
+                            <span className="ant-divider"></span>
+                            <a>添加关联</a>
+                            <span className="ant-divider"></span>
+                            <a>发布</a>
+                        </span>
+                    }
+                }]
+            }
+            case "resource": {
+                return [{
+                    title: "名称",
+                    dataIndex: "resourceName"
+                }, {
+                    title: "创建人",
+                    dataIndex: "createUser",
+                    render(createUser) {
+                        return createUser.userName
+                    }
+                }, {
+                    title: "修改人",
+                    dataIndex: "modifyUser",
+                    render(modifyUser) {
+                        return modifyUser.userName
+                    }
+                }, {
+                    title: "修改时间",
+                    dataIndex: "gmtModified",
+                    sorter: true,
+                    render(text) {
+                        return utils.formatDateTime(text)
+                    }
+                }, {
+                    title: "操作",
+                    dataIndex: "deal",
+                    width: "200px",
+                    render() {
+                        return <span>
+                            <a>添加</a>
+                            <span className="ant-divider"></span>
+                            <a>发布</a>
+                        </span>
+                    }
+                }]
+            }
+            case "func": {
+                return [{
+                    title: "名称",
+                    dataIndex: "name"
+                }, {
+                    title: "创建人",
+                    dataIndex: "createUser",
+                    render(createUser) {
+                        return createUser.userName
+                    }
+                }, {
+                    title: "修改人",
+                    dataIndex: "modifyUser",
+                    render(modifyUser) {
+                        return modifyUser.userName
+                    }
+                }, {
+                    title: "修改时间",
+                    dataIndex: "gmtModified",
+                    sorter: true,
+                    render(text) {
+                        return utils.formatDateTime(text)
+                    }
+                }, {
+                    title: "操作",
+                    dataIndex: "deal",
+                    width: "200px",
+                    render() {
+                        return <span>
+                            <a>添加</a>
+                            <span className="ant-divider"></span>
+                            <a>发布</a>
+                        </span>
+                    }
+                }]
+            }
+            case "table": {
+                return [{
+                    title: "名称",
+                    dataIndex: "tableName"
+                }, {
+                    title: "负责人",
+                    dataIndex: "chargeUser"
+                }, {
+                    title: "修改人",
+                    dataIndex: "modifyUser"
+                }, {
+                    title: "修改时间",
+                    dataIndex: "modifyTime",
+                    sorter: true,
+                    render(text) {
+                        return utils.formatDateTime(text)
+                    }
+                }, {
+                    title: "操作",
+                    dataIndex: "deal",
+                    width: "200px",
+                    render() {
+                        return <span>
+                            <a>添加</a>
+                            <span className="ant-divider"></span>
+                            <a>发布</a>
+                        </span>
+                    }
+                }]
+            }
+        }
+
     }
 
     disabledDate(currentDate) {
@@ -88,8 +223,19 @@ class PackageCreate extends React.Component {
     }
 
     selectChange(key, value) {
-        if (key == "taskType") {
+        if (key == "listType") {
             value = value.target.value
+            this.setState({
+                tableParams: {
+                    filter: {},
+                    sorter: {},
+                    pagination: {
+                        current: 1,
+                        pageSize: 20,
+                        total: 0
+                    }
+                },
+            })
         }
         this.setState({
             [key]: value
@@ -98,14 +244,18 @@ class PackageCreate extends React.Component {
 
     rowSelection() {
         return {
-            onChange: (selectedRowKeys,selectedRows) => {
-                this.setState({ selectedRowKeys,selectedRows })
+            onChange: (selectedRowKeys, selectedRows) => {
+                this.setState({ selectedRowKeys, selectedRows })
             }
         }
     }
 
     render() {
-        const { packageList, tableParams, addLinkVisible } = this.state;
+        const {
+            packageList, tableParams, addLinkVisible,
+            pagination, selectedRows,
+            listType,
+        } = this.state;
         const { mode } = this.props;
         return (
             <div className="package-create-box">
@@ -119,11 +269,11 @@ class PackageCreate extends React.Component {
                         </div>
                         <div className="header-item">
                             <span className="title">对象类型：</span>
-                            <RadioGroup defaultValue={1} onChange={this.selectChange.bind(this, 'taskType')}>
-                                <Radio value={1}>任务</Radio>
-                                <Radio value={2}>资源</Radio>
-                                <Radio value={3}>函数</Radio>
-                                {mode == "offline" && <Radio value={4}>表</Radio>}
+                            <RadioGroup value={listType} onChange={this.selectChange.bind(this, 'listType')}>
+                                <Radio value="task">任务</Radio>
+                                <Radio value="resource">资源</Radio>
+                                <Radio value="func">函数</Radio>
+                                {mode == "offline" && <Radio value="table">表</Radio>}
                             </RadioGroup>
                         </div>
                         <div className="header-item">
@@ -173,12 +323,12 @@ class PackageCreate extends React.Component {
                         <div className="tool-bottom">
                             <Button className="clear" size="small">清空</Button>
                             <div className="pagn">
-                                <Pagination size="small" pageSize={8} defaultCurrent={1} total={50} />
+                                <Pagination size="small" {...pagination} total={selectedRows.length} />
                             </div>
                         </div>
                     </div>
                 </div>
-                <AddLinkModal onCancel={()=>{this.setState({addLinkVisible:false})}} mode={mode} visible={addLinkVisible} />
+                <AddLinkModal onCancel={() => { this.setState({ addLinkVisible: false }) }} mode={mode} visible={addLinkVisible} />
             </div>
         )
     }
