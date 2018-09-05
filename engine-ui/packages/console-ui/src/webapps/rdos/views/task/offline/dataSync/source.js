@@ -427,7 +427,7 @@ class SourceForm extends React.Component {
         const sourceList = sourceMap.sourceList;
 
         if (!sourceList) {
-            return null;
+            return [];
         }
 
         return sourceList.filter(
