@@ -328,7 +328,7 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="taskName"
-                    style={{height: "calc(100% - 50px)"}}
+                    className="full-screen-table-50"
                     pagination={false}
                     loading={loadingTop}
                     columns={columns}
@@ -583,11 +583,11 @@ class DirtyData extends Component {
                     <SlidePane
                         onClose={this.closeSlidePane}
                         visible={tableLog.visible}
+                        className="full-screen-table-60"
                         style={{
                             right: "-20px",
                             width: "80%",
-                            height: "100%",
-                            minHeight: "600px"
+                            marginTop:'43px',
                         }}
                     >
                         <div className="m-loglist">

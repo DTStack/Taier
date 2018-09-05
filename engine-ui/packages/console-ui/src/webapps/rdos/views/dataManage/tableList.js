@@ -331,7 +331,7 @@ class TableList extends Component {
                 <Tabs
                     activeKey={queryParams.listType}
                     animated={false}
-                    style={{ height: 'auto' ,overflow:'visible',height: "calc(100% - 40px)"}}
+                    style={{overflow:'visible',height: "calc(100% - 40px)"}}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">

@@ -363,7 +363,6 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: 120,
             render: (text, record) => {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)` :
@@ -372,7 +371,6 @@ class PatchDataDetail extends Component {
             },
         }, {
             title: '状态',
-            width: 80,
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
@@ -382,7 +380,6 @@ class PatchDataDetail extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 80,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
@@ -392,30 +389,25 @@ class PatchDataDetail extends Component {
         }, {
             title: '业务日期',
             dataIndex: 'bizDay',
-            width: 120,
             key: 'bizDay',
             sorter: true
         }, {
-            width: 120,
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
             sorter: true
         }, {
-            width: 120,
             title: '开始时间',
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
             sorter: true
         }, {
-            width: 120,
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
             sorter: true
         }, {
             title: '责任人',
-            width: 100,
             dataIndex: 'dutyUserName',
             key: 'dutyUserName',
         }]
@@ -431,7 +423,7 @@ class PatchDataDetail extends Component {
     tableFooter = (currentPageData) => {
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
-                <td style={{ padding: '15px 10px 10px 32px' }}>
+                <td style={{ padding: '15px 10px 10px 22px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -631,7 +623,6 @@ class PatchDataDetail extends Component {
                             dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '60%' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
