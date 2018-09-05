@@ -153,7 +153,6 @@ public class ZkDistributed implements Closeable{
 	private void initScheduledExecutorService() {
         masterListener = new MasterListener();
 		zkShardListener = new ZkShardListener(memTaskStatus);
-		executors.execute(zkShardListener);
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
@@ -263,7 +262,7 @@ public class ZkDistributed implements Closeable{
 		String shard = shardsCsist.get(zkTaskId);
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,localAddress,metaDataNode,shard);
 		try {
-			if(zkShardListener.getShardLockByZkTaskId(zkTaskId).acquire(30, TimeUnit.SECONDS)){
+			if(zkShardListener.getShardLock(shard).acquire(30, TimeUnit.SECONDS)){
 				BrokerDataShard target = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerDataShard.class);
 				BrokerDataShard.copy(source, target, isCover);
 				zkClient.setData().forPath(nodePath,
@@ -274,8 +273,8 @@ public class ZkDistributed implements Closeable{
 					ExceptionUtil.getErrorMessage(e));
 		} finally{
 			try {
-				if (zkShardListener.getShardLockByZkTaskId(zkTaskId).isAcquiredInThisProcess()) {
-					zkShardListener.getShardLockByZkTaskId(zkTaskId).release();
+				if (zkShardListener.getShardLock(shard).isAcquiredInThisProcess()) {
+					zkShardListener.getShardLock(shard).release();
 				}
 			} catch (Exception e) {
 				logger.error("{}:updateSynchronizedBrokerDatalock error:{}", nodePath,

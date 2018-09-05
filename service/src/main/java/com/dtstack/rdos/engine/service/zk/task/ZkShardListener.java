@@ -45,12 +45,12 @@ public class ZkShardListener implements Runnable, Closeable {
     private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
 
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
-    private Map<String, InterProcessMutex> mutexs = Maps.newHashMap();
+    private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
-    public ZkShardListener(Map<String,BrokerDataNode> memTaskStatus) {
+    public ZkShardListener(Map<String, BrokerDataNode> memTaskStatus) {
         if (memTaskStatus != null) {
             BrokerDataNode brokerDataNode = memTaskStatus.get(zkDistributed.getLocalAddress());
-            if (brokerDataNode!=null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
+            if (brokerDataNode != null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
                 for (String shardName : brokerDataNode.getShards().keySet()) {
                     initShardNode(shardName);
                 }
