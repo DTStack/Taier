@@ -38,7 +38,7 @@ class EditorContainer extends Component {
         funcCompleteItems: []
     }
     _tableColumns = {}
-    _tableLoading={}
+    _tableLoading = {}
     componentDidMount() {
 
         const currentNode = this.props.currentTabData;
@@ -243,18 +243,23 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
-    completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}) {
-        const { autoComplete = {}, syntax = {} } = status;
+    completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
+        const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
+        console.log(status)
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
+        if (context.completionContext.triggerCharacter == ".") {
+            defaultItems = [];
+        }
         if (autoComplete && autoComplete.locations) {
             let promiseList = [];
             for (let location of autoComplete.locations) {
                 if (location.type == "table") {
                     for (let identifierChain of location.identifierChain) {
-                        promiseList.push(this.getTableColumns(identifierChain.name))
+                        let columns = this.getTableColumns(identifierChain.name);
+                        promiseList.push(columns)
                     }
                 }
             }
@@ -272,13 +277,27 @@ class EditorContainer extends Component {
                                 continue;
                             }
                             _tmpCache[value[0]] = true;
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(value[1].map(
-                                    (columnName) => {
-                                        return [columnName, value[0], '1100', "Variable"]
-                                    }
-                                ))
-                            )
+                            if (context.columnContext&&context.columnContext.indexOf(value[0]) > -1) {
+                                defaultItems = defaultItems.concat(
+                                    customCompletionItemsCreater(value[1].map(
+                                        (columnName) => {
+                                            return [columnName, value[0], '100', "Variable"]
+                                        }
+                                    ))
+                                )
+                            } else {
+                                if (context.completionContext.triggerCharacter == ".") {
+                                    continue;
+                                }
+                                defaultItems = defaultItems.concat(
+                                    customCompletionItemsCreater(value[1].map(
+                                        (columnName) => {
+                                            return [columnName, value[0], '1100', "Variable"]
+                                        }
+                                    ))
+                                )
+                            }
+
                         }
                         resolve(defaultItems);
                     }
@@ -295,20 +314,21 @@ class EditorContainer extends Component {
         if (tableColumns[tableName]) {
             return Promise.resolve(tableColumns[tableName])
         }
-        if(this._tableLoading[tableName]){
+        if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }
-        this._tableLoading[tableName]=API.getColumnsOfTable({ tableName })
-        .then(
-            (res) => {
-                if (res.code == 1) {
-                    tableColumns[tableName] = [tableName, res.data];
-                    return tableColumns[tableName];
-                } else {
-                    console.log("get table columns error")
+        this._tableLoading[tableName] = API.getColumnsOfTable({ tableName })
+            .then(
+                (res) => {
+                    this._tableLoading[tableName]=null;
+                    if (res.code == 1) {
+                        tableColumns[tableName] = [tableName, res.data];
+                        return tableColumns[tableName];
+                    } else {
+                        console.log("get table columns error")
+                    }
                 }
-            }
-        )
+            )
         return this._tableLoading[tableName];
     }
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
@@ -413,7 +433,7 @@ class EditorContainer extends Component {
                         <Editor
                             value={confirmCode}
                             sync={true}
-                            language="sql"
+                            language="dtsql"
                             options={{
                                 readOnly: true,
                                 minimap: {

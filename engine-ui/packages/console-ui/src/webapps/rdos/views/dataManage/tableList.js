@@ -22,7 +22,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         user: state.user,
         dataCatalogues: state.dataManage.dataCatalogues,
     }
@@ -31,7 +31,8 @@ class TableList extends Component {
 
     constructor(props) {
         super(props);
-        const { listType, tableName, pId, pageIndex, catalogueId } = props.location.query;
+        const { listType, pId, tableName, pageIndex, catalogueId } = props.location.query;
+        
         this.state = {
             table: [],
             editRecord: {},
@@ -45,7 +46,7 @@ class TableList extends Component {
             queryParams: {
                 listType:listType || "1",
                 pageIndex: pageIndex || 1,
-                pageSize: 10,
+                pageSize: 20,
                 catalogueId,
                 pId,
                 tableName,
@@ -276,7 +277,7 @@ class TableList extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
@@ -298,7 +299,7 @@ class TableList extends Component {
         )
         const pagination = {
             total: Number(table.totalCount),
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current: Number(queryParams.pageIndex)
         };
 
@@ -330,7 +331,7 @@ class TableList extends Component {
                 <Tabs
                     activeKey={queryParams.listType}
                     animated={false}
-                    style={{ height: 'auto' }}
+                    style={{overflow:'visible',height: "calc(100% - 40px)"}}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">

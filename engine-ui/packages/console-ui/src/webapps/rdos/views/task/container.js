@@ -68,9 +68,9 @@ class Container extends Component {
             <Layout className="dt-dev-task">
                 <SplitPane
                     split="vertical"
-                    minSize={200}
+                    minSize={230}
                     maxSize="80%"
-                    defaultSize={200}
+                    defaultSize={230}
                     primary="first"
                 >
                     <div

@@ -1,13 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { hashHistory } from "react-router";
 import { union } from "lodash";
 import {
-    Tree, TreeSelect, Dropdown, Menu,
+    Tree, 
     Input, Tooltip, Icon, Select
 } from 'antd';
 
-import Api from '../../../../api/index'
 import { debounceEventHander } from 'funcs'
 
 import {
@@ -168,7 +166,7 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{ maxHeight: tableId ? '500px' : 'calc(100% - 30px)', minHeight: '200px', paddingTop: "30px" }}>
+                <div className="tb-list" style={{ maxHeight: tableId ? '400px' : 'calc(100% - 30px)', minHeight: '200px', paddingTop: "30px" }}>
                     <TreeContent
                         showIcon={true}
                         loadData={this.onLoadData}

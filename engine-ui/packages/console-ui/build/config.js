@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = {
     server: {
         port: 8080,
@@ -14,8 +15,9 @@ module.exports = {
             },
             "/api/rdos": {
                 target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.1.170:9020", // tmp test server
+                // target: "http://localhost:3001", // tmp test server
                 // ignorePath: true, 
+                // Mock
                 changeOrigin: true,
                 secure: false,
             },
@@ -45,6 +47,7 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
             },
+
         }
     },
 };

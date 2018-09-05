@@ -139,12 +139,10 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '15%',
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            width: '10%',
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
@@ -155,12 +153,10 @@ class DataSourceMana extends Component {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '15%',
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserId',
             key: 'modifyUserId',
-            width: '10%',
             render: (text, record) => {
                 return record.modifyUser ? record.modifyUser.userName : ''
             }
@@ -168,13 +164,11 @@ class DataSourceMana extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            width: '10%',
             render: text => utils.formatDateTime(text),
         }, {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
-            width: '10%',
             render: (active,record) => {
                 return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
@@ -187,7 +181,6 @@ class DataSourceMana extends Component {
                     </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
-            width: '10%',
             render: (linkState) => {
                 return linkState === 1 ? 
                     <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
@@ -196,7 +189,7 @@ class DataSourceMana extends Component {
         },
          {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '150px',
+            width: '230px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
@@ -229,14 +222,14 @@ class DataSourceMana extends Component {
                                     //onConfirm={() => { this.remove(record) }}
                                 >
 
-                                    <span style={{color: "#ccc"}}>删除</span>
+                                    <span style={{color: "#ccc",paddingRight:8}}>删除</span>
                                 </Popconfirm> :
                                 <Popconfirm
                                     title="确定删除此数据源？"
                                     okText="确定" cancelText="取消"
                                     onConfirm={() => { this.remove(record) }}
                                 >
-                                    <a>删除</a>
+                                    <a style={{paddingRight:8}}>删除</a>
                                 </Popconfirm>
                         }
                     </span>
@@ -293,7 +286,7 @@ class DataSourceMana extends Component {
 
         return (
             <div>
-                <div className="shadow">
+                <div className="shadow rdos-data-source">
                     <Card 
                         title={titles} 
                         extra={extra} 
@@ -301,7 +294,7 @@ class DataSourceMana extends Component {
                         bordered={false}
                     >
                         <Table
-                            className="m-table"
+                            className="m-table full-screen-table-47"
                             rowKey="id"
                             pagination={pagination}
                             onChange={this.handleTableChange}

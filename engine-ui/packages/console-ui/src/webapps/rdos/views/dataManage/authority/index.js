@@ -55,7 +55,7 @@ const selectStatusList = [
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         user: state.user,
     }
 })
@@ -80,7 +80,7 @@ class AuthMana extends Component {
             queryParams: {
                 listType: listType || isPermission,
                 pageIndex: pageIndex || 1,
-                pageSize: 10,
+                pageSize: 20,
                 resourceName,
                 startTime,
                 endTime,
@@ -649,7 +649,7 @@ class AuthMana extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.belongProjectId}
                         onChange={(value) => this.changeParams('belongProjectId', value)}
@@ -663,7 +663,7 @@ class AuthMana extends Component {
                             allowClear
                             showSearch
                             optionFilterProp="name"
-                            style={{ width: 120 }}
+                            style={{ width: 126}}
                             placeholder="选择申请人"
                             value={queryParams.applyUserId}
                             onChange={(value) => this.changeParams('applyUserId', value)}
@@ -678,7 +678,7 @@ class AuthMana extends Component {
                                 allowClear
                                 showSearch
                                 optionFilterProp="status"
-                                style={{ width: 120 }}
+                                style={{ width: 126 }}
                                 placeholder="选择状态"
                                 value={queryParams.status}
                                 onChange={(value) => this.changeParams('status', value ? [value] : undefined)}
@@ -710,7 +710,7 @@ class AuthMana extends Component {
 
         const pagination = {
             total: Number(table.totalCount),
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current: Number(queryParams.pageIndex)
 
         };
@@ -722,7 +722,7 @@ class AuthMana extends Component {
         const selectCalssName = isShowRowSelection ? "m-table-fix m-table" : "m-table"
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
-                <Card noHovering bordered={false} title={title}>
+                <Card noHovering bordered={false} title={title} className="full-screen-table-80">
                     <Spin spinning={loading} tip="正在加载中...">
                         <div style={{ marginTop: '1px' }}>
                             <Table

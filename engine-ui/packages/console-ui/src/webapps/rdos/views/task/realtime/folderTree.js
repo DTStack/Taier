@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { Tree, TreeSelect, Badge } from 'antd'
+import { Tree, TreeSelect, Badge, Tooltip } from 'antd'
 
 import utils from 'utils'
 import { MENU_TYPE } from '../../../comm/const'
@@ -91,17 +91,20 @@ class FolderTree extends Component {
                         default:
                             claTitle = 'folder-item'
                     }
-                } 
+                }  
 
-                const title = <span 
-                    title={item.name}
-                    id={`JS_${item.id}`}
-                    className={claTitle}>
-                    {this.renderStatusBadge(treeType, item)}
-                    {item.name} 
-                    <i style={creatorStyle}>{this.renderFileInfo(treeType, item)}</i>
-                </span>
-
+                const title = (treeType === MENU_TYPE.TASK || treeType === MENU_TYPE.SCRIPT) && item.type === 'file'
+                    ? <Tooltip placement="right" title={this.renderFileInfo(treeType, item)} mouseEnterDelay={2} mouseLeaveDelay={0}>
+                        <span id={`JS_${item.id}`} className={claTitle}>
+                                { this.renderStatusBadge(treeType, item) }
+                                { item.name } 
+                        </span>
+                    </Tooltip>
+                    : <span id={`JS_${item.id}`} className={claTitle}>
+                        {this.renderStatusBadge(treeType, item)}
+                        {item.name}
+                        {/* <i style={creatorStyle}>{this.renderFileInfo(treeType, item)}</i> */}
+                    </span>
                 return (
                     <TreeNode 
                         title={title}

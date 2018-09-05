@@ -76,6 +76,9 @@ export function taskTypeIcon(type, task = {}) {
             case TASK_TYPE.SHELL: {
                 return 's-shell'
             }
+            case TASK_TYPE.WORKFLOW: {
+                return 's-workflow'
+            }
             default: ''
         }
     } else {
@@ -223,15 +226,16 @@ export function getVertxtStyle(type) {
         case TASK_STATUS.RESTARTING:
         case TASK_STATUS.STOPING:
         case TASK_STATUS.DEPLOYING:
+        case TASK_STATUS.WAIT_SUBMIT:
         case TASK_STATUS.WAIT_RUN:
             return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;'
         case TASK_STATUS.RUN_FAILED:
         case TASK_STATUS.SUBMIT_FAILED:
             return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;'
-        case TASK_STATUS.STOPED:// 等待
         case TASK_STATUS.FROZEN:
-        case TASK_STATUS.WAIT_SUBMIT:
-        default: // 默认
+            return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;'
+        case TASK_STATUS.STOPED:// 已停止
+            default: // 默认
             return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;'
     }
 }

@@ -1,34 +1,29 @@
 import React, { Component } from 'react'
 
-
 import {
     Tooltip, Spin, Icon,
 } from 'antd'
 
-
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
+import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
 })
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
     mxCompactTreeLayout,
-    mxHierarchicalLayout,
-    mxUtils,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -56,7 +51,6 @@ export default class TaskView extends Component {
         
         const editor = this.Container
         const currentTask = this.props.tabData
-        this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
         this.loadTaskChidren({
@@ -78,112 +72,163 @@ export default class TaskView extends Component {
         })
     }
 
-    insertVertex = (parent, data) => {
+    preHandGraphTree = (data) => {
 
-        const graph = this.graph;
-        const rootCell = graph.getDefaultParent()
+        const relationTree = [];
 
-        const exist = this._vertexCells.find((cell) => {
-            const dataStr = cell.getAttribute('data')
-            if (!dataStr) return null
-            const itemData = JSON.parse(dataStr)
-            return itemData.id === data.id
-        })
+        const loop = (treeNodeData, parent) => {
 
-        if (exist) {
-            const edges = graph.getEdgesBetween(parent, exist)
-            if (edges.length === 0) {
-                graph.insertEdge(rootCell, null, '', parent, exist)
+            if (treeNodeData) {
+                const parentNodes = treeNodeData.taskVOS; // 父节点
+                const childNodes = treeNodeData.subTaskVOS; // 子节点
+                const currentNodeData = getVertexNode(treeNodeData)
+
+                if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                    const workflowData = treeNodeData.subNodes;
+                    if (workflowData) {
+                        loop(workflowData, currentNodeData)
+                    }
+                }
+
+                const dataItem = {
+                    parent: parent,
+                    source: currentNodeData,
+                }
+
+                relationTree.push(dataItem);
+
+                // 处理依赖节点
+                if (parentNodes && parentNodes.length > 0) {
+                    for (let i = 0; i < parentNodes.length; i++) {
+                        const nodeData = getVertexNode(parentNodes[i])
+                        dataItem.source = nodeData;
+                        dataItem.target = currentNodeData;
+                        if (parentNodes[i].taskVOS) {
+                            loop(parentNodes[i], parent)
+                        }
+                        relationTree.push({
+                            parent: parent,
+                            source: nodeData,
+                            target: currentNodeData,
+                        });
+                    }
+                }
+    
+                // 处理被依赖节点
+                if (childNodes && childNodes.length > 0) {
+                    for (let i = 0; i < childNodes.length; i++) {
+                        const nodeData = getVertexNode(childNodes[i])
+                        if (childNodes[i].subTaskVOS) {
+                            loop(childNodes[i], parent)
+                        }
+                        relationTree.push({
+                            parent: parent,
+                            source: currentNodeData,
+                            target: nodeData,
+                        });
+                    }
+                }
             }
-            return exist;
-        } else {// 如果该节点为新节点， 则从新生成并创建
-            const style = this.getStyles(data)
-
-            // 创建节点
-            const doc = mxUtils.createXmlDocument()
-            const tableInfo = doc.createElement('Task')
-            tableInfo.setAttribute('id', data.id)
-            tableInfo.setAttribute('data', JSON.stringify(data))
-
-            let newVertex = graph.insertVertex(rootCell, null, tableInfo, 1, 1,
-                VertexSize.width, VertexSize.height, style
-            )
-            graph.insertEdge(rootCell, null, '', parent, newVertex)
-            graph.view.refresh(newVertex)
-
-            // 缓存节点
-            this._vertexCells.push(newVertex)
-
-            return newVertex;
         }
+
+        loop(data);
+
+        return relationTree;
     }
 
-    loopTree = (graph, treeNodeData) => {
+    renderGraph = (dataArr) => {
+        const cellCache = this._vertexCells;
+        const graph = this.graph;
+        const defaultParent = graph.getDefaultParent();
 
-        if (treeNodeData) {
+        const getVertex = (parentCell, data) => {
+            if (!data) return null;
 
-            const rootCell = graph.getDefaultParent()
+            let style = this.getStyles(data);
+            const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
 
-            const parentNodes = treeNodeData.taskVOS; // 父节点
-            const childNodes = treeNodeData.subTaskVOS; // 子节点
-
-            const currentNodeData = getVertexNode(treeNodeData)
-            const currentNode = this.insertVertex(rootCell, currentNodeData)
-
-            // 处理依赖节点
-            if (parentNodes && parentNodes.length > 0) {
-                for (let i = 0; i < parentNodes.length; i++) {
-                    const nodeData = getVertexNode(parentNodes[i])
-                    // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
-                    // 创建连接线
-                    const newEdge = this.insertVertex(newNode, currentNodeData)
-
-                    if (parentNodes[i].taskVOS) {
-                        this.loopTree(graph, parentNodes[i])
-                    }
-                }
+            let width = VertexSize.width;
+            let height = VertexSize.height;
+            if (isWorkflow) {
+                width = width + 20;
+                height = height + 100;
+                style += 'shape=swimlane;';
             }
 
-            // 处理被依赖节点
-            if (childNodes && childNodes.length > 0) {
-                for (let i = 0; i < childNodes.length; i++) {
-                    const nodeData = getVertexNode(childNodes[i])
-                    // 插入新节点
-                    const newNode = this.insertVertex(rootCell, nodeData)
-                    const newEdge = this.insertVertex(currentNode, nodeData)
-                    if (childNodes[i].subTaskVOS) {
-                        this.loopTree(graph, childNodes[i])
+            const cell = graph.insertVertex(
+                parentCell,
+                data.id, 
+                data, 
+                0, 0,
+                width, height, 
+                style,
+            )
+
+            cell.isPart = data.flowId && data.flowId !== 0;
+
+            return cell
+        }
+
+        if (dataArr) {
+            for (let i = 0; i < dataArr.length; i++) {
+                const { source, target, parent } = dataArr[i];
+
+                let sourceCell = source ? cellCache[source.id] : undefined;
+                let targetCell = target ? cellCache[target.id] : undefined;
+                let parentCell = defaultParent;
+
+                if (parent) {
+                    const existCell = cellCache[parent.id];
+                    if (existCell) {
+                        parentCell = existCell
+                    } else {
+                        parentCell = getVertex(defaultParent, parent);
+                        cellCache[parent.id] = parentCell;
                     }
                 }
+
+                if (source && !sourceCell) {
+                    sourceCell = getVertex(parentCell, source);
+                    cellCache[source.id] = sourceCell;
+                }
+                if (target && !targetCell) {
+                    targetCell = getVertex(parentCell, target);
+                    cellCache[target.id] = targetCell;
+                }
+
+                const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                if (edges.length === 0) {
+                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell)
+                }
+
+                this.executeLayout(parentCell);
             }
         }
     }
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2
-        const cy = 200
-        this._vertexCells = []; // 用于缓存创建的顶点节点
+        this._vertexCells = {}; // 用于缓存创建的顶点节点
 
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
-        this.executeLayout = function(change, post) {
+        const layout = new mxCompactTreeLayout(graph);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 30;
+        layout.nodeDistance = 10;
+        layout.resizeParent = true;
+
+        this.executeLayout = function(layoutTarget, change, post) {
 
             model.beginUpdate();
 
             try {
-                const layout = new mxHierarchicalLayout(graph, false);
-                layout.orientation = 'north';
-                layout.disableEdgeStyle = false;
-                layout.interRankCellSpacing = 40;
-                layout.intraCellSpacing = 10;
-
                 if (change != null) {
                     change();
                 }
-                layout.execute(parent);
+                layout.execute(layoutTarget);
             } catch (e) {
                 throw e;
             } finally {
@@ -192,12 +237,9 @@ export default class TaskView extends Component {
             }
         }
 
-        this.executeLayout(() => {
-            this.loopTree(graph, data);
-        }, () => {
-            graph.view.setTranslate(cx, cy);
-        });
-
+        const arrayData = this.preHandGraphTree(data);
+        this.renderGraph(arrayData);
+        graph.center();
     }
 
 
@@ -246,39 +288,29 @@ export default class TaskView extends Component {
         new mxRubberband(graph)
     }
 
-    getStyles = (type) => {
+    getStyles = (data) => {
+        if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
+            return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;'
+        }
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
     formatTooltip = (cell) => {
-        const data = cell.getAttribute('data');
-        const task = data ? JSON.parse(data) : ''; 
+        const task = cell.value || ''; 
         return task ? task.name : ''
     }
 
     corvertValueToString = (cell) => {
-        if (mxUtils.isNode(cell.value)) {
-            if (cell.value.nodeName.toLowerCase() == 'task') {
-                const data = cell.getAttribute('data');
-                const task = data ? JSON.parse(data) : '';
-                const taskType = taskTypeText(task.taskType);
-                if (task) {
-                    return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
-                    <span style="font-size:10px; color: #666666;">${taskType}</span>
-                    </div>`
-                }
+        if (cell.vertex && cell.value) {
+            const task = cell.value || {};
+            const taskType = taskTypeText(task.taskType);
+            if (task) {
+                return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
+                <span style="font-size:10px; color: #666666;">${taskType}</span>
+                </div>`
             }
         }
         return '';
-    }
-
-    listenDoubleClick() {
-        this.graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell) {
-                // window.open("http://www.google.com")
-            }
-        })
     }
 
     listenOnClick() {
@@ -313,7 +345,6 @@ export default class TaskView extends Component {
     hideMenu = () => {
         document.addEventListener('click', (e) => {
             const graph = this.graph
-            const menu = graph.popupMenuHandler
             if (graph.popupMenuHandler.isMenuShowing()) {
                 graph.popupMenuHandler.hideMenu()
             }
@@ -322,23 +353,32 @@ export default class TaskView extends Component {
 
     /* eslint-enable */
     render() {
-        const task = this.state.selectedTask
-        const project = this.props.project
         return (
             <div className="graph-editor" 
                 style={{  position: 'relative', }}
             >
-                <div className="editor pointer" ref={(e) => { this.Container = e }} />
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle" style={{ width: '100%', height: '100%' }}/>
+                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                    {
+                        !this.state.data &&
+                        <div className="absolute-middle" style={{ width: '100%', height: '100%' }}>
+                            <p style={{
+                                verticalAlign: 'middle',
+                                textAlign: 'center',
+                                lineHeight: '20'
+                            }}>
+                                “未发布”的任务无发查看依赖视图
+                            </p>
+                        </div>
+                    }
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -356,9 +396,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
-        // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -379,38 +417,5 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
     }
 }

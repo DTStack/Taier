@@ -40,6 +40,10 @@ export default class TaskTablePane extends Component {
                 tableId: newData.tableId
             })
         }
+
+        if (this.props.currentTab !== nextProps.currentTab) {
+            this.resize();
+        }
     }
 
     loadReports = (params) => {

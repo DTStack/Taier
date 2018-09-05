@@ -19,6 +19,12 @@ export const switchKey = (
     </ul>
 )
 
+export const selectKey = (
+    <div>
+        MySQL、SQLServer、PostgreSQL、Oracle：支持数值型切分键
+    </div>
+)
+
 export const hdfsPath = (
     <div>
         user/hive/warehouse/projectName.db/<br/>tableName

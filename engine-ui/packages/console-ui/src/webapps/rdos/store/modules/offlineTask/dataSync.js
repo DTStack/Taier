@@ -173,7 +173,13 @@ const sourceMap = (state = {}, action) => {
                 column: colData
             });
         }
+        case sourceMapAction.SOURCE_TABLE_COPATE_CHANGE: {
+            const copateData = action.payload;
 
+            return assign({}, state, {
+                copate: copateData
+            });
+        }
         // 数据源 添加一行字段
         case sourceMapAction.ADD_SOURCE_KEYROW: {
             const colData = action.payload;

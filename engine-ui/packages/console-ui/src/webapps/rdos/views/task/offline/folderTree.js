@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { 
     Tree, TreeSelect,
-    Modal, Badge 
+    Modal, Badge ,Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -16,7 +16,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
-import { MENU_TYPE } from '../../../comm/const'
+import { MENU_TYPE, TASK_TYPE } from '../../../comm/const'
 
 const { TreeNode } = Tree;
 const confirm = Modal.confirm;
@@ -33,7 +33,6 @@ class FolderTree extends React.Component {
 
     onLoadData(type, treeNode) {
         const { loadTreeNode, ispicker } = this.props;
-        const ctx = this;
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType
@@ -41,7 +40,10 @@ class FolderTree extends React.Component {
                 resolve();
                 return;
             }
-            loadTreeNode(data.id, cataType);
+            loadTreeNode(data.id, cataType, {
+                taskType: data.taskType,
+                parentId: data.parentId,
+            });
             resolve();
         });
     }
@@ -49,8 +51,10 @@ class FolderTree extends React.Component {
     handleSelect(selectedKeys, e) {
         const { isLeaf, value, treeType, data } = e.node.props;
         const { openTab, tabs, currentTab } = this.props;
+        const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
 
-        if(!isLeaf) return;
+        if(!isLeaf && !isWorkflow) return;
+
         switch(treeType) {
             case MENU_TYPE.SCRIPT:
             case MENU_TYPE.TASK_DEV: {
@@ -97,8 +101,14 @@ class FolderTree extends React.Component {
 
         switch(treeType) {
             case MENU_TYPE.TASK:
-            case MENU_TYPE.TASK_DEV:
-                if(type === 'file') {
+            case MENU_TYPE.TASK_DEV: {
+
+                const isWorkflowNode = data && data.isSubTask === 1; // 工作流子节点
+                const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
+
+                if (isWorkflowNode) return [];
+
+                if(type === 'file' || isWorkflow) {
                     operations = arr.concat([{
                         txt: '编辑',
                         cb: this.editTask.bind(this, data)
@@ -126,6 +136,7 @@ class FolderTree extends React.Component {
                     }
                 }
             break;
+            }
 
             case MENU_TYPE.FUNCTION:
             case MENU_TYPE.COSTOMFUC:
@@ -381,7 +392,7 @@ class FolderTree extends React.Component {
     renderStatusBadge = (menuType, file) => {
         if (
             (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT) 
-            && file.type === 'file'
+            && file.type === 'file' && file.taskType !== TASK_TYPE.WORKFLOW
         ) {
             let status = 'success'
             const lockStatus = file.readWriteLockVO && file.readWriteLockVO.getLock;
@@ -425,10 +436,13 @@ class FolderTree extends React.Component {
                     return o.type === 'folder';
                 });
             }
+
+            let claName = type === 'file' ? 'file-item' : 'folder-item';
+ 
             return <TreeNode
                 title={
                     ispicker?
-                    <span className={type === 'file' ? 'task-item' : 'folder-item'}>
+                    <span className={claName}>
                         { name }
                         <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
                             {createUser}
@@ -437,17 +451,21 @@ class FolderTree extends React.Component {
                     <CtxMenu
                         id={ id }
                         key={ `${taskType}-ctxmenu-${id}` }
-                        operations={ this.generateCtxMenu(type, treeType, data) } >
-                        <span 
-                            id={`JS_${id}`}
-                            title={name} 
-                            className={type === 'file' ? 'task-item' : 'folder-item'}>
-                            { this.renderStatusBadge(treeType, data) }
-                            { name } 
-                            <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
-                                { this.renderFileInfo(treeType, data) }
-                            </i>
-                        </span>
+                        operations={ this.generateCtxMenu(type, treeType, data) }
+                    >
+                        {
+                            (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
+                            ? <Tooltip placement="right" title={this.renderFileInfo(treeType, data)} mouseEnterDelay={2} mouseLeaveDelay={0}>
+                                <span id={`JS_${id}`} className={claName}>
+                                        { this.renderStatusBadge(treeType, data) }
+                                        { name } 
+                                </span>
+                            </Tooltip>
+                            : <span id={`JS_${id}`} className={claName}>
+                                { this.renderStatusBadge(treeType, data) }
+                                { name } 
+                            </span>
+                        }
                     </CtxMenu>
                 }
                 value={ id }
@@ -455,7 +473,7 @@ class FolderTree extends React.Component {
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
-                className={taskTypeIcon(taskType,data)||resourceTypeIcon(resourceType)}
+                className={taskTypeIcon(taskType, data)||resourceTypeIcon(resourceType)}
                 isLeaf={type === 'file'}
                 key={`${treeType}-${id}`}
             >

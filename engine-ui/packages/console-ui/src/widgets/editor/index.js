@@ -14,7 +14,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
-import { registeCompleteItemsProvider as dtsql_registeCompleteItemsProvider, disposeProvider as dtsql_dispose, onChange as dtsql_onChange } from "./languages/dtsql/dtsql.contribution.js"
+import * as dtsql from "./languages/dtsql/dtsql.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
@@ -22,18 +22,29 @@ import { defaultOptions } from './config';
 
 const provideCompletionItemsMap = {
     dtsql: {
-        register: dtsql_registeCompleteItemsProvider,
-        dispose: dtsql_dispose,
-        onChange: dtsql_onChange
+        register: dtsql.registeCompleteItemsProvider,
+        dispose: dtsql.disposeProvider,
+        onChange: dtsql.onChange
     }
 }
 function delayFunctionWrap(func){
-    let delayTime=200;
+    let delayTime=500;
+    let outTime;
     let _timeClock;
     return function(){
         const arg=arguments;
         _timeClock&&clearTimeout(_timeClock);
+        //这边设置在一定时间内，必须执行一次函数
+        if(outTime){
+            let now=new Date();
+            if(now-outTime>1000){
+                func(...arg);
+            }
+        }else{
+            outTime=new Date();
+        }
         _timeClock=setTimeout(()=>{
+            outTime=null;
             func(...arg);
         },delayTime)
     }

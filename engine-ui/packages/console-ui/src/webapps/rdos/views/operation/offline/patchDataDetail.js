@@ -15,7 +15,6 @@ import Api from '../../../api'
 import {
     offlineTaskStatusFilter,
     TASK_STATUS,
-    offlineTaskTypeFilter,
 } from '../../../comm/const'
 
 import {
@@ -359,11 +358,11 @@ class PatchDataDetail extends Component {
     }
 
     initTaskColumns = () => {
+        const { taskTypeFilter } = this.props;
         return [{
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: 120,
             render: (text, record) => {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)` :
@@ -372,7 +371,6 @@ class PatchDataDetail extends Component {
             },
         }, {
             title: '状态',
-            width: 80,
             dataIndex: 'status',
             key: 'status',
             render: (text) => {
@@ -382,40 +380,34 @@ class PatchDataDetail extends Component {
             filterMultiple: true,
         }, {
             title: '任务类型',
-            width: 80,
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text, record) => {
                 return <TaskType value={text} />
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '业务日期',
             dataIndex: 'bizDay',
-            width: 120,
             key: 'bizDay',
             sorter: true
         }, {
-            width: 120,
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
             sorter: true
         }, {
-            width: 120,
             title: '开始时间',
             dataIndex: 'exeStartTime',
             key: 'exeStartTime',
             sorter: true
         }, {
-            width: 120,
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
             sorter: true
         }, {
             title: '责任人',
-            width: 100,
             dataIndex: 'dutyUserName',
             key: 'dutyUserName',
         }]
@@ -431,7 +423,7 @@ class PatchDataDetail extends Component {
     tableFooter = (currentPageData) => {
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
-                <td style={{ padding: '15px 10px 10px 32px' }}>
+                <td style={{ padding: '15px 10px 10px 22px' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -524,7 +516,7 @@ class PatchDataDetail extends Component {
                     </span>
                     </div>
                 </h1>
-                <div className="box-2 m-card">
+                <div className="box-2 m-card task-manage">
                     <Card
                         noHovering
                         bordered={false}
@@ -562,7 +554,7 @@ class PatchDataDetail extends Component {
                                     <FormItem label="">
                                         <Search
                                             placeholder="按任务名称"
-                                            style={{ width: 150 }}
+                                            style={{ width: 126 }}
                                             value={taskName}
                                             size="default"
                                             onChange={this.changeTaskName}
@@ -575,7 +567,8 @@ class PatchDataDetail extends Component {
                                         <Select
                                             allowClear
                                             showSearch
-                                            style={{ width: 120 }}
+                                            size='Default'
+                                            style={{ width: 126 }}
                                             placeholder="责任人"
                                             optionFilterProp="name"
                                             onChange={this.changePerson}
@@ -622,7 +615,7 @@ class PatchDataDetail extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table"
+                            className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
@@ -630,13 +623,12 @@ class PatchDataDetail extends Component {
                             dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
-                            scroll={{ y: '60%' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '400px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView
                                 visibleSlidePane={visibleSlidePane}
@@ -657,6 +649,7 @@ export default connect((state) => {
     return {
         project: state.project,
         projectUsers: state.projectUsers,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

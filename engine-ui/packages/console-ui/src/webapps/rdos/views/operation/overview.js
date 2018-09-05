@@ -12,8 +12,10 @@ export default class Index extends Component {
     render() {
         return (
             <div className="operation-overview" style={{ background: '#f2f7fa' }}>
-                <RealtimeCount />
-                <OfflineCount />
+                <Row style={{marginTop:10}}>
+                    <Col span={12}><OfflineCount /></Col>
+                    <Col span={12}><RealtimeCount /></Col>
+                </Row>
                 <OfflineStatistics /> 
             </div>
         )

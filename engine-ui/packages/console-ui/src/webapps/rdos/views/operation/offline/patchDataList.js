@@ -173,7 +173,17 @@ class PatchDataList extends Component {
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
             },
-        }, {
+        }, 
+        {
+            width: 150,
+            title: '已完成/总实例',
+            dataIndex: 'doneJobSum',
+            key: 'doneJobSum',
+            render: (text, record) => {
+                return <span>{record.doneJobSum != record.allJobSum ? <span style={{color:"#f00",fontWeight: 600}}> {record.doneJobSum}</span> : record.doneJobSum }/{record.allJobSum}</span>
+            },
+        },
+        {
             width: 150,
             title: '业务日期',
             dataIndex: 'fromDay',
@@ -241,7 +251,7 @@ class PatchDataList extends Component {
                 <FormItem>
                     <Search
                         placeholder="按任务名称搜索"
-                        style={{ width: '130px' }}
+                        style={{ width: '200px' }}
                         value={jobName}
                         size="default"
                         onChange={this.onChangeJobName}
@@ -273,7 +283,8 @@ class PatchDataList extends Component {
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: '120px' }}
+                        size='Default'
+                        style={{ width: '126px' }}
                         placeholder="操作人"
                         optionFilterProp="name"
                         value={dutyUserId}
@@ -302,8 +313,8 @@ class PatchDataList extends Component {
                     <Table 
                         rowKey="id"
                         columns={ this.initTaskColumns() }
-                        className="m-table"
-                        style={{ marginTop: 1}}
+                        className="m-table full-screen-table-90"
+                        style={{ marginTop: 1 }}
                         pagination={ pagination }
                         dataSource={tasks.data || []}
                         onChange={ this.pageChange }

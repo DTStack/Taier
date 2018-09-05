@@ -14,26 +14,12 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {
-    state = {
-        taskTypes: []
-    }
-    loadTaskTypes = () => {
-        ajax.getTaskTypes().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    taskTypes: res.data || [],
-                })
-            }
-        })
-    }
-    componentWillMount() {
-        this.loadTaskTypes();
-    }
+
     render() {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes } = this.state;
+        const { taskTypes, isWorkflowNode } = this.props;
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -169,27 +155,30 @@ class NormalTaskForm extends React.Component {
                     )}
                 </FormItem>
             }
-            <FormItem
-                {...formItemLayout}
-                label="存储位置"
-            >
-                {getFieldDecorator('nodePid', {
-                    rules: [{
-                        required: true, message: '存储位置必选！',
-                    }],
-                    initialValue: taskData.nodePid
-                })(
-                    <Input type="hidden"></Input>
-                )}
-                <FolderPicker
-                    type={MENU_TYPE.TASK}
-                    ispicker
-                    isFilepicker={false}
-                    treeData={this.props.pathTreeData}
-                    onChange={this.handlePathChange.bind(this)}
-                    defaultNode={taskData.nodePName}
-                ></FolderPicker>
-            </FormItem>
+            {
+                !isWorkflowNode && 
+                <FormItem
+                    {...formItemLayout}
+                    label="存储位置"
+                >
+                    {getFieldDecorator('nodePid', {
+                        rules: [{
+                            required: true, message: '存储位置必选！',
+                        }],
+                        initialValue: taskData.nodePid
+                    })(
+                        <Input type="hidden"></Input>
+                    )}
+                    <FolderPicker
+                        type={MENU_TYPE.TASK}
+                        ispicker
+                        isFilepicker={false}
+                        treeData={this.props.pathTreeData}
+                        onChange={this.handlePathChange.bind(this)}
+                        defaultNode={taskData.nodePName}
+                    ></FolderPicker>
+                </FormItem>
+            }
             <FormItem
                 {...formItemLayout}
                 label="描述"
@@ -267,6 +256,7 @@ const mapState = (state, ownProps) => {
         resTreeData: offlineTask.resourceTree,
         pathTreeData: offlineTask.taskTree,
         taskCustomParams: offlineTask.workbench.taskCustomParams,
+        taskTypes: offlineTask.comm.taskTypes,
     }
 };
 

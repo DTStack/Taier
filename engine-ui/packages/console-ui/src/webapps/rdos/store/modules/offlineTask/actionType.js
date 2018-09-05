@@ -1,5 +1,11 @@
 import mc from 'mirror-creator';
 
+
+export const commAction = mc([
+    'GET_TASK_TYPES',
+    'GET_TASK_TYPE_FILTER',
+], {prefix: 'offline/comm/'});
+
 export const modalAction = mc([
     'TOGGLE_CREATE_TASK',
     'TOGGLE_EDIT_TASK',
@@ -14,7 +20,13 @@ export const modalAction = mc([
     'SHOW_RESVIEW_MODAL',
     'HIDE_RESVIEW_MODAL',
     'TOGGLE_CREATE_SCRIPT',
+    'SET_MODAL_CREATE_ORIGIN',
 ], {prefix: 'offline/modal/'});
+
+export const workflowAction = mc([
+    'UPDATE',
+    'RESET',
+], {prefix: 'offline/workflow/'});
 
 export const taskTreeAction = mc([
     'RESET_TASK_TREE',
@@ -104,6 +116,7 @@ export const sourceMapAction = mc([
     'DATA_SOURCE_CHANGE',
     'DATA_SOURCEMAP_CHANGE',
     'SOURCE_TABLE_COLUMN_CHANGE',
+    'SOURCE_TABLE_COPATE_CHANGE',
     'ADD_SOURCE_KEYROW',
     'REMOVE_SOURCE_KEYROW',
     'ADD_BATCH_SOURCE_KEYROW',
@@ -147,18 +160,3 @@ export const dataSyncAction = mc([
     'RESET_TABID',
     'GET_DATASYNC_SAVED'
 ], {prefix: 'offline/dataSync/'});
-
-export const editorAction = mc([
-    'RESET_CONSOLE',
-    'APPEND_CONSOLE_LOG',
-    'SET_CONSOLE_LOG',
-    'UPDATE_RESULTS',
-    'DELETE_RESULT',
-    'GET_TAB',
-    'SET_TAB',
-    'SET_SELECTION_CONTENT',
-    'ADD_LOADING_TAB',//添加指定的的tab loading
-    'REMOVE_LOADING_TAB',//移除指定的tab loading
-    'REMOVE_ALL_LOAING_TAB',//移除所有tab loading
-    'UPDATE_OPTIONS', // 更新编辑器选项
-], { prefix: 'offline/editor/' })

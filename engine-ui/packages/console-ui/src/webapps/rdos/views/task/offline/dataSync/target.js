@@ -319,13 +319,16 @@ class TargetForm extends React.Component {
         const { selectHack, loading } = this.state
 
         const { targetMap, dataSourceList, isCurrentTabNew, project, sourceMap } = this.props;
-        const sourceType = sourceMap.type.type;
+        const sourceType = sourceMap.type && sourceMap.type.type;
         let formItem;
-        const showCreateTable =
-            (sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
-                || sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL
-                || sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.MYSQL
-                || sourceType == DATA_SOURCE.HIVE || sourceType == DATA_SOURCE.MAXCOMPUTE);
+
+        const showCreateTable = (
+            sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
+            || sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL
+            || sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.MYSQL
+            || sourceType == DATA_SOURCE.HIVE || sourceType == DATA_SOURCE.MAXCOMPUTE
+        );
+
         if (isEmpty(targetMap)) return null;
 
         switch (targetMap.type.type) {
@@ -466,7 +469,7 @@ class TargetForm extends React.Component {
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                placeholder="pt=${bdp.system.bizdate};"
+                                placeholder="pt=${bdp.system.bizdate}"
                             ></Input>
                         )}
                         <HelpDoc doc="partitionDesc" />

@@ -392,7 +392,10 @@ class DiffParams extends React.Component {
 
     render() {
         const { taskType } = this.props;
-        const { contrastResults, historyParse, currentParse, historyvalue, tabKey, tableRefresh } = this.state;
+        const { 
+            contrastResults, historyParse, currentParse, 
+            historyvalue, tabKey, 
+        } = this.state;
 
         return <div className="m-taksdetail" style={{marginTop: '5px'}}>
             <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
@@ -408,6 +411,7 @@ class DiffParams extends React.Component {
                 }
                 {
                     this.state.currentValue.taskType !== TASK_TYPE.SYNC && 
+                    this.state.currentValue.taskType !== TASK_TYPE.WORKFLOW && 
                     <TabPane tab="环境参数" key="params">
                         <DiffCodeEditor
                             language="ini"

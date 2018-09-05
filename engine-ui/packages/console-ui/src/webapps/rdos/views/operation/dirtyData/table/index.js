@@ -117,7 +117,7 @@ export default class TableDetail extends React.Component {
         return (
             <div className="g-datamanage">
                 <div className="g-tableviewer box-1">
-                    <div className="box-card">
+                    <div className="box-card full-screen-table-40">
                         <main>
                             <h1 className="card-title">
                                 <GoBack type="textButton" /> 查看表：{tableInfo &&

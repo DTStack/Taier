@@ -11,6 +11,7 @@ import {
 
 import { formItemLayout, SCRIPT_TYPE, MENU_TYPE, TASK_TYPE } from '../../../comm/const'
 import FolderPicker from './folderTree';
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 const FormItem = Form.Item;
 const Option = Select.Optioin;
@@ -307,6 +308,8 @@ export default connect(state => {
     }
 },
 dispatch => {
+    const benchActions = workbenchActions(dispatch);
+
     return {
         toggleCreateScript: function() {
             dispatch({
@@ -327,17 +330,7 @@ dispatch => {
                         ajax.getScriptById({
                             id: res.data.id
                         }).then(res2 => {
-                            if(!isEditExist) {
-
-                                const newScriptCata = res.data;
-                                if (newScriptCata.catalogueType) {
-                                    newScriptCata.catalogueType = MENU_TYPE.SCRIPT
-                                }
-
-                                dispatch({
-                                    type: scriptTreeAction.ADD_FOLDER_CHILD,
-                                    payload: newScriptCata
-                                });
+                            if(!isEditExist) { // 编辑脚本
 
                                 dispatch({
                                     type: workbenchAction.LOAD_TASK_DETAIL,
@@ -349,7 +342,7 @@ dispatch => {
                                     payload: res2.data.id
                                 });
                             }
-                            else {
+                            else { // 新建脚本
                                 let newData = Object.assign(defaultData, res.data);
                                 newData.originPid = defaultData.nodePid
                                 dispatch({
@@ -357,12 +350,9 @@ dispatch => {
                                     payload: newData
                                 });
 
-                                dispatch({
-                                    type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                                    payload: res2.data
-                                });
+                                benchActions.updateTabData(res2.data);
                             }
-
+                            benchActions.loadTreeNode(res.data.parentId, MENU_TYPE.SCRIPT)
                         });
                         
                         return true;

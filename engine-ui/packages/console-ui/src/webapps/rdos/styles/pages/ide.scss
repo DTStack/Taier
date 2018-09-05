@@ -24,9 +24,8 @@
 
     .ide-content {
         height: 100%;
-        padding-bottom: 40px;
+        padding-bottom: 30px;
         top: 40px;
-        // overflow: hidden;
     }
 
     .ide-toolbar {
@@ -52,12 +51,17 @@
             &:after{
                 content:"";
                 position: absolute;
-                top:0px;
+                top:-1px;
                 left:0px;
                 right: 0px;
-                height: 1px;
+                height: 3px;
+                opacity: 0.8;
                 background: #2491F7;
             }
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            margin-right: -1px;
         }
 
         .ant-tabs-nav div:nth-child(2) {

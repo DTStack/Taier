@@ -16,10 +16,9 @@ import { Circle } from 'widgets/circle'
 
 import Api from '../../../api'
 import {
-    offlineTaskStatusFilter, jobTypes,
-    ScheduleTypeFilter, TASK_STATUS,
-    offlineTaskTypeFilter,
+    offlineTaskStatusFilter,
     offlineTaskPeriodFilter,
+    TASK_STATUS,
 } from '../../../comm/const'
 
 import {
@@ -52,7 +51,7 @@ class OfflineTaskList extends Component {
         current: 1,
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
+        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : utils.getParameterByName("status").split(','),
         bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date')||0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
@@ -373,6 +372,8 @@ class OfflineTaskList extends Component {
 
     initTaskColumns = () => {
         const { taskStatus } = this.state;
+        const { taskTypeFilter } = this.props;
+     
         return [{
             title: '任务名称',
             dataIndex: 'id',
@@ -403,7 +404,7 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -566,7 +567,7 @@ class OfflineTaskList extends Component {
                                 <FormItem label="">
                                     <Search
                                         placeholder="按任务名称搜索"
-                                        style={{ width: 150 }}
+                                        style={{ width: 200 }}
                                         size="default"
                                         value={jobName}
                                         onChange={this.changeTaskName}
@@ -579,7 +580,8 @@ class OfflineTaskList extends Component {
                                     <Select
                                         allowClear
                                         showSearch
-                                        style={{ width: 150 }}
+                                        size='Default'
+                                        style={{ width: 126 }}
                                         placeholder="责任人"
                                         optionFilterProp="name"
                                         onChange={this.changePerson}
@@ -636,7 +638,7 @@ class OfflineTaskList extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table"
+                            className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
@@ -670,6 +672,7 @@ export default connect((state) => {
     return {
         project: state.project,
         projectUsers: state.projectUsers,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

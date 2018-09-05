@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Menu } from 'antd'
 import { Link } from 'react-router'
-
+require('../iconfont/iconfont');
 export default class Sidebar extends Component {
 
     constructor(props) {
@@ -45,14 +45,30 @@ export default class Sidebar extends Component {
                   defaultSelectedKeys={[this.state.current]}
                   mode="inline"
                 >
+                
                     <Menu.Item key="config">
-                        <Link to={`${base}/config`}>项目配置</Link>
+                        <Link to={`${base}/config`}> 
+                            <svg className="icon-svg" aria-hidden="true">
+                                <use xlinkHref="#icon-project_set"></use>
+                            </svg>
+                            <span>项目配置</span>
+                         </Link>
                     </Menu.Item>
                     <Menu.Item key="member">
-                        <Link to={`${base}/member`}>项目成员管理</Link>
+                        <Link to={`${base}/member`}>
+                            <svg className="icon-svg" aria-hidden="true">
+                                <use xlinkHref="#icon-chengyuan"></use>
+                            </svg>
+                            <span>项目成员管理</span>
+                        </Link>
                     </Menu.Item>
                     <Menu.Item key="role">
-                        <Link to={`${base}/role`}>角色管理</Link>
+                        <Link to={`${base}/role`}>
+                            <svg className="icon-svg" aria-hidden="true">
+                                <use xlinkHref="#icon-jiaoseguanli"></use>
+                            </svg>
+                            <span>角色管理</span>
+                        </Link>
                     </Menu.Item>
                 </Menu>
             </div>

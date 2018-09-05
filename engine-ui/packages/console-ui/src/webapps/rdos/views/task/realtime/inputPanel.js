@@ -255,7 +255,7 @@ class InputOrigin extends Component {
                                 {...formItemLayout}
                                 label={(
                                     <span >
-                                        偏移量(ms)&nbsp;
+                                        偏移量(ms)
                                         <Tooltip title="watermark值与event time值的偏移量">
                                             <Icon type="question-circle-o" /> 
                                         </Tooltip>
@@ -370,20 +370,23 @@ export default class InputPanel extends Component {
     }
 
     parseColumnsText = (index,text="")=>{
-        const { timeColumoption,panelColumn } = this.state;
-        const columns =  text.split('\n').filter(v => !!v).map(v=> {
+        const { timeColumoption, panelColumn } = this.state;
+        const columns = text.split('\n').filter(v => !!v).map(v => {
             let column;
             if(v.trim().includes(" as ")){
-                column = v.trim().split(" as ")
-            }else{
+                const colVal = v.trim().replace(/\(.*\)/, '').split(" as ");
+                return {
+                    column: colVal[1],
+                }
+            } else {
                 column = v.trim().split(" ");
             }
-            return { column: column[0],type: column[1] }
+            return { column: column[0], type: column[1] }
         })
-        console.log('columns',columns);
+        console.log('columns', columns);
         
         const filterColumns = columns.filter(v=>{
-            return v.column&&v.type
+            return v.column
         })
         timeColumoption[index] = filterColumns;
         console.log( ' filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]',filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]);
