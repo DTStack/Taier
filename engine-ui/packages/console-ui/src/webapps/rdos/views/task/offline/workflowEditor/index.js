@@ -455,7 +455,7 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
 
-        const { openTaskInDev } = this.props;
+        const { openTaskInDev, data } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -467,9 +467,11 @@ class WorkflowEditor extends Component {
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
 
-            if (!cell) return
-
+            if (!cell) return;
             const currentNode = cell.data || {};
+           
+            const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
+            if (isLocked) return;
 
             if (cell.vertex) {
                 menu.addItem('保存节点', null, function() {
@@ -752,7 +754,9 @@ class WorkflowEditor extends Component {
     }
 
     renderToolBar = () => {
-        const { taskTypes } = this.props;
+        const { taskTypes, data } = this.props;
+        const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
+
         const showTitle = (type, title) => {
             switch(type) {
                 case TASK_TYPE.SQL:
@@ -790,6 +794,7 @@ class WorkflowEditor extends Component {
                     节点组件
                 </header>
                 <div className="widgets-content">
+                    { isLocked ? <div className="cover-mask"></div>: null } 
                     { widgets }
                 </div>
             </div>

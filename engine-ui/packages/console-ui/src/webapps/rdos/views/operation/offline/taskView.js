@@ -30,6 +30,8 @@ const {
     mxPerimeter,
     mxGraphHandler,
     mxCompactTreeLayout,
+    mxHierarchicalLayout,
+    mxLayoutManager,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -58,7 +60,6 @@ export default class TaskView extends Component {
         this._vertexCells = {}; // 用于缓存创建的顶点节点
     
         const editor = this.Container
-        // this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
         this.loadTaskChidren({
@@ -180,6 +181,8 @@ export default class TaskView extends Component {
             if (!data) return null;
 
             let style = this.getStyles(data);
+            let cy = 10;
+
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
 
@@ -189,29 +192,33 @@ export default class TaskView extends Component {
                 width = width + 20;
                 height = height + 100;
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
-                
+
                 if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
-                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#26dad12e;';
+                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#cbf8f4;strokeColor=#26DAD1;';
                 }
             }
 
             if (isWorkflowNode) {
                 style += 'rounded=1;arcSize=60;'
+                data.workflow = parentCell.value;
+            }
+            if (parentCell && parentCell.geometry) {
+                cy = parentCell.geometry.y + VertexSize.height + 5;
             }
 
             const cell = graph.insertVertex(
                 parentCell,
                 data.id, 
                 data, 
-                0, 0,
+                10, cy,
                 width, height, 
                 style,
             )
             if (isWorkflow) {
                 cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
             }
+            console.log('geo:', cell);
             cell.isPart = isWorkflowNode;
-
             return cell
         }
 
@@ -223,6 +230,7 @@ export default class TaskView extends Component {
                 let targetCell = target ? cellCache[target.id] : undefined;
                 let parentCell = defaultParent;
                 const isWorkflowNode = source && source.flowId && source.flowId !== 0;
+
                 if (parent) {
                     const existCell = cellCache[parent.id];
                     if (existCell) {
@@ -232,7 +240,6 @@ export default class TaskView extends Component {
                         cellCache[parent.id] = parentCell;
                     }
                 }
-
 
                 if (source && !sourceCell) {
                     sourceCell = getVertex(parentCell, source);
@@ -247,9 +254,11 @@ export default class TaskView extends Component {
                 const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
 
                 if (edges.length === 0) {
-                    graph.insertEdge(defaultParent, null, '', sourceCell, targetCell, edgeStyle)
+                    graph.insertEdge(parentCell, null, '', sourceCell, targetCell, edgeStyle)
                 }
-                this.executeLayout(parentCell);
+                if (isWorkflowNode) {
+                    this.executeLayout(parentCell);
+                }
             }
         }
     }
@@ -257,7 +266,9 @@ export default class TaskView extends Component {
     doInsertVertex = (data) => {
         const graph = this.graph;
         const arrayData = this.preHandGraphTree(data);
+        console.log('renderData:', JSON.stringify(arrayData));
         this.renderGraph(arrayData);
+        this.executeLayout(graph.getDefaultParent());
         graph.center();
     }
 
@@ -390,7 +401,8 @@ export default class TaskView extends Component {
 
             const currentNode = cell.value || {};
             const isWorkflowNode = currentNode.flowId && currentNode.flowId !== 0;
-
+            // 如果为工作流节点，且工作流处于冻结状态时，需要禁用子节点的解冻或者调用功能
+            const disableRunCtrl = isWorkflowNode && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function() {
                     ctx.loadTaskParent({
@@ -413,11 +425,15 @@ export default class TaskView extends Component {
             })
             menu.addItem('冻结', null, function() {
                 ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.STOPPED)
-            }, null, null, currentNode.scheduleStatus === SCHEDULE_STATUS.NORMAL) // 正常状态
+            }, null, null, 
+                currentNode.scheduleStatus === SCHEDULE_STATUS.NORMAL && !disableRunCtrl,
+            ) // 正常状态
 
             menu.addItem('解冻', null, function() {
                 ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.NORMAL);
-            }, null, null, currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED) // 冻结状态
+            }, null, null, 
+                currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED && !disableRunCtrl,
+            ) // 冻结状态
 
             if (!isWorkflowNode) {
                 menu.addItem('查看实例', null, function() {
@@ -431,20 +447,50 @@ export default class TaskView extends Component {
 
         const graph = this.graph;
         const model = graph.getModel();
+        const defaultParent = graph.getDefaultParent();
 
         const layout = new mxCompactTreeLayout(graph, false);
         layout.horizontal = false;
         layout.useBoundingBox = false;
+        layout.maintainParentLocation = true;
         layout.edgeRouting = false;
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
         layout.resizeParent = true;
+        layout.root = defaultParent;
+
+        // var layoutMgr = new mxLayoutManager(graph);
+        // layoutMgr.getLayout = function(cell) {
+            // console.log('layout cell:', cell)
+            // const isWorkflow = (cell.value && cell.value.flowId && cell.value.flowId !== 0) || (cell.value && cell.value.taskType === TASK_TYPE.WORKFLOW);
+            // if (isWorkflow) {
+            // }
+            // if (!cell.geometry) {
+            //     cell.geometry = {
+            //         x: 10,
+            //         y: 10,
+            //     }
+            // }
+            // const layout = new mxCompactTreeLayout(graph, false);
+            // layout.horizontal = false;
+            // layout.useBoundingBox = false;
+            // layout.edgeRouting = false;
+            // layout.levelDistance = 30;
+            // layout.nodeDistance = 10;
+            // layout.resizeParent = true;
+            // return layout;
+            // const layout2 = new mxHierarchicalLayout(graph, 'north', false);
+            // layout2.resizeParent = true;
+            // console.log('layout:', layout2)
+            // return layout2;
+        // };
 
         this.executeLayout = function (layoutNode, change, post) {
             model.beginUpdate();
             try {
                 if (change != null) { change(); }
                 layout.execute(layoutNode);
+                console.log('after layout:', layoutNode)
             } catch (e) {
                 throw e;
             } finally {
@@ -452,6 +498,22 @@ export default class TaskView extends Component {
                 if (post != null) { post(); }
             }
         }
+
+        // this.executeHierarchiclLayout = function(layoutNode, change, post) {
+        //     const layout2 = new mxHierarchicalLayout(graph, 'north', false);
+        //     layout.resizeParent = true;
+        //     model.beginUpdate();
+
+        //     try {
+        //         if (change != null) { change(); }
+        //         layout2.execute(layoutNode);
+        //     } catch (e) {
+        //         throw e;
+        //     } finally {
+        //         graph.getModel().endUpdate();
+        //         if (post != null) { post(); }
+        //     }
+        // }
     }
 
     initGraphEvent = () => {

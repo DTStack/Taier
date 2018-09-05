@@ -81,7 +81,7 @@ class RelationDetail extends React.Component {
 
     initialCols = () => {
         return [{
-            title: '名称',
+            title: '相关任务/脚本',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
@@ -165,14 +165,11 @@ class RelationDetail extends React.Component {
                         </table>
                     </Row>
                     <Row className="tb-wrapper" style={{marginTop: '20px', height: '200px' }}>
-                        <span className="bd-bottom" style={titleStyle}>
-                            <b>相关任务与脚本</b>
-                        </span>
                         <Table
                             columns={this.initialCols()}
                             rowKey="relationId"
+                            className="m-table"
                             pagination={false}
-                            showHeader={false}
                             dataSource={(relationTasks && relationTasks.data) || []}
                         />
                     </Row>

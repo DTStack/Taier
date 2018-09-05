@@ -20,10 +20,6 @@ const Mx = require('public/rdos/mxgraph')({
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,

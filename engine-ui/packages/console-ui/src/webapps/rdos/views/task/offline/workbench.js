@@ -242,6 +242,7 @@ class Workbench extends React.Component {
                         taskCustomParams={taskCustomParams}
                         updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
+                        loadTreeNode={this.props.loadTreeNode}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
