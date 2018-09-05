@@ -49,6 +49,17 @@ export default class MainBench extends React.Component {
                 } else if (utils.checkExist(tabData.type)) {
                     params.type = LOCK_TYPE.OFFLINE_SCRIPT; // 离线脚本锁
                 }
+                // 如果是工作流，解锁时需要加上子节点的ID;
+                if (tabData.taskType === TASK_TYPE.WORKFLOW && tabData.sqlText) {
+                    const workflowNodes = JSON.parse(tabData.sqlText);
+                    const ids = [];
+                    workflowNodes.forEach(flow => {
+                        if (flow.vertex && flow.data) {
+                            ids.push(flow.data.id)
+                        }
+                    });
+                    params.subFileIds = ids;
+                }
 
                 Api.unlockFile(params).then(res => {
                     if (res.code === 1) {
@@ -122,9 +133,6 @@ export default class MainBench extends React.Component {
         const isSyncScript = tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT;
         const isEditor = (tabData.taskType == TASK_TYPE.SQL) || isSyncScript || utils.checkExist(tabData && tabData.type);
 
-        let top = '0px';
-        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL) top = '10px';
-
         //根据不同的类型设置不通的锁样式，编辑器-只添加按钮点击部分遮罩，界面-添加全部遮罩，脚本向导模式-不添加遮罩，由内部来添加屏蔽遮罩
         let lockClassName = 'lock-layer';
         if (isEditor) {
@@ -138,7 +146,7 @@ export default class MainBench extends React.Component {
         return isLocked ? (
             <div className={lockClassName}>
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
+                    style={{ position: 'absolute', top: '0px', left: '35%', zIndex: '999' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -148,7 +156,11 @@ export default class MainBench extends React.Component {
     }
 
     renderBench(tabData) {
-        const { taskCustomParams } = this.props
+        const { taskCustomParams } = this.props;
+        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+
+        const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
+
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
@@ -206,7 +218,7 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.WORKFLOW: {
                     return <WorkFlowEditor 
                         data={tabData}
-                        key={tabData.id}
+                        key={editorKey}
                     />
                 }
                 default:

@@ -104,6 +104,7 @@ class WorkflowEditor extends Component {
         } else {
             this.setState({ showGuidePic: true, })
         }
+        console.log('WorkflowEditor init:', this.props.data);
     }
 
     shouldComponentUpdate (nextProps, nextState) {

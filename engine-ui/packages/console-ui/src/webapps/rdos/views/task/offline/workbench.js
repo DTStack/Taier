@@ -274,7 +274,7 @@ class Workbench extends React.Component {
                 </span>);
 
                 if (tab.flowId) {
-                    title = (<span >
+                    title = (<span>
                         <SyncBadge notSynced={tab.notSynced} />
                         <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId) }>
                             {tab.flowName}
