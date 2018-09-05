@@ -12,6 +12,7 @@ import KEY_CODE from 'widgets/keyCombiner/keyCode'
 
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
+import LockPanel from '../../../../components/lockPanel'
 
 import {
     workbenchActions,
@@ -89,7 +90,7 @@ class WorkflowEditor extends Component {
 
     componentDidMount() {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.graph = "";
+        this.graph = null;
         const editor = this.Container;
         this._cacheCells = {};
         this._currentNewVertex = null;
@@ -104,7 +105,7 @@ class WorkflowEditor extends Component {
         } else {
             this.setState({ showGuidePic: true, })
         }
-        console.log('WorkflowEditor init:', this.props.data);
+        console.log('WorkflowEditor init:', this.graph, this.props.data);
     }
 
     shouldComponentUpdate (nextProps, nextState) {
@@ -756,7 +757,6 @@ class WorkflowEditor extends Component {
 
     renderToolBar = () => {
         const { taskTypes, data } = this.props;
-        const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
 
         const showTitle = (type, title) => {
             switch(type) {
@@ -795,7 +795,7 @@ class WorkflowEditor extends Component {
                     节点组件
                 </header>
                 <div className="widgets-content">
-                    { isLocked ? <div className="cover-mask"></div>: null } 
+                    <LockPanel lockTarget={data}/>
                     { widgets }
                 </div>
             </div>
@@ -830,7 +830,12 @@ class WorkflowEditor extends Component {
                             backgroundRepeat: 'no-repeat',
                         }} /> : null
                     }
-                    <div className="editor pointer graph-bg" ref={(e) => { this.Container = e }} />
+                    <div className="editor pointer graph-bg" 
+                        style={{
+                            height: '100%',
+                        }}
+                        ref={(e) => { this.Container = e }} 
+                    />
                     <div className="graph-toolbar">
                         <Tooltip placement="bottom" title="布局">
                             <MyIcon type="flowchart" onClick={this.layout}/>

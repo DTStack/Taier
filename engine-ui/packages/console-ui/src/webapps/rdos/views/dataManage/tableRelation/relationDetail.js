@@ -99,11 +99,11 @@ class RelationDetail extends React.Component {
                 <TaskType value={record.taskType} />
             }
         }, {
-            title: '所属项目',
+            title: '项目',
             dataIndex: 'projectName',
             key: 'projectName'
         }, {
-            title: '创建者',
+            title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser'
         }]
