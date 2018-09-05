@@ -318,6 +318,7 @@ class DataSourceManaStream extends Component {
                         <Table
                             className="m-table"
                             rowKey="id"
+                            className="m-table full-screen-table-47"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}

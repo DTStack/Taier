@@ -7,19 +7,17 @@ import {
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
-import { TASK_TYPE } from '../../../../comm/const'
+import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
 })
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,
@@ -53,7 +51,6 @@ export default class TaskView extends Component {
         
         const editor = this.Container
         const currentTask = this.props.tabData
-        this.initEditor()
         this.loadEditor(editor)
         this.hideMenu()
         this.loadTaskChidren({
@@ -147,7 +144,7 @@ export default class TaskView extends Component {
         const getVertex = (parentCell, data) => {
             if (!data) return null;
 
-            let style = this.getStyles(data.taskType);
+            let style = this.getStyles(data);
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
 
             let width = VertexSize.width;
@@ -291,7 +288,10 @@ export default class TaskView extends Component {
         new mxRubberband(graph)
     }
 
-    getStyles = (type) => {
+    getStyles = (data) => {
+        if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
+            return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;'
+        }
         return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;'
     }
 
@@ -378,7 +378,7 @@ export default class TaskView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh}/>
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -396,9 +396,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF;';
-        // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333;';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -419,38 +417,5 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         return style
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
     }
 }

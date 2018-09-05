@@ -13,8 +13,10 @@ import MyIcon from '../../../components/icon'
 import { isEqTable } from './tableRelation'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
 })
 
 const {
@@ -54,7 +56,6 @@ export default class TableRelation extends React.Component {
         this.graph = "";
         const editor = this.Container
         const tableData = this.props.tableData
-        this.initEditor()
         this.loadEditor(editor)
         this.listenOnClick();
         if (tableData) {
@@ -341,7 +342,7 @@ export default class TableRelation extends React.Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} />
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -380,38 +381,5 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
         return style;
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
     }
 }

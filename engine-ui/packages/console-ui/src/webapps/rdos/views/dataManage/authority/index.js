@@ -55,7 +55,7 @@ const selectStatusList = [
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         user: state.user,
     }
 })
@@ -80,7 +80,7 @@ class AuthMana extends Component {
             queryParams: {
                 listType: listType || isPermission,
                 pageIndex: pageIndex || 1,
-                pageSize: 10,
+                pageSize: 20,
                 resourceName,
                 startTime,
                 endTime,
@@ -710,7 +710,7 @@ class AuthMana extends Component {
 
         const pagination = {
             total: Number(table.totalCount),
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current: Number(queryParams.pageIndex)
 
         };
@@ -722,7 +722,7 @@ class AuthMana extends Component {
         const selectCalssName = isShowRowSelection ? "m-table-fix m-table" : "m-table"
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
-                <Card noHovering bordered={false} title={title}>
+                <Card noHovering bordered={false} title={title} className="full-screen-table-80">
                     <Spin spinning={loading} tip="正在加载中...">
                         <div style={{ marginTop: '1px' }}>
                             <Table

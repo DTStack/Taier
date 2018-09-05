@@ -13,16 +13,14 @@ import { taskTypeText } from '../../../components/display'
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
 })
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,
@@ -122,8 +120,6 @@ export default class TaskView extends Component {
                 const childNodes = treeNodeData.subTaskVOS; // 子节点
                 const currentNodeData = getVertexNode(treeNodeData)
 
-    
-
                 const dataItem = {
                     parent: parent,
                     source: currentNodeData,
@@ -183,8 +179,7 @@ export default class TaskView extends Component {
         const getVertex = (parentCell, data) => {
             if (!data) return null;
 
-            let style = this.getStyles(data.taskType);
-            let edgeStyle = '';
+            let style = this.getStyles(data);
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
 
@@ -194,6 +189,10 @@ export default class TaskView extends Component {
                 width = width + 20;
                 height = height + 100;
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
+                
+                if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
+                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#26dad12e;';
+                }
             }
 
             if (isWorkflowNode) {
@@ -246,7 +245,7 @@ export default class TaskView extends Component {
 
                 const edges = graph.getEdgesBetween(sourceCell, targetCell)
                 const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
-              
+
                 if (edges.length === 0) {
                     graph.insertEdge(defaultParent, null, '', sourceCell, targetCell, edgeStyle)
                 }
@@ -259,7 +258,6 @@ export default class TaskView extends Component {
         const graph = this.graph;
         const arrayData = this.preHandGraphTree(data);
         this.renderGraph(arrayData);
-        // this.executeLayout(graph.getDefaultParent());
         graph.center();
     }
 
@@ -353,7 +351,10 @@ export default class TaskView extends Component {
         return '';
     }
 
-    getStyles = (type) => {
+    getStyles = (data) => {
+        if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
+            return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;'
+        }
         return 'whiteSpace=wrap;fillColor=#EDF6FF;strokeColor=#A7CDF0;';
     }
 
@@ -529,7 +530,6 @@ export default class TaskView extends Component {
                     发布于&nbsp;
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
-                    {/* <a href={`/rdos.html#/view/task/${task.id}`} target="_blank">查看代码</a> */}
                 </div>
             </div>
         )

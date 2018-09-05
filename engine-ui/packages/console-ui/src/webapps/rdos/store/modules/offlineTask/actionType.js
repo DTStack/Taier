@@ -3,6 +3,7 @@ import mc from 'mirror-creator';
 
 export const commAction = mc([
     'GET_TASK_TYPES',
+    'GET_TASK_TYPE_FILTER',
 ], {prefix: 'offline/comm/'});
 
 export const modalAction = mc([

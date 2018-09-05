@@ -220,7 +220,7 @@ class DataSourceMana extends Component {
         },
         {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '150px',
+            width: '230px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
@@ -363,7 +363,7 @@ class DataSourceMana extends Component {
                         bordered={false}
                     >
                         <Table
-                            className="m-table"
+                            className="m-table full-screen-table-47"
                             rowKey="id"
                             pagination={pagination}
                             onChange={this.handleTableChange}

@@ -27,8 +27,10 @@ class PackageContainer extends React.Component {
         return (
             <div
                 className="m-tabs box-pd-h"
-            >
+            >   
+                <h1 style={{marginBottom:"20px"}} className="box-title-bolder">{title}</h1>
                 <Tabs
+                    style={{height:"calc(100% - 44px)"}}
                     className="nav-border"
                     animated={false}
                     onChange={this.onChange.bind(this)}

@@ -5,16 +5,19 @@ import moment from 'moment'
 import {
     Table, message,
     Row, Col, Card, Input,
-    Button, Select,
-    DatePicker, Form,
+    Button, Select, Form,
     Checkbox, Tabs,
 } from 'antd'
 
 import utils from 'utils'
 import SlidePane from 'widgets/slidePane'
 
-import Api from '../../../api'
-import { offlineTaskTypeFilter, offlineTaskPeriodFilter, SCHEDULE_STATUS, PROJECT_TYPE } from '../../../comm/const'
+ import Api from '../../../api'
+import { 
+    offlineTaskPeriodFilter, 
+    SCHEDULE_STATUS,
+    PROJECT_TYPE 
+} from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
 
@@ -259,6 +262,8 @@ class OfflineTaskMana extends Component {
     initTaskColumns = () => {
         const isPro = this.props.project.projectType == PROJECT_TYPE.PRO;
         const pre = isPro ? "发布" : '提交'
+        const { taskTypeFilter } = this.props;
+
         return [{
             title: '任务名称',
             dataIndex: 'name',
@@ -285,7 +290,7 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskType value={text} />
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -451,7 +456,7 @@ class OfflineTaskMana extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table"
+                            className={`m-table ${isPro?'full-screen-table-90':'full-screen-table-120'}`}
                             pagination={pagination}
                             rowSelection={rowSelection}
                             loading={this.state.loading}
@@ -502,6 +507,7 @@ export default connect((state) => {
         projectUsers: state.projectUsers,
         workbench: state.workbench,
         user: state.user,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

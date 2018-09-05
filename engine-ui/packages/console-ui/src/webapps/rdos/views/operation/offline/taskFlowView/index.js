@@ -16,16 +16,14 @@ import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
 })
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,
@@ -615,7 +613,7 @@ class TaskFlowView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} />
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />

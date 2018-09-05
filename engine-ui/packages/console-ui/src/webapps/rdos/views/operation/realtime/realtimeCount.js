@@ -76,16 +76,16 @@ class RealtimeCount extends Component {
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         return (
             <div>
-                <h1 className="box-title box-title-bolder">
+                <h1 className="box-title box-title-bolder" style={{padding:"0 20 0 10"}}>
                     实时任务
-                    {!isPro && <Button type="primary" className="right" style={{ marginTop: '8px', marginLeft: "8px" }}>
+                    {!isPro && <Button type="primary" className="right" style={{ fontWeight:200,marginTop: '8px', marginLeft: "8px" }}>
                         <Link to="/package/create?type=realtime">实时任务发布</Link>
                     </Button>}
-                    <Button type="primary" className="right" style={{ marginTop: '8px' }}>
+                    <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
                         <Link to="/operation/realtime">实时任务运维</Link>
                     </Button>
                 </h1>
-                <div className="box-4 m-card m-card-small">
+                <div className="box-4 m-card m-card-small" style={{margin:"0 20 0 10"}}>
                     <Card
                         noHovering
                         bordered={false}
@@ -93,13 +93,13 @@ class RealtimeCount extends Component {
                         title="任务数量"
                     >
                         <Row className="m-count">
-                            <Col span={4}>
+                            {/* <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">全部</span>
                                     <a onClick={this.jumpToRealList.bind(this, taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
                                 </section>
-                            </Col>
-                            <Col span={5}>
+                            </Col> */}
+                            <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
                                     <a onClick={this.jumpToRealList.bind(this, taskStatus.FAILED)} className="m-count-content font-red">{data.FAILED || 0}</a>
@@ -108,16 +108,16 @@ class RealtimeCount extends Component {
                             <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行中</span>
-                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.RUNNING)} className="m-count-content font-blue">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
-                            <Col span={5}>
-                                <section className="m-count-section" style={{ width: "60px" }}>
+                            <Col span={6}>
+                                <section className="m-count-section" style={{width:"60px"}}>
                                     <span className="m-count-title">等待提交</span>
-                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.UNSUBMIT)} className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.UNSUBMIT)} className="m-count-content font-organge">{data.UNSUBMIT || 0}</a>
                                 </section>
                             </Col>
-                            <Col span={4}>
+                            <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">取消</span>
                                     <a onClick={this.jumpToRealList.bind(this, taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>

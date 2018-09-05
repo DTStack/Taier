@@ -383,8 +383,7 @@ class Workbench extends React.Component {
                     publishTask(res);
                     reloadTabTask(currentTab);
                     this.closePublish();
-                } else {
-                    message.error('提交失败！');
+                }else{
                     this.closePublish();
                 }
             });

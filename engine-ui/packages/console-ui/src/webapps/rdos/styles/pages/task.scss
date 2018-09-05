@@ -393,7 +393,6 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    padding-bottom: 50px;
     background: #f2f3f8;
 }
 
@@ -410,7 +409,7 @@
         margin-top: -1px;
         margin-left: -2px;
         padding-right: 30px;
-        padding-bottom: 40px;
+        padding-bottom: 30px;
  
         .browser-tabs {
             .ant-tabs-nav-container{
@@ -429,9 +428,14 @@
                     background: #2491F7;
                 }
             }
+            
+        }
+        .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close{
+            margin-top: -6px;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
+            padding-top: 7px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -521,7 +525,7 @@
             z-index: 902;
             top: 32px;
             height: 100%;
-            padding-bottom: 40px;
+            padding-bottom: 80px;
             overflow: auto;
             right: -1px;
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {

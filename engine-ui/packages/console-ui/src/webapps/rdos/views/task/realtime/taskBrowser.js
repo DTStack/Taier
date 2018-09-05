@@ -326,17 +326,17 @@ class TaskBrowser extends Component {
                                 <TaskDetail {...this.props}  />
                             </TabPane>
                             {
-                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">源表</span>} key="params3">
+                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>源表</span>} key="params3">
                                         <InputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                     </TabPane> : ""
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span  style={{marginTop: 10}} className="title-vertical tabpanel-content">结果表</span>} key="params4">
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 5,paddingBottom:3}}>结果表</span>} key="params4">
                                     <OutputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">维表</span>} key="params5">
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>维表</span>} key="params5">
                                     <DimensionPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 

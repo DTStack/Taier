@@ -36,7 +36,7 @@ class DMCheckCenter extends Component {
             <div className="box-1 m-tabs data-check">
                 <Tabs 
                     animated={false}
-                    style={{height: 'auto'}}
+                    style={{height: 'auto',minHeight: "calc(100% - 40px)"}}
                     onChange={this.changeTabs}
                     activeKey={this.state.currentTab}
                 >
