@@ -722,7 +722,7 @@ class AuthMana extends Component {
         const selectCalssName = isShowRowSelection ? "m-table-fix m-table" : "m-table"
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
-                <Card noHovering bordered={false} title={title} style={{height: "calc(100% - 76px)"}}>
+                <Card noHovering bordered={false} title={title} className="full-screen-table-80">
                     <Spin spinning={loading} tip="正在加载中...">
                         <div style={{ marginTop: '1px' }}>
                             <Table

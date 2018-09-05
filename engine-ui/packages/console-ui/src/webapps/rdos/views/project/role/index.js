@@ -124,7 +124,7 @@ class RoleManagement extends Component {
                         loading={false}
                         title="角色列表" 
                         extra={''}
-                        style={{height: 'auto',minHeight: "calc(100% - 70px)"}}
+                        className="full-screen-table-70"
                     >
                         <Table
                             rowKey="id"
