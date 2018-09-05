@@ -393,7 +393,7 @@ class OfflineTaskMana extends Component {
                         </div>
                     </h1>
                 )}
-                <div className="m-card box-2 task-manage">
+                <div className={`m-card ${isPro?'box-1':'box-2'} task-manage`}>
                     <Card
                         noHovering
                         bordered={false}
@@ -419,6 +419,7 @@ class OfflineTaskMana extends Component {
                                     <Select
                                         allowClear
                                         showSearch
+                                        size="default"
                                         style={{ width: 126 }}
                                         placeholder="责任人"
                                         optionFilterProp="name"

@@ -5,6 +5,59 @@
 */
 
 .m-tabs {
+    .nav-border{
+        &.no-bottom-border{
+            &.ant-tabs{
+                .ant-tabs-nav{
+                    .ant-tabs-tab{
+                        border-bottom: 0px;
+                    }
+                    .ant-tabs-tab ~ .ant-tabs-tab{
+                        border-bottom: 0px;
+                    }
+                }
+            }
+        }
+        &.ant-tabs{
+            overflow: unset;
+            .ant-tabs-bar{
+                position: relative;
+                z-index: 2;
+            }
+            .ant-tabs-nav{
+                /*选择首个tab*/
+                .ant-tabs-tab{
+                    &.ant-tabs-tab-active{
+                        border-top-width: 0px;
+                        border-bottom-width: 0px;
+                    }
+                    border: 1px solid #DDDDDD;
+                }
+                /*选择非首个tab https://stackoverflow.com/questions/6447045/css3-selector-first-of-type-with-class-name*/
+                .ant-tabs-tab ~ .ant-tabs-tab{
+                    &.ant-tabs-tab-active{
+                        border-top-width: 0px;
+                        border-bottom-width: 0px;
+                    }
+                    border: 1px solid #DDDDDD;
+                    border-left: 0px;
+                }
+            }
+        }
+    }
+    &.auto-height{
+        .ant-tabs{
+            height: auto;
+        }
+        .m-panel2{
+            min-height: auto;
+        }
+        .m-panel{
+            height: auto;
+            margin: 0;
+        }
+    }
+    
     .ant-menu {
         width: 136px;
         height: 100%;
@@ -49,12 +102,25 @@
         margin: 20px;
         height: 90%;
         border: 1px solid #DDDDDD;
+        &.common-padding{
+            padding: 20px;
+        }
+    }
+    .m-panel2{
+        position: relative;
+        background: #fff;
+        box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+        min-height: calc(100% - 36px);
+    }
+    .ant-tabs-nav{
+        background: #FAFAFA;
     }
     .panel-content {
         width: 100%;
         position: absolute;
         padding-left: 136px;
     }
+    
 }
 
 .m-table {

@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
-import { Link ,hashHistory} from 'react-router'
+import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { isEmpty } from "lodash"
 
 import {
     Card, Button, Row, Col
- } from 'antd'
+} from 'antd'
 
 import Api from '../../../api'
-import {taskStatus} from '../../../comm/const'
+import { taskStatus, PROJECT_TYPE } from '../../../comm/const'
 
 class RealtimeCount extends Component {
 
@@ -34,9 +34,9 @@ class RealtimeCount extends Component {
         const ctx = this
         Api.taskStatistics().then((res) => {
             if (res.code === 1) {
-                 this.setState({
-                     data: res.data
-                 })
+                this.setState({
+                    data: res.data
+                })
             }
         })
     }
@@ -61,22 +61,27 @@ class RealtimeCount extends Component {
         }]
     }
 
-    jumpToRealList(status){
+    jumpToRealList(status) {
         hashHistory.push({
-            pathname:"/operation/realtime",
-            query:{
-                status:(status||status==0)?status:undefined
+            pathname: "/operation/realtime",
+            query: {
+                status: (status || status == 0) ? status : undefined
             }
         })
     }
 
     render() {
         const { data } = this.state
+        const { project } = this.props;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
         return (
             <div>
                 <h1 className="box-title box-title-bolder">
                     实时任务
-                    <Button type="primary" className="right" style={{marginTop: '8px'}}>
+                    {!isPro && <Button type="primary" className="right" style={{ marginTop: '8px', marginLeft: "8px" }}>
+                        <Link to="/package/create?type=realtime">实时任务发布</Link>
+                    </Button>}
+                    <Button type="primary" className="right" style={{ marginTop: '8px' }}>
                         <Link to="/operation/realtime">实时任务运维</Link>
                     </Button>
                 </h1>
@@ -84,38 +89,38 @@ class RealtimeCount extends Component {
                     <Card
                         noHovering
                         bordered={false}
-                        loading={false} 
+                        loading={false}
                         title="任务数量"
                     >
                         <Row className="m-count">
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">全部</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.ALL)} className="m-count-content font-black">{data.ALL || 0}</a>
                                 </section>
                             </Col>
                             <Col span={5}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.FAILED)} className="m-count-content font-red">{data.FAILED || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.FAILED)} className="m-count-content font-red">{data.FAILED || 0}</a>
                                 </section>
                             </Col>
                             <Col span={6}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">运行中</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.RUNNING)} className="m-count-content font-organge">{data.RUNNING || 0}</a>
                                 </section>
                             </Col>
                             <Col span={5}>
-                                <section className="m-count-section" style={{width:"60px"}}>
+                                <section className="m-count-section" style={{ width: "60px" }}>
                                     <span className="m-count-title">等待提交</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.UNSUBMIT)} className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.UNSUBMIT)} className="m-count-content font-darkgreen">{data.UNSUBMIT || 0}</a>
                                 </section>
                             </Col>
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">取消</span>
-                                    <a onClick={this.jumpToRealList.bind(this,taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>
+                                    <a onClick={this.jumpToRealList.bind(this, taskStatus.CANCELED)} className="m-count-content font-gray">{data.CANCELED || 0}</a>
                                 </section>
                             </Col>
                         </Row>
