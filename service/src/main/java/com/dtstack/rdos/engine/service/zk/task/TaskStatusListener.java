@@ -218,36 +218,31 @@ public class TaskStatusListener implements Runnable{
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
             if(StringUtils.isNotBlank(engineTaskId)){
+                String pluginInfoStr = "";
+                if(rdosBatchJob.getPluginInfoId() > 0 ){
+                    pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
+                }
 
-                if(EngineType.isDataX(engineTypeName)){
-                    zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, rdosBatchJob.getStatus().intValue());
-                }else {
-                    String pluginInfoStr = "";
-                    if(rdosBatchJob.getPluginInfoId() > 0 ){
-                        pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
+
+                if(rdosTaskStatus != null){
+                    Integer status = rdosTaskStatus.getStatus();
+                    zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
+                    updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+
+                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                    if(isRestart){
+                        return;
                     }
 
-                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
+                    dealBatchJobAfterGetStatus(status, taskId, zkTaskId, computeType);
+                }
 
-                    if(rdosTaskStatus != null){
-                        Integer status = rdosTaskStatus.getStatus();
-                        zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
-                        rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                        updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
-
-                        boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
-                        if(isRestart){
-                            return;
-                        }
-
-                        dealBatchJobAfterGetStatus(status, taskId, zkTaskId, computeType);
-                    }
-
-                    if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
-                        FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), rdosBatchJob.getEngineJobId(),
-                                engineTypeName, computeType, pluginInfoStr);
-                        addFailedJob(failedTaskInfo);
-                    }
+                if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), rdosBatchJob.getEngineJobId(),
+                            engineTypeName, computeType, pluginInfoStr);
+                    addFailedJob(failedTaskInfo);
                 }
             }else{
                 dealWaitingJobForMigrationJob(zkTaskId, oldStatus);
