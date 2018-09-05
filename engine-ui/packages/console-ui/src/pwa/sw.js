@@ -1,4 +1,4 @@
-var cacheWhitelist = ['DTinsight_v4'];
+var cacheWhitelist = ['DTinsight_v1'];
 
 // service worker 注册事件
 this.addEventListener('install', function (e) {
