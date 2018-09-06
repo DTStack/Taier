@@ -6,7 +6,7 @@ import { Circle } from 'widgets/circle'
 export function taskTypeText(type) {
     switch (type) {
         case TASK_TYPE.MR:
-            return 'MR';
+            return 'Spark';
         case TASK_TYPE.SYNC:
             return '数据同步';
         case TASK_TYPE.VIRTUAL_NODE:
@@ -17,7 +17,7 @@ export function taskTypeText(type) {
         case TASK_TYPE.R:
             return 'R';
         case TASK_TYPE.SQL:
-            return 'SQL';
+            return 'SparkSQL';
         case TASK_TYPE.SHELL:
             return 'Shell';
         case TASK_TYPE.DEEP_LEARNING:

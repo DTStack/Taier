@@ -4,8 +4,7 @@ import {
     Button, Tooltip, Spin, Icon,
 } from 'antd'
 
-import utils from 'utils'
-import GoBack from 'main/components/go-back'
+
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -22,10 +21,6 @@ const Mx = require('public/rdos/mxgraph')({
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,

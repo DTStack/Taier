@@ -5,8 +5,7 @@ import moment from 'moment'
 import {
     Table, message,
     Row, Col, Card, Input,
-    Button, Select,
-    DatePicker, Form,
+    Button, Select, Form,
     Checkbox, Tabs,
  } from 'antd'
 
@@ -14,7 +13,10 @@ import {
  import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
-import { offlineTaskTypeFilter, offlineTaskPeriodFilter, SCHEDULE_STATUS } from '../../../comm/const'
+import { 
+    offlineTaskPeriodFilter, 
+    SCHEDULE_STATUS 
+} from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
 
@@ -256,6 +258,8 @@ class OfflineTaskMana extends Component {
     }
 
     initTaskColumns = () => {
+        const { taskTypeFilter } = this.props;
+
         return [{
             title: '任务名称',
             dataIndex: 'name',
@@ -282,7 +286,7 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskType value={text}/>
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -481,6 +485,7 @@ export default connect((state) => {
         projectUsers: state.projectUsers,
         workbench: state.workbench,
         user: state.user,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

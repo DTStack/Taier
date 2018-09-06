@@ -1,12 +1,8 @@
 import React from 'react';
-import { Link, hashHistory } from 'react-router';
 import { connect } from 'react-redux';
-import { Row, Col, Table, Pagination, Modal } from 'antd'
+import { Row, Table, Pagination, Modal } from 'antd'
 
-import utils from 'utils'
-import scrollText from 'widgets/scrollText';
 
-import Api from '../../../api/dataManage';
 import CommApi from '../../../api';
 import Editor from '../../../components/code-editor'
 import { TaskType, ScriptType } from '../../../components/status'
@@ -81,7 +77,7 @@ class RelationDetail extends React.Component {
 
     initialCols = () => {
         return [{
-            title: '名称',
+            title: '任务/脚本',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
@@ -99,11 +95,11 @@ class RelationDetail extends React.Component {
                 <TaskType value={record.taskType} />
             }
         }, {
-            title: '所属项目',
+            title: '项目',
             dataIndex: 'projectName',
             key: 'projectName'
         }, {
-            title: '创建者',
+            title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser'
         }]
@@ -165,14 +161,11 @@ class RelationDetail extends React.Component {
                         </table>
                     </Row>
                     <Row className="tb-wrapper" style={{marginTop: '20px', height: '200px' }}>
-                        <span className="bd-bottom" style={titleStyle}>
-                            <b>相关任务与脚本</b>
-                        </span>
                         <Table
                             columns={this.initialCols()}
                             rowKey="relationId"
+                            className="m-table"
                             pagination={false}
-                            showHeader={false}
                             dataSource={(relationTasks && relationTasks.data) || []}
                         />
                     </Row>

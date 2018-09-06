@@ -16,10 +16,9 @@ import { Circle } from 'widgets/circle'
 
 import Api from '../../../api'
 import {
-    offlineTaskStatusFilter, jobTypes,
-    ScheduleTypeFilter, TASK_STATUS,
-    offlineTaskTypeFilter,
+    offlineTaskStatusFilter,
     offlineTaskPeriodFilter,
+    TASK_STATUS,
 } from '../../../comm/const'
 
 import {
@@ -373,6 +372,8 @@ class OfflineTaskList extends Component {
 
     initTaskColumns = () => {
         const { taskStatus } = this.state;
+        const { taskTypeFilter } = this.props;
+     
         return [{
             title: '任务名称',
             dataIndex: 'id',
@@ -403,7 +404,7 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
-            filters: offlineTaskTypeFilter,
+            filters: taskTypeFilter,
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -671,6 +672,7 @@ export default connect((state) => {
     return {
         project: state.project,
         projectUsers: state.projectUsers,
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)

@@ -6,6 +6,7 @@ import utils from 'utils';
 
 import { TaskType } from '../../../components/status';
 import { getProjectUsers } from '../../../store/modules/user';
+import LockPanel from '../../../components/lockPanel'
 
 import TaskVersion from './taskVersion';
 import Api from '../../../api';
@@ -48,7 +49,8 @@ function TaskInfo(props) {
 
             <Row>
                 <Col span="10" className="txt-right">责任人：</Col>
-                <Col span="14">
+                <Col span="14" style={{position: 'relative'}}>
+                    <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
                     } <a onClick={props.modifyTaskOwner}>修改</a>

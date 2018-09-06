@@ -147,7 +147,7 @@ class Workbench extends React.Component {
     render() {
         const { 
             tabs, currentTab, currentTabData,
-            dataSync, taskCustomParams, 
+            dataSync, taskCustomParams,
             closeTab, closeAllorOthers
         } = this.props;
 
@@ -242,6 +242,7 @@ class Workbench extends React.Component {
                         taskCustomParams={taskCustomParams}
                         updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
+                        loadTreeNode={this.props.loadTreeNode}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
@@ -273,7 +274,7 @@ class Workbench extends React.Component {
                 </span>);
 
                 if (tab.flowId) {
-                    title = (<span >
+                    title = (<span>
                         <SyncBadge notSynced={tab.notSynced} />
                         <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId) }>
                             {tab.flowName}
@@ -352,7 +353,6 @@ class Workbench extends React.Component {
                     reloadTabTask(currentTab);
                     this.closePublish();
                 }else{
-                    message.error('发布失败！');
                     this.closePublish();
                 }
             });

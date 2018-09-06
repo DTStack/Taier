@@ -262,8 +262,8 @@ class OutputOrigin extends Component {
                     </span>
                     </Col>
                     { 
-                        panelColumn[index].type == "1" ?
-                        <Col  span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
+                        panelColumn[index].type == "1" 
+                        ?<Col  span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
                             <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                                 {/* <Column
                                     title="字段"
@@ -323,8 +323,8 @@ class OutputOrigin extends Component {
                                     <Icon type="plus" /><span> 添加输入</span>
                                 </Button>
                             </div>
-                        </Col> : 
-                        <Col span="18" style={{marginBottom: 20,height: 200}}>
+                        </Col> 
+                        : <Col span="18" style={{marginBottom: 20,height: 200}}>
                             <Editor 
                                 style={{minHeight: 202,border: "1px solid #ddd"}}
                                 key="params-editor"

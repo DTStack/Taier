@@ -412,6 +412,7 @@
         padding-bottom: 30px;
  
         .browser-tabs {
+
             .ant-tabs-nav-container{
                 font-size: 12px;
             }
@@ -525,7 +526,7 @@
             z-index: 902;
             top: 32px;
             height: 100%;
-            padding-bottom: 30px;
+            padding-bottom: 80px;
             overflow: auto;
             right: -1px;
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {
@@ -768,7 +769,7 @@
         left: 0px;
         right: 0px;
         cursor: not-allowed;
-        z-index: 999;
+        z-index: 900;
     }
     .ant-steps-icon {
         line-height: 23px!important;

@@ -1,0 +1,13 @@
+{
+    "name": "Manifest App to try PWA",
+    "short_name": "minimal PWA",
+    "display": "standalone",
+    "start_url": "/index.html",
+    "theme_color": "#8888ff",
+    "background_color": "#aaaaff",
+    "icons": [{
+        "src": "public/main/img/icon_5.png",
+        "sizes": "144x144",
+        "type": "image/png"
+    }]
+}

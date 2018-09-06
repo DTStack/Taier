@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 
 import { 
-    Tooltip, Spin, Icon, 
+    Tooltip, Icon, 
     Button, Modal, Select, 
 } from 'antd';
 
@@ -12,6 +12,7 @@ import KEY_CODE from 'widgets/keyCombiner/keyCode'
 
 import MyIcon from '../../../../components/icon'
 import { taskTypeText } from '../../../../components/display'
+import LockPanel from '../../../../components/lockPanel'
 
 import {
     workbenchActions,
@@ -90,7 +91,7 @@ class WorkflowEditor extends Component {
 
     componentDidMount() {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.graph = "";
+        this.graph = null;
         const editor = this.Container;
         this._cacheCells = {};
         this._currentNewVertex = null;
@@ -105,6 +106,7 @@ class WorkflowEditor extends Component {
         } else {
             this.setState({ showGuidePic: true, })
         }
+        console.log('WorkflowEditor init:', this.graph, this.props.data);
     }
 
     shouldComponentUpdate (nextProps, nextState) {
@@ -152,9 +154,8 @@ class WorkflowEditor extends Component {
         mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
         mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
 
+        // Constraint highlight color
         mxConstraintHandler.prototype.highlightColor = BASE_COLOR;
-        // mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
-        // mxConstants.STYLE_STROKECOLOR = BASE_COLOR;
 
         // Disable default context menu
         mxGraphView.prototype.optimizeVmlReflows = false;
@@ -457,7 +458,7 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
 
-        const { openTaskInDev } = this.props;
+        const { openTaskInDev, data } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -469,9 +470,11 @@ class WorkflowEditor extends Component {
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
 
-            if (!cell) return
-
+            if (!cell) return;
             const currentNode = cell.data || {};
+           
+            const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
+            if (isLocked) return;
 
             if (cell.vertex) {
                 menu.addItem('保存节点', null, function() {
@@ -754,7 +757,8 @@ class WorkflowEditor extends Component {
     }
 
     renderToolBar = () => {
-        const { taskTypes } = this.props;
+        const { taskTypes, data } = this.props;
+
         const showTitle = (type, title) => {
             switch(type) {
                 case TASK_TYPE.SQL:
@@ -792,6 +796,7 @@ class WorkflowEditor extends Component {
                     节点组件
                 </header>
                 <div className="widgets-content">
+                    <LockPanel lockTarget={data}/>
                     { widgets }
                 </div>
             </div>
@@ -802,7 +807,6 @@ class WorkflowEditor extends Component {
     render() {
 
         const { searchResult, showGuidePic } = this.state;
-        const { data } = this.props;
         const options = searchResult && searchResult.map(d => {
             return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
         })
@@ -827,7 +831,12 @@ class WorkflowEditor extends Component {
                             backgroundRepeat: 'no-repeat',
                         }} /> : null
                     }
-                    <div className="editor pointer graph-bg" ref={(e) => { this.Container = e }} />
+                    <div className="editor pointer graph-bg" 
+                        style={{
+                            height: '100%',
+                        }}
+                        ref={(e) => { this.Container = e }} 
+                    />
                     <div className="graph-toolbar">
                         <Tooltip placement="bottom" title="布局">
                             <MyIcon type="flowchart" onClick={this.layout}/>
