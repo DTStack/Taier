@@ -3,8 +3,8 @@ package com.dtstack.rdos.engine.service.zk.data;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.google.common.collect.Lists;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author toutian
@@ -14,7 +14,7 @@ public class BrokerDataNode {
     public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
         this.consistentHash = new ShardConsistentHash(5, Lists.newArrayList());
         if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
-            this.shards = new HashMap<>(brokerDataShardMap.size());
+            this.shards = new ConcurrentHashMap<>(brokerDataShardMap.size());
             for (Map.Entry<String, BrokerDataShard> entry : brokerDataShardMap.entrySet()) {
                 Map<String, Byte> dataMap = entry.getValue().getMetas();
                 BrokerDataInner inner = new BrokerDataInner(entry.getKey(), dataMap);

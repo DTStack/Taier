@@ -3,7 +3,7 @@ package com.dtstack.rdos.engine.service.zk.data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * 只用于zkTaskId做的map
@@ -12,7 +12,7 @@ import java.util.TreeMap;
  * @author xuchao
  */
 
-public class BrokerDataTreeMap extends TreeMap<String, Byte> {
+public class BrokerDataTreeMap extends ConcurrentSkipListMap<String, Byte> {
 
     private final static String interval = "_";
 
@@ -57,7 +57,6 @@ public class BrokerDataTreeMap extends TreeMap<String, Byte> {
 
     @Override
     public Byte put(String key, Byte value) {
-        remove(key);
         return super.put(key, value);
     }
 
