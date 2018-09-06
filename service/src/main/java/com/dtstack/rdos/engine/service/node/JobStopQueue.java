@@ -13,6 +13,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +41,7 @@ public class JobStopQueue {
     private WorkNode workNode;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
@@ -100,7 +100,7 @@ public class JobStopQueue {
                     //在zk上查找任务所在的worker-address
                     Integer computeType  = paramAction.getComputeType();
                     String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-                    String addr = zkDistributed.getJobLocationAddr(zkTaskId);
+                    String addr = zkLocalCache.getJobLocationAddr(zkTaskId);
                     if(addr == null){
                         LOG.info("can't get info from engine zk for jobId" + jobId);
                         continue;

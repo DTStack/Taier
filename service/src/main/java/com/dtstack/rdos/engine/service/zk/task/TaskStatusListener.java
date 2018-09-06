@@ -13,12 +13,11 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
@@ -43,12 +42,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
 public class TaskStatusListener implements Runnable{
-	
+
 	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
@@ -66,16 +65,15 @@ public class TaskStatusListener implements Runnable{
 
     /**初始启动的时候需要对获取的任务做重启操作*/
     private boolean isFirst = true;
-	
+
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-	
-	private Map<String,BrokerDataNode> brokerDatas = zkDistributed.getMemTaskStatus();
+	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
 	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
 
     private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
-	
+
 	private RdosEngineBatchJobDAO rdosBatchEngineJobDAO = new RdosEngineBatchJobDAO();
 
 	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
@@ -134,10 +132,10 @@ public class TaskStatusListener implements Runnable{
             failedJobCache.put(failedTaskInfo.getJobId(), failedTaskInfo);
         }
     }
-	
+
 	private void updateTaskStatus(){
         try {
-            Map<String, BrokerDataNode.BrokerDataInner> shards = brokerDatas.get(zkDistributed.getLocalAddress()).getShards();
+            Map<String, BrokerDataNode.BrokerDataInner> shards = zkLocalCache.getBrokerData().getShards();
             CountDownLatch ctl = new CountDownLatch(shards.size());
             for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{
@@ -410,14 +408,6 @@ public class TaskStatusListener implements Runnable{
         return statusPair;
     }
 
-    public void updateJobZookStatus(String zkTaskId, Integer status){
-        BrokerDataShard brokerDataShard = BrokerDataShard.initBrokerDataShard();
-        brokerDataShard.getMetas().put(zkTaskId, status.byteValue());
-        zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), zkTaskId, brokerDataShard, false);
-        zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataShard);
-
-    }
-
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
             rdosStreamTaskDAO.updateTaskStatus(jobId, status);
@@ -447,13 +437,13 @@ public class TaskStatusListener implements Runnable{
                 }
 
                 int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                updateJobZookStatus(noMigrationJobId, jobStatus);
+                zkLocalCache.updateLocalMemTaskStatus(noMigrationJobId, jobStatus);
                 updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), jobStatus);
             }
 
         });
 
-        updateJobZookStatus(noMigrationJobId, RdosTaskStatus.WAITENGINE.getStatus());
+        zkLocalCache.updateLocalMemTaskStatus(noMigrationJobId, RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(paramAction.getTaskId(), paramAction.getComputeType(), RdosTaskStatus.WAITENGINE.getStatus());
         jobClient.submitJob();
     }

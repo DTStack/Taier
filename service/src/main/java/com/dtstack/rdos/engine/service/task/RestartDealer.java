@@ -20,6 +20,7 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ public class RestartDealer {
     private ClientCache clientCache = ClientCache.getInstance();
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private static RestartDealer sigleton = new RestartDealer();
 
@@ -132,7 +135,7 @@ public class RestartDealer {
                         return;
                     }
                     int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                    zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
+                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
                     updateJobStatus(finalJobId, finalComputeType, jobStatus);
                 }
             });
@@ -176,7 +179,7 @@ public class RestartDealer {
         //更新rdos_engine_batch_task/rdos_engine_stream_task 状态
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-        zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
+        zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
         if(ComputeType.STREAM.getType().equals(computeType)){
             engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus());
             engineStreamJobDAO.updateSubmitLog(jobId, null);

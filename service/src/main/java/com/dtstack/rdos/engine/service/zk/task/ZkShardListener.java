@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
@@ -47,16 +48,14 @@ public class ZkShardListener implements Runnable, Closeable {
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
-    public ZkShardListener(Map<String, BrokerDataNode> memTaskStatus) {
-        if (memTaskStatus != null) {
-            BrokerDataNode brokerDataNode = memTaskStatus.get(zkDistributed.getLocalAddress());
-            if (brokerDataNode != null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
-                for (String shardName : brokerDataNode.getShards().keySet()) {
-                    initShardNode(shardName);
-                }
-            } else {
-                createShardNode(1);
+    public ZkShardListener() {
+        BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
+        if (brokerDataNode != null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
+            for (String shardName : brokerDataNode.getShards().keySet()) {
+                initShardNode(shardName);
             }
+        } else {
+            createShardNode(1);
         }
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(

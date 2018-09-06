@@ -21,6 +21,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -53,6 +54,7 @@ public class MasterNode {
     private static final int WAIT_INTERVAL = 20 * 1000;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -135,7 +137,7 @@ public class MasterNode {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
-                String addr = zkDistributed.getJobLocationAddr(zkTaskId);
+                String addr = zkLocalCache.getJobLocationAddr(zkTaskId);
                 Map<String,List<String>> shardMap= zkTaskIdAdds.computeIfAbsent(addr,k->Maps.newHashMap());
                 String shard = shardsCsist.get(zkTaskId);
                 List<String> zkTaskIds = shardMap.computeIfAbsent(shard,k->new ArrayList<>());

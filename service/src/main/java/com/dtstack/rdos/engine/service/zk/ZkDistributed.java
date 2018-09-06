@@ -13,6 +13,7 @@ import java.util.Set;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
@@ -83,13 +84,9 @@ public class ZkDistributed implements Closeable{
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
-	private static ZkDistributed zkDistributed;
-
-	private Map<String, BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
+	private static volatile ZkDistributed zkDistributed;
 
 	private InterProcessMutex masterLock;
-
-//	private InterProcessMutex brokerDataLock;
 
 	private InterProcessMutex brokerHeartLock;
 
@@ -143,7 +140,7 @@ public class ZkDistributed implements Closeable{
 		createLocalBrokerDataNode();
 		createLocalBrokerDataLock();
 		createLocalBrokerQueueNode();
-		initMemTaskStatus();
+		ZkLocalCache.getInstance().init();
 		registrationDB();
 		initScheduledExecutorService();
 		logger.warn("init zk server success...");
@@ -152,12 +149,11 @@ public class ZkDistributed implements Closeable{
 
 	private void initScheduledExecutorService() {
         masterListener = new MasterListener();
-		zkShardListener = new ZkShardListener(memTaskStatus);
+		zkShardListener = new ZkShardListener();
 		executors.execute(new HeartBeat());
 		executors.execute(masterListener);
 		executors.execute(new HeartBeatListener(masterListener));
 		executors.execute(new TaskListener());
-		executors.execute(new TaskMemStatusListener());
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
 		if(ConfigParse.getPluginStoreInfo()!=null){
@@ -349,9 +345,6 @@ public class ZkDistributed implements Closeable{
 		this.masterLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "masterLock"));
 
-//		this.brokerDataLock = createDistributeLock(String.format(
-//				"%s/%s", this.distributeRootNode, "brokerdatalock"));
-
 		this.brokerHeartLock = createDistributeLock(String.format(
 				"%s/%s", this.distributeRootNode, "brokerheartlock"));
 
@@ -359,7 +352,6 @@ public class ZkDistributed implements Closeable{
                 "%s/%s", this.distributeRootNode, "brokerqueuelock"));
 
 		interProcessMutexs.add(this.masterLock);
-//		interProcessMutexs.add(this.brokerDataLock);
 		interProcessMutexs.add(this.brokerHeartLock);
         interProcessMutexs.add(this.brokerQueueLock);
 
@@ -404,29 +396,18 @@ public class ZkDistributed implements Closeable{
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 
-	public void initMemTaskStatus(){
-		synchronized(memTaskStatus){
-			List<String> brokers = getBrokersChildren();
-			for(String broker:brokers){
-				BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-				if(brokerHeartNode.getAlive()){
-					Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(broker);
-					BrokerDataNode brokerDataNode = memTaskStatus.computeIfAbsent(broker, k-> new BrokerDataNode(brokerDataShardMap));
-				} else {
-					memTaskStatus.remove(broker);
-				}
+	public Map<String, BrokerDataNode> initMemTaskStatus(){
+		Map<String, BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
+		List<String> brokers = getBrokersChildren();
+		for(String broker:brokers){
+			BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
+			if(brokerHeartNode.getAlive()){
+				Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(broker);
+				BrokerDataNode brokerDataNode = memTaskStatus.computeIfAbsent(broker, k-> new BrokerDataNode(brokerDataShardMap));
 			}
 		}
+		return memTaskStatus;
 	}
-
-	public void updateLocalMemTaskStatus(String zkTaskId,BrokerDataShard brokerDataShard){
-		String shard = shardsCsist.get(zkTaskId);
-		synchronized(memTaskStatus){
-			BrokerDataNode brokerDataNode = memTaskStatus.get(this.getLocalAddress());
-			brokerDataNode.getShards().get(shard).getShardData().putAll(brokerDataShard.getMetas());
-		}
-	}
-
 
 	public void createNodeIfNotExists(String node, Object obj) throws Exception{
 		if (zkClient.checkExists().forPath(node) == null) {
@@ -565,56 +546,6 @@ public class ZkDistributed implements Closeable{
         return null;
     }
 
-	/**
-	 * 选择节点间队列负载最小的node，做任务分发
-	 */
-	public String getDistributeNode(List<String> excludeNodes){
-		int def = Integer.MAX_VALUE;
-		String node = null;
-
-		if(memTaskStatus.size() > 0){
-			Set<Map.Entry<String, BrokerDataNode>> entrys = memTaskStatus.entrySet();
-			for(Map.Entry<String, BrokerDataNode> entry : entrys){
-				String targetNode = entry.getKey();
-				if(excludeNodes.contains(targetNode)){
-					continue;
-				}
-				int size =0;
-				for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry:entry.getValue().getShards().entrySet()){
-					size += getDistributeJobCount(shardEntry.getValue());
-				}
-				if(size < def){
-					def = size;
-					node = targetNode;
-				}
-			}
-		}
-		return node;
-	}
-
-	private int getDistributeJobCount(BrokerDataNode.BrokerDataInner brokerDataInner){
-		int count = 0;
-		for(byte status : brokerDataInner.getShardData().values()){
-			if(status == RdosTaskStatus.RESTARTING.getStatus()
-					|| status == RdosTaskStatus.WAITCOMPUTE.getStatus()
-					|| status == RdosTaskStatus.WAITENGINE.getStatus()){
-				count++;
-			}
-		}
-		return count;
-	}
-
-	public boolean checkIsAlreadyInThisNode(String taskId){
-		String shard = shardsCsist.get(taskId);
-		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
-			Map<String, BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
-			if (shardMap.containsKey(shard)){
-				return shardMap.get(shard).getShardData().containsKey(taskId);
-			}
-		}
-		return false;
-	}
-
 	public List<String> getBrokersChildren() {
 		try {
 			return zkClient.getChildren().forPath(this.brokersNode);
@@ -650,25 +581,6 @@ public class ZkDistributed implements Closeable{
 	public String getLocalAddress() {
 		return localAddress;
 	}
-
-	public Map<String, BrokerDataNode> getMemTaskStatus(){
-		return memTaskStatus;
-	}
-
-	public String getJobLocationAddr(String zkTaskId){
-		String shard = shardsCsist.get(zkTaskId);
-		for(Map.Entry<String, BrokerDataNode> entry : memTaskStatus.entrySet()){
-            String addr = entry.getKey();
-			Map<String,BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
-			if (shardMap.containsKey(shard)){
-				if (shardMap.get(shard).getShardData().containsKey(zkTaskId)){
-					return addr;
-				}
-			}
-        }
-
-        return null;
-    }
 
 	private void lockRelease(){
 		interProcessMutexs.forEach(lock->{
@@ -843,14 +755,6 @@ public class ZkDistributed implements Closeable{
 			}
 		}
 		return brokerDataNode;
-	}
-
-	public void updateJobZKStatus(String zkTaskId, Integer status){
-		BrokerDataShard brokerDataShard = BrokerDataShard.initBrokerDataShard();
-		brokerDataShard.getMetas().put(zkTaskId, status.byteValue());
-		zkDistributed.updateSynchronizedBrokerData(zkDistributed.getLocalAddress(), zkTaskId, brokerDataShard, false);
-		zkDistributed.updateLocalMemTaskStatus(zkTaskId, brokerDataShard);
-
 	}
 
 	@Override

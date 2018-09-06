@@ -20,6 +20,7 @@ import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -57,6 +58,8 @@ public class WorkNode {
     private static final int DISPATCH_RETRY_LIMIT = 3;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -107,13 +110,13 @@ public class WorkNode {
                     return;
                 }
                 int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
+                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
                 updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
             }
         });
 
         saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
-        zkDistributed.updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -185,7 +188,7 @@ public class WorkNode {
         boolean result = groupPriorityQueue.remove(groupName, jobId);
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-            zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.deleteJob(jobId);
             //修改任务状态
             if(ComputeType.BATCH.getType().equals(computeType)){
@@ -203,7 +206,7 @@ public class WorkNode {
      */
     private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
 
-        String address = zkDistributed.getDistributeNode(excludeNodes);
+        String address = zkLocalCache.getDistributeNode(excludeNodes);
         if(Strings.isNullOrEmpty(address)){
             return false;
         }
