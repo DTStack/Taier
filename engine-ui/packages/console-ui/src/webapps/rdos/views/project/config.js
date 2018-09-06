@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
+import {cloneDeep} from "lodash";
 
 import {
     Row, Col, Modal, Card,
@@ -94,7 +95,7 @@ class ProjectConfig extends Component {
             scheduleStatusLoading: true
         })
         Api.updateProjectSchedule({
-            status: checked
+            status: checked?0:1
         })
             .then(
                 (res) => {
@@ -103,7 +104,7 @@ class ProjectConfig extends Component {
                     })
                     if (res.code == 1) {
                         message.success("周期调度状态切换成功！")
-                        const newProject = Object.assign(project, { scheduleStatus: checked })
+                        const newProject = cloneDeep(Object.assign(project, { scheduleStatus:checked?0:1 }))
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
                     }
@@ -119,7 +120,7 @@ class ProjectConfig extends Component {
         Modal.confirm({
             title: '确认绑定发布目标',
             content: (<div style={{color:"ff0000",fontWeight:"bold"}}>
-                <p>是否确定将ABC项目指定为发布目标？</p>
+                <p>是否确定将{bindProject.name}项目指定为发布目标？</p>
                 <p>此配置不可逆，确认后不可修改</p>
             </div>),
             iconType:"exclamation-circle",
@@ -212,7 +213,8 @@ class ProjectConfig extends Component {
             project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
         const members = project && project.memberUsers && project.memberUsers.length > 0 ?
             project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
-        return (
+        const projectIdentifier=project.projectIdentifier;
+            return (
             <div className="project-config">
                 <h1 className="box-title">
                     项目配置
@@ -220,7 +222,7 @@ class ProjectConfig extends Component {
                 <div className="box-card">
                     <table className="project-config-table bd">
                         <tbody>
-                            <tr><td className="t-title">项目名称</td><td>{project.projectIdentifier}</td></tr>
+                            <tr><td className="t-title">项目名称</td><td>{projectIdentifier}</td></tr>
                             <tr><td className="t-title">项目显示名称</td><td>
                                 {project.projectAlias}
                                 &nbsp;
@@ -296,7 +298,7 @@ class ProjectConfig extends Component {
                         >
                             {projects.map(
                                 (project) => {
-                                    return (project.projectType !== PROJECT_TYPE.COMMON ? <Option
+                                    return (project.projectType == PROJECT_TYPE.COMMON&&project.projectIdentifier!=projectIdentifier ? <Option
                                         key={project.id}
                                         value={project.id}>
                                         {project.projectAlias}

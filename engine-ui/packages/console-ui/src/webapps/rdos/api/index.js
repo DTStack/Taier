@@ -6,6 +6,7 @@ import http from './http'
 import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
+import {publishType} from "../comm/const";
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -750,20 +751,62 @@ export default {
             return http.post(req.GET_REALTIME_LINK_SOURCE, params)
         }
     },
-    getRePublishList(params,type="offline",listType="task") {
+    getRePublishList(params,type="offline",listType=publishType.TASK) {
         const urlMap={
             offline:{
-                task:req.GET_OFFLINE_TASKS,
-                func:req.GET_OFFLINE_FUNCTION,
-                resource:req.GET_OFFLINE_RESOURCE,
-                table:req.GET_OFFLINE_TABLELIST,
+                [publishType.TASK]:req.GET_OFFLINE_TASKS,
+                [publishType.FUNCTION]:req.GET_OFFLINE_FUNCTION,
+                [publishType.RESOURCE]:req.GET_OFFLINE_RESOURCE,
+                [publishType.TABLE]:req.GET_TABLES,
             },
             realtime:{
-                task:req.GET_REALTIME_TASKS,
-                func:req.GET_REALTIME_FUNCTION,
-                resource:req.GET_REALTIME_RESOURCE
+                [publishType.TASK]:req.GET_REALTIME_TASKS,
+                [publishType.FUNCTION]:req.GET_REALTIME_FUNCTION,
+                [publishType.RESOURCE]:req.GET_REALTIME_RESOURCE
             }
         }
         return http.post(urlMap[type][listType], params)
+    },
+    getPackageName(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.GET_OFFLINE_PACKAGE_NAME, params)
+        }else{
+            return http.post(req.GET_REALTIME_PACKAGE_NAME, params)
+        }
+    },
+    createPackage(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.OFFLINE_CREATE_PACKAGE, params)
+        }else{
+            return http.post(req.REALTIME_CREATE_PACKAGE, params)
+        }
+    },
+    publishPackage(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.PUBLISH_OFFLINE_PACKAGE, params)
+        }else{
+            return http.post(req.PUBLISH_REALTIME_PACKAGE, params)
+        }
+    },
+    getPackageList(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.GET_OFFLINE_PACKAGE_LIST, params)
+        }else{
+            return http.post(req.GET_REALTIME_PACKAGE_LIST, params)
+        }
+    },
+    deletePackage(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.OFFLINE_DELETE_PACKAGE, params)
+        }else{
+            return http.post(req.REALTIME_DELETE_PACKAGE, params)
+        }
+    },
+    getTaskLinkItems(params,type="offline") {
+        if(type=="offline"){
+            return http.post(req.GET_OFFLINE_TASK_LINK_ITEMS, params)
+        }else{
+            return http.post(req.GET_REALTIME_TASK_LINK_ITEMS, params)
+        }
     },
 }

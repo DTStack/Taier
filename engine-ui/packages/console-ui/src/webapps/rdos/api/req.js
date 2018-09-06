@@ -113,6 +113,17 @@
      GET_REALTIME_TASKS:`${RDOS_BASE_URL}/stream/streamTaskShade/pageQuery`,
      GET_OFFLINE_LINK_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceInBingProject`,//获取当前项目关联的项目下的数据源列表
      GET_REALTIME_LINK_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/getDataSourceInBingProject`,
+     GET_OFFLINE_TASK_LINK_ITEMS:`${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,//获取任务关联的函数资源表
+     GET_REALTIME_TASK_LINK_ITEMS:`${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,
      GET_TABLES:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/simplePageQuery`,//获取表
+     GET_OFFLINE_PACKAGE_NAME:`${RDOS_BASE_URL}/batch/batchPackage/getPackageName`,//获取包名
+     GET_REALTIME_PACKAGE_NAME:`${RDOS_BASE_URL}/stream/streamPackage/getPackageName`,//获取包名
+     OFFLINE_CREATE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/createPackage`,//创建包
+     REALTIME_CREATE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/createPackage`,//创建包
+     OFFLINE_DELETE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/deletePackage`,//删除包
+     REALTIME_DELETE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/deletePackage`,//删除包
+     GET_OFFLINE_PACKAGE_LIST:`${RDOS_BASE_URL}/batch/batchPackage/pageQuery`,//包列表
+     GET_REALTIME_PACKAGE_LIST:`${RDOS_BASE_URL}/stream/streamPackage/pageQuery`,//包列表
+
  }
  
