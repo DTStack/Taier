@@ -5,21 +5,25 @@ import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * company: www.dtstack.com
  * author: toutian
  * create: 2018/9/6
  */
-public class ZkLocalCache {
+public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
 
-    private Map<String, BrokerDataNode> zkCache;
+    private volatile Map<String, BrokerDataNode> core;
+    private volatile Map<String, BrokerDataNode> view;
 
-    private BrokerDataNode localDataCache;
-
+    private volatile BrokerDataNode localDataCache;
+    private volatile AtomicBoolean requiresCopyOnWrite;
     private static ZkLocalCache zkLocalCache = new ZkLocalCache();
 
     public static ZkLocalCache getInstance() {
@@ -31,37 +35,39 @@ public class ZkLocalCache {
     private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
 
     private ZkLocalCache() {
+        this.requiresCopyOnWrite = new AtomicBoolean(false);
     }
 
     public void init() {
-        zkCache = zkDistributed.initMemTaskStatus();
-        localDataCache = zkCache.get(zkDistributed.getLocalAddress());
+        core = zkDistributed.initMemTaskStatus();
+        localDataCache = core.get(zkDistributed.getLocalAddress());
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
         }
+        copy();
         String shard = shardsCsist.get(zkTaskId);
         localDataCache.getShards().get(shard).getShardData().put(zkTaskId, status.byteValue());
     }
 
     public Map<String, BrokerDataNode> getLocalCache() {
-        return zkCache;
+        return getView();
     }
 
     public BrokerDataNode getBrokerData() {
-        return zkCache.get(zkDistributed.getLocalAddress());
+        return getView().get(zkDistributed.getLocalAddress());
     }
 
 
-    public String getJobLocationAddr(String zkTaskId){
+    public String getJobLocationAddr(String zkTaskId) {
         String shard = shardsCsist.get(zkTaskId);
-        for(Map.Entry<String, BrokerDataNode> entry : zkCache.entrySet()){
+        for (Map.Entry<String, BrokerDataNode> entry : core.entrySet()) {
             String addr = entry.getKey();
-            Map<String,BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
-            if (shardMap.containsKey(shard)){
-                if (shardMap.get(shard).getShardData().containsKey(zkTaskId)){
+            Map<String, BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
+            if (shardMap.containsKey(shard)) {
+                if (shardMap.get(shard).getShardData().containsKey(zkTaskId)) {
                     return addr;
                 }
             }
@@ -75,7 +81,7 @@ public class ZkLocalCache {
     public String getDistributeNode(List<String> excludeNodes) {
         int def = Integer.MAX_VALUE;
         String node = null;
-        Set<Map.Entry<String, BrokerDataNode>> entrys = zkCache.entrySet();
+        Set<Map.Entry<String, BrokerDataNode>> entrys = core.entrySet();
         for (Map.Entry<String, BrokerDataNode> entry : entrys) {
             String targetNode = entry.getKey();
             if (excludeNodes.contains(targetNode)) {
@@ -104,4 +110,28 @@ public class ZkLocalCache {
         }
         return count;
     }
+
+    @Override
+    public Map<String, BrokerDataNode> cloneData() {
+        try {
+            return new ConcurrentHashMap<String, BrokerDataNode>(core);
+        } finally {
+            requiresCopyOnWrite.set(true);
+        }
+    }
+
+    private void copy() {
+        if (requiresCopyOnWrite.compareAndSet(true, false)) {
+            core = new ConcurrentHashMap<>(core);
+            view = null;
+        }
+    }
+
+    private Map<String, BrokerDataNode> getView() {
+        if (view == null) {
+            view = Collections.unmodifiableMap(core);
+        }
+        return view;
+    }
+
 }
