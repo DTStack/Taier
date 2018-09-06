@@ -13,4 +13,7 @@ table{
 }
 .overflow-x-hidden{
     overflow-x: hidden;
+} 
+.big-tooltip .ant-tooltip-inner{
+    max-width: 350px;
 }

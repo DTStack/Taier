@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Input, Button, Select, Form, Checkbox, message } from 'antd';
+import { Modal, Input, Button, Select, Form, Checkbox, message, Tooltip, Icon } from 'antd';
 
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import Api from '../../api/dataSource';
+import { jdbcUrlExample } from '../../consts/JDBCCommon';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -52,6 +53,7 @@ export default class DataSourceModal extends Component {
 
     componentDidMount() {
         this.props.getDataSourcesType();
+        
     }
 
     componentWillReceiveProps(nextProps) {
@@ -142,7 +144,8 @@ export default class DataSourceModal extends Component {
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-
+        console.log(sourceType);
+        
         switch (sourceType) {
             case DATA_SOURCE.HIVE: {
                 return [
@@ -157,6 +160,9 @@ export default class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
+                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>,
                     <FormItem {...formItemLayout} label="用户名" key="username">
                         {
@@ -284,6 +290,9 @@ export default class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>,
                     <FormItem {...formItemLayout} label="用户名" key="username" hasFeedback>
                         {
@@ -346,10 +355,10 @@ export default class DataSourceModal extends Component {
 
     render() {
         const { visible, form, title, sourceData, status, dataSource } = this.props
-        const { hasHdfsConfig } = this.state
+        const { hasHdfsConfig, sourceType} = this.state
         const { getFieldDecorator } = form;
-        const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
-
+        //const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
+        
         return (
             <Modal
                 title={title}
@@ -366,7 +375,7 @@ export default class DataSourceModal extends Component {
                                 rules: [{
                                     required: true, message: '数据源类型不可为空！',
                                 }],
-                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType,
+                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString(),
                             })(
                                 <Select
                                     onChange={this.sourceChange}
