@@ -14,6 +14,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
+    mxLoadStylesheets: false,
 })
 
 const {
@@ -149,7 +150,7 @@ export default class TaskView extends Component {
 
             let width = VertexSize.width;
             let height = VertexSize.height;
-            if (isWorkflow) {
+            if (isWorkflow && data.subNodes && data.subNodes.length > 0) {
                 width = width + 20;
                 height = height + 100;
                 style += 'shape=swimlane;';

@@ -585,22 +585,26 @@ class SchedulingConfig extends React.Component {
     }
     
     componentDidMount() {
+        this.loadWorkflowConfig();
         const { tabData } = this.props;
         const scheduleConf = JSON.parse(tabData.scheduleConf);
         let selfReliance = 0;
+        // 此处为兼容代码
         // scheduleConf.selfReliance兼容老代码true or false 值
         if (scheduleConf.selfReliance !== 'undefined') {
             if (scheduleConf.selfReliance === true) {
                 selfReliance = 1;
-            } else if (scheduleConf.selfReliance !== false) {
+            } else if (scheduleConf.selfReliance === false) {
+                selfReliance = 0;
+            } else if (scheduleConf.selfReliance) {
                 selfReliance = scheduleConf.selfReliance;
             }
         } 
-
+        
+        console.log('selfReliance:', scheduleConf, selfReliance,)
         this.setState({
             selfReliance: selfReliance,
         })
-        this.loadWorkflowConfig();
     }
 
     loadWorkflowConfig = () => {
@@ -693,7 +697,6 @@ class SchedulingConfig extends React.Component {
                 message.err(errInfo)
             }
         })
-       
     }
 
     handleScheduleConf() {
@@ -779,10 +782,12 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
+        
         const { 
             recommentTaskModalVisible, recommentTaskList, 
             loading, wFScheduleConf, selfReliance
         } = this.state;
+
         const { tabData, isWorkflowNode } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
@@ -792,15 +797,14 @@ class SchedulingConfig extends React.Component {
             beginDate: '2001-01-01',
             endDate: '2021-01-01'
         });
+  
         // 工作流更改默认调度时间配置
         if (isWorkflowNode) {
             scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
             })
-        }
-
-        if (initConf !== '') {
+        } else if (initConf !== '') {
             scheduleConf = JSON.parse(initConf);
         }
 
@@ -851,7 +855,7 @@ class SchedulingConfig extends React.Component {
                         handleScheduleConf={ this.handleScheduleConf.bind(this) }
                         handleScheduleType={ this.handleScheduleType.bind(this) }
                         ref={ el => this.form = el }
-                        key={ `${tabData.id} - ${scheduleConf.periodType}` }
+                        key={ `${tabData.id}-${scheduleConf.periodType}` }
                     />
                 </Panel>
                 {

@@ -20,6 +20,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
+    mxLoadStylesheets: false,
 })
 
 const {
@@ -216,8 +217,6 @@ class TaskFlowView extends Component {
     preHandGraphTree = (data, nodeType) => {
 
         const relationTree = [];
-        
-
 
         const loop = (treeNodeData, parent) => {
 
@@ -277,7 +276,9 @@ class TaskFlowView extends Component {
         const getVertex = (parentCell, data) => {
             if (!data) return null;
 
-            let style = getVertxtStyle(data.status)
+            let style = getVertxtStyle(data.status);
+            let cy = 10;
+
             const valueStr = this.getShowStr(data);
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
@@ -288,18 +289,22 @@ class TaskFlowView extends Component {
             if (isWorkflow) {
                 width = width + 20;
                 height = height + 100;
-                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
+                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;color:#333333;';
             }
 
             if (isWorkflowNode && parentCell !== defaultParent) {
                 style += 'rounded=1;arcSize=60;'
+            }
+
+            if (parentCell && parentCell.geometry) {
+                cy = parentCell.geometry.y + VertexSize.height + 5;
             }
             
             const cell = graph.insertVertex(
                 parentCell,
                 data.id, 
                 valueStr, 
-                0, 0,
+                10, cy,
                 width, height, 
                 style,
             )
@@ -687,7 +692,7 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
-        style[mxConstants.FONT_BOLD] = 0;
+        style[mxConstants.FONT_BOLD] = 'normal';
         style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 
         return style;

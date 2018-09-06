@@ -5,7 +5,8 @@ import utils from 'utils'
 
 import Api from '../../../api'
 import {
-    TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, DEAL_MODEL_TYPE, SCRIPT_TYPE,
+    TASK_TYPE, LOCK_TYPE, DATA_SYNC_TYPE, 
+    DEAL_MODEL_TYPE, SCRIPT_TYPE, MENU_TYPE,
 } from '../../../comm/const'
 
 import DataSync from './dataSync';
@@ -25,7 +26,7 @@ export default class MainBench extends React.Component {
     }
 
     unLock = () => {
-        const { tabData, updateTaskFields, updateCatalogue } = this.props;
+        const { tabData, updateTaskFields, updateCatalogue, loadTreeNode } = this.props;
         const lockInfo = tabData.readWriteLockVO;
 
         // 解锁
@@ -41,12 +42,23 @@ export default class MainBench extends React.Component {
             onOk() {
                 const params = {
                     fileId: tabData.id,
-                    lockVersion: lockInfo.version
+                    lockVersion: lockInfo.version,
                 }; // 文件ID
                 if (utils.checkExist(tabData.taskType)) {
-                    params.type = LOCK_TYPE.OFFLINE_TASK // 离线任务锁
+                    params.type = LOCK_TYPE.OFFLINE_TASK; // 离线任务锁
                 } else if (utils.checkExist(tabData.type)) {
-                    params.type = LOCK_TYPE.OFFLINE_SCRIPT // 离线脚本锁
+                    params.type = LOCK_TYPE.OFFLINE_SCRIPT; // 离线脚本锁
+                }
+                // 如果是工作流，解锁时需要加上子节点的ID;
+                if (tabData.taskType === TASK_TYPE.WORKFLOW && tabData.sqlText) {
+                    const workflowNodes = JSON.parse(tabData.sqlText);
+                    const ids = [];
+                    workflowNodes.forEach(flow => {
+                        if (flow.vertex && flow.data) {
+                            ids.push(flow.data.id)
+                        }
+                    });
+                    params.subFileIds = ids;
                 }
 
                 Api.unlockFile(params).then(res => {
@@ -57,7 +69,7 @@ export default class MainBench extends React.Component {
                         } else { // 解锁失败重新reload任务代码
                             Modal.error({
                                 title: '解锁失败',
-                                content: `文件正在被${lockData.lastKeepLockUserName}编辑中!开始编辑时间
+                                content: `文件正在被${lockData.lastKeepLockUserName}编辑中! 开始编辑时间
                                 ${utils.formatDateTime(lockData.gmtModified)}.`,
                             });
                         }
@@ -66,6 +78,14 @@ export default class MainBench extends React.Component {
                             id: tabData.id,
                         }
                         if (params.type === LOCK_TYPE.OFFLINE_TASK) {
+                            // 如果是工作流解锁成功，则需要重新刷新工作流子节点
+                            if (tabData.taskType === TASK_TYPE.WORKFLOW) {
+                                loadTreeNode(tabData.id,  MENU_TYPE.TASK_DEV, {
+                                    taskType: TASK_TYPE.WORKFLOW,
+                                    parentId: tabData.nodePid,
+                                })
+                            }
+
                             Api.getOfflineTaskDetail(reqParams).then(res => {
                                 if (res.code === 1) {
                                     const taskInfo = res.data
@@ -113,21 +133,20 @@ export default class MainBench extends React.Component {
         const isSyncScript = tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT;
         const isEditor = (tabData.taskType == TASK_TYPE.SQL) || isSyncScript || utils.checkExist(tabData && tabData.type);
 
-        let top = '0px';
-        if (tabData.taskType && tabData.taskType !== TASK_TYPE.SQL && !isSyncScript) top = '10px';
-
         //根据不同的类型设置不通的锁样式，编辑器-只添加按钮点击部分遮罩，界面-添加全部遮罩，脚本向导模式-不添加遮罩，由内部来添加屏蔽遮罩
         let lockClassName = 'lock-layer';
         if (isEditor) {
             lockClassName = 'lock-layer-editor';
         } else if (tabData.taskType == TASK_TYPE.SYNC) {
             lockClassName = 'lock-layer-sync';
+        } else if (tabData.taskType == TASK_TYPE.WORKFLOW) {
+            lockClassName = 'lock-layer-editor';
         }
 
         return isLocked ? (
             <div className={lockClassName}>
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
+                    style={{ position: 'absolute', top: '0px', left: '35%', zIndex: '999' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -137,8 +156,9 @@ export default class MainBench extends React.Component {
     }
 
     renderBench(tabData) {
-        const { taskCustomParams } = this.props
+        const { taskCustomParams } = this.props;
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
+
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
 
@@ -193,9 +213,12 @@ export default class MainBench extends React.Component {
                         return <NormalTaskForm key={tabData.id} {...tabData} />
                     }
                 case TASK_TYPE.WORKFLOW: {
+                    const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+                    const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
+                    console.log('editorKey:', editorKey);
                     return <WorkFlowEditor 
                         data={tabData}
-                        key={tabData.id}
+                        key={editorKey}
                     />
                 }
                 default:

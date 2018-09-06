@@ -420,14 +420,14 @@ class SourceForm extends React.Component {
     debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
     debounceExtTableSearch = debounce(this.changeExtTable, 300, { 'maxWait': 2000 })
 
-    renderExtDataSource() {
+    renderExtDataSource = () => {
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
 
         if (!sourceList) {
-            return null;
+            return [];
         }
 
         return sourceList.filter(
@@ -515,7 +515,8 @@ class SourceForm extends React.Component {
             }
         )
     }
-    renderDynamicForm() {
+
+    renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew } = this.props;
@@ -530,7 +531,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
-                    !selectHack && <FormItem
+                    !selectHack ? <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -560,7 +561,7 @@ class SourceForm extends React.Component {
                         {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
                             <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>}
-                    </FormItem>,
+                    </FormItem> : null,
                     ...this.renderExtDataSource(),
                     supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
                         <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
