@@ -157,11 +157,8 @@ export default class MainBench extends React.Component {
 
     renderBench(tabData) {
         const { taskCustomParams } = this.props;
-        const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
-
-        const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
-
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
+
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
 
@@ -216,6 +213,9 @@ export default class MainBench extends React.Component {
                         return <NormalTaskForm key={tabData.id} {...tabData} />
                     }
                 case TASK_TYPE.WORKFLOW: {
+                    const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+                    const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
+                    console.log('editorKey:', editorKey);
                     return <WorkFlowEditor 
                         data={tabData}
                         key={editorKey}

@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
     Button, Tooltip, Spin, Icon,
-} from 'antd'
+} from 'antd';
 
 import TableRelation from './tableRelation';
 import ColumnRelation from './columnRelation';

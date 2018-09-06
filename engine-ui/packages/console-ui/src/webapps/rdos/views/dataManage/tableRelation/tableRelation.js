@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
     Tooltip, Spin, Icon, message,
@@ -16,6 +15,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
+    mxLoadStylesheets: false,
 })
 
 const {

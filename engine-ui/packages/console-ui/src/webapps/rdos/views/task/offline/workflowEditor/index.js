@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 
 import { 
-    Tooltip, Spin, Icon, 
+    Tooltip, Icon, 
     Button, Modal, Select, 
 } from 'antd';
 
@@ -24,6 +24,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
+    mxLoadStylesheets: false,
 })
 
 const {

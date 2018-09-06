@@ -1,12 +1,8 @@
 import React from 'react';
-import { Link, hashHistory } from 'react-router';
 import { connect } from 'react-redux';
-import { Row, Col, Table, Pagination, Modal } from 'antd'
+import { Row, Table, Pagination, Modal } from 'antd'
 
-import utils from 'utils'
-import scrollText from 'widgets/scrollText';
 
-import Api from '../../../api/dataManage';
 import CommApi from '../../../api';
 import Editor from '../../../components/code-editor'
 import { TaskType, ScriptType } from '../../../components/status'
@@ -81,7 +77,7 @@ class RelationDetail extends React.Component {
 
     initialCols = () => {
         return [{
-            title: '相关任务/脚本',
+            title: '任务/脚本',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
