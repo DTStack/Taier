@@ -234,7 +234,7 @@ class OfflineTaskList extends Component {
         }
     }
 
-    canReload = (ids) => { // 未运行、成功、失败的任务可以reload
+    canReload = (ids) => { // 未运行、成功、失败/上游失败的任务可以reload
         const tasks = this.state.tasks.data
         if (ids && ids.length > 0) {
             for (let i = 0; i < ids.length; i++) {
@@ -246,7 +246,8 @@ class OfflineTaskList extends Component {
                     res.status !== TASK_STATUS.FINISHED &&
                     res.status !== TASK_STATUS.RUN_FAILED &&
                     res.status !== TASK_STATUS.SUBMIT_FAILED &&
-                    res.status !== TASK_STATUS.STOPED
+                    res.status !== TASK_STATUS.STOPED &&
+                    res.status !== TASK_STATUS.PARENT_FAILD
                 ) return false
             }
             return true

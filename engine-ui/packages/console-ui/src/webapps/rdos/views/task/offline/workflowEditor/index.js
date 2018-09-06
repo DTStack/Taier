@@ -50,6 +50,7 @@ const {
     mxConstraintHandler,
     mxCompactTreeLayout,
     mxConnectionConstraint,
+    mxHierarchicalLayout,
 } = Mx;
 
 const VertexSize = { // vertex大小
@@ -432,24 +433,28 @@ class WorkflowEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const model = graph.getModel();
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = false;
-        layout.edgeRouting = false;
-        layout.resizeParent = true;
-        layout.levelDistance = 40;
-        layout.nodeDistance = 20;
+        // const layout = new mxCompactTreeLayout(graph, false);
+        // layout.horizontal = false;
+        // layout.edgeRouting = false;
+        // layout.resizeParent = true;
+        // layout.levelDistance = 40;
+        // layout.nodeDistance = 20;
 
-        this.executeLayout = function(layoutTarget, change, post) {
+        this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
             try {
+                const layout2 = new mxHierarchicalLayout(graph, 'north');
+                layout2.disableEdgeStyle = false;
+                layout2.interRankCellSpacing = 40;
+                layout2.intraCellSpacing = 20;
                 if (change != null) { change(); }
-                layout.execute(parent);
+                layout2.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
                 graph.getModel().endUpdate();
-                if (post != null) { post();}
+                if (post != null) { post(); }
             }
         }
     }
@@ -818,6 +823,7 @@ class WorkflowEditor extends Component {
                 <div className="graph-editor" 
                     style={{ 
                         position: 'relative',
+                        overflow: 'hidden',
                     }}
                 >
                     { this.renderToolBar() }
@@ -941,8 +947,6 @@ class WorkflowEditor extends Component {
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTSTYLE] = 1;
-
-
         return style;
     }
 
@@ -951,12 +955,12 @@ class WorkflowEditor extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#999';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-        style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;// mxEdgeStyle.EDGESTYLE_TOPTOBOTTOM;
+        // style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+        // style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_ROUNDED] = false;
         return style
     }
 

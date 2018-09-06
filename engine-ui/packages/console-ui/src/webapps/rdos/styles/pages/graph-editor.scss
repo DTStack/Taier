@@ -241,7 +241,21 @@ table.mxPopupMenu tr {
         }
     }
 }
-
+div.mxTooltip {
+	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
+	-moz-box-shadow: 3px 3px 12px #C0C0C0;
+	box-shadow: 3px 3px 12px #C0C0C0;
+	background: #FFFFCC;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	font-family: Arial;
+	font-size: 8pt;
+	position: absolute;
+	cursor: default;
+	padding: 4px;
+	color: black;
+}
 div.mxPopupMenu {
 	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
 	-moz-box-shadow: 3px 3px 12px #C0C0C0;
