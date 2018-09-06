@@ -16,6 +16,7 @@
     "moment": "2.18.1",
     "monaco-editor": "0.13.1",
     "object-assign": "4.1.1",
+    "progress-bar-webpack-plugin": "^1.11.0",
     "prop-types": "15.5.8",
     "react": "15.6.2",
     "react-copy-to-clipboard": "5.0.0",
