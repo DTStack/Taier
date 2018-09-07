@@ -10,14 +10,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-
 /**
  * Created by sishu.yss on 2017/3/14.
  */
 public class HttpSendClient {
-
-    private static ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     public static void actionStart(String address, ParamAction paramAction) throws Exception{
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
@@ -66,5 +62,9 @@ public class HttpSendClient {
             }
         };
         PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE),params);
+    }
+
+    public static void migrationShard(String target,Map<String, Object> params) {
+        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE_SHARD),params);
     }
 }

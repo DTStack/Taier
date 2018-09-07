@@ -40,4 +40,7 @@ public class BrokerDataNode {
         shards.get(shard).put(key, value);
     }
 
+    public void clear() {
+        shards.values().forEach(t -> t.getMetas().clear());
+    }
 }

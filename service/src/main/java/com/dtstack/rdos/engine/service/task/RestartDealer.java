@@ -11,7 +11,6 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.enums.SourceType;
 import com.dtstack.rdos.engine.service.node.WorkNode;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -48,8 +47,6 @@ public class RestartDealer {
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
     private ClientCache clientCache = ClientCache.getInstance();
-
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 

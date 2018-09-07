@@ -1,20 +1,28 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import java.util.Collections;
 import java.util.NavigableMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- *
- * @author sishu.yss
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2018/9/1
  */
 public class BrokerDataShard {
 
     private BrokerDataTreeMap<String, Byte> metas;
-    private AtomicLong version;
+    private long version;
 
+    @JsonIgnore
+    private transient volatile AtomicLong newVersion;
+
+    /**
+     * 请使用 getView() 获取数据视图，不可修改！
+     * 仅用于ZkDistributed中的数据迁移，方便管理任务
+     */
     public BrokerDataTreeMap<String, Byte> getMetas() {
         return metas;
     }
@@ -23,21 +31,26 @@ public class BrokerDataShard {
         this.metas = metas;
     }
 
-    public AtomicLong getVersion() {
+    public long getVersion() {
         return version;
     }
 
-    public void setVersion(AtomicLong version) {
+    public AtomicLong getNewVersion() {
+        return newVersion;
+    }
+
+    public void setVersion(long version) {
         this.version = version;
+        this.newVersion = new AtomicLong(version);
     }
 
     public Byte put(String key, Byte value) {
-        version.incrementAndGet();
+        newVersion.incrementAndGet();
         return metas.put(key, value);
     }
 
     public Byte remove(String key) {
-        version.incrementAndGet();
+        newVersion.incrementAndGet();
         return metas.remove(key);
     }
 
@@ -53,20 +66,10 @@ public class BrokerDataShard {
         return Collections.unmodifiableNavigableMap(metas);
     }
 
-    public static void copy(BrokerDataShard source, BrokerDataShard target, boolean isCover) {
-        if (source.getMetas() != null) {
-            if (isCover) {
-                target.setMetas(source.getMetas());
-            } else {
-                target.getMetas().putAll(source.getMetas());
-            }
-        }
-    }
-
     public static BrokerDataShard initBrokerDataShard() {
         BrokerDataShard brokerNode = new BrokerDataShard();
         brokerNode.setMetas(BrokerDataTreeMap.initBrokerDataTreeMap());
-        brokerNode.setVersion(new AtomicLong(0));
+        brokerNode.setVersion(0);
         return brokerNode;
     }
 

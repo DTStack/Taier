@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +44,14 @@ public class ZkLocalCacheSyncListener implements Runnable {
     }
 
     private void syncLocalCache() {
-        Map<String, BrokerDataNode> brokerDataNodeMap = zkLocalCache.cloneData();
-        //sync 2 zk
+        String localAddress = zkDistributed.getLocalAddress();
+        BrokerDataNode localDataNode = zkLocalCache.cloneData().get(localAddress);
+        for (Map.Entry<String, BrokerDataShard> entry : localDataNode.getShards().entrySet()) {
+            if (entry.getValue().getVersion() == entry.getValue().getNewVersion().longValue()) {
+                continue;
+            }
+            zkDistributed.synchronizedBrokerDataShard(localAddress,entry.getKey(), entry.getValue(), true);
+        }
     }
 
 }

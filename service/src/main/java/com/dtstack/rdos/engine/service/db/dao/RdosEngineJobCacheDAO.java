@@ -17,27 +17,28 @@ import java.util.List;
 
 public class RdosEngineJobCacheDAO {
 
-    public void insertJob(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+    public void insertJob(String jobId, String engineType, Integer computeType,
+                          int stage, String jobInfo, String nodeAddress){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.insert(jobId, engineType, computeType, stage, jobInfo);
+                mapper.insert(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
                 return null;
             }
         });
     }
 
-    public void updateJobStage(String jobId, int stage){
+    public void updateJobStage(String jobId, int stage, String nodeAddress){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.updateStage(jobId, stage);
+                mapper.updateStage(jobId, stage, nodeAddress);
                 return null;
             }
         });
@@ -73,13 +74,13 @@ public class RdosEngineJobCacheDAO {
      * @param stage
      * @return
      */
-    public List<RdosEngineJobCache> getJobForPriorityQueue(int stage){
+    public List<RdosEngineJobCache> getJobForPriorityQueue(String nodeAddress, int stage){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByStage(stage);
+                return mapper.listByStage(nodeAddress, stage);
             }
         });
     }

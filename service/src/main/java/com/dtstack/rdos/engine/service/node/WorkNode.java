@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
@@ -15,6 +16,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
@@ -24,9 +26,11 @@ import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +47,6 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author xuchao
  */
-
 public class WorkNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
@@ -81,10 +84,14 @@ public class WorkNode {
     }
 
     private WorkNode(){
-        ExecutorService senderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+        ExecutorService submitExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("submitDealer"));
         SubmitDealer submitDealer = new SubmitDealer(priorityQueueMap);
-        senderExecutor.submit(submitDealer);
+        submitExecutor.submit(submitDealer);
+
+        ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
+        recoverExecutor.submit(new RecoverDealer());
 
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
@@ -151,10 +158,11 @@ public class WorkNode {
      * 3. cache的移除在任务发送完毕之后
      */
     public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+        String nodeAddress = zkDistributed.getLocalAddress();
         if(engineJobCacheDao.getJobById(jobId) != null){
-            engineJobCacheDao.updateJobStage(jobId, stage);
+            engineJobCacheDao.updateJobStage(jobId, stage, nodeAddress);
         }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
+            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
         }
     }
 
@@ -243,7 +251,6 @@ public class WorkNode {
      */
     private void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
         engineJobCacheDao.deleteJob(taskId);
-
         if(ComputeType.BATCH.typeEqual(computeType)){
             rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
         }else if(ComputeType.STREAM.typeEqual(computeType)){
@@ -256,7 +263,6 @@ public class WorkNode {
     private String generateErrorMsg(String msgInfo){
         return String.format("{\"msg_info\":\"%s\"}", msgInfo);
     }
-
 
     class SubmitDealer implements Runnable{
 
@@ -277,7 +283,6 @@ public class WorkNode {
                             submitJobClient(queue);
                         }
                     }
-
                 }catch (Exception e){
                     LOG.error("", e);
                 }finally {
@@ -333,6 +338,45 @@ public class WorkNode {
 
         }
 
+    }
+
+    class RecoverDealer implements Runnable{
+        @Override
+        public void run() {
+            LOG.info("-----重启后任务开始恢复----");
+            try{
+                loadQueueFromDB();
+            }catch (Exception e){
+                LOG.error("----load data from DB error:{}", e);
+            }
+            LOG.info("-----重启后任务结束恢复-----");
+        }
+    }
+
+    /**
+     * 重启后，各自节点load自己的数据
+     */
+    public void loadQueueFromDB(){
+        //todo 获取锁
+        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(zkDistributed.getLocalAddress(),EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        if(CollectionUtils.isEmpty(jobCaches)){
+            return;
+        }
+        List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
+        jobCaches.forEach(jobCache ->{
+            try{
+                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                JobClient jobClient = new JobClient(paramAction);
+                jobClients.add(jobClient);
+            }catch (Exception e){
+                //数据转换异常--打日志
+                LOG.error("", e);
+                dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+            }
+        });
+        for (JobClient jobClient:jobClients){
+            WorkNode.getInstance().addSubmitJob(jobClient);
+        }
     }
 
 }

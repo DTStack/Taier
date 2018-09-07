@@ -17,6 +17,7 @@ public class Urls {
 	public final static String MIGRATION = String.format("%s/%s",ROOT,"migration");
 
     public final static String MIGRATE = String.format("%s/%s",MIGRATION,"migrate");
+    public final static String MIGRATE_SHARD = String.format("%s/%s",MIGRATION,"migrateShard");
 
     public final static String START = String.format("%s/%s", ACTION,"start");
 	
