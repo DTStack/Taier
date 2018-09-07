@@ -453,6 +453,16 @@ class FolderTree extends React.Component {
                         key={ `${taskType}-ctxmenu-${id}` }
                         operations={ isPro?[]:this.generateCtxMenu(type, treeType, data) }
                     >
+                        {/* <span 
+                            id={`JS_${id}`}
+                            title={name} 
+                            className={type === 'file' ? 'task-item' : 'folder-item'}>
+                            { this.renderStatusBadge(treeType, data) }
+                            { name } 
+                            <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                                { this.renderFileInfo(treeType, data) }
+                            </i>
+                        </span> */}
                         {
                             (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
                             ? <Tooltip placement="right" title={this.renderFileInfo(treeType, data)} mouseEnterDelay={2} mouseLeaveDelay={0}>

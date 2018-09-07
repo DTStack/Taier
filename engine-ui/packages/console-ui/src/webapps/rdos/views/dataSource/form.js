@@ -267,7 +267,7 @@ class BaseForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
-                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]}>
+                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
                             <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>
                     </FormItem>,
