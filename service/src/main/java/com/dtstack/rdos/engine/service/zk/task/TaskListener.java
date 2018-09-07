@@ -11,6 +11,7 @@ import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class TaskListener implements Runnable{
 
 	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
-	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	public TaskListener(){
 		queue = JobSubmitExecutor.getInstance().getQueueForTaskListener();
@@ -63,8 +64,7 @@ public class TaskListener implements Runnable{
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 					}else{//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
-                        zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
-                                RdosTaskStatus.FAILED.getStatus());
+                        zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
 
@@ -77,8 +77,7 @@ public class TaskListener implements Runnable{
 						rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 					}else{
 					    rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
-                        zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId,
-                                RdosTaskStatus.FAILED.getStatus());
+						zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
                         rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
 				}

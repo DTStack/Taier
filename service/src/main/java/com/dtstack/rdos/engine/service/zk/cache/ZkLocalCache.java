@@ -4,6 +4,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         }
         copy();
         String shard = shardsCsist.get(zkTaskId);
-        localDataCache.getShards().get(shard).getShardData().put(zkTaskId, status.byteValue());
+        localDataCache.getShards().get(shard).put(zkTaskId, status.byteValue());
     }
 
     public Map<String, BrokerDataNode> getLocalCache() {
@@ -65,9 +66,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         String shard = shardsCsist.get(zkTaskId);
         for (Map.Entry<String, BrokerDataNode> entry : core.entrySet()) {
             String addr = entry.getKey();
-            Map<String, BrokerDataNode.BrokerDataInner> shardMap = entry.getValue().getShards();
+            Map<String, BrokerDataShard> shardMap = entry.getValue().getShards();
             if (shardMap.containsKey(shard)) {
-                if (shardMap.get(shard).getShardData().containsKey(zkTaskId)) {
+                if (shardMap.get(shard).containsKey(zkTaskId)) {
                     return addr;
                 }
             }
@@ -88,7 +89,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
                 continue;
             }
             int size = 0;
-            for (Map.Entry<String, BrokerDataNode.BrokerDataInner> shardEntry : entry.getValue().getShards().entrySet()) {
+            for (Map.Entry<String, BrokerDataShard> shardEntry : entry.getValue().getShards().entrySet()) {
                 size += getDistributeJobCount(shardEntry.getValue());
             }
             if (size < def) {
@@ -99,9 +100,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         return node;
     }
 
-    private int getDistributeJobCount(BrokerDataNode.BrokerDataInner brokerDataInner) {
+    private int getDistributeJobCount(BrokerDataShard brokerDataShard) {
         int count = 0;
-        for (byte status : brokerDataInner.getShardData().values()) {
+        for (byte status : brokerDataShard.getMetas().values()) {
             if (status == RdosTaskStatus.RESTARTING.getStatus()
                     || status == RdosTaskStatus.WAITCOMPUTE.getStatus()
                     || status == RdosTaskStatus.WAITENGINE.getStatus()) {
@@ -123,6 +124,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private void copy() {
         if (requiresCopyOnWrite.compareAndSet(true, false)) {
             core = new ConcurrentHashMap<>(core);
+            localDataCache = core.get(zkDistributed.getLocalAddress());
             view = null;
         }
     }

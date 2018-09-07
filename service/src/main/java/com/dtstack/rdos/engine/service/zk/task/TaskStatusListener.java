@@ -12,7 +12,6 @@ import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -22,6 +21,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,7 +66,6 @@ public class TaskStatusListener implements Runnable{
     /**初始启动的时候需要对获取的任务做重启操作*/
     private boolean isFirst = true;
 
-	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
@@ -135,12 +134,12 @@ public class TaskStatusListener implements Runnable{
 
 	private void updateTaskStatus(){
         try {
-            Map<String, BrokerDataNode.BrokerDataInner> shards = zkLocalCache.getBrokerData().getShards();
+            Map<String, BrokerDataShard> shards = zkLocalCache.getBrokerData().getShards();
             CountDownLatch ctl = new CountDownLatch(shards.size());
-            for (Map.Entry<String,BrokerDataNode.BrokerDataInner> shardEntry: shards.entrySet()) {
+            for (Map.Entry<String,BrokerDataShard> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{
                     try {
-                        for (Map.Entry<String, Byte> entry : shardEntry.getValue().getShardData().entrySet()) {
+                        for (Map.Entry<String, Byte> entry : shardEntry.getValue().getMetas().entrySet()) {
                             try {
                                 Integer oldStatus = Integer.valueOf(entry.getValue());
                                 if (!RdosTaskStatus.needClean(entry.getValue())) {
@@ -187,7 +186,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
-                    zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
                     updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
 
@@ -225,7 +224,7 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
-                    zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                     updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
 
@@ -286,7 +285,7 @@ public class TaskStatusListener implements Runnable{
         String jobId = TaskIdUtil.getTaskId(zkJobId);
         RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDao.getJobById(jobId);
         if(rdosEngineJobCache == null){
-            zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkJobId, RdosTaskStatus.FAILED.getStatus());
+            zkLocalCache.updateLocalMemTaskStatus(zkJobId, RdosTaskStatus.FAILED.getStatus());
             logger.error("can't not get engineJobCache from db by jobId:{}.", jobId);
             return;
         }
@@ -313,7 +312,7 @@ public class TaskStatusListener implements Runnable{
 
             status = RdosTaskStatus.CANCELED.getStatus();
             rdosEngineJobCacheDao.deleteJob(jobId);
-            zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
             rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
         }
@@ -376,7 +375,7 @@ public class TaskStatusListener implements Runnable{
 
             status = RdosTaskStatus.CANCELED.getStatus();
             rdosEngineJobCacheDao.deleteJob(jobId);
-            zkDistributed.updateSyncLocalBrokerDataAndCleanNoNeedTask(zkTaskId, status);
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
             rdosBatchEngineJobDAO.updateJobStatusAndExecTime(jobId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
         }

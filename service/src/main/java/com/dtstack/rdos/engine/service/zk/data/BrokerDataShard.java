@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
@@ -9,7 +11,7 @@ package com.dtstack.rdos.engine.service.zk.data;
 public class BrokerDataShard {
 
     private BrokerDataTreeMap metas;
-    private long version;
+    private AtomicLong version;
 
     public BrokerDataTreeMap getMetas() {
         return metas;
@@ -19,12 +21,30 @@ public class BrokerDataShard {
         this.metas = metas;
     }
 
-    public long getVersion() {
+    public AtomicLong getVersion() {
         return version;
     }
 
-    public void setVersion(long version) {
+    public void setVersion(AtomicLong version) {
         this.version = version;
+    }
+
+    public Byte put(String key, Byte value) {
+        version.incrementAndGet();
+        return metas.put(key, value);
+    }
+
+    public Byte remove(String key) {
+        version.incrementAndGet();
+        return metas.remove(key);
+    }
+
+    public boolean containsKey(String key) {
+        return metas.containsKey(key);
+    }
+
+    public int metaSize() {
+        return metas.size();
     }
 
     public static void copy(BrokerDataShard source, BrokerDataShard target, boolean isCover) {

@@ -83,7 +83,7 @@ public class ZkShardListener implements Runnable, Closeable {
             int totalSize = 0;
             for (String dShard : dataShards) {
                 BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
-                int size = brokerDataShard.getMetas().size();
+                int size = brokerDataShard.metaSize();
                 totalSize += size;
                 brokerDataNodeMap.put(dShard, size);
             }
@@ -110,7 +110,7 @@ public class ZkShardListener implements Runnable, Closeable {
                 try {
                     if (lock.acquire(30, TimeUnit.SECONDS)) {
                         BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
-                        if (brokerDataShard != null && brokerDataShard.getMetas().size() == 0) {
+                        if (brokerDataShard != null && brokerDataShard.metaSize() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
                             shardIdles.remove(dShard);
                             shardsCsist.remove(dShard);

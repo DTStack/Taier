@@ -41,7 +41,7 @@ public class DataMigrationListener implements Runnable{
                             boolean data = false;
                             if (brokerDataNodeMap!=null){
                                 for (Map.Entry<String,BrokerDataShard> entry:brokerDataNodeMap.entrySet()){
-                                    if (entry.getValue().getMetas().size()>0){
+                                    if (entry.getValue().metaSize()>0){
                                         data = true;
                                         break;
                                     }
