@@ -13,7 +13,6 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -139,7 +138,7 @@ public class TaskStatusListener implements Runnable{
             for (Map.Entry<String,BrokerDataShard> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{
                     try {
-                        for (Map.Entry<String, Byte> entry : shardEntry.getValue().getMetas().entrySet()) {
+                        for (Map.Entry<String, Byte> entry : shardEntry.getValue().getView().entrySet()) {
                             try {
                                 Integer oldStatus = Integer.valueOf(entry.getValue());
                                 if (!RdosTaskStatus.needClean(entry.getValue())) {

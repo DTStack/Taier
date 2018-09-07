@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
+import java.util.Collections;
+import java.util.NavigableMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -10,14 +12,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class BrokerDataShard {
 
-    private BrokerDataTreeMap metas;
+    private BrokerDataTreeMap<String, Byte> metas;
     private AtomicLong version;
 
-    public BrokerDataTreeMap getMetas() {
+    public BrokerDataTreeMap<String, Byte> getMetas() {
         return metas;
     }
 
-    public void setMetas(BrokerDataTreeMap metas) {
+    public void setMetas(BrokerDataTreeMap<String, Byte> metas) {
         this.metas = metas;
     }
 
@@ -47,6 +49,10 @@ public class BrokerDataShard {
         return metas.size();
     }
 
+    public NavigableMap<String, Byte> getView() {
+        return Collections.unmodifiableNavigableMap(metas);
+    }
+
     public static void copy(BrokerDataShard source, BrokerDataShard target, boolean isCover) {
         if (source.getMetas() != null) {
             if (isCover) {
@@ -59,12 +65,9 @@ public class BrokerDataShard {
 
     public static BrokerDataShard initBrokerDataShard() {
         BrokerDataShard brokerNode = new BrokerDataShard();
-        brokerNode.setMetas(new BrokerDataTreeMap());
+        brokerNode.setMetas(BrokerDataTreeMap.initBrokerDataTreeMap());
+        brokerNode.setVersion(new AtomicLong(0));
         return brokerNode;
     }
 
-    public static BrokerDataShard initNullBrokerShard() {
-        BrokerDataShard brokerDataShard = new BrokerDataShard();
-        return brokerDataShard;
-    }
 }

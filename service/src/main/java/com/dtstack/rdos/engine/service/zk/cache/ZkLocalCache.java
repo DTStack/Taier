@@ -102,7 +102,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
 
     private int getDistributeJobCount(BrokerDataShard brokerDataShard) {
         int count = 0;
-        for (byte status : brokerDataShard.getMetas().values()) {
+        for (byte status : brokerDataShard.getView().values()) {
             if (status == RdosTaskStatus.RESTARTING.getStatus()
                     || status == RdosTaskStatus.WAITCOMPUTE.getStatus()
                     || status == RdosTaskStatus.WAITENGINE.getStatus()) {
