@@ -7,7 +7,7 @@ import {
 import moment from "moment";
 import { connect } from "react-redux";
 import utils from "utils";
-import {cloneDeep} from "lodash";
+import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
 import { publishType, TASK_TYPE } from "../../../../comm/const"
@@ -29,7 +29,7 @@ class PackageCreate extends React.Component {
 
     state = {
         addLinkVisible: false,
-        createModalVisible:false,
+        createModalVisible: false,
         tableParams: {
             filter: {},
             sorter: {},
@@ -44,9 +44,9 @@ class PackageCreate extends React.Component {
             pageSize: 8
         },
         listType: publishType.TASK,
-        modifyUser: null,
-        publishName: null,
-        modifyDate: null,
+        modifyUser: undefined,
+        publishName: undefined,
+        modifyDate: undefined,
         packageList: [],
         selectedRowKeys: [],
         selectedRows: [],
@@ -136,22 +136,22 @@ class PackageCreate extends React.Component {
                 }
             )
     }
-    changeRightPage(page,pageSize){
+    changeRightPage(page, pageSize) {
         this.setState({
-            pagination:{
+            pagination: {
                 current: page,
                 pageSize: pageSize
             }
         })
     }
-    reloadRightPage(){
-        const {pagination, selectedRows} = this.state;
-        const {current,pageSize}= pagination;
-        const count=selectedRows.length;
-        if(count<=(current-1)*pageSize){
+    reloadRightPage() {
+        const { pagination, selectedRows } = this.state;
+        const { current, pageSize } = pagination;
+        const count = selectedRows.length;
+        if (count <= (current - 1) * pageSize) {
             this.setState({
-                pagination:{
-                    current:Math.max(Math.ceil(count/pageSize),1) ,
+                pagination: {
+                    current: Math.max(Math.ceil(count / pageSize), 1),
                     pageSize
                 }
             })
@@ -166,16 +166,16 @@ class PackageCreate extends React.Component {
             }
         }, this.getTaskList)
     }
-    showCreateModal(){
+    showCreateModal() {
         this.setState({
-            createModalVisible:true
+            createModalVisible: true
         })
     }
-    hideCreateModal(doJump){
+    hideCreateModal(doJump) {
         this.setState({
-            createModalVisible:false
+            createModalVisible: false
         })
-        if(doJump&&typeof doJump=="boolean"){
+        if (doJump && typeof doJump == "boolean") {
             this.props.changeTab('publish');
         }
     }
@@ -190,9 +190,23 @@ class PackageCreate extends React.Component {
         const addButtonCreate = (record) => {
             return (this.isSelect(record) ?
                 <a onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
-                : <a onClick={this.addNewItem.bind(this, listType, [record],[])}>添加</a>);
+                : <a onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
         }
-        const publishButton = <a>发布</a>;
+        const publishButtonCreate = (record) => {
+            return (
+                <a
+                    onClick={
+                        () => {
+                            this.clearSelect();
+                            setTimeout(
+                                () => {
+                                    this.addNewItem(listType, [record], []);
+                                    this.showCreateModal();
+                                })
+                        }
+                    }>发布</a>
+            )
+        };
 
         switch (listType) {
             case publishType.TASK: {
@@ -201,20 +215,24 @@ class PackageCreate extends React.Component {
                     dataIndex: "taskName"
                 }, {
                     title: "负责人",
-                    dataIndex: "chargeUser"
+                    dataIndex: "chargeUser",
+                    width: "140px"
                 }, {
                     title: "提交人",
-                    dataIndex: "modifyUser"
+                    dataIndex: "modifyUser",
+                    width: "140px"
                 }, {
                     title: "提交时间",
                     dataIndex: "modifyTime",
                     sorter: true,
                     render(text) {
                         return utils.formatDateTime(text)
-                    }
+                    },
+                    width: "140px"
                 }, {
                     title: "备注",
-                    dataIndex: "taskDesc"
+                    dataIndex: "taskDesc",
+                    width: "150px"
                 }, {
                     title: "操作",
                     dataIndex: "deal",
@@ -225,7 +243,7 @@ class PackageCreate extends React.Component {
                             <span className="ant-divider"></span>
                             <a onClick={this.showAddLink.bind(this, record)}>添加关联</a>
                             <span className="ant-divider"></span>
-                            {publishButton}
+                            {publishButtonCreate(record)}
                         </span>
                     }
                 }]
@@ -261,7 +279,7 @@ class PackageCreate extends React.Component {
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
-                            {publishButton}
+                            {publishButtonCreate(record)}
                         </span>
                     }
                 }]
@@ -297,7 +315,7 @@ class PackageCreate extends React.Component {
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
-                            {publishButton}
+                            {publishButtonCreate(record)}
                         </span>
                     }
                 }]
@@ -327,7 +345,7 @@ class PackageCreate extends React.Component {
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
-                            {publishButton}
+                            {publishButtonCreate(record)}
                         </span>
                     }
                 }]
@@ -378,34 +396,34 @@ class PackageCreate extends React.Component {
                 updateEnvParam: false
             },
             data: row,
-            modifyTime:row.modifyTime
+            modifyTime: row.modifyTime
         }
         switch (listType) {
             case publishType.TASK: {
                 baseItem.itemName = row.taskName;
-                baseItem.createUser=row.createUser;
-                baseItem.modifyUser=row.modifyUser;
+                baseItem.createUser = row.createUser;
+                baseItem.modifyUser = row.modifyUser;
                 baseItem.chargeUser = row.chargeUser;
                 break;
             }
             case publishType.RESOURCE: {
                 baseItem.itemName = row.resourceName;
-                baseItem.createUser=row.createUser.userName;
-                baseItem.modifyUser=row.modifyUser;
+                baseItem.createUser = row.createUser.userName;
+                baseItem.modifyUser = row.modifyUser;
                 baseItem.chargeUser = row.chargeUser;
                 break;
             }
             case publishType.FUNCTION: {
                 baseItem.itemName = row.name;
-                baseItem.createUser=row.createUser.userName;
-                baseItem.modifyUser=row.modifyUser.userName;
+                baseItem.createUser = row.createUser.userName;
+                baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 break;
             }
             case publishType.TABLE: {
                 baseItem.itemName = row.tableName;
-                baseItem.createUser=row.createUser;
-                baseItem.modifyUser=row.modifyUser;
+                baseItem.createUser = row.createUser;
+                baseItem.modifyUser = row.modifyUser;
                 baseItem.chargeUser = row.chargeUser;
                 break;
             }
@@ -425,13 +443,13 @@ class PackageCreate extends React.Component {
         )
         return keys.includes(record.id)
     }
-    clearSelect(){
+    clearSelect() {
         this.setState({
             selectedRows: []
-        },this.reloadRightPage)
+        }, this.reloadRightPage)
     }
     addNewItem(listType, newItems, packageList) {
-        packageList=packageList||[];
+        packageList = packageList || [];
         let { selectedRows } = this.state;
         let addArr = [];
         const keys = selectedRows.filter(
@@ -449,20 +467,20 @@ class PackageCreate extends React.Component {
                 addArr.push(this.itemCreate(listType, item))
             }
         }
-        const newItemKeys=newItems.map((item)=>{return item.id});
-        const packageListKeys=packageList.map((item)=>{return item.id});
-        if(packageListKeys.length){
-            selectedRows=selectedRows.filter(
-                (row)=>{
-                    const inPackageList=packageListKeys.includes(row.itemId);
-                    const inNewItem=newItemKeys.includes(row.itemId);
-                    return inNewItem||!inPackageList;
+        const newItemKeys = newItems.map((item) => { return item.id });
+        const packageListKeys = packageList.map((item) => { return item.id });
+        if (packageListKeys.length) {
+            selectedRows = selectedRows.filter(
+                (row) => {
+                    const inPackageList = packageListKeys.includes(row.itemId);
+                    const inNewItem = newItemKeys.includes(row.itemId);
+                    return inNewItem || !inPackageList;
                 }
             )
         }
         this.setState({
             selectedRows: selectedRows.concat(addArr)
-        },this.reloadRightPage)
+        }, this.reloadRightPage)
     }
     removeItem(listType, id) {
         const { selectedRows } = this.state;
@@ -474,15 +492,15 @@ class PackageCreate extends React.Component {
         )
         this.setState({
             selectedRows: newRows
-        },this.reloadRightPage)
+        }, this.reloadRightPage)
     }
-    changeEnv(listType,id,e){
+    changeEnv(listType, id, e) {
         const { selectedRows } = this.state;
         let newRows = cloneDeep(selectedRows);
         newRows = selectedRows.map(
             (item) => {
-                if(item.itemType == listType && item.itemId == id){
-                    item.publishParamJson.updateEnvParam=e.target.checked;
+                if (item.itemType == listType && item.itemId == id) {
+                    item.publishParamJson.updateEnvParam = e.target.checked;
                 }
                 return item;
             }
@@ -506,10 +524,10 @@ class PackageCreate extends React.Component {
     }
     renderRightItem() {
         const { selectedRows, listType, pagination } = this.state;
-        const {current,pageSize} = pagination;
+        const { current, pageSize } = pagination;
         return selectedRows.filter(
-            (item,index)=>{
-                return (index+1)<=pageSize*current&&(index+1)>pageSize*(current-1);
+            (item, index) => {
+                return (index + 1) <= pageSize * current && (index + 1) > pageSize * (current - 1);
             }
         ).map(
             (row) => {
@@ -517,48 +535,49 @@ class PackageCreate extends React.Component {
                 let nameText;
                 let haveChangeMan;
                 let userName;
-                let extMsg='';
+                let extMsg = '';
                 switch (row.itemType) {
                     case publishType.TASK: {
                         nameText = "任务"
                         haveChangeMan = true;
-                        userName=row.chargeUser;
-                        extMsg=`(${row.data.taskType})`
+                        userName = row.chargeUser;
+                        extMsg = `(${row.data.taskType})`
                         break;
                     }
                     case publishType.FUNCTION: {
                         nameText = "函数"
                         haveChangeMan = true;
-                        userName=row.modifyUser;
-                     
+                        userName = row.modifyUser;
+
                         break;
                     }
                     case publishType.RESOURCE: {
                         nameText = "资源"
                         haveChangeMan = true;
-                        userName=row.createUser;
-                        extMsg=`(${row.data.resourceType})`
+                        userName = row.createUser;
+                        extMsg = `(${row.data.resourceType})`
                         break;
                     }
                     case publishType.TABLE: {
                         nameText = "建表"
                         haveChangeMan = false;
-                        userName=row.chargeUser;
+                        userName = row.chargeUser;
                         break;
                     }
                 }
                 return <div key={`${row.itemType}%${row.itemId}`} className="item">
-                    <Icon className="close" type="close" onClick={this.removeItem.bind(this,row.itemType,row.itemId)} />
+                    <Icon className="close" type="close" onClick={this.removeItem.bind(this, row.itemType, row.itemId)} />
                     <p><span className="item-title">{nameText}：</span>{row.itemName} {extMsg}</p>
                     <p><span className="item-title">负责人{haveChangeMan ? '/修改人' : ''}：</span>{userName}</p>
-                    {showEnvCheckbox && <Checkbox onChange={this.changeEnv.bind(this,row.itemType,row.itemId)} checked={row.publishParamJson.updateEnvParam} >更新环境参数</Checkbox>}
+                    {showEnvCheckbox && <Checkbox onChange={this.changeEnv.bind(this, row.itemType, row.itemId)} checked={row.publishParamJson.updateEnvParam} >更新环境参数</Checkbox>}
                 </div>
             }
         )
     }
     render() {
+        const win = document.body.getBoundingClientRect();
         const {
-            packageList, tableParams, addLinkVisible,createModalVisible,
+            packageList, tableParams, addLinkVisible, createModalVisible,
             pagination, selectedRows,
             listType, modifyUser, publishName, modifyDate,
             addLinkModalData, users,
@@ -611,6 +630,7 @@ class PackageCreate extends React.Component {
                         dataSource={packageList}
                         onChange={this.onTableChange.bind(this)}
                         rowSelection={this.rowSelection()}
+                        scroll={{ y: 600 }}
                     />
                 </div>
                 <div className="tool-box">
@@ -642,13 +662,13 @@ class PackageCreate extends React.Component {
                     visible={addLinkVisible}
                     data={addLinkModalData}
                 />
-                <PublishModal 
+                <PublishModal
                     isPublish={false}
                     visible={createModalVisible}
-                    onCancel={this.hideCreateModal.bind(this,false)}
-                    onOk={this.hideCreateModal.bind(this,true)}
+                    onCancel={this.hideCreateModal.bind(this, false)}
+                    onOk={this.hideCreateModal.bind(this, true)}
                     data={{
-                        items:selectedRows
+                        items: selectedRows
                     }}
                 />
             </div>

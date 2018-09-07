@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Table, Form, Select, DatePicker, Input, message } from "antd";
+import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
 
@@ -146,22 +146,26 @@ class PackagePublish extends React.Component {
         }, {
             title: "操作",
             dataIndex: "deal",
-            render:(n, record) =>{
+            render: (n, record) => {
                 const status = record.status;
                 switch (status) {
                     case publishStatus.UNSUBMIT:
                     case publishStatus.FAIL: {
                         return <span>
-                            <a onClick={this.viewPackage.bind(this, record.id)}>查看</a>
+                            <a onClick={this.viewPackage.bind(this, record)}>查看</a>
                             <span className="ant-divider"></span>
-                            <a onClick={this.deletePackage.bind(this, record.id)}>删除</a>
+                            <Popconfirm title="确定删除该发布包吗?" onConfirm={this.deletePackage.bind(this, record.id)} okText="确定" cancelText="取消">
+                                <a>删除</a>
+                            </Popconfirm>   
                             <span className="ant-divider"></span>
-                            <a onClick={this.publishPackage.bind(this, record.id)}>发布</a>
+                            <Popconfirm title="确定发布吗?" onConfirm={this.publishPackage.bind(this, record.id)} okText="确定" cancelText="取消">
+                                <a>发布</a>
+                            </Popconfirm>
                         </span>
                     }
                     case publishStatus.SUCCESS: {
                         return <span>
-                            <a onClick={this.viewPackage.bind(this, record.id)}>查看</a>
+                            <a onClick={this.viewPackage.bind(this, record)}>查看</a>
                         </span>
                     }
                 }
@@ -175,10 +179,10 @@ class PackagePublish extends React.Component {
         })
     }
     deletePackage(id) {
-        const {mode} = this.props;
+        const { mode } = this.props;
         Api.deletePackage({
             packageId: id
-        },mode).then(
+        }, mode).then(
             (res) => {
                 if (res.code == 1) {
                     this.getPackageList();
@@ -187,19 +191,19 @@ class PackagePublish extends React.Component {
             }
         )
     }
-    publishPackage(id){
-        const {mode} = this.props;
+    publishPackage(id) {
+        const { mode } = this.props;
         Api.publishPackage({
-            packageId:id
-        },mode)
-        .then(
-            (res)=>{
-                if(res.code==1){
-                    this.getPackageList();
-                    message.success("发布成功")
+            packageId: id
+        }, mode)
+            .then(
+                (res) => {
+                    if (res.code == 1) {
+                        this.getPackageList();
+                        message.success("发布成功")
+                    }
                 }
-            }
-        )
+            )
     }
     selectChange(key, value) {
         this.setState({
@@ -247,7 +251,7 @@ class PackagePublish extends React.Component {
                 <FormItem
                     label="发布人"
                 >
-                    <Select size="default" onChange={this.selectChange.bind(this, 'publishUserId')} style={{ width: 110 }}>
+                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'publishUserId')} style={{ width: 110 }}>
                         {users.map(
                             (user) => {
                                 return <Option key={user.userId} value={user.userId}>{user.user.userName}</Option>
@@ -258,7 +262,7 @@ class PackagePublish extends React.Component {
                 <FormItem
                     label="申请人"
                 >
-                    <Select size="default" onChange={this.selectChange.bind(this, 'applyUserId')} style={{ width: 110 }}>
+                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'applyUserId')} style={{ width: 110 }}>
                         {users.map(
                             (user) => {
                                 return <Option key={user.userId} value={user.userId}>{user.user.userName}</Option>
@@ -269,8 +273,10 @@ class PackagePublish extends React.Component {
                 <FormItem
                     label="发布状态"
                 >
-                    <Select size="default" onChange={this.selectChange.bind(this, 'status')} style={{ width: 110 }}>
-                        <Option value="o">option</Option>
+                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'status')} style={{ width: 110 }}>
+                        <Option value={publishStatus.UNSUBMIT}>待发布</Option>
+                        <Option value={publishStatus.SUCCESS}>已发布</Option>
+                        <Option value={publishStatus.FAIL}>发布失败</Option>
                     </Select>
                 </FormItem>
                 <FormItem
@@ -296,7 +302,7 @@ class PackagePublish extends React.Component {
                     isPublish={true}
                     mode={mode}
                     onCancel={() => { this.setState({ publishVisible: false }) }}
-                    onOk={() => { this.setState({ publishVisible: false });this.getPackageList() }}
+                    onOk={() => { this.setState({ publishVisible: false }); this.getPackageList() }}
                     visible={publishVisible}
                 />
                 <Card

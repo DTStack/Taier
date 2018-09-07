@@ -99,7 +99,7 @@ class AddLinkModal extends React.Component {
                     break;
                 }
                 case publishType.TASK: {
-                    if (data.itemId == row.id) {
+                    if (data.id == row.itemId) {
                         this.setState({
                             checkTask: true
                         })
@@ -175,12 +175,15 @@ class AddLinkModal extends React.Component {
                             switch (key) {
                                 case publishType.FUNCTION: {
                                     name = item.name;
+                                    break;
                                 }
                                 case publishType.RESOURCE: {
                                     name = item.resourceName;
+                                    break;
                                 }
                                 case publishType.TABLE: {
                                     name = item.tableName;
+                                    break;
                                 }
                             }
                             return <Col key={item.id} style={{ marginBottom: "13px" }} span={12}><Checkbox value={item.id}>{name}</Checkbox></Col>

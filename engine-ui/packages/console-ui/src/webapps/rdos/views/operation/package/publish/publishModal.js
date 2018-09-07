@@ -1,5 +1,5 @@
 import React from "react";
-import {  Tabs, Modal,  Form, Input, Table, Button } from "antd";
+import {  Tabs, Modal,  Form, Input, Table, Button, message } from "antd";
 import {connect} from "react-redux";
 
 import utils from "utils";
@@ -26,8 +26,11 @@ class PublishModal extends React.Component {
         }
     }
     getPackageName() {
-        const { mode, form } = this.props;
+        const { mode, form, isPublish } = this.props;
         const { setFieldsValue } = form;
+        if(isPublish){
+            return ;
+        }
         Api.getPackageName({}, mode)
             .then(
                 (res) => {
@@ -64,10 +67,12 @@ class PublishModal extends React.Component {
         const { isPublish } = this.props;
         let columns = [{
             title: "对象名称",
-            dataIndex: "itemName"
+            dataIndex: "itemName",
+            width:"150px"
         }, {
             title: "类型",
             dataIndex: "itemType",
+            width:"60px",
             render(text){
                 switch(text){
                     case publishType.TASK:{
@@ -87,6 +92,7 @@ class PublishModal extends React.Component {
         }, {
             title: "环境参数",
             dataIndex: "publishParamJson",
+            width:"80px",
             render(publishParamJson,record){
                 const showEnv= record.itemType==publishType.TASK&&record.data.taskType!= TASK_TYPE.SYNC
                 return showEnv?(publishParamJson&&publishParamJson.updateEnvParam?"同步":"不同步"):'-';
@@ -182,6 +188,9 @@ class PublishModal extends React.Component {
                 </FormItem>
                 <Table
                     rowKey={(record)=>{
+                        if(isPublish){
+                            return record.id;
+                        }
                         return `${record.itemType}%${record.itemId}%${record.itemName}`
                     }}
                     onChange={this.onTableChange.bind(this)}
