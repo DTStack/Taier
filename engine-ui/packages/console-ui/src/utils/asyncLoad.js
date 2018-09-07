@@ -29,6 +29,7 @@ export default (loader, collection) => (
             if (error) {
                 return <div>
                     <h2 style={{textAlign:"center"}}>服务端该模块更新中，请刷新重试。</h2>
+                    <h4 style={{textAlign:"center"}}>若该问题长时间存在，请联系管理员。</h4>
                 </div>
             }
             if (this.state.Component) {
