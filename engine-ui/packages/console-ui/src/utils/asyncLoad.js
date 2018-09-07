@@ -28,7 +28,7 @@ export default (loader, collection) => (
             const {error} = this.state;
             if (error) {
                 return <div>
-                    <h2 style={{textAlign:"center"}}>服务端该模块更新中，请刷新重试。</h2>
+                    <h2 style={{textAlign:"center"}}>该模块更新中，请刷新重试。</h2>
                     <h4 style={{textAlign:"center"}}>若该问题长时间存在，请联系管理员。</h4>
                 </div>
             }
