@@ -170,7 +170,7 @@ class WorkflowEditor extends Component {
         // 启用绘制
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        graph.keepEdgesInBackground = true;
+        graph.keepEdgesInBackground = false;
         graph.allowLoops = false;
         // // Enable cell resize 
         graph.cellsResizable = false;
@@ -448,6 +448,7 @@ class WorkflowEditor extends Component {
                 layout2.disableEdgeStyle = false;
                 layout2.interRankCellSpacing = 40;
                 layout2.intraCellSpacing = 20;
+                layout2.edgeStyle = mxEdgeStyle.TopToBottom;
                 if (change != null) { change(); }
                 layout2.execute(parent);
             } catch (e) {
@@ -653,7 +654,6 @@ class WorkflowEditor extends Component {
     getGraphData = () => {
         const rootCell = this.graph.getDefaultParent();
         const cells = this.graph.getChildCells(rootCell);
-        console.log('graphCells:', cells);
         const cellData = [];
         const getCellData = (cell) => {
             return cell && {
@@ -955,8 +955,8 @@ class WorkflowEditor extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#999';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
-        // style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-        // style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+        style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+        style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
