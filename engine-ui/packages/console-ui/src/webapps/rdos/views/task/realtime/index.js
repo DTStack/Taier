@@ -317,7 +317,7 @@ class TaskIndex extends Component {
  
         return (
             <Row className="task-editor">
-                <header className="toolbar bd-bottom clear">
+                <header className="toolbar clear">
                     <Col className="left">
                         <Button
                             onClick={() => {

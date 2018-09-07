@@ -176,7 +176,7 @@ class Workbench extends React.Component {
         const showPublish = isTask;
 
         return <Row className="m-workbench task-editor">
-            <header className="toolbar bd-bottom clear">
+            <header className="toolbar clear">
                 <Col className="left">
                     <Dropdown overlay={this.createMenu()} trigger={['click']}>
                         <Button title="创建">

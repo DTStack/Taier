@@ -220,7 +220,6 @@ class WorkflowEditor extends Component {
         return 'whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#C5C5C5;'
     }
 
-   
     formatTooltip = (cell) => {
         if (this.Container) {
             const task = cell.data || '';
@@ -350,7 +349,7 @@ class WorkflowEditor extends Component {
         updateTabData({
             id: data.id,
             toUpdateTasks: waitUpdateTabs,
-            notSynced: waitUpdateTabs.length > 0 ? true : data.notSynced
+            notSynced: waitUpdateTabs.length > 0 ? true : (data.notSynced || false)
         });
     }
 
@@ -433,12 +432,6 @@ class WorkflowEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const model = graph.getModel();
-        // const layout = new mxCompactTreeLayout(graph, false);
-        // layout.horizontal = false;
-        // layout.edgeRouting = false;
-        // layout.resizeParent = true;
-        // layout.levelDistance = 40;
-        // layout.nodeDistance = 20;
 
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();

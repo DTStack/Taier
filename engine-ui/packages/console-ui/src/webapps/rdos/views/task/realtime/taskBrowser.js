@@ -6,7 +6,7 @@ import utils from 'utils'
 import { debounce, cloneDeep } from 'lodash';
  
 import Api from '../../../api'
-import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
+import { LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
 import Editor from 'widgets/editor'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
@@ -17,8 +17,6 @@ import TaskDetail from './taskDetail'
 import InputPanel from './inputPanel'
 import OutputPanel from './outputPanel'
 import DimensionPanel from './dimensionPanel'
-import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
-
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -83,7 +81,7 @@ class TaskBrowser extends Component {
             return panes.map((pane) => {
                 const title = (<span>
                     <SyncBadge notSynced={pane.notSynced} />
-                    {pane.name}
+                    <span className="tab-ellipsis">{pane.name}</span>
                 </span>)
                 return (
                     <TabPane
@@ -285,7 +283,6 @@ class TaskBrowser extends Component {
     render() {
         const {
             currentPage, pages, router,
-            editorFocus, editorFocusOut,
         } = this.props
         if (pages.length === 0) router.push('/realtime')
         const panels = this.mapPanels(pages)

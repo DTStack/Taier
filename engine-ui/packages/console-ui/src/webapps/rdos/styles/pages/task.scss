@@ -412,6 +412,7 @@
         padding-right: 30px;
         padding-bottom: 30px;
         background: #FAFAFA;
+        border-top: 1px solid #dddddd;
         .browser-tabs {
 
             .ant-tabs-nav-container{
@@ -422,7 +423,7 @@
                 &:after{
                     content:"";
                     position: absolute;
-                    top:0px;
+                    top: -1px;
                     left:0px;
                     right: 0px;
                     height: 3px;
@@ -474,7 +475,7 @@
     .toolbar {
         width: 100%;
         padding: 10px 20px;
-        height: 40px;
+        height: 48px;
         background: #fff;
         button {
             border: 0;
