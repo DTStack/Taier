@@ -26,8 +26,8 @@ module.exports = function() {
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[hash].js",
-            filename: "[name].[hash].js",
+            chunkFilename: "[name].[chunkhash].js",
+            filename: "[name].[chunkhash].js",
             sourceMapFilename: "[name].map",
             publicPath: "/"
         },

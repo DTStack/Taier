@@ -48,9 +48,14 @@ class EditorContainer extends Component {
         this.initTableList();
         this.initFuncList();
     }
-    initTableList() {
+    initTableList(id) {
+        id=id||this.props.project.id;
+        if(!id){
+            console.log("project id 0 remove")
+            return ;
+        }
         API.getTableListByName({
-            appointProjectId: this.props.project.id
+            appointProjectId: id
         })
             .then(
                 (res) => {
@@ -89,6 +94,11 @@ class EditorContainer extends Component {
     componentWillReceiveProps(nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
+        const project = nextProps.project
+        const old_project = this.props.project
+        if(project.id!=old_project.id){
+            this.initTableList(project.id);
+        }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
