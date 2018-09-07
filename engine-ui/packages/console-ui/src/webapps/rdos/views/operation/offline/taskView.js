@@ -29,15 +29,21 @@ const {
     mxPopupMenu,
     mxRectangle,
     mxPerimeter,
+    mxGeometry,
     mxGraphHandler,
-    mxCompactTreeLayout,
+    mxPanningHandler,
     mxHierarchicalLayout,
-    mxLayoutManager,
+    mxCompactTreeLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 150,
     height: 40,
+}
+
+const GraphLayout = {
+    levelDistance: 30, // 层级间距
+    nodeDistance: 10, // 节点间距
 }
 
 const getVertexNode = (obj) => {
@@ -59,7 +65,8 @@ export default class TaskView extends Component {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
         this._vertexCells = {}; // 用于缓存创建的顶点节点
-    
+        this._vertexData = []; // 缓存渲染数据
+
         const editor = this.Container
         this.loadEditor(editor)
         this.hideMenu()
@@ -114,13 +121,18 @@ export default class TaskView extends Component {
     preHandGraphTree = (data) => {
 
         const relationTree = [];
+        let level = 0; // 层级，默认0
 
-        const loop = (treeNodeData, parent) => {
+        const loop = (treeNodeData, parent, level) => {
 
             if (treeNodeData) {
                 const parentNodes = treeNodeData.taskVOS; // 父节点
                 const childNodes = treeNodeData.subTaskVOS; // 子节点
                 const currentNodeData = getVertexNode(treeNodeData)
+
+                currentNodeData._level = level;
+                currentNodeData._index = 1;
+                currentNodeData._count = 1;
 
                 const dataItem = {
                     parent: parent,
@@ -132,9 +144,13 @@ export default class TaskView extends Component {
                 // 处理依赖节点
                 if (parentNodes && parentNodes.length > 0) {
                     for (let i = 0; i < parentNodes.length; i++) {
-                        const nodeData = getVertexNode(parentNodes[i])
+                        const nodeData = getVertexNode(parentNodes[i]);
+                        nodeData._level = level - 1;
+                        nodeData._index = i + 1;
+                        nodeData._count = parentNodes.length + 1;
+
                         if (parentNodes[i].taskVOS) {
-                            loop(parentNodes[i], parent)
+                            loop(parentNodes[i], parent, level-2)
                         }
                         relationTree.push({
                             parent: parent,
@@ -148,8 +164,12 @@ export default class TaskView extends Component {
                 if (childNodes && childNodes.length > 0) {
                     for (let i = 0; i < childNodes.length; i++) {
                         const nodeData = getVertexNode(childNodes[i])
+                        nodeData._level = level + 1;
+                        nodeData._index = i + 1;
+                        nodeData._count = childNodes.length + 1;
+
                         if (childNodes[i].subTaskVOS) {
-                            loop(childNodes[i], parent)
+                            loop(childNodes[i], parent, level + 2)
                         }
                         relationTree.push({
                             parent: parent,
@@ -161,14 +181,17 @@ export default class TaskView extends Component {
 
                 if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
                     const workflowData = treeNodeData.subNodes;
+                    workflowData._level = level + 1;
                     if (workflowData) {
-                        loop(workflowData, currentNodeData)
+                        loop(workflowData, currentNodeData, level + 2)
                     }
                 }
+
+
             }
         }
 
-        loop(data);
+        loop(data, null, level);
 
         return relationTree;
     }
@@ -177,16 +200,18 @@ export default class TaskView extends Component {
         const cellCache = this._vertexCells;
         const graph = this.graph;
         const defaultParent = graph.getDefaultParent();
+        this._rootCell = defaultParent;
 
         const getVertex = (parentCell, data) => {
             if (!data) return null;
 
             let style = this.getStyles(data);
             let cy = 10;
-
+            
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
-
+            // let relative = (isWorkflow && data.subNodes !== null) ? true : false;
+            
             let width = VertexSize.width;
             let height = VertexSize.height;
             if (isWorkflow) {
@@ -209,16 +234,17 @@ export default class TaskView extends Component {
 
             const cell = graph.insertVertex(
                 parentCell,
-                data.id, 
+                null, 
                 data, 
                 10, cy,
                 width, height, 
                 style,
             )
+
             if (isWorkflow) {
-                cell.geometry.alternateBounds = new mxRectangle(0, 0, VertexSize.width, VertexSize.height);
+                cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
-            console.log('geo:', cell);
+            console.log('insertCell:', cell);
             cell.isPart = isWorkflowNode;
             return cell
         }
@@ -257,23 +283,37 @@ export default class TaskView extends Component {
                 if (edges.length === 0) {
                     graph.insertEdge(parentCell, null, '', sourceCell, targetCell, edgeStyle)
                 }
-                if (isWorkflowNode) {
-                    this.executeLayout(parentCell);
-                }
+                
+                this.executeLayout(parentCell);
             }
         }
     }
 
     doInsertVertex = (data) => {
         const graph = this.graph;
+        let existCellData = this._vertexData;
+        console.log('_vertexData:', existCellData);
         const arrayData = this.preHandGraphTree(data);
-        console.log('renderData:', JSON.stringify(arrayData));
+        // if (existCellData.length > 0) {
+        //     // graph.getModel().clear();
+        //     this._vertexCells = {};
+        //     const cells = graph.getChildCells(graph.getDefaultParent());
+        //     console.log('graph cells:', cells)
+        //     graph.removeCells(cells);
+        //     existCellData = arrayData.concat(existCellData);
+        // } else {
+        //     existCellData = arrayData;
+        //     this._vertexData = arrayData;
+        // }
+        // console.log('existCellData:', existCellData);
         this.renderGraph(arrayData);
         this.executeLayout(graph.getDefaultParent());
         graph.center();
+        // graph.view.setTranslate(200, 200);
     }
 
     loadEditor = (container) => {
+
         // Disable default context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
@@ -355,7 +395,7 @@ export default class TaskView extends Component {
             const task = cell.value || {};
             const taskType = taskTypeText(task.taskType);
             if (task) {
-                return `<div class="vertex"><span class="vertex-title">${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}</span>
                 <span class="vertex-desc">${taskType}</span>
                 </div>`
             }
@@ -458,40 +498,13 @@ export default class TaskView extends Component {
         layout.levelDistance = 30;
         layout.nodeDistance = 10;
         layout.resizeParent = true;
-        layout.root = defaultParent;
-
-        // var layoutMgr = new mxLayoutManager(graph);
-        // layoutMgr.getLayout = function(cell) {
-            // console.log('layout cell:', cell)
-            // const isWorkflow = (cell.value && cell.value.flowId && cell.value.flowId !== 0) || (cell.value && cell.value.taskType === TASK_TYPE.WORKFLOW);
-            // if (isWorkflow) {
-            // }
-            // if (!cell.geometry) {
-            //     cell.geometry = {
-            //         x: 10,
-            //         y: 10,
-            //     }
-            // }
-            // const layout = new mxCompactTreeLayout(graph, false);
-            // layout.horizontal = false;
-            // layout.useBoundingBox = false;
-            // layout.edgeRouting = false;
-            // layout.levelDistance = 30;
-            // layout.nodeDistance = 10;
-            // layout.resizeParent = true;
-            // return layout;
-            // const layout2 = new mxHierarchicalLayout(graph, 'north', false);
-            // layout2.resizeParent = true;
-            // console.log('layout:', layout2)
-            // return layout2;
-        // };
 
         this.executeLayout = function (layoutNode, change, post) {
             model.beginUpdate();
             try {
                 if (change != null) { change(); }
                 layout.execute(layoutNode);
-                console.log('after layout:', layoutNode)
+                console.log('after layout:', layoutNode);
             } catch (e) {
                 throw e;
             } finally {
@@ -500,13 +513,16 @@ export default class TaskView extends Component {
             }
         }
 
-        // this.executeHierarchiclLayout = function(layoutNode, change, post) {
-        //     const layout2 = new mxHierarchicalLayout(graph, 'north', false);
-        //     layout.resizeParent = true;
+        // this.executeLayout2 = function (layoutNode, change, post) {
         //     model.beginUpdate();
-
         //     try {
         //         if (change != null) { change(); }
+        //         const layout2 = new mxHierarchicalLayout(graph, 'north');
+        //         layout2.disableEdgeStyle = false;
+        //         layout2.interRankCellSpacing = 30;
+        //         layout2.intraCellSpacing = 10;
+        //         layout2.resizeParent = true;
+
         //         layout2.execute(layoutNode);
         //     } catch (e) {
         //         throw e;
@@ -624,7 +640,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = false;
+        style[mxConstants.STYLE_ROUNDED] = true;
         return style;
     }
 }

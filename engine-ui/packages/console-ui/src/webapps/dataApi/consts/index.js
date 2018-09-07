@@ -3,12 +3,14 @@ export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
     SQLSERVER: 3,
+    POSTGRESQL: 4,
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
-    ADS:11
+    ADS:11,
+    POSTAGERSQL: 15
 }
 
 export const API_MODE = {

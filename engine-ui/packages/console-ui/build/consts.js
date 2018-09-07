@@ -4,6 +4,7 @@ const ROOT_PATH = path.resolve(__dirname, '../');
 const APP_PATH = path.resolve(ROOT_PATH, 'src');        // 应用根路径
 const WEB_APPS = path.resolve(APP_PATH, 'webapps');     // 所有应用
 const WEB_PUBLIC = path.resolve(APP_PATH, 'public');    // 公开资源
+const PWA = path.resolve(APP_PATH, 'pwa');              // pwa
 
 // 所有应用
 const MAIN_APP_PATH = path.resolve(WEB_APPS, 'main');             // 主应用
@@ -35,6 +36,7 @@ module.exports = {
     APP_PATH,
     WEB_APPS,
     WEB_PUBLIC,
+    PWA,
 
     MAIN_APP_PATH,
     RDOS_PATH,
