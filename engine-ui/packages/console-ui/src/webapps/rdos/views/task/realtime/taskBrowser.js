@@ -162,11 +162,10 @@ class TaskBrowser extends Component {
 
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
-        let top = '10px';
         return isLocked ? (
             <div className="lock-layer">
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
+                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: '999', height: '35px' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"

@@ -423,7 +423,7 @@
                 &:after{
                     content:"";
                     position: absolute;
-                    top: -1px;
+                    top: 0px;
                     left:0px;
                     right: 0px;
                     height: 3px;
@@ -440,6 +440,7 @@
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
             line-height: 20px;
+            margin-top: -1px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
