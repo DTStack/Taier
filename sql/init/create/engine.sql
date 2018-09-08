@@ -71,6 +71,7 @@ CREATE TABLE `rdos_engine_job_cache` (
   `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
   `stage` tinyint(2) NOT NULL COMMENT '处于master等待队列：1 还是exe等待队列 2',
   `job_info` longtext NOT NULL COMMENT 'job信息',
+  `node_address` varchar(256) DEFAULT NULL COMMENT '节点地址',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',

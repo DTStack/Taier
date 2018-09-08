@@ -19,18 +19,17 @@ import java.util.concurrent.TimeUnit;
  * author: toutian
  * create: 2018/9/6
  */
-public class ZkLocalCacheSyncListener implements Runnable {
+public class LocalCacheSyncZkListener implements Runnable {
 
-    private static long CHECK_INTERVAL = 5000;
-
-    private static final Logger logger = LoggerFactory.getLogger(ZkLocalCacheSyncListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalCacheSyncZkListener.class);
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
-    private int index = 0;
+    private static long CHECK_INTERVAL = 5000;
+    private int logOutput = 0;
 
-    public ZkLocalCacheSyncListener() {
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkLocalCacheSyncListener"));
+    public LocalCacheSyncZkListener() {
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("LocalCacheSyncZkListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
@@ -41,13 +40,13 @@ public class ZkLocalCacheSyncListener implements Runnable {
     @Override
     public void run() {
         try {
-            ++index;
-            if (PublicUtil.count(index, 5)) {
-                logger.warn("ZkLocalCacheSyncListener start again");
+            logOutput++;
+            if (PublicUtil.count(logOutput, 5)) {
+                logger.warn("LocalCacheSyncZkListener start again");
             }
             syncLocalCache();
         } catch (Throwable e) {
-            logger.error("ZkLocalCacheSyncListener error:{}", ExceptionUtil.getErrorMessage(e));
+            logger.error("LocalCacheSyncZkListener error:{}", ExceptionUtil.getErrorMessage(e));
         }
     }
 

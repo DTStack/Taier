@@ -26,6 +26,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private volatile BrokerDataNode localDataCache;
     private volatile AtomicBoolean requiresCopyOnWrite;
     private static ZkLocalCache zkLocalCache = new ZkLocalCache();
+    private String localAddress;
 
     public static ZkLocalCache getInstance() {
         return zkLocalCache;
@@ -41,7 +42,8 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
 
     public void init() {
         core = zkDistributed.initMemTaskStatus();
-        localDataCache = core.get(zkDistributed.getLocalAddress());
+        localAddress = zkDistributed.getLocalAddress();
+        localDataCache = core.get(localAddress);
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
@@ -58,7 +60,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     }
 
     public BrokerDataNode getBrokerData() {
-        return getView().get(zkDistributed.getLocalAddress());
+        return getView().get(localAddress);
     }
 
 
@@ -124,9 +126,16 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private void copy() {
         if (requiresCopyOnWrite.compareAndSet(true, false)) {
             core = new ConcurrentHashMap<>(core);
-            localDataCache = core.get(zkDistributed.getLocalAddress());
+            localDataCache = core.get(localAddress);
             view = null;
         }
+    }
+
+    public void cover(Map<String, BrokerDataNode> otherNode) {
+        Map<String, BrokerDataNode> coverCore = new ConcurrentHashMap<>(core);
+        coverCore.remove(localAddress);
+        coverCore.putAll(otherNode);
+        core = coverCore;
     }
 
     private Map<String, BrokerDataNode> getView() {

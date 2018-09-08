@@ -33,7 +33,7 @@
     </update>
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
-        select * from rdos_engine_job_cache where node_address = #{nodeAddress} and stage = #{stage} and is_deleted=0 order by gmt_create asc;
+        select * from rdos_engine_job_cache where (node_address = #{nodeAddress} or node_address is null) and stage = #{stage} and is_deleted=0 order by gmt_create asc;
     </select>
 
 </mapper>

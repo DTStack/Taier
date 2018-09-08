@@ -11,6 +11,7 @@ import java.util.Map;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
@@ -19,6 +20,7 @@ import com.dtstack.rdos.engine.service.zk.data.BrokersNode;
 import com.dtstack.rdos.engine.service.zk.task.*;
 import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
+import com.dtstack.rdos.engine.service.zk.task.ZkSyncLocalCacheListener;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -28,7 +30,6 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.service.enums.MachineAppType;
 import com.dtstack.rdos.engine.service.enums.RdosNodeMachineType;
-import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.CuratorFramework;
@@ -150,6 +151,8 @@ public class ZkDistributed implements Closeable{
 		executors.execute(new TaskListener());
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
+		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
+		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
 		if(ConfigParse.getPluginStoreInfo()!=null){
 			executors.execute(new LogStoreListener(masterListener));
 		}
@@ -516,19 +519,6 @@ public class ZkDistributed implements Closeable{
 		return localAddress;
 	}
 
-	private void lockRelease(){
-		interProcessMutexs.forEach(lock->{
-			try{
-				if(lock.isAcquiredInThisProcess()){
-					lock.release();
-				}
-			}catch (Exception e){
-				logger.error("",e);
-			}
-		});
-		zkShardListener.lockRelease();
-	}
-
 	public void disableBrokerHeartNode(String localAddress, boolean startHelthCheck){
 		BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
 		if (!startHelthCheck){
@@ -609,8 +599,8 @@ public class ZkDistributed implements Closeable{
 	public void close() throws IOException {
 		try{
 			disableBrokerHeartNode(this.localAddress, true);
-			lockRelease();
-			executors.shutdown();
+//			lockRelease();
+//			executors.shutdown();
 		}catch (Throwable e){
 			logger.error("",e);
 		}
