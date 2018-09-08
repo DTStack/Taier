@@ -167,7 +167,7 @@ class Workbench extends React.Component {
             isSaveAvaliable = false;
         }
 
-        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd;
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || !currentTabData.notSynced;
 
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
         const isWorkflowNode = currentTabData && currentTabData.flowId && currentTabData.flowId !== 0;
