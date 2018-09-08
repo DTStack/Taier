@@ -2,40 +2,75 @@
  * 树形布局计算
  */
 
- const startX = 200, startY = 200;
+ export function getGeoByParent(parent, node) {
 
- export function getTreeNodeLayout(startX, startY, node, parent) {
-    // var W = containerWidth;
-    // var x = Math.round(W/(node.count + 1)) * node.i - node.width/2;
-    // var y = parent.y + (node.level * node.height + margin);
-
-    const getX = function(relativeX, currentNode) {
-        const rowWidth = currentNode.count * node.width + (currentNode.count-1) * currentNode.margin;
-        const boundX = relativeX - Math.round(rowWidth/2);
-        return boundX + currentNode.index * currentNode.width + (currentNode.index-1) * currentNode.margin;
+    const getX = function(currentNode) {
+        if (currentNode.index === 1 && currentNode.count === 1) {
+            return parent.x;
+        } else {
+            const rowWidth = currentNode.count * currentNode.width + (currentNode.count-1) * currentNode.margin;
+            const boundX = (parent.x) - Math.round(rowWidth/2);
+            return currentNode.index === 1 && currentNode.count > 1 ? 
+            boundX : boundX + currentNode.index * currentNode.width + (currentNode.index-1) * currentNode.margin;
+        }
     }
 
-    const getY = function(relativeY, currentNode) {
-        const l = Math.abs(currentNode.level);
-        const y = l * currentNode.height + l * currentNode.margin;
-        return currentNode.level >= 0 ? relativeY + y : relativeY - y;
+    const getY = function(currentNode) {
+        if (currentNode.level === 0 && currentNode.count === 1) {
+            return parent.y;
+        } else {
+            const l = Math.abs(currentNode.level);
+            const space = parent.height + currentNode.margin; 
+            return currentNode.level >= 0 ? parent.y + space : parent.y - space;
+        }
     }
 
-    let x = 0, y = 0;
+    node.x = getX(node);
+    node.y = getY(node);
 
-    // 如果有父节点的话
-    if (parent) {
-        // x = node.index * node.width + (node.index-1) * node.margin ;
-        // x = Math.round(parent.width/(node.count + 1)) * node.index - node.width/2;
-        // y = node.level * node.height + node.level * node.margin + parent.margin;
-        x = getX(parent.x, node);
-        y = getY(parent.y, node);
-    
-    } else {
-        x = getX(startX, node);
-        y = getY(startY, node);
-    }
-    node.x = x;
-    node.y = y;
+    console.log('getGeoByParent:', parent, node);
+
     return node;
  }
+
+ export const getRowWidth = (node) => {
+    const rowWidth = node.count * node.width + (node.count-1) * node.margin;
+    return rowWidth;
+}
+
+export const getRowHeight = (node) => {
+    const rowHeight = node.level * node.height + (node.level-1) * node.margin;
+    return rowHeight;
+}
+
+/**
+ * 统计节点信息
+ */
+export const getNodeCount = (node) => {
+    let count = 1;
+    let level = 0, maxLevel = 0;
+    const loop = (node, level) => {
+
+        level = level + 1;
+        const children = node.subTaskVOS;
+        
+        if (children && children.length > 0) {
+            for (let j = 0; j < children.length; j++) {
+                loop(children[j], level);
+            }
+        } else {
+            count++;
+            maxLevel = level > maxLevel ? level : maxLevel;
+        }
+    }
+
+    loop(node, level);
+
+    const res = {
+        count,
+        level: maxLevel
+    }
+
+    console.log('getNodeCount:', res)
+    return res;
+}
