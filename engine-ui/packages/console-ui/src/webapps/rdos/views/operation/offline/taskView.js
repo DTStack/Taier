@@ -190,14 +190,15 @@ export default class TaskView extends Component {
 
                     const workflowDefaultRoot = Object.assign({}, defaultRoot);
                     workflowDefaultRoot.x = Math.round((currentNode.width - VertexSize.width) /2);
-                    workflowDefaultRoot.y = 20 - VertexSize.height;
+                    workflowDefaultRoot.y = workflowDefaultRoot.height + 20;
 
                     if (workflowData) {
                         loop(workflowData, currentNodeData , newLevel, workflowDefaultRoot)
                     }
                 }
 
-                currentNodeData._geometry = getGeoByParent(parentNode, currentNode);
+                currentNode = getGeoByParent(parentNode, currentNode);
+                currentNodeData._geometry = currentNode;
 
                 const dataItem = {
                     parent: parent,
@@ -211,14 +212,14 @@ export default class TaskView extends Component {
                     for (let i = 0; i < parentNodes.length; i++) {
                         const nodeData = parentNodes[i];
                         const node = Object.assign({}, defaultRoot);
-                        node.level = currentNode.level - 1;
+                        node.level = level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
 
                         nodeData._geometry = getGeoByParent(currentNode, node);
 
                         if (parentNodes[i].taskVOS) {
-                            loop(nodeData, parent, level - 1, node)
+                            loop(nodeData, parent, level - 1, currentNode)
                         }
 
                         relationTree.push({
@@ -240,6 +241,7 @@ export default class TaskView extends Component {
                         node.count = childNodes.length;
 
                         nodeData._geometry = getGeoByParent(currentNode, node);
+                        console.log('_geometry child:', nodeData.name, currentNode, nodeData._geometry);
 
                         if (childNodes[j].subTaskVOS) {
                             loop(nodeData, parent, ++level, currentNode)

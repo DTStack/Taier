@@ -135,7 +135,6 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
-                            format="YYYY-MM-DD"
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -144,7 +143,6 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
-                            format="YYYY-MM-DD"
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -603,7 +601,9 @@ class SchedulingConfig extends React.Component {
         }  
         this.setState({
             selfReliance: selfReliance,
-        })
+        });
+
+        this.loadWorkflowConfig();
     }
 
     loadWorkflowConfig = () => {
@@ -809,15 +809,19 @@ class SchedulingConfig extends React.Component {
             endDate: '2021-01-01'
         });
 
+        if(initConf !== '') {
+            scheduleConf = Object.assign(scheduleConf, JSON.parse(initConf));
+        }
         // 工作流更改默认调度时间配置
         if (isWorkflowNode) {
             scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            }, initConf && JSON.parse(initConf))
-        } else if (initConf !== '') {
-            scheduleConf = JSON.parse(initConf);
-        }
+            }, scheduleConf);
+            scheduleConf.periodType = 2;
+        } 
+
+        console.log('scheduleConf:', scheduleConf);
 
         const columns = [
             {
@@ -852,7 +856,6 @@ class SchedulingConfig extends React.Component {
             height: '30px',
             lineHeight: '30px',
         };
-        console.log('scheduleConf:', scheduleConf);
         
         return <div className="m-scheduling" style={{position: 'relative'}}>
             {isLocked?<div className="cover-mask"></div>:null} 
