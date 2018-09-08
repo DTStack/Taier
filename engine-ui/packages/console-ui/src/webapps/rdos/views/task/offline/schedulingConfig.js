@@ -54,7 +54,11 @@ class ScheduleForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
         const { periodType } = scheduleConf;
-
+        console.log('this.props------',this.props);
+        console.log('periodType----',periodType);
+        console.log('scheduleConf.min---',scheduleConf);
+        console.log('wFScheduleConf---',wFScheduleConf);
+        
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
             wFScheduleConf.periodType === "0" ||
@@ -110,7 +114,6 @@ class ScheduleForm extends React.Component {
                 <Option key={7} value="7">星期天</Option>
             </Select>
         }
-
         return <Form key={ periodType } className="schedule-form" >
             <FormItem
                 {...formItemLayout}
@@ -787,12 +790,15 @@ class SchedulingConfig extends React.Component {
             recommentTaskModalVisible, recommentTaskList, 
             loading, wFScheduleConf, selfReliance
         } = this.state;
-
+        
         const { tabData, isWorkflowNode } = this.props;
+        console.log('tabData',tabData,isWorkflowNode);
+        
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
         
         let initConf = tabData.scheduleConf;
+        
         let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
             beginDate: '2001-01-01',
             endDate: '2021-01-01'
@@ -803,7 +809,7 @@ class SchedulingConfig extends React.Component {
             scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            })
+            },initConf&&JSON.parse(initConf))
         } else if (initConf !== '') {
             scheduleConf = JSON.parse(initConf);
         }
@@ -841,7 +847,8 @@ class SchedulingConfig extends React.Component {
             height: '30px',
             lineHeight: '30px',
         };
-
+        console.log('scheduleConf:',scheduleConf);
+        
         return <div className="m-scheduling" style={{position: 'relative'}}>
             {isLocked?<div className="cover-mask"></div>:null} 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
