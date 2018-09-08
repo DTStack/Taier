@@ -30,6 +30,7 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxRectangle,
+    mxGraphHandler,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -210,14 +211,14 @@ export default class TaskView extends Component {
                     for (let i = 0; i < parentNodes.length; i++) {
                         const nodeData = parentNodes[i];
                         const node = Object.assign({}, defaultRoot);
-                        node.level = level - 1;
+                        node.level = currentNode.level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
 
                         nodeData._geometry = getGeoByParent(currentNode, node);
 
                         if (parentNodes[i].taskVOS) {
-                            loop(nodeData, parent, --level, node)
+                            loop(nodeData, parent, level - 1, node)
                         }
 
                         relationTree.push({

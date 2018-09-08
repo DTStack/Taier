@@ -16,13 +16,13 @@
     }
 
     const getY = function(currentNode) {
-        if (currentNode.level === 0 && currentNode.count === 1) {
-            return parent.y;
-        } else {
-            const l = Math.abs(currentNode.level);
-            const space = parent.height + currentNode.margin; 
-            return currentNode.level >= 0 ? parent.y + space : parent.y - space;
-        }
+        const space = parent.height + currentNode.margin; 
+        return currentNode.level >= 0 ? parent.y + space : parent.y - space;
+        // if (currentNode.level === 0 && currentNode.count === 1) {
+        //     return parent.y;
+        // } else {
+        //     const l = Math.abs(currentNode.level);
+        // }
     }
 
     node.x = getX(node);
