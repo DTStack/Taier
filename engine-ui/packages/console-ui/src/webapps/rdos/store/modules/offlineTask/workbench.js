@@ -96,6 +96,12 @@ export const workbenchReducer = (state = getCachedData(), action) => {
         case workbenchAction.CHANGE_SCHEDULE_CONF: {
             const newConf = action.payload;
 
+            newConf.beginDate = newConf.beginDate && newConf.beginDate.format ? 
+            newConf.beginDate.format('YYYY-MM-DD') : newConf.beginDate; 
+            
+            newConf.endDate = newConf.endDate && newConf.endDate.format ?
+            newConf.endDate.format('YYYY-MM-DD') : newConf.endDate;
+
             if(newConf.weekDay && _.isArray(newConf.weekDay)){
                 newConf.weekDay = newConf.weekDay.join(',');
             }
