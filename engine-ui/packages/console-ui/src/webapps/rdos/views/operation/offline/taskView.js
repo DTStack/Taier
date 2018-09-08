@@ -366,8 +366,9 @@ export default class TaskView extends Component {
                 if (edges.length === 0) {
                     graph.insertEdge(parentCell, null, '', sourceCell, targetCell, edgeStyle)
                 }
-
-                this.executeLayout(parentCell);
+                if (isWorkflowNode) {
+                    // this.executeLayout(parentCell);
+                }
             }
         }
     }

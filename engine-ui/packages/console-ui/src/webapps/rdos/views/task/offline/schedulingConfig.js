@@ -54,10 +54,6 @@ class ScheduleForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
         const { periodType } = scheduleConf;
-        console.log('this.props------',this.props);
-        console.log('periodType----',periodType);
-        console.log('scheduleConf.min---',scheduleConf);
-        console.log('wFScheduleConf---',wFScheduleConf);
         
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
@@ -139,6 +135,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                            format="YYYY-MM-DD"
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -147,6 +144,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                            format="YYYY-MM-DD"
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -590,7 +588,7 @@ class SchedulingConfig extends React.Component {
     componentDidMount() {
         this.loadWorkflowConfig();
         const { tabData } = this.props;
-        const scheduleConf = JSON.parse(tabData.scheduleConf);
+        let scheduleConf = JSON.parse(tabData.scheduleConf);
         let selfReliance = 0;
         // 此处为兼容代码
         // scheduleConf.selfReliance兼容老代码true or false 值
@@ -602,9 +600,7 @@ class SchedulingConfig extends React.Component {
             } else if (scheduleConf.selfReliance) {
                 selfReliance = scheduleConf.selfReliance;
             }
-        } 
-        
-        console.log('selfReliance:', scheduleConf, selfReliance,)
+        }  
         this.setState({
             selfReliance: selfReliance,
         })
@@ -702,12 +698,18 @@ class SchedulingConfig extends React.Component {
         })
     }
 
-    handleScheduleConf() {
+    handleScheduleConf = () => {
+        const { tabData } = this.props;
+        let defaultScheduleConf = JSON.parse(tabData.scheduleConf);
+        if (!defaultScheduleConf.periodType) {
+            defaultScheduleConf = this.getDefaultScheduleConf(2);
+        }
         setTimeout(() => {
             this.form.validateFields((err, values) => {
                 if(!err) {
-                    const formData = this.form.getFieldsValue();
-                    formData.selfReliance = this.state.selfReliance;//this._selfReliance;
+                    let formData = this.form.getFieldsValue();
+                    formData.selfReliance = this.state.selfReliance;
+                    formData = Object.assign(defaultScheduleConf, formData);
                     delete formData.scheduleStatus;
                     this.props.changeScheduleConf(formData);
                 }
@@ -719,11 +721,11 @@ class SchedulingConfig extends React.Component {
         const dft = this.getDefaultScheduleConf(type);
         const values = assign({}, dft, {
             scheduleStatus: this.form.getFieldValue('scheduleStatus'),
+            periodType: type,
             beginDate: this.form.getFieldValue('beginDate'),
             endDate: this.form.getFieldValue('endDate'),
-            periodType: type,
             selfReliance: this.form.getFieldValue('selfReliance')
-        })
+        });
         this.props.changeScheduleConf(values);
     }
 
@@ -733,7 +735,9 @@ class SchedulingConfig extends React.Component {
                 beginHour: 0,
                 gapMin: 5,
                 endHour: 23,
-                periodType: 0
+                periodType: 0,
+                beginDate: '2001-01-01',
+                endDate: '2021-01-01'
             },
             1: {
                 beginHour: 0,
@@ -745,7 +749,9 @@ class SchedulingConfig extends React.Component {
             2: {
                 min: 0,
                 hour: 0,
-                periodType: 2
+                periodType: 2,
+                beginDate: '2001-01-01',
+                endDate: '2021-01-01'
             },
             3: {
                 weekDay: 3,
@@ -785,31 +791,30 @@ class SchedulingConfig extends React.Component {
     }
 
     render() {
-        
         const { 
             recommentTaskModalVisible, recommentTaskList, 
             loading, wFScheduleConf, selfReliance
         } = this.state;
         
         const { tabData, isWorkflowNode } = this.props;
-        console.log('tabData',tabData,isWorkflowNode);
+        console.log('tabData', tabData, isWorkflowNode);
         
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
-        
+
         let initConf = tabData.scheduleConf;
-        
+
         let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
             beginDate: '2001-01-01',
             endDate: '2021-01-01'
         });
-  
+
         // 工作流更改默认调度时间配置
         if (isWorkflowNode) {
             scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            },initConf&&JSON.parse(initConf))
+            }, initConf && JSON.parse(initConf))
         } else if (initConf !== '') {
             scheduleConf = JSON.parse(initConf);
         }
@@ -847,7 +852,7 @@ class SchedulingConfig extends React.Component {
             height: '30px',
             lineHeight: '30px',
         };
-        console.log('scheduleConf:',scheduleConf);
+        console.log('scheduleConf:', scheduleConf);
         
         return <div className="m-scheduling" style={{position: 'relative'}}>
             {isLocked?<div className="cover-mask"></div>:null} 
