@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import com.dtstack.rdos.engine.service.zk.data.BrokersNode;
 import com.dtstack.rdos.engine.service.zk.task.*;
 import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
-import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -95,7 +93,7 @@ public class ZkDistributed implements Closeable{
 
 	private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
 
-	private ExecutorService executors  = new ThreadPoolExecutor(8, 8,
+	private ExecutorService executors  = new ThreadPoolExecutor(4, 8,
 			0L, TimeUnit.MILLISECONDS,
 			new LinkedBlockingQueue<Runnable>());
 
@@ -145,11 +143,10 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initScheduledExecutorService() {
-        masterListener = new MasterListener();
 		zkShardListener = new ZkShardListener();
-		executors.execute(new HeartBeat());
-		executors.execute(masterListener);
-		executors.execute(new HeartBeatListener(masterListener));
+		HeartBeatListener heartBeatListener = new HeartBeatListener();
+		masterListener = new MasterListener();
+		HeartBeatCheckListener heartBeatCheckListener = new HeartBeatCheckListener(masterListener);
 		executors.execute(new TaskListener());
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
@@ -532,8 +529,11 @@ public class ZkDistributed implements Closeable{
 		zkShardListener.lockRelease();
 	}
 
-	public void disableBrokerHeartNode(String localAddress){
+	public void disableBrokerHeartNode(String localAddress, boolean startHelthCheck){
 		BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
+		if (!startHelthCheck){
+			disableBrokerHeartNode.setSeq(HeartBeatCheckListener.STOP_HEALTH_CHECK_SEQ);
+		}
 		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, false);
 		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
@@ -543,80 +543,7 @@ public class ZkDistributed implements Closeable{
 		zkDistributed.updateSynchronizedLocalQueueNode(address, brokerQueueNode);
 	}
 
-	public void dataMigration(String nodeAddress) {
-        List<InterProcessMutex> mutexes = null;
-        try {
-        	//所得所有的锁
-            mutexes = this.acquireBrokerLock(Lists.newArrayList(nodeAddress));
-			if(mutexes!=null){
-				BrokerHeartNode bNode = this.getBrokerHeartNode(nodeAddress);
-				if(!bNode.getAlive()){
-					BrokerDataNode dataNode = getDataNode(nodeAddress);
-					int total = dataNode.getDataSize();
-					if (total <=0){
-						return;
-					}
-					//获取当前可用节点任务量，计算所有节点任务综合
-					List<String> brokers = getBrokersChildren();
-                    Map<String,Integer> otherDataSize = Maps.newHashMap();
-					Map<String,BrokerDataNode> migrateDatas = Maps.newHashMap();
-					for(String broker:brokers){
-						BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-						if(brokerHeartNode.getAlive()){
-							BrokerDataNode bbs = getDataNode(broker);
-                            int dataSize = bbs.getDataSize();
-                            otherDataSize.put(broker, dataSize);
-							bbs.clear();
-							migrateDatas.put(broker,bbs);
-							total = dataSize + total;
-						}
-					}
-                    //有可用的迁移节点
-					if(migrateDatas.size()>0){
-					    //每个节点需要接收的任务量，+1 除余后的任务
-						int a = total/migrateDatas.size()+1;
-                        A:for(Map.Entry<String,BrokerDataNode> other:migrateDatas.entrySet()){
-							int index = 0;
-							int c = otherDataSize.get(other.getKey());
-							if(c < a){
-								B:for(Map.Entry<String,BrokerDataShard> shard:dataNode.getShards().entrySet()){
-									Iterator<Map.Entry<String,Byte>> shardIt = shard.getValue().getMetas().entrySet().iterator();
-									C:while (shardIt.hasNext()){
-                                        index++;
-                                        if(index <= a-c){
-                                            Map.Entry<String,Byte> shardData = shardIt.next();
-											String key  = TaskIdUtil.convertToMigrationJob(shardData.getKey());
-                                            other.getValue().putElement(key, shardData.getValue());
-											shardIt.remove();
-                                            continue C;
-                                        }
-                                        continue A;
-                                    }
-								}
-							}
-						}
-						for(Map.Entry<String,BrokerDataNode> entry:migrateDatas.entrySet()){
-							for (Map.Entry<String, BrokerDataShard> shard:entry.getValue().getShards().entrySet()){
-								Map<String,Object> params = new HashMap<>(2);
-								params.put("shardName",shard.getKey());
-								params.put("shardValue",shard.getValue());
-								HttpSendClient.migrationShard(entry.getKey(),params);
-							}
-						}
-						for (String shard:dataNode.getShards().keySet()){
-							this.synchronizedBrokerDataShard(nodeAddress, shard, BrokerDataShard.initBrokerDataShard(), true);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.error("dataMigration fail:{}",ExceptionUtil.getErrorMessage(e));
-		}finally{
-			releaseLock(mutexes);
-		}
-	}
-
-	public List<InterProcessMutex> acquireBrokerLock(List<String> brokers){
+	public List<InterProcessMutex> acquireBrokerLock(List<String> brokers, boolean musted){
 		if (CollectionUtils.isEmpty(brokers)){
 			return null;
 		}
@@ -633,10 +560,15 @@ public class ZkDistributed implements Closeable{
 				}
 			}
 			for (InterProcessMutex mutex:allLocks){
-				if (!mutex.acquire(30, TimeUnit.SECONDS)){
-                    lock = false;
-                    logger.error("acquireBrokerLock fail, acquire time out");
-                    break;
+				if (musted){
+					//必须获取到锁，没有超时等待
+					mutex.acquire();
+				} else {
+					if (!mutex.acquire(30, TimeUnit.SECONDS)){
+						lock = false;
+						logger.error("acquireBrokerLock fail, acquire time out");
+						break;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -676,12 +608,8 @@ public class ZkDistributed implements Closeable{
 	@Override
 	public void close() throws IOException {
 		try{
-			disableBrokerHeartNode(this.localAddress);
+			disableBrokerHeartNode(this.localAddress, true);
 			lockRelease();
-			List<String> nodes = getAliveBrokersChildren();
-			if(nodes.size() > 0){
-				HttpSendClient.migration(this.localAddress,nodes.get(0));
-			}
 			executors.shutdown();
 		}catch (Throwable e){
 			logger.error("",e);

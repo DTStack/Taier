@@ -7,7 +7,6 @@ import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -53,15 +52,6 @@ public class HttpSendClient {
 
     public static void actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.MASTER_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
-    }
-
-	public static void migration(final String node,String target)throws Exception{
-        Map<String,Object> params = new HashMap<String,Object>(){
-            {
-                put("node",node);
-            }
-        };
-        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE),params);
     }
 
     public static void migrationShard(String target,Map<String, Object> params) {

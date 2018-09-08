@@ -17,12 +17,15 @@ import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +39,7 @@ public class MasterNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(MasterNode.class);
 
-    /***循环时间120s*/
-    private static final int WAIT_INTERVAL = 120 * 1000;
+    private BlockingQueue<String> queue = new LinkedBlockingDeque<>();
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
@@ -75,8 +77,22 @@ public class MasterNode {
             LOG.warn("---start master node deal thread------");
         } else if (!isMaster && currIsMaster) {
             currIsMaster = false;
+            if (faultTolerantDealer!=null){
+                faultTolerantDealer.stop();
+            }
             faultTolerantExecutor.shutdownNow();
             LOG.warn("---stop master node deal thread------");
+        }
+    }
+
+    public void dataMigration(String node) {
+        if (StringUtils.isBlank(node)) {
+            return;
+        }
+        try {
+            queue.put(node);
+        } catch (InterruptedException e) {
+            LOG.error("{}", e);
         }
     }
 
@@ -84,30 +100,37 @@ public class MasterNode {
      * 容错处理
      */
     class FaultTolerantDealer implements Runnable {
+
+        private volatile boolean isRun = true;
+
         @Override
         public void run() {
             try {
-                //间隔一段时间后 ，对其他没有启动的节点任务进行分配
-                Thread.sleep(WAIT_INTERVAL);
-                //获取还未恢复正常的节点信息
-                List<String> brokers = zkDistributed.getBrokersChildren();
-                for (String broker : brokers) {
-                    BrokerHeartNode brokerHeartNode = zkDistributed.getBrokerHeartNode(broker);
-                    if (!brokerHeartNode.getAlive()) {
-                        faultTolerantRecover(broker);
-                    }
+                while (isRun) {
+                    String node = queue.take();
+                    faultTolerantRecover(node);
                 }
             } catch (Exception e) {
                 LOG.error("----load data from DB error:{}", e);
             }
+        }
+
+        public void stop(){
+            isRun = false;
         }
     }
 
     public void faultTolerantRecover(String broker) {
         List<InterProcessMutex> locks = null;
         try {
-            //获取锁
-            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(broker));
+            //获取锁 todo 测试锁是否只有当前线程可以释放
+            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(broker), true);
+            //再获取锁后再次判断broker是否alive
+            BrokerHeartNode brokerHeart = zkDistributed.getBrokerHeartNode(broker);
+            if (brokerHeart.getAlive()) {
+                //broker可能在获取锁的窗口期间，先获得了锁，进行了数据恢复
+                return;
+            }
             //节点容灾恢复任务
             List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(broker, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
             if (CollectionUtils.isEmpty(jobCaches)) {
@@ -127,6 +150,7 @@ public class MasterNode {
                 }
             });
             for (JobClient jobClient : jobClients) {
+                //进行多节点任务分发（ fixme 如果存在吞吐量问题，改成批量，只分发taskId，再由各个节点从数据库恢复）
                 WorkNode.getInstance().addStartJob(jobClient);
             }
             List<String> shards = zkDistributed.getBrokerDataChildren(broker);

@@ -26,6 +26,7 @@ import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -357,25 +358,36 @@ public class WorkNode {
      * 重启后，各自节点load自己的数据
      */
     public void loadQueueFromDB(){
-        //todo 获取锁
-        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(zkDistributed.getLocalAddress(),EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
-        if(CollectionUtils.isEmpty(jobCaches)){
-            return;
-        }
-        List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
-        jobCaches.forEach(jobCache ->{
-            try{
-                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                JobClient jobClient = new JobClient(paramAction);
-                jobClients.add(jobClient);
-            }catch (Exception e){
-                //数据转换异常--打日志
-                LOG.error("", e);
-                dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+        List<InterProcessMutex> locks = null;
+        String localAddress = zkDistributed.getLocalAddress();
+        try {
+            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
+            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(localAddress,EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+            if(CollectionUtils.isEmpty(jobCaches)){
+                //两种情况：
+                //1. 可能本身没有jobcaches的数据
+                //2. master节点已经为此节点做了容灾
+                return;
             }
-        });
-        for (JobClient jobClient:jobClients){
-            WorkNode.getInstance().addSubmitJob(jobClient);
+            List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
+            jobCaches.forEach(jobCache ->{
+                try{
+                    ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                    JobClient jobClient = new JobClient(paramAction);
+                    jobClients.add(jobClient);
+                }catch (Exception e){
+                    //数据转换异常--打日志
+                    LOG.error("", e);
+                    dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                }
+            });
+            for (JobClient jobClient:jobClients){
+                WorkNode.getInstance().addSubmitJob(jobClient);
+            }
+        } catch (Exception e) {
+            LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+        } finally {
+            zkDistributed.releaseLock(locks);
         }
     }
 
