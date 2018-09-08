@@ -56,6 +56,7 @@ class Header extends Component {
                 src="/public/dataQuality/img/logo.svg"
             />
             <span style={{
+                paddingLeft: "10px",
                 fontSize: "14px",
                 color: "#ffffff",
                 position: "absolute",
