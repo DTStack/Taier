@@ -18,23 +18,20 @@
     }
 
     .ide-header {
-        height: 39px;
+        height: 36px;
         top: 0;
     }
 
     .ide-content {
         height: 100%;
-        padding-bottom: 40px;
-        top: 40px;
-        // overflow: hidden;
+        padding-bottom: 30px;
+        top: 36px;
     }
 
     .ide-toolbar {
         width: 100%;
-        height: 28px;
-        margin: 0;
-        margin-top: 5px;
-        padding: 0;
+        height: 35px;
+        padding: 4px 0;
     }
 
     .ide-console {
@@ -52,12 +49,17 @@
             &:after{
                 content:"";
                 position: absolute;
-                top:0px;
+                top:-1px;
                 left:0px;
                 right: 0px;
-                height: 1px;
+                height: 3px;
+                opacity: 0.8;
                 background: #2491F7;
             }
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            margin-right: -1px;
         }
 
         .ant-tabs-nav div:nth-child(2) {

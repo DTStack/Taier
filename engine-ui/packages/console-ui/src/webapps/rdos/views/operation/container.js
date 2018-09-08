@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 
 import Sidebar from './sidebar'
 import * as UserAction from '../../store/modules/user'
+import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 
 const { Sider, Content } = Layout;
 
@@ -23,7 +24,8 @@ class Container extends Component {
     };
 
     componentDidMount() {
-        this.props.dispatch(UserAction.getProjectUsers())
+        this.props.dispatch(UserAction.getProjectUsers());
+        this.props.dispatch(getTaskTypes());
     }
 
     onCollapse = (collapsed) => {

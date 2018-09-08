@@ -216,7 +216,7 @@ export default class ModelCheck extends Component {
                                 mode="multiple"
                                 size="default"
                                 value={params.triggerType}
-                                style={{ minWidth: 200, marginTop: 3 }}
+                                style={{ minWidth: 126, marginTop: 3 }}
                                 placeholder="选择检测结果"
                                 optionFilterProp="name"
                                 onChange={(value) => this.changeParams('triggerType', value)}
@@ -236,6 +236,7 @@ export default class ModelCheck extends Component {
                                 format="YYYY-MM-DD HH:mm:ss"
                                 placeholder={['开始时间', '结束时间']}
                                 onChange={this.onChangeTime}
+                                style={{width:200}}
                                 //ranges={{ Today: [moment(todayRange.today0), moment(todayRange.today24)]}}
                                 onOk={this.onOk}
                             />

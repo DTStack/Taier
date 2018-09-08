@@ -4,8 +4,7 @@ import {
     Button, Tooltip, Spin, Icon,
 } from 'antd'
 
-import utils from 'utils'
-import GoBack from 'main/components/go-back'
+
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -13,22 +12,20 @@ import MyIcon from '../../../components/icon'
 import { isEqTable } from './tableRelation'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
+    mxLoadStylesheets: false,
 })
 
 const {
     mxGraph,
-    mxShape,
-    mxConnectionConstraint,
-    mxPoint,
-    mxPolyline,
     mxEvent,
     mxRubberband,
     mxConstants,
     mxEdgeStyle,
     mxHierarchicalLayout,
-    mxLayoutManager,
     mxUtils,
 } = Mx
 
@@ -55,7 +52,6 @@ export default class TableRelation extends React.Component {
         this.graph = "";
         const editor = this.Container
         const tableData = this.props.tableData
-        this.initEditor()
         this.loadEditor(editor)
         this.listenOnClick();
         if (tableData) {
@@ -171,7 +167,6 @@ export default class TableRelation extends React.Component {
             }
         })
         graph.center();
-
     }
 
     doInsertVertex = (data) => {
@@ -180,7 +175,6 @@ export default class TableRelation extends React.Component {
         this.cy = 100;
 
         const model = graph.getModel();
-        const parent = graph.getDefaultParent();
 
         this.executeLayout = function(change, post) {
             model.beginUpdate();
@@ -204,7 +198,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout(() => {
             this.insertRootTree(data);
         })
-        graph.view.setTranslate(this.cx, this.cy);
+        graph.view.setTranslate(this.cx, 50);
     }
 
     loadEditor = (container) => {
@@ -264,7 +258,7 @@ export default class TableRelation extends React.Component {
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
                     const col = table.columns[i]
-                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '##595959'}">${col}</li>`
+                    lis += `<li key="${col}" title="${col}" data-col="${col}" class="tcolumn" style="color:${col === table.currentColumn ? '#2491F7' : '#595959'}">${col}</li>`
                 }
                 return `<ul class="t-vertext"><li key="tableTitle" class="tname bd-top" title="${tableTitle}">${tableTitle}</li><li key="tableName" class="tname" title="${table.tableName}">${table.tableName}</li>${lis}</ul>`;
             } else {
@@ -287,7 +281,6 @@ export default class TableRelation extends React.Component {
 
     listenOnClick() {
         const ctx = this;
-        const tableInfo = this.state.tableInfo;
 
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell')
@@ -331,7 +324,6 @@ export default class TableRelation extends React.Component {
     }
 
     render() {
-        const { tableInfo, relationTasks } = this.state
         return (
             <div className="graph-editor col-relation" style={{position: 'relative'}}>
                 <Spin
@@ -339,12 +331,14 @@ export default class TableRelation extends React.Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                    <div className="absolute-middle graph-bg">字段血缘信息</div>
-                    <div className="editor pointer" ref={(e) => { this.Container = e }} />
+                    <div className="absolute-middle txt-bg">字段血缘信息</div>
+                    <div 
+                        className="editor pointer" ref={(e) => { this.Container = e }}
+                    />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} />
+                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -383,38 +377,5 @@ export default class TableRelation extends React.Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
         return style;
-    }
-
-    /* eslint-disable */
-    initEditor() {
-        // Overridden to define per-shape connection points
-        mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-            if (terminal != null && terminal.shape != null) {
-                if (terminal.shape.stencil != null) {
-                    if (terminal.shape.stencil != null) {
-                        return terminal.shape.stencil.constraints;
-                    }
-                }
-                else if (terminal.shape.constraints != null) {
-                    return terminal.shape.constraints;
-                }
-            }
-            return null;
-        };
-        // Defines the default constraints for all shapes
-        mxShape.prototype.constraints = [new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-        new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-        new mxConnectionConstraint(new mxPoint(0.75, 1), true)];
-        // Edges have no connection points
-        mxPolyline.prototype.constraints = null;
     }
 }

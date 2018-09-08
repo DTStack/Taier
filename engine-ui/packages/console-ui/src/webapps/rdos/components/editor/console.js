@@ -8,8 +8,8 @@ import { defaultEditorOptions } from "widgets/code-editor/config";
 const TabPane = Tabs.TabPane;
 
 const exportStyle = {
-    position: "absolute",
-    bottom: "0px",
+    position: "relative",
+    top: "-45px",
     height: "30px"
 };
 

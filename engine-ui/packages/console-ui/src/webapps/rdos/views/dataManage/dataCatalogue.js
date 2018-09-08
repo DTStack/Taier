@@ -12,7 +12,7 @@ function appendTreeNode(treeNode, append, target) {
     for (let i = 0; i < treeNode.length; i += 1) {
         const node = treeNode[i]
         if (node.nodeId === targetId) {
-            node.children.push(append)
+            node.children.unshift(append)
             return 
         }
         if (node.children.length > 0) {

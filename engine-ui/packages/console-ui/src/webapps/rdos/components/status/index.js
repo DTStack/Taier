@@ -241,6 +241,8 @@ export function TaskType(props) {
             return <span>机器学习</span>
         case TASK_TYPE.HAHDOOPMR:
             return <span>HadoopMR</span>
+        case TASK_TYPE.WORKFLOW:
+            return <span>工作流</span>            
         case TASK_TYPE.SQL:
         default:
             return <span>SparkSQL</span>

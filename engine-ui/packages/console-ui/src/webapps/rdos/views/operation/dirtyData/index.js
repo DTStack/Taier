@@ -236,7 +236,7 @@ class DirtyData extends Component {
     getSeries = data => {
         const arr = [];
         if (data && data.y) {
-            const legend = data && data.type ? data.type.data : [];
+            const legend = data && data.type ? data.type.data : ['无'];
             for (let i = 0; i < legend.length; i++) {
                 arr.push({
                     name: legend[i],
@@ -245,6 +245,12 @@ class DirtyData extends Component {
                     data: data.y[i].data
                 });
             }
+        }else{
+            arr.push({
+                name: '无',
+                type: "line",
+                data: [0]
+            }); 
         }
         return arr;
     };
@@ -272,9 +278,8 @@ class DirtyData extends Component {
         };
 
         option.yAxis[0].minInterval = 1;
-        option.legend.data =
-            chartData && chartData.type ? chartData.type.data : [];
-        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [];
+        option.legend.data = chartData && chartData.type ? chartData.type.data : ['无'];
+        option.xAxis[0].data = chartData && chartData.x ? chartData.x.data : [(new Date()).getTime()];
         option.series = this.getSeries(chartData);
         // 绘制图表
         console.log(option);
@@ -323,10 +328,12 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="taskName"
+                    className="full-screen-table-50"
                     pagination={false}
                     loading={loadingTop}
                     columns={columns}
                     dataSource={top30 || []}
+                    scroll={{ y: 251 }}
                 />
             </Card>
         );
@@ -448,7 +455,7 @@ class DirtyData extends Component {
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: 150 }}
+                        style={{ width: 126 }}
                         placeholder="选择任务"
                         optionFilterProp="name"
                         onChange={this.onTableSelectTask}
@@ -459,7 +466,7 @@ class DirtyData extends Component {
                 <FormItem>
                     <Search
                         placeholder="按表名称搜索"
-                        style={{ width: 150 }}
+                        style={{ width: 200 }}
                         size="default"
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
@@ -491,7 +498,7 @@ class DirtyData extends Component {
                     rowKey="tableName"
                     className="m-table"
                     pagination={pagination}
-                    style={{ minHeight: "0" }}
+                    style={{ minHeight: "0",height: "calc(100% - 482px)" }}
                     loading={loading}
                     columns={columns}
                     onChange={this.onTableChange}
@@ -534,7 +541,7 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{ margin: "0 20px" }}>
+                <Row style={{ margin: "0 20px" ,height:350}}>
                     <Col span={12} style={{ paddingRight: "10px" }}>
                         <Card
                             className="shadow"
@@ -576,11 +583,11 @@ class DirtyData extends Component {
                     <SlidePane
                         onClose={this.closeSlidePane}
                         visible={tableLog.visible}
+                        className="full-screen-table-60"
                         style={{
                             right: "-20px",
                             width: "80%",
-                            height: "100%",
-                            minHeight: "600px"
+                            marginTop:'43px',
                         }}
                     >
                         <div className="m-loglist">

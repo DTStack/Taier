@@ -115,17 +115,14 @@ export default class FieldCheck extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
         }, {
-            width: 80,
             title: '字段描述',
             dataIndex: 'columnDesc',
             key: 'columnDesc',
         }, {
-            width: 80,
             title: '字段类型',
             dataIndex: 'columnType',
             key: 'columnType',
         }, {
-            width: 80,
             title: '所属表',
             dataIndex: 'tableName',
             key: 'tableName',
@@ -139,7 +136,6 @@ export default class FieldCheck extends Component {
             dataIndex: 'checkResult',
             key: 'checkResult',
         }, {
-            width: 80,
             title: '操作',
             key: 'operation',
             render: (record) => {
@@ -205,7 +201,7 @@ export default class FieldCheck extends Component {
                             mode="multiple"
                             size="default"
                             value={params.triggerType}
-                            style={{ minWidth: 200, marginTop: 3 }}
+                            style={{ minWidth: 126, marginTop: 3 }}
                             placeholder="选择检测结果"
                             optionFilterProp="name"
                             onChange={(value) => this.changeParams('triggerType', value)}
@@ -224,6 +220,7 @@ export default class FieldCheck extends Component {
                             format="YYYY-MM-DD HH:mm:ss"
                             placeholder={['开始时间', '结束时间']}
                             onChange={this.onChangeTime}
+                            style={{width:200}}
                             onOk={this.onOk}
                         />
                     </FormItem>

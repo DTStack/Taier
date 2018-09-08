@@ -6,7 +6,6 @@ import http from './http'
 import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
-import realtime from '../views/task/realtime';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -473,6 +472,9 @@ export default {
     },
     getOfflineTableColumn(params) {
         return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
+    },
+    getOfflineColumnForSyncopate(params) {
+        return http.post(offlineReq.GET_OFFLINE_COLUMNFORSYNCOPATE, params)
     },
     getOfflineJobData(params) {
         return http.post(offlineReq.GET_OFFLINE_JOBDATA, params)

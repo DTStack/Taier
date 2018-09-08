@@ -306,6 +306,7 @@ class ProjectMember extends Component {
                         loading={false}
                         title={title} 
                         extra={extra}
+                        className='full-screen-table-70'
                     >
                         <Table
                             rowKey="userId"

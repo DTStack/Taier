@@ -91,14 +91,23 @@ class SourceForm extends React.Component {
         });
     }
 
-    getTableColumn(tableName) {
+    getTableColumn(tableName, type) {
+        const { form, handleTableColumnChange, handleTableCopateChange } = this.props;
+
         if (tableName instanceof Array) {
             tableName = tableName[0];
         }
         if (!tableName) {
+            console.log('tableName',tableName);
+            handleTableCopateChange([]);
+            //form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
+            form.setFields({
+                splitPK: {
+                  value: '',
+                }
+            })
             return;
         }
-        const { form, handleTableColumnChange } = this.props;
         const { sourceMap } = this.props
 
         if (sourceMap.type &&
@@ -108,6 +117,18 @@ class SourceForm extends React.Component {
         }
 
         const sourceId = form.getFieldValue('sourceId');
+        if(type){
+            ajax.getOfflineColumnForSyncopate({
+                sourceId,
+                tableName
+            }).then(res => {
+                if (res.code === 1) {
+                    handleTableCopateChange(res.data);
+                } else {
+                    handleTableCopateChange([]);
+                }
+            })
+        }
         ajax.getOfflineTableColumn({
             sourceId,
             tableName
@@ -161,6 +182,7 @@ class SourceForm extends React.Component {
                 form.resetFields([key])
             } else {
                 form.resetFields(['table'])
+                form.resetFields(["splitPK"])
             }
             this.setState({
                 selectHack: false
@@ -169,10 +191,10 @@ class SourceForm extends React.Component {
 
     }
 
-    changeTable(value) {
-        console.log(value);
+    changeTable(type, value) {
+        console.log(value, type);
         if (value) {
-            this.getTableColumn(value);
+            this.getTableColumn(value, type);
         }
         this.submitForm();
         this.setState({
@@ -398,14 +420,14 @@ class SourceForm extends React.Component {
     debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
     debounceExtTableSearch = debounce(this.changeExtTable, 300, { 'maxWait': 2000 })
 
-    renderExtDataSource() {
+    renderExtDataSource = () => {
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
 
         if (!sourceList) {
-            return null;
+            return [];
         }
 
         return sourceList.filter(
@@ -493,7 +515,8 @@ class SourceForm extends React.Component {
             }
         )
     }
-    renderDynamicForm() {
+
+    renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
         const { sourceMap, isCurrentTabNew } = this.props;
@@ -508,7 +531,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
-                    !selectHack && <FormItem
+                    !selectHack ? <FormItem
                         {...formItemLayout}
                         label="表名"
                         key="table"
@@ -524,7 +547,7 @@ class SourceForm extends React.Component {
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
-                                onChange={this.debounceTableSearch.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this, sourceMap.type.type)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -538,7 +561,7 @@ class SourceForm extends React.Component {
                         {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
                             <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>}
-                    </FormItem>,
+                    </FormItem> : null,
                     ...this.renderExtDataSource(),
                     supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
                         <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
@@ -572,19 +595,25 @@ class SourceForm extends React.Component {
                             rules: [],
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.splitPK
                         })(
-                            <Input
-                                type="text"
-                                placeholder="根据配置的字段进行数据分片，实现并发读取"
+                            <Select
+                                showSearch
+                                showArrow={true}
                                 onChange={this.submitForm.bind(this)}
-                            ></Input>
+                            >
+                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.key).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
+                                    return <Option key={`copate-${index}`} value={copateValue}>
+                                        {copateValue}
+                                    </Option>
+                                })}
+                            </Select>
                         )}
-                        <HelpDoc doc="switchKey" />
+                        <HelpDoc doc="selectKey" />
                     </FormItem>
                 ];
                 break;
             }
             case DATA_SOURCE.MAXCOMPUTE:
-            case DATA_SOURCE.HIVE: {// Relational DB
+            case DATA_SOURCE.HIVE: {// Hive
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -600,8 +629,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this)}
-                                // disabled={!isCurrentTabNew}
+                                onChange={this.debounceTableSearch.bind(this, null)}
                                 optionFilterProp="value"
                             >
                                 {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
@@ -623,7 +651,7 @@ class SourceForm extends React.Component {
                         })(
                             <Input
                                 placeholder="请填写分区"
-                                placeholder="pt=${bdp.system.bizdate};"
+                                placeholder="pt=${bdp.system.bizdate}"
                                 onChange={this.submitForm.bind(this)}
                             ></Input>,
                         )}
@@ -726,7 +754,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this, null)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -997,6 +1025,13 @@ const mapDispatch = dispatch => {
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+
+        handleTableCopateChange: copateData => {
+            dispatch({
+                type: sourceMapAction.SOURCE_TABLE_COPATE_CHANGE,
+                payload: copateData
             });
         },
 

@@ -18,7 +18,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.allProjects,
+        projects: state.projects,
         dataCatalogues: state.dataManage.dataCatalogues,
     }
 })
@@ -39,6 +39,7 @@ class SearchTable extends Component {
                 catalogueId,
                 permissionStatus,
                 tableName,
+                pageSize: 20,
             },
         }
     }
@@ -264,7 +265,7 @@ class SearchTable extends Component {
                 <FormItem label="授权状态">
                     <Select
                         allowClear
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择指标类型"
                         value={queryParams.permissionStatus}
                         onChange={(value) => this.changeParams('permissionStatus', value)}
@@ -280,7 +281,7 @@ class SearchTable extends Component {
                         allowClear
                         showSearch
                         optionFilterProp="name"
-                        style={{ width: 120 }}
+                        style={{ width: 126 }}
                         placeholder="选择项目"
                         value={queryParams.pId}
                         onChange={(value) => this.changeParams('pId', value)}
@@ -303,7 +304,7 @@ class SearchTable extends Component {
 
         const pagination = {
             total: Number(table.totalCount),
-            defaultPageSize: 10,
+            defaultPageSize: 20,
             current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
@@ -313,7 +314,7 @@ class SearchTable extends Component {
                                 <div style={{ marginTop: '1px' }}>
                                     <Table
                                         rowKey="id"
-                                        className="m-table"
+                                        className="m-table full-screen-table-90"
                                         columns={this.initialColumns()}
                                         dataSource={table.data}
                                         pagination={pagination}

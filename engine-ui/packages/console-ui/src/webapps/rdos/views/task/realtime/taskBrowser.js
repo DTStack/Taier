@@ -6,7 +6,7 @@ import utils from 'utils'
 import { debounce, cloneDeep } from 'lodash';
  
 import Api from '../../../api'
-import { propEditorOptions, LOCK_TYPE } from '../../../comm/const'
+import { LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge';
 import Editor from 'widgets/editor'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
@@ -17,8 +17,6 @@ import TaskDetail from './taskDetail'
 import InputPanel from './inputPanel'
 import OutputPanel from './outputPanel'
 import DimensionPanel from './dimensionPanel'
-import { browserAction } from '../../../store/modules/realtimeTask/actionTypes';
-
 
 const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
@@ -83,7 +81,7 @@ class TaskBrowser extends Component {
             return panes.map((pane) => {
                 const title = (<span>
                     <SyncBadge notSynced={pane.notSynced} />
-                    {pane.name}
+                    <span className="tab-ellipsis">{pane.name}</span>
                 </span>)
                 return (
                     <TabPane
@@ -164,11 +162,10 @@ class TaskBrowser extends Component {
 
     renderLock(tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
-        let top = '10px';
         return isLocked ? (
             <div className="lock-layer">
                 <Alert
-                    style={{ position: 'absolute', top: top, left: '35%', zIndex: '999' }}
+                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: '999', height: '35px' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -285,7 +282,6 @@ class TaskBrowser extends Component {
     render() {
         const {
             currentPage, pages, router,
-            editorFocus, editorFocusOut,
         } = this.props
         if (pages.length === 0) router.push('/realtime')
         const panels = this.mapPanels(pages)
@@ -326,17 +322,17 @@ class TaskBrowser extends Component {
                                 <TaskDetail {...this.props} />
                             </TabPane>
                             {
-                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">源表</span>} key="params3">
+                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>源表</span>} key="params3">
                                         <InputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                     </TabPane> : ""
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span  style={{marginTop: 10}} className="title-vertical tabpanel-content">结果表</span>} key="params4">
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 5,paddingBottom:3}}>结果表</span>} key="params4">
                                     <OutputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content">维表</span>} key="params5">
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>维表</span>} key="params5">
                                     <DimensionPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
                                 </TabPane>:""
                             } 

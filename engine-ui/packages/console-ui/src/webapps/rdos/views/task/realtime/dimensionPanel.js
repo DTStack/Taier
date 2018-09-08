@@ -5,11 +5,10 @@ import {
     Form,InputNumber
 } from 'antd'
 
-import utils from 'utils'
 import Api from '../../../api'
 import { mysqlFieldTypes } from '../../../comm/const';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import TaskVersion from '../offline/taskVersion';
+import Editor from '../../../components/code-editor'
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -73,8 +72,15 @@ class OutputOrigin extends Component {
         }
     }
 
+    editorParamsChange(a,b,c){
+        const { handleInputChange, index, } = this.props;
+        this._syncEditor=false;
+        handleInputChange("columnsText",index,b);
+        //this.props.editorParamsChange(...arguments);
+    }
+
     render(){
-        const { handleInputChange,index, originOptionType,tableOptionType,panelColumn,tableColumnOptionType } = this.props;
+        const { handleInputChange,index, sync, originOptionType,tableOptionType,panelColumn,tableColumnOptionType } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
@@ -105,8 +111,8 @@ class OutputOrigin extends Component {
                             showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                                 <Option value="1">MySQL</Option>
-                                {/* <Option value="8">HBase</Option>
-                                <Option value="11">ElasticSearch</Option> */}
+                                <Option value="8">HBase</Option>
+                                {/* <Option value="11">ElasticSearch</Option> */}
                         </Select>
                     )}
                 </FormItem>
@@ -157,65 +163,93 @@ class OutputOrigin extends Component {
                 </FormItem>
                 <Row>
                     <Col span="6">
-                        <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
-                    </span>
+                        <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : </span>
                     </Col>
-                    <Col span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
-                        <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                            <Column
-                                title="字段"
-                                dataIndex="column"
-                                key="字段"
-                                width='50%'
-                                render={(text,record,subIndex)=>{ 
-                                    return  <Select className="sub-right-select" value={text} onChange={(v)=>{handleInputChange("subColumn",index,subIndex,v)}}
-                                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                            >
-                                                {
-                                                    tableColumnOptionTypes
-                                                }
-                                            </Select>
-                                }}
-                            />
-                            <Column
-                                title="类型"
-                                dataIndex="type"
-                                key="类型"
-                                width='40%'
-                                render={(text,record,subIndex)=>{ 
-                                    return <Input value={text} disabled/>
-                                }}
-                            />
-                            <Column
-                                key="delete"
-                                render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                            />
-                        </Table>
-                        <div style={{padding: "0 20 20"}}>
-                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
-                                <Icon type="plus" /><span> 添加输入</span>
-                            </Button>
-                        </div>
-                    </Col>
+                    { 
+                        panelColumn[index].type == "1" 
+                        ?   <Col span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
+                                <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
+                                    <Column
+                                        title="字段"
+                                        dataIndex="column"
+                                        key="字段"
+                                        width='50%'
+                                        render={(text,record,subIndex)=>{ 
+                                            return  <Select className="sub-right-select" value={text} onChange={(v)=>{handleInputChange("subColumn",index,subIndex,v)}}
+                                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                                    >
+                                                        {
+                                                            tableColumnOptionTypes
+                                                        }
+                                                    </Select>
+                                        }}
+                                    />
+                                    <Column
+                                        title="类型"
+                                        dataIndex="type"
+                                        key="类型"
+                                        width='40%'
+                                        render={(text,record,subIndex)=>{ 
+                                            return <Input value={text} disabled/>
+                                        }}
+                                    />
+                                    <Column
+                                        key="delete"
+                                        render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
+                                    />
+                                </Table>
+                                <div style={{padding: "0 20 20"}}>
+                                    <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
+                                        <Icon type="plus" /><span> 添加输入</span>
+                                    </Button>
+                                </div>
+                            </Col>
+                        :   <Col span="18" style={{marginBottom: 20,height: 200}}>
+                                <Editor 
+                                    style={{minHeight: 202,border: "1px solid #ddd"}}
+                                    key="params-editor"
+                                    sync={sync}
+                                    placeholder="字段 类型, 比如 id int 一行一个字段"
+                                    // options={jsonEditorOptions}
+                                    value={panelColumn[index].columnsText}
+                                    onChange={this.editorParamsChange.bind(this)}
+                                />
+                            </Col>
+                    }
                 </Row>
-                <FormItem
-                    {...formItemLayout}
-                    label="主键"
-                >
-                    {getFieldDecorator('primaryKey',{
-                        rules: [
-                            {required: true, message: '请选择主键',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("primaryKey",index,v)}} mode="multiple"
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                {
+                    panelColumn[index].type == "1" 
+                    ?   <FormItem
+                            {...formItemLayout}
+                            label="主键"
                         >
-                            {
-                                primaryKeyOptionTypes
-                            }
-                        </Select>
-                    )}
-                </FormItem>
+                            {getFieldDecorator('primaryKey',{
+                                rules: [
+                                    {required: true, message: '请选择主键',}
+                                ],
+                            })(
+                                <Select className="right-select" onChange={(v)=>{handleInputChange("primaryKey",index,v)}} mode="multiple"
+                                    showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                >
+                                    {
+                                        primaryKeyOptionTypes
+                                    }
+                                </Select>
+                            )}
+                        </FormItem> 
+                    :   <FormItem
+                            {...formItemLayout}
+                            label="主键"
+                        >
+                            {getFieldDecorator('hbasePrimaryKey',{
+                                rules: [
+                                    {required: true, message: '请输入主键',}
+                                ],
+                            })(
+                                <Input  placeholder="请输入主键" onChange={e => handleInputChange('hbasePrimaryKey',index,e.target.value)}/>
+                            )}
+                        </FormItem> 
+                }
                 <FormItem
                     {...formItemLayout}
                     label="并行度"
@@ -352,7 +386,7 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, parallelism, cache, cacheSize, cacheTTLMs, tableName, primaryKey } = props.panelColumn[props.index];
+            const { type, sourceId, table, columns, parallelism, columnsText , cache, cacheSize,hbasePrimaryKey, cacheTTLMs, tableName, primaryKey } = props.panelColumn[props.index];
             return {
                 type: { value: type },
                 sourceId: { value: sourceId },
@@ -360,10 +394,12 @@ const OutputForm = Form.create({
                 tableName: { value: tableName },
                 columns: { value: columns },
                 parallelism: { value: parallelism },
+                columnsText: { value: columnsText},
                 cache: { value: cache },
                 cacheSize: { value: cacheSize },
                 cacheTTLMs: { value: cacheTTLMs },
                 primaryKey: { value: primaryKey },
+                hbasePrimaryKey: { value: hbasePrimaryKey },
             }
         } 
 })(OutputOrigin);
@@ -411,7 +447,9 @@ export default class OutputPanel extends Component {
             panelColumn.push(v);
             this.getTypeOriginData(index,v.type);
             this.getTableType(index,v.sourceId);
-            this.getTableColumns(index,v.sourceId,v.table)
+            if(v.type=="1"){
+                this.getTableColumns(index,v.sourceId,v.table)
+            }
         })
         this.setOutputData({ tabTemplate, panelColumn })
         this.setState({
@@ -452,7 +490,9 @@ export default class OutputPanel extends Component {
             side.map((v,index)=>{
                 this.getTypeOriginData(index,v.type)
                 this.getTableType(index,v.sourceId)
-                this.getTableColumns(index,v.sourceId,v.table)
+                if(v.type=="1"){
+                    this.getTableColumns(index,v.sourceId,v.table)
+                }
             })
         })
     }
@@ -544,8 +584,10 @@ export default class OutputPanel extends Component {
             columns: [],
             sourceId: undefined,
             table: undefined,
+            columnsText: undefined,
             tableName: undefined,
             primaryKey: undefined,
+            hbasePrimaryKey: undefined,
             parallelism: 1,
             cache: "LRU",
             cacheSize: 10000,
@@ -613,6 +655,8 @@ export default class OutputPanel extends Component {
 
     tableColumnType = (index,column) => {
         const { tableColumnOptionType } = this.state;
+        console.log('tableColumnOptionType',tableColumnOptionType);
+        
         const filterColumn = tableColumnOptionType[index].filter(v=>{
             return v.key === column
         })
@@ -620,6 +664,7 @@ export default class OutputPanel extends Component {
     }
 
     filterPrimaryKey = (columns,primaryKeys) => {//删除导致原始的primaryKey不存在
+        console.log('primaryKeys',primaryKeys);
         return primaryKeys.filter(v=>{
             let flag = false;
             columns.map(value=>{
@@ -632,6 +677,7 @@ export default class OutputPanel extends Component {
     }
 
     handleInputChange = (type,index,value,subValue) => {//监听数据改变
+        
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if(type === 'columns'){
             panelColumn[index][type].push(value);
@@ -646,7 +692,11 @@ export default class OutputPanel extends Component {
         }else{
             panelColumn[index][type] = value;
         }
-        const allParamsType = ["type", "sourceId", "table", "columns", "parallelism", "cache", "cacheSize", "cacheTTLMs", "tableName", "primaryKey"]
+        if(type === "columnsText"){
+            this._syncEditor=false;
+            //this.parseColumnsText(index,value)
+        }
+        const allParamsType = ["type", "sourceId", "table", "columns","columnsText", "parallelism", "cache", "cacheSize","hbasePrimaryKey", "cacheTTLMs", "tableName", "primaryKey"]
         if(type==="type"){
             originOptionType[index] = [];
             tableOptionType[index] = [];
@@ -714,7 +764,9 @@ export default class OutputPanel extends Component {
                 }
             })
             const { sourceId } = panelColumn[index];
-            this.getTableColumns(index,sourceId,value)
+            if(panelColumn[index].type=="1"){
+                this.getTableColumns(index,sourceId,value)
+            }
         }
         this.props.tableParamsChange()//添加数据改变标记
         this.setOutputData({panelColumn})
@@ -809,12 +861,14 @@ export default class OutputPanel extends Component {
                             return  (
                                 <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
                                     <OutputForm 
-                                        index={index} 
+                                        index={index}
+                                        sync={this._syncEditor}
                                         handleInputChange={this.handleInputChange}
                                         panelColumn={panelColumn} originOptionType={originOptionType} 
                                         tableOptionType = {tableOptionType}
                                         tableColumnOptionType = {tableColumnOptionType}
                                         onRef={this.recordForm}
+                                        editorParamsChange={this.props.editorParamsChange}
                                     />
                                 </Panel>
                             )

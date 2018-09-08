@@ -8,13 +8,11 @@ import { Row,
     Checkbox,
     Form,
     DatePicker,
-    TimePicker,
     Select,
     Collapse,
     Table,
     Radio,
     Input,
-    Spin,
     message,
     Button
  } from 'antd';
@@ -44,6 +42,7 @@ const formItemLayout = { // 表单正常布局
 
 
 class ScheduleForm extends React.Component {
+
     constructor(props) {
         super(props);
         this.changeScheduleStatus = this.props.handleScheduleStatus;
@@ -53,24 +52,37 @@ class ScheduleForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf } = this.props;
+        const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
         const { periodType } = scheduleConf;
-
-
+        
+        // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
+        const disabledInvokeTime = wFScheduleConf && (
+            wFScheduleConf.periodType === "0" ||
+            wFScheduleConf.periodType === "1" );
 
         const generateHours = () => {
             let options = [];
             for(let i = 0; i <= 23; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`:i}</Option>)
             }
-            return <Select onChange={ this.changeScheduleConf.bind(this) }>{ options }</Select>;
+            return <Select 
+                    disabled={disabledInvokeTime}
+                    onChange={ this.changeScheduleConf.bind(this) }
+                >
+                    { options }
+                </Select>;
         };
         const generateMins = () => {
             let options = [];
             for(let i = 0, l = 59; i <= l; i++) {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>)
             }
-            return <Select onChange={ this.changeScheduleConf.bind(this) }>{ options }</Select>;
+            return <Select 
+                    disabled={disabledInvokeTime}
+                    onChange={ this.changeScheduleConf.bind(this) }
+                >
+                    { options }
+                </Select>;
         };
         const generateDate = () => {
             let options = [];
@@ -98,7 +110,6 @@ class ScheduleForm extends React.Component {
                 <Option key={7} value="7">星期天</Option>
             </Select>
         }
-
         return <Form key={ periodType } className="schedule-form" >
             <FormItem
                 {...formItemLayout}
@@ -113,47 +124,55 @@ class ScheduleForm extends React.Component {
                 >冻结</Checkbox>
             )}
             </FormItem>
-            <FormItem 
-                {...formItemLayout}
-                label="生效日期"
-            >
-            {getFieldDecorator('beginDate', {
-                initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
-            })(
-                <DatePicker
-                    onChange={ this.changeScheduleConf.bind(this) }
-                />
-            )}
-            <span className="split-text" style={{float:"none"}} >-</span>
-            {getFieldDecorator('endDate', {
-                initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
-            })(
-                <DatePicker
-                    onChange={ this.changeScheduleConf.bind(this) }
-                />
-            )}
-            </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="调度周期"
-            >
-                <Col span="6">
-                    {getFieldDecorator('periodType', {
-                        initialValue: `${scheduleConf.periodType}`,
-                        rules: [{
-                            required: true,
-                        }]
+            {
+                !isWorkflowNode && <div>
+
+                    <FormItem 
+                        {...formItemLayout}
+                        label="生效日期"
+                    >
+                    {getFieldDecorator('beginDate', {
+                        initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
-                        <Select onChange={ this.changeScheduleType.bind(this) }>
-                            <Option key={0} value="0">分钟</Option>
-                            <Option key={1} value="1">小时</Option>
-                            <Option key={2} value="2">天</Option>
-                            <Option key={3} value="3">周</Option>
-                            <Option key={4} value="4">月</Option>
-                        </Select>
+                        <DatePicker
+                            format="YYYY-MM-DD"
+                            onChange={ this.changeScheduleConf.bind(this) }
+                        />
                     )}
-                </Col>
-            </FormItem>
+                    <span className="split-text" style={{float:"none"}} >-</span>
+                    {getFieldDecorator('endDate', {
+                        initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
+                    })(
+                        <DatePicker
+                            format="YYYY-MM-DD"
+                            onChange={ this.changeScheduleConf.bind(this) }
+                        />
+                    )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="调度周期"
+                    >
+                        <Col span="6">
+                            {getFieldDecorator('periodType', {
+                                initialValue: `${scheduleConf.periodType}`,
+                                rules: [{
+                                    required: true,
+                                }]
+                            })(
+                                <Select onChange={ this.changeScheduleType.bind(this) }>
+                                    <Option key={0} value="0">分钟</Option>
+                                    <Option key={1} value="1">小时</Option>
+                                    <Option key={2} value="2">天</Option>
+                                    <Option key={3} value="3">周</Option>
+                                    <Option key={4} value="4">月</Option>
+                                </Select>
+                            )}
+                        </Col>
+                    </FormItem>
+                </div>
+            }
+
             <FormItem style={{display: 'none'}}>
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
@@ -164,7 +183,7 @@ class ScheduleForm extends React.Component {
             {(function(type, ctx) {
                 let dom;
                 switch(type) {
-                    case 0: //分钟
+                    case 0:  { // 分钟
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -259,9 +278,10 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 1: //小时
+                    case 1: { //小时
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -356,44 +376,47 @@ class ScheduleForm extends React.Component {
                             <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 2: // 天
-                        dom = <span  key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="具体时间"
-                            >
-                            <Col span="6">
-                            {getFieldDecorator('hour', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: `${scheduleConf.hour}`
-                            })(
-                                generateHours()
-                            )}
-                            </Col>
+                    case 2: { // 天
+                        const prefix = isWorkflowNode ? '起调' : '具体';
+                        dom = <span key={type}>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label={`${prefix}时间`}
+                                >
+                                <Col span="6">
+                                {getFieldDecorator('hour', {
+                                    rules: [{
+                                        required: true
+                                    }],
+                                    initialValue: `${scheduleConf.hour}`
+                                })(
+                                    generateHours()
+                                )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                            {getFieldDecorator('min', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: `${scheduleConf.min}`
+                                {getFieldDecorator('min', {
+                                    rules: [{
+                                        required: true
+                                    }],
+                                    initialValue: `${scheduleConf.min}`
 
-                            })(
-                                    generateMins()
-                            )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
+                                })(
+                                        generateMins()
+                                )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
                     break;
 
-                    case 3: // 周
+                    case 3: { // 周
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -441,9 +464,10 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
-                    case 4: // 月
+                    case 4: { // 月
                         dom = <span key={type}>
                             <FormItem
                                 {...formItemLayout}
@@ -493,6 +517,7 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
+                    }
                     break;
 
                     default: dom = <span>something wrong</span>;
@@ -548,38 +573,67 @@ class ScheduleForm extends React.Component {
 const FormWrap = Form.create()(ScheduleForm);
 
 class SchedulingConfig extends React.Component {
+
     constructor(props) {
         super(props);
-        this.state={
-            recommentTaskModalVisible:false,
-            recommentTaskList:[]
-        }
-        const { tabData } = this.props;
-        let initConf = tabData.scheduleConf;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
-                beginDate: '2001-01-01',
-                endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
 
-        // this._selfReliance = typeof scheduleConf.selfReliance === 'undefined' ?
-        //     false : scheduleConf.selfReliance;
-        // scheduleConf.selfReliance兼容老代码true or false 值
-        if (scheduleConf.selfReliance !== 'undefined') {
-            if (scheduleConf.selfReliance === false) {
-                this._selfReliance = 0;
-            } else if (scheduleConf.selfReliance === true) {
-                this._selfReliance = 1;
-            } else {
-                this._selfReliance = scheduleConf.selfReliance;
-            }
-        } else {
-            this._selfReliance = 0;
+        this.state = {
+            recommentTaskModalVisible: false,
+            recommentTaskList: [],
+            wFScheduleConf: undefined,
+            selfReliance: undefined,
         }
     }
-    showRecommentTask(){
-        const {tabData} = this.props;
+    
+    componentDidMount() {
+        this.loadWorkflowConfig();
+        const { tabData } = this.props;
+        let scheduleConf = JSON.parse(tabData.scheduleConf);
+        let selfReliance = 0;
+        // 此处为兼容代码
+        // scheduleConf.selfReliance兼容老代码true or false 值
+        if (scheduleConf.selfReliance !== 'undefined') {
+            if (scheduleConf.selfReliance === true) {
+                selfReliance = 1;
+            } else if (scheduleConf.selfReliance === false) {
+                selfReliance = 0;
+            } else if (scheduleConf.selfReliance) {
+                selfReliance = scheduleConf.selfReliance;
+            }
+        }  
+        this.setState({
+            selfReliance: selfReliance,
+        })
+    }
+
+    loadWorkflowConfig = () => {
+
+        const { tabData, isWorkflowNode, tabs } = this.props;
+        if (!isWorkflowNode) return;
+        const workflowId = tabData.flowId;
+        const workflow = tabs && tabs.find(item => item.id === workflowId);
+
+        const setWfConf = (task) => {
+            const wFScheduleConf = JSON.parse(task.scheduleConf);
+            this.setState({
+                wFScheduleConf,
+            })
+        }
+        if (workflow) {
+            setWfConf(workflow);
+        } else {
+            ajax.getOfflineTaskDetail({
+                id: workflowId
+            }).then(res => {
+                if (res.code === 1) {
+                    setWfConf(res.data);
+                }
+            });
+        }
+    }
+
+    showRecommentTask() {
+        const { tabData } = this.props;
         this.setState({
             loading:true
         })
@@ -600,6 +654,7 @@ class SchedulingConfig extends React.Component {
             }
         )
     }
+
     recommentTaskChoose(list){
         console.log(list);
         for(let i =0;i<list.length;i++){
@@ -609,12 +664,13 @@ class SchedulingConfig extends React.Component {
             recommentTaskModalVisible:false,
         })
     }
+
     recommentTaskClose(){
         this.setState({
             recommentTaskModalVisible:false,
         })
     }
-    
+
     handleScheduleStatus(evt) {
         const { checked } = evt.target;
         // mutate
@@ -640,16 +696,20 @@ class SchedulingConfig extends React.Component {
                 message.err(errInfo)
             }
         })
-       
     }
 
-    handleScheduleConf() {
+    handleScheduleConf = () => {
+        const { tabData } = this.props;
+        let defaultScheduleConf = JSON.parse(tabData.scheduleConf);
+        if (!defaultScheduleConf.periodType) {
+            defaultScheduleConf = this.getDefaultScheduleConf(2);
+        }
         setTimeout(() => {
             this.form.validateFields((err, values) => {
                 if(!err) {
-                    const formData = this.form.getFieldsValue();
-
-                    formData.selfReliance = this._selfReliance;
+                    let formData = this.form.getFieldsValue();
+                    formData.selfReliance = this.state.selfReliance;
+                    formData = Object.assign(defaultScheduleConf, formData);
                     delete formData.scheduleStatus;
                     this.props.changeScheduleConf(formData);
                 }
@@ -661,11 +721,11 @@ class SchedulingConfig extends React.Component {
         const dft = this.getDefaultScheduleConf(type);
         const values = assign({}, dft, {
             scheduleStatus: this.form.getFieldValue('scheduleStatus'),
+            periodType: type,
             beginDate: this.form.getFieldValue('beginDate'),
             endDate: this.form.getFieldValue('endDate'),
-            periodType: type,
             selfReliance: this.form.getFieldValue('selfReliance')
-        })
+        });
         this.props.changeScheduleConf(values);
     }
 
@@ -675,7 +735,9 @@ class SchedulingConfig extends React.Component {
                 beginHour: 0,
                 gapMin: 5,
                 endHour: 23,
-                periodType: 0
+                periodType: 0,
+                beginDate: '2001-01-01',
+                endDate: '2021-01-01'
             },
             1: {
                 beginHour: 0,
@@ -687,7 +749,9 @@ class SchedulingConfig extends React.Component {
             2: {
                 min: 0,
                 hour: 0,
-                periodType: 2
+                periodType: 2,
+                beginDate: '2001-01-01',
+                endDate: '2021-01-01'
             },
             3: {
                 weekDay: 3,
@@ -720,22 +784,40 @@ class SchedulingConfig extends React.Component {
 
     setSelfReliance(evt) {
         const value = evt.target.value;
-        this._selfReliance = value;
+        this.setState({
+            selfReliance: value,
+        })
         this.handleScheduleConf();
     }
 
     render() {
-        const {recommentTaskModalVisible,recommentTaskList,loading} = this.state;
-        const { tabData } = this.props;
+        const { 
+            recommentTaskModalVisible, recommentTaskList, 
+            loading, wFScheduleConf, selfReliance
+        } = this.state;
+        
+        const { tabData, isWorkflowNode } = this.props;
+        console.log('tabData', tabData, isWorkflowNode);
+        
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
+        const isSql = tabData.taskType == TASK_TYPE.SQL;
+
         let initConf = tabData.scheduleConf;
-        const isSql=tabData.taskType==TASK_TYPE.SQL;
-        const scheduleConf = initConf === '' ?
-            Object.assign(this.getDefaultScheduleConf(0), {
+
+        let scheduleConf = Object.assign(this.getDefaultScheduleConf(0), {
+            beginDate: '2001-01-01',
+            endDate: '2021-01-01'
+        });
+
+        // 工作流更改默认调度时间配置
+        if (isWorkflowNode) {
+            scheduleConf = Object.assign(this.getDefaultScheduleConf(2), {
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
-            }) :
-            JSON.parse(initConf);
+            }, initConf && JSON.parse(initConf))
+        } else if (initConf !== '') {
+            scheduleConf = JSON.parse(initConf);
+        }
 
         const columns = [
             {
@@ -770,23 +852,27 @@ class SchedulingConfig extends React.Component {
             height: '30px',
             lineHeight: '30px',
         };
-
+        console.log('scheduleConf:', scheduleConf);
+        
         return <div className="m-scheduling" style={{position: 'relative'}}>
             {isLocked?<div className="cover-mask"></div>:null} 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap
                         scheduleConf={ scheduleConf }
+                        wFScheduleConf={ wFScheduleConf }
                         status={ tabData.scheduleStatus }
+                        isWorkflowNode={isWorkflowNode}
                         handleScheduleStatus={ this.handleScheduleStatus.bind(this) }
                         handleScheduleConf={ this.handleScheduleConf.bind(this) }
                         handleScheduleType={ this.handleScheduleType.bind(this) }
                         ref={ el => this.form = el }
-                        key={ `${tabData.id} - ${scheduleConf.periodType}` }
+                        key={ `${tabData.id}-${scheduleConf.periodType}` }
                     />
                 </Panel>
                 {
-                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
+                    !isWorkflowNode &&
+                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && 
                     <Panel key="2" header="任务间依赖">
                         {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px"}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
                         <Form>
@@ -816,28 +902,31 @@ class SchedulingConfig extends React.Component {
                         }
                     </Panel>
                 }
-                <Panel key="3" header="跨周期依赖">
-                    <Row>
-                        <Col span="1" />
-                        <Col>
-                            <RadioGroup onChange={ this.setSelfReliance.bind(this) }
-                                value={ this._selfReliance }
-                            >
-                                <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
-                                <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
-                                <Radio style={radioStyle} value={3}>
-                                    自依赖，等待上一调度周期结束，才能继续运行&nbsp;
-                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
-                                </Radio>
-                                <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
-                                <Radio style={radioStyle} value={4}>
-                                    等待下游任务的上一周期结束，才能继续运行&nbsp;
-                                    <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
-                                </Radio>
-                            </RadioGroup>
-                        </Col>
-                    </Row>
-                </Panel>
+                {
+                    !isWorkflowNode &&
+                    <Panel key="3" header="跨周期依赖">
+                        <Row>
+                            <Col span="1" />
+                            <Col>
+                                <RadioGroup onChange={ this.setSelfReliance.bind(this) }
+                                    value={ selfReliance }
+                                >
+                                    <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
+                                    <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
+                                    <Radio style={radioStyle} value={3}>
+                                        自依赖，等待上一调度周期结束，才能继续运行&nbsp;
+                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                    </Radio>
+                                    <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
+                                    <Radio style={radioStyle} value={4}>
+                                        等待下游任务的上一周期结束，才能继续运行&nbsp;
+                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                    </Radio>
+                                </RadioGroup>
+                            </Col>
+                        </Row>
+                    </Panel>
+                }
             </Collapse>
             <RecommentTaskModal 
                 visible={recommentTaskModalVisible}
@@ -849,6 +938,7 @@ class SchedulingConfig extends React.Component {
         </div>
     }
 }
+
 
 class TaskSelector extends React.Component {
     constructor(props) {

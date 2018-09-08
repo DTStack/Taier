@@ -1,5 +1,4 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { Router } from 'react-router'
 import { Provider } from 'react-redux'
 
@@ -22,6 +21,8 @@ import './styles/pages/operation.scss'
 import './styles/pages/graph-editor.scss'
 import './styles/pages/ide.scss'
 import './styles/pages/dashboard.scss'
+import './styles/pages/iconfont.scss'
+
 
 import routers from './routers'
 import { store, history } from './store'

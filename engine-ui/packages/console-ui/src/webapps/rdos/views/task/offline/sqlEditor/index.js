@@ -38,6 +38,7 @@ class EditorContainer extends Component {
         funcCompleteItems: []
     }
     _tableColumns = {}
+    _tableLoading = {}
     componentDidMount() {
 
         const currentNode = this.props.currentTabData;
@@ -47,9 +48,14 @@ class EditorContainer extends Component {
         this.initTableList();
         this.initFuncList();
     }
-    initTableList() {
+    initTableList(id) {
+        id=id||this.props.project.id;
+        if(!id){
+            console.log("project id 0 remove")
+            return ;
+        }
         API.getTableListByName({
-            appointProjectId: this.props.project.id
+            appointProjectId: id
         })
             .then(
                 (res) => {
@@ -88,6 +94,11 @@ class EditorContainer extends Component {
     componentWillReceiveProps(nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
+        const project = nextProps.project
+        const old_project = this.props.project
+        if(project.id!=old_project.id){
+            this.initTableList(project.id);
+        }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
@@ -174,7 +185,7 @@ class EditorContainer extends Component {
         execSql(currentTab, task, params, sqls)
             .then((complete) => {
                 if (complete) {
-                    this._tableColumns={};
+                    this._tableColumns = {};
                     this.initTableList();
                 }
             });
@@ -242,18 +253,24 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
-    completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}) {
-        const { tables = [] } = status;
+    completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
+        const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
+        console.log(status)
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
-
-        if (tables.length) {
+        if (context.completionContext.triggerCharacter == ".") {
+            defaultItems = [];
+        }
+        if (autoComplete && autoComplete.locations) {
             let promiseList = [];
-            for (let tableList of tables) {
-                for (let tableName of tableList) {
-                    promiseList.push(this.getTableColumns(tableName))
+            for (let location of autoComplete.locations) {
+                if (location.type == "table") {
+                    for (let identifierChain of location.identifierChain) {
+                        let columns = this.getTableColumns(identifierChain.name);
+                        promiseList.push(columns)
+                    }
                 }
             }
             Promise.all(promiseList)
@@ -270,13 +287,27 @@ class EditorContainer extends Component {
                                 continue;
                             }
                             _tmpCache[value[0]] = true;
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(value[1].map(
-                                    (columnName) => {
-                                        return [columnName, value[0], '1100', "Variable"]
-                                    }
-                                ))
-                            )
+                            if (context.columnContext&&context.columnContext.indexOf(value[0]) > -1) {
+                                defaultItems = defaultItems.concat(
+                                    customCompletionItemsCreater(value[1].map(
+                                        (columnName) => {
+                                            return [columnName, value[0], '100', "Variable"]
+                                        }
+                                    ))
+                                )
+                            } else {
+                                if (context.completionContext.triggerCharacter == ".") {
+                                    continue;
+                                }
+                                defaultItems = defaultItems.concat(
+                                    customCompletionItemsCreater(value[1].map(
+                                        (columnName) => {
+                                            return [columnName, value[0], '1100', "Variable"]
+                                        }
+                                    ))
+                                )
+                            }
+
                         }
                         resolve(defaultItems);
                     }
@@ -293,9 +324,13 @@ class EditorContainer extends Component {
         if (tableColumns[tableName]) {
             return Promise.resolve(tableColumns[tableName])
         }
-        return API.getColumnsOfTable({ tableName })
+        if (this._tableLoading[tableName]) {
+            return this._tableLoading[tableName]
+        }
+        this._tableLoading[tableName] = API.getColumnsOfTable({ tableName })
             .then(
                 (res) => {
+                    this._tableLoading[tableName]=null;
                     if (res.code == 1) {
                         tableColumns[tableName] = [tableName, res.data];
                         return tableColumns[tableName];
@@ -304,6 +339,7 @@ class EditorContainer extends Component {
                     }
                 }
             )
+        return this._tableLoading[tableName];
     }
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
@@ -407,7 +443,7 @@ class EditorContainer extends Component {
                         <Editor
                             value={confirmCode}
                             sync={true}
-                            language="sql"
+                            language="dtsql"
                             options={{
                                 readOnly: true,
                                 minimap: {

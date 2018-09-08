@@ -6,22 +6,28 @@ import { Circle } from 'widgets/circle'
 export function taskTypeText(type) {
     switch (type) {
         case TASK_TYPE.MR:
-            return 'MR';
+            return 'Spark';
         case TASK_TYPE.SYNC:
             return '数据同步';
         case TASK_TYPE.VIRTUAL_NODE:
-            return 'Virtual';
+            return '虚节点';
         case TASK_TYPE.PYTHON_23:
         case TASK_TYPE.PYTHON:
             return 'Python';
         case TASK_TYPE.R:
             return 'R';
         case TASK_TYPE.SQL:
-            return 'SQL';
+            return 'SparkSQL';
         case TASK_TYPE.SHELL:
             return 'Shell';
         case TASK_TYPE.DEEP_LEARNING:
             return '深度学习';
+        case TASK_TYPE.ML:
+            return '机器学习';
+        case TASK_TYPE.HAHDOOPMR:
+            return 'HadoopMR';
+        case TASK_TYPE.WORKFLOW:
+            return '工作流';
         default:
             return '未知';
     }

@@ -106,7 +106,6 @@ export default class ProjectList extends Component {
     loadDataOverview(projectId) { // 默认最近7天
         const ctx = this
         const { selectedDate } = this.state
-
         if (!projectId) return;
 
         const params = { pId: projectId }
@@ -275,7 +274,7 @@ export default class ProjectList extends Component {
     drawTableTop5(chartData) {
         let myChart = echarts.init(document.getElementById('TableTop5'));
         const option = cloneDeep(defaultBarOption);
-        const data = this.getPieData(chartData)
+        const data = this.getPieData(chartData,'drawTable')
 
         option.color = ['#F5A623']
         option.title.text = '表占用存储TOP5'
@@ -293,23 +292,41 @@ export default class ProjectList extends Component {
         option.series[0].label.normal.formatter = function (params) {
             return utils.convertBytes(params.value)
         }
+        option.yAxis.axisLabel.formatter = (value) => {
+            if (value.length > 16) {
+                return value.slice(0, 16) + "...";
+                //return "..." + value.slice(-20) ;
+            } else {
+                return value;
+            }
+        }
         // 绘制图表
         myChart.setOption(option);
         myChart.on('click', (params) => {
-            let tableName = params.value;
-            if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}`)
+            let tableName = params.value&&params.value.split('.')[1];
+            if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}&`)
         });
         this.setState({ chart3: myChart })
     }
 
-    getPieData(data) {
+    getPieData(data,type) {
         const y = [], x = []
-        if (data && data.length > 0) {
-            for (let i = data.length - 1; i >= 0; i--) {
-                y.push(data[i].projectname)
-                x.push(parseInt(data[i].size, 10))
+        if(type=='drawTable'){
+            if (data && data.length > 0) {
+                for (let i = data.length - 1; i >= 0; i--) {
+                    y.push(`${data[i].projectname}.${data[i].tableName}`)
+                    x.push(parseInt(data[i].size, 10))
+                }
+            }
+        }else{
+            if (data && data.length > 0) {
+                for (let i = data.length - 1; i >= 0; i--) {
+                    y.push(data[i].projectname)
+                    x.push(parseInt(data[i].size, 10))
+                }
             }
         }
+        
         return { y, x }
     }
 
@@ -384,6 +401,7 @@ export default class ProjectList extends Component {
                                         <RangePicker
                                             style={{ width: '230px' }}
                                             format="YYYY-MM-DD"
+                                            defaultValue={[moment().subtract(6, 'days'), moment()]}
                                             disabledDate={this.disabledDate}
                                             onChange={this.changeDate}
                                             ranges={{

@@ -6,6 +6,7 @@ import utils from 'utils';
 
 import { TaskType } from '../../../components/status';
 import { getProjectUsers } from '../../../store/modules/user';
+import LockPanel from '../../../components/lockPanel'
 
 import TaskVersion from './taskVersion';
 import Api from '../../../api';
@@ -16,21 +17,23 @@ import {
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
+import SchedulingConfig from './schedulingConfig';
 
 const Panel = Collapse.Panel;
 
 function TaskInfo(props) {
     const taskInfo = props.taskInfo
+    const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
             <Row>
-                <Col span="10" className="txt-right">任务名称：</Col>
+                <Col span="10" className="txt-right">{labelPrefix}名称：</Col>
                 <Col span="14">
                     {taskInfo.name}
                 </Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">任务类型：</Col>
+                <Col span="10" className="txt-right">{labelPrefix}类型：</Col>
                 <Col span="14">
                     <TaskType value={taskInfo.taskType} />
                 </Col>
@@ -46,7 +49,8 @@ function TaskInfo(props) {
 
             <Row>
                 <Col span="10" className="txt-right">责任人：</Col>
-                <Col span="14">
+                <Col span="14" style={{position: 'relative'}}>
+                    <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
                     } <a onClick={props.modifyTaskOwner}>修改</a>
@@ -126,13 +130,16 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, tabs } = this.props;
+
+        const labelPrefix = isWorkflowNode ? '节点' : '任务';
 
         return <div className="m-taksdetail">
-            <Collapse bordered={false} defaultActiveKey={['1', '2']}>
-                <Panel key="1" header="任务属性">
+            <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
+                <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
                         taskInfo={tabData} 
+                        labelPrefix={labelPrefix}
                         modifyTaskOwner={() => {this.setState({visible: true})}}
                     />
                     <UpdateTaskOwnerModal 
@@ -144,7 +151,18 @@ class TaskDetail extends React.Component {
                         onCancel={() => {this.setState({visible: false})}}
                     />
                 </Panel>
-                <Panel key="2" header="历史发布版本">
+            </Collapse>
+            {
+                isWorkflowNode ? 
+                <SchedulingConfig 
+                    isWorkflowNode={isWorkflowNode}
+                    tabData={tabData}
+                    tabs={tabs}
+                >
+                </SchedulingConfig> : ''
+            }
+            <Collapse bordered={false} defaultActiveKey={['3']}>
+                <Panel key="3" header="历史发布版本">
                     <TaskVersion
                         taskInfo={tabData}
                         changeSql={this.setSqlText}
@@ -156,8 +174,10 @@ class TaskDetail extends React.Component {
 }
 
 export default connect((state, ownProps) => {
+    const { workbench } = state.offlineTask;
     return {
         projectUsers: state.projectUsers,
+        tabs: workbench.tabs,
     };
 
 }, workbenchActions)(TaskDetail);

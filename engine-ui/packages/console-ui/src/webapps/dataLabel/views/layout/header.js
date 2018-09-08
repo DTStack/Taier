@@ -63,6 +63,7 @@ class Header extends Component {
                 src="/public/dataLabel/img/logo.svg"
             />
             <span style={{
+                paddingLeft: "10px",
                 fontSize: "14px",
                 color: "#ffffff",
                 position: "absolute",

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { 
     Icon, Tooltip, 
@@ -13,7 +13,6 @@ import TableTree from './offline/tableTree';
 import ajax from '../../api';
 
 import {
-    modalAction,
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
@@ -26,11 +25,32 @@ import {
     workbenchActions,
 } from '../../store/modules/offlineTask/offlineAction';
 
-import { showSeach } from '../../store/modules/comm';
 import { MENU_TYPE } from '../../comm/const';
+import { showSeach } from '../../store/modules/comm';
+import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 
 const TabPane = Tabs.TabPane;
 
+@connect(state => {
+    const { offlineTask } = state;
+    const { currentTab, tabs } = offlineTask.workbench;
+
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
+
+    return {
+        project: state.project,
+        taskTreeData: offlineTask.taskTree,
+        resourceTreeData: offlineTask.resourceTree,
+        functionTreeData: offlineTask.functionTree,
+        sysFunctionTreeData: offlineTask.sysFunctionTree,
+        scriptTreeData: offlineTask.scriptTree,
+        tableTreeData: offlineTask.tableTree,
+        currentTab,
+        currentTabData,
+    }
+}, workbenchActions)
 class OfflineTabPane extends Component {
 
     constructor(props) {
@@ -46,6 +66,7 @@ class OfflineTabPane extends Component {
 
     componentDidMount() {
         this.props.loadTaskParams();
+        this.props.dispatch(getTaskTypes());
         this.getCatelogue();
     }
 
@@ -98,7 +119,7 @@ class OfflineTabPane extends Component {
     }
 
     reloadTreeNodes = (id, type) => {
-        this.props.reloadTreeNodes(id, type);
+        this.props.loadTreeNode(id, type);
         this.setState({
             expandedKeys: [`${type}-${id}`]
         })
@@ -115,7 +136,7 @@ class OfflineTabPane extends Component {
         } = this.props;
 
         // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
-        if (
+        if ( 
             !currentTab || 
             (type === MENU_TYPE.TASK_DEV && menu !== MENU_TYPE.TASK) ||
             (type === MENU_TYPE.SCRIPT && menu !== MENU_TYPE.SCRIPT)
@@ -252,7 +273,7 @@ class OfflineTabPane extends Component {
             toggleCoverUpload,
             toggleCreateFn,
             toggleCreateScript,
-            showSeachTask,
+            dispatch,
         } = this.props;
 
         switch (key) {
@@ -265,7 +286,7 @@ class OfflineTabPane extends Component {
                 return;
             }
             case 'task:search': {
-                showSeachTask()
+                dispatch(showSeach(true));
                 return;
             }
             case 'script:newScript': {
@@ -537,90 +558,5 @@ class OfflineTabPane extends Component {
     }
 }
 
-export default connect(state => {
-    const { offlineTask } = state;
-    const { currentTab, tabs } = offlineTask.workbench;
 
-    const currentTabData = tabs.filter(tab => {
-        return tab.id === currentTab;
-    })[0];
-
-    return {
-        project: state.project,
-        taskTreeData: offlineTask.taskTree,
-        resourceTreeData: offlineTask.resourceTree,
-        functionTreeData: offlineTask.functionTree,
-        sysFunctionTreeData: offlineTask.sysFunctionTree,
-        scriptTreeData: offlineTask.scriptTree,
-        tableTreeData: offlineTask.tableTree,
-        currentTab,
-        currentTabData,
-    }
-},
-dispatch => {
-    const actions = workbenchActions(dispatch)
-
-    return {
-        showSeachTask: function() {
-            dispatch(showSeach(true))
-        },
-
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
-        },
-
-        toggleCreateTask: function() {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_TASK
-            });
-        },
-
-        toggleCreateScript: function () {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_SCRIPT
-            });
-        },
-
-        toggleUpload: function() {
-            dispatch({
-                type: modalAction.TOGGLE_UPLOAD
-            });
-        },
-
-        toggleCoverUpload: function() {
-            dispatch({
-                type: modalAction.TOGGLE_UPLOAD,
-                payload: {
-                    isCoverUpload: true,
-                }
-            });
-        },
-
-        toggleCreateFolder: function(cateType) {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_FOLDER,
-                payload: cateType
-            });
-        },
-
-        toggleCreateFn: function() {
-            dispatch({
-                type: modalAction.TOGGLE_CREATE_FN
-            });
-        },
-
-        loadTaskParams: function() {
-            actions.loadTaskParams();
-        },
-
-        reloadTreeNodes: function(nodePid, type) {
-            actions.loadTreeNode(nodePid, type);
-        },
-
-        locateFilePos: function(data, type) {
-            actions.locateFilePos(data, type);
-        },
-
-        dispatch
-    }
-})(OfflineTabPane);
+export default OfflineTabPane;

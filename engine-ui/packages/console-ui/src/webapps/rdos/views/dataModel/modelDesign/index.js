@@ -333,7 +333,7 @@ class TableList extends Component {
         return <div className="m-tablelist">
             <h1 className="box-title"> 表管理 </h1>
             <div className="box-2 m-card card-tree-select">
-                <Card noHovering bordered={false} title={title} extra={extra}>
+                <Card noHovering bordered={false} title={title} extra={extra} className="full-screen-table-70">
                     <div style={{ marginTop: '1px' }}>
                         <Table
                             rowKey="id"

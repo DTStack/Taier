@@ -26,7 +26,7 @@ class DataSync extends React.Component{
 
     state = {
         currentStep: 0,
-        loading:true,
+        loading: true,
     }
 
     componentDidMount() {
@@ -62,6 +62,7 @@ class DataSync extends React.Component{
 
             if (!res.data) {
                 this.props.setTabNew();
+                this.navtoStep(0)
             } else {
                 this.props.setTabSaved();
                 if(!dataSyncSaved){
@@ -209,7 +210,7 @@ class DataSync extends React.Component{
             },
         ];
 
-        return loading?null:<div className="m-datasync">
+        return loading ? null: <div className="m-datasync">
             <Steps current={currentStep}>
                 { steps.map(item => <Step key={item.title} title={item.title} />) }
             </Steps>

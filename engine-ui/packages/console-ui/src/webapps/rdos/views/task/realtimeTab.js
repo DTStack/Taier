@@ -116,11 +116,33 @@ class RealTimeTabPane extends Component {
         })
     }
 
+    clickFolderOpen = (info,type)=>{
+        const { expandedKeys,expandedKeys2 } = this.state;
+        const { eventKey} = info.node.props
+        let nowExpaned;
+        if(type){
+            nowExpaned = expandedKeys2;
+        }else{
+            nowExpaned = expandedKeys;
+        }
+        const eventKeyIndex = nowExpaned.indexOf(eventKey);
+        if(eventKeyIndex > -1){
+            nowExpaned.splice(eventKeyIndex,1);
+        }else{
+            this.loadTreeData(info.node)
+            nowExpaned.push(eventKey)
+        }
+        this.setState({expandedKeys,expandedKeys2})
+    }
+
+
     chooseTask = (selectedKeys, info) => {
         const { dispatch } = this.props
-        const item = info.node.props.data
-        if (item.type === 'file') {
-            dispatch(BrowserAction.openPage({ id: item.id }))
+        const {data} = info.node.props
+        if (data.type === 'file') {
+            dispatch(BrowserAction.openPage({ id: data.id }))
+        }else{
+            this.clickFolderOpen(info)
         }
     }
 
@@ -136,20 +158,26 @@ class RealTimeTabPane extends Component {
                     })
                 }
             })
+        }else{
+            this.clickFolderOpen(info)
         }
     }
 
-    chooseFn = (selectedKeys, target) => {
+    chooseFn = (selectedKeys, target,type) => {
         const item = target.node.props.data
         if (item.type === 'file') {
             this.setState({
                 visibleFnInfo: true,
                 selectedFn: item
             })
+        }else{
+            this.clickFolderOpen(target,type)
         }
     }
 
     rightClick = ({ node }) => {
+        console.log('rightClick-node',node);
+        
         const activeNode = node.props.data;
         this.setState({ activeNode: activeNode })
     }
@@ -372,6 +400,8 @@ class RealTimeTabPane extends Component {
     }
 
     loadTreeData = (treeNode) => {
+        console.log('loadTreeData-treeNode',treeNode);
+        
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
@@ -616,7 +646,7 @@ class RealTimeTabPane extends Component {
                             <FolderTree
                                 onRightClick={this.rightClick}
                                 loadData={this.loadTreeData}
-                                onSelect={this.chooseFn}
+                                onSelect={(selected,e)=>{this.chooseFn(selected,e,"expandedKeys2")}}
                                 treeData={systemTreeData ? [systemTreeData] : []}
                                 treeType={MENU_TYPE.SYSFUC}
                                 expandedKeys={expandedKeys2}

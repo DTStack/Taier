@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const HappyPack = require("happypack");
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const os = require("os");
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
 
@@ -21,12 +22,12 @@ module.exports = function() {
             dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             dataApi: MY_PATH.DATA_API_APP_FILE,
             dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
-            console: MY_PATH.CONSOLE_APP_FILE
+            console: MY_PATH.CONSOLE_APP_FILE,
         },
         output: {
             path: MY_PATH.BUILD_PATH,
-            chunkFilename: "[name].[hash].js",
-            filename: "[name].[hash].js",
+            chunkFilename: "[name].[chunkhash].js",
+            filename: "[name].[chunkhash].js",
             sourceMapFilename: "[name].map",
             publicPath: "/"
         },
@@ -64,6 +65,7 @@ module.exports = function() {
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
                         path.resolve(MY_PATH.WEB_PUBLIC)
                     ],
+                    // sideEffects: false,
                     // loader: ['babel-loader?cacheDirectory']
                     loader: [
                         "react-hot-loader/webpack",
@@ -134,6 +136,12 @@ module.exports = function() {
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'), 
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
+                }, {
+                    from: path.resolve(MY_PATH.PWA,'sw.js'), 
+                    to: path.resolve(MY_PATH.BUILD_PATH),
+                }, {
+                    from: path.resolve(MY_PATH.PWA,'manifest.json'), 
+                    to: path.resolve(MY_PATH.BUILD_PATH),
                 }
             ]),
 
@@ -141,7 +149,8 @@ module.exports = function() {
                 APP: {
                     VERSION: VERSION
                 }
-            })
+            }),
+            new ProgressBarPlugin()
         ]
     };
 };

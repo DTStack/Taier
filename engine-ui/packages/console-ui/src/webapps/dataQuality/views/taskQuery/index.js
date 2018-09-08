@@ -517,10 +517,10 @@ export default class TaskQuery extends Component {
                                     onChange={this.onTabChange}
                                 >
                                     <TabPane tab="监控报告" key="1">
-                                        <TaskDetailPane data={currentTask} />
+                                        <TaskDetailPane currentTab={tabKey} data={currentTask} />
                                     </TabPane>
                                     <TabPane tab="表级报告" key="2">
-                                        <TaskTablePane data={currentTask} />
+                                        <TaskTablePane currentTab={tabKey} data={currentTask} />
                                     </TabPane>
                                 </Tabs>
                             </div>

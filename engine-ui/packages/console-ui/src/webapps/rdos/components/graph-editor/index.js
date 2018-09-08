@@ -3,8 +3,11 @@ import React, { Component } from 'react'
 import './style.scss'
 
 const Mx = require('public/rdos/mxgraph')({
-    mxImageBasePath: 'public/rdos/mxgraph/images',
     mxBasePath: 'public/rdos/mxgraph',
+    mxImageBasePath: 'public/rdos/mxgraph/images',
+    mxLoadResources: false,
+    mxLanguage: 'none',
+    mxLoadStylesheets: false,
 })
 
 const {
@@ -22,8 +25,14 @@ const {
     mxPopupMenu,
     // mxEdgeHandler,
     // mxCellRenderer,
+    mxGraphHandler,
+    mxCell,
+    mxGeometry,
     mxPerimeter,
     mxUndoManager,
+    mxCompactTreeLayout,
+    mxUtils,
+    mxDragSource,
     // mxCylinder,
 } = Mx
 
@@ -91,12 +100,13 @@ export default class Editor extends Component {
         this.graph = graph
         graph.setConnectable(true)
         graph.setTooltips(true)
-        graph.view.setScale(1);
+        graph.view.setScale(1)
+        mxGraphHandler.prototype.guidesEnabled = true;
 
         // 禁止Edge对象移动
-        graph.isCellsMovable = function(cell) {
+        graph.isCellsMovable = function() {
             var cell = graph.getSelectionCell()
-            console.log('isCellsMovable movable:', cell)
+            // return !cell.isPart;
             return !(cell && cell.edge)
         }
         // 设置Vertex样式
@@ -106,6 +116,20 @@ export default class Editor extends Component {
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
+
+        graph.isPart = function(cell) { 
+            // var state = this.view.getState(cell);
+            // var style = (state != null) ? state.style : this.getCellStyle(cell);
+            console.log('isPart:', cell);
+            // return style['constituent'] == '1';
+        };
+
+        const layout = new mxCompactTreeLayout(graph, false);
+        layout.horizontal = false;
+        layout.useBoundingBox = false;
+        layout.edgeRouting = false;
+        layout.levelDistance = 40;
+        layout.nodeDistance = 20;
 
         // enables rubberband
         new mxRubberband(graph)
@@ -124,14 +148,28 @@ export default class Editor extends Component {
             const v3 = graph.insertVertex(parent, null, 'block3', 300, 150, 
             VertexSize.width, VertexSize.height)
 
+            const v4 = graph.insertVertex(v3, null, 'block4', 10, 150, 
+            VertexSize.width, VertexSize.height);
+            v4.isPart = true;
+
+            const v5 = graph.insertVertex(v3, null, 'block5', 10, 250, 
+            VertexSize.width, VertexSize.height)
+            v5.isPart = true;
+
             const e1 = graph.insertEdge(parent, null, '', v1, v3)
             const e2 = graph.insertEdge(parent, null, '', v2, v3)
+            const e3 = graph.insertEdge(parent, null, '', v4, v5)
+
+            layout.execute(parent);
+            layout.execute(v3);
+
         } finally {
             model.endUpdate()
         }
-        this.initContextMenu(graph)
-        
+        this.initContextMenu(graph);
+        this.initDragItem();
     }
+
 
     getDefaultVertexStyle() {
         let style = [];
@@ -152,7 +190,7 @@ export default class Editor extends Component {
     getDefaultEdgeStyle() {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#18a689';
+        style[mxConstants.STYLE_STROKECOLOR] = '#dddddd';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.ElbowConnector;
@@ -198,6 +236,70 @@ export default class Editor extends Component {
                 alert('item 1')
             }, subMenu)
         }
+    }
+
+    initDragItem() {
+        const previewDragTarget = document.createElement('div');
+        previewDragTarget.style.border = '1px solid blue';
+        previewDragTarget.style.width = VertexSize.width + 'px';
+        previewDragTarget.style.height = VertexSize.height + 'px';
+
+        const ds1 = mxUtils.makeDraggable(
+            this.btn1, 
+            this.getUnderMouseGraph,
+            this.insertItemVertex,
+            previewDragTarget,
+            null,
+            null,
+            this.graph.autoscroll,
+            true,
+        );
+
+        const ds2 = mxUtils.makeDraggable(
+            this.btn2, 
+            this.getUnderMouseGraph,
+            this.insertItemVertex,
+            previewDragTarget,
+            null,
+            null,
+            this.graph.autoscroll,
+            true,
+        );
+
+        ds1.isGuidesEnabled = () => {
+            return this.graph.graphHandler.guidesEnabled;
+        };
+        ds1.createDragElement = mxDragSource.prototype.createDragElement;
+        
+        ds2.isGuidesEnabled = () => {
+            return this.graph.graphHandler.guidesEnabled;
+        };
+        ds2.createDragElement = mxDragSource.prototype.createDragElement;
+    }
+
+    insertItemVertex = (graph, evt, target, x, y) => {
+
+        const newCell = new mxCell(
+            'new Cell', new mxGeometry(0, 0, VertexSize.width,  VertexSize.height 
+        ))
+        newCell.vertex = true;
+
+        const cells = graph.importCells([newCell], x, y, target);
+        if (cells != null && cells.length > 0) {
+            graph.scrollCellToVisible(cells[0]);
+            graph.setSelectionCells(cells);
+        }
+    }
+
+    getUnderMouseGraph = (evt) => {
+        const x = mxEvent.getClientX(evt);
+        const y = mxEvent.getClientY(evt);
+
+        const elt = document.elementFromPoint(x, y);
+        if (mxUtils.isAncestorNode(this.graph.container, elt)) {
+            return this.graph;
+        }
+        return null;
     }
 
     zoomIn() {
@@ -341,7 +443,7 @@ export default class Editor extends Component {
     /* eslint-enable */
     render() {
         return (
-            <div>
+            <div style={{height: '100%', width: '90%', marginLeft: '10%', position: 'relative'}}>
                 <div className="editor" ref={(e) => { this.Container = e }} />
                 <div style={{ position: 'absolute', zIndex: '2', right: '20px', top: '30px' }}>
                     <button onClick={() => this.zoomIn()}>放大</button>
@@ -354,6 +456,22 @@ export default class Editor extends Component {
                     <button onClick={() => this.graphEnable()}>禁止编辑</button>
                     <button onClick={() => this.undo()}>撤销</button>
                 </div>
+                <ul style={{ position: 'absolute', zIndex: '2', left: '-10%', top: '30px' }}>
+
+                    <li>
+                        <button ref={(ins) => this.btn1 = ins } style={{padding: '10px'}}>
+                            Tool-1
+                        </button>
+                    </li>
+
+                    <li style={{marginTop: '10px'}}>
+                        <button ref={(ins) => this.btn2 = ins }
+                            style={{padding: '10px'}}
+                        >
+                            Tool-2
+                        </button>
+                    </li>
+                </ul>
             </div>
         )
     }

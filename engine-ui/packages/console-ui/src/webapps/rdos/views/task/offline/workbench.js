@@ -1,9 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router'
 import {
     Row, Col, Button, message, Input, Form,
-    Tabs, Menu, Dropdown, Icon, Modal, Tag,
+    Tabs, Menu, Dropdown, Icon, Modal,
 } from 'antd';
 
 import { cloneDeep, isEmpty } from 'lodash';
@@ -20,17 +19,6 @@ import SyncBadge from '../../../components/sync-badge';
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
 import ImportData from './dataImport';
-
-import {
-    modalAction,
-    workbenchAction,
-    taskTreeAction,
-    editorAction,
-} from '../../../store/modules/offlineTask/actionType';
-
-import {
-    stopSql
-} from '../../../store/modules/editor/editorAction';
 
 import {
     workbenchActions
@@ -93,23 +81,23 @@ class Workbench extends React.Component {
         const { taskType, createModel } = currentTabData;
         let vaildPass = true;
 
-        switch(taskType){
-            case TASK_TYPE.SYNC:{
-                if(currentTabData.createModel==DATA_SYNC_TYPE.SCRIPT){
+        switch (taskType) {
+            case TASK_TYPE.SYNC: {
+                if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                     vaildPass = this.checkSyncScript(currentTabData);
                 }
             }
         }
 
-        if(vaildPass){
+        if (vaildPass) {
             this.setState({ showPublish: true })
         }
     }
 
-    checkSyncScript(currentTabData){
+    checkSyncScript(currentTabData) {
         const sql = currentTabData.sqlText;
 
-        if(utils.jsonFormat(sql)){
+        if (utils.jsonFormat(sql)) {
             return true;
         }
         message.error("请确认JSON格式是否正确");
@@ -157,9 +145,9 @@ class Workbench extends React.Component {
     }
 
     render() {
-        const { 
+        const {
             tabs, currentTab, currentTabData,
-            dataSync, taskCustomParams, 
+            dataSync, taskCustomParams,
             closeTab, closeAllorOthers
         } = this.props;
 
@@ -168,26 +156,31 @@ class Workbench extends React.Component {
         let isSaveAvaliable = false;
 
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
+        //不属于数据同步或者属于数据同步的脚本模式都可以保存
         if (
             currentTabData &&
             (currentTabData.taskType !== TASK_TYPE.SYNC ||
                 (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT && currentTabData.taskType == TASK_TYPE.SYNC)
             )
-        ) isSaveAvaliable = true;
+        ) {
+            isSaveAvaliable = true;
+        }
 
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || !currentTabData.notSynced;
+
+        //被锁就不能保存了
         if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
             isSaveAvaliable = false;
         }
 
-        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd;
-
         const isTask = currentTabData && utils.checkExist(currentTabData.taskType)
+        const isWorkflowNode = currentTabData && currentTabData.flowId && currentTabData.flowId !== 0;
 
-        const disablePublish = !isTask || currentTabData.notSynced
+        const disablePublish = !isTask || currentTabData.notSynced || isWorkflowNode;
         const showPublish = isTask;
 
         return <Row className="m-workbench task-editor">
-            <header className="toolbar bd-bottom clear">
+            <header className="toolbar clear">
                 <Col className="left">
                     <Dropdown overlay={this.createMenu()} trigger={['click']}>
                         <Button title="创建">
@@ -237,13 +230,13 @@ class Workbench extends React.Component {
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}
-                                onClick={({key}) =>closeAllorOthers(key, tabs, currentTab)}
+                                onClick={({ key }) => closeAllorOthers(key, tabs, currentTab)}
                             >
                                 <Menu.Item key="OHTERS">关闭其他</Menu.Item>
                                 <Menu.Item key="ALL">关闭所有</Menu.Item>
                             </Menu>
                         }>
-                            <Icon type="bars" style={{ margin: '10 0 0 0' }} />
+                            <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18, }} />
                         </Dropdown>}
                     >
                         {this.renderTabs(tabs)}
@@ -253,6 +246,7 @@ class Workbench extends React.Component {
                         taskCustomParams={taskCustomParams}
                         updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
+                        loadTreeNode={this.props.loadTreeNode}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
@@ -278,10 +272,19 @@ class Workbench extends React.Component {
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab) => {
-                const title = (<span>
+                let title = (<div>
                     <SyncBadge notSynced={tab.notSynced} />
-                    {tab.name}
-                </span>);
+                    <span className="tab-ellipsis">{tab.name}</span>
+                </div>);
+
+                if (tab.flowId) {
+                    title = (<div>
+                        <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
+                        <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                            {tab.flowName}
+                        </a><span className="tab-ellipsis" style={{ color: 'rgba(0, 0, 0, 0.65)' }}> / {tab.name}</span>
+                    </div>);
+                }
 
                 return (
                     <TabPane
@@ -298,6 +301,17 @@ class Workbench extends React.Component {
     saveTab(isSave) {
         this.setState({ theReqIsEnd: false, })
         const { saveTab, dataSync, currentTabData } = this.props;
+
+        // 如果是工作流任务，需要对保存操作提前做校验
+        if (
+            currentTabData.taskType === TASK_TYPE.WORKFLOW
+            && currentTabData.toUpdateTasks &&
+            currentTabData.toUpdateTasks.length > 0
+        ) {
+            message.warning('您有工作流节点任务未保存！')
+            return false;
+        }
+
         let result = this.generateRqtBody(dataSync);
         let type = 'task'
         // 非任务类型，脚本类型
@@ -308,7 +322,7 @@ class Workbench extends React.Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.submitStatus = 0;
-        saveTab(result, isSave, type); 
+        saveTab(result, isSave, type);
         setTimeout(() => {
             this.setState({
                 theReqIsEnd: true,
@@ -327,7 +341,7 @@ class Workbench extends React.Component {
         const result = this.generateRqtBody(dataSync)
 
         // 添加发布描述信息
-        if (publishDesc) { 
+        if (publishDesc) {
             if (publishDesc.length > 200) {
                 message.error('备注信息不可超过200个字符！')
                 return false;
@@ -336,14 +350,13 @@ class Workbench extends React.Component {
             result.preSave = true;
             result.submitStatus = 1; // 1-提交，0-保存
             result.publishDesc = publishDesc;//发布信息
-            ajax.publishOfflineTask(result).then(res =>{
+            ajax.publishOfflineTask(result).then(res => {
                 if (res.code === 1) {
                     message.success('发布成功！');
                     publishTask(res);
                     reloadTabTask(currentTab);
                     this.closePublish();
-                }else{
-                    message.error('发布失败！');
+                } else {
                     this.closePublish();
                 }
             });
@@ -355,8 +368,8 @@ class Workbench extends React.Component {
     }
 
     switchTab(currentTab, tabId) {
-        const { openTab } = this.props;
-        +tabId !== currentTab && openTab({id: + tabId } );
+        const { openTab, tabs } = this.props;
+        +tabId !== currentTab && openTab({ id: + tabId, tabs, });
     }
 
     closeTab(tabId) {

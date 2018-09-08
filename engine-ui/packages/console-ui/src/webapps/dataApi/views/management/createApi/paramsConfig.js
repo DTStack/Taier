@@ -460,8 +460,9 @@ class ManageParamsConfig extends Component {
                 return <Option value={data.value}>{data.name}</Option>
             }
         )
-
-        const dataFieldsClass=mode == API_MODE.SQL?'middle-title':'required-tip middle-title'
+        const modeType = mode == API_MODE.SQL;
+        const dataFieldsClass = modeType?'middle-title':'required-tip middle-title';
+        const paramsConfigClass = modeType?'paramsSql_arrow':'paramsConfig_arrow';
         return (
             <div>
                 <div className="steps-content">
@@ -512,8 +513,8 @@ class ManageParamsConfig extends Component {
                                     )}
                                 </FormItem>
                             </section>
-                            <p className={dataFieldsClass} style={{marginTop:"30px"}}>数据字段:</p>
-                            <section style={{ padding: "10px 0px" }}>
+                            <p className={dataFieldsClass} >数据字段:</p>
+                            <section style={{ padding: "15px 0px 10px" }}>
                                 <Table
                                     style={{ background: "#fff" }}
                                     className="shadow m-table m-table-showselect"
@@ -521,11 +522,11 @@ class ManageParamsConfig extends Component {
                                     dataSource={tableData}
                                     pagination={false}
                                     rowSelection={this.rowSelection()}
-                                    scroll={{ y: 286 }}
+                                    scroll={{ y: 297 }}
                                 />
                             </section>
                         </div>
-                        <div className="paramsConfig_arrow"></div>
+                        <div className={paramsConfigClass}></div>
                         <div className="paramsConfig_param">
                             {mode == API_MODE.SQL && sqlModeShow ?
                                 <ApiSqlEditor
