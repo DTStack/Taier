@@ -279,6 +279,14 @@
 
                 .file-item, .folder-item {
                     padding: 8px 0px;
+                    &:before{
+                        position: absolute;
+                        content:"";
+                        left:-20px;
+                        top:-5px;
+                        bottom: -5px;
+                        width:20px;
+                    }
                 }
             }
             .icon {
@@ -325,6 +333,7 @@
             .ant-tree-title {
                 position: relative;
             }
+           
             .ant-badge-status {
                 left: -35px;
                 width: 0px;
