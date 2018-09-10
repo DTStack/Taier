@@ -89,4 +89,9 @@ public class ConfigParse {
         Object taskDistributeDeviation = configs.get("taskDistributeDeviation");
         return taskDistributeDeviation==null ? 3 : MathUtil.getIntegerVal(taskDistributeDeviation);
     }
+
+    public static int getShardSize() {
+        Object shardSize = configs.get("shardSize");
+        return shardSize==null ? 200 : MathUtil.getIntegerVal(shardSize);
+    }
 }

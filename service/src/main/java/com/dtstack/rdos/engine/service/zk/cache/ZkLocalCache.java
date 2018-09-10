@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.ZkShardManager;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * company: www.dtstack.com
@@ -36,15 +39,19 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private int distributeZkWeight;
     private int distributeQueueWeight;
     private int distributeDeviation;
+    private int perShardSize;
+    private AtomicInteger incrementSize;
     private static ZkLocalCache zkLocalCache = new ZkLocalCache();
     public static ZkLocalCache getInstance() {
         return zkLocalCache;
     }
+    private final ReentrantLock lock = new ReentrantLock();
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
     private WorkNode workNode = WorkNode.getInstance();
     private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
     private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
+    private ZkShardManager zkShardManager = ZkShardManager.getInstance();
 
     private ZkLocalCache() {
         this.requiresCopyOnWrite = new AtomicBoolean(false);
@@ -57,6 +64,10 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         distributeZkWeight = ConfigParse.getTaskDistributeQueueWeight();
         distributeQueueWeight = ConfigParse.getTaskDistributeZkWeight();
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
+        perShardSize = ConfigParse.getShardSize();
+        zkShardManager.init();
+        int initIncrementSize = localDataCache.getDataSize()/perShardSize;
+        incrementSize = new AtomicInteger(initIncrementSize);
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
@@ -179,4 +190,21 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         return view;
     }
 
+    public void checkShard() {
+        if (incrementSize.get()%perShardSize==0){
+            final ReentrantLock createShardLock = this.lock;
+            createShardLock.lock();
+            try {
+                int avg = localDataCache.getDataSize()/localDataCache.getShards().size();
+                if (avg>perShardSize){
+                    zkShardManager.createShardNode(1);
+                    incrementSize.set(0);
+                }
+            } finally {
+                createShardLock.unlock();
+            }
+        } else {
+            incrementSize.incrementAndGet();
+        }
+    }
 }

@@ -119,6 +119,7 @@ public class WorkNode {
     }
 
     public void addSubmitJob(JobClient jobClient) {
+        zkLocalCache.checkShard();
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());

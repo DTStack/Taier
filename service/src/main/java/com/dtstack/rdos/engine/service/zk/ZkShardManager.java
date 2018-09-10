@@ -30,7 +30,6 @@ public class ZkShardManager implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);
 
-    private static final float DATA_LENGTH = 2;
     private static final long CHECK_INTERVAL = 5;
     private static final long SHARD_IDLE_TIMES = 10;
 
@@ -50,7 +49,7 @@ public class ZkShardManager implements Runnable {
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
-    public ZkShardManager() {
+    public void init() {
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
         if (brokerDataNode != null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
             for (String shardName : brokerDataNode.getShards().keySet()) {
@@ -82,17 +81,11 @@ public class ZkShardManager implements Runnable {
         try {
             List<String> dataShards = zkDistributed.getBrokerDataChildren(zkDistributed.getLocalAddress());
             Map<String, Integer> brokerDataNodeMap = new HashMap<>(dataShards.size());
-            int totalSize = 0;
             for (String dShard : dataShards) {
                 BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
-                int size = brokerDataShard.metaSize();
-                totalSize += size;
-                brokerDataNodeMap.put(dShard, size);
+                brokerDataNodeMap.put(dShard, brokerDataShard.metaSize());
             }
-            if (totalSize > DATA_LENGTH) {
-                float needNode = totalSize / DATA_LENGTH - brokerDataNodeMap.size();
-                createShardNode(needNode);
-            } else if (brokerDataNodeMap.size() > 1) {
+            if (brokerDataNodeMap.size() > 1) {
                 for (Map.Entry<String, Integer> entry : brokerDataNodeMap.entrySet()) {
                     shardIdleDoubleCheck(entry.getKey(), entry.getValue());
                 }
@@ -154,7 +147,7 @@ public class ZkShardManager implements Runnable {
         shardsCsist.add(shardName);
     }
 
-    private void createShardNode(float nodeNum) {
+    public void createShardNode(float nodeNum) {
         for (int i = 0; i < nodeNum; i++) {
             String shardName = SHARD_NODE + shardSequence.getAndIncrement();
             zkDistributed.createBrokerDataShard(shardName);

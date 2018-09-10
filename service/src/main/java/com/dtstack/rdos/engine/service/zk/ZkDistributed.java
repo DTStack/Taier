@@ -76,7 +76,6 @@ public class ZkDistributed implements Closeable{
 	private CuratorFramework zkClient;
 
     private MasterListener masterListener;
-    private ZkShardManager zkShardManager = new ZkShardManager();
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -252,7 +251,7 @@ public class ZkDistributed implements Closeable{
 
 	public void synchronizedBrokerDataShard(String nodeAddress, String shard, BrokerDataShard brokerDataShard,boolean isCover){
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,nodeAddress,metaDataNode,shard);
-		InterProcessMutex lock = zkShardManager.getShardLock(shard);
+		InterProcessMutex lock = ZkShardManager.getInstance().getShardLock(shard);
 		try {
 			if(lock!=null&&lock.acquire(30, TimeUnit.SECONDS)){
 				if (!isCover) {
