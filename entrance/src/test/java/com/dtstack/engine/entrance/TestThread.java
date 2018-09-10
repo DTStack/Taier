@@ -3,7 +3,9 @@ package com.dtstack.engine.entrance;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataTreeMap;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
@@ -12,9 +14,12 @@ import com.netflix.curator.retry.ExponentialBackoffRetry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class TestThread {
@@ -97,6 +102,55 @@ public class TestThread {
         });
 
         System.out.println("11111111111");
+
+
+
+
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(1);
+        CountDownLatch latch3 = new CountDownLatch(2);
+        BrokerDataTreeMap<String, Byte> map = BrokerDataTreeMap.initBrokerDataTreeMap();
+        map.put("1", new Integer(3).byteValue());
+        map.put("2", new Integer(3).byteValue());
+        map.put("3", new Integer(3).byteValue());
+
+        ExecutorService submitExecutor = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("submitDealer"));
+        submitExecutor.submit(() -> {
+            try {
+                latch1.await();
+                map.remove("2");
+                latch2.countDown();
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println(e);
+            }finally {
+                System.out.println("adsadsad");
+                latch3.countDown();
+            }
+        });
+
+        submitExecutor.submit(() -> {
+            try {
+                int i = 0;
+                Set<Map.Entry<String, Byte>> entries = map.entrySet();
+                for (Map.Entry<String, Byte> entry : entries) {
+                    if (i == 1) {
+                        latch1.countDown();
+                        latch2.await();
+                    }
+                    System.out.println(entry.getKey() + "+" + entry.getValue());
+                    i++;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                latch3.countDown();
+            }
+        });
+        latch3.await();
+        System.out.println(map);
     }
 
 }

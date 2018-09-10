@@ -1,9 +1,7 @@
-package com.dtstack.rdos.engine.service.zk.task;
+package com.dtstack.rdos.engine.service.zk;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
-import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
@@ -13,8 +11,6 @@ import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * author: toutian
  * create: 2018/9/1
  */
-public class ZkShardListener implements Runnable, Closeable {
+public class ZkShardManager implements Runnable {
 
-    private static Logger logger = LoggerFactory.getLogger(ZkShardListener.class);
+    private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);
 
     private static final float DATA_LENGTH = 2;
     private static final long CHECK_INTERVAL = 5;
@@ -40,6 +36,12 @@ public class ZkShardListener implements Runnable, Closeable {
 
     private static final String SHARD_NODE = "shard";
     private static final String SHARD_LOCK = "_lock";
+
+    private static ZkShardManager zkShardManager = new ZkShardManager();
+    public static ZkShardManager getInstance() {
+        return zkShardManager;
+    }
+
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
 
     private final AtomicInteger shardSequence = new AtomicInteger(1);
@@ -48,7 +50,7 @@ public class ZkShardListener implements Runnable, Closeable {
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
-    public ZkShardListener() {
+    public ZkShardManager() {
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
         if (brokerDataNode != null && MapUtils.isNotEmpty(brokerDataNode.getShards())) {
             for (String shardName : brokerDataNode.getShards().keySet()) {
@@ -159,29 +161,6 @@ public class ZkShardListener implements Runnable, Closeable {
             InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
             mutexs.put(shardName, mutex);
             shardsCsist.add(shardName);
-        }
-    }
-
-    public void lockRelease() {
-        try {
-            close();
-        } catch (IOException e) {
-            logger.error("{}", e);
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (MapUtils.isNotEmpty(mutexs)) {
-            for (Map.Entry<String, InterProcessMutex> entry : mutexs.entrySet()) {
-                try {
-                    if (entry.getValue().isAcquiredInThisProcess()) {
-                        entry.getValue().release();
-                    }
-                } catch (Exception e) {
-                    logger.error("", e);
-                }
-            }
         }
     }
 }

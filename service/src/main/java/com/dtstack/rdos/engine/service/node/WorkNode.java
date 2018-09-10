@@ -317,7 +317,7 @@ public class WorkNode {
                 if (jobClient.submitJob()) {
                     saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(),
                             EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
-                    priorityQueue.remove(jobClient);
+                    it.remove();
                 } else {
                     //更新剩余任务的优先级数据
                     updateQueuePriority(priorityQueue);

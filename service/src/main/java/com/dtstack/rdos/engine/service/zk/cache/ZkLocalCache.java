@@ -65,6 +65,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
 
 
     public String getJobLocationAddr(String zkTaskId) {
+        //todo 先查缓存，没有再查zk
         String shard = shardsCsist.get(zkTaskId);
         for (Map.Entry<String, BrokerDataNode> entry : core.entrySet()) {
             String addr = entry.getKey();
