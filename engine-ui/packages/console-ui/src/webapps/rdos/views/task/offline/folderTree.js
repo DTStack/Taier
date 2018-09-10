@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Tree, TreeSelect,
-    Modal, Badge ,Tooltip
+    Modal, Badge, Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -49,34 +49,44 @@ class FolderTree extends React.Component {
     }
 
     handleSelect(selectedKeys, e) {
-        const { isLeaf, value, treeType, data } = e.node.props;
-        const { openTab, tabs, currentTab } = this.props;
+        const { isLeaf, value, treeType, data, eventKey } = e.node.props;
+        let { openTab, tabs, currentTab, expandedKeys, onExpand, type } = this.props;
         const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
-
-        if (!isLeaf && !isWorkflow) return;
-
-        switch (treeType) {
-            case MENU_TYPE.SCRIPT:
-            case MENU_TYPE.TASK_DEV: {
-                openTab({
-                    id: value, tabs, currentTab, treeType,
-                    lockInfo: data.readWriteLockVO
-                });
-                break;
+        if (!isLeaf && !isWorkflow) {
+            const eventKeyIndex = expandedKeys.indexOf(eventKey);
+            if (eventKeyIndex > -1) {
+                this.onLoadData(type, e.node)
+                expandedKeys.splice(eventKeyIndex, 1);
+                onExpand(expandedKeys, { expanded: false })
+            } else {
+                this.onLoadData(type, e.node)
+                expandedKeys.push(eventKey)
+                onExpand(expandedKeys, { expanded: true })
             }
+        } else {
+            switch (treeType) {
+                case MENU_TYPE.SCRIPT:
+                case MENU_TYPE.TASK_DEV: {
+                    openTab({
+                        id: value, tabs, currentTab, treeType,
+                        lockInfo: data.readWriteLockVO
+                    });
+                    break;
+                }
 
-            case MENU_TYPE.RESOURCE: {
-                this.handleResNodeSelected(value);
-                break;
+                case MENU_TYPE.RESOURCE: {
+                    this.handleResNodeSelected(value);
+                    break;
+                }
+
+                case MENU_TYPE.SYSFUC:
+                case MENU_TYPE.COSTOMFUC: {
+                    this.handleFnNodeSelected(value);
+                    break;
+                }
+
+                default: break;
             }
-
-            case MENU_TYPE.SYSFUC:
-            case MENU_TYPE.COSTOMFUC: {
-                this.handleFnNodeSelected(value);
-                break;
-            }
-
-            default: break;
         }
     }
 
@@ -417,10 +427,16 @@ class FolderTree extends React.Component {
         return file.createUser;
     }
 
+    onRightClick = (e) => {
+        console.log(e);
+
+    }
+
     genetateTreeNode() {
 
         const { treeData, type, ispicker, isFilepicker, acceptRes, isPro } = this.props;
         const treeType = type;
+        console.log('genetateTreeNode', this.props);
 
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
@@ -438,22 +454,22 @@ class FolderTree extends React.Component {
             }
 
             let claName = type === 'file' ? 'file-item' : 'folder-item';
- 
+
             return <TreeNode
                 title={
-                    ispicker?
-                    <span className={claName}>
-                        { name }
-                        <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
-                            {createUser}
-                        </i>
-                    </span> :
-                    <CtxMenu
-                        id={ id }
-                        key={ `${taskType}-ctxmenu-${id}` }
-                        operations={ isPro?[]:this.generateCtxMenu(type, treeType, data) }
-                    >
-                        {/* <span 
+                    ispicker ?
+                        <span className={claName}>
+                            {name}
+                            <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
+                                {createUser}
+                            </i>
+                        </span> :
+                        <CtxMenu
+                            id={id}
+                            key={`${taskType}-ctxmenu-${id}`}
+                            operations={isPro ? [] : this.generateCtxMenu(type, treeType, data)}
+                        >
+                            {/* <span 
                             id={`JS_${id}`}
                             title={name} 
                             className={type === 'file' ? 'task-item' : 'folder-item'}>
@@ -463,20 +479,20 @@ class FolderTree extends React.Component {
                                 { this.renderFileInfo(treeType, data) }
                             </i>
                         </span> */}
-                        {
-                            (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
-                            ? <Tooltip placement="right" title={this.renderFileInfo(treeType, data)} mouseEnterDelay={2} mouseLeaveDelay={0}>
-                                <span id={`JS_${id}`} className={claName}>
-                                        { this.renderStatusBadge(treeType, data) }
-                                        { name } 
-                                </span>
-                            </Tooltip>
-                            : <span id={`JS_${id}`} className={claName}>
-                                { this.renderStatusBadge(treeType, data) }
-                                { name } 
-                            </span>
-                        }
-                    </CtxMenu>
+                            {
+                                (treeType === MENU_TYPE.TASK_DEV || treeType === MENU_TYPE.SCRIPT) && data.type === 'file'
+                                    ? <Tooltip placement="right" title={this.renderFileInfo(treeType, data)} mouseEnterDelay={2} mouseLeaveDelay={0}>
+                                        <span id={`JS_${id}`} className={claName}>
+                                            {this.renderStatusBadge(treeType, data)}
+                                            {name}
+                                        </span>
+                                    </Tooltip>
+                                    : <span id={`JS_${id}`} className={claName}>
+                                        {this.renderStatusBadge(treeType, data)}
+                                        {name}
+                                    </span>
+                            }
+                        </CtxMenu>
                 }
                 value={id}
                 name={name}
@@ -500,7 +516,7 @@ class FolderTree extends React.Component {
             type, placeholder, currentTab,
             onExpand, expandedKeys, onChange
         } = this.props;
-
+        console.log('expandedKeys', expandedKeys);
         return (
             <div>
                 {this.props.ispicker ?
@@ -522,6 +538,7 @@ class FolderTree extends React.Component {
                         </TreeSelect>
                     </div> :
                     <Tree
+                        onRightClick={this.onRightClick}
                         showIcon={true}
                         placeholder={placeholder}
                         selectedKeys={[`${type}-${currentTab}`]}

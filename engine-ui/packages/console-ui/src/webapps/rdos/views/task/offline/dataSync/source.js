@@ -91,7 +91,7 @@ class SourceForm extends React.Component {
         });
     }
 
-    getTableColumn(tableName,type) {
+    getTableColumn(tableName, type) {
         const { form, handleTableColumnChange, handleTableCopateChange } = this.props;
 
         if (tableName instanceof Array) {
@@ -191,10 +191,10 @@ class SourceForm extends React.Component {
 
     }
 
-    changeTable(type,value) {
-        console.log(value);
+    changeTable(type, value) {
+        console.log(value, type);
         if (value) {
-            this.getTableColumn(value,type);
+            this.getTableColumn(value, type);
         }
         this.submitForm();
         this.setState({
@@ -547,7 +547,7 @@ class SourceForm extends React.Component {
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
-                                onChange={this.debounceTableSearch.bind(this,sourceMap.type.type)}
+                                onChange={this.debounceTableSearch.bind(this, sourceMap.type.type)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -613,7 +613,7 @@ class SourceForm extends React.Component {
                 break;
             }
             case DATA_SOURCE.MAXCOMPUTE:
-            case DATA_SOURCE.HIVE: {// Relational DB
+            case DATA_SOURCE.HIVE: {// Hive
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -629,8 +629,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this)}
-                                // disabled={!isCurrentTabNew}
+                                onChange={this.debounceTableSearch.bind(this, null)}
                                 optionFilterProp="value"
                             >
                                 {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
@@ -755,7 +754,7 @@ class SourceForm extends React.Component {
                             <Select
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this)}
+                                onChange={this.debounceTableSearch.bind(this, null)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

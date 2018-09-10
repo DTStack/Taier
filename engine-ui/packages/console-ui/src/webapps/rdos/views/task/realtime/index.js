@@ -318,7 +318,7 @@ class TaskIndex extends Component {
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         return (
             <Row className="task-editor">
-                <header className="toolbar bd-bottom clear">
+                <header className="toolbar clear">
                     <Col className="left">
                         {!isPro && (
                             <span>

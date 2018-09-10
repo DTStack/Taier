@@ -6,6 +6,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { getGeoByParent, getRowWidth, getRowHeight, getNodeCount } from 'utils/layout';
 
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
@@ -27,13 +28,9 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPopupMenu,
-    mxRectangle,
     mxPerimeter,
-    mxGeometry,
+    mxRectangle,
     mxGraphHandler,
-    mxPanningHandler,
-    mxHierarchicalLayout,
-    mxCompactTreeLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -41,13 +38,41 @@ const VertexSize = { // vertex大小
     height: 40,
 }
 
-const GraphLayout = {
-    levelDistance: 30, // 层级间距
-    nodeDistance: 10, // 节点间距
-}
+/**
+ * 合并Tree数据
+ * @param {*} origin 
+ * @param {*} target 
+ */
+const mergeTreeNodes = (treeNodeData, mergeSource) => {
+    if (treeNodeData) {
 
-const getVertexNode = (obj) => {
-    return obj;
+        if (treeNodeData.id === mergeSource.id) {
+            if (mergeSource.taskVOS) {
+                treeNodeData.taskVOS = Object.assign(mergeSource.taskVOS);
+            }
+            if (mergeSource.subTaskVOS) {
+                treeNodeData.subTaskVOS = Object.assign(mergeSource.subTaskVOS);
+            }
+            return;
+        }
+
+        const parentNodes = treeNodeData.taskVOS; // 父节点
+        const childNodes = treeNodeData.subTaskVOS; // 子节点
+
+        // 处理依赖节点
+        if (parentNodes && parentNodes.length > 0) {
+            for (let i = 0; i < parentNodes.length; i++) {
+                mergeTreeNodes(parentNodes[i], mergeSource);
+            }
+        }
+
+        // 处理被依赖节点
+        if (childNodes && childNodes.length > 0) {
+            for (let i = 0; i < childNodes.length; i++) {
+                mergeTreeNodes(childNodes[i], mergeSource);
+            }
+        }
+    }
 }
 
 export default class TaskView extends Component {
@@ -64,8 +89,8 @@ export default class TaskView extends Component {
     initGraph = (id) => {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
+        this._originData = null;
         this._vertexCells = {}; // 用于缓存创建的顶点节点
-        this._vertexData = []; // 缓存渲染数据
 
         const editor = this.Container
         this.loadEditor(editor)
@@ -95,7 +120,7 @@ export default class TaskView extends Component {
         Api.getTaskChildren(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                ctx.setState({ selectedTask: data, data })
+                ctx.setState({ selectedTask: data, data });
                 ctx.doInsertVertex(data)
             }
             ctx.setState({ loading: 'success' })
@@ -121,18 +146,59 @@ export default class TaskView extends Component {
     preHandGraphTree = (data) => {
 
         const relationTree = [];
-        let level = 0; // 层级，默认0
 
-        const loop = (treeNodeData, parent, level) => {
+        let level = 0;
+        let defaultRoot = { // 层级，默认0;
+            count: 1,
+            index: 1,
+            level: 0,
+            x: 10,
+            y: 10,
+            width: VertexSize.width,
+            height: VertexSize.height,
+            margin: 50,
+        }
 
-            if (treeNodeData) {
-                const parentNodes = treeNodeData.taskVOS; // 父节点
-                const childNodes = treeNodeData.subTaskVOS; // 子节点
-                const currentNodeData = getVertexNode(treeNodeData)
+        const loop = (currentNodeData, parent, level, parentNode) => {
 
-                currentNodeData._level = level;
-                currentNodeData._index = 1;
-                currentNodeData._count = 1;
+            if (currentNodeData) {
+                const parentNodes = currentNodeData.taskVOS; // 父节点
+                const childNodes = currentNodeData.subTaskVOS; // 子节点
+
+                let currentNode;
+
+                if (!currentNodeData._geometry) {
+                    currentNode = Object.assign({}, defaultRoot);
+                    currentNode.level = level;
+                    currentNode.y = parentNode.y + defaultRoot.margin;
+                } else {
+                    currentNode = currentNodeData._geometry;
+                }
+
+                if (currentNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                    // 如果是工作流，需要重新计算工作流节点的高和宽
+                    const nodeCount = getNodeCount(currentNodeData.subNodes);
+                    const tempNode = Object.assign({}, defaultRoot);
+                    tempNode.count = nodeCount.count;
+                    tempNode.level = nodeCount.level;
+                    currentNode.width = getRowWidth(tempNode);
+                    currentNode.height = getRowHeight(tempNode);
+                    currentNode.height = currentNode.height + VertexSize.height + currentNode.margin;
+                    
+                    const workflowData = currentNodeData.subNodes;
+                    let newLevel = 0;
+
+                    const workflowDefaultRoot = Object.assign({}, defaultRoot);
+                    workflowDefaultRoot.x = Math.round((currentNode.width - VertexSize.width) /2);
+                    workflowDefaultRoot.y = workflowDefaultRoot.height + 20;
+
+                    if (workflowData) {
+                        loop(workflowData, currentNodeData , newLevel, workflowDefaultRoot)
+                    }
+                }
+
+                currentNode = getGeoByParent(parentNode, currentNode);
+                currentNodeData._geometry = currentNode;
 
                 const dataItem = {
                     parent: parent,
@@ -144,14 +210,18 @@ export default class TaskView extends Component {
                 // 处理依赖节点
                 if (parentNodes && parentNodes.length > 0) {
                     for (let i = 0; i < parentNodes.length; i++) {
-                        const nodeData = getVertexNode(parentNodes[i]);
-                        nodeData._level = level - 1;
-                        nodeData._index = i + 1;
-                        nodeData._count = parentNodes.length + 1;
+                        const nodeData = parentNodes[i];
+                        const node = Object.assign({}, defaultRoot);
+                        node.level = level - 1;
+                        node.index = i + 1;
+                        node.count = parentNodes.length;
+
+                        nodeData._geometry = getGeoByParent(currentNode, node);
 
                         if (parentNodes[i].taskVOS) {
-                            loop(parentNodes[i], parent, level-2)
+                            loop(nodeData, parent, level - 1, currentNode)
                         }
+
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
@@ -159,18 +229,24 @@ export default class TaskView extends Component {
                         });
                     }
                 }
-    
+
                 // 处理被依赖节点
                 if (childNodes && childNodes.length > 0) {
-                    for (let i = 0; i < childNodes.length; i++) {
-                        const nodeData = getVertexNode(childNodes[i])
-                        nodeData._level = level + 1;
-                        nodeData._index = i + 1;
-                        nodeData._count = childNodes.length + 1;
+                    for (let j = 0; j < childNodes.length; j++) {
+                        const nodeData = childNodes[j];
 
-                        if (childNodes[i].subTaskVOS) {
-                            loop(childNodes[i], parent, level + 2)
+                        const node = Object.assign({}, defaultRoot);
+                        node.level = level + 1;
+                        node.index = j + 1;
+                        node.count = childNodes.length;
+
+                        nodeData._geometry = getGeoByParent(currentNode, node);
+                        console.log('_geometry child:', nodeData.name, currentNode, nodeData._geometry);
+
+                        if (childNodes[j].subTaskVOS) {
+                            loop(nodeData, parent, ++level, currentNode)
                         }
+
                         relationTree.push({
                             parent: parent,
                             source: currentNodeData,
@@ -178,20 +254,10 @@ export default class TaskView extends Component {
                         });
                     }
                 }
-
-                if (treeNodeData.taskType === TASK_TYPE.WORKFLOW) {
-                    const workflowData = treeNodeData.subNodes;
-                    workflowData._level = level + 1;
-                    if (workflowData) {
-                        loop(workflowData, currentNodeData, level + 2)
-                    }
-                }
-
-
             }
         }
 
-        loop(data, null, level);
+        loop(data, null, level, defaultRoot);
 
         return relationTree;
     }
@@ -206,14 +272,14 @@ export default class TaskView extends Component {
             if (!data) return null;
 
             let style = this.getStyles(data);
-            let cy = 10;
             
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
-            // let relative = (isWorkflow && data.subNodes !== null) ? true : false;
             
             let width = VertexSize.width;
             let height = VertexSize.height;
+            let cy = 10;
+
             if (isWorkflow) {
                 width = width + 20;
                 height = height + 100;
@@ -232,19 +298,27 @@ export default class TaskView extends Component {
                 cy = parentCell.geometry.y + VertexSize.height + 5;
             }
 
+            const geo = data._geometry || {
+                x : 10, y : 10, 
+                width: VertexSize.width, 
+                height: VertexSize.height
+            };
+
+            console.log('geo:', data.name, geo);
+
             const cell = graph.insertVertex(
-                parentCell,
-                null, 
+                isWorkflow ? null : parentCell,
+                data.id, 
                 data, 
-                10, cy,
-                width, height, 
+                geo.x, geo.y,
+                geo.width, geo.height, 
                 style,
             )
-
+            
             if (isWorkflow) {
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
-            console.log('insertCell:', cell);
+
             cell.isPart = isWorkflowNode;
             return cell
         }
@@ -277,39 +351,41 @@ export default class TaskView extends Component {
                     cellCache[target.id] = targetCell;
                 }
 
-                const edges = graph.getEdgesBetween(sourceCell, targetCell)
+                const edges = graph.getEdgesBetween(sourceCell, targetCell);
                 const edgeStyle = !isWorkflowNode ? null : 'strokeColor=#B7B7B7;';
 
                 if (edges.length === 0) {
                     graph.insertEdge(parentCell, null, '', sourceCell, targetCell, edgeStyle)
                 }
-                
-                this.executeLayout(parentCell);
             }
         }
     }
 
     doInsertVertex = (data) => {
         const graph = this.graph;
-        let existCellData = this._vertexData;
-        console.log('_vertexData:', existCellData);
-        const arrayData = this.preHandGraphTree(data);
-        // if (existCellData.length > 0) {
-        //     // graph.getModel().clear();
-        //     this._vertexCells = {};
-        //     const cells = graph.getChildCells(graph.getDefaultParent());
-        //     console.log('graph cells:', cells)
-        //     graph.removeCells(cells);
-        //     existCellData = arrayData.concat(existCellData);
-        // } else {
-        //     existCellData = arrayData;
-        //     this._vertexData = arrayData;
-        // }
-        // console.log('existCellData:', existCellData);
+
+        // clean data;
+        graph.getModel().clear();
+        this._vertexCells = {};
+        const cells = graph.getChildCells(graph.getDefaultParent());
+        graph.removeCells(cells);
+
+        // handData
+        let originData = this._originData;
+        if (originData) {
+            mergeTreeNodes(originData, data);
+            this._originData = originData;
+        } else {
+            this._originData = data;
+        }
+        console.log('originData:', this._originData);
+
+        const arrayData = this.preHandGraphTree(this._originData);
+        console.log('mergedData:', arrayData);
+
         this.renderGraph(arrayData);
-        this.executeLayout(graph.getDefaultParent());
+        // this.executeLayout(graph.getDefaultParent());
         graph.center();
-        // graph.view.setTranslate(200, 200);
     }
 
     loadEditor = (container) => {
@@ -382,7 +458,6 @@ export default class TaskView extends Component {
 
         this.initContextMenu(graph);
         this.initGraphEvent();
-        this.initGraphLayout();
     }
 
     formatTooltip = (cell) => {
@@ -482,55 +557,6 @@ export default class TaskView extends Component {
                 })
             }
         }
-    }
-
-    initGraphLayout = () => {
-
-        const graph = this.graph;
-        const model = graph.getModel();
-        const defaultParent = graph.getDefaultParent();
-
-        const layout = new mxCompactTreeLayout(graph, false);
-        layout.horizontal = false;
-        layout.useBoundingBox = false;
-        layout.maintainParentLocation = true;
-        layout.edgeRouting = false;
-        layout.levelDistance = 30;
-        layout.nodeDistance = 10;
-        layout.resizeParent = true;
-
-        this.executeLayout = function (layoutNode, change, post) {
-            model.beginUpdate();
-            try {
-                if (change != null) { change(); }
-                layout.execute(layoutNode);
-                console.log('after layout:', layoutNode);
-            } catch (e) {
-                throw e;
-            } finally {
-                graph.getModel().endUpdate();
-                if (post != null) { post(); }
-            }
-        }
-
-        // this.executeLayout2 = function (layoutNode, change, post) {
-        //     model.beginUpdate();
-        //     try {
-        //         if (change != null) { change(); }
-        //         const layout2 = new mxHierarchicalLayout(graph, 'north');
-        //         layout2.disableEdgeStyle = false;
-        //         layout2.interRankCellSpacing = 30;
-        //         layout2.intraCellSpacing = 10;
-        //         layout2.resizeParent = true;
-
-        //         layout2.execute(layoutNode);
-        //     } catch (e) {
-        //         throw e;
-        //     } finally {
-        //         graph.getModel().endUpdate();
-        //         if (post != null) { post(); }
-        //     }
-        // }
     }
 
     initGraphEvent = () => {

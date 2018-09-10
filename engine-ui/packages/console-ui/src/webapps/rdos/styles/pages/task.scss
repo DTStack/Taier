@@ -279,6 +279,14 @@
 
                 .file-item, .folder-item {
                     padding: 8px 0px;
+                    &:before{
+                        position: absolute;
+                        content:"";
+                        left:-20px;
+                        top:-5px;
+                        bottom: -5px;
+                        width:20px;
+                    }
                 }
             }
             .icon {
@@ -325,6 +333,7 @@
             .ant-tree-title {
                 position: relative;
             }
+           
             .ant-badge-status {
                 left: -35px;
                 width: 0px;
@@ -412,6 +421,7 @@
         padding-right: 30px;
         padding-bottom: 30px;
         background: #FAFAFA;
+        border-top: 1px solid #dddddd;
         .browser-tabs {
 
             .ant-tabs-nav-container{
@@ -422,7 +432,7 @@
                 &:after{
                     content:"";
                     position: absolute;
-                    top:0px;
+                    top: 0px;
                     left:0px;
                     right: 0px;
                     height: 3px;
@@ -434,10 +444,12 @@
         }
         .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close{
             margin-top: -6px;
+            line-height: 10px;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
-            padding-top: 7px;
+            line-height: 21px;
+            margin-top: -1px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -473,7 +485,7 @@
     .toolbar {
         width: 100%;
         padding: 10px 20px;
-        height: 40px;
+        height: 48px;
         background: #fff;
         button {
             border: 0;
@@ -505,6 +517,14 @@
     .task-browser {
         position: relative;
         height: 100%;
+
+        .tab-ellipsis {
+            display: inline-block;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .Resizer.vertical {
             border-top: 1px solid #e9e9e9;
             border-bottom: 1px solid #e9e9e9;

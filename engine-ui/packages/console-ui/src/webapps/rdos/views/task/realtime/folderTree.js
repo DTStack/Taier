@@ -133,7 +133,6 @@ class FolderTree extends Component {
             loadData, isPicker, placeholder, disabled, value,
             expandedKeys, onExpand, selectedKeys,
         } = this.props;
-
         if (isPicker) treeContent = (
             <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
                 <TreeSelect
