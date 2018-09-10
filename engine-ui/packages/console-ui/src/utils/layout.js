@@ -48,8 +48,8 @@ export const getNodeCount = (node) => {
     let level = 0, maxLevel = 0;
     const loop = (node, level) => {
 
-        level = level + 1;
         const children = node.subTaskVOS;
+        level = level + 1;
         
         if (children && children.length > 0) {
             for (let j = 0; j < children.length; j++) {
