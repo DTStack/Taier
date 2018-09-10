@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm } from "antd";
+import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm, Badge } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
 
@@ -133,13 +133,19 @@ class PackagePublish extends React.Component {
             render(status) {
                 switch (status) {
                     case publishStatus.UNSUBMIT: {
-                        return '待发布'
+                        return (<span>
+                            <Badge status="warning" text="待发布" />
+                        </span>)
                     }
                     case publishStatus.FAIL: {
-                        return '发布失败'
+                        return (<span>
+                            <Badge status="error" text="发布失败" />
+                        </span>)
                     }
                     case publishStatus.SUCCESS: {
-                        return '发布成功'
+                        return (<span>
+                            <Badge status="success" text="发布成功" />
+                        </span>)
                     }
                 }
             }
@@ -156,7 +162,7 @@ class PackagePublish extends React.Component {
                             <span className="ant-divider"></span>
                             <Popconfirm title="确定删除该发布包吗?" onConfirm={this.deletePackage.bind(this, record.id)} okText="确定" cancelText="取消">
                                 <a>删除</a>
-                            </Popconfirm>   
+                            </Popconfirm>
                             <span className="ant-divider"></span>
                             <Popconfirm title="确定发布吗?" onConfirm={this.publishPackage.bind(this, record.id)} okText="确定" cancelText="取消">
                                 <a>发布</a>
