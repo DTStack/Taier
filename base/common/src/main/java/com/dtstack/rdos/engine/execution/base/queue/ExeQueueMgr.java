@@ -37,9 +37,6 @@ public class ExeQueueMgr {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExeQueueMgr.class);
 
-    /**所有集群的队列信息(各个groupName对应的最大优先数值)*/
-    private ClusterQueueZKInfo clusterQueueInfo;
-
     private Map<String, EngineTypeQueue> engineTypeQueueMap = Maps.newConcurrentMap();
 
     private ExecutorService executorService;
@@ -49,6 +46,8 @@ public class ExeQueueMgr {
     private String localAddress = ConfigParse.getLocalAddress();
 
     private static ExeQueueMgr exeQueueMgr = new ExeQueueMgr();
+
+    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
 
     private ExeQueueMgr(){
 
@@ -89,22 +88,13 @@ public class ExeQueueMgr {
         return engineTypeQueue.remove(groupName, taskId);
     }
 
-
-    /**
-     * zk监听模块调用该接口--更新本地的集群队列信息缓存
-     * @param clusterQueueInfo
-     */
-    public void updateZkGroupPriorityInfo(Map<String, Map<String, Map<String, Integer>>> clusterQueueInfo){
-        this.clusterQueueInfo = new ClusterQueueZKInfo(clusterQueueInfo);
-    }
-
     /**
      * 获取当前节点的队列信息
      */
-    public Map<String, Map<String, Integer>> getZkGroupPriorityInfo(){
-        Map<String, Map<String, Integer>> result = Maps.newHashMap();
-        engineTypeQueueMap.forEach((engineType, queue) -> result.put(engineType, queue.getZkGroupPriorityInfo()));
-        return result;
+    public Map<String, Map<String, Integer>> getEngineTypePriorityInfo(){
+        Map<String, Map<String, Integer>> engineTypePriority = Maps.newHashMap();
+        engineTypeQueueMap.forEach((engineType, queue) -> engineTypePriority.put(engineType, queue.getGroupPriorityInfo()));
+        return engineTypePriority;
     }
 
 
@@ -117,13 +107,13 @@ public class ExeQueueMgr {
     }
 
     private boolean checkLocalPriorityIsMax(String engineType, String groupName, String localAddress) {
-        if(clusterQueueInfo == null){
+        if(clusterQueueInfo.isEmpty()){
             //等待第一次从zk上获取信息
             return false;
         }
 
-        ClusterQueueZKInfo.EngineTypeQueueZKInfo zkInfo = clusterQueueInfo.getEngineTypeQueueZkInfo(engineType);
-        if(zkInfo == null){
+        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
+        if(engineTypeQueueInfo == null){
             return true;
         }
 
@@ -132,7 +122,7 @@ public class ExeQueueMgr {
             throw new RdosException("not support engineType:" + engineType);
         }
 
-        return engineTypeQueue.checkLocalPriorityIsMax(groupName, localAddress, zkInfo);
+        return engineTypeQueue.checkLocalPriorityIsMax(groupName, localAddress, engineTypeQueueInfo);
     }
 
     public void checkQueueAndSubmit(){

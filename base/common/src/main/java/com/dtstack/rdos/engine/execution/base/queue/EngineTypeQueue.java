@@ -64,23 +64,23 @@ public class EngineTypeQueue {
     }
 
     public boolean checkLocalPriorityIsMax(String groupName, String localAddress,
-                                           ClusterQueueZKInfo.EngineTypeQueueZKInfo zkInfo) {
+                                           ClusterQueueInfo.EngineTypeQueueInfo zkInfo) {
 
         Integer localPriority = groupMaxPriority.get(groupName);
         localPriority = localPriority == null ? 0 : localPriority;
 
         boolean result = true;
-        for (Map.Entry<String, ClusterQueueZKInfo.GroupQueueZkInfo> zkInfoEntry : zkInfo.getGroupQueueZkInfoMap().entrySet()) {
+        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : zkInfo.getGroupQueueInfoMap().entrySet()) {
             String address = zkInfoEntry.getKey();
-            ClusterQueueZKInfo.GroupQueueZkInfo groupQueueZkInfo = zkInfoEntry.getValue();
+            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
 
             if (localAddress.equals(address)) {
                 continue;
             }
 
-            Map<String, Integer> remoteQueueInfo = groupQueueZkInfo.getPriorityInfo();
-            Integer priority = remoteQueueInfo.getOrDefault(groupName, 0);
-            if (priority > localPriority) {
+            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
+            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
+            if (groupInfo.getPriority() > localPriority) {
                 result = false;
                 break;
             }
@@ -111,7 +111,7 @@ public class EngineTypeQueue {
         return groupExeQueue;
     }
 
-    public Map<String, Integer> getZkGroupPriorityInfo() {
+    public Map<String, Integer> getGroupPriorityInfo() {
         return groupMaxPriority;
     }
 

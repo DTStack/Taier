@@ -42,6 +42,12 @@ public class GroupPriorityQueue {
         return groupPriorityQueueMap;
     }
 
+    public Map<String,Integer> getGroupSizeInfo(){
+        Map<String,Integer> groupSizeInfo = Maps.newHashMap();
+        groupPriorityQueueMap.forEach((group, queue)->groupSizeInfo.computeIfAbsent(group,k->queue.size()));
+        return groupSizeInfo;
+    }
+
     public Collection<OrderLinkedBlockingQueue<JobClient>> getOrderList(){
         return groupPriorityQueueMap.values();
     }

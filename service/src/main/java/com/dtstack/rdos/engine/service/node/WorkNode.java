@@ -98,6 +98,15 @@ public class WorkNode {
         jobStopQueue.start();
     }
 
+    /**
+     * 获取当前节点的队列大小信息
+     */
+    public Map<String, Map<String, Integer>> getEngineTypeQueueSizeInfo(){
+        Map<String, Map<String, Integer>> engineTypeQueueSizeInfo = Maps.newHashMap();
+        priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->queue.getGroupSizeInfo()));
+        return engineTypeQueueSizeInfo;
+    }
+
     public void addStartJob(JobClient jobClient){
         boolean distribute = distributeTask(jobClient,0,Lists.newArrayList());
         if (!distribute){
@@ -215,7 +224,7 @@ public class WorkNode {
      */
     private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
 
-        String address = zkLocalCache.getDistributeNode(excludeNodes);
+        String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(),excludeNodes);
         if(Strings.isNullOrEmpty(address)){
             return false;
         }

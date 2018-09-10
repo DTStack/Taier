@@ -74,4 +74,19 @@ public class ConfigParse {
         Map<String, String> db = (Map<String, String>)configs.get("db");
         return db;
     }
+
+    public static int getTaskDistributeQueueWeight(Map<String, Object> nodeConfig) {
+        Object taskDistributeQueueWeight = nodeConfig.get("taskDistributeQueueWeight");
+        return taskDistributeQueueWeight==null ? 6 : MathUtil.getIntegerVal(taskDistributeQueueWeight);
+    }
+
+    public static int getTaskDistributeZkWeight(Map<String, Object> nodeConfig) {
+        Object taskDistributeZkWeight = nodeConfig.get("taskDistributeZkWeight");
+        return taskDistributeZkWeight==null ? 4 : MathUtil.getIntegerVal(taskDistributeZkWeight);
+    }
+
+    public static int getTaskDistributeDeviation(Map<String, Object> nodeConfig) {
+        Object taskDistributeDeviation = nodeConfig.get("taskDistributeDeviation");
+        return taskDistributeDeviation==null ? 3 : MathUtil.getIntegerVal(taskDistributeDeviation);
+    }
 }

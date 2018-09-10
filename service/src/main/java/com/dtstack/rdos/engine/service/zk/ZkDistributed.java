@@ -470,7 +470,7 @@ public class ZkDistributed implements Closeable{
         return queueNodeMap;
     }
 
-    public BrokerQueueNode getBrokerQueueNode(String node){
+    private BrokerQueueNode getBrokerQueueNode(String node){
 	    try{
             String nodePath = String.format("%s/%s/%s", this.brokersNode, node, this.queueNode);
             BrokerQueueNode queueNode = objectMapper.readValue(zkClient.getData().forPath(nodePath), BrokerQueueNode.class);

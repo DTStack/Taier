@@ -1,6 +1,8 @@
 package com.dtstack.rdos.engine.service.zk.cache;
 
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
+import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
@@ -25,16 +27,16 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
 
     private volatile BrokerDataNode localDataCache;
     private volatile AtomicBoolean requiresCopyOnWrite;
-    private static ZkLocalCache zkLocalCache = new ZkLocalCache();
     private String localAddress;
-
+    private static ZkLocalCache zkLocalCache = new ZkLocalCache();
     public static ZkLocalCache getInstance() {
         return zkLocalCache;
     }
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-
-    private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
+    private WorkNode workNode = WorkNode.getInstance();
+    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
+    private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
 
     private ZkLocalCache() {
         this.requiresCopyOnWrite = new AtomicBoolean(false);
@@ -80,11 +82,12 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     }
 
     /**
-     * 选择节点间队列负载最小的node，做任务分发
+     * 选择节点间（队列负载+已提交任务 加权值）+ 误差 符合要求的node，做任务分发
      */
-    public String getDistributeNode(List<String> excludeNodes) {
+    public String getDistributeNode(String engineType,List<String> excludeNodes) {
         int def = Integer.MAX_VALUE;
         String node = null;
+
         Set<Map.Entry<String, BrokerDataNode>> entrys = core.entrySet();
         for (Map.Entry<String, BrokerDataNode> entry : entrys) {
             String targetNode = entry.getKey();
@@ -93,6 +96,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
             }
             int size = 0;
             for (Map.Entry<String, BrokerDataShard> shardEntry : entry.getValue().getShards().entrySet()) {
+
                 size += getDistributeJobCount(shardEntry.getValue());
             }
             if (size < def) {
