@@ -50,7 +50,7 @@ public class ClusterQueueInfo {
         return infoMap.get(engineType);
     }
 
-    class EngineTypeQueueInfo {
+    public class EngineTypeQueueInfo {
 
         private String engineType;
 
@@ -71,9 +71,13 @@ public class ClusterQueueInfo {
         public Map<String, GroupQueueInfo> getGroupQueueInfoMap() {
             return groupQueueInfoMap;
         }
+
+        public String getEngineType() {
+            return engineType;
+        }
     }
 
-    class GroupQueueInfo {
+    public class GroupQueueInfo {
 
         private String address;
 
@@ -86,6 +90,10 @@ public class ClusterQueueInfo {
 
         public Map<String, GroupInfo> getGroupInfo() {
             return groupInfo;
+        }
+
+        public String getAddress() {
+            return address;
         }
     }
 }

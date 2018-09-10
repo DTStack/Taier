@@ -98,6 +98,10 @@ public class WorkNode {
         jobStopQueue.start();
     }
 
+    public GroupPriorityQueue getEngineTypeQueue(String engineType) {
+        return priorityQueueMap.get(engineType);
+    }
+
     /**
      * 获取当前节点的队列大小信息
      */
@@ -224,7 +228,7 @@ public class WorkNode {
      */
     private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
 
-        String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(),excludeNodes);
+        String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
         if(Strings.isNullOrEmpty(address)){
             return false;
         }

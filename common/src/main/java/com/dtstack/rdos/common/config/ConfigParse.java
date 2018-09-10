@@ -75,18 +75,18 @@ public class ConfigParse {
         return db;
     }
 
-    public static int getTaskDistributeQueueWeight(Map<String, Object> nodeConfig) {
-        Object taskDistributeQueueWeight = nodeConfig.get("taskDistributeQueueWeight");
+    public static int getTaskDistributeQueueWeight() {
+        Object taskDistributeQueueWeight = configs.get("taskDistributeQueueWeight");
         return taskDistributeQueueWeight==null ? 6 : MathUtil.getIntegerVal(taskDistributeQueueWeight);
     }
 
-    public static int getTaskDistributeZkWeight(Map<String, Object> nodeConfig) {
-        Object taskDistributeZkWeight = nodeConfig.get("taskDistributeZkWeight");
+    public static int getTaskDistributeZkWeight() {
+        Object taskDistributeZkWeight = configs.get("taskDistributeZkWeight");
         return taskDistributeZkWeight==null ? 4 : MathUtil.getIntegerVal(taskDistributeZkWeight);
     }
 
-    public static int getTaskDistributeDeviation(Map<String, Object> nodeConfig) {
-        Object taskDistributeDeviation = nodeConfig.get("taskDistributeDeviation");
+    public static int getTaskDistributeDeviation() {
+        Object taskDistributeDeviation = configs.get("taskDistributeDeviation");
         return taskDistributeDeviation==null ? 3 : MathUtil.getIntegerVal(taskDistributeDeviation);
     }
 }

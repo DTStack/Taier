@@ -1,17 +1,22 @@
 package com.dtstack.rdos.engine.service.zk.cache;
 
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
+import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
+import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
+import com.google.common.collect.Maps;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -28,6 +33,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private volatile BrokerDataNode localDataCache;
     private volatile AtomicBoolean requiresCopyOnWrite;
     private String localAddress;
+    private int distributeZkWeight;
+    private int distributeQueueWeight;
+    private int distributeDeviation;
     private static ZkLocalCache zkLocalCache = new ZkLocalCache();
     public static ZkLocalCache getInstance() {
         return zkLocalCache;
@@ -46,6 +54,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
         core = zkDistributed.initMemTaskStatus();
         localAddress = zkDistributed.getLocalAddress();
         localDataCache = core.get(localAddress);
+        distributeZkWeight = ConfigParse.getTaskDistributeQueueWeight();
+        distributeQueueWeight = ConfigParse.getTaskDistributeZkWeight();
+        distributeDeviation = ConfigParse.getTaskDistributeDeviation();
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
@@ -84,39 +95,57 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     /**
      * 选择节点间（队列负载+已提交任务 加权值）+ 误差 符合要求的node，做任务分发
      */
-    public String getDistributeNode(String engineType,List<String> excludeNodes) {
-        int def = Integer.MAX_VALUE;
-        String node = null;
+    public String getDistributeNode(String engineType, String groupName, List<String> excludeNodes) {
+        if(clusterQueueInfo.isEmpty()){
+            return localAddress;
+        }
 
-        Set<Map.Entry<String, BrokerDataNode>> entrys = core.entrySet();
-        for (Map.Entry<String, BrokerDataNode> entry : entrys) {
-            String targetNode = entry.getKey();
-            if (excludeNodes.contains(targetNode)) {
+        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
+        if(engineTypeQueueInfo == null){
+            return localAddress;
+        }
+
+        GroupPriorityQueue groupPriorityQueue = workNode.getEngineTypeQueue(engineType);
+        if(groupPriorityQueue == null){
+            throw new RdosException("not support engineType:" + engineType);
+        }
+        Map<String, OrderLinkedBlockingQueue<JobClient>> groupQueues = groupPriorityQueue.getGroupPriorityQueueMap();
+        OrderLinkedBlockingQueue queue = groupQueues.get(groupName);
+        int localQueueSize = queue == null ? 0 : queue.size();
+        Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
+        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
+            ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
+            Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
+            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
+            otherQueueInfoMap.put(zkInfoEntry.getKey(),groupInfo.getSize());
+        }
+
+        int localZkSize = localDataCache.getDataSize();
+        Map<String, Integer> otherZkInfoMap = Maps.newHashMap();
+        for (Map.Entry<String, BrokerDataNode> entry : core.entrySet()) {
+            if (localAddress.contains(entry.getKey())){
                 continue;
             }
-            int size = 0;
-            for (Map.Entry<String, BrokerDataShard> shardEntry : entry.getValue().getShards().entrySet()) {
+            int zkSize = entry.getValue().getDataSize();
+            otherZkInfoMap.put(entry.getKey(),zkSize);
+        }
 
-                size += getDistributeJobCount(shardEntry.getValue());
+        String node = null;
+        int minWeight = Integer.MAX_VALUE;
+        for (Map.Entry<String, Integer> nodeEntry:otherZkInfoMap.entrySet()){
+            int zkSize = nodeEntry.getValue();
+            int queueSize = otherQueueInfoMap.getOrDefault(nodeEntry.getKey(),0);
+            int weight = zkSize * distributeZkWeight + queueSize * distributeQueueWeight;
+            if (minWeight>weight){
+                minWeight = weight;
+                node=nodeEntry.getKey();
             }
-            if (size < def) {
-                def = size;
-                node = targetNode;
-            }
+        }
+        int localWeight = localZkSize * distributeZkWeight + localQueueSize * distributeQueueWeight;
+        if (localWeight-minWeight<=distributeDeviation){
+            return localAddress;
         }
         return node;
-    }
-
-    private int getDistributeJobCount(BrokerDataShard brokerDataShard) {
-        int count = 0;
-        for (byte status : brokerDataShard.getView().values()) {
-            if (status == RdosTaskStatus.RESTARTING.getStatus()
-                    || status == RdosTaskStatus.WAITCOMPUTE.getStatus()
-                    || status == RdosTaskStatus.WAITENGINE.getStatus()) {
-                count++;
-            }
-        }
-        return count;
     }
 
     @Override
