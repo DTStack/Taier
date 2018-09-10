@@ -18,7 +18,7 @@ const ROUTER_BASE = '/data-manage/table';
 
 @connect(state => {
     return {
-        projects: state.projects,
+        allProjects: state.allProjects,
         dataCatalogues: state.dataManage.dataCatalogues,
     }
 })
@@ -235,11 +235,9 @@ class SearchTable extends Component {
 
     render() {
         const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
-        const { projects } = this.props;
-
+        const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
-
-        const projectOptions = projects.map(proj => <Option
+        const projectOptions = allProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
             name={proj.projectAlias}
