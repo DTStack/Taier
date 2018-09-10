@@ -14,7 +14,7 @@ const RadioGroup = Radio.Group
 class MrEditor extends Component {
 
     render() {
-        const { form, currentPage, project, isPro } = this.props
+        const { form, currentPage } = this.props
         const { getFieldDecorator } = form
 
         return (
@@ -34,7 +34,7 @@ class MrEditor extends Component {
                         }],
                         initialValue: currentPage ? currentPage.name : '',
                     })(
-                        <Input disabled={isPro} />,
+                        <Input  />,
                     )}
                 </FormItem>
                 <FormItem
@@ -68,7 +68,7 @@ class MrEditor extends Component {
                         rules: [{}],
                         initialValue: currentPage && currentPage.mainClass,
                     })(
-                        <Input disabled={isPro} placeholder="请输入mainClass" />,
+                        <Input  placeholder="请输入mainClass" />,
                     )}
                 </FormItem>
                 <FormItem
@@ -79,7 +79,7 @@ class MrEditor extends Component {
                         rules: [{}],
                         initialValue: currentPage && currentPage.exeArgs,
                     })(
-                        <Input disabled={isPro} placeholder="请输入任务参数" />,
+                        <Input placeholder="请输入任务参数" />,
                     )}
                 </FormItem>
                 <FormItem
@@ -91,7 +91,7 @@ class MrEditor extends Component {
                         rules: [],
                         initialValue: currentPage ? currentPage.taskDesc : '',
                     })(
-                        <Input disabled={isPro} type="textarea" rows={4} />,
+                        <Input type="textarea" rows={4} />,
                     )}
                 </FormItem>
             </Form>

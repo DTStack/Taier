@@ -63,7 +63,6 @@ class CodeEditor extends Component {
         const {
             currentPage,
             editor,
-            isPro,
         } = this.props;
 
         const cursorPosition = currentPage.cursorPosition || undefined;
@@ -72,7 +71,7 @@ class CodeEditor extends Component {
             value: currentPage.sqlText,
             language: 'dtsql',
             options: {
-                readOnly: isPro||isLocked,
+                readOnly: isLocked,
             },
             cursorPosition: cursorPosition,
             theme: editor.options.theme,
@@ -84,9 +83,8 @@ class CodeEditor extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: false,
-            enableFormat: !isPro,
-            disAbleEdit: isPro,
-            onFileEdit: !isPro && commonFileEditDelegator(this._editor),
+            enableFormat: true,
+            onFileEdit: commonFileEditDelegator(this._editor),
             onFormat: this.sqlFormat,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })

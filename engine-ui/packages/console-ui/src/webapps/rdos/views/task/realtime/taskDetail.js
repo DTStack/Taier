@@ -71,7 +71,7 @@ export default class TaskDetail extends Component {
 
     render() {
         const { visibleAlterRes, resList } = this.state
-        const { resources, currentPage, editorChange, isPro } = this.props
+        const { resources, currentPage, editorChange } = this.props
         const taskRes = currentPage.resourceList && currentPage.resourceList.map((item) => {
             return <Tag key={item.id} color="blue">{item.resourceName}</Tag>
         })
@@ -140,9 +140,8 @@ export default class TaskDetail extends Component {
                             </Modal>
                         </Row>
                     </Panel>
-                    <Panel key="2" header={`历史${isPro ? '发布' : '提交'}版本`}>
+                    <Panel key="2" header={`历史提交版本`}>
                         <TaskVersion
-                            isPro={isPro}
                             taskInfo={currentPage}
                             changeSql={editorChange}
                             taskType="realTimeTask"

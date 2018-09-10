@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import {cloneDeep} from "lodash";
+import { cloneDeep } from "lodash";
 
 import {
-    Row, Col, Modal, Card,
-    Input, Form, message,
+    Row, Col, Modal, Card, Tooltip,
+    Input, Form, message, Icon,
     Switch, Select
 } from 'antd'
 
@@ -61,7 +61,7 @@ class ProjectConfig extends Component {
     state = {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,
-        bindLoading:false,
+        bindLoading: false,
         visibleChangeProduce: false,
         bindProject: {}
     }
@@ -95,7 +95,7 @@ class ProjectConfig extends Component {
             scheduleStatusLoading: true
         })
         Api.updateProjectSchedule({
-            status: checked?0:1
+            status: checked ? 0 : 1
         })
             .then(
                 (res) => {
@@ -104,7 +104,7 @@ class ProjectConfig extends Component {
                     })
                     if (res.code == 1) {
                         message.success("周期调度状态切换成功！")
-                        const newProject = cloneDeep(Object.assign(project, { scheduleStatus:checked?0:1 }))
+                        const newProject = cloneDeep(Object.assign(project, { scheduleStatus: checked ? 0 : 1 }))
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
                     }
@@ -119,21 +119,21 @@ class ProjectConfig extends Component {
         }
         Modal.confirm({
             title: '确认绑定发布目标',
-            content: (<div style={{color:"ff0000",fontWeight:"bold"}}>
+            content: (<div style={{ color: "ff0000", fontWeight: "bold" }}>
                 <p>是否确定将{bindProject.name}项目指定为发布目标？</p>
                 <p>此配置不可逆，确认后不可修改</p>
             </div>),
-            iconType:"exclamation-circle",
-            onOk:() =>{
+            iconType: "exclamation-circle",
+            onOk: () => {
                 this.setState({
-                    bindLoading:true
+                    bindLoading: true
                 })
                 Api.bindProductionProject({
                     produceProjectId: bindProject.id
                 }).then(
                     (res) => {
                         this.setState({
-                            bindLoading:false
+                            bindLoading: false
                         })
                         if (res.code == 1) {
                             message.success("绑定成功！")
@@ -151,7 +151,7 @@ class ProjectConfig extends Component {
                 )
             },
             onCancel() {
-                return ;
+                return;
             },
         });
     }
@@ -170,7 +170,12 @@ class ProjectConfig extends Component {
             case PROJECT_TYPE.COMMON: {
                 return (
                     <tr>
-                        <td className="t-title">发布目标</td>
+                        <td className="t-title">
+                            发布目标
+                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        </td>
                         <td>
                             <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
                         </td>
@@ -180,7 +185,12 @@ class ProjectConfig extends Component {
             case PROJECT_TYPE.TEST: {
                 return (
                     <tr>
-                        <td className="t-title">发布目标</td>
+                        <td className="t-title">
+                            发布目标
+                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        </td>
                         <td>
                             {project.produceProject}
                         </td>
@@ -213,8 +223,8 @@ class ProjectConfig extends Component {
             project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
         const members = project && project.memberUsers && project.memberUsers.length > 0 ?
             project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
-        const projectIdentifier=project.projectIdentifier;
-            return (
+        const projectIdentifier = project.projectIdentifier;
+        return (
             <div className="project-config">
                 <h1 className="box-title">
                     项目配置
@@ -298,7 +308,7 @@ class ProjectConfig extends Component {
                         >
                             {projects.map(
                                 (project) => {
-                                    return (project.projectType == PROJECT_TYPE.COMMON&&project.projectIdentifier!=projectIdentifier ? <Option
+                                    return (project.projectType == PROJECT_TYPE.COMMON && project.projectIdentifier != projectIdentifier ? <Option
                                         key={project.id}
                                         value={project.id}>
                                         {project.projectAlias}

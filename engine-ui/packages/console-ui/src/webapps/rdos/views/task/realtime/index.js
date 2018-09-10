@@ -315,57 +315,41 @@ class TaskIndex extends Component {
     render() {
         const { dispatch, currentPage, project } = this.props
         const disablePublish = currentPage.notSynced
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
         return (
             <Row className="task-editor">
                 <header className="toolbar clear">
                     <Col className="left">
-                        {!isPro && (
-                            <span>
-                                <Button
-                                    onClick={() => {
-                                        dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
-                                    }}
-                                    title="创建任务"
-                                >
-                                    <MyIcon className="my-icon" type="focus" /> 新建任务
+                        <span>
+                            <Button
+                                onClick={() => {
+                                    dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
+                                }}
+                                title="创建任务"
+                            >
+                                <MyIcon className="my-icon" type="focus" /> 新建任务
                                 </Button>
-                                <Button
-                                    disabled={currentPage.invalid}
-                                    onClick={this.saveTask}
-                                    title="保存任务"
-                                >
-                                    <MyIcon className="my-icon" type="save" />保存
+                            <Button
+                                disabled={currentPage.invalid}
+                                onClick={this.saveTask}
+                                title="保存任务"
+                            >
+                                <MyIcon className="my-icon" type="save" />保存
                                 </Button>
-                            </span>
-                        )}
+                        </span>
                         <FullScreenButton />
                     </Col>
                     <Col className="right">
-                        {!isPro && (
-                            <span>
-                                <Tooltip
-                                    placement="bottom"
-                                    title="提交到调度系统"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
-                                        <Icon type="upload" style={{ color: "#000" }} /> 提交
+                        <span>
+                            <Tooltip
+                                placement="bottom"
+                                title="提交到调度系统"
+                                mouseLeaveDelay={0}
+                            >
+                                <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
+                                    <Icon type="upload" style={{ color: "#000" }} /> 提交
                             </Button>
-                                </Tooltip>
-                                <Tooltip
-                                    placement="bottom"
-                                    title="发布到目标项目"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <Button
-                                        disabled={disablePublish}
-                                    >
-                                        <MyIcon className="my-icon" type="fly" />发布
-                            </Button>
-                                </Tooltip>
-                            </span>
-                        )}
+                            </Tooltip>
+                        </span>
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
                                 <MyIcon className="my-icon" type="goin" /> 运维
@@ -374,7 +358,6 @@ class TaskIndex extends Component {
                     </Col>
                 </header>
                 <TaskBrowser
-                    isPro={isPro}
                     {...this.props}
                     ayncTree={this.loadTreeData}
                     editorParamsChange={this.editorParamsChange}

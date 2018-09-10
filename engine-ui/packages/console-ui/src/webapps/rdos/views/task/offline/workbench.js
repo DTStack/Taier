@@ -4,6 +4,7 @@ import {
     Row, Col, Button, message, Input, Form,
     Tabs, Menu, Dropdown, Icon, Modal, Tooltip
 } from 'antd';
+import {hashHistory} from "react-router";
 
 import { cloneDeep, isEmpty } from 'lodash';
 
@@ -76,6 +77,15 @@ class Workbench extends React.Component {
         )
     }
 
+    toPublishView(){
+        hashHistory.push({
+            pathname:"/package/create",
+            query:{
+                type:"offline"
+            }
+        })
+    }
+    
     showPublish() {
         const { currentTabData } = this.props;
         const { taskType, createModel } = currentTabData;
@@ -237,7 +247,7 @@ class Workbench extends React.Component {
                         >
                             <Button
                                 disabled={disablePublish}
-                                onClick={this.showPublish.bind(this)}
+                                onClick={this.toPublishView.bind(this)}
                             >
                                 <MyIcon className="my-icon" type="fly" />发布
                         </Button>

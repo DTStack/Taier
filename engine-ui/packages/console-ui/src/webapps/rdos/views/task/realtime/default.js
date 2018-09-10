@@ -11,22 +11,21 @@ class Default extends Component {
 
     render() {
         const { dispatch, project } = this.props
-        const iconStyle = { width: '60px', height: '60px', marginTop: '25px'}
-        const isPro=project.projectType==PROJECT_TYPE.PRO;
+        const iconStyle = { width: '60px', height: '60px', marginTop: '25px' }
         return (
             <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
-                {!isPro&& <Col className="operation-card" >
+                <Col className="operation-card" >
                     <div
-                      onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) }}
-                      className="operation-content">
-                        <MyIcon style={iconStyle}  type="add-file" /> 
+                        onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) }}
+                        className="operation-content">
+                        <MyIcon style={iconStyle} type="add-file" />
                     </div>
                     <p className="txt-center">创建实时任务</p>
-                </Col>}<Col className="operation-card">
+                </Col><Col className="operation-card">
                     <div
-                      onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
-                      className="operation-content">
-                         <MyIcon style={iconStyle} type="upload" /> 
+                        onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
+                        className="operation-content">
+                        <MyIcon style={iconStyle} type="upload" />
                     </div>
                     <p className="txt-center">上传实时计算资源</p>
                 </Col>
@@ -34,8 +33,8 @@ class Default extends Component {
         )
     }
 }
-export default connect(state=>{
+export default connect(state => {
     return {
-        project:state.project
+        project: state.project
     }
 })(Default)

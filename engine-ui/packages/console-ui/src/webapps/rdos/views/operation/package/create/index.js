@@ -6,11 +6,14 @@ import {
 } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
+import { bindActionCreators } from 'redux'
 import utils from "utils";
 import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
 import { publishType, TASK_TYPE } from "../../../../comm/const"
+import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
+import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
 import PublishModal from "../publish/publishModal"
 
@@ -22,8 +25,17 @@ const Search = Input.Search;
 
 @connect(state => {
     return {
-        project: state.project
+        project: state.project,
+        taskTypes:{
+            realtime:state.realtimeTask.comm.taskTypes,
+            offline:state.offlineTask.comm.taskTypes
+        }
     }
+}, dispatch => {
+    return bindActionCreators({
+        getTaskTypes,
+        realtimeGetTaskTypes
+    }, dispatch);
 })
 class PackageCreate extends React.Component {
 
@@ -55,6 +67,8 @@ class PackageCreate extends React.Component {
     }
 
     componentDidMount() {
+        this.props.getTaskTypes();
+        this.props.realtimeGetTaskTypes();
         this.getTaskList();
         this.getUsers();
     }
@@ -216,11 +230,11 @@ class PackageCreate extends React.Component {
                 }, {
                     title: "负责人",
                     dataIndex: "chargeUser",
-                    width: "140px"
+                    width: "130px"
                 }, {
                     title: "提交人",
                     dataIndex: "modifyUser",
-                    width: "140px"
+                    width: "130px"
                 }, {
                     title: "提交时间",
                     dataIndex: "modifyTime",
@@ -232,7 +246,7 @@ class PackageCreate extends React.Component {
                 }, {
                     title: "备注",
                     dataIndex: "taskDesc",
-                    width: "150px"
+                    width: "140px"
                 }, {
                     title: "操作",
                     dataIndex: "deal",
@@ -575,7 +589,6 @@ class PackageCreate extends React.Component {
         )
     }
     render() {
-        const win = document.body.getBoundingClientRect();
         const {
             packageList, tableParams, addLinkVisible, createModalVisible,
             pagination, selectedRows,
@@ -640,7 +653,7 @@ class PackageCreate extends React.Component {
                         </div>
                         <div className="tool-top">
                             待发布对象 <span className="publish-num">{selectedRows.length}</span>
-                            <Button onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
+                            <Button disabled={selectedRows.length==0} onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
                         </div>
                         <div className="main">
                             {this.renderRightItem()}
