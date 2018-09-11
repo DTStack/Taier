@@ -434,7 +434,7 @@ class FolderTree extends React.Component {
 
     genetateTreeNode() {
 
-        const { treeData, type, ispicker, isFilepicker, acceptRes, isPro } = this.props;
+        const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
         const treeType = type;
         console.log('genetateTreeNode', this.props);
 
@@ -446,7 +446,7 @@ class FolderTree extends React.Component {
                 if (acceptRes !== resourceType) return null;
             }
             // 目录选择过滤掉具体文件
-            if (ispicker && !isFilepicker && data.children !== null) {
+            if (ispicker && !isFilepicker && data.children) {
                 // potential mutate store directly
                 data.children = data.children.filter(o => {
                     return o.type === 'folder';
@@ -467,7 +467,7 @@ class FolderTree extends React.Component {
                         <CtxMenu
                             id={id}
                             key={`${taskType}-ctxmenu-${id}`}
-                            operations={isPro ? [] : this.generateCtxMenu(type, treeType, data)}
+                            operations={!couldEdit ? [] : this.generateCtxMenu(type, treeType, data)}
                         >
                             {/* <span 
                             id={`JS_${id}`}
@@ -514,14 +514,16 @@ class FolderTree extends React.Component {
     render() {
         const {
             type, placeholder, currentTab,
-            onExpand, expandedKeys, onChange
+            onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
+        
         console.log('expandedKeys', expandedKeys);
         return (
             <div>
                 {this.props.ispicker ?
                     <div ref={(ins) => this.selEle = ins} className='org-tree-select-wrap'>
                         <TreeSelect
+                            disabled={typeof couldEdit=="boolean"&&!couldEdit}
                             size="large"
                             key={type}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}

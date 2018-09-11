@@ -28,11 +28,12 @@ import {
 import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
 import { showSeach } from '../../store/modules/comm';
 import { getTaskTypes } from '../../store/modules/offlineTask/comm';
+import { isProjectCouldEdit } from '../../comm';
 
 const TabPane = Tabs.TabPane;
 
 @connect(state => {
-    const { offlineTask } = state;
+    const { offlineTask, user } = state;
     const { currentTab, tabs } = offlineTask.workbench;
 
     const currentTabData = tabs.filter(tab => {
@@ -40,6 +41,7 @@ const TabPane = Tabs.TabPane;
     })[0];
 
     return {
+        user,
         project: state.project,
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
@@ -331,12 +333,14 @@ class OfflineTabPane extends Component {
             tableTreeData,
             currentTab,
             currentTabData,
-            project
+            project,
+            user
         } = this.props;
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const couldEdit=isProjectCouldEdit(project,user);
         const menus = []
         if (subMenus && subMenus.length > 0) {
             for (let i = 0; i < subMenus.length; i++) {
@@ -361,13 +365,13 @@ class OfflineTabPane extends Component {
                                 </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        {!isPro && <Menu.Item key="task:newTask">
+                                        {couldEdit && <Menu.Item key="task:newTask">
                                             新建任务
                                         </Menu.Item>}
                                         <Menu.Item key="task:search">
                                             搜索任务（Ctrl + P）
                                         </Menu.Item>
-                                        {!isPro && <Menu.Item key="task:newFolder">
+                                        {couldEdit && <Menu.Item key="task:newFolder">
                                             新建文件夹
                                         </Menu.Item>}
                                     </Menu>
@@ -380,6 +384,7 @@ class OfflineTabPane extends Component {
                                     !isEmpty(taskTreeData) &&
                                     <FolderTree
                                         isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={MENU_TYPE.TASK_DEV}
                                         onExpand={this.onExpand}
                                         treeData={taskTreeData}
@@ -406,7 +411,7 @@ class OfflineTabPane extends Component {
                                         onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
                                     />
                                 </Tooltip>
-                                {!isPro && (
+                                {couldEdit && (
                                     <Dropdown overlay={
                                         <Menu onClick={this.onMenuClick}>
                                             <Menu.Item key="script:newScript">
@@ -426,6 +431,7 @@ class OfflineTabPane extends Component {
                                     !isEmpty(scriptTreeData) &&
                                     <FolderTree
                                         isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={menuItem.catalogueType}
                                         expandedKeys={expandedKeys}
                                         onExpand={this.onExpand}
@@ -446,7 +452,7 @@ class OfflineTabPane extends Component {
                                         onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
                                     />
                                 </Tooltip>
-                                {!isPro && (
+                                {couldEdit && (
                                     <Dropdown overlay={
                                         <Menu onClick={this.onMenuClick}>
                                             <Menu.Item key="resource:upload">
@@ -469,6 +475,7 @@ class OfflineTabPane extends Component {
                                     !isEmpty(resourceTreeData) &&
                                     <FolderTree
                                         isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={menuItem.catalogueType}
                                         expandedKeys={expandedKeys}
                                         onExpand={this.onExpand}
@@ -489,7 +496,7 @@ class OfflineTabPane extends Component {
                                         onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
                                     />
                                 </Tooltip>
-                                {!isPro&&(
+                                {couldEdit&&(
                                     <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="function:newFunc">
@@ -509,6 +516,7 @@ class OfflineTabPane extends Component {
                                     !isEmpty(functionTreeData) &&
                                     <FolderTree
                                         isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={MENU_TYPE.COSTOMFUC}
                                         expandedKeys={expandedKeys}
                                         onExpand={this.onExpand}
@@ -518,6 +526,7 @@ class OfflineTabPane extends Component {
                                     !isEmpty(sysFunctionTreeData) &&
                                     <FolderTree
                                         isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={MENU_TYPE.SYSFUC}
                                         expandedKeys={expandedKeys2}
                                         onExpand={this.onExpand2}

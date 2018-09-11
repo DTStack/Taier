@@ -190,10 +190,10 @@ class PackagePublish extends React.Component {
             packageId: id
         }, mode).then(
             (res) => {
-                if (res.code == 1) {
-                    this.getPackageList();
+                if (res.code == 1) {  
                     message.success("删除成功")
                 }
+                this.getPackageList();
             }
         )
     }

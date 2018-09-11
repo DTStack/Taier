@@ -14,6 +14,7 @@ import ScriptDetail from './scriptDetail';
 import SchedulingConfig from './schedulingConfig';
 import TaskView from './taskView';
 import TaskParams from './taskParams';
+import { isProjectCouldEdit } from '../../../comm';
 
 const TabPane = Tabs.TabPane;
 
@@ -50,8 +51,9 @@ class SiderBench extends React.Component {
     }
 
     getTabPanes = () => {
-        const { tabData, project } = this.props;
+        const { tabData, project, user } = this.props;
         const isPro=project.projectType==PROJECT_TYPE.PRO;
+        const couldEdit=isProjectCouldEdit(project,user);
         if (!tabData) return null;
 
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
@@ -61,6 +63,7 @@ class SiderBench extends React.Component {
             <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
                 <TaskDetail 
                     isPro={isPro}
+                    couldEdit={couldEdit}
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
                 ></TaskDetail>
@@ -72,6 +75,7 @@ class SiderBench extends React.Component {
                 <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
                     <SchedulingConfig 
                         isPro={isPro}
+                        couldEdit={couldEdit}
                         tabData={tabData}
                     >
                     </SchedulingConfig>
@@ -81,7 +85,7 @@ class SiderBench extends React.Component {
             if (tabData.taskType !== TASK_TYPE.WORKFLOW) {
                 panes.push(
                     <TabPane tab={<span className="title-vertical">依赖视图</span>} key="params4">
-                        <TaskView tabData={tabData} isPro={isPro} />
+                        <TaskView tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
                     </TabPane>
                 )
             }
@@ -95,6 +99,7 @@ class SiderBench extends React.Component {
                 <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
                     <TaskParams
                         isPro={isPro}
+                        couldEdit={couldEdit}
                         tabData={tabData}
                         onChange={this.handleCustomParamsChange}
                     />
@@ -104,7 +109,7 @@ class SiderBench extends React.Component {
                 panes.push(
                     <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                         <SQLEditor
-                            options={{ readOnly: isLocked }}
+                            options={{ readOnly: isLocked||!couldEdit }}
                             key={'params' + tabData.id}
                             value={tabData.taskParams}
                             onFocus={() => { }}
@@ -117,7 +122,7 @@ class SiderBench extends React.Component {
             }
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
-                <ScriptDetail tabData={tabData} isPro={isPro} />
+                <ScriptDetail tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
             </TabPane>;
         }
         return panes;
@@ -140,7 +145,8 @@ class SiderBench extends React.Component {
 
 export default connect(state => {
     return {
-        project:state.project
+        project:state.project,
+        user:state.user
     }
 }, dispatch => {
     return {

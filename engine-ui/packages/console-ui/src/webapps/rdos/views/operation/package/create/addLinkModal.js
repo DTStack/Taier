@@ -142,7 +142,7 @@ class AddLinkModal extends React.Component {
         const { selectedRows } = this.props;
 
         if (!dataList[key].length) {
-            return null;
+            return <p style={{textAlign:"center",color:"#999"}}>无</p>;
         }
         const allChecked = selectList[key].length == dataList[key].length;
         const haveChecked = selectList[key].length ? true : false;

@@ -101,8 +101,8 @@
      GET_CHECK_POINTS: `${RDOS_BASE_URL}/stream/streamTaskCheckpoint/getCheckpointList`, // 获取指定任务时间范围内的保存点
 
      // ==== 发布包 ===== //
-     PUBLISH_REALTIME_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/publishPackage`,//发布包
-     PUBLISH_OFFLINE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/publishPackage`,
+     PUBLISH_REALTIME_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/publishPackage`,//发布包
+     PUBLISH_OFFLINE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/publishPackage`,
      GET_OFFLINE_FUNCTION:`${RDOS_BASE_URL}/batch/batchFunction/pageQuery`,//函数分页
      GET_REALTIME_FUNCTION:`${RDOS_BASE_URL}/stream/streamFunction/pageQuery`,
      GET_OFFLINE_RESOURCE:`${RDOS_BASE_URL}/batch/batchResource/pageQuery`,//资源分页

@@ -25,6 +25,7 @@ const Panel = Collapse.Panel;
 function TaskInfo(props) {
     const taskInfo = props.taskInfo
     const isPro=props.isPro;
+    const couldEdit=props.couldEdit;
     const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
@@ -55,7 +56,7 @@ function TaskInfo(props) {
                     <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
-                    }{!isPro&&<a onClick={props.modifyTaskOwner}>修改</a>} 
+                    }{couldEdit&&<a onClick={props.modifyTaskOwner}>修改</a>} 
                 </Col>
             </Row>
             <Row>

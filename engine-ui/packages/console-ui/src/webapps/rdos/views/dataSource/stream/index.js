@@ -204,15 +204,6 @@ class DataSourceManaStream extends Component {
             },
         },
         {
-            title: '映射状态',
-            dataIndex: 'linkSourceName',
-            key: 'linkSourceName',
-            width: '70px',
-            render: (linkSourceName, record) => {
-                return linkSourceName ? '已配置' : '未配置';
-            },
-        },
-        {
             title: <div className="txt-right m-r-8">操作</div>,
             width: '180px',
             className: 'txt-right m-r-8',
@@ -235,10 +226,6 @@ class DataSourceManaStream extends Component {
                                 <span className="ant-divider" />
                             </span>
                         } */}
-                        <a onClick={() => { this.setState({source:record,linkModalVisible:true}) }}>
-                            映射配置
-                        </a>
-                        <span className="ant-divider" />
                         <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>

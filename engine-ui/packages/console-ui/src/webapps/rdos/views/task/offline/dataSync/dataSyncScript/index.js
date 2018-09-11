@@ -5,7 +5,8 @@ import { Icon } from "antd";
 import utils from "utils";
 
 
-import {  HELP_DOC_URL } from "../../../../../comm/const";
+import {  HELP_DOC_URL, PROJECT_TYPE } from "../../../../../comm/const";
+import {isProjectCouldEdit} from "../../../../../comm"
 import CommonEditor from "../../commonEditor"
 import Toolbar from "./toolbar.js";
 
@@ -65,7 +66,8 @@ class DataSyncScript extends Component {
     }
 
     render() {
-        const { taskCustomParams, id, sqlText, currentTabData } = this.props;
+        const { taskCustomParams, id, sqlText, currentTabData,project, user } = this.props;
+        const couldEdit=isProjectCouldEdit(project,user);
         return (
             <CommonEditor
                 mode="json"
@@ -76,10 +78,11 @@ class DataSyncScript extends Component {
                 currentTabData={currentTabData}
                 toolBarOptions={{
                     enableRun: false,
-                    enableFormat: true,
+                    enableFormat: couldEdit,
+                    disAbleEdit: !couldEdit,
                     onFormat: this.onFormat.bind(this),
                     rightCustomButton: this.getRightButton(),
-                    leftCustomButton:this.getLeftButton()
+                    leftCustomButton:couldEdit&&this.getLeftButton()
                 }}
             />
         );

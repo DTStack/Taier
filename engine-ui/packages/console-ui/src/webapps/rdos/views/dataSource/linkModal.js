@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, Select, Row, Col } from "antd";
+import { Modal, Form, Input, Select, Row, Col, message } from "antd";
 
 import Api from "../../api"
 import { formItemLayout } from "../../comm/const";
@@ -59,13 +59,13 @@ class LinkModal extends React.Component {
                     confirmLoading: true
                 })
                 Api.linkSource({
-                    sourceId: sourceData.sourceId,
+                    sourceId: sourceData.id,
                     linkSourceId: values.linkSourceId,
                 }, type)
                     .then(
                         (res) => {
                             this.setState({
-                                confirmLoading: true
+                                confirmLoading: false
                             })
                             if (res.code == 1) {
                                 message.success("操作成功")
@@ -82,7 +82,7 @@ class LinkModal extends React.Component {
         const { visible, form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         return <Modal
-            title={`映射配置(${sourceData.sourceName || ''})`}
+            title={`映射配置(${sourceData.dataName || ''})`}
             maskClosable={false}
             visible={visible}
             onCancel={this.onCancel.bind(this)}
@@ -120,9 +120,12 @@ class LinkModal extends React.Component {
                         <Select style={{ width: "100%" }} placeholder="目标数据源">
                             {targetList.map(
                                 (target) => {
+                                    if(target.type!=sourceData.type){
+                                        return null;
+                                    }
                                     return <Option key={target.id} value={target.id}>{target.dataName}</Option>
                                 }
-                            )}
+                            ).filter(Boolean)}
                         </Select>
 
                     )}

@@ -16,7 +16,7 @@ export default (loader, collection) => (
                     this.setState({ Component });
                 }).catch(
                     (e) => {
-                        console.log(e);
+                        console.error(e);
                         this.setState({
                             error: true
                         })

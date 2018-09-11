@@ -12,6 +12,7 @@ import {
 
 import Workbench from './workbench';
 import { PROJECT_TYPE } from '../../../comm/const';
+import {isProjectCouldEdit} from "../../../comm";
 
 class Default extends Component {
     componentDidMount() {
@@ -22,15 +23,15 @@ class Default extends Component {
     }
     render() {
         const {
-            workbench, scriptTree,
+            workbench, scriptTree, user,
             toggleCreateTask, toggleUpload, toggleCreateScript, project
         } = this.props;
         const iconStyle = { width: '60px', height: '60px', marginTop: '25px' }
-        const isPro = project.projectType == PROJECT_TYPE.PRO
+        const couldEdit = isProjectCouldEdit(project,user);
         return (
             workbench.tabs.length ?
                 <Workbench /> :
-                (!isPro && <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
+                (couldEdit && <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
                     <Col className="operation-card" >
                         <div
                             onClick={toggleCreateTask}
@@ -65,5 +66,5 @@ class Default extends Component {
 export default connect((state) => {
     const { createTask, upload } = state.offlineTask.modalShow;
     const { workbench, scriptTree } = state.offlineTask;
-    return { createTask, upload, workbench, scriptTree, project: state.project };
+    return { createTask, upload, workbench, scriptTree, project: state.project, user: state.user };
 }, workbenchActions)(Default);

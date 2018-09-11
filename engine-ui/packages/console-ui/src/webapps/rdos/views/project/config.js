@@ -113,6 +113,7 @@ class ProjectConfig extends Component {
     }
     bindProject() {
         const { bindProject } = this.state;
+        const { project } = this.props;
         if (!bindProject.name) {
             message.warning("请选择发布目标");
             return;
@@ -296,6 +297,7 @@ class ProjectConfig extends Component {
                             placeholder="请选择发布项目"
                             style={{ width: "100%" }}
                             showSearch
+                            optionFilterProp="children"
                             value={bindProject.id}
                             onSelect={(value, option) => {
                                 this.setState({

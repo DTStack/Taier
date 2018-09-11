@@ -328,6 +328,7 @@ class DataSourceMana extends Component {
             defaultPageSize: 10,
         };
         const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const isTest=project.projectType==PROJECT_TYPE.TEST;
         const titles = (
             <div>
                 <Search
@@ -376,6 +377,8 @@ class DataSourceMana extends Component {
 
                 <DataSourceForm
                     isPro={isPro}
+                    isTest={isTest}
+                    showSync={true}
                     title={title}
                     visible={visible}
                     status={status}

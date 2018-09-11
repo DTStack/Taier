@@ -284,7 +284,7 @@ class Header extends Component {
                         {showProjectSelect && this.renderProjectSelect()}
                         {showProjectSelect && projectTypeView && <Menu.Item
                             className="my-menu-item tip"
-                            key="database"
+                            key="env_logo"
                             style={{ display }}
                             disabled
                         >

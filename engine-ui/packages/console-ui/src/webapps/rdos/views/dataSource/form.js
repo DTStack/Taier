@@ -657,7 +657,7 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: '数据库不可为空！',
                             }],
-                            initialValue: config.database||'',
+                            initialValue: config.database || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -703,7 +703,7 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
-                            initialValue: config.username||'',
+                            initialValue: config.username || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -730,7 +730,7 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: '数据库不可为空！',
                             }],
-                            initialValue: config.database||'',
+                            initialValue: config.database || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -801,7 +801,7 @@ class BaseForm extends Component {
 
     render() {
 
-        const { form, sourceData, status, types, isPro } = this.props;
+        const { form, sourceData, status, types, isPro, isTest, showSync } = this.props;
         const { getFieldDecorator } = form;
 
         const sourceTypeList = types.map(
@@ -815,6 +815,7 @@ class BaseForm extends Component {
             )
         )
         const sourceType = this.state.sourceType || types[0] && types[0].value
+        const isEdit = status == "edit";
 
         return (
             <Form autoComplete="off">
@@ -872,14 +873,14 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
-                {!isPro&&(<FormItem
+                {isTest && showSync && !isEdit && (<FormItem
                     {...tailFormItemLayout}
                 >
                     {getFieldDecorator('isCopyToProduceProject', {
                         initialValue: sourceData.isCopyToProduceProject
                     })(
                         <Checkbox>
-                           复制到目标项目
+                            复制到目标项目
                         </Checkbox>
                     )}
                 </FormItem>)}

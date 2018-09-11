@@ -4,7 +4,7 @@ import {
     Row, Col, Button, message, Input, Form,
     Tabs, Menu, Dropdown, Icon, Modal, Tooltip
 } from 'antd';
-import {hashHistory} from "react-router";
+import { hashHistory } from "react-router";
 
 import { cloneDeep, isEmpty } from 'lodash';
 
@@ -24,6 +24,7 @@ import ImportData from './dataImport';
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction';
+import { isProjectCouldEdit } from '../../../comm';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -77,15 +78,15 @@ class Workbench extends React.Component {
         )
     }
 
-    toPublishView(){
+    toPublishView() {
         hashHistory.push({
-            pathname:"/package/create",
-            query:{
-                type:"offline"
+            pathname: "/package/create",
+            query: {
+                type: "offline"
             }
         })
     }
-    
+
     showPublish() {
         const { currentTabData } = this.props;
         const { taskType, createModel } = currentTabData;
@@ -163,12 +164,14 @@ class Workbench extends React.Component {
         const {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
-            closeTab, closeAllorOthers, project
+            closeTab, closeAllorOthers, project,
+            user
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const couldEdit = isProjectCouldEdit(project,user);
         let isSaveAvaliable = false;
 
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
@@ -199,7 +202,7 @@ class Workbench extends React.Component {
             <header className="toolbar clear">
                 <Col className="left">
 
-                    {!isPro && (
+                    {couldEdit && (
                         <span>
                             <Dropdown overlay={this.createMenu()} trigger={['click']}>
                                 <Button title="创建">
@@ -227,7 +230,7 @@ class Workbench extends React.Component {
 
                 {showPublish ? (<Col className="right">
 
-                    {!isPro && (<span>
+                    {couldEdit && (<span>
                         <Tooltip
                             placement="bottom"
                             title="提交到调度系统"
@@ -240,7 +243,7 @@ class Workbench extends React.Component {
                                 <Icon type="upload" style={{ color: "#000" }} />提交
                         </Button>
                         </Tooltip>
-                        <Tooltip
+                        {!isPro && <Tooltip
                             placement="bottom"
                             title="发布到目标项目"
                             mouseLeaveDelay={0}
@@ -251,7 +254,7 @@ class Workbench extends React.Component {
                             >
                                 <MyIcon className="my-icon" type="fly" />发布
                         </Button>
-                        </Tooltip>
+                        </Tooltip>}
                     </span>)}
 
                     <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>

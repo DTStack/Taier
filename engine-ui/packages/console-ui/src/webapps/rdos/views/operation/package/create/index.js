@@ -232,11 +232,11 @@ class PackageCreate extends React.Component {
                     dataIndex: "chargeUser",
                     width: "130px"
                 }, {
-                    title: "提交人",
+                    title: "修改人",
                     dataIndex: "modifyUser",
                     width: "130px"
                 }, {
-                    title: "提交时间",
+                    title: "修改时间",
                     dataIndex: "modifyTime",
                     sorter: true,
                     render(text) {
