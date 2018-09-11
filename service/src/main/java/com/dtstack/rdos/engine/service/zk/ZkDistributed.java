@@ -89,6 +89,8 @@ public class ZkDistributed implements Closeable{
 
 	private String masterAddrCache = "";
 
+	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+	private ZkShardManager zkShardManager = ZkShardManager.getInstance();
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
 	private ExecutorService executors  = new ThreadPoolExecutor(4, 8,
@@ -133,7 +135,7 @@ public class ZkDistributed implements Closeable{
 		createLocalBrokerDataNode();
 		createLocalBrokerDataLock();
 		createLocalBrokerQueueNode();
-		ZkLocalCache.getInstance().init();
+		zkLocalCache.init(this);
 		registrationDB();
 		initScheduledExecutorService();
 		logger.warn("init zk server success...");
@@ -249,7 +251,7 @@ public class ZkDistributed implements Closeable{
 
 	public void synchronizedBrokerDataShard(String nodeAddress, String shard, BrokerDataShard brokerDataShard,boolean isCover){
 		String nodePath = String.format("%s/%s/%s/%s",this.brokersNode,nodeAddress,metaDataNode,shard);
-		InterProcessMutex lock = ZkShardManager.getInstance().getShardLock(shard);
+		InterProcessMutex lock = zkShardManager.getShardLock(shard);
 		try {
 			if(lock!=null&&lock.acquire(30, TimeUnit.SECONDS)){
 				if (!isCover) {

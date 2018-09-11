@@ -25,7 +25,7 @@ public class ClusterQueueInfo {
      */
     private volatile Map<String, EngineTypeQueueInfo> infoMap = Maps.newHashMap();
 
-    public ClusterQueueInfo() {
+    private ClusterQueueInfo() {
     }
 
     public boolean isEmpty(){

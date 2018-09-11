@@ -38,7 +38,7 @@ public class MasterListener implements Runnable {
                 this,
                 0,
                 CHECK_INTERVAL,
-                TimeUnit.SECONDS);
+                TimeUnit.MILLISECONDS);
     }
 
     @Override

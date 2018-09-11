@@ -29,7 +29,7 @@ public class HeartBeatCheckListener implements Runnable{
 
 	private static final Logger logger = LoggerFactory.getLogger(HeartBeatCheckListener.class);
 
-	private final static int CHECK_INTERVAL = 2;
+	private final static int CHECK_INTERVAL = 2000;
 
 	public final static long STOP_HEALTH_CHECK_SEQ = -1;
 	private final static int TIMEOUT_COUNT = 30;
@@ -48,7 +48,7 @@ public class HeartBeatCheckListener implements Runnable{
                 this,
                 0,
                 CHECK_INTERVAL,
-                TimeUnit.SECONDS);
+                TimeUnit.MILLISECONDS);
 	}
 
 	private Map<String, BrokerNodeCount> brokerNodeCounts =  Maps.newHashMap();

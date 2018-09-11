@@ -48,8 +48,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
     }
     private final ReentrantLock lock = new ReentrantLock();
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-    private WorkNode workNode = WorkNode.getInstance();
+    private WorkNode workNode;
     private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
     private ZkShardManager zkShardManager = ZkShardManager.getInstance();
     private LocalCacheSyncZkListener localCacheSyncZkListener;
@@ -59,9 +58,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         this.requiresCopyOnWrite = new AtomicBoolean(false);
     }
 
-    public void init() {
-        core = zkDistributed.initMemTaskStatus();
+    public void init(ZkDistributed zkDistributed) {
         localAddress = zkDistributed.getLocalAddress();
+        core = zkDistributed.initMemTaskStatus();
         localDataCache = core.get(localAddress);
         distributeZkWeight = ConfigParse.getTaskDistributeQueueWeight();
         distributeQueueWeight = ConfigParse.getTaskDistributeZkWeight();
@@ -229,6 +228,10 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         if (localCacheSyncZkListener!=null){
             localCacheSyncZkListener.run();
         }
+    }
+
+    public void setWorkNode(WorkNode workNode) {
+        this.workNode = workNode;
     }
 
     public void setLocalCacheSyncZkListener(LocalCacheSyncZkListener localCacheSyncZkListener) {

@@ -14,11 +14,8 @@ public class BrokerDataNode {
     private ShardConsistentHash consistentHash;
 
     public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
-        Set<String> shardNames = null;
-        if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
-            this.shards = brokerDataShardMap;
-            shardNames = brokerDataShardMap.keySet();
-        }
+        Set<String> shardNames = brokerDataShardMap.keySet();
+        this.shards = brokerDataShardMap;
         this.consistentHash = new ShardConsistentHash(shardNames);
     }
 

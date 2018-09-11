@@ -96,10 +96,12 @@ public class WorkNode {
 
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
+
+        zkLocalCache.setWorkNode(this);
     }
 
     public GroupPriorityQueue getEngineTypeQueue(String engineType) {
-        return priorityQueueMap.get(engineType);
+        return priorityQueueMap.computeIfAbsent(engineType, k->new GroupPriorityQueue());
     }
 
     /**
@@ -148,7 +150,7 @@ public class WorkNode {
 
     public void redirectSubmitJob(JobClient jobClient){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k->new GroupPriorityQueue());
+            GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
             groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
@@ -230,15 +232,15 @@ public class WorkNode {
      */
     private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
 
-        String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
-        if(Strings.isNullOrEmpty(address)){
-            return false;
-        }
-        if (address.equals(zkDistributed.getLocalAddress())){
-            this.addSubmitJob(jobClient);
-            return true;
-        }
         try {
+            String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
+            if(Strings.isNullOrEmpty(address)){
+                return false;
+            }
+            if (address.equals(zkDistributed.getLocalAddress())){
+                this.addSubmitJob(jobClient);
+                return true;
+            }
             ParamAction paramAction = jobClient.getParamAction();
             paramAction.setRequestStart(RequestStart.NODE.getStart());
             if(HttpSendClient.actionSubmit(address, paramAction)){

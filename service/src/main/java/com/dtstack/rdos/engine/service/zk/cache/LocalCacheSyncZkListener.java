@@ -25,7 +25,7 @@ public class LocalCacheSyncZkListener implements Runnable {
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
-    private static long CHECK_INTERVAL = 5000;
+    private static long CHECK_INTERVAL = 2000;
     private int logOutput = 0;
 
     public LocalCacheSyncZkListener() {
@@ -34,7 +34,7 @@ public class LocalCacheSyncZkListener implements Runnable {
                 this,
                 0,
                 CHECK_INTERVAL,
-                TimeUnit.SECONDS);
+                TimeUnit.MILLISECONDS);
         zkLocalCache.setLocalCacheSyncZkListener(this);
     }
 

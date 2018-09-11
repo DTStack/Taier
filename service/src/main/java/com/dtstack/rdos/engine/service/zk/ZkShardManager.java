@@ -29,7 +29,7 @@ public class ZkShardManager implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);
 
-    private static final long CHECK_INTERVAL = 5;
+    private static final long CHECK_INTERVAL = 5000;
     private static final long SHARD_IDLE_TIMES = 10;
 
     private static final String SHARD_NODE = "shard";
@@ -44,11 +44,13 @@ public class ZkShardManager implements Runnable {
 
     private final AtomicInteger shardSequence = new AtomicInteger(1);
     private ShardConsistentHash consistentHash;
+    private Map<String, BrokerDataShard> shards;
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
     public void init() {
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
+        this.shards = brokerDataNode.getShards();
         this.consistentHash = brokerDataNode.getConsistentHash();
         if (consistentHash.getSize()==0){
             createShardNode(1);
@@ -58,7 +60,7 @@ public class ZkShardManager implements Runnable {
                 this,
                 0,
                 CHECK_INTERVAL,
-                TimeUnit.SECONDS);
+                TimeUnit.MILLISECONDS);
     }
 
     public InterProcessMutex getShardLock(String shard) {
@@ -143,6 +145,7 @@ public class ZkShardManager implements Runnable {
             InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
             mutexs.put(shardName, mutex);
             consistentHash.add(shardName);
+            shards.put(shardName,BrokerDataShard.initBrokerDataShard());
         }
     }
 }

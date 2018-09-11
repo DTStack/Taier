@@ -35,6 +35,7 @@ public class BrokerDataShard {
         return version;
     }
 
+    @JsonIgnore
     public AtomicLong getNewVersion() {
         return newVersion;
     }
@@ -62,6 +63,7 @@ public class BrokerDataShard {
         return metas.size();
     }
 
+    @JsonIgnore
     public NavigableMap<String, Byte> getView() {
         return Collections.unmodifiableNavigableMap(metas);
     }
