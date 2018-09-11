@@ -2,13 +2,7 @@
 $activeColor: #262e36; // 主色
 
 .head-project-tip{
-    position: absolute;
-    width: 80px;
-    top: 0px;
-    left: 160px;
-    color:#ffffff;
-    text-align: center;
-    cursor: default;
+    color:#fff;
     .content{
         padding: 2px 3px;
         border: 1px #fff solid;
@@ -46,7 +40,12 @@ $activeColor: #262e36; // 主色
             .my-menu-item {
                 color: #fff;
                 font-size: 14px;
-    
+                &.ant-menu-item-disabled.tip{
+                    cursor: default;
+                    &:hover{
+                        background: inherit;
+                    }
+                }
                 a {
                     color: inherit;
                 }

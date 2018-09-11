@@ -236,7 +236,6 @@ class Header extends Component {
                 )
             }
             default: {
-                return null;
             }
         }
     }
@@ -254,11 +253,7 @@ class Header extends Component {
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
             pathname.indexOf("/data-manage") > -1 || pathname === "/" ? false : true;
-        const menuParentClass = showProjectSelect&&(
-            project.projectType == PROJECT_TYPE.PRO
-            ||
-            project.projectType == PROJECT_TYPE.TEST
-        ) ? "my-menu menu-margin" : "my-menu";
+        const projectTypeView = this.renderProjectType();
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -280,14 +275,21 @@ class Header extends Component {
                     </span>
                 </div>
                 <div className="menu left" style={{ position: "relative" }}>
-                    {showProjectSelect&&this.renderProjectType()}
                     <Menu
-                        className={menuParentClass}
+                        className={"my-menu"}
                         onClick={this.handleClick}
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
+                        {showProjectSelect && projectTypeView && <Menu.Item
+                            className="my-menu-item tip"
+                            key="database"
+                            style={{ display }}
+                            disabled
+                        >
+                            {this.renderProjectType()}
+                        </Menu.Item>}
                         <Menu.Item
                             className="my-menu-item"
                             key="database"
@@ -339,7 +341,7 @@ class Header extends Component {
                         </Menu.Item>
                         <SubMenu
                             className="my-menu-item menu_mini"
-                            style={{display}}
+                            style={{ display }}
                             title={(<span
                                 style={{
                                     display,

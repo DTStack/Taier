@@ -35,26 +35,26 @@ class Default extends Component {
                         <div
                             onClick={toggleCreateTask}
                             className="operation-content">
-                            <MyIcon style={iconStyle} type="add-file" />
+                            <img src="/public/rdos/img/icon_createtask.png" className="anticon" />
+                            <p className="txt-center operation-title">创建离线任务</p>
                         </div>
-                        <p className="txt-center">创建离线任务</p>
                     </Col>
                     <Col className="operation-card">
                         <div
                             onClick={toggleUpload}
                             className="operation-content">
-                            <MyIcon style={iconStyle} type="upload" />
+                            <img src="/public/rdos/img/icon_upload.png" className="anticon" />
+                            <p className="txt-center operation-title">上传离线计算资源</p>
                         </div>
-                        <p className="txt-center">上传离线计算资源</p>
                     </Col>
                     {
                         !isEmpty(scriptTree) && <Col className="operation-card">
                             <div
                                 onClick={toggleCreateScript}
                                 className="operation-content">
-                                <Icon style={iconStyle} type="code-o" />
+                                <img src="/public/rdos/img/icon_createscript.png" className="anticon" />
+                                <p className="txt-center operation-title">创建脚本</p>
                             </div>
-                            <p className="txt-center">创建脚本</p>
                         </Col>
                     }
                 </Row>)

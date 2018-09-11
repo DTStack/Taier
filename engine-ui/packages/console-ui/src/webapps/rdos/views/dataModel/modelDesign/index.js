@@ -346,7 +346,7 @@ class TableList extends Component {
                         <Modal className="m-codemodal"
                             width={750}
                             title={(
-                                <span>DDL建表<CopyIcon style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
+                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
                             )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
