@@ -57,6 +57,7 @@ public class LocalCacheSyncZkListener implements Runnable {
             if (entry.getValue().getVersion() == entry.getValue().getNewVersion().longValue()) {
                 continue;
             }
+            entry.getValue().setVersion(entry.getValue().getNewVersion().longValue());
             zkDistributed.synchronizedBrokerDataShard(localAddress, entry.getKey(), entry.getValue(), true);
         }
     }
