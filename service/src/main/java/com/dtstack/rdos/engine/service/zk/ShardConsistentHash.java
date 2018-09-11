@@ -1,7 +1,5 @@
 package com.dtstack.rdos.engine.service.zk;
 
-import com.google.common.collect.Lists;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
@@ -19,12 +17,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public class ShardConsistentHash {
 
     private static final int NUMBER_OF_REPLICAS = 5;
-
-    private static ShardConsistentHash singleton = new ShardConsistentHash(NUMBER_OF_REPLICAS, Lists.newArrayList());
-
-    public static ShardConsistentHash getInstance() {
-        return singleton;
-    }
 
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas = 虚拟节点个数

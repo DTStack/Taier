@@ -91,8 +91,6 @@ public class ZkDistributed implements Closeable{
 
 	private static List<InterProcessMutex> interProcessMutexs = Lists.newArrayList();
 
-	private static ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
-
 	private ExecutorService executors  = new ThreadPoolExecutor(4, 8,
 			0L, TimeUnit.MILLISECONDS,
 			new LinkedBlockingQueue<Runnable>());
@@ -584,13 +582,6 @@ public class ZkDistributed implements Closeable{
 				logger.error("releaseLock release lock fail:{}",ExceptionUtil.getErrorMessage(e));
 			}
 		}
-	}
-
-
-	private BrokerDataNode getDataNode(String nodeAddress){
-		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(nodeAddress);
-		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
-		return brokerDataNode;
 	}
 
 	@Override

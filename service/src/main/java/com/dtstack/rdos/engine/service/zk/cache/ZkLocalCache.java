@@ -8,11 +8,10 @@ import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
-import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.ZkShardManager;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
+import com.dtstack.rdos.engine.service.zk.task.ZkSyncLocalCacheListener;
 import com.google.common.collect.Maps;
 
 import java.io.Closeable;
@@ -52,9 +51,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
     private WorkNode workNode = WorkNode.getInstance();
     private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
-    private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
     private ZkShardManager zkShardManager = ZkShardManager.getInstance();
     private LocalCacheSyncZkListener localCacheSyncZkListener;
+    private ZkSyncLocalCacheListener zkSyncLocalCacheListener;
 
     private ZkLocalCache() {
         this.requiresCopyOnWrite = new AtomicBoolean(false);
@@ -78,7 +77,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
             throw new UnsupportedOperationException();
         }
         copy();
-        String shard = shardsCsist.get(zkTaskId);
+        String shard = localDataCache.getShard(zkTaskId);
         localDataCache.getShards().get(shard).put(zkTaskId, status.byteValue());
     }
 
@@ -92,18 +91,37 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
 
 
     public String getJobLocationAddr(String zkTaskId) {
-        //todo 先查缓存，没有再查zk
-        String shard = shardsCsist.get(zkTaskId);
+        String addr = null;
+        //先查本地
+        String shard = localDataCache.getShard(zkTaskId);
+        if (localDataCache.getShards().get(shard).containsKey(zkTaskId)){
+            addr = localAddress;
+        }
+        //查其他节点
+        if (addr==null) {
+            addr = getJobLocationAddrAnyother(zkTaskId);
+        }
+        //如果还为空，先同步，最后再查一次其他节点
+        if (addr==null){
+            zkSyncLocalCacheListener.run();
+            addr = getJobLocationAddrAnyother(zkTaskId);
+        }
+        return addr;
+    }
+
+    private String getJobLocationAddrAnyother(String zkTaskId){
+        //查其余节点
+        String addr = null;
         for (Map.Entry<String, BrokerDataNode> entry : core.entrySet()) {
-            String addr = entry.getKey();
-            Map<String, BrokerDataShard> shardMap = entry.getValue().getShards();
-            if (shardMap.containsKey(shard)) {
-                if (shardMap.get(shard).containsKey(zkTaskId)) {
-                    return addr;
-                }
+            if (entry.getKey().equals(localAddress)){continue;}
+            BrokerDataNode otherDataCache = entry.getValue();
+            String theShard = otherDataCache.getShard(zkTaskId);
+            if (otherDataCache.getShards().get(theShard).containsKey(zkTaskId)){
+                addr = entry.getKey();
+                break;
             }
         }
-        return null;
+        return addr;
     }
 
     /**
@@ -218,5 +236,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
 
     public void setLocalCacheSyncZkListener(LocalCacheSyncZkListener localCacheSyncZkListener) {
         this.localCacheSyncZkListener = localCacheSyncZkListener;
+    }
+
+    public void setZkSyncLocalCacheListener(ZkSyncLocalCacheListener zkSyncLocalCacheListener) {
+        this.zkSyncLocalCacheListener = zkSyncLocalCacheListener;
     }
 }

@@ -10,6 +10,9 @@ import java.util.Map;
  */
 public class BrokerDataNode {
 
+    private Map<String, BrokerDataShard> shards;
+    private ShardConsistentHash consistentHash;
+
     public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
         this.consistentHash = new ShardConsistentHash(5, Lists.newArrayList());
         if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
@@ -19,9 +22,6 @@ public class BrokerDataNode {
             }
         }
     }
-
-    private Map<String, BrokerDataShard> shards;
-    private ShardConsistentHash consistentHash;
 
     public String getShard(String zkTaskId) {
         return consistentHash.get(zkTaskId);
@@ -33,6 +33,10 @@ public class BrokerDataNode {
 
     public Map<String, BrokerDataShard> getShards() {
         return shards;
+    }
+
+    public ShardConsistentHash getConsistentHash() {
+        return consistentHash;
     }
 
     public void putElement(String key, Byte value) {

@@ -119,6 +119,7 @@ public class WorkNode {
     }
 
     public void addSubmitJob(JobClient jobClient) {
+        //检查分片
         zkLocalCache.checkShard();
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){

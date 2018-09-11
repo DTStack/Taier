@@ -36,6 +36,7 @@ public class ZkSyncLocalCacheListener implements Runnable {
                 0,
                 CHECK_INTERVAL,
                 TimeUnit.SECONDS);
+        zkLocalCache.setZkSyncLocalCacheListener(this);
     }
 
     @Override
