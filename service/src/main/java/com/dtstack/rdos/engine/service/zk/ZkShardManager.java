@@ -50,6 +50,9 @@ public class ZkShardManager implements Runnable {
     public void init() {
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
         this.consistentHash = brokerDataNode.getConsistentHash();
+        if (consistentHash.getSize()==0){
+            createShardNode(1);
+        }
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,

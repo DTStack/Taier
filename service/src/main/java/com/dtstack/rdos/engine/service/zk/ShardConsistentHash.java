@@ -16,12 +16,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class ShardConsistentHash {
 
-    private static final int NUMBER_OF_REPLICAS = 5;
-
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas = 虚拟节点个数
      */
-    private int numberOfReplicas;
+    private static final int NUMBER_OF_REPLICAS = 5;
     /**
      * 存储虚拟节点的hash值到真实节点的映射
      */
@@ -34,21 +32,22 @@ public class ShardConsistentHash {
      * 仅用于节点宕机后数据迁移，计算其他机器节点任务分配的分片.
      * 其他情况下请使用单例引用对象
      */
-    public ShardConsistentHash(int numberOfReplicas, Collection<String> shards) {
-        this.numberOfReplicas = numberOfReplicas;
-        for (String shard : shards) {
-            add(shard);
+    public ShardConsistentHash(Collection<String> shards) {
+        if (shards != null && !shards.isEmpty()) {
+            for (String shard : shards) {
+                add(shard);
+            }
         }
     }
 
     public void add(String shard) {
-        for (int i = 0; i < numberOfReplicas; i++) {
+        for (int i = 0; i < NUMBER_OF_REPLICAS; i++) {
             circle.put(getHash(shard + i), shard);
         }
     }
 
     public void remove(String shard) {
-        for (int i = 0; i < numberOfReplicas; i++) {
+        for (int i = 0; i < NUMBER_OF_REPLICAS; i++) {
             circle.remove(getHash(shard + i));
         }
     }

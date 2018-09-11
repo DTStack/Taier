@@ -68,7 +68,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
         perShardSize = ConfigParse.getShardSize();
         zkShardManager.init();
-        int initIncrementSize = localDataCache.getDataSize()/perShardSize;
+        int initIncrementSize = localDataCache.getDataSize()%perShardSize;
         incrementSize = new AtomicInteger(initIncrementSize);
     }
 
@@ -215,12 +215,9 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         final ReentrantLock createShardLock = this.lock;
         createShardLock.lock();
         try {
-            if (incrementSize.getAndIncrement()%perShardSize==0){
-                int avg = localDataCache.getDataSize()/localDataCache.getShards().size();
-                if (avg>perShardSize){
-                    zkShardManager.createShardNode(1);
-                    incrementSize.set(0);
-                }
+            if (incrementSize.getAndIncrement()>=perShardSize){
+                zkShardManager.createShardNode(1);
+                incrementSize.set(0);
             }
         } finally {
             createShardLock.unlock();

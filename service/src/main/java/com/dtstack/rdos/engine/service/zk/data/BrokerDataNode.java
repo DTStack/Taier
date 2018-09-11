@@ -1,9 +1,9 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
-import com.google.common.collect.Lists;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author toutian
@@ -14,13 +14,12 @@ public class BrokerDataNode {
     private ShardConsistentHash consistentHash;
 
     public BrokerDataNode(Map<String, BrokerDataShard> brokerDataShardMap) {
-        this.consistentHash = new ShardConsistentHash(5, Lists.newArrayList());
+        Set<String> shardNames = null;
         if (brokerDataShardMap != null && brokerDataShardMap.size() > 0) {
             this.shards = brokerDataShardMap;
-            for (Map.Entry<String, BrokerDataShard> entry : brokerDataShardMap.entrySet()) {
-                consistentHash.add(entry.getKey());
-            }
+            shardNames = brokerDataShardMap.keySet();
         }
+        this.consistentHash = new ShardConsistentHash(shardNames);
     }
 
     public String getShard(String zkTaskId) {
