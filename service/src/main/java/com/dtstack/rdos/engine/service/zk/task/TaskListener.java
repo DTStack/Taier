@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -8,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -61,6 +63,8 @@ public class TaskListener implements Runnable{
 
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+
 					}else{//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
@@ -74,6 +78,8 @@ public class TaskListener implements Runnable{
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
 						rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
+						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+
 					}else{
 					    rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
 						zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());

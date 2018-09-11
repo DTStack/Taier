@@ -150,7 +150,7 @@ public class WorkNode {
 
     public void redirectSubmitJob(JobClient jobClient){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.get(jobClient.getEngineType());
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k->new GroupPriorityQueue());
             groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
@@ -332,8 +332,6 @@ public class WorkNode {
                 }
                 //提交到生产者消费者队列
                 if (jobClient.submitJob()) {
-                    saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(),
-                            EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
                     it.remove();
                 } else {
                     //更新剩余任务的优先级数据
