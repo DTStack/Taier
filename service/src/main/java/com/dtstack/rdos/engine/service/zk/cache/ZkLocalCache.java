@@ -11,17 +11,19 @@ import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.ZkShardManager;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.task.ZkSyncLocalCacheListener;
 import com.google.common.collect.Maps;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -29,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * author: toutian
  * create: 2018/9/6
  */
-public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Closeable {
+public class ZkLocalCache implements Closeable {
 
     private volatile Map<String, BrokerDataNode> core;
     private volatile Map<String, BrokerDataNode> view;
@@ -75,9 +77,14 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
         }
-        copy();
         String shard = localDataCache.getShard(zkTaskId);
-        localDataCache.getShards().get(shard).put(zkTaskId, status.byteValue());
+        Lock lock = zkShardManager.tryLock(shard);
+        lock.lock();
+        try {
+            localDataCache.getShards().get(shard).put(zkTaskId, status.byteValue());
+        } finally {
+            lock.unlock();
+        }
     }
 
     public Map<String, BrokerDataNode> getLocalCache() {
@@ -179,21 +186,8 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         return node;
     }
 
-    @Override
-    public Map<String, BrokerDataNode> cloneData() {
-        try {
-            return new ConcurrentHashMap<String, BrokerDataNode>(core);
-        } finally {
-            requiresCopyOnWrite.set(true);
-        }
-    }
-
-    private void copy() {
-        if (requiresCopyOnWrite.compareAndSet(true, false)) {
-            core = new ConcurrentHashMap<>(core);
-            localDataCache = core.get(localAddress);
-            view = null;
-        }
+    public Map<String,BrokerDataShard> cloneShardData() {
+        return new HashMap<>(localDataCache.getShards());
     }
 
     public void cover(Map<String, BrokerDataNode> otherNode) {

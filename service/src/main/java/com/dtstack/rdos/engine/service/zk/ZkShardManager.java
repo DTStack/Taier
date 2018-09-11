@@ -2,21 +2,25 @@ package com.dtstack.rdos.engine.service.zk;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
+import com.dtstack.rdos.engine.service.zk.data.BrokerDataTreeMap;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * data 数据分配及空闲检测
@@ -29,13 +33,15 @@ public class ZkShardManager implements Runnable {
 
     private static Logger logger = LoggerFactory.getLogger(ZkShardManager.class);
 
-    private static final long CHECK_INTERVAL = 5000;
+    private static final long IDLE_CHECK_INTERVAL = 5000;
+    private static final long DATA_CLEAN_INTERVAL = 1000;
     private static final long SHARD_IDLE_TIMES = 10;
 
     private static final String SHARD_NODE = "shard";
     private static final String SHARD_LOCK = "_lock";
 
     private static ZkShardManager zkShardManager = new ZkShardManager();
+
     public static ZkShardManager getInstance() {
         return zkShardManager;
     }
@@ -47,29 +53,56 @@ public class ZkShardManager implements Runnable {
     private Map<String, BrokerDataShard> shards;
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
+    private Map<String, ReentrantLock> cacheShardLocks = Maps.newConcurrentMap();
 
     public void init(ZkDistributed zkDistributed) {
         this.zkDistributed = zkDistributed;
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
         this.shards = brokerDataNode.getShards();
         this.consistentHash = brokerDataNode.getConsistentHash();
-        if (consistentHash.getSize()==0){
+        if (consistentHash.getSize() == 0) {
             createShardNode(1);
         } else {
             for (String shardName : shards.keySet()) {
                 initShardNode(shardName);
             }
         }
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(2, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
                 0,
-                CHECK_INTERVAL,
+                IDLE_CHECK_INTERVAL,
+                TimeUnit.MILLISECONDS);
+        scheduledService.scheduleWithFixedDelay(
+                () -> {
+                    for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
+                        ReentrantLock lock = tryLock(shardEntry.getKey());
+                        lock.lock();
+                        try {
+                            BrokerDataTreeMap<String, Byte> shardData = shardEntry.getValue().getMetas();
+                            Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
+                            while (it.hasNext()) {
+                                Map.Entry<String, Byte> data = it.next();
+                                if (RdosTaskStatus.needClean(data.getValue())) {
+                                    it.remove();
+                                }
+                            }
+                        } finally {
+                            lock.unlock();
+                        }
+                    }
+                },
+                0,
+                DATA_CLEAN_INTERVAL,
                 TimeUnit.MILLISECONDS);
     }
 
     public InterProcessMutex getShardLock(String shard) {
         return mutexs.get(shard);
+    }
+
+    public ReentrantLock tryLock(String shard) {
+        return cacheShardLocks.get(shard);
     }
 
     @Override
@@ -91,6 +124,7 @@ public class ZkShardManager implements Runnable {
         }
     }
 
+
     private void shardIdleDoubleCheck(String dShard, int size) {
         AtomicInteger c = shardIdles.computeIfAbsent(dShard, k -> new AtomicInteger(0));
         int idleCount = c.getAndIncrement();
@@ -98,8 +132,9 @@ public class ZkShardManager implements Runnable {
             if (idleCount >= SHARD_IDLE_TIMES) {
                 boolean destroy = false;
                 InterProcessMutex lock = this.getShardLock(dShard);
+                ReentrantLock cacheLock = this.tryLock(dShard);
                 try {
-                    if (lock.acquire(30, TimeUnit.SECONDS)) {
+                    if (cacheLock.tryLock(30, TimeUnit.SECONDS) && lock.acquire(30, TimeUnit.SECONDS)) {
                         BrokerDataShard brokerDataShard = zkDistributed.getBrokerDataShard(zkDistributed.getLocalAddress(), dShard);
                         if (brokerDataShard != null && brokerDataShard.metaSize() == 0) {
                             zkDistributed.deleteBrokerDataShard(dShard);
@@ -117,6 +152,7 @@ public class ZkShardManager implements Runnable {
                             //先从内存中将锁移除
                             if (destroy) {
                                 mutexs.remove(dShard);
+                                cacheShardLocks.remove(dShard);
                             }
                             //再释放锁
                             lock.release();
@@ -129,6 +165,8 @@ public class ZkShardManager implements Runnable {
                     } catch (Exception e) {
                         logger.error("{} {}:shardIdleDoubleCheck error:{}", zkDistributed.getLocalAddress(), dShard,
                                 ExceptionUtil.getErrorMessage(e));
+                    } finally {
+                        cacheLock.unlock();
                     }
                 }
             }
@@ -140,6 +178,8 @@ public class ZkShardManager implements Runnable {
     private void initShardNode(String shardName) {
         InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
         mutexs.put(shardName, mutex);
+        cacheShardLocks.put(shardName, new ReentrantLock());
+
     }
 
     public void createShardNode(float nodeNum) {
@@ -148,8 +188,9 @@ public class ZkShardManager implements Runnable {
             zkDistributed.createBrokerDataShard(shardName);
             InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
             mutexs.put(shardName, mutex);
+            cacheShardLocks.put(shardName, new ReentrantLock());
             consistentHash.add(shardName);
-            shards.put(shardName,BrokerDataShard.initBrokerDataShard());
+            shards.put(shardName, BrokerDataShard.initBrokerDataShard());
         }
     }
 }
