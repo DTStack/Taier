@@ -17,11 +17,9 @@ import com.google.common.collect.Maps;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,10 +32,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ZkLocalCache implements Closeable {
 
     private volatile Map<String, BrokerDataNode> core;
-    private volatile Map<String, BrokerDataNode> view;
 
     private volatile BrokerDataNode localDataCache;
-    private volatile AtomicBoolean requiresCopyOnWrite;
     private String localAddress;
     private int distributeZkWeight;
     private int distributeQueueWeight;
@@ -57,7 +53,6 @@ public class ZkLocalCache implements Closeable {
     private ZkSyncLocalCacheListener zkSyncLocalCacheListener;
 
     private ZkLocalCache() {
-        this.requiresCopyOnWrite = new AtomicBoolean(false);
     }
 
     public void init(ZkDistributed zkDistributed) {
@@ -87,12 +82,8 @@ public class ZkLocalCache implements Closeable {
         }
     }
 
-    public Map<String, BrokerDataNode> getLocalCache() {
-        return getView();
-    }
-
     public BrokerDataNode getBrokerData() {
-        return getView().get(localAddress);
+        return localDataCache;
     }
 
 
@@ -171,6 +162,9 @@ public class ZkLocalCache implements Closeable {
         String node = null;
         int minWeight = Integer.MAX_VALUE;
         for (Map.Entry<String, Integer> nodeEntry:otherZkInfoMap.entrySet()){
+            if (excludeNodes.contains(nodeEntry.getKey())){
+                continue;
+            }
             int zkSize = nodeEntry.getValue();
             int queueSize = otherQueueInfoMap.getOrDefault(nodeEntry.getKey(),0);
             int weight = zkSize * distributeZkWeight + queueSize * distributeQueueWeight;
@@ -186,6 +180,9 @@ public class ZkLocalCache implements Closeable {
         return node;
     }
 
+    /**
+     * 任务状态轮询的时候注意并发删除操作，CopyOnWrite
+     */
     public Map<String,BrokerDataShard> cloneShardData() {
         return new HashMap<>(localDataCache.getShards());
     }
@@ -193,13 +190,6 @@ public class ZkLocalCache implements Closeable {
     public void cover(Map<String, BrokerDataNode> otherNode) {
         otherNode.remove(localAddress);
         core.putAll(otherNode);
-    }
-
-    private Map<String, BrokerDataNode> getView() {
-        if (view == null) {
-            view = Collections.unmodifiableMap(core);
-        }
-        return view;
     }
 
     public void checkShard() {
