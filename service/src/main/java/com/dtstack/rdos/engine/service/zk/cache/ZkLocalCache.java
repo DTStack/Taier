@@ -15,6 +15,8 @@ import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.collect.Maps;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * author: toutian
  * create: 2018/9/6
  */
-public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
+public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Closeable {
 
     private volatile Map<String, BrokerDataNode> core;
     private volatile Map<String, BrokerDataNode> view;
@@ -52,6 +54,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
     private ShardConsistentHash shardsCsist = ShardConsistentHash.getInstance();
     private ZkShardManager zkShardManager = ZkShardManager.getInstance();
+    private LocalCacheSyncZkListener localCacheSyncZkListener;
 
     private ZkLocalCache() {
         this.requiresCopyOnWrite = new AtomicBoolean(false);
@@ -191,20 +194,29 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode> {
     }
 
     public void checkShard() {
-        if (incrementSize.get()%perShardSize==0){
-            final ReentrantLock createShardLock = this.lock;
-            createShardLock.lock();
-            try {
+        final ReentrantLock createShardLock = this.lock;
+        createShardLock.lock();
+        try {
+            if (incrementSize.getAndIncrement()%perShardSize==0){
                 int avg = localDataCache.getDataSize()/localDataCache.getShards().size();
                 if (avg>perShardSize){
                     zkShardManager.createShardNode(1);
                     incrementSize.set(0);
                 }
-            } finally {
-                createShardLock.unlock();
             }
-        } else {
-            incrementSize.incrementAndGet();
+        } finally {
+            createShardLock.unlock();
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (localCacheSyncZkListener!=null){
+            localCacheSyncZkListener.run();
+        }
+    }
+
+    public void setLocalCacheSyncZkListener(LocalCacheSyncZkListener localCacheSyncZkListener) {
+        this.localCacheSyncZkListener = localCacheSyncZkListener;
     }
 }
