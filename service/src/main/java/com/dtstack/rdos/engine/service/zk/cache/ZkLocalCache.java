@@ -197,8 +197,14 @@ public class ZkLocalCache implements Closeable {
         createShardLock.lock();
         try {
             if (incrementSize.getAndIncrement()>=perShardSize){
-                zkShardManager.createShardNode(1);
-                incrementSize.set(0);
+                int dataSize = localDataCache.getDataSize();
+                int avg = dataSize/localDataCache.getShards().size()+1;
+                if (avg>perShardSize) {
+                    zkShardManager.createShardNode(1);
+                    incrementSize.set(0);
+                } else {
+                    incrementSize.set(dataSize%perShardSize);
+                }
             }
         } finally {
             createShardLock.unlock();

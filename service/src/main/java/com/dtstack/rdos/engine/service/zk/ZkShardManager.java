@@ -79,11 +79,13 @@ public class ZkShardManager implements Runnable {
                         ReentrantLock lock = tryLock(shardEntry.getKey());
                         lock.lock();
                         try {
-                            BrokerDataTreeMap<String, Byte> shardData = shardEntry.getValue().getMetas();
+                            BrokerDataShard brokerDataShard = shardEntry.getValue();
+                            BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
                             Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
                             while (it.hasNext()) {
                                 Map.Entry<String, Byte> data = it.next();
                                 if (RdosTaskStatus.needClean(data.getValue())) {
+                                    brokerDataShard.getNewVersion().incrementAndGet();
                                     it.remove();
                                 }
                             }
