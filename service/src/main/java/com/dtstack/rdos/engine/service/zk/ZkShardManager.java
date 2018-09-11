@@ -40,7 +40,7 @@ public class ZkShardManager implements Runnable {
         return zkShardManager;
     }
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    private ZkDistributed zkDistributed;
 
     private final AtomicInteger shardSequence = new AtomicInteger(1);
     private ShardConsistentHash consistentHash;
@@ -48,12 +48,17 @@ public class ZkShardManager implements Runnable {
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
     private Map<String, InterProcessMutex> mutexs = Maps.newConcurrentMap();
 
-    public void init() {
+    public void init(ZkDistributed zkDistributed) {
+        this.zkDistributed = zkDistributed;
         BrokerDataNode brokerDataNode = ZkLocalCache.getInstance().getBrokerData();
         this.shards = brokerDataNode.getShards();
         this.consistentHash = brokerDataNode.getConsistentHash();
         if (consistentHash.getSize()==0){
             createShardNode(1);
+        } else {
+            for (String shardName : shards.keySet()) {
+                initShardNode(shardName);
+            }
         }
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("ZkShardListener"));
         scheduledService.scheduleWithFixedDelay(
@@ -135,7 +140,6 @@ public class ZkShardManager implements Runnable {
     private void initShardNode(String shardName) {
         InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
         mutexs.put(shardName, mutex);
-        consistentHash.add(shardName);
     }
 
     public void createShardNode(float nodeNum) {

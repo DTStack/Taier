@@ -133,7 +133,7 @@ public class TaskStatusListener implements Runnable{
 
 	private void updateTaskStatus(){
         try {
-            Map<String, BrokerDataShard> shards = zkLocalCache.getBrokerData().getShards();
+            Map<String, BrokerDataShard> shards = zkLocalCache.getBrokerData().cloneShards();
             CountDownLatch ctl = new CountDownLatch(shards.size());
             for (Map.Entry<String,BrokerDataShard> shardEntry: shards.entrySet()) {
                 taskStatusPool.submit(()->{

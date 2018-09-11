@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.service.zk.data;
 
 import com.dtstack.rdos.engine.service.zk.ShardConsistentHash;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,13 @@ public class BrokerDataNode {
 
     public Map<String, BrokerDataShard> getShards() {
         return shards;
+    }
+
+    /**
+     * 任务状态轮询的时候注意并发删除操作，CopyOnWrite
+     */
+    public Map<String, BrokerDataShard> cloneShards() {
+        return new HashMap<>(shards);
     }
 
     public ShardConsistentHash getConsistentHash() {

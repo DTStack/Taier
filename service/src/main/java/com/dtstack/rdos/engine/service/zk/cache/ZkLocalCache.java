@@ -66,7 +66,7 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
         distributeQueueWeight = ConfigParse.getTaskDistributeZkWeight();
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
         perShardSize = ConfigParse.getShardSize();
-        zkShardManager.init();
+        zkShardManager.init(zkDistributed);
         int initIncrementSize = localDataCache.getDataSize()%perShardSize;
         incrementSize = new AtomicInteger(initIncrementSize);
     }
@@ -197,10 +197,8 @@ public class ZkLocalCache implements CopyOnWriteCache<String, BrokerDataNode>,Cl
     }
 
     public void cover(Map<String, BrokerDataNode> otherNode) {
-        Map<String, BrokerDataNode> coverCore = new ConcurrentHashMap<>(core);
-        coverCore.remove(localAddress);
-        coverCore.putAll(otherNode);
-        core = coverCore;
+        otherNode.remove(localAddress);
+        core.putAll(otherNode);
     }
 
     private Map<String, BrokerDataNode> getView() {
