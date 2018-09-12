@@ -282,7 +282,7 @@ class Workbench extends React.Component {
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
-                        </a><span className="tab-ellipsis" style={{ color: 'rgba(0, 0, 0, 0.65)' }}> / {tab.name}</span>
+                        </a><span className="tab-ellipsis" style={{ color: 'rgba(0, 0, 0, 0.65)' }}>&nbsp; / {tab.name}</span>
                     </div>);
                 }
 

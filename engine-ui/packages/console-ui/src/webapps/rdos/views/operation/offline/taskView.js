@@ -6,7 +6,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import { getGeoByParent, getRowWidth, getRowHeight, getNodeCount } from 'utils/layout';
+import { getGeoByRelativeNode, getNodeWidth, getNodeHeight, getNodeLevelAndCount } from 'utils/layout';
 
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
@@ -113,7 +113,7 @@ export default class TaskView extends Component {
     }
 
     loadTaskChidren = (params) => {
-        const ctx = this
+        const ctx = this;
         params.type = 2;
 
         this.setState({ loading: 'loading' })
@@ -128,7 +128,7 @@ export default class TaskView extends Component {
     }
 
     loadTaskParent = (params) => {
-        const ctx = this
+        const ctx = this;
 
         params.type = 1;
 
@@ -176,34 +176,33 @@ export default class TaskView extends Component {
                 }
 
                 if (currentNodeData.taskType === TASK_TYPE.WORKFLOW) {
+                    const workflowData = currentNodeData.subNodes;
+                    let newLevel = 0;
+                    
                     // 如果是工作流，需要重新计算工作流节点的高和宽
-                    const nodeCount = getNodeCount(currentNodeData.subNodes);
+                    const nodeCount = getNodeLevelAndCount(workflowData);
                     const tempNode = Object.assign({}, defaultRoot);
                     tempNode.count = nodeCount.count;
                     tempNode.level = nodeCount.level;
-                    currentNode.width = getRowWidth(tempNode);
-                    currentNode.height = getRowHeight(tempNode);
-                    currentNode.height = currentNode.height + VertexSize.height + currentNode.margin;
-                    
-                    const workflowData = currentNodeData.subNodes;
-                    let newLevel = 0;
+                    currentNode.width = getNodeWidth(tempNode);
+                    currentNode.height = getNodeHeight(tempNode);
 
                     const workflowDefaultRoot = Object.assign({}, defaultRoot);
                     workflowDefaultRoot.x = Math.round((currentNode.width - VertexSize.width) /2);
-                    workflowDefaultRoot.y = workflowDefaultRoot.height + 20;
+                    workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
 
                     if (workflowData) {
                         loop(workflowData, currentNodeData , newLevel, workflowDefaultRoot)
                     }
                 }
 
-                currentNode = getGeoByParent(parentNode, currentNode);
+                currentNode = getGeoByRelativeNode(parentNode, currentNode);
                 currentNodeData._geometry = currentNode;
 
                 const dataItem = {
                     parent: parent,
                     source: currentNodeData,
-                }
+                };
 
                 relationTree.push(dataItem);
 
@@ -215,12 +214,16 @@ export default class TaskView extends Component {
                         node.level = level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
-
-                        nodeData._geometry = getGeoByParent(currentNode, node);
+                        nodeData._geometry = getGeoByRelativeNode(currentNode, node);
 
                         if (parentNodes[i].taskVOS) {
                             loop(nodeData, parent, level - 1, currentNode)
                         }
+
+                        const isExist = relationTree.find(t => t.source.id === nodeData.id &&
+                            t.target && t.target.id === currentNodeData.id);
+
+                        console.log('isExist:', isExist);
 
                         relationTree.push({
                             parent: parent,
@@ -240,18 +243,26 @@ export default class TaskView extends Component {
                         node.index = j + 1;
                         node.count = childNodes.length;
 
-                        nodeData._geometry = getGeoByParent(currentNode, node);
-                        console.log('_geometry child:', nodeData.name, currentNode, nodeData._geometry);
+                        nodeData._geometry = getGeoByRelativeNode(currentNode, node);
 
                         if (childNodes[j].subTaskVOS) {
                             loop(nodeData, parent, ++level, currentNode)
                         }
 
-                        relationTree.push({
+                        const treeItem = {
                             parent: parent,
                             source: currentNodeData,
                             target: nodeData,
-                        });
+                        };
+
+                        const isExist = relationTree.findIndex(t => t.source.id === currentNodeData.id &&
+                            t.target && t.target.id === nodeData.id);
+                        if (isExist > -1) {
+                            console.log('childNodes isExist:', currentNodeData, nodeData);
+                            relationTree[isExist] = treeItem;
+                        } else {
+                            relationTree.push(treeItem);
+                        }
                     }
                 }
             }
@@ -275,14 +286,9 @@ export default class TaskView extends Component {
             
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
-            
-            let width = VertexSize.width;
-            let height = VertexSize.height;
-            let cy = 10;
 
             if (isWorkflow) {
-                width = width + 20;
-                height = height + 100;
+         
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
 
                 if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
@@ -294,9 +300,7 @@ export default class TaskView extends Component {
                 style += 'rounded=1;arcSize=60;'
                 data.workflow = parentCell.value;
             }
-            if (parentCell && parentCell.geometry) {
-                cy = parentCell.geometry.y + VertexSize.height + 5;
-            }
+         
 
             const geo = data._geometry || {
                 x : 10, y : 10, 
@@ -384,7 +388,6 @@ export default class TaskView extends Component {
         console.log('mergedData:', arrayData);
 
         this.renderGraph(arrayData);
-        // this.executeLayout(graph.getDefaultParent());
         graph.center();
     }
 
@@ -666,7 +669,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_ROUNDED] = false;
         return style;
     }
 }
