@@ -163,7 +163,8 @@ function createLineMarker(syntax){
         range: new monaco.Range(syntax.loc.first_line,1,syntax.loc.last_line,1), 
         options: { 
             isWholeLine: true, 
-            linesDecorationsClassName: 'dt-monaco-line-error' 
+            linesDecorationsClassName: 'dt-monaco-line-error' ,
+            className:"dt-monaco-whole-line-error"
         }
     }]
 }
