@@ -76,21 +76,15 @@ public class ZkShardManager implements Runnable {
         scheduledService.scheduleWithFixedDelay(
                 () -> {
                     for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
-                        ReentrantLock lock = tryLock(shardEntry.getKey());
-                        lock.lock();
-                        try {
-                            BrokerDataShard brokerDataShard = shardEntry.getValue();
-                            BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
-                            Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
-                            while (it.hasNext()) {
-                                Map.Entry<String, Byte> data = it.next();
-                                if (RdosTaskStatus.needClean(data.getValue())) {
-                                    brokerDataShard.getNewVersion().incrementAndGet();
-                                    it.remove();
-                                }
+                        BrokerDataShard brokerDataShard = shardEntry.getValue();
+                        BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
+                        Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry<String, Byte> data = it.next();
+                            if (RdosTaskStatus.needClean(data.getValue())) {
+                                brokerDataShard.getNewVersion().incrementAndGet();
+                                it.remove();
                             }
-                        } finally {
-                            lock.unlock();
                         }
                     }
                 },
@@ -185,14 +179,56 @@ public class ZkShardManager implements Runnable {
     }
 
     public void createShardNode(float nodeNum) {
-        for (int i = 0; i < nodeNum; i++) {
-            String shardName = SHARD_NODE + shardSequence.getAndIncrement();
-            zkDistributed.createBrokerDataShard(shardName);
-            InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
-            mutexs.put(shardName, mutex);
-            cacheShardLocks.put(shardName, new ReentrantLock());
-            consistentHash.add(shardName);
-            shards.put(shardName, BrokerDataShard.initBrokerDataShard());
+        acquireBrokerLock();
+        try {
+            for (int i = 0; i < nodeNum; i++) {
+                String shardName = SHARD_NODE + shardSequence.getAndIncrement();
+                zkDistributed.createBrokerDataShard(shardName);
+                InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
+                mutexs.put(shardName, mutex);
+                ReentrantLock lock = new ReentrantLock();
+                lock.lock();
+                cacheShardLocks.put(shardName, lock);
+                consistentHash.add(shardName);
+                shards.put(shardName, BrokerDataShard.initBrokerDataShard());
+            }
+            logger.info("ZkShardManager resizeShard-create:{} start", nodeNum);
+            resizeShard();
+            logger.info("ZkShardManager resizeShard-create:{} end", nodeNum);
+        } finally {
+            releaseLock();
         }
     }
+
+    private void resizeShard() {
+        for (Map.Entry<String, BrokerDataShard> shardEntry : shards.entrySet()) {
+            String shard = shardEntry.getKey();
+            BrokerDataShard brokerDataShard = shardEntry.getValue();
+            BrokerDataTreeMap<String, Byte> shardData = brokerDataShard.getMetas();
+            Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Byte> data = it.next();
+                String zkTaskId = data.getKey();
+                String newShard = consistentHash.get(zkTaskId);
+                if (newShard.equals(shard)) {
+                    continue;
+                }
+                shards.get(newShard).put(zkTaskId, data.getValue());
+                it.remove();
+            }
+        }
+    }
+
+    private void acquireBrokerLock() {
+        for (ReentrantLock lock : cacheShardLocks.values()) {
+            lock.lock();
+        }
+    }
+
+    private void releaseLock() {
+        for (ReentrantLock lock : cacheShardLocks.values()) {
+            lock.unlock();
+        }
+    }
+
 }
