@@ -24,7 +24,7 @@ public class MybatisSessionCallbackMethod {
 		try{
 			return mybatisSessionCallback.execute(sqlSession);
 		}catch(Exception e){
-			logger.error("MybatisSessionCallbackMethod error:", e);
+			logger.error("MybatisSessionCallbackMethod error:{}", e);
 		}finally{
 			if(sqlSession!=null){sqlSession.close();}
 		}

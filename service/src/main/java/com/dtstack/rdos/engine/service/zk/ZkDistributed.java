@@ -36,6 +36,8 @@ import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import com.netflix.curator.retry.ExponentialBackoffRetry;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -372,7 +374,7 @@ public class ZkDistributed implements Closeable{
 	public Map<String,BrokerDataShard> getBrokerDataNode(String node) {
 		try {
 			List<String> shards = getBrokerDataChildren(node);
-			Map<String,BrokerDataShard> shardMap = new HashMap<>(shards.size());
+			Map<String,BrokerDataShard> shardMap = new ConcurrentHashMap<>(shards.size());
 			for (String shard:shards){
 				BrokerDataShard shardNode = getBrokerDataShard(node,shard);
 				shardMap.put(shard,shardNode);
