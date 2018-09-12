@@ -131,9 +131,11 @@ export function registeCompleteItemsProvider(completeProvideFunc) {
 export function disposeProvider() {
     _completeProvideFunc = null;
 }
-export async function onChange(value, _editor) {
+export async function onChange(value, _editor, callback) {
     const dtParser=await loadDtParser();
     const model = _editor.getModel();
+    // const cursorIndex = model.getOffsetAt(_editor.getPosition());
+    let autoComplete = dtParser.parser.parserSql(value);
     let syntax = dtParser.parser.parseSyntax(value);
     if (syntax&&syntax.token!="EOF") {
         const message=messageCreate(syntax);
@@ -149,6 +151,9 @@ export async function onChange(value, _editor) {
     } else {
         _editor.deltaDecorations(_tmp_decorations,[])
         monaco.editor.setModelMarkers(model, model.getModeId(), [])
+    }
+    if(callback){
+        callback(autoComplete,syntax);
     }
     console.log(syntax)
 }

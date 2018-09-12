@@ -171,23 +171,24 @@ class Editor extends React.Component {
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
-    languageValueOnChange() {
+    languageValueOnChange(callback) {
         const newValue = this.monacoInstance.getValue();
         const languageId = this.monacoInstance.getModel().getModeId();
         if (provideCompletionItemsMap[languageId] && provideCompletionItemsMap[languageId].onChange) {
-            provideCompletionItemsMap[languageId].onChange(newValue, this.monacoInstance);
+            provideCompletionItemsMap[languageId].onChange(newValue, this.monacoInstance, callback);
         }
     }
 
     delayLanguageValueOnChange=delayFunctionWrap(this.languageValueOnChange.bind(this))
 
     initEditorEvent() {
-        this.languageValueOnChange();
+        this.languageValueOnChange(this.props.onSyntaxChange);
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");
-            const { onChange, value } = this.props;
+            const { onChange, value, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
-            this.delayLanguageValueOnChange();
+            //考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
+            this.delayLanguageValueOnChange(onSyntaxChange);
             if (onChange) {
                 this.log("订阅事件触发");
                 onChange(newValue, this.monacoInstance);
