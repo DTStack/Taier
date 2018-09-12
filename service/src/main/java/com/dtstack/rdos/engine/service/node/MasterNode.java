@@ -123,7 +123,7 @@ public class MasterNode {
     public void faultTolerantRecover(String broker) {
         List<InterProcessMutex> locks = null;
         try {
-            //获取锁 todo 测试锁是否只有当前线程可以释放
+            //获取锁
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(broker), true);
             //再获取锁后再次判断broker是否alive
             BrokerHeartNode brokerHeart = zkDistributed.getBrokerHeartNode(broker);

@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -85,10 +87,12 @@ public class WorkNode {
     }
 
     private WorkNode(){
-        ExecutorService submitExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("submitDealer"));
-        SubmitDealer submitDealer = new SubmitDealer(priorityQueueMap);
-        submitExecutor.submit(submitDealer);
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("submitDealer"));
+        scheduledService.scheduleWithFixedDelay(
+                new SubmitDealer(priorityQueueMap),
+                0,
+                WAIT_INTERVAL,
+                TimeUnit.MILLISECONDS);
 
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
@@ -292,24 +296,14 @@ public class WorkNode {
 
         @Override
         public void run() {
-            LOG.info("-----{}:优先级队列发送任务线程触发开始执行----");
-
-            while (true){
-                try{
-                    for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
-                        for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
-                            submitJobClient(queue);
-                        }
-                    }
-                }catch (Exception e){
-                    LOG.error("", e);
-                }finally {
-                    try {
-                        Thread.sleep(WAIT_INTERVAL);
-                    } catch (InterruptedException e) {
-                        LOG.error("", e);
+            try{
+                for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
+                    for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
+                        submitJobClient(queue);
                     }
                 }
+            }catch (Exception e){
+                LOG.error("", e);
             }
         }
 
