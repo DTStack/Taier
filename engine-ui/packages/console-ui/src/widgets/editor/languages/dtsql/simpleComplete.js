@@ -131,12 +131,13 @@ export function registeCompleteItemsProvider(completeProvideFunc) {
 export function disposeProvider() {
     _completeProvideFunc = null;
 }
-export async function onChange(value, _editor, callback) {
+export async function onChange(value='', _editor, callback) {
+    console.log(JSON.stringify(value));
     const dtParser=await loadDtParser();
     const model = _editor.getModel();
     // const cursorIndex = model.getOffsetAt(_editor.getPosition());
     let autoComplete = dtParser.parser.parserSql(value);
-    let syntax = dtParser.parser.parseSyntax(value);
+    let syntax = dtParser.parser.parseSyntax(value.replace(/\r\n/g,'\n'));
     if (syntax&&syntax.token!="EOF") {
         const message=messageCreate(syntax);
         monaco.editor.setModelMarkers(model, model.getModeId(), [{
