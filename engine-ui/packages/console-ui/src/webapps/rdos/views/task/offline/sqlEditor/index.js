@@ -36,7 +36,9 @@ class EditorContainer extends Component {
         tableList: [],
         funcList: [],
         tableCompleteItems: [],
-        funcCompleteItems: []
+        funcCompleteItems: [],
+        tables: [],
+        columns: {}
     }
     _tableColumns = {}
     _tableLoading = {}
@@ -50,10 +52,10 @@ class EditorContainer extends Component {
         this.initFuncList();
     }
     initTableList(id) {
-        id=id||this.props.project.id;
-        if(!id){
+        id = id || this.props.project.id;
+        if (!id) {
             console.log("project id 0 remove")
-            return ;
+            return;
         }
         API.getTableListByName({
             appointProjectId: id
@@ -97,7 +99,7 @@ class EditorContainer extends Component {
         const old = this.props.currentTabData
         const project = nextProps.project
         const old_project = this.props.project
-        if(project.id!=old_project.id){
+        if (project.id != old_project.id) {
             this.initTableList(project.id);
         }
         if (current && current.id !== old.id) {
@@ -258,14 +260,18 @@ class EditorContainer extends Component {
         const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
         console.log(status)
+        //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
+        //假如触发上下文为点，则去除初始点几个完成项
         if (context.completionContext.triggerCharacter == ".") {
             defaultItems = [];
         }
+        //开始解析具体语境
         if (autoComplete && autoComplete.locations) {
             let promiseList = [];
+            //根据代码中出现的表来获取所有的字段
             for (let location of autoComplete.locations) {
                 if (location.type == "table") {
                     for (let identifierChain of location.identifierChain) {
@@ -278,6 +284,7 @@ class EditorContainer extends Component {
                 .then(
                     (values) => {
                         let _tmpCache = {}
+                        //value:[tableName,data]
                         for (let value of values) {
                             //去除未存在的表
                             if (!value || !value[1] || !value[1].length) {
@@ -288,7 +295,8 @@ class EditorContainer extends Component {
                                 continue;
                             }
                             _tmpCache[value[0]] = true;
-                            if (context.columnContext&&context.columnContext.indexOf(value[0]) > -1) {
+                            //在当前语境为column的情况下，提升该表所有column的优先级
+                            if (context.columnContext && context.columnContext.indexOf(value[0]) > -1) {
                                 defaultItems = defaultItems.concat(
                                     customCompletionItemsCreater(value[1].map(
                                         (columnName) => {
@@ -297,6 +305,7 @@ class EditorContainer extends Component {
                                     ))
                                 )
                             } else {
+                                //当触发上下文是点，则不显示其余补全项
                                 if (context.completionContext.triggerCharacter == ".") {
                                     continue;
                                 }
@@ -320,21 +329,26 @@ class EditorContainer extends Component {
             resolve(defaultItems)
         }
     }
+    /**
+     * 获取表的字段
+     * @param {表名} tableName 
+     */
     getTableColumns(tableName) {
-        let tableColumns = this._tableColumns;
-        if (tableColumns[tableName]) {
-            return Promise.resolve(tableColumns[tableName])
+        let _tableColumns = this._tableColumns;
+        if (_tableColumns[tableName]) {
+            return Promise.resolve(_tableColumns[tableName])
         }
+        //共用现有请求线程
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }
         this._tableLoading[tableName] = API.getColumnsOfTable({ tableName })
             .then(
                 (res) => {
-                    this._tableLoading[tableName]=null;
+                    this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        tableColumns[tableName] = [tableName, res.data];
-                        return tableColumns[tableName];
+                        _tableColumns[tableName] = [tableName, res.data];
+                        return _tableColumns[tableName];
                     } else {
                         console.log("get table columns error")
                     }
@@ -342,9 +356,51 @@ class EditorContainer extends Component {
             )
         return this._tableLoading[tableName];
     }
+    onSyntaxChange(autoComplete, syntax) {
+        const locations = autoComplete.locations;
+        let promiseList = [];
+        let tables = [];
+        let columns = {};
+        let tmp_tables={};
+        for (let location of locations) {
+            if (location.type == "table") {
+                for (let identifierChain of location.identifierChain) {
+                    if(tmp_tables[identifierChain.name]){
+                        continue;
+                    }
+                    tmp_tables[identifierChain.name]=true;
+                    tables.push(identifierChain.name);
+                    let columns = this.getTableColumns(identifierChain.name);
+                    promiseList.push(columns)
+                }
+            }
+        }
+        this.setState({
+            tables: tables
+        })
+        Promise.all(promiseList)
+            .then(
+                (values) => {
+                    
+                    //value:[tableName,data]
+                    for (let value of values) {
+                        //去除未存在的表
+                        if (!value || !value[1] || !value[1].length) {
+                            continue;
+                        }
+                        columns[value[0]] = value[1]
+                    }
+                    this.setState({
+                        columns: columns
+                    })
+                }
+            )
+
+        console.log(autoComplete, syntax);
+    }
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
-
+    debounceSyntaxChange=debounce(this.onSyntaxChange.bind(this),200,{ 'maxWait': 2000 })
     render() {
 
         const { editor, currentTabData, value, project, user } = this.props;
@@ -379,6 +435,7 @@ class EditorContainer extends Component {
             cursorPosition: cursorPosition,
             theme: editor.options.theme || "white",
             onChange: this.debounceChange,
+            onSyntaxChange: this.debounceSyntaxChange,
             sync: currentTabData.merged || undefined,
             onCursorSelection: this.debounceSelectionChange
         }
