@@ -524,7 +524,7 @@ public class ZkDistributed implements Closeable{
 		if (stopHelthCheck){
 			disableBrokerHeartNode.setSeq(HeartBeatCheckListener.STOP_HEALTH_CHECK_SEQ);
 		}
-		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, stopHelthCheck);
+		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, true);
 		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
 
