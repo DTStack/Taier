@@ -392,25 +392,27 @@ public class WorkNode {
         String localAddress = zkDistributed.getLocalAddress();
         try {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
+            long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
                     //2. master节点已经为此节点做了容灾
                     break;
                 }
-                jobCaches.forEach(jobCache -> {
+                for(RdosEngineJobCache jobCache : jobCaches){
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         WorkNode.getInstance().addSubmitJob(jobClient);
+                        startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
                         dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
                     }
-                });
+                }
             }
         } catch (Exception e) {
             LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);

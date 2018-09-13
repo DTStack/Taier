@@ -34,11 +34,11 @@
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
         select * from rdos_engine_job_cache
-        where (node_address = #{nodeAddress} or node_address is null)
+        where id > #{id} and (node_address = #{nodeAddress} or node_address is null)
         <if test="stage != null">
             and stage = #{stage}
         </if>
-        and is_deleted=0 order by gmt_create asc limit 500;
+        and is_deleted=0 order by id asc limit 500;
     </select>
 
 </mapper>

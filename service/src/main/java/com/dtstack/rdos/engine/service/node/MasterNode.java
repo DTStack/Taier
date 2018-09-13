@@ -76,7 +76,7 @@ public class MasterNode {
             LOG.warn("---start master node deal thread------");
         } else if (!isMaster && currIsMaster) {
             currIsMaster = false;
-            if (faultTolerantDealer!=null){
+            if (faultTolerantDealer != null) {
                 faultTolerantDealer.stop();
             }
             faultTolerantExecutor.shutdownNow();
@@ -114,7 +114,7 @@ public class MasterNode {
             }
         }
 
-        public void stop(){
+        public void stop() {
             isRun = false;
         }
     }
@@ -131,28 +131,30 @@ public class MasterNode {
                 return;
             }
             //节点容灾恢复任务
-            while (true){
-                List<RdosEngineJobCache> priorityCaches = engineJobCacheDao.getJobForPriorityQueue(broker, null);
-                if (CollectionUtils.isEmpty(priorityCaches)) {
+            long startId = 0L;
+            while (true) {
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null);
+                if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
                 LOG.info("----- broker:{} 节点容灾任务开始恢复----", broker);
-                priorityCaches.forEach(jobCache -> {
+                for (RdosEngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         //进行多节点任务分发（ fixme 如果存在吞吐量问题，改成批量，只分发taskId，再由各个节点从数据库恢复）
-                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage()==jobCache.getStage()){
+                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
                             WorkNode.getInstance().addStartJob(jobClient);
                         } else {
                             WorkNode.getInstance().afterSubmitJob(jobClient);
                         }
+                        startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
                         dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
                     }
-                });
+                }
             }
             List<String> shards = zkDistributed.getBrokerDataChildren(broker);
             for (String shard : shards) {
