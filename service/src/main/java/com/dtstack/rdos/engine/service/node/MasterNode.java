@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -132,26 +131,28 @@ public class MasterNode {
                 return;
             }
             //节点容灾恢复任务
-            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(broker, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
-            if (CollectionUtils.isEmpty(jobCaches)) {
-                return;
-            }
-            LOG.info("----- broker:{} 节点容灾任务开始恢复----", broker);
-            List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
-            jobCaches.forEach(jobCache -> {
-                try {
-                    ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                    JobClient jobClient = new JobClient(paramAction);
-                    jobClients.add(jobClient);
-                } catch (Exception e) {
-                    //数据转换异常--打日志
-                    LOG.error("", e);
-                    dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+            while (true){
+                List<RdosEngineJobCache> priorityCaches = engineJobCacheDao.getJobForPriorityQueue(broker, null);
+                if (CollectionUtils.isEmpty(priorityCaches)) {
+                    break;
                 }
-            });
-            for (JobClient jobClient : jobClients) {
-                //进行多节点任务分发（ fixme 如果存在吞吐量问题，改成批量，只分发taskId，再由各个节点从数据库恢复）
-                WorkNode.getInstance().addStartJob(jobClient);
+                LOG.info("----- broker:{} 节点容灾任务开始恢复----", broker);
+                priorityCaches.forEach(jobCache -> {
+                    try {
+                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                        JobClient jobClient = new JobClient(paramAction);
+                        //进行多节点任务分发（ fixme 如果存在吞吐量问题，改成批量，只分发taskId，再由各个节点从数据库恢复）
+                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage()==jobCache.getStage()){
+                            WorkNode.getInstance().addStartJob(jobClient);
+                        } else {
+                            WorkNode.getInstance().afterSubmitJob(jobClient);
+                        }
+                    } catch (Exception e) {
+                        //数据转换异常--打日志
+                        LOG.error("", e);
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                    }
+                });
             }
             List<String> shards = zkDistributed.getBrokerDataChildren(broker);
             for (String shard : shards) {

@@ -117,6 +117,9 @@ public class WorkNode {
         return engineTypeQueueSizeInfo;
     }
 
+    /**
+     * 任务分发
+     */
     public void addStartJob(JobClient jobClient){
         boolean distribute = distributeTask(jobClient,0,Lists.newArrayList());
         if (!distribute){
@@ -124,6 +127,9 @@ public class WorkNode {
         }
     }
 
+    /**
+     * 提交优先级队列->最终提交到具体执行组件
+     */
     public void addSubmitJob(JobClient jobClient) {
         //检查分片
         zkLocalCache.checkShard();
@@ -150,6 +156,21 @@ public class WorkNode {
 
         //加入节点的优先级队列
         this.redirectSubmitJob(jobClient);
+    }
+
+    /**
+     * 容灾时对已经提交到执行组件的任务，进行恢复
+     */
+    public void afterSubmitJob(JobClient jobClient) {
+        //检查分片
+        zkLocalCache.checkShard();
+        Integer computeType = jobClient.getComputeType().getType();
+        if(jobClient.getPluginInfo() != null){
+            updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
+        }
+        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 
     public void redirectSubmitJob(JobClient jobClient){
@@ -371,27 +392,25 @@ public class WorkNode {
         String localAddress = zkDistributed.getLocalAddress();
         try {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
-            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(localAddress,EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
-            if(CollectionUtils.isEmpty(jobCaches)){
-                //两种情况：
-                //1. 可能本身没有jobcaches的数据
-                //2. master节点已经为此节点做了容灾
-                return;
-            }
-            List<JobClient> jobClients = new ArrayList<>(jobCaches.size());
-            jobCaches.forEach(jobCache ->{
-                try{
-                    ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                    JobClient jobClient = new JobClient(paramAction);
-                    jobClients.add(jobClient);
-                }catch (Exception e){
-                    //数据转换异常--打日志
-                    LOG.error("", e);
-                    dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+            while (true) {
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+                if (CollectionUtils.isEmpty(jobCaches)) {
+                    //两种情况：
+                    //1. 可能本身没有jobcaches的数据
+                    //2. master节点已经为此节点做了容灾
+                    break;
                 }
-            });
-            for (JobClient jobClient:jobClients){
-                WorkNode.getInstance().addSubmitJob(jobClient);
+                jobCaches.forEach(jobCache -> {
+                    try {
+                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                        JobClient jobClient = new JobClient(paramAction);
+                        WorkNode.getInstance().addSubmitJob(jobClient);
+                    } catch (Exception e) {
+                        //数据转换异常--打日志
+                        LOG.error("", e);
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                    }
+                });
             }
         } catch (Exception e) {
             LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);

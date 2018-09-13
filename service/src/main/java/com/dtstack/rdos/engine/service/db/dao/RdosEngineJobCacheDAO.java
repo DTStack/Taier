@@ -74,7 +74,7 @@ public class RdosEngineJobCacheDAO {
      * @param stage
      * @return
      */
-    public List<RdosEngineJobCache> getJobForPriorityQueue(String nodeAddress, int stage){
+    public List<RdosEngineJobCache> getJobForPriorityQueue(String nodeAddress, Integer stage){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
