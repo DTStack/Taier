@@ -123,6 +123,14 @@ public class FlinkStandaloneRestParseUtil {
                             perfMap.put("numWrite", Integer.valueOf(value));
                         } else if(name.equals("nErrors")) {
                             perfMap.put("numError", Integer.valueOf(value));
+                        } else if(name.equals("nullErrors")){
+                            perfMap.put("nullErrors", Integer.valueOf(value));
+                        } else if(name.equals("duplicateErrors")){
+                            perfMap.put("duplicateErrors", Integer.valueOf(value));
+                        } else if(name.equals("conversionErrors")){
+                            perfMap.put("conversionErrors", Integer.valueOf(value));
+                        } else if(name.equals("otherErrors")){
+                            perfMap.put("otherErrors", Integer.valueOf(value));
                         }
                     }
                 }
@@ -213,6 +221,7 @@ public class FlinkStandaloneRestParseUtil {
         }
 
         logMap.put("perf", sb.toString());
+        logMap.put("countInfo",perfMap);
         return PublicUtil.objToString(logMap);
     }
 
