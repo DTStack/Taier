@@ -75,7 +75,7 @@ public class HeartBeatCheckListener implements Runnable{
 		if(childrens!=null){
 			for(String node:childrens){
 				BrokerHeartNode brokerNode = this.zkDistributed.getBrokerHeartNode(node);
-				boolean ignore = brokerNode == null || brokerNode.getAlive() && STOP_HEALTH_CHECK_SEQ == brokerNode.getSeq();
+				boolean ignore = brokerNode == null || STOP_HEALTH_CHECK_SEQ == brokerNode.getSeq();
 				if(ignore){
 					continue;
 				}
