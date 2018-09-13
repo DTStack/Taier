@@ -12,7 +12,6 @@ import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.ZkShardManager;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
-import com.dtstack.rdos.engine.service.zk.task.ZkSyncLocalCacheListener;
 import com.google.common.collect.Maps;
 
 import java.io.Closeable;

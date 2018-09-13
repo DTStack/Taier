@@ -1,8 +1,7 @@
-package com.dtstack.rdos.engine.service.zk.task;
+package com.dtstack.rdos.engine.service.zk.cache;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
