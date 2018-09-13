@@ -148,31 +148,22 @@ public class ActionServiceImpl {
     }
 
     private boolean checkSubmitted(ParamAction paramAction){
-        boolean result;
         String jobId = paramAction.getTaskId();
         Integer computerType = paramAction.getComputeType();
-
         if (ComputeType.STREAM.getType().equals(computerType)) {
             RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineStreamJob == null){
-                logger.error("can't find job from engineStreamJob:" + paramAction);
-                return false;
+            if(rdosEngineStreamJob != null){
+                return true;
             }
-
-            result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
-
+            logger.error("can't find job from engineStreamJob:" + paramAction);
         }else{
             RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineBatchJob == null){
-                logger.error("can't find job from engineBatchJob:" + paramAction);
-                return false;
+            if(rdosEngineBatchJob != null) {
+                return true;
             }
-
-            result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
-
+            logger.error("can't find job from engineBatchJob:" + paramAction);
         }
-
-        return result;
+        return false;
     }
 
     /**
