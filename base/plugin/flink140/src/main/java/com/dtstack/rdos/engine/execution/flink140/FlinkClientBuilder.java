@@ -3,8 +3,10 @@ package com.dtstack.rdos.engine.execution.flink140;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
+import com.dtstack.rdos.engine.execution.flink140.util.FLinkConfUtil;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.StandaloneClusterClient;
@@ -32,11 +34,7 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 根据不同的配置创建对应的client
@@ -239,7 +237,7 @@ public class FlinkClientBuilder {
     public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, true);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, false);
         String flinkJarPath = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
@@ -247,24 +245,22 @@ public class FlinkClientBuilder {
             }
             flinkJarPath = flinkConfig.getFlinkJarPath();
         }
+        List<URL> classpaths = new ArrayList<URL>();
         if (flinkJarPath != null) {
-            clusterDescriptor.setLocalJarPath(new Path(flinkJarPath));
+            File[] jars = new File(flinkJarPath).listFiles();
+            for (File file : jars){
+                if (file.toURI().toURL().toString().contains("flink-dist")){
+                    clusterDescriptor.setLocalJarPath(new Path(file.toURI().toURL().toString()));
+                } else {
+                    classpaths.add(file.toURI().toURL());
+                }
+            }
         } else {
             throw new RdosException("The Flink jar path is null");
         }
+        clusterDescriptor.setProvidedUserJarFiles(classpaths);
+
         clusterDescriptor.setQueue(flinkConfig.getQueue());
-//        String classPath = flinkJarPath.substring(0,flinkJarPath.lastIndexOf("/"));
-//        File path = new File(classPath);
-//        List<URL> classpaths = new ArrayList<URL>();
-//        if (path.isDirectory() && path.listFiles()!=null){
-//            for (File file:path.listFiles()){
-//                if (file.toURI().toURL().toString().endsWith(flinkJarPath)){
-//                    continue;
-//                }
-//                classpaths.add(file.toURI().toURL());
-//            }
-//        }
-//        clusterDescriptor.setProvidedUserJarFiles(classpaths);
         return clusterDescriptor;
     }
 

@@ -35,6 +35,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.FlinkException;
@@ -222,31 +223,40 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException, MalformedURLException {
+    public String runJob(PackagedProgram program, int parallelism) throws MalformedURLException, ProgramMissingJobException, ProgramInvocationException {
         JobClient jobClient = jobClientThreadLocal.get();
+        JobSubmissionResult result = null;
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
-            final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
-            YarnClusterClient clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph);
+            ClusterClient cluster = null;
             try {
-                clusterClient.shutdown();
+                cluster = descriptor.deploySessionCluster(clusterSpecification);
+                cluster.setDetached(true);
+                result = cluster.run(program, parallelism);
             } catch (Exception e) {
-                logger.info("Could not properly shut down the client.", e);
+                logger.info("Job run failure!", e);
             }
-            return clusterClient.getApplicationId().toString();
-        } else {
-            JobSubmissionResult result = client.run(program, parallelism);
-            if (result.isJobExecutionResult()) {
-                logger.info("Program execution finished");
-                JobExecutionResult execResult = result.getJobExecutionResult();
-                logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
-                logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
-            } else {
-                logger.info("Job has been submitted with JobID " + result.getJobID());
+            finally {
+                try {
+                    cluster.shutdown();
+                } catch (Exception e) {
+                    logger.info("Could not properly shut down the cluster.", e);
+                }
             }
-            return result.getJobID().toString();
+        } else{
+            result = client.run(program, parallelism);
         }
+        if (result.isJobExecutionResult()) {
+            logger.info("Program execution finished");
+            JobExecutionResult execResult = result.getJobExecutionResult();
+            logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
+            logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
+        } else {
+            logger.info("Job has been submitted with JobID " + result.getJobID());
+        }
+        return result.getJobID().toString();
+
     }
 
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
