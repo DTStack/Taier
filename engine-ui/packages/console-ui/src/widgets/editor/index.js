@@ -15,6 +15,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
 import * as dtsql from "./languages/dtsql/dtsql.contribution.js"
+import "./languages/dt-flink/dtflink.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";

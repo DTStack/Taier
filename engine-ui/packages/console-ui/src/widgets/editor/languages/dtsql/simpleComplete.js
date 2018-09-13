@@ -137,7 +137,7 @@ export async function onChange(value='', _editor, callback) {
     const model = _editor.getModel();
     // const cursorIndex = model.getOffsetAt(_editor.getPosition());
     let autoComplete = dtParser.parser.parserSql(value);
-    let syntax = dtParser.parser.parseSyntax(value.replace(/\r\n/g,'\n'));
+    let syntax = dtParser.parser.parseSyntax(value.replace(/\r\n/g,'\n'),'');
     if (syntax&&syntax.token!="EOF") {
         const message=messageCreate(syntax);
         monaco.editor.setModelMarkers(model, model.getModeId(), [{
