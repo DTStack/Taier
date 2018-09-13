@@ -519,12 +519,12 @@ public class ZkDistributed implements Closeable{
 		return localAddress;
 	}
 
-	public void disableBrokerHeartNode(String localAddress, boolean startHelthCheck){
+	public void disableBrokerHeartNode(String localAddress, boolean stopHelthCheck){
 		BrokerHeartNode disableBrokerHeartNode = BrokerHeartNode.initNullBrokerHeartNode();
-		if (!startHelthCheck){
+		if (stopHelthCheck){
 			disableBrokerHeartNode.setSeq(HeartBeatCheckListener.STOP_HEALTH_CHECK_SEQ);
 		}
-		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, false);
+		zkDistributed.updateSynchronizedLocalBrokerHeartNode(localAddress,disableBrokerHeartNode, stopHelthCheck);
 		this.rdosNodeMachineDAO.disableMachineNode(localAddress, RdosNodeMachineType.SLAVE.getType());
 	}
 
@@ -591,7 +591,7 @@ public class ZkDistributed implements Closeable{
 	@Override
 	public void close() throws IOException {
 		try{
-			disableBrokerHeartNode(this.localAddress, true);
+			disableBrokerHeartNode(this.localAddress, false);
 //			lockRelease();
 //			executors.shutdown();
 		}catch (Throwable e){
