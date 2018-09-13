@@ -156,6 +156,11 @@ public class MasterNode {
                     }
                 }
             }
+            //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
+            List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null);
+            if (CollectionUtils.isNotEmpty(jobCaches)) {
+                zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker,BrokerHeartNode.initNullBrokerHeartNode(), true);
+            }
             List<String> shards = zkDistributed.getBrokerDataChildren(broker);
             for (String shard : shards) {
                 zkDistributed.synchronizedBrokerDataShard(broker, shard, BrokerDataShard.initBrokerDataShard(), true);
