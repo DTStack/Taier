@@ -1,5 +1,8 @@
 package com.dtstack.rdos.engine.service.util;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,72 +13,90 @@ public class TaskIdUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskIdUtil.class);
 
-    private final static String interval = "_";
+    private final static int MIN_LENGTH = 3;
 
-    /**1: 表明是迁移到该节点的数据*/
-    private final static String MIGRATION_FLAG = "1";
+    /**
+     * 1: 表明是迁移到该节点的数据
+     */
+    private final static char MIGRATION_FLAG = '1';
+    private final static char NO_MIGRATION_FLAG = '0';
 
-    private final static String NO_MIGRATION_FLAG = "0";
+    /**
+     * computeType
+     */
+    private final static int ZERO_COMPUTETYPE = 0;
+    /**
+     * engineType
+     */
+    private final static int ONE_ENGINETYPE = 1;
+    /**
+     * MIGRATION
+     */
+    private final static int TWO_MIGRATION = 2;
 
-    public static String getZkTaskId(int computeType, String engineType, String taskId){
-        return String.valueOf(computeType) + engineType + interval + taskId;
+
+    public static String getZkTaskId(int computeType, String engineType, String taskId) {
+        EngineType type = EngineType.getEngineType(engineType);
+        if (type == null) {
+            throw new RdosException("engineType is not support", ErrorCode.INVALID_PARAMETERS);
+        }
+        return String.valueOf(computeType) + type.getVal() + NO_MIGRATION_FLAG + taskId;
     }
 
-    public static String getTaskId(String zkTaskId){
-        String[] splitArr = zkTaskId.split(interval);
-        if(splitArr.length < 2){
+    public static String getTaskId(String zkTaskId) {
+        if (zkTaskId.length() <= MIN_LENGTH) {
             logger.error("it's illegal zkTaskId {}.", zkTaskId);
             return "";
         }
 
-        return splitArr[1].trim();
+        return zkTaskId.substring(MIN_LENGTH);
     }
 
-    public static String convertToMigrationJob(String zkTaskId){
+    public static String convertToMigrationJob(String zkTaskId) {
         return changeJobMigrationStatus(zkTaskId, MIGRATION_FLAG);
     }
 
-    public static String convertToNoMigrationJob(String zkTaskId){
+    public static String convertToNoMigrationJob(String zkTaskId) {
         return changeJobMigrationStatus(zkTaskId, NO_MIGRATION_FLAG);
     }
 
-    public static String changeJobMigrationStatus(String zkTaskId, String status){
-        String[] splitArr = zkTaskId.split(interval);
-        if(splitArr.length < 3){
-            return zkTaskId + interval + status;
-        }
-
-        splitArr[2] = status;
-        return String.join(interval, splitArr);
+    public static String changeJobMigrationStatus(String zkTaskId, char status) {
+        StringBuilder stringBuilder = new StringBuilder(zkTaskId);
+        stringBuilder.setCharAt(TWO_MIGRATION, status);
+        return stringBuilder.toString();
     }
 
 
-    public static int getComputeType(String zkTaskId){
-       return Integer.parseInt(String.valueOf(zkTaskId.charAt(0)));
+    public static int getComputeType(String zkTaskId) {
+        return Integer.parseInt(String.valueOf(zkTaskId.charAt(ZERO_COMPUTETYPE)));
     }
 
-    public static String getEngineType(String zkTaskId){
-        return zkTaskId.substring(1, zkTaskId.indexOf(interval));
+    public static String getEngineType(String zkTaskId) {
+        char c = zkTaskId.charAt(ONE_ENGINETYPE);
+        return EngineType.getEngineType(Integer.parseInt(String.valueOf(c))).name().toLowerCase();
     }
 
-    public static boolean isMigrationJob(String zkTaskId){
-        String[] splitArr = zkTaskId.split(interval);
-        if(splitArr.length < 3){
+    public static boolean isMigrationJob(String zkTaskId) {
+        if (zkTaskId == null || zkTaskId.length() <= MIN_LENGTH ||
+                NO_MIGRATION_FLAG == zkTaskId.charAt(TWO_MIGRATION)) {
             return false;
         }
-
-        if(NO_MIGRATION_FLAG.equals(splitArr[2])){
-            return false;
-        }
-
         return true;
     }
 
-    public static void main(String[] args) {
-        String str = "1flink_dfefef";
-        String str2 = "1flink_dfefef_0";
-        System.out.println(isMigrationJob(str2));
-        System.out.println(convertToMigrationJob(str));
-    }
+//    public static void main(String[] args) {
+//
+//        String str2 = "130asdadads";
+//        char c = str2.charAt(ONE_ENGINETYPE);
+//        System.out.println((int) c);
+//        System.out.println(c == '3');
+//        String str = "111dfefef";
+//        System.out.println(getZkTaskId(1, "flink", str2));
+//        System.out.println(isMigrationJob(str2));
+//        System.out.println(getComputeType(str2));
+//        System.out.println(getEngineType(str2));
+//        System.out.println(getTaskId(str2));
+//        System.out.println(convertToNoMigrationJob(str));
+//    }
 
 }
