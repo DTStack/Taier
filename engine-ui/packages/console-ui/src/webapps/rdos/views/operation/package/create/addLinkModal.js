@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Tabs, Modal, Checkbox, Row, Col } from "antd";
+import utils from "utils";
 
 import Api from "../../../../api"
 import { publishType } from "../../../../comm/const";
@@ -235,7 +236,7 @@ class AddLinkModal extends React.Component {
                         }} >
                         {data.taskName}
                     </Checkbox>
-                    <span style={{ color: "#999999" }}>(2018-01-01 12:12:12)</span>
+                    <span style={{ color: "#999999" }}>({utils.formatDateTime(data.modifyTime)})</span>
                 </p>
 
                 <div className="m-tabs auto-height">
