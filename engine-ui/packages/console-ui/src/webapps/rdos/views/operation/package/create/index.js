@@ -545,6 +545,9 @@ class PackageCreate extends React.Component {
     renderRightItem() {
         const { selectedRows, listType, pagination } = this.state;
         const { current, pageSize } = pagination;
+        const { taskTypes } = this.props;
+        const offlineTaskTypes=taskTypes.offline;
+        const offlineTaskTypesMap=new Map(offlineTaskTypes.map((item)=>{return [item.key,item.value]}));
         return selectedRows.filter(
             (item, index) => {
                 return (index + 1) <= pageSize * current && (index + 1) > pageSize * (current - 1);
@@ -561,7 +564,7 @@ class PackageCreate extends React.Component {
                         nameText = "任务"
                         haveChangeMan = true;
                         userName = row.chargeUser;
-                        extMsg = `(${row.data.taskType})`
+                        extMsg = `(${offlineTaskTypesMap.get(row.data.taskType)})`
                         break;
                     }
                     case publishType.FUNCTION: {
