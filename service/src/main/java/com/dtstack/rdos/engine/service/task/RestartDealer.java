@@ -1,8 +1,6 @@
 package com.dtstack.rdos.engine.service.task;
 
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -23,8 +21,6 @@ import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 
 /**
@@ -113,7 +109,6 @@ public class RestartDealer {
             if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType)){
                 return false;
             }
-            resetStatus(jobId, computeType, engineType);
             RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
             if(jobCache == null){
                 LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
@@ -125,17 +120,11 @@ public class RestartDealer {
             String finalJobId = jobClient.getTaskId();
             Integer finalComputeType = jobClient.getComputeType().getType();
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-            jobClient.setJobClientCallBack(new JobClientCallBack() {
-                @Override
-                public void execute(Map<String, ? extends Object> params) {
-                    if(!params.containsKey(JOB_STATUS)){
-                        return;
-                    }
-                    int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
-                    updateJobStatus(finalJobId, finalComputeType, jobStatus);
-                }
+            jobClient.setCallBack((jobStatus)->{
+                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
+                updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
+            resetStatus(jobId, computeType, engineType);
             addToRestart(jobClient);
             LOG.warn("jobName:{}---jobId:{} resubmit again...",jobClient.getJobName(), jobClient.getTaskId());
             return true;
@@ -176,6 +165,7 @@ public class RestartDealer {
         //更新rdos_engine_batch_task/rdos_engine_stream_task 状态
         //清理engineJobId , 更新db/zk状态为waitCompute
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
+        //todo 重试任务去掉在zk的数据
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
         if(ComputeType.STREAM.getType().equals(computeType)){
             engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus());

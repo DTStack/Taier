@@ -228,15 +228,14 @@ public class JobClient extends OrderObject{
         attachJarInfos.add(jarFileInfo);
     }
 
-    public void doJobClientCallBack(Map<String, ? extends Object> param){
+    public void doStatusCallBack(Integer status){
         if(jobClientCallBack == null){
             throw new RdosException("not set jobClientCallBak...");
         }
-
-        jobClientCallBack.execute(param);
+        jobClientCallBack.updateStatus(status);
     }
 
-    public void setJobClientCallBack(JobClientCallBack jobClientCallBack) {
+    public void setCallBack(JobClientCallBack jobClientCallBack) {
         this.jobClientCallBack = jobClientCallBack;
     }
 

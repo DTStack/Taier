@@ -1,11 +1,9 @@
 package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
@@ -31,8 +29,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -132,26 +128,18 @@ public class WorkNode {
      * 提交优先级队列->最终提交到具体执行组件
      */
     public void addSubmitJob(JobClient jobClient) {
-        //检查分片
-        zkLocalCache.checkShard();
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        jobClient.setJobClientCallBack(new JobClientCallBack() {
-            @Override
-            public void execute(Map<String, ? extends Object> params) {
-                if(!params.containsKey(JOB_STATUS)){
-                    return;
-                }
-                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
-                updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
-            }
+        jobClient.setCallBack((jobStatus)-> {
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
+            updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
         saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
+        //todo
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
@@ -163,8 +151,6 @@ public class WorkNode {
      * 容灾时对已经提交到执行组件的任务，进行恢复
      */
     public void afterSubmitJob(JobClient jobClient) {
-        //检查分片
-        zkLocalCache.checkShard();
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());

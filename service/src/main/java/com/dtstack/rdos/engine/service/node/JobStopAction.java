@@ -1,19 +1,15 @@
 package com.dtstack.rdos.engine.service.node;
 
-import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * Reason:
@@ -59,22 +55,10 @@ public class JobStopAction {
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
 
         JobClient jobClient = new JobClient(paramAction);
-        jobClient.setJobClientCallBack(new JobClientCallBack(){
-
-            @Override
-            public void execute(Map<String, ? extends Object> exeParams) {
-
-                if(!exeParams.containsKey(JOB_STATUS)){
-                    return;
-                }
-
-                int jobStatus = MathUtil.getIntegerVal(exeParams.get(JOB_STATUS));
-
-                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
-                updateJobStatus(jobId, computeType, jobStatus);
-                deleteJobCache(jobId);
-            }
-
+        jobClient.setCallBack((jobStatus)->{
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
+            updateJobStatus(jobId, computeType, jobStatus);
+            deleteJobCache(jobId);
         });
 
         jobClient.stopJob();

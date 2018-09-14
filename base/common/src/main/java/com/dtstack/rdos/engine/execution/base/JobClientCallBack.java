@@ -3,12 +3,14 @@ package com.dtstack.rdos.engine.execution.base;
 import java.util.Map;
 
 /**
- * Created by sishu.yss on 2017/5/24.
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2018/9/6
  */
 public  interface  JobClientCallBack {
 
-    String JOB_STATUS = "JOB_STATUS";
+    default void execute(Map<String, ? extends Object> param){
+    }
 
-    void execute(Map<String, ? extends Object> param);
-
+    void updateStatus(Integer status);
 }
