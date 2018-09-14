@@ -26,9 +26,9 @@ const Search = Input.Search;
 @connect(state => {
     return {
         project: state.project,
-        taskTypes:{
-            realtime:state.realtimeTask.comm.taskTypes,
-            offline:state.offlineTask.comm.taskTypes
+        taskTypes: {
+            realtime: state.realtimeTask.comm.taskTypes,
+            offline: state.offlineTask.comm.taskTypes
         }
     }
 }, dispatch => {
@@ -201,6 +201,9 @@ class PackageCreate extends React.Component {
     }
     initColumns() {
         const { listType } = this.state;
+        const { taskTypes } = this.props;
+        const offlineTaskTypes=taskTypes.offline;
+        const offlineTaskTypesMap=new Map(offlineTaskTypes.map((item)=>{return [item.key,item.value]}));
         const addButtonCreate = (record) => {
             return (this.isSelect(record) ?
                 <a onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
@@ -226,7 +229,10 @@ class PackageCreate extends React.Component {
             case publishType.TASK: {
                 return [{
                     title: "名称",
-                    dataIndex: "taskName"
+                    dataIndex: "taskName",
+                    render(text,record) {
+                        return `${text}(${offlineTaskTypesMap.get(record.taskType)})`
+                    }
                 }, {
                     title: "负责人",
                     dataIndex: "chargeUser",
@@ -653,7 +659,7 @@ class PackageCreate extends React.Component {
                         </div>
                         <div className="tool-top">
                             待发布对象 <span className="publish-num">{selectedRows.length}</span>
-                            <Button disabled={selectedRows.length==0} onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
+                            <Button disabled={selectedRows.length == 0} onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
                         </div>
                         <div className="main">
                             {this.renderRightItem()}

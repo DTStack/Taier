@@ -358,6 +358,7 @@ class OfflineTaskMana extends Component {
             current, taskName, visibleSlidePane, selectedRowKeys, tabKey,
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const isTest=project.projectType == PROJECT_TYPE.TEST;
         const userItems = projectUsers && projectUsers.length > 0 ?
             projectUsers.map((item) => {
                 return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
@@ -382,7 +383,7 @@ class OfflineTaskMana extends Component {
 
         return (
             <div>
-                {!isPro && (
+                {isTest && (
                     <h1 className="box-title" style={{ lineHeight: '50px' }}>
                         <div style={{ marginTop: '5px' }}>
                             <span className="ope-statistics">
@@ -398,7 +399,7 @@ class OfflineTaskMana extends Component {
                         </div>
                     </h1>
                 )}
-                <div className={`m-card ${isPro?'box-1':'box-2'} task-manage`}>
+                <div className={`m-card ${!isTest?'box-1':'box-2'} task-manage`}>
                     <Card
                         noHovering
                         bordered={false}
@@ -407,6 +408,7 @@ class OfflineTaskMana extends Component {
                             <Form
                                 style={{ marginTop: '10px' }}
                                 layout="inline"
+                                className="m-form-inline"
                             >
                                 <FormItem label="">
                                     <Search

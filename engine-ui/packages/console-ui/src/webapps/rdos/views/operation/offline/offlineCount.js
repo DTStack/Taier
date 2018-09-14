@@ -54,7 +54,7 @@ class OfflineCount extends Component {
     render() {
         const { data } = this.state
         const { project } = this.props;
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
         const flex = {
             flexGrow: 1,
             flex: 1
@@ -66,7 +66,7 @@ class OfflineCount extends Component {
             <div>
                 <h1 className="box-title box-title-bolder" style={{padding:"0 10 0 20"}}>
                     离线任务
-                    {!isPro && <Button type="primary" className="right" style={{ fontWeight:200,marginTop: '8px', marginLeft: "8px" }}>
+                    {isTest && <Button type="primary" className="right" style={{ fontWeight:200,marginTop: '8px', marginLeft: "8px" }}>
                         <Link to="/package/create?type=offline">离线任务发布</Link>
                     </Button>}
                     <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>

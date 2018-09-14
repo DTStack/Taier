@@ -139,12 +139,13 @@ class ProjectConfig extends Component {
                         })
                         if (res.code == 1) {
                             message.success("绑定成功！")
-                            const newProject = Object.assign(project,
+                            const newProject = cloneDeep(Object.assign(project,
                                 {
                                     produceProject: bindProject.name,
-                                    produceProjectId: bindProject.id
+                                    produceProjectId: bindProject.id,
+                                    projectType:PROJECT_TYPE.TEST
                                 }
-                            )
+                            ))
                             dispatch(ProjectAction.setProject(newProject))
                             dispatch(ProjectAction.getProjects())
                             this.changeBindModalVisible(false);

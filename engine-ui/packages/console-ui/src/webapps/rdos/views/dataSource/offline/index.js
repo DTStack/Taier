@@ -18,7 +18,7 @@ import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 import DataSourceTaskListModal from '../dataSourceTaskListModal';
 import LinkModal from "../linkModal";
-import {ExtTableCell} from "../extDataSourceMsg"
+import { ExtTableCell } from "../extDataSourceMsg"
 
 const Search = Input.Search
 const MenuItem = Menu.Item;
@@ -160,7 +160,7 @@ class DataSourceMana extends Component {
             dataIndex: 'dataDesc',
             key: 'dataDesc',
             width: '150px',
-        }, 
+        },
         {
             title: '连接信息',
             dataIndex: 'ext',
@@ -225,80 +225,102 @@ class DataSourceMana extends Component {
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
-
+                const { project } = this.props;
+                const isCommon = project.projectType == PROJECT_TYPE.COMMON;
+                const isMysql = record.type === DATA_SOURCE.MYSQL;
+                const isActive = record.active === 1;
                 let menuItem = [];
-                let extAction;
-                if (record.type === DATA_SOURCE.MYSQL) {
+                let extAction = null;
+                const splitView = (<span className="ant-divider" />);
+                const deleteView = isActive ? (
+                    <span style={{ color: "#ccc" }}>删除</span>
+                ) : (
+                        <Popconfirm
+                            title="确定删除此数据源？"
+                            okText="确定" cancelText="取消"
+                            onConfirm={() => { this.remove(record) }}
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
+                    );
+                const editView = (<a onClick={() => { this.initEdit(record) }}>编辑</a>);
+                const linkView = (<a onClick={() => { this.setState({ linkModalVisible: true, source: record }) }} >映射配置</a>);
+
+                /**
+                 * 假如是mysql，那么整库同步放在最外层
+                 */
+                if (isMysql) {
                     extAction = (
                         <span>
                             <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>
                                 整库同步
                             </Link>
-                            <span className="ant-divider" />
+                            {splitView}
                         </span>
                     )
-                    menuItem.push(
-                        <MenuItem>
-                            <a onClick={()=>{this.setState({linkModalVisible:true,source:record})}}>
-                                映射配置
-                        </a>
-                        </MenuItem>
-                    )
+                    if (!isCommon) {
+                        menuItem.push(
+                            <MenuItem>
+                                {linkView}
+                            </MenuItem>
+                        )
+                    }
                     menuItem.push(
                         <MenuItem>
                             <a onClick={this.openSyncModal.bind(this, record)}>
                                 同步历史
-                        </a>
+                            </a>
                         </MenuItem>
 
                     )
-                }else{
-                    extAction=(
+                    menuItem.push(
+                        <MenuItem>
+                            {editView}
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {deleteView}
+                        </MenuItem>
+                    )
+                } else if (isCommon) {
+                    extAction = (
                         <span>
-                            <a onClick={()=>{this.setState({linkModalVisible:true,source:record})}} >
-                                映射配置
-                            </a>
-                            <span className="ant-divider" />
+                            {editView}
+                            {splitView}
+                            {deleteView}
                         </span>
                     )
-                }
-                menuItem.push(
-                    <MenuItem>
-                        <a onClick={() => { this.initEdit(record) }}>
-                            编辑
-                    </a>
-                    </MenuItem>
-                )
-                if (record.active === 1) {
-                    menuItem.push(
-                        <MenuItem>
-                            <span style={{ color: "#ccc" }}>删除</span>
-                        </MenuItem>
-
-                    )
                 } else {
+                    extAction = (
+                        <span>
+                            {linkView}
+                            {splitView}
+                        </span>
+                    )
                     menuItem.push(
                         <MenuItem>
-                            <Popconfirm
-                                title="确定删除此数据源？"
-                                okText="确定" cancelText="取消"
-                                onConfirm={() => { this.remove(record) }}
-                            >
-                                <a>删除</a>
-                            </Popconfirm>
+                            {editView}
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {deleteView}
                         </MenuItem>
                     )
                 }
                 return (
                     <span>
                         {extAction}
-                        <Dropdown overlay={(
-                            <Menu>
-                                {menuItem}
-                            </Menu>
-                        )} trigger={['click']}>
-                            <a>操作<Icon type="down" /></a>
-                        </Dropdown>
+                        {menuItem.length? (
+                            <Dropdown overlay={(
+                                <Menu>
+                                    {menuItem}
+                                </Menu>
+                            )} trigger={['click']}>
+                                <a>操作<Icon type="down" /></a>
+                            </Dropdown>
+                        ):null}
                     </span>
 
                 )
@@ -328,7 +350,7 @@ class DataSourceMana extends Component {
             defaultPageSize: 10,
         };
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const isTest=project.projectType==PROJECT_TYPE.TEST;
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
         const titles = (
             <div>
                 <Search
@@ -394,12 +416,12 @@ class DataSourceMana extends Component {
                     source={source}
                     cancel={this.closeSyncModal}
                 />
-                <LinkModal 
+                <LinkModal
                     sourceData={source}
                     visible={linkModalVisible}
                     type="offline"
-                    onCancel={()=>{this.setState({linkModalVisible:false})}}
-                    onOk={()=>{this.loadDataSources();this.setState({linkModalVisible:false})}}
+                    onCancel={() => { this.setState({ linkModalVisible: false }) }}
+                    onOk={() => { this.loadDataSources(); this.setState({ linkModalVisible: false }) }}
                 />
             </div>
         )
@@ -413,7 +435,7 @@ export default connect((state) => {
         sourceTypes: state.dataSource.sourceTypes,
     }
 }, dispatch => {
-    return { 
+    return {
         getSourceTypes: function () {
             dispatch(getSourceTypes())
         }
