@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -340,10 +341,8 @@ public class WorkNode {
                 boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
                 //重试任务时间未满足条件，出队后进行优先级计算完后重新入队
                 if (!isRestartJobCanSubmit){
-                    it.remove();
-                    updateQueuePriority(priorityQueue);
-                    redirectSubmitJob(jobClient);
-                    break;
+                    jobClient.setPriority(jobClient.getPriority()-1);
+                    continue;
                 }
                 //提交到生产者消费者队列
                 if (jobClient.submitJob()) {
