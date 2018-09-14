@@ -9,12 +9,12 @@ const os = require("os");
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
 
 const MY_PATH = require("./consts");
-const monacoConfig=require("./monacoConfig");
+const monacoConfig = require("./monacoConfig");
 const splitChunksConfig = require("./splitChunksConfig");
 const VERSION = JSON.stringify(require("../package.json").version); // app version.
 const theme = require("../src/theme")();
 
-module.exports = function() {
+module.exports = function () {
     return {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
@@ -29,7 +29,8 @@ module.exports = function() {
             chunkFilename: "[name].[chunkhash].js",
             filename: "[name].[chunkhash].js",
             sourceMapFilename: "[name].map",
-            publicPath: "/"
+            publicPath: "/",
+            globalObject: 'self',
         },
         optimization: {
             splitChunks: {
@@ -51,9 +52,9 @@ module.exports = function() {
                 name: "manifest"
             }
         },
-        node:{
-            fs:'empty',
-            path:'empty'
+        node: {
+            fs: 'empty',
+            path: 'empty'
         },
         module: {
             rules: [
@@ -82,6 +83,13 @@ module.exports = function() {
                         "file-loader?name=[name].[ext]",
                         "url-loader?limit=100000"
                     ]
+                },
+                {
+                    test: /\.worker.js$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: 'worker-loader'
+                    }
                 }
             ]
         },
@@ -113,8 +121,8 @@ module.exports = function() {
         plugins: [
             new webpack.HashedModuleIdsPlugin(),
             new MonacoWebpackPlugin({
-                features:monacoConfig.features,
-                languages:monacoConfig.languages
+                features: monacoConfig.features,
+                languages: monacoConfig.languages
             }),
             new HappyPack({
                 id: "happy-babel-js",
@@ -127,20 +135,20 @@ module.exports = function() {
             }),
             new CopyWebpackPlugin([
                 {
-                    from: path.resolve(MY_PATH.WEB_PUBLIC), 
+                    from: path.resolve(MY_PATH.WEB_PUBLIC),
                     to: path.resolve(MY_PATH.BUILD_PATH, "public"),
                     ignore: ["*/index.html"]
                 }, {
-                    from:  path.resolve(MY_PATH.ROOT_PATH, 'README.md'), 
+                    from: path.resolve(MY_PATH.ROOT_PATH, 'README.md'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
-                    from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'), 
+                    from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
-                    from: path.resolve(MY_PATH.PWA,'sw.js'), 
+                    from: path.resolve(MY_PATH.PWA, 'sw.js'),
                     to: path.resolve(MY_PATH.BUILD_PATH),
                 }, {
-                    from: path.resolve(MY_PATH.PWA,'manifest.json'), 
+                    from: path.resolve(MY_PATH.PWA, 'manifest.json'),
                     to: path.resolve(MY_PATH.BUILD_PATH),
                 }
             ]),

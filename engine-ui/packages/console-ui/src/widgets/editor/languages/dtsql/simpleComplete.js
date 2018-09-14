@@ -1,16 +1,64 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import DtWoker from "./dtsql.worker.js";
 
-let _DtParser;
-function loadDtParser(){
-    if(_DtParser){
-        return Promise.resolve(_DtParser)
-    }
-    return import('dt-sql-parser').then(
-        (mod)=>{
-            _DtParser=mod;
-            return _DtParser
+let _DtParserInstance;
+class DtParser{
+    constructor(){
+        this._DtParser=new DtWoker();
+        this._eventMap={};
+        this._DtParser.onmessage=(e)=>{
+            const data=e.data;
+            const eventId=data.eventId;
+            if(this._eventMap[eventId]){
+                this._eventMap[eventId].resolve(data.result)
+                this._eventMap[eventId]=null;
+            }
         }
-    )
+    }
+    parserSql(){
+        const arg=arguments;
+        const eventId=this._createId();
+        return new Promise((resolve,reject)=>{
+            this._DtParser.postMessage({
+                eventId:eventId,
+                type:"parserSql",
+                data:Array.from(arg)
+            });
+            this._eventMap[eventId]={
+                resolve,
+                reject,
+                arg,
+                type:"parserSql"
+            }
+        })
+    }
+    parseSyntax(){
+        const arg=arguments;
+        const eventId=this._createId();
+        return new Promise((resolve,reject)=>{
+            this._DtParser.postMessage({
+                eventId:eventId,
+                type:"parseSyntax",
+                data:Array.from(arg)
+            });
+            this._eventMap[eventId]={
+                resolve,
+                reject,
+                arg,
+                type:"parseSyntax"
+            }
+        })
+    }
+    _createId(){
+        return new Date().getTime()+''+~~(Math.random()*100000)
+    }
+}
+
+function loadDtParser(){
+    if(!_DtParserInstance){
+        _DtParserInstance=new DtParser();
+    }
+    return _DtParserInstance;
 }
 /**
  * Select thing from table, table, table;
@@ -97,8 +145,8 @@ monaco.languages.registerCompletionItemProvider("dtsql", {
             if (_completeProvideFunc) {
                 const textValue = model.getValue();
                 const cursorIndex = model.getOffsetAt(position);
-                const dtParser=await loadDtParser();
-                let autoComplete = dtParser.parser.parserSql([textValue.substr(0,cursorIndex),textValue.substr(cursorIndex)]);
+                const dtParser=loadDtParser();
+                let autoComplete =await  dtParser.parserSql([textValue.substr(0,cursorIndex),textValue.substr(cursorIndex)]);
                 let columnContext;
                 if(autoComplete.suggestColumns&&autoComplete.suggestColumns.tables&&autoComplete.suggestColumns.tables.length){
                     columnContext=autoComplete.suggestColumns.tables.map(
@@ -132,13 +180,11 @@ export function disposeProvider() {
     _completeProvideFunc = null;
 }
 export async function onChange(value='', _editor, callback) {
-    console.log(JSON.stringify(value));
-    const dtParser=await loadDtParser();
+    const dtParser=loadDtParser();
     const model = _editor.getModel();
     // const cursorIndex = model.getOffsetAt(_editor.getPosition());
-    let autoComplete = dtParser.parser.parserSql(value);
-    console.log(JSON.stringify(value))
-    let syntax = dtParser.parser.parseSyntax(value.replace(/\r\n/g,'\n'));
+    let autoComplete = await dtParser.parserSql(value);
+    let syntax =await dtParser.parseSyntax(value.replace(/\r\n/g,'\n'));
     if (syntax&&syntax.token!="EOF") {
         const message=messageCreate(syntax);
         monaco.editor.setModelMarkers(model, model.getModeId(), [{

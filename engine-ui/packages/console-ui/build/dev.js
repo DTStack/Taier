@@ -11,6 +11,7 @@ const MY_PATH = require("./consts");
 const baseConf = require("./base.js")();
 var config = require("./config");
 baseConf.output = {
+    ...baseConf.output,
     path: MY_PATH.BUILD_PATH,
     chunkFilename: "[name].js",
     filename: "[name].js",
@@ -90,7 +91,7 @@ const devServer = Object.assign(
         quiet: true,
         stats: {
             colors: true,
-            "errors-only": true,
+            "errors-only": false,
             cached: true
         },
         contentBase: baseConf.output.path,
