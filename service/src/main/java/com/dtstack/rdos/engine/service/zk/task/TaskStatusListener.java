@@ -138,7 +138,7 @@ public class TaskStatusListener implements Runnable{
                         for (Map.Entry<String, Byte> entry : shardEntry.getValue().getView().entrySet()) {
                             try {
                                 Integer oldStatus = Integer.valueOf(entry.getValue());
-                                if (!RdosTaskStatus.needClean(entry.getValue())) {
+                                if (!RdosTaskStatus.needClean(entry.getValue().intValue())) {
                                     String zkTaskId = entry.getKey();
                                     int computeType = TaskIdUtil.getComputeType(zkTaskId);
                                     String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);

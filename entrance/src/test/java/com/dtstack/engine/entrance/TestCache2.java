@@ -61,7 +61,7 @@ public class TestCache2 {
                         Iterator<Map.Entry<String, Byte>> it = shardData.entrySet().iterator();
                         while (it.hasNext()) {
                             Map.Entry<String, Byte> data = it.next();
-                            if (RdosTaskStatus.needClean(data.getValue())) {
+                            if (RdosTaskStatus.needClean(data.getValue().intValue())) {
                                 brokerDataShard.getNewVersion().incrementAndGet();
                                 shardData.remove(data.getKey());
                             }

@@ -139,8 +139,7 @@ public class WorkNode {
         });
 
         saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
-        //todo
-        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+//        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -157,6 +156,8 @@ public class WorkNode {
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
         saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+        //检查分片
+        zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 

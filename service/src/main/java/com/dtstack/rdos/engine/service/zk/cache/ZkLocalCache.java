@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.service.zk.cache;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
 import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
@@ -74,6 +75,9 @@ public class ZkLocalCache implements Closeable {
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
+        }
+        if (RdosTaskStatus.WAITCOMPUTE.getStatus().equals(status)){
+            checkShard();
         }
         String shard = localDataCache.getShard(zkTaskId);
         Lock lock = zkShardManager.tryLock(shard);
