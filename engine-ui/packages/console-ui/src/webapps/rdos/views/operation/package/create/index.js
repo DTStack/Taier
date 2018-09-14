@@ -11,7 +11,7 @@ import utils from "utils";
 import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
-import { publishType, TASK_TYPE } from "../../../../comm/const"
+import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP } from "../../../../comm/const"
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
@@ -271,7 +271,10 @@ class PackageCreate extends React.Component {
             case publishType.RESOURCE: {
                 return [{
                     title: "名称",
-                    dataIndex: "resourceName"
+                    dataIndex: "resourceName",
+                    render(text,record) {
+                        return `${text}(${RESOURCE_TYPE_MAP[record.resourceType]})`
+                    }
                 }, {
                     title: "创建人",
                     dataIndex: "createUser",
@@ -578,7 +581,7 @@ class PackageCreate extends React.Component {
                         nameText = "资源"
                         haveChangeMan = true;
                         userName = row.createUser;
-                        extMsg = `(${row.data.resourceType})`
+                        extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
                         break;
                     }
                     case publishType.TABLE: {

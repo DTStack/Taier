@@ -43,6 +43,10 @@ export const RESOURCE_TYPE = {
     JAR: 1,
     PY: 2,
 }
+export const RESOURCE_TYPE_MAP={
+    1:"jar",
+    2:"py"
+}
 
 // 调度状态
 export const SCHEDULE_STATUS = {
