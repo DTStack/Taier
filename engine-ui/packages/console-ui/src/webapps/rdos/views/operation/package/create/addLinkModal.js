@@ -142,7 +142,7 @@ class AddLinkModal extends React.Component {
         const { selectedRows } = this.props;
 
         if (!dataList[key].length) {
-            return <p style={{textAlign:"center",color:"#999"}}>无</p>;
+            return <p style={{ textAlign: "center", color: "#999" }}>无</p>;
         }
         const allChecked = selectList[key].length == dataList[key].length;
         const haveChecked = selectList[key].length ? true : false;
@@ -194,9 +194,29 @@ class AddLinkModal extends React.Component {
         )
 
     }
+    getCount(type) {
+        const { tabKey, dataList, selectList, checkTask } = this.state;
+        const list = dataList[type];
+        const selectListKeys = selectList[type];
+        const listKeys = list.map((item) => { return item.id });
+        let count = 0;
+        selectListKeys.map(
+            (key) => {
+                if (listKeys.includes(key)) {
+                    count++;
+                }
+            }
+        )
+        return count;
+
+    }
     render() {
         const { tabKey, dataList, selectList, checkTask } = this.state;
         const { visible, mode, data } = this.props;
+        const resourceCount = this.getCount(publishType.RESOURCE);
+        const funcCount = this.getCount(publishType.FUNCTION);
+        const tableCount = this.getCount(publishType.TABLE);
+
         return (
             <Modal
                 visible={visible}
@@ -226,13 +246,13 @@ class AddLinkModal extends React.Component {
                         activeKey={'' + tabKey}
                         tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
                     >
-                        <TabPane className="m-panel common-padding" tab="关联资源" key={'' + publishType.RESOURCE}>
+                        <TabPane className="m-panel common-padding" tab={`关联资源${resourceCount ? `(${resourceCount})` : ''}`} key={'' + publishType.RESOURCE}>
                             {this.renderList(publishType.RESOURCE)}
                         </TabPane>
-                        <TabPane className="m-panel common-padding" tab="关联函数" key={'' + publishType.FUNCTION}>
+                        <TabPane className="m-panel common-padding" tab={`关联函数${funcCount ? `(${funcCount})` : ''}`} key={'' + publishType.FUNCTION}>
                             {this.renderList(publishType.FUNCTION)}
                         </TabPane>
-                        {mode == "offline" && <TabPane className="m-panel common-padding" tab="关联表" key={'' + publishType.TABLE}>
+                        {mode == "offline" && <TabPane className="m-panel common-padding" tab={`关联表${tableCount ? `(${tableCount})` : ''}`} key={'' + publishType.TABLE}>
                             {this.renderList(publishType.TABLE)}
                         </TabPane>}
                     </Tabs>
