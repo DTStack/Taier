@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class HttpSendClient {
 
+    @Deprecated
     public static void actionStart(String address, ParamAction paramAction) throws Exception{
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
     }
@@ -46,14 +47,16 @@ public class HttpSendClient {
         return MathUtil.getBoolean(sendData.get("send"));
     }
 
+    @Deprecated
     public static void actionStopJob(String address, Map<String, Object> params) throws IOException {
         PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.STOP), params);
     }
 
     public static void actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
-        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.MASTER_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
+        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.WORK_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
     }
 
+    @Deprecated
     public static void migrationShard(String target,Map<String, Object> params) {
         PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE_SHARD),params);
     }

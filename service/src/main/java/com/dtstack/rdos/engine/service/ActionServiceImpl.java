@@ -76,6 +76,7 @@ public class ActionServiceImpl {
     }
 
     /**
+     * 节点间 http 交互方法
      * 执行从 work node 上下发的任务
      */
     public Map<String, Object> submit(Map<String, Object> params){
@@ -126,7 +127,10 @@ public class ActionServiceImpl {
         }
     }
 
-    public void masterSendStop(Map<String, Object> params) throws Exception {
+    /**
+     * 节点间 http 交互方法
+     */
+    public void workSendStop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         stopAction.stopJob(paramAction);
         logger.info("stop job:{} success." + paramAction.getTaskId());
@@ -196,7 +200,11 @@ public class ActionServiceImpl {
 
                     result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                     if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
-                        engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                        int oldStatus = rdosEngineStreamJob.getStatus().intValue();
+                        Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus);
+                        if (update==null||update!=1){
+                            result = false;
+                        }
                     }
                 }
             }else{
@@ -212,7 +220,11 @@ public class ActionServiceImpl {
 
                     result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
                     if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
-                        batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                        int oldStatus = rdosEngineBatchJob.getStatus().intValue();
+                        Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus);
+                        if (update==null||update!=1){
+                            result = false;
+                        }
                     }
                 }
             }

@@ -35,6 +35,10 @@
 	   update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
    </update>
 
+    <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
+        update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId} and status=#{oldStatus};
+    </update>
+
     <update id="updateJobPluginId" parameterType="java.util.HashMap">
         update rdos_engine_batch_job set gmt_modified=now(), plugin_info_id=#{pluginId} where job_id=#{jobId};
     </update>

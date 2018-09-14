@@ -391,7 +391,7 @@ public class WorkNode {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                            WorkNode.getInstance().addStartJob(jobClient);
+                            this.addSubmitJob(jobClient);
                         } else {
                             WorkNode.getInstance().afterSubmitJob(jobClient);
                         }

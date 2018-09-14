@@ -92,8 +92,7 @@ public enum RdosTaskStatus {
 
     public static boolean canStartAgain(Byte status){
 		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()
-                || sta == RdosTaskStatus.ENGINEACCEPTED.getStatus()){
+        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()){
     	    return true;
         }
 

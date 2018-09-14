@@ -137,56 +137,58 @@ public class FlinkStandaloneRestParseUtil {
             }
         }
 
-        Map<String,Object> jobInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
-        List<Map<String,Object>> vertices = (List)jobInfoMap.get("vertices");
-        if(vertices != null && vertices.size() == 2) {
-            for(Map<String,Object> vertice : vertices) {
-                String name = (String) vertice.get("name");
+        if(StringUtils.isNotEmpty(accuInfo)) {
+            Map<String, Object> jobInfoMap = PublicUtil.jsonStrToObject(jobInfo, Map.class);
+            List<Map<String, Object>> vertices = (List) jobInfoMap.get("vertices");
+            if (vertices != null && vertices.size() == 2) {
+                for (Map<String, Object> vertice : vertices) {
+                    String name = (String) vertice.get("name");
 
-                if(name == null) {
-                    continue;
-                }
+                    if (name == null) {
+                        continue;
+                    }
 
-                if(name.endsWith("reader")) {
-                    Integer readDuration = (Integer) vertice.get("duration");
-                    perfMap.put("durationRead", readDuration);
-                    Map<String,Object> readerMetrics = (Map<String, Object>) vertice.get("metrics");
-                    if(readerMetrics != null) {
-                        Long byteRead = MathUtil.getLongVal(readerMetrics.get("write-bytes"));
-                        perfMap.put("byteRead", byteRead);
-                        try {
-                            BigDecimal rd = new BigDecimal(readDuration);
-                            BigDecimal br = new BigDecimal(byteRead);
-                            if(rd.equals(BigDecimal.ZERO)) {
+                    if (name.endsWith("reader")) {
+                        Integer readDuration = (Integer) vertice.get("duration");
+                        perfMap.put("durationRead", readDuration);
+                        Map<String, Object> readerMetrics = (Map<String, Object>) vertice.get("metrics");
+                        if (readerMetrics != null) {
+                            Long byteRead = MathUtil.getLongVal(readerMetrics.get("write-bytes"));
+                            perfMap.put("byteRead", byteRead);
+                            try {
+                                BigDecimal rd = new BigDecimal(readDuration);
+                                BigDecimal br = new BigDecimal(byteRead);
+                                if (rd.equals(BigDecimal.ZERO)) {
+                                    perfMap.put("speedRead", 0);
+                                } else {
+                                    perfMap.put("speedRead", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+                                }
+                            } catch (NumberFormatException ex) {
                                 perfMap.put("speedRead", 0);
-                            } else {
-                                perfMap.put("speedRead", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
                             }
-                        } catch(NumberFormatException ex) {
-                            perfMap.put("speedRead", 0);
                         }
-                    }
 
-                } else if(name.endsWith("writer")) {
-                    Integer writeDuration = (Integer) vertice.get("duration");
-                    perfMap.put("durationWrite", writeDuration);
-                    Map<String,Object> writerMetrics = (Map<String, Object>) vertice.get("metrics");
-                    if(writerMetrics != null) {
-                        Long byteWrite = MathUtil.getLongVal(writerMetrics.get("read-bytes"));
-                        perfMap.put("byteWrite", byteWrite);
-                        try {
-                            BigDecimal rd = new BigDecimal(writeDuration);
-                            BigDecimal br = new BigDecimal(byteWrite);
-                            if(rd.equals(BigDecimal.ZERO)) {
+                    } else if (name.endsWith("writer")) {
+                        Integer writeDuration = (Integer) vertice.get("duration");
+                        perfMap.put("durationWrite", writeDuration);
+                        Map<String, Object> writerMetrics = (Map<String, Object>) vertice.get("metrics");
+                        if (writerMetrics != null) {
+                            Long byteWrite = MathUtil.getLongVal(writerMetrics.get("read-bytes"));
+                            perfMap.put("byteWrite", byteWrite);
+                            try {
+                                BigDecimal rd = new BigDecimal(writeDuration);
+                                BigDecimal br = new BigDecimal(byteWrite);
+                                if (rd.equals(BigDecimal.ZERO)) {
+                                    perfMap.put("speedWrite", 0);
+                                } else {
+                                    perfMap.put("speedWrite", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+                                }
+                            } catch (NumberFormatException ex) {
                                 perfMap.put("speedWrite", 0);
-                            } else {
-                                perfMap.put("speedWrite", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
                             }
-                        } catch(NumberFormatException ex) {
-                            perfMap.put("speedWrite", 0);
                         }
-                    }
 
+                    }
                 }
             }
         }

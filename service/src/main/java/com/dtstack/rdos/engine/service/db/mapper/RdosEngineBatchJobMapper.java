@@ -37,4 +37,5 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
+    Integer updateTaskStatusCompareOld(@Param("taskId") String taskId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus);
 }

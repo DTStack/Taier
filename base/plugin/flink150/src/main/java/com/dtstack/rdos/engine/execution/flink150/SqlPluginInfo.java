@@ -98,7 +98,7 @@ public class SqlPluginInfo {
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
         List<String> args = Lists.newArrayList();
         args.add("-sql");
-        args.add(jobClient.getSql());
+        args.add(URLEncoder.encode(jobClient.getSql(), Charsets.UTF_8.name()));
 
         args.add("-name");
         args.add(jobClient.getJobName());

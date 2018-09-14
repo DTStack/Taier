@@ -77,12 +77,12 @@ public class ConfigParse {
 
     public static int getTaskDistributeQueueWeight() {
         Object taskDistributeQueueWeight = configs.get("taskDistributeQueueWeight");
-        return taskDistributeQueueWeight==null ? 6 : MathUtil.getIntegerVal(taskDistributeQueueWeight);
+        return taskDistributeQueueWeight==null ? 10 : MathUtil.getIntegerVal(taskDistributeQueueWeight);
     }
 
     public static int getTaskDistributeZkWeight() {
         Object taskDistributeZkWeight = configs.get("taskDistributeZkWeight");
-        return taskDistributeZkWeight==null ? 4 : MathUtil.getIntegerVal(taskDistributeZkWeight);
+        return taskDistributeZkWeight==null ? 0 : MathUtil.getIntegerVal(taskDistributeZkWeight);
     }
 
     public static int getTaskDistributeDeviation() {
