@@ -54,3 +54,8 @@ export const treeAction = mc([
     'REMOVE_REALTIME_TREE_NODE',
     'MERGE_REALTIME_TREE',
 ], { prefix: 'realtimeTask/tree/' })
+
+export const commAction = mc([
+    'GET_TASK_TYPES',
+    'GET_TASK_TYPE_FILTER',
+], {prefix: 'realtimeTask/comm/'});

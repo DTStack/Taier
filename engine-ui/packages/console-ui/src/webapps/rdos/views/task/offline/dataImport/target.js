@@ -378,7 +378,7 @@ export default class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title={(
-                        <span>建表语句<CopyIcon style={{marginLeft:"8px"}} copyText={DDL_ide_placeholder}/></span>
+                        <span>建表语句<CopyIcon title="复制模版" style={{marginLeft:"8px"}} copyText={DDL_ide_placeholder}/></span>
                     )}
                     maskClosable={false}
                     style={{ height: 424 }}

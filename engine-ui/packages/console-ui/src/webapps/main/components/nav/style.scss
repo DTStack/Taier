@@ -160,7 +160,7 @@ $activeColor: #262e36; // 主色
     overflow: hidden;
     vertical-align: top;
 }
-@media(min-width:1300px){
+@media(min-width:1330px){
     .menu_large{
         display: inline-block;
     }
@@ -169,7 +169,7 @@ $activeColor: #262e36; // 主色
     }
 }
 
-@media(max-width:1300px){
+@media(max-width:1330px){
     .menu_large{
         display: none !important;
     }

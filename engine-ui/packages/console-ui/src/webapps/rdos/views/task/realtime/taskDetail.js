@@ -140,11 +140,11 @@ export default class TaskDetail extends Component {
                             </Modal>
                         </Row>
                     </Panel>
-                    <Panel key="2" header="历史发布版本">
+                    <Panel key="2" header={`历史提交版本`}>
                         <TaskVersion
                             taskInfo={currentPage}
                             changeSql={editorChange}
-                            taskType="realTimeTask" 
+                            taskType="realTimeTask"
                         />
                     </Panel>
                 </Collapse>

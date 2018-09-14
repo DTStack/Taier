@@ -16,7 +16,7 @@ import reqOfflineUrl from "../../../../api/reqOffline";
 import API from '../../../../api';
 import IDEEditor from "../../../../components/editor";
 
-import { matchTaskParams } from '../../../../comm';
+import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
 import {
     workbenchActions,
@@ -25,6 +25,7 @@ import {
 import { updateUser } from "../../../../store/modules/user";
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
+import { PROJECT_TYPE } from '../../../../comm/const';
 
 @pureRender
 class EditorContainer extends Component {
@@ -402,7 +403,7 @@ class EditorContainer extends Component {
     debounceSyntaxChange=debounce(this.onSyntaxChange.bind(this),200,{ 'maxWait': 2000 })
     render() {
 
-        const { editor, currentTabData, value } = this.props;
+        const { editor, currentTabData, value, project, user } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -415,12 +416,12 @@ class EditorContainer extends Component {
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-
+        const couldEdit=isProjectCouldEdit(project,user);
         const editorOpts = {
             value: value,
             language: 'dtsql',
             options: {
-                readOnly: isLocked,
+                readOnly: !couldEdit||isLocked,
             },
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
@@ -442,7 +443,8 @@ class EditorContainer extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: true,
-            enableFormat: true,
+            enableFormat: couldEdit,
+            disAbleEdit: !couldEdit,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,

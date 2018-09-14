@@ -161,11 +161,13 @@ export default class TaskVersion extends React.Component {
     };
 
     taskVersionCols = () => {
+        const isPro=this.props.isPro;
         const taskInfo = this.props.taskInfo;
+        const pre=isPro?'发布':'提交'
         return [
             {
                 width: 120,
-                title: "发布时间",
+                title: pre+"时间",
                 dataIndex: "gmtCreate",
                 key: "gmtCreate",
                 render: text => {
@@ -173,7 +175,7 @@ export default class TaskVersion extends React.Component {
                 }
             },
             {
-                title: "发布人",
+                title: pre+"人",
                 dataIndex: "userName",
                 key: "userName"
             },

@@ -796,7 +796,7 @@ class SchedulingConfig extends React.Component {
             loading, wFScheduleConf, selfReliance
         } = this.state;
         
-        const { tabData, isWorkflowNode } = this.props;
+        const { tabData, isWorkflowNode, isPro, couldEdit } = this.props;
         console.log('tabData', tabData, isWorkflowNode);
         
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
@@ -858,7 +858,7 @@ class SchedulingConfig extends React.Component {
         };
         
         return <div className="m-scheduling" style={{position: 'relative'}}>
-            {isLocked?<div className="cover-mask"></div>:null} 
+            {isLocked||!couldEdit?<div className="cover-mask"></div>:null} 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap

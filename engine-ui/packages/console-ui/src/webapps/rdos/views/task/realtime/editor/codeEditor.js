@@ -10,10 +10,11 @@ import IDEEditor from "../../../../components/editor";
 import API from "../../../../api";
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
+import { PROJECT_TYPE } from '../../../../comm/const';
 
 @connect(state => {
     return {
-        editor: state.editor,
+        editor: state.editor
     }
 }, dispatch => {
     const editorAc = bindActionCreators(editorActions, dispatch);
@@ -31,7 +32,7 @@ class CodeEditor extends Component {
         editorChange({
             merged: false,
             sqlText: value,
-            cursorPosition: editorInstance.getPosition() 
+            cursorPosition: editorInstance.getPosition()
         })
     }
 
@@ -52,7 +53,7 @@ class CodeEditor extends Component {
                 const updatedData = Object.assign(currentPage, data);
                 setCurrentPage(updatedData);
             }
-        }); 
+        });
     };
 
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
@@ -66,7 +67,6 @@ class CodeEditor extends Component {
 
         const cursorPosition = currentPage.cursorPosition || undefined;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
-
         const editorOpts = {
             value: currentPage.sqlText,
             language: 'dtflink',
@@ -87,16 +87,16 @@ class CodeEditor extends Component {
             onFileEdit: commonFileEditDelegator(this._editor),
             onFormat: this.sqlFormat,
             onThemeChange: (key) => {
-                this.props.updateEditorOptions({theme: key})
+                this.props.updateEditorOptions({ theme: key })
             },
         }
 
         return (
-            <IDEEditor 
+            <IDEEditor
                 editor={editorOpts}
                 toolbar={toolbarOpts}
                 key={`main-editor-${currentPage.id}`}
-                editorInstanceRef={(instance)=>{this._editor=instance}}
+                editorInstanceRef={(instance) => { this._editor = instance }}
             />
         )
     }

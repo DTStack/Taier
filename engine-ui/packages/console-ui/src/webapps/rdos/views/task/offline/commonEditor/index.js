@@ -11,7 +11,8 @@ import { commonFileEditDelegator } from "widgets/editor/utils";
 import API from '../../../../api';
 import IDEEditor from "../../../../components/editor";
 
-import { matchTaskParams } from '../../../../comm';
+import {PROJECT_TYPE} from "../../../../comm/const";
+import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
 import {
     workbenchActions,
@@ -169,7 +170,7 @@ class CommonEditorContainer extends Component {
 
     render() {
 
-        const { editor = {}, currentTabData, value, mode, toolBarOptions = {} } = this.props;
+        const { editor = {}, currentTabData, value, mode, toolBarOptions = {}, project, user } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -180,12 +181,12 @@ class CommonEditorContainer extends Component {
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-
+        const couldEdit=isProjectCouldEdit(project,user);
         const editorOpts = {
             value: value,
             language: mode,
             options: {
-                readOnly: isLocked,
+                readOnly: isLocked||!couldEdit,
             },
             cursorPosition: cursorPosition,
             theme: editor.options.theme,
@@ -196,7 +197,8 @@ class CommonEditorContainer extends Component {
 
         const toolbarOpts = {
             enable: true,
-            enableRun: true,
+            enableRun: couldEdit,
+            disAbleEdit: !couldEdit,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,

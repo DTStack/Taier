@@ -68,6 +68,27 @@ export const MENU_TYPE = {
     TABLE: 'TableQuery',
 }
 
+export const PROJECT_TYPE={
+    COMMON:0,//普通
+    TEST:1,//测试
+    PRO:2,//生产
+}
+
+//发布的item类别
+export const publishType={
+    TASK:0,
+    TABLE:1,
+    RESOURCE:2,
+    FUNCTION:3
+}
+
+//发布状态
+export const publishStatus={
+    UNSUBMIT:0,
+    SUCCESS:1,
+    FAIL:2
+}
+
 export const PROJECT_ROLE = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者

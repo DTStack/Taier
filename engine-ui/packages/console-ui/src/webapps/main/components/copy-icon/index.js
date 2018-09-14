@@ -79,7 +79,7 @@ export default class CopyIcon extends Component {
     }
 
     render() {
-        let { copyText, style, ...otherProps } = this.props
+        let { copyText, style, title, ...otherProps } = this.props
 
         style = {
             "cursor":"pointer",
@@ -88,7 +88,7 @@ export default class CopyIcon extends Component {
         }
 
         return (
-            <Tooltip   placement="right" title="复制">
+            <Tooltip   placement="right" title={title||"复制"}>
                 <Icon className="copy-hover" onClick={this.copy.bind(this,copyText)} style={style} {...otherProps} type="copy" />
             </Tooltip>
         )
