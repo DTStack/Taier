@@ -21,9 +21,9 @@ import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.google.common.collect.Maps;
 
 /**
- * company: www.dtstack.com
- * author: toutian
- * create: 2018/9/8
+ * @company: www.dtstack.com
+ * @author: toutian
+ * @create: 2018/9/8
  */
 public class HeartBeatCheckListener implements Runnable{
 
@@ -79,6 +79,13 @@ public class HeartBeatCheckListener implements Runnable{
 				if(ignore){
 					continue;
 				}
+				//正常退出alive=false，seq=0;异常退出alive=false，seq>0 做快速恢复
+				if (!brokerNode.getAlive()&&brokerNode.getSeq()>0){
+                    this.zkDistributed.disableBrokerHeartNode(node,true);
+                    this.masterNode.dataMigration(node);
+                    this.zkDistributed.removeBrokerQueueNode(node);
+                    continue;
+                }
 				BrokerNodeCount brokerNodeCount = brokerNodeCounts.computeIfAbsent(node, k->{
 					this.rdosNodeMachineDAO.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					return new BrokerNodeCount(brokerNode);
@@ -91,7 +98,7 @@ public class HeartBeatCheckListener implements Runnable{
 						brokerNodeCount.reset();
 					}
 				}else{
-					//对失去心跳的节点，可能在重启，进行计数（fixme 正常退出时在hook中可以进行标记，区分宕机和正常退出，做快速恢复策略）
+					//对失去心跳的节点，可能在重启，进行计数（正常退出时在hook中对heart进行标记，区分宕机和正常退出，做快速恢复策略）
 					brokerNodeCount.increment();
 					this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 				}
