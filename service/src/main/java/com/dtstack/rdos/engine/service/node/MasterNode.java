@@ -2,26 +2,30 @@ package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
+import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
+import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -44,11 +48,13 @@ public class MasterNode {
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
-    private RdosEngineBatchJobDAO rdosEngineBatchJobDao = new RdosEngineBatchJobDAO();
-
-    private RdosEngineStreamJobDAO rdosEngineStreamJobDao = new RdosEngineStreamJobDAO();
-
     private FaultTolerantDealer faultTolerantDealer = new FaultTolerantDealer();
+
+    private ClusterQueueInfo clusterQueueInfo = ClusterQueueInfo.getInstance();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
+
+    private static WorkNode workNode = WorkNode.getInstance();
 
     private ExecutorService faultTolerantExecutor;
 
@@ -131,41 +137,47 @@ public class MasterNode {
                 return;
             }
             //节点容灾恢复任务
+            LOG.warn("----- broker:{} 节点容灾任务开始恢复----", broker);
             long startId = 0L;
             while (true) {
                 List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, broker, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }
-                LOG.info("----- broker:{} 节点容灾任务开始恢复----", broker);
+                Map<String, Map<String, List<String>>> priorityEngineTypes = Maps.newHashMap();
+                List<String> submitedJobs = Lists.newArrayList();
                 for (RdosEngineJobCache jobCache : jobCaches) {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        //进行多节点任务分发（ fixme 如果存在吞吐量问题，改成批量，只分发taskId，再由各个节点从数据库恢复）
-                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                            WorkNode.getInstance().addStartJob(jobClient);
+                        Map<String, List<String>> groups = null;
+                        if (jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()) {
+                            groups = priorityEngineTypes.computeIfAbsent(jobCache.getEngineType(), k -> Maps.newHashMap());
+                            List<String> jobIds = groups.computeIfAbsent(jobClient.getGroupName(), k -> Lists.newArrayList());
+                            jobIds.add(jobCache.getJobId());
                         } else {
-                            WorkNode.getInstance().afterSubmitJob(jobClient);
+                            submitedJobs.add(jobCache.getJobId());
                         }
                         startId = jobCache.getId();
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
                     }
                 }
+                distributeQueueJobs(priorityEngineTypes);
+                distributeZkJobs(submitedJobs);
             }
             //在迁移任务的时候，可能出现要迁移的节点也宕机了，任务没有正常接收
             List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(0L, broker, null);
             if (CollectionUtils.isNotEmpty(jobCaches)) {
-                zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker,BrokerHeartNode.initNullBrokerHeartNode(), true);
+                zkDistributed.updateSynchronizedLocalBrokerHeartNode(broker, BrokerHeartNode.initNullBrokerHeartNode(), true);
             }
             List<String> shards = zkDistributed.getBrokerDataChildren(broker);
             for (String shard : shards) {
                 zkDistributed.synchronizedBrokerDataShard(broker, shard, BrokerDataShard.initBrokerDataShard(), true);
             }
-            LOG.info("----- broker:{} 节点容灾任务结束恢复-----", broker);
+            LOG.warn("----- broker:{} 节点容灾任务结束恢复-----", broker);
         } catch (Exception e) {
             LOG.error("----broker:{} faultTolerantRecover error:{}", broker, e);
         } finally {
@@ -173,21 +185,104 @@ public class MasterNode {
         }
     }
 
-    /**
-     * master 节点分发任务失败
-     */
-    private void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg) {
-        engineJobCacheDao.deleteJob(taskId);
-        if (ComputeType.BATCH.typeEqual(computeType)) {
-            rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
-        } else if (ComputeType.STREAM.typeEqual(computeType)) {
-            rdosEngineStreamJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
-        } else {
-            LOG.error("not support compute type:" + computeType);
+    private void distributeQueueJobs(Map<String, Map<String, List<String>>> engineTypes) {
+        if (engineTypes.isEmpty()) {
+            return;
+        }
+        //任务多节点分发，每个节点要分发的任务量
+        Map<String, List<String>> nodeJobs = Maps.newHashMap();
+        for (Map.Entry<String, Map<String, List<String>>> engineTypeEntry : engineTypes.entrySet()) {
+            String engineType = engineTypeEntry.getKey();
+            Map<String, List<String>> groups = engineTypeEntry.getValue();
+            for (Map.Entry<String, List<String>> groupEntry : groups.entrySet()) {
+                List<String> jobIds = groupEntry.getValue();
+                if (jobIds.isEmpty()) {
+                    continue;
+                }
+                String group = groupEntry.getKey();
+                Iterator<String> jobIdsIt = groupEntry.getValue().iterator();
+                Map<String, Integer> jobSizeInfo = computeQueueJobSize(engineType, group, jobIds.size());
+                if (jobSizeInfo == null) {
+                    continue;
+                }
+                for (Map.Entry<String, Integer> jobSizeEntry : jobSizeInfo.entrySet()) {
+                    int size = jobSizeEntry.getValue();
+                    String node = jobSizeEntry.getKey();
+                    while (size > 0 && jobIdsIt.hasNext()) {
+                        size--;
+                        String jobId = jobIdsIt.next();
+                        List<String> nodeJobIds = nodeJobs.computeIfAbsent(node, k -> Lists.newArrayList());
+                        nodeJobIds.add(jobId);
+                    }
+                }
+            }
+        }
+        sendJobs(nodeJobs);
+    }
+
+    private Map<String, Integer> computeQueueJobSize(String engineType, String groupName, int jobSize) {
+        if (clusterQueueInfo.isEmpty()) {
+            return null;
+        }
+        ClusterQueueInfo.EngineTypeQueueInfo engineTypeQueueInfo = clusterQueueInfo.getEngineTypeQueueInfo(engineType);
+        if (engineTypeQueueInfo == null) {
+            return null;
+        }
+        Map<String, Integer> nodeSort = Maps.newHashMap();
+        int total = jobSize;
+        for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> engineTypeEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
+            ClusterQueueInfo.GroupQueueInfo groupEntry = engineTypeEntry.getValue();
+            Map<String, GroupInfo> remoteQueueInfo = groupEntry.getGroupInfo();
+            GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
+            total += groupInfo.getSize();
+            nodeSort.put(engineTypeEntry.getKey(), groupInfo.getSize());
+        }
+        int avg = total / nodeSort.size() + 1;
+        for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
+            entry.setValue(avg - entry.getValue());
+        }
+        return nodeSort;
+    }
+
+    private void distributeZkJobs(List<String> jobs) {
+        if (jobs.isEmpty()) {
+            return;
+        }
+        Map<String, Integer> zkDataCache = zkLocalCache.getZkDataSizeCache();
+        if (zkDataCache == null) {
+            return;
+        }
+        int total = jobs.size();
+        Map<String, Integer> nodeSort = Maps.newHashMap();
+        for (Map.Entry<String, Integer> entry : zkDataCache.entrySet()) {
+            total += entry.getValue();
+            nodeSort.put(entry.getKey(), entry.getValue());
+        }
+        int avg = total / nodeSort.size() + 1;
+        //任务多节点分发，每个节点要分发的任务量
+        Map<String, List<String>> nodeJobs = Maps.newHashMap();
+        Iterator<String> jobsIt = jobs.iterator();
+        for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
+            int size = avg - entry.getValue();
+            if (size > 0 && jobsIt.hasNext()) {
+                size--;
+                String jobId = jobsIt.next();
+                List<String> nodeJobIds = nodeJobs.computeIfAbsent(entry.getKey(), k -> Lists.newArrayList());
+                nodeJobIds.add(jobId);
+            }
+        }
+        sendJobs(nodeJobs);
+    }
+
+    private void sendJobs(Map<String, List<String>> nodeJobs) {
+        for (Map.Entry<String, List<String>> nodeEntry : nodeJobs.entrySet()) {
+            if (nodeEntry.getValue().isEmpty()) {
+                continue;
+            }
+            Map<String, Object> params = new HashMap<>(1);
+            params.put("jobIds", nodeEntry.getValue());
+            HttpSendClient.masterSendJobs(nodeEntry.getKey(), params);
         }
     }
 
-    private String generateErrorMsg(String msgInfo) {
-        return String.format("{\"msg_info\":\"%s\"}", msgInfo);
-    }
 }

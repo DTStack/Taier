@@ -41,4 +41,13 @@
         and is_deleted=0 order by id asc limit 500;
     </select>
 
+    <select id="getByJobIds" resultMap="rdosEngineJobCacheResult">
+        select * from rdos_engine_job_cache
+        WHERE job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0
+    </select>
+
 </mapper>

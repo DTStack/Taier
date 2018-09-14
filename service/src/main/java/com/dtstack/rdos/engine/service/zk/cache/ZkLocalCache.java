@@ -158,7 +158,15 @@ public class ZkLocalCache implements Closeable {
         return node;
     }
 
-    private int getZkDataSize(String node){
+    public Map<String, Integer> getZkDataSizeCache() {
+        return zkDataSizeCache;
+    }
+
+    public void setZkDataSizeCache(Map<String, Integer> zkDataSizeCache) {
+        this.zkDataSizeCache = zkDataSizeCache;
+    }
+
+    public int getZkDataSize(String node){
         if (zkDataSizeCache!=null){
             return zkDataSizeCache.getOrDefault(node, 0);
         }

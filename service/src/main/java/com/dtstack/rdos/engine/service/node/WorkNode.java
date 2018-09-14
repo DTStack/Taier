@@ -280,7 +280,7 @@ public class WorkNode {
      * master 节点分发任务失败
      * @param taskId
      */
-    private void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
+    public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
         engineJobCacheDao.deleteJob(taskId);
         if(ComputeType.BATCH.typeEqual(computeType)){
             rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));

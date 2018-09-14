@@ -25,4 +25,6 @@ public interface RdosEngineJobCacheMapper {
     int updateStage(@Param("jobId") String jobId, @Param("stage") Integer stage,@Param("nodeAddress") String nodeAddress);
 
     List<RdosEngineJobCache> listByStage(@Param("id") Long id,@Param("nodeAddress") String nodeAddress,@Param("stage") Integer stage);
+
+    List<RdosEngineJobCache> getByJobIds(@Param("jobIds") List<String> jobIds);
 }

@@ -46,7 +46,7 @@ public class HeartBeatCheckListener implements Runnable{
         ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("HeartBeatCheckListener"));
         scheduledService.scheduleWithFixedDelay(
                 this,
-                0,
+				CHECK_INTERVAL ,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
 	}
