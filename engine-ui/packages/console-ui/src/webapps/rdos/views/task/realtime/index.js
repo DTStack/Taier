@@ -34,7 +34,13 @@ class TaskIndex extends Component {
         showPublish: false,
     }
 
-    componentDidMount() { }
+    componentDidMount() {
+        const { dispatch } = this.props;
+        const taskId = utils.getParameterByName("taskId")
+        if (taskId) {
+            this.props.dispatch(BrowserAction.openPage({ id: taskId }))
+        }
+    }
 
     saveTask = () => {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
