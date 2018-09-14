@@ -187,7 +187,12 @@ class AddLinkModal extends React.Component {
                                     break;
                                 }
                             }
-                            return <Col key={item.id} style={{ marginBottom: "13px" }} span={12}><Checkbox value={item.id}>{name}</Checkbox></Col>
+                            return <Col key={item.id} style={{ marginBottom: "13px" }} span={12}>
+                            <Checkbox value={item.id}>
+                            {name}
+                            <span style={{color:"#999",paddingLeft:"4px"}}>({utils.formatDateTime(item.modifyTime)})</span>
+                            </Checkbox>
+                            </Col>
                         }
                     )}
                 </Checkbox.Group>}
