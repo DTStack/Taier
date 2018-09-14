@@ -113,7 +113,7 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_create",
             sorter: true,
             render(n, record) {
-                return  utils.formatDateTime(record.gmtCreate) 
+                return utils.formatDateTime(record.gmtCreate)
             }
         }, {
             title: "发布人",
@@ -123,7 +123,7 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_modified",
             sorter: true,
             render(n, record) {
-                return utils.formatDateTime(record.gmtModified) 
+                return utils.formatDateTime(record.gmtModified)
             }
         }, {
             title: "发布描述",
@@ -191,7 +191,7 @@ class PackagePublish extends React.Component {
             packageId: id
         }, mode).then(
             (res) => {
-                if (res.code == 1) {  
+                if (res.code == 1) {
                     message.success("删除成功")
                 }
                 this.getPackageList();
@@ -240,6 +240,7 @@ class PackagePublish extends React.Component {
     }
     getTableTitle = () => {
         const { users } = this.state;
+        const bussinessDate=[moment().subtract(30, 'days'),new moment()]
         return (
             <Form
                 style={{ marginTop: "10px" }}
@@ -289,12 +290,24 @@ class PackagePublish extends React.Component {
                 <FormItem
                     label="发布日期"
                 >
-                    <RangePicker onChange={this.dateChange.bind(this, 'publishTime')} disabledDate={this.disabledDate} size="default" style={{ width: 170 }} />
+                    <RangePicker
+                        onChange={this.dateChange.bind(this, 'publishTime')}
+                        disabledDate={this.disabledDate}
+                        size="default"
+                        style={{ width: 170 }}
+                        defaultValue={bussinessDate || null}
+                    />
                 </FormItem>
                 <FormItem
                     label="申请日期"
                 >
-                    <RangePicker onChange={this.dateChange.bind(this, 'applyTime')} disabledDate={this.disabledDate} size="default" style={{ width: 170 }} />
+                    <RangePicker
+                        onChange={this.dateChange.bind(this, 'applyTime')}
+                        disabledDate={this.disabledDate}
+                        size="default"
+                        style={{ width: 170 }}
+                        defaultValue={bussinessDate || null}
+                    />
                 </FormItem>
             </Form>
         )
