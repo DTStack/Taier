@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.service.zk.cache;
 
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
@@ -35,7 +34,6 @@ public class ZkSyncLocalCacheListener implements Runnable {
                 0,
                 CHECK_INTERVAL,
                 TimeUnit.MILLISECONDS);
-        zkLocalCache.setZkSyncLocalCacheListener(this);
     }
 
     @Override
@@ -45,8 +43,8 @@ public class ZkSyncLocalCacheListener implements Runnable {
             if (PublicUtil.count(logOutput, 5)) {
                 logger.warn("ZkSyncLocalCacheListener start again");
             }
-            Map<String, BrokerDataNode> zkData = zkDistributed.initMemTaskStatus();
-            zkLocalCache.cover(zkData);
+            Map<String, Integer> zkSize = zkDistributed.getAliveBrokerShardSize();
+            zkLocalCache.cover(zkSize);
         } catch (Throwable e) {
             logger.error("AllTaskStatusListener error:{}", ExceptionUtil.getErrorMessage(e));
         }

@@ -13,7 +13,6 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
-import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
@@ -152,7 +151,6 @@ public class ZkDistributed implements Closeable{
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
 		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
-		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
 		if(ConfigParse.getPluginStoreInfo()!=null){
 			executors.execute(new LogStoreListener(masterListener));
 		}
@@ -333,17 +331,10 @@ public class ZkDistributed implements Closeable{
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 
-	public Map<String, BrokerDataNode> initMemTaskStatus(){
-		Map<String, BrokerDataNode> memTaskStatus = Maps.newConcurrentMap();
-		List<String> brokers = getBrokersChildren();
-		for(String broker:brokers){
-			BrokerHeartNode brokerHeartNode = getBrokerHeartNode(broker);
-			if(brokerHeartNode.getAlive()){
-				Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(broker);
-				BrokerDataNode brokerDataNode = memTaskStatus.computeIfAbsent(broker, k-> new BrokerDataNode(brokerDataShardMap));
-			}
-		}
-		return memTaskStatus;
+	public BrokerDataNode initMemTaskStatus(){
+		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(localAddress);
+		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
+		return brokerDataNode;
 	}
 
 	public void createNodeIfNotExists(String node, Object obj) throws Exception{
@@ -510,6 +501,20 @@ public class ZkDistributed implements Closeable{
 		return alives;
 	}
 
+	public Map<String, Integer> getAliveBrokerShardSize(){
+		Map<String, Integer> shardSize = Maps.newConcurrentMap();
+		List<String> brokers = getAliveBrokersChildren();
+		for(String broker:brokers){
+			List<String> shards = getBrokerDataChildren(broker);
+			int size = 0;
+			for (String shard:shards){
+				BrokerDataShard shardNode = getBrokerDataShard(broker,shard);
+				size += shardNode.getMetas().size();
+			}
+			shardSize.put(broker,size);
+		}
+		return shardSize;
+	}
 
 	public static ZkDistributed getZkDistributed(){
 		return zkDistributed;
