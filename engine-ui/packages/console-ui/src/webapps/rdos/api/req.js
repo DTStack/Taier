@@ -30,6 +30,7 @@
      DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
      UPDATE_PROJECT_SCHEDULE:`${RDOS_BASE_URL}/common/project/closeOrOpenSchedule`,// 开启或关闭项目调度
      BIND_PRODUCTION_PROJECT:`${RDOS_BASE_URL}/common/project/bindingProject`,//绑定生产项目
+     GET_COULD_BINDING_PROJECT_LIST:`${RDOS_BASE_URL}/common/project/getBindingProjects`,//获取可以绑定的项目
      
      // ===== 角色管理 ===== //
      GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表

@@ -63,7 +63,8 @@ class ProjectConfig extends Component {
         scheduleStatusLoading: false,
         bindLoading: false,
         visibleChangeProduce: false,
-        bindProject: {}
+        bindProject: {},
+        projectBindList:[]
     }
 
     updateProjectDesc = () => {
@@ -113,7 +114,7 @@ class ProjectConfig extends Component {
     }
     bindProject() {
         const { bindProject } = this.state;
-        const { project } = this.props;
+        const { project, dispatch } = this.props;
         if (!bindProject.name) {
             message.warning("请选择发布目标");
             return;
@@ -157,10 +158,21 @@ class ProjectConfig extends Component {
         });
     }
     changeBindModalVisible(isShow) {
+        const {project}=this.props;
         if (!isShow) {
             this.setState({
                 bindProject: {}
             })
+        }else{
+            Api.getBindingProjectList({
+                projectAlias:project.projectAlias
+            }).then(
+                (res)=>{
+                    this.setState({
+                        projectBindList:res.data
+                    })
+                }
+            )
         }
         this.setState({
             visibleChangeProduce: isShow
@@ -214,7 +226,7 @@ class ProjectConfig extends Component {
         }
     }
     render() {
-        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading } = this.state
+        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading,projectBindList } = this.state
         const { params, project = {}, projects = [] } = this.props
         const scheduleStatus = project && project.scheduleStatus;
         const isScheduleEnAbled = scheduleStatus == 0;
@@ -308,13 +320,13 @@ class ProjectConfig extends Component {
                                 })
                             }}
                         >
-                            {projects.map(
+                            {projectBindList.map(
                                 (project) => {
-                                    return (project.projectType == PROJECT_TYPE.COMMON && project.projectIdentifier != projectIdentifier ? <Option
+                                    return <Option
                                         key={project.id}
                                         value={project.id}>
                                         {project.projectAlias}
-                                    </Option> : null)
+                                    </Option> 
                                 }
                             ).filter(Boolean)}
                         </Select>

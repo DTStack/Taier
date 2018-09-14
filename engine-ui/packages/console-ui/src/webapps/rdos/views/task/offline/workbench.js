@@ -171,7 +171,7 @@ class Workbench extends React.Component {
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const couldEdit = isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
 
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
@@ -378,37 +378,33 @@ class Workbench extends React.Component {
     submitTab() {
         const {
             publishTask, dataSync,
-            currentTab, reloadTabTask,
+            currentTab, reloadTabTask, project
         } = this.props;
 
-
-        const { publishDesc } = this.state
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const { publishDesc = '' } = this.state
         const result = this.generateRqtBody(dataSync)
 
         // 添加发布描述信息
-        if (publishDesc) {
-            if (publishDesc.length > 200) {
-                message.error('备注信息不可超过200个字符！')
-                return false;
-            }
-            // 修改task配置时接口要求的标记位
-            result.preSave = true;
-            result.submitStatus = 1; // 1-提交，0-保存
-            result.publishDesc = publishDesc;//发布信息
-            ajax.publishOfflineTask(result).then(res => {
-                if (res.code === 1) {
-                    message.success('提交成功！');
-                    publishTask(res);
-                    reloadTabTask(currentTab);
-                    this.closePublish();
-                } else {
-                    this.closePublish();
-                }
-            });
-        } else {
-            message.error('提交备注不可为空！')
+
+        if (publishDesc.length > 200) {
+            message.error('备注信息不可超过200个字符！')
             return false;
         }
+        // 修改task配置时接口要求的标记位
+        result.preSave = true;
+        result.submitStatus = 1; // 1-提交，0-保存
+        result.publishDesc = publishDesc;//发布信息
+        ajax.publishOfflineTask(result).then(res => {
+            if (res.code === 1) {
+                message.success('提交成功！');
+                publishTask(res);
+                reloadTabTask(currentTab);
+                this.closePublish();
+            } else {
+                this.closePublish();
+            }
+        });
 
     }
 

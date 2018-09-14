@@ -2,6 +2,7 @@ import React from "react";
 import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm, Badge } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
+import utils from "utils";
 
 import Api from "../../../../api"
 import PublishModal from "./publishModal";
@@ -112,7 +113,7 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_create",
             sorter: true,
             render(n, record) {
-                return record.gmtCreate
+                return  utils.formatDateTime(record.gmtCreate) 
             }
         }, {
             title: "发布人",
@@ -122,7 +123,7 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_modified",
             sorter: true,
             render(n, record) {
-                return record.gmtModified
+                return utils.formatDateTime(record.gmtModified) 
             }
         }, {
             title: "发布描述",

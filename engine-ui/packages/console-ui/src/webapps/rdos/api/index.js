@@ -114,6 +114,9 @@ export default {
     bindProductionProject(params) {
         return http.post(req.BIND_PRODUCTION_PROJECT, params)
     },
+    getBindingProjectList(params) {
+        return http.post(req.GET_COULD_BINDING_PROJECT_LIST, params)
+    },
     // ========== Role ========== //
     getRoleList(params) {
         return http.post(req.GET_ROLE_LIST, params)

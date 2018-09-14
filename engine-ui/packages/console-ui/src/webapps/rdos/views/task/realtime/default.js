@@ -18,16 +18,16 @@ class Default extends Component {
                     <div
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) }}
                         className="operation-content">
-                        <MyIcon style={iconStyle} type="add-file" />
+                        <img src="/public/rdos/img/icon_createtask.png" className="anticon" />
+                        <p className="txt-center operation-title">创建实时任务</p>
                     </div>
-                    <p className="txt-center">创建实时任务</p>
                 </Col><Col className="operation-card">
                     <div
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
                         className="operation-content">
-                        <MyIcon style={iconStyle} type="upload" />
+                        <img src="/public/rdos/img/icon_upload.png" className="anticon" />
+                            <p className="txt-center operation-title">上传实时计算资源</p>
                     </div>
-                    <p className="txt-center">上传实时计算资源</p>
                 </Col>
             </Row>
         )
