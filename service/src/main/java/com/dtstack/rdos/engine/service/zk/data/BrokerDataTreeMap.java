@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
-import org.apache.commons.lang3.StringUtils;
+import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -25,26 +25,18 @@ public class BrokerDataTreeMap<K, V> extends ConcurrentSkipListMap<K, V> {
     }
 
     private static Comparator<String> stringComparator = new Comparator<String>() {
-        @Override
+        @Override//1flink_dfefef_0
         public int compare(String o1, String o2) {
-            if (o1 == null) {
+            if (!TaskIdUtil.isMigrationJob(o1)) {
                 return -1;
             }
-            if (o2 == null) {
+            if (!TaskIdUtil.isMigrationJob(o2)) {
                 return 1;
             }
-            String[] o1Arr = o1.split(interval);
-            String[] o2Arr = o2.split(interval);
-            if (o1Arr.length < 2) {
-                return -1;
-            }
-            if (o2Arr.length < 2) {
-                return 1;
-            }
-            if (String.join(interval, o1Arr).equals(String.join(interval, o2Arr))) {
+            if (o1.equals(o2)) {
                 return 0;
             }
-            if (StringUtils.join(o1Arr, interval, 0, 2).equals(StringUtils.join(o2Arr, interval, 0, 2))) {
+            if (TaskIdUtil.getTaskId(o1).equals(TaskIdUtil.getTaskId(o1))) {
                 return 0;
             }
 
