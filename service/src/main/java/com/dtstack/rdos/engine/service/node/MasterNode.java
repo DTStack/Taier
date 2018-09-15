@@ -208,7 +208,7 @@ public class MasterNode {
                 for (Map.Entry<String, Integer> jobSizeEntry : jobSizeInfo.entrySet()) {
                     int size = jobSizeEntry.getValue();
                     String node = jobSizeEntry.getKey();
-                    while (size > 0 && jobIdsIt.hasNext()) {
+                    while (size <= 0 && jobIdsIt.hasNext()) {
                         size--;
                         String jobId = jobIdsIt.next();
                         List<String> nodeJobIds = nodeJobs.computeIfAbsent(node, k -> Lists.newArrayList());
@@ -264,7 +264,7 @@ public class MasterNode {
         Iterator<String> jobsIt = jobs.iterator();
         for (Map.Entry<String, Integer> entry : nodeSort.entrySet()) {
             int size = avg - entry.getValue();
-            if (size > 0 && jobsIt.hasNext()) {
+            if (size <= 0 && jobsIt.hasNext()) {
                 size--;
                 String jobId = jobsIt.next();
                 List<String> nodeJobIds = nodeJobs.computeIfAbsent(entry.getKey(), k -> Lists.newArrayList());
