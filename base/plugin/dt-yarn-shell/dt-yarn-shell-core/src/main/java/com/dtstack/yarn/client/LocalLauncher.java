@@ -1,8 +1,8 @@
-package com.dtstack.yarn.test;
+package com.dtstack.yarn.client;
 
 
 import com.dtstack.yarn.DtYarnConfiguration;
-import com.dtstack.yarn.client.Client;
+
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.exceptions.YarnException;

@@ -2,8 +2,9 @@ package com.dtstack.yarn.client;
 
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.am.ApplicationMaster;
-import com.dtstack.yarn.common.AppType;
+import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.JobPriority;
+import com.dtstack.yarn.common.type.DummyType;
 import com.google.gson.Gson;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -58,6 +59,7 @@ public class ClientArguments {
     String inputs;
     String cacheFiles;
     String uploadFiles;
+
 
 
     public String getAppName() {
@@ -315,7 +317,7 @@ public class ClientArguments {
 
     private void init() {
         appName = "";
-        appType = AppType.PYTHON;
+        appType = AppType.fromString("");
         amMem = DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
@@ -452,20 +454,6 @@ public class ClientArguments {
             appType = AppType.fromString(commandLine.getOptionValue("app-type").trim());
         }
 
-        if (appType != AppType.TENSORFLOW && appType != AppType.MXNET) {
-            psNum = 0;
-            workerNum = 1;
-        }
-
-        if (commandLine.hasOption("conf")) {
-            confs = commandLine.getOptionProperties("conf");
-            if(appType != AppType.TENSORFLOW) {
-                if (confs.containsKey("xlearning.ps.num")) {
-                    confs.setProperty("xlearning.ps.num", "0");
-                }
-            }
-        }
-
         if (commandLine.hasOption("am-memory")) {
             amMem = getNormalizedMem(commandLine.getOptionValue("am-memory"));
         }
@@ -487,22 +475,6 @@ public class ClientArguments {
         if (commandLine.hasOption("worker-num")) {
             String workerNumStr = commandLine.getOptionValue("worker-num");
             workerNum = Integer.parseInt(workerNumStr);
-        }
-
-        if(appType == AppType.TENSORFLOW) {
-            if (commandLine.hasOption("ps-memory")) {
-                psMemory = getNormalizedMem(commandLine.getOptionValue("ps-memory"));
-            }
-
-            if (commandLine.hasOption("ps-cores")) {
-                String psVCoresStr = commandLine.getOptionValue("ps-cores");
-                psVCores = Integer.parseInt(psVCoresStr);
-            }
-
-            if (commandLine.hasOption("ps-num")) {
-                String psNumStr = commandLine.getOptionValue("ps-num");
-                psNum = Integer.parseInt(psNumStr);
-            }
         }
 
         if (commandLine.hasOption("priority")) {

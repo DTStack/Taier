@@ -1,14 +1,13 @@
-package com.dtstack.yarn.common;
+package com.dtstack.yarn.common.type;
 
 
 import org.apache.commons.lang.StringUtils;
 
-public enum AppType {
-    TENSORFLOW,
-    MXNET,
-    SHELL,
-    PYTHON,
-    NONE;
+public abstract class AppType {
+//    SHELL,
+//    PYTHON,
+//    JLOGSTASH,
+//    NONE;
 
     public static AppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
