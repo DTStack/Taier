@@ -225,15 +225,16 @@ public class FlinkClient extends AbsClient {
 
     public String runJob(PackagedProgram program, int parallelism) throws MalformedURLException, ProgramMissingJobException, ProgramInvocationException {
         JobClient jobClient = jobClientThreadLocal.get();
-        JobSubmissionResult result = null;
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
-            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
+            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
-            ClusterClient cluster = null;
+            descriptor.setName(jobClient.getJobName());
+            YarnClusterClient cluster = null;
             try {
                 cluster = descriptor.deploySessionCluster(clusterSpecification);
                 cluster.setDetached(true);
-                result = cluster.run(program, parallelism);
+                cluster.run(program, parallelism);
+
             } catch (Exception e) {
                 logger.info("Job run failure!", e);
             }
@@ -244,18 +245,19 @@ public class FlinkClient extends AbsClient {
                     logger.info("Could not properly shut down the cluster.", e);
                 }
             }
+            return cluster.getApplicationId().toString();
         } else{
-            result = client.run(program, parallelism);
+            JobSubmissionResult result = client.run(program, parallelism);
+            if (result.isJobExecutionResult()) {
+                logger.info("Program execution finished");
+                JobExecutionResult execResult = result.getJobExecutionResult();
+                logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
+                logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
+            } else {
+                logger.info("Job has been submitted with JobID " + result.getJobID());
+            }
+            return result.getJobID().toString();
         }
-        if (result.isJobExecutionResult()) {
-            logger.info("Program execution finished");
-            JobExecutionResult execResult = result.getJobExecutionResult();
-            logger.info("Job with JobID " + execResult.getJobID() + " has finished.");
-            logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
-        } else {
-            logger.info("Job has been submitted with JobID " + result.getJobID());
-        }
-        return result.getJobID().toString();
 
     }
 
