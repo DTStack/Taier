@@ -128,6 +128,13 @@ export const TASK_TYPE = { // 任务类型
     WORKFLOW: 10, // 工作流
 }
 
+//实时任务类型
+export const REALTIME_TYPE={
+    SQL: 0,
+    MR: 1,
+    DATA_COLLECTION:7
+}
+
 export const LEARNING_TYPE={//深度学习框架
     TENSORFLOW:0,
     MXNET:1
