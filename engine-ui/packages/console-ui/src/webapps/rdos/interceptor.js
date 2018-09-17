@@ -59,6 +59,7 @@ export function authAfterFormated(response) {
             notification['error']({
                 message: '异常',
                 description: response.message,
+                style:{wordBreak: "break-all"}
             });
         }
         return response
