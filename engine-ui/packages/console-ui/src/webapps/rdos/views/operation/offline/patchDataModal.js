@@ -279,6 +279,8 @@ class PatchData extends Component {
         const { getFieldDecorator } = this.props.form;
         const { treeData } = this.state;
         const treeNodes = this.getTreeNodes(treeData);
+        const randomNumber = Math.floor(Math.random()*(100 - 1) + 1);
+        const pacthName = `P_${task&&task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
 
         return (
             <Modal
@@ -291,7 +293,7 @@ class PatchData extends Component {
                 <Row style={{ lineHeight: '30px'  }}>
                     <FormItem {...formItemLayout} label="补数据名">
                         {getFieldDecorator('fillName', {
-                            initialValue: `P_${task&&task.name}_${moment().format('YYYY_MM_DD')}`,
+                            initialValue: pacthName,
                             rules: [{
                                 required: true,
                                 message: '请输入补数据名!',

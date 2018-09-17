@@ -84,6 +84,5 @@ export const getNodeLevelAndCount = (node) => {
         level: maxLevel
     }
 
-    console.log('getNodeCount:', res)
     return res;
 }

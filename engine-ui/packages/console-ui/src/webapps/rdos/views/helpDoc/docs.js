@@ -149,7 +149,7 @@ export const customParams = (
     <div>
         <p>支持常量或变量</p>
         <p>常量直接输入字符串或数字</p>
-        变量基于bdp.system.cyctime取值，例如“key1=$[yyyy]”取bdp.system.cyctime的年的部分
+        变量基于bdp.system.cyctime取值，例如“key1={'${yyyy}'}”取bdp.system.cyctime的年的部分
         <p>详细说明请参考<a href={HELP_DOC_URL.TASKPARAMS} target="blank">《帮助文档》</a></p>
     </div>
 )

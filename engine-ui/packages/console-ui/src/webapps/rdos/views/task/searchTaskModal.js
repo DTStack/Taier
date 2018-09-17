@@ -24,45 +24,42 @@ class SearchTaskModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            keyStack: {},
             visible: false,
             data: undefined
         };
     }
 
     componentDidMount() {
+        this._keyStack = {};
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)
     }
 
     componentWillUnmount() {
+        this._keyStack = {};
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
-        this.setState({  keyStack: {} })
     }
 
     bindEvent = (target) => {
 
-        const keyCode = target.keyCode
-        const keyMap = this.state.keyStack
+        const keyCode = target.keyCode;
+        const keyMap = this._keyStack;
 
         const keyP = 80, ctrlKey = 17;
 
         if (keyCode === keyP || keyCode === ctrlKey) {
 
-            const currentKeyMap = Object.assign(keyMap, {
-                [keyCode]: target.type == 'keydown',
-            })
-
-            this.setState({ keyStack: currentKeyMap })
+            keyMap[keyCode] = target.type == 'keydown';
 
             if (target.type != 'keydown') {
+                this._keyStack = {};
                 return;
             }
 
             if (inRealtime() || inOffline()) {
 
-                if (currentKeyMap[ctrlKey] && currentKeyMap[keyP]) {
+                if (keyMap[ctrlKey] && keyMap[keyP]) {
                     target.preventDefault();
                     this.props.showSeach(true)
                     this.onfocus()
@@ -73,7 +70,8 @@ class SearchTaskModal extends React.Component {
     }
 
     close = (cb) => {
-        this.props.showSeach(false)
+        this.props.showSeach(false);
+        this._keyStack = {};
         this.setState({ visible: false, windowsKey: {}, data: undefined })
     }
 
@@ -129,7 +127,7 @@ class SearchTaskModal extends React.Component {
     }
 
     render() {
-        const { data, visible } = this.state;
+        const { data } = this.state;
         const { visibleSearchTask } = this.props;
         const options = data && data.map(item => 
             <Option key={item.id} data={item} value={item.name}>

@@ -37,8 +37,10 @@ class EditorContainer extends Component {
         tableCompleteItems: [],
         funcCompleteItems: []
     }
+
     _tableColumns = {}
     _tableLoading = {}
+
     componentDidMount() {
 
         const currentNode = this.props.currentTabData;
@@ -48,6 +50,7 @@ class EditorContainer extends Component {
         this.initTableList();
         this.initFuncList();
     }
+
     initTableList(id) {
         id=id||this.props.project.id;
         if(!id){
@@ -73,6 +76,7 @@ class EditorContainer extends Component {
                 }
             )
     }
+
     initFuncList() {
         API.getAllFunction()
             .then(
@@ -253,6 +257,7 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
+
     completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
         const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
@@ -319,6 +324,7 @@ class EditorContainer extends Component {
             resolve(defaultItems)
         }
     }
+
     getTableColumns(tableName) {
         let tableColumns = this._tableColumns;
         if (tableColumns[tableName]) {
@@ -341,6 +347,7 @@ class EditorContainer extends Component {
             )
         return this._tableLoading[tableName];
     }
+
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
@@ -376,7 +383,7 @@ class EditorContainer extends Component {
                 customFunctions: funcList
             },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme || "white",
+            theme: editor.options.theme,
             onChange: this.debounceChange,
             sync: currentTabData.merged || undefined,
             onCursorSelection: this.debounceSelectionChange
@@ -391,6 +398,7 @@ class EditorContainer extends Component {
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
             onFileEdit: commonFileEditDelegator(this._editor),
+            editorTheme: editor.options.theme,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
             },

@@ -165,30 +165,30 @@ export default class TaskView extends Component {
                 const parentNodes = currentNodeData.taskVOS; // 父节点
                 const childNodes = currentNodeData.subTaskVOS; // 子节点
 
-                let currentNode;
+                let currentNodeGeo;
 
                 if (!currentNodeData._geometry) {
-                    currentNode = Object.assign({}, defaultRoot);
-                    currentNode.level = level;
-                    currentNode.y = parentNode.y + defaultRoot.margin;
+                    currentNodeGeo = Object.assign({}, defaultRoot);
+                    currentNodeGeo.level = level;
+                    currentNodeGeo.y = parentNode.y + defaultRoot.margin;
                 } else {
-                    currentNode = currentNodeData._geometry;
+                    currentNodeGeo = currentNodeData._geometry;
                 }
 
                 if (currentNodeData.taskType === TASK_TYPE.WORKFLOW) {
                     const workflowData = currentNodeData.subNodes;
                     let newLevel = 0;
-                    
+
                     // 如果是工作流，需要重新计算工作流节点的高和宽
                     const nodeCount = getNodeLevelAndCount(workflowData);
                     const tempNode = Object.assign({}, defaultRoot);
                     tempNode.count = nodeCount.count;
                     tempNode.level = nodeCount.level;
-                    currentNode.width = getNodeWidth(tempNode);
-                    currentNode.height = getNodeHeight(tempNode);
+                    currentNodeGeo.width = getNodeWidth(tempNode);
+                    currentNodeGeo.height = getNodeHeight(tempNode);
 
                     const workflowDefaultRoot = Object.assign({}, defaultRoot);
-                    workflowDefaultRoot.x = Math.round((currentNode.width - VertexSize.width) /2);
+                    workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) /2);
                     workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
 
                     if (workflowData) {
@@ -196,8 +196,8 @@ export default class TaskView extends Component {
                     }
                 }
 
-                currentNode = getGeoByRelativeNode(parentNode, currentNode);
-                currentNodeData._geometry = currentNode;
+                currentNodeGeo = getGeoByRelativeNode(parentNode, currentNodeGeo);
+                currentNodeData._geometry = currentNodeGeo;
 
                 const dataItem = {
                     parent: parent,
@@ -214,16 +214,16 @@ export default class TaskView extends Component {
                         node.level = level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
-                        nodeData._geometry = getGeoByRelativeNode(currentNode, node);
+                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
                         if (parentNodes[i].taskVOS) {
-                            loop(nodeData, parent, level - 1, currentNode)
+                            loop(nodeData, parent, level - 1, currentNodeGeo)
                         }
 
                         const isExist = relationTree.find(t => t.source.id === nodeData.id &&
                             t.target && t.target.id === currentNodeData.id);
 
-                        console.log('isExist:', isExist);
+                        console.log('parentNodes isExist:', isExist);
 
                         relationTree.push({
                             parent: parent,
@@ -243,10 +243,10 @@ export default class TaskView extends Component {
                         node.index = j + 1;
                         node.count = childNodes.length;
 
-                        nodeData._geometry = getGeoByRelativeNode(currentNode, node);
+                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
                         if (childNodes[j].subTaskVOS) {
-                            loop(nodeData, parent, ++level, currentNode)
+                            loop(nodeData, parent, ++level, currentNodeGeo)
                         }
 
                         const treeItem = {
@@ -258,8 +258,9 @@ export default class TaskView extends Component {
                         const isExist = relationTree.findIndex(t => t.source.id === currentNodeData.id &&
                             t.target && t.target.id === nodeData.id);
                         if (isExist > -1) {
+                            console.log('childNodes isExist:', isExist, relationTree[isExist]);
                             console.log('childNodes isExist:', currentNodeData, nodeData);
-                            relationTree[isExist] = treeItem;
+                            // relationTree[isExist] = treeItem;
                         } else {
                             relationTree.push(treeItem);
                         }
@@ -648,9 +649,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
         style[mxConstants.STYLE_STROKECOLOR] = '#A7CDF0';
-        // style[mxConstants.STYLE_ROUNDED] = true; // 设置radius
         style[mxConstants.STYLE_FILLCOLOR] = '#EDF6FF';
-        // style[mxConstants.STYLE_GRADIENTCOLOR] = '#e9e9e9';
         style[mxConstants.STYLE_FONTCOLOR] = '#333333';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;

@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux';
 import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionTypes'
+import localDb from 'utils/localDb';
+
+const KEY_EDITOR_OPTIONS = 'editor_options';
 
 // Console Reducers 
 const console = (state = {}, action) => {
@@ -115,10 +118,17 @@ export const running = (state = [], action) => {
 /**
  * 编辑器选项
  */
-export const options = (state = {}, action) => {
+ const initialEditorOptions = function() {
+    const defaultEditorOptions = localDb.get(KEY_EDITOR_OPTIONS);
+    return defaultEditorOptions || { theme: 'vs' };
+ }
+
+export const options = (state = initialEditorOptions(), action) => {
     switch(action.type) {
         case editorAction.UPDATE_OPTIONS: {
-            return assign({}, state, action.data)
+            const nextOptions = assign({}, state, action.data)
+            localDb.set(KEY_EDITOR_OPTIONS, nextOptions);
+            return nextOptions;
         }
     default:
         return state

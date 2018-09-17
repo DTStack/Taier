@@ -78,7 +78,7 @@ class Workbench extends React.Component {
 
     showPublish() {
         const { currentTabData } = this.props;
-        const { taskType, createModel } = currentTabData;
+        const { taskType } = currentTabData;
         let vaildPass = true;
 
         switch (taskType) {
@@ -148,7 +148,7 @@ class Workbench extends React.Component {
         const {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
-            closeTab, closeAllorOthers
+            closeTab, closeAllorOthers, editor
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
@@ -179,12 +179,14 @@ class Workbench extends React.Component {
         const disablePublish = !isTask || currentTabData.notSynced || isWorkflowNode;
         const showPublish = isTask;
 
+        const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+
         return <Row className="m-workbench task-editor">
             <header className="toolbar clear">
                 <Col className="left">
                     <Dropdown overlay={this.createMenu()} trigger={['click']}>
                         <Button title="创建">
-                            <MyIcon className="my-icon" type="focus" />
+                            <MyIcon className="my-icon" type="focus" themeDark={themeDark}/>
                             新建<Icon type="down" />
                         </Button>
                     </Dropdown>
@@ -193,11 +195,11 @@ class Workbench extends React.Component {
                         title="保存任务"
                         disabled={!isSaveAvaliable}
                     >
-                        <MyIcon className="my-icon" type="save" />保存
+                        <MyIcon className="my-icon" type="save" themeDark={themeDark}/>保存
                     </Button>
                     <Dropdown overlay={this.importMenu()} trigger={['click']}>
                         <Button>
-                            <MyIcon className="my-icon" type="import" />
+                            <MyIcon className="my-icon" type="import" themeDark={themeDark}/>
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
@@ -210,11 +212,11 @@ class Workbench extends React.Component {
                         onClick={this.showPublish.bind(this)}
                         title="发布任务"
                     >
-                        <MyIcon className="my-icon" type="fly" />发布
+                        <MyIcon className="my-icon" type="fly" themeDark={themeDark}/>发布
                     </Button>
                     <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
-                            <MyIcon className="my-icon" type="goin" /> 运维
+                            <MyIcon className="my-icon" type="goin" themeDark={themeDark}/> 运维
                         </Button>
                     </a>
                 </Col>) : null}
@@ -242,11 +244,13 @@ class Workbench extends React.Component {
                         {this.renderTabs(tabs)}
                     </Tabs>
                     <MainBench
+                        tabs={tabs}
                         tabData={currentTabData}
                         taskCustomParams={taskCustomParams}
                         updateTaskFields={this.props.updateTaskField}
                         updateCatalogue={this.props.updateCatalogue}
                         loadTreeNode={this.props.loadTreeNode}
+                        reloadWorkflowTabNode={this.props.reloadWorkflowTabNode}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
@@ -282,7 +286,7 @@ class Workbench extends React.Component {
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
-                        </a><span className="tab-ellipsis" style={{ color: 'rgba(0, 0, 0, 0.65)' }}>&nbsp; / {tab.name}</span>
+                        </a><span className="tab-ellipsis">&nbsp;/ {tab.name}</span>
                     </div>);
                 }
 
@@ -333,7 +337,7 @@ class Workbench extends React.Component {
     submitTab() {
         const {
             publishTask, dataSync,
-            currentTab, reloadTabTask,
+            currentTab, reloadTaskTab,
         } = this.props;
 
 
@@ -354,7 +358,7 @@ class Workbench extends React.Component {
                 if (res.code === 1) {
                     message.success('发布成功！');
                     publishTask(res);
-                    reloadTabTask(currentTab);
+                    reloadTaskTab(currentTab);
                     this.closePublish();
                 } else {
                     this.closePublish();
@@ -477,7 +481,8 @@ const mapState = state => {
         dataSync,
         taskCustomParams,
         user: state.user,
-        scriptTreeData: scriptTree
+        scriptTreeData: scriptTree,
+        editor: state.editor,
     };
 };
 
