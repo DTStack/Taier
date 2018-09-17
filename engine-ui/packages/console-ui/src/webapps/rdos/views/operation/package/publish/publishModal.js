@@ -122,7 +122,7 @@ class PublishModal extends React.Component {
             width:"80px",
             render(publishParamJson,record){
                 const showEnv= record.itemType==publishType.TASK&&record.data.taskType!= TASK_TYPE.SYNC
-                return showEnv?(publishParamJson&&publishParamJson.updateEnvParam?"同步":"不同步"):'-';
+                return showEnv?(publishParamJson&&publishParamJson.updateEnvParam?"更新":"不更新"):'-';
             }
         }, {
             title: "创建人",
