@@ -24,15 +24,10 @@ public class BrokerDataTreeMap<K, V> extends ConcurrentSkipListMap<K, V> {
         super();
     }
 
+
     private static Comparator<String> stringComparator = new Comparator<String>() {
-        @Override//1flink_dfefef_0
+        @Override
         public int compare(String o1, String o2) {
-            if (!TaskIdUtil.isMigrationJob(o1)) {
-                return -1;
-            }
-            if (!TaskIdUtil.isMigrationJob(o2)) {
-                return 1;
-            }
             if (o1.equals(o2)) {
                 return 0;
             }
