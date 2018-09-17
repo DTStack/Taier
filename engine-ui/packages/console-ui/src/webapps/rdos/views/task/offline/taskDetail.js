@@ -115,7 +115,7 @@ class TaskDetail extends React.Component {
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('修改成功！');
-                    this.props.reloadTabTask(taskId)
+                    this.props.reloadTaskTab(taskId)
                     this.setState({
                         visible: false,
                         selectedUser: '',

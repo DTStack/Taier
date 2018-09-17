@@ -2,20 +2,17 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Form,
-    Pagination, Modal, message,
-    Tag, Icon, Card, Select
+    Input, Button, Table, Form, 
+    Modal, message, Card, Select
 } from 'antd';
 
 import { Link } from 'react-router';
 
 import Editor from 'widgets/editor';
 import CopyIcon from "main/components/copy-icon";
-import {DDL_placeholder} from "../../../comm/DDLCommon"
+import { DDL_placeholder } from "../../../comm/DDLCommon"
 import SlidePane from 'widgets/slidePane';
 import TableLog from '../../dataManage/tableLog';
-
-
 
 import ajax from '../../../api/dataModel';
 
@@ -356,7 +353,9 @@ class TableList extends Component {
                             <Editor
                                 style={{ height: "400px" }}
                                 placeholder={DDL_placeholder}
+                                options={{readOnly:false}}
                                 language="dtsql"
+                                options={{ readOnly: false } }
                                 onChange={this.handleDdlChange.bind(this)}
                                 value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
                             />

@@ -49,7 +49,6 @@ const {
     mxGraphHandler,
     mxEventObject,
     mxConstraintHandler,
-    mxCompactTreeLayout,
     mxConnectionConstraint,
     mxHierarchicalLayout,
 } = Mx;
@@ -59,7 +58,6 @@ const VertexSize = { // vertex大小
     height: 40,
 }
 
-
 const BASE_COLOR = '#2491F7';
 const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const Option = Select.Option;
@@ -67,7 +65,7 @@ const Option = Select.Option;
 const applyCellStyle = (cellState, style) => {
     if (cellState) {
         cellState.style = Object.assign(cellState.style, style);
-        cellState.shape.apply(cellState)
+        cellState.shape.apply(cellState);
         cellState.shape.redraw();
     }
 }
@@ -99,16 +97,16 @@ class WorkflowEditor extends Component {
         const editor = this.Container;
         this._cacheCells = {};
         this._currentNewVertex = null;
-        this.initEditor()
-        this.loadEditor(editor)
-        this.hideMenu()
+        this.initEditor();
+        this.loadEditor(editor);
+        this.hideMenu();
         const workflowData = this.props.data.sqlText;
         const cells = workflowData ? JSON.parse(workflowData) : [];
         if (cells && cells.length > 0) {
             this.initGraphData(cells);
             this.listenGraphUpdate();
         } else {
-            this.setState({ showGuidePic: true, })
+            this.setState({ showGuidePic: true, });
         }
         console.log('WorkflowEditor init:', this.graph, this.props.data);
     }

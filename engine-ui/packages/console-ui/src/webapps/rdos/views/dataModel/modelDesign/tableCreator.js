@@ -1,10 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import assign from 'object-assign';
 
 import { 
-    Steps, Button, message,
-    Form, Row, Col, Icon
+    Steps, Button, message, Form, Icon
 } from 'antd';
 
 import api from '../../../api/dataManage';

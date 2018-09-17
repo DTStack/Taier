@@ -1,0 +1,232 @@
+$color1: #252525;
+$color2: #2D2D2D;
+$color3: #333333;
+$fontColor: #ADADAD;
+$borderColor: #1E1E1E;
+$fontColor1: #2491F7;
+
+.theme-dark {
+
+    background: $color1;
+    // ================ Redifine antd styles ================ //
+    .ant-steps {
+        .ant-steps-head,
+        .ant-steps-title,
+        .ant-steps-item.ant-steps-status-finish .ant-steps-title,
+        .ant-steps-item.ant-steps-status-wait .ant-steps-title {
+            background: $color1;
+            color: $fontColor;
+        }
+
+        .ant-steps-item.ant-steps-status-process .ant-steps-title {
+            color: $fontColor1;
+        }
+    }
+
+    .ant-modal
+    .ant-tabs-content,
+    .ant-layout-sider {
+        background: $color3;
+        border-color: $color3;
+    }
+
+    .ant-form {
+        .ant-form-item {
+            color: $fontColor;
+        }
+    }
+
+    .ant-tree .ant-tree-switcher,
+    .ant-tree li .ant-tree-node-content-wrapper {
+        color: $fontColor;
+
+        &:hover,
+        &.ant-tree-node-selected {
+            background-color: #9c27b0;
+        }
+    }
+
+    // ================ Custom page styles ================ //
+    .toolbar .ant-btn, 
+    .ant-tabs-bar .ant-tabs-tab,
+    .task-tab-menu > .ant-tabs-bar,
+    .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+        background: $color2;
+        color: $fontColor;
+        border-color: $color2;
+    }
+    
+    .task-tab-menu > .ant-tabs-bar {
+        .ant-tabs-tab:hover,
+        .ant-tabs-tab-active {
+            background: $color3;
+            border-color: $color3;
+        }
+    }
+
+
+    .Resizer {
+        background: $color3;
+        border-color: $color3;
+
+        .horizontal,
+        .horizontal:hover,
+        .vertical,
+        .vertical:hover {
+            border-color: $color3;
+        }
+    }
+
+    .ide-console {
+        background: $color3;
+        border-color: $color3;
+        color: $fontColor;
+
+        .ant-tabs-bar {
+            border-bottom: 0;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+        }
+
+        .CodeMirror {
+            background: $color1;
+            color: $fontColor;
+        }
+    }
+
+    .ide-editor .ide-header {
+        background: $color2;
+        border-bottom: 0;
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+    }
+
+    .task-editor {
+
+        .browser-content,
+        .task-browser .m-siderbench ,
+        .task-browser .editor-container {
+            background: $color1;
+            border-color: $color1;
+        }
+
+        .task-browser .task-params .ant-tabs-content {
+            background: $color2;
+            border: none;
+        }
+
+        .browser-content {
+
+            .browser-tabs {
+                .ant-tabs-bar .ant-tabs-tab {
+                    background: #252525;
+                    color: #ADADAD;
+                    border-top: 0;
+                    border-color: #2E2E2E;
+                }
+                .ant-tabs-bar .ant-tabs-tab-active {
+                    background: #2D2D2D;
+                    border-color: #1E1E1E;
+                }
+            }
+        }
+
+
+        .toolbar {
+            background: $color2;
+        }
+
+        .task-browser .task-params .ant-tabs-tab {
+            background: $color2;
+            border-color: $color1;
+        }
+
+        .task-browser .m-siderbench {
+            box-shadow: -2px 2px 4px 0 rgba(0,0,0,0.60);
+        }
+
+    }
+
+    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
+        background: rgba(255,255,255,0.30);
+    }
+
+    // Redifine Scrollbar styles
+    .sidebar {
+        border: 0;
+        .ant-tabs-content {
+     
+             border: none;
+     
+             &::-webkit-scrollbar-track {
+                 border: 1px solid #252525;
+                 background-color: #252525;
+             }
+     
+             &::-webkit-scrollbar {
+                 width: 12px;
+                 background-color: #252525;
+             }
+     
+             &::-webkit-scrollbar-thumb {
+                 background-color: #4d4d4d;
+             }
+         }
+    }
+
+    .m-siderbench {
+
+        .ant-form-item-label label, .ant-form-item-control {
+            color: $fontColor;
+        }
+
+        .ant-collapse {
+            background-color: $color2;
+            
+            .ant-collapse-content {
+                color: $fontColor;
+                border: 0;
+                background-color: $color1;
+            }
+
+            .ant-collapse-item {
+                border-color: $color3;
+            }
+
+            .ant-collapse-header {
+                color: $fontColor;
+                background-color: $color3;
+
+                .arrow {
+                    color: inherit;
+                }
+            }
+        }
+
+        .ant-tabs-bar {
+            background-color: $color1;
+            border-color: $color1;
+        }
+    }
+
+    .graph-widgets {
+        background: $color3;
+        color: $fontColor;
+        border: none;
+        box-shadow: 0 0 4px 0 rgba(0,0,0,0.50);
+
+        .widgets-header {
+            color: inherit;
+            background: inherit;
+            border-color: #4A4A4A;
+        }
+
+        .widgets-content {
+            .widgets-items {
+                background: inherit;
+                color: inherit;
+                border: 1px solid #4A4A4A;
+            }
+        }
+
+    }
+
+}

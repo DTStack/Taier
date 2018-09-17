@@ -40,8 +40,10 @@ class EditorContainer extends Component {
         tables: [],
         columns: {}
     }
+
     _tableColumns = {}
     _tableLoading = {}
+
     componentDidMount() {
 
         const currentNode = this.props.currentTabData;
@@ -51,6 +53,7 @@ class EditorContainer extends Component {
         this.initTableList();
         this.initFuncList();
     }
+
     initTableList(id) {
         id = id || this.props.project.id;
         if (!id) {
@@ -76,6 +79,7 @@ class EditorContainer extends Component {
                 }
             )
     }
+
     initFuncList() {
         API.getAllFunction()
             .then(
@@ -256,6 +260,7 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
+
     completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
         const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { tableCompleteItems, funcCompleteItems } = this.state;
@@ -356,6 +361,7 @@ class EditorContainer extends Component {
             )
         return this._tableLoading[tableName];
     }
+
     onSyntaxChange(autoComplete, syntax) {
         const locations = autoComplete.locations;
         let promiseList = [];
@@ -433,7 +439,7 @@ class EditorContainer extends Component {
                 customFunctions: funcList
             },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme || "white",
+            theme: editor.options.theme,
             onChange: this.debounceChange,
             onSyntaxChange: this.debounceSyntaxChange,
             sync: currentTabData.merged || undefined,
@@ -450,6 +456,7 @@ class EditorContainer extends Component {
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
             onFileEdit: commonFileEditDelegator(this._editor),
+            editorTheme: editor.options.theme,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
             },

@@ -95,16 +95,19 @@ class TaskIndex extends Component {
             currentPage.side = dimensionPanelColumn;
         }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
+    
         Api.saveTask(currentPage).then((res) => {
+
             const updatePageStatus = (pageData) => {
                 message.success('任务保存成功')
                 pageData.notSynced = false;// 添加已保存标记
                 dispatch(BrowserAction.setCurrentPage(pageData))
+                console.log('pageData:', pageData)
                 // 如果mr任务更新，则需要刷新左侧文件树
                 if (currentPage.taskType === TASK_TYPE.MR) {
                     dispatch(TreeAction.getRealtimeTree({
-                        id: pageData.parentId,
-                        catalogueType: MENU_TYPE.TASK
+                        id: pageData.nodePid,
+                        catalogueType: MENU_TYPE.TASK_DEV
                     }))
                 }
             }

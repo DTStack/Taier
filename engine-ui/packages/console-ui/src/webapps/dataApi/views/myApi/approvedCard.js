@@ -387,7 +387,7 @@ class ApprovedCard extends Component {
                     desc={applyRecord.apiDesc}
                     hideJump={true}
                 ></ApplyBox>
-                <div style={{ marginRight: "-20px", position: "relative" }}>
+                <div style={{ marginRight: "20px", position: "relative" }}>
                     <SlidePane
                         {...this.props}
                         isApproved={true}

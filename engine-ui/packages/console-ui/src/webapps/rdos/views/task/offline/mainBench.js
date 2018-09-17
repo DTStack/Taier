@@ -26,7 +26,11 @@ export default class MainBench extends React.Component {
     }
 
     unLock = () => {
-        const { tabData, updateTaskFields, updateCatalogue, loadTreeNode } = this.props;
+        const { 
+            tabData, updateTaskFields, updateCatalogue, 
+            loadTreeNode, reloadWorkflowTabNode, tabs,
+        } = this.props;
+
         const lockInfo = tabData.readWriteLockVO;
 
         // 解锁
@@ -65,7 +69,7 @@ export default class MainBench extends React.Component {
                     if (res.code === 1) {
                         const lockData = res.data;
                         if (lockData.getLock) { // 解锁成功，更改所状态
-                            message.success('文件解锁成功！')
+                            message.success('文件解锁成功！');
                         } else { // 解锁失败重新reload任务代码
                             Modal.error({
                                 title: '解锁失败',
@@ -78,12 +82,14 @@ export default class MainBench extends React.Component {
                             id: tabData.id,
                         }
                         if (params.type === LOCK_TYPE.OFFLINE_TASK) {
-                            // 如果是工作流解锁成功，则需要重新刷新工作流子节点
                             if (tabData.taskType === TASK_TYPE.WORKFLOW) {
+                                // 如果是工作流解锁成功，则需要重新刷新工作流子节点
                                 loadTreeNode(tabData.id,  MENU_TYPE.TASK_DEV, {
                                     taskType: TASK_TYPE.WORKFLOW,
                                     parentId: tabData.nodePid,
-                                })
+                                });
+                                // 重新加载Tab上所以相关的工作流子节点
+                                reloadWorkflowTabNode(tabData.id, tabs);
                             }
 
                             Api.getOfflineTaskDetail(reqParams).then(res => {
@@ -215,7 +221,6 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.WORKFLOW: {
                     const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
                     const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
-                    console.log('editorKey:', editorKey);
                     return <WorkFlowEditor 
                         data={tabData}
                         key={editorKey}

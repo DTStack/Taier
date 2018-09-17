@@ -37,8 +37,8 @@ export default class ImportSource extends Component {
 
     changeStartLine = (e) => {
         const { formState } = this.props
-        let value = e.target.value 
-        value = value > formState.originLineCount ? formState.originLineCount : value
+        let value = parseInt(e.target.value, 10);
+        value = value < 1 ? 1 : value;
         this.props.changeStatus({ startLine: value })
     }
 
@@ -89,9 +89,6 @@ export default class ImportSource extends Component {
         const { data, file, display, formState } = this.props
         const columns = this.generateCols(formState.asTitle, data[0]);
         const dataSource = formState.asTitle ? data.slice(1) : data;
-
-        console.log('data:', data)
-        console.log('dataSource:', dataSource)
 
         const { radio } = this.state
 
