@@ -266,9 +266,6 @@ class PackageCreate extends React.Component {
                     dataIndex: "deal",
                     width: "180px",
                     render: (n, record) => {
-                        if (record.isDeleted) {
-                            return null;
-                        }
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
