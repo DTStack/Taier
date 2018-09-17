@@ -1020,6 +1020,7 @@ class TaskSelector extends React.Component {
             }}
                 ref={el => this.$input = el}
                 className="ant-input"
+                placeholder="根据任务名称搜索"
             />
             {emptyError&&<span style={emptyErrorStyle}>没有符合条件的任务</span>}
             {list.length > 0 && <ul className="tasklist">
