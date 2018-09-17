@@ -58,7 +58,7 @@ class PackageCreate extends React.Component {
         listType: publishType.TASK,
         modifyUser: undefined,
         publishName: undefined,
-        modifyDate: undefined,
+        modifyDate: [moment().subtract(30, 'days'), new moment()],
         packageList: [],
         selectedRowKeys: [],
         selectedRows: [],
@@ -101,28 +101,28 @@ class PackageCreate extends React.Component {
         switch (listType) {
             case publishType.TASK: {
                 extParams["taskName"] = publishName;
-                extParams["modifyUserId"] = modifyUser;
+                extParams["taskModifyUserId"] = modifyUser;
                 extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
                 extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.FUNCTION: {
                 extParams["name"] = publishName;
-                extParams["modifyUserId"] = modifyUser;
+                extParams["functionModifyUserId"] = modifyUser;
                 extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
                 extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.RESOURCE: {
                 extParams["resourceName"] = publishName;
-                extParams["modifyUserId"] = modifyUser;
+                extParams["resourceModifyUserId"] = modifyUser;
                 extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
                 extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.TABLE: {
                 extParams["tableName"] = publishName;
-                extParams["modifyUserId"] = modifyUser;
+                extParams["tableModifyUserId"] = modifyUser;
                 extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
                 extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
@@ -202,8 +202,8 @@ class PackageCreate extends React.Component {
     initColumns() {
         const { listType } = this.state;
         const { taskTypes } = this.props;
-        const offlineTaskTypes=taskTypes.offline;
-        const offlineTaskTypesMap=new Map(offlineTaskTypes.map((item)=>{return [item.key,item.value]}));
+        const offlineTaskTypes = taskTypes.offline;
+        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
         const addButtonCreate = (record) => {
             return (this.isSelect(record) ?
                 <a onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
@@ -230,8 +230,16 @@ class PackageCreate extends React.Component {
                 return [{
                     title: "名称",
                     dataIndex: "taskName",
-                    render(text,record) {
-                        return `${text}(${offlineTaskTypesMap.get(record.taskType)})`
+                    render(text, record) {
+                        let extText = '';
+                        let extStyle = {};
+                        if (record.isDeleted) {
+                            extText = "[已删除]"
+                            extStyle["color"] = "#999"
+                        }
+                        return <span style={extStyle}>
+                            {`${extText}${text}(${offlineTaskTypesMap.get(record.taskType)})`}
+                        </span>
                     }
                 }, {
                     title: "负责人",
@@ -256,8 +264,11 @@ class PackageCreate extends React.Component {
                 }, {
                     title: "操作",
                     dataIndex: "deal",
-                    width: "200px",
+                    width: "180px",
                     render: (n, record) => {
+                        if (record.isDeleted) {
+                            return null;
+                        }
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
@@ -272,32 +283,35 @@ class PackageCreate extends React.Component {
                 return [{
                     title: "名称",
                     dataIndex: "resourceName",
-                    render(text,record) {
+                    render(text, record) {
                         return `${text}(${RESOURCE_TYPE_MAP[record.resourceType]})`
-                    }
+                    },
                 }, {
                     title: "创建人",
                     dataIndex: "createUser",
                     render(createUser) {
                         return createUser.userName
-                    }
+                    },
+                    width: "150px"
                 }, {
                     title: "修改人",
                     dataIndex: "modifyUser",
                     render(n, record) {
                         return record.createUser.userName
-                    }
+                    },
+                    width: "150px"
                 }, {
                     title: "修改时间",
                     dataIndex: "gmtModified",
                     sorter: true,
                     render(text) {
                         return utils.formatDateTime(text)
-                    }
+                    },
+                    width: "160px"
                 }, {
                     title: "操作",
                     dataIndex: "deal",
-                    width: "200px",
+                    width: "170px",
                     render: (n, record) => {
                         return <span>
                             {addButtonCreate(record)}
@@ -316,24 +330,27 @@ class PackageCreate extends React.Component {
                     dataIndex: "createUser",
                     render(createUser) {
                         return createUser.userName
-                    }
+                    },
+                    width: "150px"
                 }, {
                     title: "修改人",
                     dataIndex: "modifyUser",
                     render(modifyUser) {
                         return modifyUser.userName
-                    }
+                    },
+                    width: "150px"
                 }, {
                     title: "修改时间",
                     dataIndex: "gmtModified",
                     sorter: true,
                     render(text) {
                         return utils.formatDateTime(text)
-                    }
+                    },
+                    width: "160px"
                 }, {
                     title: "操作",
                     dataIndex: "deal",
-                    width: "200px",
+                    width: "170px",
                     render: (n, record) => {
                         return <span>
                             {addButtonCreate(record)}
@@ -346,24 +363,28 @@ class PackageCreate extends React.Component {
             case publishType.TABLE: {
                 return [{
                     title: "名称",
-                    dataIndex: "tableName"
+                    dataIndex: "tableName",
+
                 }, {
                     title: "负责人",
-                    dataIndex: "chargeUser"
+                    dataIndex: "chargeUser",
+                    width: "150px",
                 }, {
                     title: "修改人",
-                    dataIndex: "modifyUser"
+                    dataIndex: "modifyUser",
+                    width: "150px",
                 }, {
                     title: "修改时间",
                     dataIndex: "modifyTime",
                     sorter: true,
                     render(text) {
                         return utils.formatDateTime(text)
-                    }
+                    },
+                    width: "160px",
                 }, {
                     title: "操作",
                     dataIndex: "deal",
-                    width: "200px",
+                    width: "170px",
                     render: (n, record) => {
                         return <span>
                             {addButtonCreate(record)}
@@ -427,13 +448,15 @@ class PackageCreate extends React.Component {
                 baseItem.createUser = row.createUser;
                 baseItem.modifyUser = row.modifyUser;
                 baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.taskType;
                 break;
             }
             case publishType.RESOURCE: {
                 baseItem.itemName = row.resourceName;
                 baseItem.createUser = row.createUser.userName;
-                baseItem.modifyUser = row.modifyUser;
+                baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.resourceType;
                 break;
             }
             case publishType.FUNCTION: {
@@ -441,6 +464,7 @@ class PackageCreate extends React.Component {
                 baseItem.createUser = row.createUser.userName;
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.type;
                 break;
             }
             case publishType.TABLE: {
@@ -549,8 +573,8 @@ class PackageCreate extends React.Component {
         const { selectedRows, listType, pagination } = this.state;
         const { current, pageSize } = pagination;
         const { taskTypes } = this.props;
-        const offlineTaskTypes=taskTypes.offline;
-        const offlineTaskTypesMap=new Map(offlineTaskTypes.map((item)=>{return [item.key,item.value]}));
+        const offlineTaskTypes = taskTypes.offline;
+        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
         return selectedRows.filter(
             (item, index) => {
                 return (index + 1) <= pageSize * current && (index + 1) > pageSize * (current - 1);
@@ -566,7 +590,7 @@ class PackageCreate extends React.Component {
                     case publishType.TASK: {
                         nameText = "任务"
                         haveChangeMan = true;
-                        userName = row.chargeUser;
+                        userName = row.modifyUser;
                         extMsg = `(${offlineTaskTypesMap.get(row.data.taskType)})`
                         break;
                     }
@@ -580,14 +604,14 @@ class PackageCreate extends React.Component {
                     case publishType.RESOURCE: {
                         nameText = "资源"
                         haveChangeMan = true;
-                        userName = row.createUser;
+                        userName = row.modifyUser;
                         extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
                         break;
                     }
                     case publishType.TABLE: {
                         nameText = "建表"
                         haveChangeMan = false;
-                        userName = row.chargeUser;
+                        userName = row.modifyUser;
                         break;
                     }
                 }

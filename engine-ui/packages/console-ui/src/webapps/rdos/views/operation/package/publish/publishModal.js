@@ -1,11 +1,14 @@
 import React from "react";
 import {  Tabs, Modal,  Form, Input, Table, Button, message } from "antd";
 import {connect} from "react-redux";
+import { bindActionCreators } from 'redux'
 
 import utils from "utils";
 import { formItemLayout } from "../../../../../console/consts";
 import Api from "../../../../api"
 import { publishType, TASK_TYPE } from "../../../../comm/const";
+import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
+import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -13,8 +16,17 @@ const TextArea = Input.TextArea;
 
 @connect(state=>{
     return {
-        project:state.project
+        project:state.project,
+        taskTypes: {
+            realtime: state.realtimeTask.comm.taskTypes,
+            offline: state.offlineTask.comm.taskTypes
+        }
     }
+},dispatch => {
+    return bindActionCreators({
+        getTaskTypes,
+        realtimeGetTaskTypes
+    }, dispatch);
 })
 class PublishModal extends React.Component {
 
@@ -24,6 +36,10 @@ class PublishModal extends React.Component {
             pageSize: 5,
             total: 0
         }
+    }
+    componentDidMount(){
+        this.props.getTaskTypes();
+        this.props.realtimeGetTaskTypes();
     }
     getPackageName() {
         const { mode, form, isPublish } = this.props;
@@ -64,11 +80,22 @@ class PublishModal extends React.Component {
         })
     }
     initColumns() {
-        const { isPublish } = this.props;
+        const { isPublish, taskTypes } = this.props;
+        const offlineTaskTypes = taskTypes.offline;
+        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
         let columns = [{
             title: "对象名称",
             dataIndex: "itemName",
-            width:"150px"
+            width:"150px",
+            render(text, record) {
+                let extText = '';
+                if (record.itemType==publishType.TASK) {
+                    extText = ` (${offlineTaskTypesMap.get(record.itemInnerType)})`;
+                }
+                return <span >
+                    {`${text}${extText}`}
+                </span>
+            }
         }, {
             title: "类型",
             dataIndex: "itemType",

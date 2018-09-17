@@ -141,12 +141,12 @@ class AddLinkModal extends React.Component {
     renderList(key) {
         const { dataList, selectList } = this.state;
         const { selectedRows } = this.props;
-
+        const selectCount=this.getCount(key);
         if (!dataList[key].length) {
             return <p style={{ textAlign: "center", color: "#999" }}>无</p>;
         }
-        const allChecked = selectList[key].length == dataList[key].length;
-        const haveChecked = selectList[key].length ? true : false;
+        const allChecked = selectCount == dataList[key].length;
+        const haveChecked = selectCount>0 ? true : false;
         return (
             <Row>
                 <Col style={{ marginBottom: "13px" }} span={12}>
@@ -200,6 +200,11 @@ class AddLinkModal extends React.Component {
         )
 
     }
+    /**
+     * 根据类型获取已选择的类型数量
+     * @param {publishType} type 
+     * 
+     */
     getCount(type) {
         const { tabKey, dataList, selectList, checkTask } = this.state;
         const list = dataList[type];
