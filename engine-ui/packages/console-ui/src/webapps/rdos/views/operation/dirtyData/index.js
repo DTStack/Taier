@@ -292,29 +292,33 @@ class DirtyData extends Component {
         const columns = [
             {
                 title: "任务名称",
-                width: 120,
+                width: 100,
                 dataIndex: "taskName",
                 key: "taskName"
             },
             {
                 title: "脏数据表",
                 dataIndex: "tableName",
-                key: "tableName"
+                key: "tableName",
+                width:100
             },
             {
                 title: "累计产生（条）",
                 dataIndex: "totalNum",
-                key: "totalNum"
+                key: "totalNum",
+                width:"100px"
             },
             {
                 title: "单次执行产生最多(条)",
                 dataIndex: "maxNum",
-                key: "maxNum"
+                key: "maxNum",
+                width:"100px"
             },
             {
                 title: "最近1次执行产生(条)",
                 dataIndex: "recentNum",
-                key: "recentNum"
+                key: "recentNum",
+                width:"100px"
             }
         ];
 

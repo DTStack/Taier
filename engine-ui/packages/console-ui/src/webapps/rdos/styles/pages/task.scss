@@ -6,7 +6,7 @@
     }
 
     .operation-card {
-        width: 180px;
+        width: 210px;
         margin: 0 10px;
         display: inline-block;
         p {
@@ -15,9 +15,8 @@
     }
 
     .operation-content {
-        height: 110px;
+        height: 165px;
         background: #ffffff;
-        line-height: 110px;
         vertical-align: middle;
         text-align: center;
         border: 1px solid #e9e9e9;
@@ -26,7 +25,14 @@
         color: #808080;
         cursor: pointer;
         .anticon {
-            margin-top: 25px;
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+        }
+        .operation-title{
+            line-height: 20px;
+            font-size: 14px;
+            color: #333;
         }
     }
 

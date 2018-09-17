@@ -18,6 +18,7 @@ import Api from '../../../api'
 import {
     offlineTaskStatusFilter,
     offlineTaskPeriodFilter,
+    PROJECT_TYPE,
     TASK_STATUS,
 } from '../../../comm/const'
 
@@ -395,6 +396,7 @@ class OfflineTaskList extends Component {
             render: (text) => {
                 return <OfflineTaskStatus value={text} />
             },
+            width: "70px",
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
             filteredValue: taskStatus
@@ -405,6 +407,7 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
+            width: "90px",
             filters: taskTypeFilter,
         }, {
             title: '调度周期',
@@ -413,12 +416,14 @@ class OfflineTaskList extends Component {
             render: (text) => {
                 return <TaskTimeType value={text} />
             },
+            width: "90px",
             filters: offlineTaskPeriodFilter,
         }, {
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate',
             sorter: true,
+            width: "90px",
         }, {
             title: '计划时间',
             dataIndex: 'cycTime',
@@ -439,6 +444,7 @@ class OfflineTaskList extends Component {
             dataIndex: 'execTime',
             key: 'execTime',
             sorter: true,
+            width: "90px",
         }, {
             title: '责任人',
             dataIndex: 'createUser',
@@ -494,7 +500,7 @@ class OfflineTaskList extends Component {
                     {item.user.userName}
                 </Option>)
             }) : []
-
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
@@ -655,6 +661,7 @@ class OfflineTaskList extends Component {
                             style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <TaskFlowView
+                                isPro={isPro}
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev}
                                 reload={this.search}

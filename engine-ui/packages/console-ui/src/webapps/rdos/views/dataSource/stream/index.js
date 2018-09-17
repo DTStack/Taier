@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip
- } from 'antd';
+} from 'antd';
 
 import utils from 'utils';
 
@@ -11,8 +11,10 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from '../form';
 import DataSourceTaskListModal from "../dataSourceTaskListModal"
+import LinkModal from "../linkModal"
 import { StreamDataSourceTypeFilter } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
+import {ExtTableCell} from "../extDataSourceMsg"
 
 const Search = Input.Search
 
@@ -65,7 +67,7 @@ class DataSourceManaStream extends Component {
         })
     }
 
-    addOrUpdateDataSource = (sourceFormData, formObj,callBack) => {
+    addOrUpdateDataSource = (sourceFormData, formObj, callBack) => {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
@@ -104,7 +106,7 @@ class DataSourceManaStream extends Component {
         Api.streamTestDataSourceConnection(source).then((res) => {
             if (res.code === 1 && res.data) {
                 message.success('数据源连接正常！')
-            }else if(res.code===1&& !res.data){
+            } else if (res.code === 1 && !res.data) {
                 message.error('数据源连接异常')
             }
         })
@@ -135,68 +137,79 @@ class DataSourceManaStream extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '15%',
+            width: '120px',
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
-            width: '10%',
+            width: '100px',
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
             filters: StreamDataSourceTypeFilter,
             filterMultiple: false,
-        }, 
+        },
         {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '20%',
-        }, {
-            title: '最近修改人',
-            dataIndex: 'modifyUserId',
-            key: 'modifyUserId',
-            width: '12%',
-            render: (text, record) => {
-                return record.modifyUser ? record.modifyUser.userName : ''
-            }
-        }, {
-            title: '最近修改时间',
-            dataIndex: 'gmtModified',
-            key: 'gmtModified',
-            width: '12%',
-            render: text => utils.formatDateTime(text),
-        }, {
+            width: '150px',
+        }, 
+        {
+            title: '连接信息',
+            dataIndex: 'ext',
+            key: 'ext',
+            width: '240px',
+            render: (empty, record) => {
+                return <ExtTableCell sourceData={record} />
+            },
+        },
+        // {
+        //     title: '最近修改人',
+        //     dataIndex: 'modifyUserId',
+        //     key: 'modifyUserId',
+        //     width: '120px',
+        //     render: (text, record) => {
+        //         return record.modifyUser ? record.modifyUser.userName : ''
+        //     }
+        // }, {
+        //     title: '最近修改时间',
+        //     dataIndex: 'gmtModified',
+        //     key: 'gmtModified',
+        //     width: '120px',
+        //     render: text => utils.formatDateTime(text),
+        // }, 
+        {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
-            width: '10%',
-            render: (active,record) => {
+            width: '70px',
+            render: (active, record) => {
                 return active === 1 ? <DataSourceTaskListModal type="stream" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
-        }, 
+        },
         {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-                        <span>连接状态 &nbsp;
+                <span>连接状态 &nbsp;
                             <Icon type="question-circle-o" />
-                        </span>
-                    </Tooltip>,
+                </span>
+            </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
-            width: '10%',
+            width: '100px',
             render: (text, record) => {
-                return record.linkState === 1 ? 
-                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+                return record.linkState === 1 ?
+                    <span><Circle style={{ background: '#00A755' }} /> 正常</span> :
+                    <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
             },
-        }, 
+        },
         {
             title: <div className="txt-right m-r-8">操作</div>,
-            width: '80px',
+            width: '180px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
+                // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
                         {/* {
@@ -213,26 +226,15 @@ class DataSourceManaStream extends Component {
                                 <span className="ant-divider" />
                             </span>
                         } */}
-                        <a onClick={() => {this.initEdit(record)}}>
+                        <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
                         <span className="ant-divider" />
-                        { 
+                        {
                             record.active === 1 ?
-                                <Popconfirm
-                                    title="此数据源已在任务中被引用，无法删除!"
-                                    okText="确定" cancelText="取消"
-                                    //onConfirm={() => { this.remove(record) }}
-                                >
-                                    <span style={{color: "#ccc",paddingRight:8}}>删除</span>
-                                </Popconfirm> :
-                                <Popconfirm
-                                    title="确定删除此数据源？"
-                                    okText="确定" cancelText="取消"
-                                    onConfirm={() => { this.remove(record) }}
-                                >
-                                    <a style={{paddingRight:8}}>删除</a>
-                                </Popconfirm>
+                                <span style={{ color: "#ccc" }}>删除</span>
+                                :
+                                <a  onClick={() => { this.remove(record) }}>删除</a>
                         }
                     </span>
                 )
@@ -255,7 +257,7 @@ class DataSourceManaStream extends Component {
     }
 
     render() {
-        const { visible, syncModalVisible, source, dataSource } = this.state
+        const { visible, syncModalVisible, source, dataSource, linkModalVisible } = this.state
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
@@ -264,7 +266,7 @@ class DataSourceManaStream extends Component {
             <div>
                 <Search
                     placeholder="数据源名称"
-                    style={{ width: 200,padding: 0 }}
+                    style={{ width: 200, padding: 0 }}
                     onSearch={this.searchDataSources}
                 />&nbsp;&nbsp;
             </div>
@@ -276,7 +278,7 @@ class DataSourceManaStream extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, 
+                        visible: true,
                         source: {},
                         status: 'add',
                         title: '添加数据源',
@@ -285,19 +287,19 @@ class DataSourceManaStream extends Component {
             >新增数据源</Button>
         )
         const sourceTypes = [
-            {name: "MySQL", value: 1},
-            {name: "HBase", value: 8},
-            {name: "ElasticSearch", value: 11},
-            {name: "Kafka", value: 14}
+            { name: "MySQL", value: 1 },
+            { name: "HBase", value: 8 },
+            { name: "ElasticSearch", value: 11 },
+            { name: "Kafka", value: 14 }
         ];
-        console.log('dataSource.data',dataSource.data);
+        console.log('dataSource.data', dataSource.data);
         return (
             <div>
                 <div className="shadow rdos-data-source">
-                    <Card 
-                        title={title} 
-                        extra={extra} 
-                        noHovering 
+                    <Card
+                        title={title}
+                        extra={extra}
+                        noHovering
                         bordered={false}
                     >
                         <Table
@@ -312,16 +314,23 @@ class DataSourceManaStream extends Component {
                         />
                     </Card>
                 </div>
-                
+
                 <DataSourceForm
                     title={this.state.title}
                     visible={this.state.visible}
                     status={this.state.status}
                     handOk={this.addOrUpdateDataSource}
                     testConnection={this.testConnection}
-                    sourceData={this.state.source}
+                    sourceData={source}
                     sourceTypes={sourceTypes}
                     handCancel={() => { this.setState({ visible: false }) }}
+                />
+                <LinkModal 
+                    sourceData={source}
+                    visible={linkModalVisible}
+                    type="offline"
+                    onCancel={()=>{this.setState({linkModalVisible:false})}}
+                    onOk={()=>{this.loadDataSources();this.setState({linkModalVisible:false})}}
                 />
             </div>
         )

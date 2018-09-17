@@ -17,12 +17,15 @@ import {
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
+import { PROJECT_TYPE } from '../../../comm/const';
 import SchedulingConfig from './schedulingConfig';
 
 const Panel = Collapse.Panel;
 
 function TaskInfo(props) {
     const taskInfo = props.taskInfo
+    const isPro=props.isPro;
+    const couldEdit=props.couldEdit;
     const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
@@ -53,7 +56,7 @@ function TaskInfo(props) {
                     <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
-                    } <a onClick={props.modifyTaskOwner}>修改</a>
+                    }{couldEdit&&<a onClick={props.modifyTaskOwner}>修改</a>} 
                 </Col>
             </Row>
             <Row>
@@ -130,14 +133,16 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode, tabs } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, project, tabs } = this.props;
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
-
+        const pre=isPro?'发布':'提交'
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
+                        isPro={isPro}
                         taskInfo={tabData} 
                         labelPrefix={labelPrefix}
                         modifyTaskOwner={() => {this.setState({visible: true})}}
@@ -162,8 +167,9 @@ class TaskDetail extends React.Component {
                 </SchedulingConfig> : ''
             }
             <Collapse bordered={false} defaultActiveKey={['3']}>
-                <Panel key="3" header="历史发布版本">
+                <Panel key="3" header={`历史${pre}版本`}>
                     <TaskVersion
+                        isPro={isPro}
                         taskInfo={tabData}
                         changeSql={this.setSqlText}
                     />
@@ -177,6 +183,7 @@ export default connect((state, ownProps) => {
     const { workbench } = state.offlineTask;
     return {
         projectUsers: state.projectUsers,
+        project:state.project,
         tabs: workbench.tabs,
     };
 

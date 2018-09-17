@@ -65,7 +65,6 @@ export const getNodeLevelAndCount = (node) => {
         let max = 0;
 
         const children = node.subTaskVOS;
-
         if (children && children.length > 0) {
             for (let j = 0; j < children.length; j++) {
                 const l = getMaxLevel(children[j]);

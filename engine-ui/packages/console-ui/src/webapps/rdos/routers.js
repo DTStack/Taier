@@ -114,6 +114,10 @@ const DataModelContainer = asyncComponent(() => import('./views/dataModel/index'
 const Test = asyncComponent(() => import('./views/test')
 .then(module => module.default), { name: 'testPage' })
 
+// ======= 发布 =======
+const PackageContainer = asyncComponent(() => import('./views/operation/package/container')
+.then(module => module.default), { name: 'packageContainer' })
+
 export default (
     <Route path="/" component={Main}>
         <IndexRoute component={Container} />
@@ -149,6 +153,7 @@ export default (
                 <Route path="task" component={TaskOffline} />
             </Route>
             <Route path="/view/task/:taskId" component={OpenOfflineTask} />
+            <Route path="/package/:type" component={PackageContainer} onEnter={isSelectedProject} />
             <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
                 <IndexRoute component={OperationOverview} />
                 <Route path="realtime" component={OpeRealTimeList} />

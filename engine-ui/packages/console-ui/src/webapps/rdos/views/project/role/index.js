@@ -61,6 +61,7 @@ class RoleManagement extends Component {
             title: '角色',
             dataIndex: 'roleName',
             key: 'roleName',
+            width:"120px"
         }, {
             title: '描述',
             dataIndex: 'roleDesc',
@@ -70,6 +71,7 @@ class RoleManagement extends Component {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
+            width:"140px"
         }, 
         {
             title: '操作',

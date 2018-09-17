@@ -65,17 +65,18 @@ export default class TaskQuery extends Component {
         const { visibleList } = this.state;
         let title = '';
         let icon = 'close-circle-o';
+        let preStyle={whiteSpace:"pre-wrap",wordBreak:"break-all"}
         if (status === TASK_STATUS.FAIL) {
             title = <a
                 className="tooltip_content_a"
                 onClick={this.showDetailLogInfo.bind(this, record.id, record.tableName, record.logInfo)}>
-                {record.logInfo || '空'}
+                <pre style={preStyle}>{record.logInfo || '空'}</pre>
             </a>;
         } else if (status === TASK_STATUS.UNPASS) {
             title = <span
                 className="tooltip_content_a"
             >
-                {record.logInfo || '空'}&nbsp;
+                <pre style={preStyle}>{record.logInfo|| '空'}</pre>&nbsp;
                 <a onClick={this.openSlidePane.bind(this, record)}>查看详情</a>
             </span>
             icon = 'exclamation-circle-o';

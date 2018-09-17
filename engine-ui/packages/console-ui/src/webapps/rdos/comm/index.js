@@ -3,7 +3,7 @@ import { debounce } from 'lodash';
 
 import { 
     TASK_TYPE, TASK_STATUS, RESOURCE_TYPE, RDB_TYPE_ARRAY,
-    LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE, DATA_SOURCE
+    LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE, DATA_SOURCE, PROJECT_TYPE
 } from './const'
 
 
@@ -268,4 +268,20 @@ export function isHdfsType(type) {
  */
 export function isRDB(type) {
     return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
+}
+
+export function isProjectCouldEdit(project,user){
+    const {adminUsers,projectType} = project;
+    const isPro=projectType==PROJECT_TYPE.PRO;
+    if(!isPro){
+        return true;
+    }
+    const {id} =  user;
+    for(let i=0;i<adminUsers.length;i++){
+        const adminUser=adminUsers[i];
+        if(adminUser.id==id){
+            return true;
+        }
+    }
+    return false;
 }

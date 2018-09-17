@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { 
+import {
     Tree, TreeSelect,
-    Modal, Badge ,Tooltip
+    Modal, Badge, Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -36,7 +36,7 @@ class FolderTree extends React.Component {
         const { data } = treeNode.props;
         return new Promise((resolve) => {
             const cataType = type || data.catalogueType
-            if(ispicker&&data.children&&data.children.length>0){
+            if (ispicker && data.children && data.children.length > 0) {
                 resolve();
                 return;
             }
@@ -50,41 +50,41 @@ class FolderTree extends React.Component {
 
     handleSelect(selectedKeys, e) {
         const { isLeaf, value, treeType, data, eventKey } = e.node.props;
-        let { openTab, tabs, currentTab,expandedKeys,onExpand,type } = this.props;
+        let { openTab, tabs, currentTab, expandedKeys, onExpand, type } = this.props;
         const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
-        if(!isLeaf && !isWorkflow){
+        if (!isLeaf && !isWorkflow) {
             const eventKeyIndex = expandedKeys.indexOf(eventKey);
-            if(eventKeyIndex > -1){
-                this.onLoadData(type,e.node)
-                expandedKeys.splice(eventKeyIndex,1);
-                onExpand(expandedKeys,{expanded:false})
-            }else{
-                this.onLoadData(type,e.node)
+            if (eventKeyIndex > -1) {
+                this.onLoadData(type, e.node)
+                expandedKeys.splice(eventKeyIndex, 1);
+                onExpand(expandedKeys, { expanded: false })
+            } else {
+                this.onLoadData(type, e.node)
                 expandedKeys.push(eventKey)
-                onExpand(expandedKeys,{expanded:true})
+                onExpand(expandedKeys, { expanded: true })
             }
-        }else{
-            switch(treeType) {
+        } else {
+            switch (treeType) {
                 case MENU_TYPE.SCRIPT:
                 case MENU_TYPE.TASK_DEV: {
-                    openTab({ 
-                        id: value, tabs, currentTab, treeType, 
-                        lockInfo: data.readWriteLockVO 
+                    openTab({
+                        id: value, tabs, currentTab, treeType,
+                        lockInfo: data.readWriteLockVO
                     });
                     break;
                 }
-    
+
                 case MENU_TYPE.RESOURCE: {
                     this.handleResNodeSelected(value);
                     break;
                 }
-    
+
                 case MENU_TYPE.SYSFUC:
                 case MENU_TYPE.COSTOMFUC: {
                     this.handleFnNodeSelected(value);
                     break;
                 }
-    
+
                 default: break;
             }
         }
@@ -109,7 +109,7 @@ class FolderTree extends React.Component {
         let arr = [];
         let operations;
 
-        switch(treeType) {
+        switch (treeType) {
             case MENU_TYPE.TASK:
             case MENU_TYPE.TASK_DEV: {
 
@@ -118,11 +118,11 @@ class FolderTree extends React.Component {
 
                 if (isWorkflowNode) return [];
 
-                if(type === 'file' || isWorkflow) {
+                if (type === 'file' || isWorkflow) {
                     operations = arr.concat([{
                         txt: '编辑',
                         cb: this.editTask.bind(this, data)
-                    },{
+                    }, {
                         txt: '删除',
                         cb: this.deleteTask.bind(this, data)
                     }])
@@ -131,7 +131,7 @@ class FolderTree extends React.Component {
                     operations = arr.concat([{
                         txt: '新建任务',
                         cb: this.createTask.bind(this, data)
-                    },{
+                    }, {
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
                     }])
@@ -139,22 +139,22 @@ class FolderTree extends React.Component {
                         operations = operations.concat([{
                             txt: '编辑',
                             cb: this.editFolder.bind(this, data, treeType)
-                        },{
+                        }, {
                             txt: '删除',
                             cb: this.deleteFolder.bind(this, data, treeType)
                         }])
                     }
                 }
-            break;
+                break;
             }
 
             case MENU_TYPE.FUNCTION:
             case MENU_TYPE.COSTOMFUC:
-                if(type === 'file') {
+                if (type === 'file') {
                     operations = arr.concat([{
                         txt: '移动',
                         cb: this.moveFn.bind(this, data)
-                    },{
+                    }, {
                         txt: '删除',
                         cb: this.deleteFn.bind(this, data)
                     }])
@@ -163,7 +163,7 @@ class FolderTree extends React.Component {
                     operations = arr.concat([{
                         txt: '新建函数',
                         cb: this.createFn.bind(this, data)
-                    },{
+                    }, {
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
                     }])
@@ -172,7 +172,7 @@ class FolderTree extends React.Component {
                         operations = operations.concat([{
                             txt: '编辑',
                             cb: this.editFolder.bind(this, data, treeType)
-                        },{
+                        }, {
                             txt: '删除',
                             cb: this.deleteFolder.bind(this, data, treeType)
                         }])
@@ -180,22 +180,22 @@ class FolderTree extends React.Component {
                 }
                 break;
             case MENU_TYPE.RESOURCE:
-                if(type === 'file') {
+                if (type === 'file') {
                     operations = arr.concat([
-                    {
-                        txt: '替换',
-                        cb: this.coverResFile.bind(this, data)
-                    },
-                    {
-                        txt: '删除',
-                        cb: this.deleteResource.bind(this, data)
-                    }])
+                        {
+                            txt: '替换',
+                            cb: this.coverResFile.bind(this, data)
+                        },
+                        {
+                            txt: '删除',
+                            cb: this.deleteResource.bind(this, data)
+                        }])
                 }
                 else {
                     operations = arr.concat([{
                         txt: '上传资源',
                         cb: this.createResource.bind(this, data)
-                    },{
+                    }, {
                         txt: '新建文件夹',
                         cb: this.createFolder.bind(this, data, treeType)
                     }])
@@ -243,13 +243,13 @@ class FolderTree extends React.Component {
                         }])
                     }
                 }
-            break;
+                break;
         }
 
         return operations;
     }
 
-    moveFn(data) { 
+    moveFn(data) {
         this.props.toggleMoveFn(data);
     }
 
@@ -263,7 +263,7 @@ class FolderTree extends React.Component {
                     functionId: data.id
                 }, data.parentId);
             },
-            onCancel() {}
+            onCancel() { }
         });
     }
 
@@ -289,7 +289,7 @@ class FolderTree extends React.Component {
                     resourceId: data.id
                 }, data.parentId);
             },
-            onCancel() {}
+            onCancel() { }
         });
     }
 
@@ -305,12 +305,12 @@ class FolderTree extends React.Component {
             id: data.id,
             lockVersion: data.readWriteLockVO.version
         })
-        .then(res => {
-            if(res.code === 1) {
-                this.props.setModalDefault(res.data);
-                this.props.toggleCreateTask();
-            }
-        })
+            .then(res => {
+                if (res.code === 1) {
+                    this.props.setModalDefault(res.data);
+                    this.props.toggleCreateTask();
+                }
+            })
     }
 
     deleteTask(data) {
@@ -323,7 +323,7 @@ class FolderTree extends React.Component {
                     taskId: data.id
                 }, data.parentId);
             },
-            onCancel() {}
+            onCancel() { }
         });
     }
 
@@ -362,7 +362,7 @@ class FolderTree extends React.Component {
                     id: data.id
                 }, data.parentId, type);
             },
-            onCancel() {}
+            onCancel() { }
         });
     }
 
@@ -370,12 +370,12 @@ class FolderTree extends React.Component {
         ajax.getScriptById({
             id: data.id
         })
-        .then(res => {
-            if (res.code === 1) {
-                this.props.setModalDefault(res.data);
-                this.props.toggleCreateScript();
-            }
-        })
+            .then(res => {
+                if (res.code === 1) {
+                    this.props.setModalDefault(res.data);
+                    this.props.toggleCreateScript();
+                }
+            })
     }
 
     createScript(data) {
@@ -401,7 +401,7 @@ class FolderTree extends React.Component {
 
     renderStatusBadge = (menuType, file) => {
         if (
-            (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT) 
+            (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT)
             && file.type === 'file' && file.taskType !== TASK_TYPE.WORKFLOW
         ) {
             let status = 'success'
@@ -418,7 +418,7 @@ class FolderTree extends React.Component {
 
     renderFileInfo = (menuType, file) => {
         if (
-            (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT) 
+            (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT)
             && file.type === 'file'
         ) {
             const lockInfo = file.readWriteLockVO;
@@ -427,26 +427,26 @@ class FolderTree extends React.Component {
         return file.createUser;
     }
 
-    onRightClick = (e)=>{
+    onRightClick = (e) => {
         console.log(e);
-        
+
     }
 
     genetateTreeNode() {
 
-        const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
+        const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
         const treeType = type;
-        console.log('genetateTreeNode',this.props);
-        
+        console.log('genetateTreeNode', this.props);
+
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
-            
+
             // 过滤不匹配资源类型，
-            if (isFilepicker && type === 'file' && acceptRes !== undefined ) {
+            if (isFilepicker && type === 'file' && acceptRes !== undefined) {
                 if (acceptRes !== resourceType) return null;
             }
             // 目录选择过滤掉具体文件
-            if (ispicker && !isFilepicker && data.children !== null) {
+            if (ispicker && !isFilepicker && data.children) {
                 // potential mutate store directly
                 data.children = data.children.filter(o => {
                     return o.type === 'folder';
@@ -454,7 +454,7 @@ class FolderTree extends React.Component {
             }
 
             let claName = type === 'file' ? 'file-item' : 'folder-item';
- 
+
             return <TreeNode
                 title={
                     ispicker?
@@ -481,16 +481,16 @@ class FolderTree extends React.Component {
                         </span>
                     </CtxMenu>
                 }
-                value={ id }
+                value={id}
                 name={name}
                 disabled={id === '0'}
                 data={data}
                 treeType={treeType}
-                className={taskTypeIcon(taskType, data)||resourceTypeIcon(resourceType)}
+                className={taskTypeIcon(taskType, data) || resourceTypeIcon(resourceType)}
                 isLeaf={type === 'file'}
                 key={`${treeType}-${id}`}
             >
-                { data.children && data.children.map(o => loop(o)) }
+                {data.children && data.children.map(o => loop(o))}
             </TreeNode>
         };
         const clone = cloneDeep(treeData);
@@ -499,44 +499,46 @@ class FolderTree extends React.Component {
     }
 
     render() {
-        const { 
+        const {
             type, placeholder, currentTab,
-            onExpand, expandedKeys, onChange
+            onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
-        console.log('expandedKeys',expandedKeys);
+        
+        console.log('expandedKeys', expandedKeys);
         return (
             <div>
                 {this.props.ispicker ?
-                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
-                    <TreeSelect
-                        size="large"
-                        key={type}
-                        dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
-                        showSearch={ !this.props.isFilepicker }
-                        showIcon={ true }
-                        loadData={ this.onLoadData.bind(this, type) }
-                        onChange={ onChange }
-                        defaultValue={ this.props.defaultNode }
-                        getPopupContainer={() => this.selEle }
+                    <div ref={(ins) => this.selEle = ins} className='org-tree-select-wrap'>
+                        <TreeSelect
+                            disabled={typeof couldEdit=="boolean"&&!couldEdit}
+                            size="large"
+                            key={type}
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
+                            showSearch={!this.props.isFilepicker}
+                            showIcon={true}
+                            loadData={this.onLoadData.bind(this, type)}
+                            onChange={onChange}
+                            defaultValue={this.props.defaultNode}
+                            getPopupContainer={() => this.selEle}
+                            placeholder={placeholder}
+                            treeNodeFilterProp="name"
+                        >
+                            {this.genetateTreeNode()}
+                        </TreeSelect>
+                    </div> :
+                    <Tree
+                        onRightClick={this.onRightClick}
+                        showIcon={true}
                         placeholder={placeholder}
-                        treeNodeFilterProp="name"
+                        selectedKeys={[`${type}-${currentTab}`]}
+                        loadData={this.onLoadData.bind(this, type)}
+                        expandedKeys={expandedKeys}
+                        onExpand={onExpand}
+                        autoExpandParent={false}
+                        onSelect={this.handleSelect.bind(this)}
                     >
-                        { this.genetateTreeNode() }
-                    </TreeSelect>
-                </div> :
-                <Tree 
-                    onRightClick = {this.onRightClick}
-                    showIcon={ true }
-                    placeholder={placeholder}
-                    selectedKeys={[`${type}-${currentTab}`]}
-                    loadData={ this.onLoadData.bind(this, type) }
-                    expandedKeys={ expandedKeys }
-                    onExpand={ onExpand }
-                    autoExpandParent={false}
-                    onSelect={ this.handleSelect.bind(this) }
-                >
-                    { this.genetateTreeNode() }
-                </Tree>
+                        {this.genetateTreeNode()}
+                    </Tree>
                 }
             </div>
         )
@@ -544,10 +546,10 @@ class FolderTree extends React.Component {
 }
 
 const FolderTreeContainer = connect((state, ownProps) => {
-        const { workbench } = state.offlineTask;
-        const { tabs, currentTab } = workbench;
+    const { workbench } = state.offlineTask;
+    const { tabs, currentTab } = workbench;
 
-        return { tabs, currentTab }
-}, mapDispatchToProps )(FolderTree);
+    return { tabs, currentTab }
+}, mapDispatchToProps)(FolderTree);
 
 export default FolderTreeContainer;

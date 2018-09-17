@@ -2,8 +2,8 @@ import React from 'react';
 import { Form, Input, Select, Radio } from 'antd';
 import { connect } from 'react-redux';
 
-import { matchTaskParams } from '../../../comm'
-import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const';
+import { matchTaskParams, isProjectCouldEdit } from '../../../comm'
+import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, PROJECT_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import ajax from '../../../api';
 
@@ -19,7 +19,7 @@ class NormalTaskForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes, isWorkflowNode } = this.props;
+        const { taskTypes, isWorkflowNode, user, project } = this.props;
 
         const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -34,6 +34,7 @@ class NormalTaskForm extends React.Component {
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
+        const couldEdit=isProjectCouldEdit(project,user);
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -77,9 +78,10 @@ class NormalTaskForm extends React.Component {
                         initialValue: taskData.resourceList.length ?
                             taskData.resourceList[0].id : ''
                     })(
-                        <Input type="hidden" ></Input>
+                        <Input disabled={!couldEdit} type="hidden" ></Input>
                     )}
                     <FolderPicker
+                        couldEdit={couldEdit}
                         ispicker
                         isFilepicker
                         acceptRes={acceptType}
@@ -103,7 +105,7 @@ class NormalTaskForm extends React.Component {
                         }],
                         initialValue: taskData.mainClass
                     })(
-                        <Input placeholder="请输入 mainClass" />,
+                        <Input disabled={!couldEdit} placeholder="请输入 mainClass" />,
                     )}
                 </FormItem>
             }
@@ -115,7 +117,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('exeArgs', {
                         initialValue: taskData.exeArgs
                     })(
-                        <Input placeholder="请输入任务参数" />,
+                        <Input disabled={!couldEdit} placeholder="请输入任务参数" />,
                     )}
                 </FormItem>
             }
@@ -128,7 +130,7 @@ class NormalTaskForm extends React.Component {
                         {getFieldDecorator('input', {
                             initialValue: taskData.input
                         })(
-                            <Input placeholder="请输入数据输入路径" />,
+                            <Input disabled={!couldEdit} placeholder="请输入数据输入路径" />,
                         )}
                     </FormItem>
                     <FormItem
@@ -138,7 +140,7 @@ class NormalTaskForm extends React.Component {
                         {getFieldDecorator('output', {
                             initialValue: taskData.output
                         })(
-                            <Input placeholder="请输入模型输出路径" />,
+                            <Input disabled={!couldEdit} placeholder="请输入模型输出路径" />,
                         )}
                     </FormItem>
                 </span>
@@ -151,7 +153,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('options', {
                         initialValue: taskData.options
                     })(
-                        <Input placeholder="请输入命令行参数" />,
+                        <Input disabled={!couldEdit} placeholder="请输入命令行参数" />,
                     )}
                 </FormItem>
             }
@@ -167,9 +169,10 @@ class NormalTaskForm extends React.Component {
                         }],
                         initialValue: taskData.nodePid
                     })(
-                        <Input type="hidden"></Input>
+                        <Input disabled={!couldEdit} type="hidden"></Input>
                     )}
                     <FolderPicker
+                        couldEdit={couldEdit}
                         type={MENU_TYPE.TASK}
                         ispicker
                         isFilepicker={false}
@@ -191,14 +194,14 @@ class NormalTaskForm extends React.Component {
                     }],
                     initialValue: taskData.taskDesc
                 })(
-                    <Input type="textarea" rows={4} placeholder="请输入任务描述" />,
+                    <Input disabled={!couldEdit} type="textarea" rows={4} placeholder="请输入任务描述" />,
                 )}
             </FormItem>
             <FormItem style={{ display: 'none' }}>
                 {getFieldDecorator('computeType', {
                     initialValue: 1
                 })(
-                    <Input type="hidden"></Input>
+                    <Input disabled={!couldEdit} type="hidden"></Input>
                 )}
             </FormItem>
         </Form>
@@ -251,12 +254,14 @@ class NormalTaskEditor extends React.Component {
 }
 
 const mapState = (state, ownProps) => {
-    const { offlineTask } = state
+    const { offlineTask, user, project } = state
     return {
         resTreeData: offlineTask.resourceTree,
         pathTreeData: offlineTask.taskTree,
         taskCustomParams: offlineTask.workbench.taskCustomParams,
         taskTypes: offlineTask.comm.taskTypes,
+        user,
+        project
     }
 };
 

@@ -390,7 +390,7 @@ export default class TableViewer extends React.Component {
                     </CopyToClipboard>
                 ]}
             >
-                <Editor value={this.state.code} language="dtsql" options={{readOnly:true}} style={{ height: '400px' }} />
+                <Editor value={this.state.code} language="dtsql" options={{readOnly:false}} style={{ height: '400px' }} />
             </Modal>
             <TableApplyModal
                 visible={applyModal.visible}

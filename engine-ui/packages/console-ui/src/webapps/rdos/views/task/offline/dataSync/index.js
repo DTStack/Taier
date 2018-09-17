@@ -15,6 +15,8 @@ import {
     dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
+import {PROJECT_TYPE} from "../../../../comm/const"
+import {isProjectCouldEdit} from "../../../../comm"
 
 const Step = Steps.Step;
 
@@ -177,8 +179,9 @@ class DataSync extends React.Component{
 
     render() {
         const { currentStep, loading } = this.state;
-        const { readWriteLockVO, notSynced } =this.props;
+        const { readWriteLockVO, notSynced, user, project } =this.props;
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
+        const couldEdit=isProjectCouldEdit(project,user);
 
         const steps = [
             {title: '数据来源', content: <DataSyncSource
@@ -215,7 +218,7 @@ class DataSync extends React.Component{
                 { steps.map(item => <Step key={item.title} title={item.title} />) }
             </Steps>
             <div className="steps-content" style={{position:"relative"}}>
-                {isLocked?<div className="steps-mask"></div>:null}
+                {isLocked||!couldEdit?<div className="steps-mask"></div>:null}
                 { steps[currentStep].content }
             </div>
       </div>
@@ -227,7 +230,9 @@ const mapState = (state) => {
     return {
         dataSync: state.offlineTask.dataSync,
         tabs: state.offlineTask.workbench.tabs,
-        currentTab: currentTab
+        currentTab: currentTab,
+        user:state.user,
+        project:state.project
     }
 };
 

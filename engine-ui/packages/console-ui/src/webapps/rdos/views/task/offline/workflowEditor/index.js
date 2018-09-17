@@ -17,7 +17,8 @@ import LockPanel from '../../../../components/lockPanel'
 import {
     workbenchActions,
 } from '../../../../store/modules/offlineTask/offlineAction'
-import { TASK_TYPE, MENU_TYPE } from '../../../../comm/const';
+import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
+import { isProjectCouldEdit } from '../../../../comm';
 
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
@@ -70,15 +71,17 @@ const applyCellStyle = (cellState, style) => {
 }
 
 @connect(state => {
-    const { offlineTask } = state;
+    const { offlineTask, project, user } = state;
     const { workbench, workflow } = offlineTask;
     const { currentTab, tabs } = workbench;
 
     return {
         tabs,
+        user,
         workflow,
         currentTab,
         taskTypes: offlineTask.comm.taskTypes,
+        project:project
     }
 }, workbenchActions )
 class WorkflowEditor extends Component {
@@ -455,7 +458,8 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
 
-        const { openTaskInDev, data } = this.props;
+        const { openTaskInDev, data, project, user } = this.props;
+        const couldEdit=isProjectCouldEdit(project,user);
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -471,7 +475,7 @@ class WorkflowEditor extends Component {
             const currentNode = cell.data || {};
            
             const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
-            if (isLocked) return;
+            if (isLocked||!couldEdit) return;
 
             if (cell.vertex) {
                 menu.addItem('保存节点', null, function() {
@@ -753,7 +757,10 @@ class WorkflowEditor extends Component {
     }
 
     renderToolBar = () => {
-        const { taskTypes, data } = this.props;
+        const { taskTypes, data, user, project } = this.props;
+        const isPro=project.projectType==PROJECT_TYPE.PRO;
+        const isRoot=user.isRoot;
+        const couldEdit=!isPro||isRoot;
 
         const showTitle = (type, title) => {
             switch(type) {
@@ -792,7 +799,7 @@ class WorkflowEditor extends Component {
                     节点组件
                 </header>
                 <div className="widgets-content">
-                    <LockPanel lockTarget={data}/>
+                    <LockPanel lockTarget={data} couldEdit={couldEdit}/>
                     { widgets }
                 </div>
             </div>

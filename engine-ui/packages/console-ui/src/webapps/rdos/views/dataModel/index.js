@@ -33,5 +33,7 @@ class Container extends Component {
 Container.propTypes = propType
 Container.defaultProps = defaultPro
 export default connect(state => ({
-    project: state.project.id
+    project: state.project.id,
+    project_obj:state.project,
+    user:state.user
 }), null)(Container);

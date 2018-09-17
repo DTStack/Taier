@@ -28,6 +28,9 @@
      GET_PROJECT_LIST_INFO: `${RDOS_BASE_URL}/common/project/getProjectList`, // 首页project查询
      SET_STICKY: `${RDOS_BASE_URL}/common/project/setSticky`, // 首页project查询
      DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
+     UPDATE_PROJECT_SCHEDULE:`${RDOS_BASE_URL}/common/project/closeOrOpenSchedule`,// 开启或关闭项目调度
+     BIND_PRODUCTION_PROJECT:`${RDOS_BASE_URL}/common/project/bindingProject`,//绑定生产项目
+     GET_COULD_BINDING_PROJECT_LIST:`${RDOS_BASE_URL}/common/project/getBindingProjects`,//获取可以绑定的项目
      
      // ===== 角色管理 ===== //
      GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
@@ -62,7 +65,7 @@
      GET_CREATE_TARGET_TABLE:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/getCreateTargetTableSql`,//获取目标表创建sql
      GET_COLUMNS_OF_TABLE:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/simpleTableColumns`,//获取表的列名
      GET_ALL_FUNCTION_NAME:`${RDOS_BASE_URL}/batch/batchFunction/getAllFunctionName`,//获取系统函数
- 
+     
      GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
      UPDATE_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/updateCatalogue`, // 更新目录
      ADD_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/addCatalogue`, // 新增目录
@@ -97,5 +100,31 @@
      // ==== 实时运维模块 ===== //
      GET_CHECK_POINT_RANGE: `${RDOS_BASE_URL}/stream/streamTaskCheckpoint/getCheckpointTimeRange`, // 获取指定任务的保存点可选时间范围
      GET_CHECK_POINTS: `${RDOS_BASE_URL}/stream/streamTaskCheckpoint/getCheckpointList`, // 获取指定任务时间范围内的保存点
+
+     // ==== 发布包 ===== //
+     PUBLISH_REALTIME_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/publishPackage`,//发布包
+     PUBLISH_OFFLINE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/publishPackage`,
+     GET_OFFLINE_FUNCTION:`${RDOS_BASE_URL}/batch/batchFunction/pageQuery`,//函数分页
+     GET_REALTIME_FUNCTION:`${RDOS_BASE_URL}/stream/streamFunction/pageQuery`,
+     GET_OFFLINE_RESOURCE:`${RDOS_BASE_URL}/batch/batchResource/pageQuery`,//资源分页
+     GET_REALTIME_RESOURCE:`${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
+     GET_OFFLINE_RESOURCE:`${RDOS_BASE_URL}/batch/batchResource/pageQuery`,//资源分页
+     GET_REALTIME_RESOURCE:`${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
+     GET_OFFLINE_TASKS:`${RDOS_BASE_URL}/batch/batchTaskShade/pageQuery`,//已提交任务分页查询
+     GET_REALTIME_TASKS:`${RDOS_BASE_URL}/stream/streamTaskShade/pageQuery`,
+     GET_OFFLINE_LINK_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceInBingProject`,//获取当前项目关联的项目下的数据源列表
+     GET_REALTIME_LINK_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/getDataSourceInBingProject`,
+     GET_OFFLINE_TASK_LINK_ITEMS:`${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,//获取任务关联的函数资源表
+     GET_REALTIME_TASK_LINK_ITEMS:`${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,
+     GET_TABLES:`${RDOS_BASE_URL}/batch/batchHiveTableInfo/simplePageQuery`,//获取表
+     GET_OFFLINE_PACKAGE_NAME:`${RDOS_BASE_URL}/batch/batchPackage/getPackageName`,//获取包名
+     GET_REALTIME_PACKAGE_NAME:`${RDOS_BASE_URL}/stream/streamPackage/getPackageName`,//获取包名
+     OFFLINE_CREATE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/createPackage`,//创建包
+     REALTIME_CREATE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/createPackage`,//创建包
+     OFFLINE_DELETE_PACKAGE:`${RDOS_BASE_URL}/batch/batchPackage/deletePackage`,//删除包
+     REALTIME_DELETE_PACKAGE:`${RDOS_BASE_URL}/stream/streamPackage/deletePackage`,//删除包
+     GET_OFFLINE_PACKAGE_LIST:`${RDOS_BASE_URL}/batch/batchPackage/pageQuery`,//包列表
+     GET_REALTIME_PACKAGE_LIST:`${RDOS_BASE_URL}/stream/streamPackage/pageQuery`,//包列表
+
  }
  

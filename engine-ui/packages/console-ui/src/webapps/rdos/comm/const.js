@@ -43,6 +43,10 @@ export const RESOURCE_TYPE = {
     JAR: 1,
     PY: 2,
 }
+export const RESOURCE_TYPE_MAP={
+    1:"jar",
+    2:"py"
+}
 
 // 调度状态
 export const SCHEDULE_STATUS = {
@@ -66,6 +70,27 @@ export const MENU_TYPE = {
     COSTOMFUC: 'CustomFunction',
     SYSFUC: 'SystemFunction',
     TABLE: 'TableQuery',
+}
+
+export const PROJECT_TYPE={
+    COMMON:0,//普通
+    TEST:1,//测试
+    PRO:2,//生产
+}
+
+//发布的item类别
+export const publishType={
+    TASK:0,
+    TABLE:1,
+    RESOURCE:2,
+    FUNCTION:3
+}
+
+//发布状态
+export const publishStatus={
+    UNSUBMIT:0,
+    SUCCESS:1,
+    FAIL:2
 }
 
 export const PROJECT_ROLE = { // 项目角色
