@@ -32,7 +32,10 @@ public class HeartBeatCheckListener implements Runnable{
 	private final static int CHECK_INTERVAL = 2000;
 
 	public final static long STOP_HEALTH_CHECK_SEQ = -1;
-	private final static int TIMEOUT_COUNT = 30;
+	//正常停止
+	private final static int RESTART_TIMEOUT_COUNT = 30;
+	//宕机
+	private final static int OUTAGE_TIMEOUT_COUNT = 10;
 	private MasterListener masterListener;
 
 	private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
@@ -79,30 +82,27 @@ public class HeartBeatCheckListener implements Runnable{
 				if(ignore){
 					continue;
 				}
-				//正常退出alive=false，seq=0;异常退出alive=false，seq>0 做快速恢复
-				if (!brokerNode.getAlive()&&brokerNode.getSeq()>0){
-                    this.zkDistributed.disableBrokerHeartNode(node,true);
-                    this.masterNode.dataMigration(node);
-                    this.zkDistributed.removeBrokerQueueNode(node);
-                    continue;
-                }
 				BrokerNodeCount brokerNodeCount = brokerNodeCounts.computeIfAbsent(node, k->{
 					this.rdosNodeMachineDAO.ableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 					return new BrokerNodeCount(brokerNode);
 				});
 				//是否假死
 				if (brokerNode.getAlive()){
+					//异常宕机的节点，alive=true，seq不会再进行更新
 					if(brokerNodeCount.getHeartSeq() == brokerNode.getSeq().longValue()){
 						brokerNodeCount.increment();
 					}else{
 						brokerNodeCount.reset();
 					}
 				}else{
-					//对失去心跳的节点，可能在重启，进行计数（正常退出时在hook中对heart进行标记，区分宕机和正常退出，做快速恢复策略）
+					//对失去心跳的节点，可能在重启，进行计数
 					brokerNodeCount.increment();
 					this.rdosNodeMachineDAO.disableMachineNode(node, RdosNodeMachineType.SLAVE.getType());
 				}
-				if(brokerNodeCount.getCount() > TIMEOUT_COUNT){
+				//做宕机快速恢复的策略，异常宕机时alive=true
+				boolean dataMigration = brokerNode.getAlive() && brokerNodeCount.getCount() > OUTAGE_TIMEOUT_COUNT ||
+						brokerNodeCount.getCount() > RESTART_TIMEOUT_COUNT;
+				if(dataMigration){
 					//先置为 false
 					this.zkDistributed.disableBrokerHeartNode(node,true);
 					//再进行容灾，容灾时还需要再判断一下是否alive，node可能已经恢复
