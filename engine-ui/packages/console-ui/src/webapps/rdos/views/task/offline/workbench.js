@@ -186,7 +186,7 @@ class Workbench extends React.Component {
             isSaveAvaliable = true;
         }
 
-        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || !currentTabData.notSynced;
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || (currentTabData && !currentTabData.notSynced);
 
         //被锁就不能保存了
         if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {

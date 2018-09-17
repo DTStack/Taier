@@ -59,13 +59,14 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             const tabId = action.payload;
             let clone = cloneDeep(state);
 
-            clone.tabs = clone.tabs.filter(tab => {
-                return tab.id !== tabId
-            });
-
+            const tabIndex = clone.tabs.findIndex(tab => tab.id === tabId);
+            
             if(tabId === state.currentTab) {
-                clone.currentTab = clone.tabs.length ? clone.tabs[0].id : undefined;
+                const nextTab = clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
+                clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
             }
+            // 删除
+            clone.tabs.splice(tabIndex, 1);
 
             nextState = clone;
             break;
