@@ -98,33 +98,27 @@ class PackageCreate extends React.Component {
         if (sorter && sorter.columnKey) {
             extParams.sort = (sorter.order === 'descend') ? 'desc' : 'asc';
         }
+        extParams["startTime"] = (modifyDate && modifyDate.length) ? modifyDate[0].valueOf() : null;
+        extParams["endTime"] = (modifyDate && modifyDate.length) ? modifyDate[1].valueOf() : null;
         switch (listType) {
             case publishType.TASK: {
                 extParams["taskName"] = publishName;
                 extParams["taskModifyUserId"] = modifyUser;
-                extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
-                extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.FUNCTION: {
                 extParams["name"] = publishName;
                 extParams["functionModifyUserId"] = modifyUser;
-                extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
-                extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.RESOURCE: {
                 extParams["resourceName"] = publishName;
                 extParams["resourceModifyUserId"] = modifyUser;
-                extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
-                extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
             case publishType.TABLE: {
                 extParams["tableName"] = publishName;
                 extParams["tableModifyUserId"] = modifyUser;
-                extParams["startTime"] = modifyDate && modifyDate.length && modifyDate[0].valueOf();
-                extParams["endTime"] = modifyDate && modifyDate.length && modifyDate[1].valueOf();
                 break;
             }
         }
@@ -604,7 +598,7 @@ class PackageCreate extends React.Component {
                 return <div key={`${row.itemType}%${row.itemId}`} className="item">
                     <Icon className="close" type="close" onClick={this.removeItem.bind(this, row.itemType, row.itemId)} />
                     <p><span className="item-title">{nameText}：</span>{row.itemName} {extMsg}</p>
-                    {row.chargeUser&&(
+                    {row.chargeUser && (
                         <p><span className="item-title">负责人：</span>{row.chargeUser}</p>
                     )}
                     <p><span className="item-title">修改人：</span>{row.modifyUser}</p>

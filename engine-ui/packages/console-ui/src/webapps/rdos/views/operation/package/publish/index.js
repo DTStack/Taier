@@ -74,10 +74,10 @@ class PackagePublish extends React.Component {
             publishUserId,
             applyUserId,
             status,
-            publishTimeStart: publishTime && publishTime[0] && publishTime[0].valueOf(),
-            publishTimeEnd: publishTime && publishTime[1] && publishTime[1].valueOf(),
-            applyTimeStart: applyTime && applyTime[0] && applyTime[0].valueOf(),
-            applyTimeEnd: applyTime && applyTime[1] && applyTime[1].valueOf(),
+            publishTimeStart: (publishTime && publishTime[0]) ? publishTime[0].valueOf() : null,
+            publishTimeEnd: (publishTime && publishTime[1]) ? publishTime[1].valueOf() : null,
+            applyTimeStart: (applyTime && applyTime[0]) ? applyTime[0].valueOf() : null,
+            applyTimeEnd: (applyTime && applyTime[1]) ? applyTime[1].valueOf() : null,
             packageName,
             pageSize: tableParams.pagination.pageSize,
             pageIndex: tableParams.pagination.current,
@@ -123,12 +123,12 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_modified",
             sorter: true,
             render(n, record) {
-                return record.gmtModified&&utils.formatDateTime(record.gmtModified)
+                return record.gmtModified && utils.formatDateTime(record.gmtModified)
             }
         }, {
             title: "发布描述",
             dataIndex: "comment",
-            width:"230px"
+            width: "230px"
         }, {
             title: "发布状态",
             dataIndex: "status",
@@ -178,7 +178,7 @@ class PackagePublish extends React.Component {
                     }
                 }
             },
-            width:"180px"
+            width: "180px"
         }]
     }
     viewPackage(record) {
@@ -242,7 +242,7 @@ class PackagePublish extends React.Component {
     }
     getTableTitle = () => {
         const { users } = this.state;
-        const bussinessDate=[moment().subtract(30, 'days'),new moment()]
+        const bussinessDate = [moment().subtract(30, 'days'), new moment()]
         return (
             <Form
                 style={{ marginTop: "10px" }}
