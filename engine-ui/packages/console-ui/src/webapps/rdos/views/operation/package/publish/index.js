@@ -28,8 +28,8 @@ class PackagePublish extends React.Component {
         publishUserId: null,
         applyUserId: null,
         status: null,
-        publishTime: null,
-        applyTime: null,
+        publishTime: [moment().subtract(30, 'days'), new moment()],
+        applyTime: [moment().subtract(30, 'days'), new moment()],
         tableParams: {
             filter: {},
             sorter: {},
