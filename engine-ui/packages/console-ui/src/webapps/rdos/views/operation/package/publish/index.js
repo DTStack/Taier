@@ -27,11 +27,10 @@ class PackagePublish extends React.Component {
         packageName: null,
         publishUserId: null,
         applyUserId: null,
-        status: null,
         publishTime: [moment().subtract(30, 'days'), new moment()],
         applyTime: [moment().subtract(30, 'days'), new moment()],
         tableParams: {
-            filter: {},
+            filters: {},
             sorter: {},
             pagination: {
                 current: 1,
@@ -61,9 +60,10 @@ class PackagePublish extends React.Component {
         const {
             tableParams,
             packageName, publishUserId, applyUserId,
-            status, publishTime, applyTime
+             publishTime, applyTime
         } = this.state;
         const sorter = tableParams.sorter;
+        const filters = tableParams.filters;
         let sort;
         let orderBy;
         if (sorter && sorter.columnKey) {
@@ -73,7 +73,7 @@ class PackagePublish extends React.Component {
         Api.getPackageList({
             publishUserId,
             applyUserId,
-            status,
+            status:(filters.status&&filters.status.length)?filters.status[0]:null,
             publishTimeStart: (publishTime && publishTime[0]) ? publishTime[0].valueOf() : null,
             publishTimeEnd: (publishTime && publishTime[1]) ? publishTime[1].valueOf() : null,
             applyTimeStart: (applyTime && applyTime[0]) ? applyTime[0].valueOf() : null,
@@ -150,7 +150,18 @@ class PackagePublish extends React.Component {
                         </span>)
                     }
                 }
-            }
+            },
+            filters:[{
+                text:"待发布",
+                value:publishStatus.UNSUBMIT
+            },{
+                text:"发布成功",
+                value:publishStatus.SUCCESS
+            },{
+                text:"发布失败",
+                value:publishStatus.FAIL
+            }],
+            filterMultiple:false
         }, {
             title: "操作",
             dataIndex: "deal",
@@ -278,15 +289,6 @@ class PackagePublish extends React.Component {
                                 return <Option key={user.userId} value={user.userId}>{user.user.userName}</Option>
                             }
                         )}
-                    </Select>
-                </FormItem>
-                <FormItem
-                    label="发布状态"
-                >
-                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'status')} style={{ width: 110 }}>
-                        <Option value={publishStatus.UNSUBMIT}>待发布</Option>
-                        <Option value={publishStatus.SUCCESS}>已发布</Option>
-                        <Option value={publishStatus.FAIL}>发布失败</Option>
                     </Select>
                 </FormItem>
                 <FormItem
