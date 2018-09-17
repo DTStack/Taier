@@ -583,42 +583,34 @@ class PackageCreate extends React.Component {
             (row) => {
                 const showEnvCheckbox = row.itemType == publishType.TASK && row.data.taskType != TASK_TYPE.SYNC;
                 let nameText;
-                let haveChangeMan;
-                let userName;
                 let extMsg = '';
                 switch (row.itemType) {
                     case publishType.TASK: {
                         nameText = "任务"
-                        haveChangeMan = true;
-                        userName = row.modifyUser;
                         extMsg = `(${offlineTaskTypesMap.get(row.data.taskType)})`
                         break;
                     }
                     case publishType.FUNCTION: {
                         nameText = "函数"
-                        haveChangeMan = true;
-                        userName = row.modifyUser;
-
                         break;
                     }
                     case publishType.RESOURCE: {
                         nameText = "资源"
-                        haveChangeMan = true;
-                        userName = row.modifyUser;
                         extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
                         break;
                     }
                     case publishType.TABLE: {
                         nameText = "建表"
-                        haveChangeMan = false;
-                        userName = row.modifyUser;
                         break;
                     }
                 }
                 return <div key={`${row.itemType}%${row.itemId}`} className="item">
                     <Icon className="close" type="close" onClick={this.removeItem.bind(this, row.itemType, row.itemId)} />
                     <p><span className="item-title">{nameText}：</span>{row.itemName} {extMsg}</p>
-                    <p><span className="item-title">负责人{haveChangeMan ? '/修改人' : ''}：</span>{userName}</p>
+                    {row.chargeUser&&(
+                        <p><span className="item-title">负责人：</span>{row.chargeUser}</p>
+                    )}
+                    <p><span className="item-title">修改人：</span>{row.modifyUser}</p>
                     {showEnvCheckbox && <Checkbox onChange={this.changeEnv.bind(this, row.itemType, row.itemId)} checked={row.publishParamJson.updateEnvParam} >更新环境参数</Checkbox>}
                 </div>
             }
