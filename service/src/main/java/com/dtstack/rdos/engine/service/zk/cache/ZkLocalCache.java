@@ -62,8 +62,8 @@ public class ZkLocalCache implements Closeable {
     public void init(ZkDistributed zkDistributed) {
         localAddress = zkDistributed.getLocalAddress();
         localDataCache = zkDistributed.initMemTaskStatus();
-        distributeZkWeight = ConfigParse.getTaskDistributeQueueWeight();
-        distributeQueueWeight = ConfigParse.getTaskDistributeZkWeight();
+        distributeQueueWeight = ConfigParse.getTaskDistributeQueueWeight();
+        distributeZkWeight = ConfigParse.getTaskDistributeZkWeight();
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
         perShardSize = ConfigParse.getShardSize();
         zkShardManager.init(zkDistributed);

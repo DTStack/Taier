@@ -83,7 +83,7 @@ public class ClusterQueueInfo {
 
         private Map<String, GroupInfo> groupInfo = Maps.newHashMap();
 
-        GroupQueueInfo(String address, Map<String, GroupInfo> priorityInfo) {
+        GroupQueueInfo(String address, Map<String, GroupInfo> groupInfo) {
             this.address = address;
             this.groupInfo = groupInfo;
         }
