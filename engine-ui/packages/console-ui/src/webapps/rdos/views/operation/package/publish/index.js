@@ -123,11 +123,12 @@ class PackagePublish extends React.Component {
             dataIndex: "gmt_modified",
             sorter: true,
             render(n, record) {
-                return utils.formatDateTime(record.gmtModified)
+                return record.gmtModified&&utils.formatDateTime(record.gmtModified)
             }
         }, {
             title: "发布描述",
-            dataIndex: "comment"
+            dataIndex: "comment",
+            width:"230px"
         }, {
             title: "发布状态",
             dataIndex: "status",
@@ -176,7 +177,8 @@ class PackagePublish extends React.Component {
                         </span>
                     }
                 }
-            }
+            },
+            width:"180px"
         }]
     }
     viewPackage(record) {
