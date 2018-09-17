@@ -16,9 +16,9 @@ export default class Toolbar extends Component {
     }
 
     viewMenu = () => {
-        const { onThemeChange } = this.props;
+        const { onThemeChange, editorTheme } = this.props;
         return (
-            <Menu onClick={({ key }) => { onThemeChange(key) }}>
+            <Menu selectedKeys={[editorTheme]} onClick={({ key }) => { onThemeChange(key) }}>
                 <Menu.Item key="vs">默认</Menu.Item>
                 <Menu.Item key="vs-dark">黑色</Menu.Item>
                 <Menu.Item key="hc-black">高对比黑色</Menu.Item>
@@ -59,7 +59,7 @@ export default class Toolbar extends Component {
 
     render() {
         const {
-            onFormat, enableFormat, leftCustomButton, rightCustomButton
+            onFormat, enableFormat, leftCustomButton, rightCustomButton, disAbleEdit
         } = this.props;
 
         return (
@@ -78,11 +78,11 @@ export default class Toolbar extends Component {
                         格式化
                     </Button>
                 }
-                <Dropdown overlay={this.editMenu()} trigger={['click']}>
+                {!disAbleEdit && <Dropdown overlay={this.editMenu()} trigger={['click']}>
                     <Button icon="edit" title="编辑">
                         编辑<Icon type="down" />
                     </Button>
-                </Dropdown>
+                </Dropdown>}
                 <Dropdown overlay={this.viewMenu()} trigger={['click']}>
                     <Button icon="skin" title="主题">
                         主题<Icon type="down" />

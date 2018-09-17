@@ -63,9 +63,13 @@ class Container extends Component {
     };
 
     render() {
-        const { children } = this.props;
+        const { children, editor } = this.props;
+        // 如果是dark类的编辑器，则切换ide的theme为dark风格
+        const editorTheme = editor.options.theme;
+        const claName = editorTheme === 'vs-dark' || editorTheme === 'hc-black' ?  'theme-dark' : ''; 
+
         return (
-            <Layout className="dt-dev-task">
+            <Layout className={`dt-dev-task ${claName}`}>
                 <SplitPane
                     split="vertical"
                     minSize={230}
@@ -74,7 +78,7 @@ class Container extends Component {
                     primary="first"
                 >
                     <div
-                        className="bg-w ant-layout-sider"
+                        className="ant-layout-sider"
                         style={{ width: "inherit", height: '100%' }}
                     >
                         <Sidebar />

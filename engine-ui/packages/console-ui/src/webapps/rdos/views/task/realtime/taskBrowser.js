@@ -319,7 +319,7 @@ class TaskBrowser extends Component {
                             onTabClick={this.tabClick}
                         >
                             <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
-                                <TaskDetail {...this.props} />
+                                <TaskDetail {...this.props}  />
                             </TabPane>
                             {
                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>源表</span>} key="params3">

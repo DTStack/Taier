@@ -164,7 +164,7 @@ export const keyMapActions = (dispatch) => {
 };
 
 // workbenchActions
-export const workbenchActions = (dispatch, ownProps) => {
+export const workbenchActions = (dispatch) => {
 
     const closeAll = (tabs) => {
         for (let i in tabs) {
@@ -188,9 +188,27 @@ export const workbenchActions = (dispatch, ownProps) => {
         })
     };
 
+    const reloadTaskTab = (taskId) => {
+        // 更新tabs数据
+        ajax.getOfflineTaskDetail({
+            id: taskId,
+        }).then(res => {
+            if (res.code === 1) {
+                dispatch({
+                    type: workbenchAction.UPDATE_TASK_TAB,
+                    payload: res.data
+                });
+            }
+        });
+    }
+
     return {
         dispatch,
 
+        /**
+         * 重新加载任务Tab中的数据
+         */
+        reloadTaskTab,
         /**
          * 更新目录
          */
@@ -212,26 +230,9 @@ export const workbenchActions = (dispatch, ownProps) => {
         },
 
         /**
-         * 重新reload Tab 中的任务
-         */
-        reloadTabTask: (taskId) => {
-            // 更新tabs数据
-            ajax.getOfflineTaskDetail({
-                id: taskId,
-            }).then(res => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: workbenchAction.UPDATE_TASK_TAB,
-                        payload: res.data
-                    });
-                }
-            });
-        },
-
-        /**
          * 发布任务
          * @param {*} res 
-         */
+        */
         publishTask(res) {
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
@@ -245,7 +246,7 @@ export const workbenchActions = (dispatch, ownProps) => {
         /**
          * 更新当前任务的字段
          * @param {*} taskFields 
-         */
+        */
         updateTaskField(taskFields) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
@@ -391,7 +392,7 @@ export const workbenchActions = (dispatch, ownProps) => {
                 });
                 dispatch({
                     type: workbenchAction.MAKE_TAB_CLEAN
-                })
+                });
             }
 
             const succCallback = (res) => {
@@ -519,7 +520,6 @@ export const workbenchActions = (dispatch, ownProps) => {
         },
 
         closeTab: (tabId, tabs) => {
-            console.log('ownProps:', ownProps);
             
             const doClose = (id) => {
                 dispatch(stopSql(id, null, true))
@@ -876,10 +876,22 @@ export const workbenchActions = (dispatch, ownProps) => {
                 payload: data
             })
         },
+    
         resetWorkflow() {
             dispatch({
                 type: workflowAction.RESET,
             })
+        },
+
+        reloadWorkflowTabNode(flowId, tabs) {
+            if (tabs && tabs.length > 0) {
+                for (let i = 0; i < tabs.length; i++) {
+                    const tab = tabs[i];
+                    if (tab.flowId === flowId) {
+                        reloadTaskTab(tab.id);
+                    }
+                }
+            }
         },
     }
 }

@@ -22,6 +22,7 @@ import './styles/pages/graph-editor.scss'
 import './styles/pages/ide.scss'
 import './styles/pages/dashboard.scss'
 import './styles/pages/iconfont.scss'
+import './styles/themes/dark.scss'
 
 
 import routers from './routers'

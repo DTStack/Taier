@@ -15,6 +15,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import "./languages/shell/shell.contribution.js";
 import * as dtsql from "./languages/dtsql/dtsql.contribution.js"
+import "./languages/dt-flink/dtflink.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
@@ -28,7 +29,16 @@ const provideCompletionItemsMap = {
     }
 }
 function delayFunctionWrap(func){
+    /**
+     * 最小执行间隔，每隔一段时间强制执行一次函数
+     * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
+     */
+    let freshTime=3000;
+    /**
+     * 函数延迟时间
+     */
     let delayTime=500;
+
     let outTime;
     let _timeClock;
     return function(){
@@ -37,7 +47,7 @@ function delayFunctionWrap(func){
         //这边设置在一定时间内，必须执行一次函数
         if(outTime){
             let now=new Date();
-            if(now-outTime>1000){
+            if(now-outTime>freshTime){
                 func(...arg);
             }
         }else{
@@ -171,23 +181,24 @@ class Editor extends React.Component {
     updateValueWithNoEvent(value) {
         this.monacoInstance.setValue(value);
     }
-    languageValueOnChange() {
+    languageValueOnChange(callback) {
         const newValue = this.monacoInstance.getValue();
         const languageId = this.monacoInstance.getModel().getModeId();
         if (provideCompletionItemsMap[languageId] && provideCompletionItemsMap[languageId].onChange) {
-            provideCompletionItemsMap[languageId].onChange(newValue, this.monacoInstance);
+            provideCompletionItemsMap[languageId].onChange(newValue, this.monacoInstance, callback);
         }
     }
 
     delayLanguageValueOnChange=delayFunctionWrap(this.languageValueOnChange.bind(this))
 
     initEditorEvent() {
-        this.languageValueOnChange();
+        this.languageValueOnChange(this.props.onSyntaxChange);
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log("编辑器事件");
-            const { onChange, value } = this.props;
+            const { onChange, value, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
-            this.delayLanguageValueOnChange();
+            //考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
+            this.delayLanguageValueOnChange(onSyntaxChange);
             if (onChange) {
                 this.log("订阅事件触发");
                 onChange(newValue, this.monacoInstance);

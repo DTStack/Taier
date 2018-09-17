@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { 
+import {
     Input, Button, Popconfirm,
-    Table, message, Card, Icon, Tooltip
- } from 'antd';
+    Table, message, Card, Icon, Tooltip, Menu,
+    Dropdown
+} from 'antd';
 
 import utils from 'utils';
 
@@ -12,12 +13,15 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from '../form';
 import DbSyncModal from '../syncModal';
-import { DataSourceTypeFilter, DATA_SOURCE } from '../../../comm/const';
+import { DataSourceTypeFilter, DATA_SOURCE, PROJECT_TYPE } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 import DataSourceTaskListModal from '../dataSourceTaskListModal';
+import LinkModal from "../linkModal";
+import { ExtTableCell } from "../extDataSourceMsg"
 
 const Search = Input.Search
+const MenuItem = Menu.Item;
 
 class DataSourceMana extends Component {
 
@@ -69,7 +73,7 @@ class DataSourceMana extends Component {
         })
     }
 
-    addOrUpdateDataSource = (sourceFormData, formObj,callBack) => {
+    addOrUpdateDataSource = (sourceFormData, formObj, callBack) => {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
@@ -108,7 +112,7 @@ class DataSourceMana extends Component {
         Api.testDSConnection(source).then((res) => {
             if (res.code === 1 && res.data) {
                 message.success('数据源连接正常！')
-            }else if(res.code===1&& !res.data){
+            } else if (res.code === 1 && !res.data) {
                 message.error('数据源连接异常')
             }
         })
@@ -139,100 +143,186 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
+            width: '120px',
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
+            width: '100px',
             render: (text, record) => {
                 return <DatabaseType value={record.type} />
             },
             filters: DataSourceTypeFilter,
             filterMultiple: false,
-        }, 
+        },
         {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-        }, {
-            title: '最近修改人',
-            dataIndex: 'modifyUserId',
-            key: 'modifyUserId',
-            render: (text, record) => {
-                return record.modifyUser ? record.modifyUser.userName : ''
-            }
-        }, {
-            title: '最近修改时间',
-            dataIndex: 'gmtModified',
-            key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
-        }, {
+            width: '150px',
+        },
+        {
+            title: '连接信息',
+            dataIndex: 'ext',
+            key: 'ext',
+            width: '240px',
+            render: (empty, record) => {
+                return <ExtTableCell sourceData={record} />
+            },
+        },
+        // {
+        //     title: '最近修改人',
+        //     dataIndex: 'modifyUserId',
+        //     key: 'modifyUserId',
+        //     width: '120px',
+        //     render: (text, record) => {
+        //         return record.modifyUser ? record.modifyUser.userName : ''
+        //     }
+        // }, {
+        //     title: '最近修改时间',
+        //     dataIndex: 'gmtModified',
+        //     key: 'gmtModified',
+        //     width: '120px',
+        //     render: text => utils.formatDateTime(text),
+        // }, 
+        {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
-            render: (active,record) => {
+            width: '70px',
+            render: (active, record) => {
                 return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
             },
-        }, 
+        },
         {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-                        <span>连接状态 &nbsp;
+                <span>连接状态 &nbsp;
                             <Icon type="question-circle-o" />
-                        </span>
-                    </Tooltip>,
+                </span>
+            </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
+            width: '100px',
             render: (linkState) => {
-                return linkState === 1 ? 
-                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
+                return linkState === 1 ?
+                    <span><Circle style={{ background: '#00A755' }} /> 正常</span> :
+                    <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
             },
         },
-         {
+        {
+            title: '映射状态',
+            dataIndex: 'linkSourceName',
+            key: 'linkSourceName',
+            width: '70px',
+            render: (linkSourceName, record) => {
+                return linkSourceName ? '已配置' : '未配置';
+            },
+        },
+        {
             title: <div className="txt-right m-r-8">操作</div>,
             width: '230px',
             className: 'txt-right m-r-8',
             key: 'operation',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
-                return (
-                    <span key={record.id}>
-                        {
-                            record.type === DATA_SOURCE.MYSQL
-                            &&
-                            <span>
-                                <a onClick={this.openSyncModal.bind(this, record)}>
-                                    同步历史
-                                </a>
-                                <span className="ant-divider" />
-                                <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>
-                                    整库同步
-                                </Link>
-                                <span className="ant-divider" />
-                            </span>
-                        }
-                        <a onClick={() => {this.initEdit(record)}}>
-                            编辑
-                        </a>
-                        <span className="ant-divider" />
-                        { 
-                            record.active === 1 ?
-                                <Popconfirm
-                                    title="此数据源已在任务中被引用，无法删除!"
-                                    okText="确定" cancelText="取消"
-                                    //onConfirm={() => { this.remove(record) }}
-                                >
+                // active  '0：未启用，1：使用中'。  只有为0时，可以修改
+                const { project } = this.props;
+                const isCommon = project.projectType == PROJECT_TYPE.COMMON;
+                const isMysql = record.type === DATA_SOURCE.MYSQL;
+                const isActive = record.active === 1;
+                let menuItem = [];
+                let extAction = null;
+                const splitView = (<span className="ant-divider" />);
+                const deleteView = isActive ? (
+                    <span style={{ color: "#ccc" }}>删除</span>
+                ) : (
+                        <Popconfirm
+                            title="确定删除此数据源？"
+                            okText="确定" cancelText="取消"
+                            onConfirm={() => { this.remove(record) }}
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
+                    );
+                const editView = (<a onClick={() => { this.initEdit(record) }}>编辑</a>);
+                const linkView = (<a onClick={() => { this.setState({ linkModalVisible: true, source: record }) }} >映射配置</a>);
 
-                                    <span style={{color: "#ccc",paddingRight:8}}>删除</span>
-                                </Popconfirm> :
-                                <Popconfirm
-                                    title="确定删除此数据源？"
-                                    okText="确定" cancelText="取消"
-                                    onConfirm={() => { this.remove(record) }}
-                                >
-                                    <a style={{paddingRight:8}}>删除</a>
-                                </Popconfirm>
-                        }
+                /**
+                 * 假如是mysql，那么整库同步放在最外层
+                 */
+                if (isMysql) {
+                    extAction = (
+                        <span>
+                            <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>
+                                整库同步
+                            </Link>
+                            {splitView}
+                        </span>
+                    )
+                    if (!isCommon) {
+                        menuItem.push(
+                            <MenuItem>
+                                {linkView}
+                            </MenuItem>
+                        )
+                    }
+                    menuItem.push(
+                        <MenuItem>
+                            <a onClick={this.openSyncModal.bind(this, record)}>
+                                同步历史
+                            </a>
+                        </MenuItem>
+
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {editView}
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {deleteView}
+                        </MenuItem>
+                    )
+                } else if (isCommon) {
+                    extAction = (
+                        <span>
+                            {editView}
+                            {splitView}
+                            {deleteView}
+                        </span>
+                    )
+                } else {
+                    extAction = (
+                        <span>
+                            {linkView}
+                            {splitView}
+                        </span>
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {editView}
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem>
+                            {deleteView}
+                        </MenuItem>
+                    )
+                }
+                return (
+                    <span>
+                        {extAction}
+                        {menuItem.length? (
+                            <Dropdown overlay={(
+                                <Menu>
+                                    {menuItem}
+                                </Menu>
+                            )} trigger={['click']}>
+                                <a>操作<Icon type="down" /></a>
+                            </Dropdown>
+                        ):null}
                     </span>
+
                 )
             },
         }]
@@ -253,12 +343,14 @@ class DataSourceMana extends Component {
     }
 
     render() {
-        const { visible, title , status, source, syncModalVisible, dataSource } = this.state
-        const {  sourceTypes } = this.props;
+        const { visible, title, status, source, syncModalVisible, dataSource, linkModalVisible } = this.state
+        const { sourceTypes, project } = this.props;
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
         };
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
         const titles = (
             <div>
                 <Search
@@ -275,7 +367,7 @@ class DataSourceMana extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, 
+                        visible: true,
                         source: {},
                         status: 'add',
                         title: '添加数据源',
@@ -287,10 +379,10 @@ class DataSourceMana extends Component {
         return (
             <div>
                 <div className="shadow rdos-data-source">
-                    <Card 
-                        title={titles} 
-                        extra={extra} 
-                        noHovering 
+                    <Card
+                        title={titles}
+                        extra={extra}
+                        noHovering
                         bordered={false}
                     >
                         <Table
@@ -304,8 +396,11 @@ class DataSourceMana extends Component {
                         />
                     </Card>
                 </div>
-                
+
                 <DataSourceForm
+                    isPro={isPro}
+                    isTest={isTest}
+                    showSync={true}
                     title={title}
                     visible={visible}
                     status={status}
@@ -321,20 +416,27 @@ class DataSourceMana extends Component {
                     source={source}
                     cancel={this.closeSyncModal}
                 />
+                <LinkModal
+                    sourceData={source}
+                    visible={linkModalVisible}
+                    type="offline"
+                    onCancel={() => { this.setState({ linkModalVisible: false }) }}
+                    onOk={() => { this.loadDataSources(); this.setState({ linkModalVisible: false }) }}
+                />
             </div>
         )
     }
 }
 export default connect((state) => {
-    console.log('connect',state);
-    
+    console.log('connect', state);
+
     return {
         project: state.project,
         sourceTypes: state.dataSource.sourceTypes,
     }
 }, dispatch => {
     return {
-        getSourceTypes: function() {
+        getSourceTypes: function () {
             dispatch(getSourceTypes())
         }
     }

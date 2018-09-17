@@ -254,7 +254,7 @@ export default class ProjectList extends Component {
             if (projectId) hashHistory.push(`/data-manage/search?pId=${projectId}`)
 
         });
-        //const ctx = this;
+        // const ctx = this;
 
         // myChart.on('mouseover', function (params) {
         //     console.log(params);

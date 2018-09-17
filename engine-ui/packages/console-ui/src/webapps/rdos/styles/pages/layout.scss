@@ -1,6 +1,19 @@
 @import '../const.scss';
 $activeColor: #262e36; // 主色
 
+.head-project-tip{
+    color:#fff;
+    .content{
+        padding: 2px 3px;
+        border: 1px #fff solid;
+        border-radius: 2px;
+    }
+    img{
+        vertical-align: text-top;
+        margin-right: 2px;
+
+    }
+}
 .dt-dev-tools {
 
     .header {
@@ -18,11 +31,21 @@ $activeColor: #262e36; // 主色
             line-height: 47px;
             background: $color1;
             border-bottom: 0;
-    
+            
+            &.menu-margin{
+                >.my-menu-item:nth-of-type(1){
+                    margin-right: 100px;
+                }
+            }
             .my-menu-item {
                 color: #fff;
                 font-size: 14px;
-    
+                &.ant-menu-item-disabled.tip{
+                    cursor: default;
+                    &:hover{
+                        background: inherit;
+                    }
+                }
                 a {
                     color: inherit;
                 }

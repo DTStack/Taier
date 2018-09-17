@@ -66,7 +66,7 @@ class BaseForm extends Component {
             } else {
                 this.setState({ sourceType: sourceData.type })
             }
-        } 
+        }
     }
 
     submit = (e) => {
@@ -170,13 +170,13 @@ class BaseForm extends Component {
     }
 
     renderDynamic() {
-        const { form, sourceData,  } = this.props;
+        const { form, sourceData, } = this.props;
         const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
-        
+
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-        console.log('renderDynamic',config);
-        
+        console.log('renderDynamic', config);
+
         const jdbcRulePattern = {
             pattern: this.getJDBCRule(sourceType),
             message: '请检查您的JDBC地址格式！',
@@ -229,8 +229,8 @@ class BaseForm extends Component {
                                 rules: [{
                                     required: true, message: 'Hadoop配置不可为空！',
                                 }],
-                                initialValue: config.hadoopConfig ?   typeof config.hadoopConfig == "string" ? 
-                                    JSON.stringify(JSON.parse(config.hadoopConfig),null,4): JSON.stringify(config.hadoopConfig,null,4) : ''
+                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == "string" ?
+                                    JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                             })(
                                 <Input
                                     rows={5}
@@ -240,9 +240,9 @@ class BaseForm extends Component {
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon 
-                                style={{position:"absolute",right:"-20px",bottom:"0px"}} 
-                                copyText={hdfsConf} 
+                            <CopyIcon
+                                style={{ position: "absolute", right: "-20px", bottom: "0px" }}
+                                copyText={hdfsConf}
                             />
                         </FormItem>
                     )
@@ -260,7 +260,7 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
-                            }, 
+                            },
                                 jdbcRulePattern
                             ],
                             initialValue: config.jdbcUrl || '',
@@ -292,7 +292,7 @@ class BaseForm extends Component {
                             rules: [],
                             initialValue: '',
                         })(
-                            <Input type="password" autoComplete="off"/>,
+                            <Input type="password" autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
@@ -338,20 +338,20 @@ class BaseForm extends Component {
                                 rules: [{
                                     required: true, message: 'Hadoop配置不可为空！',
                                 }],
-                                initialValue: config.hadoopConfig ?   typeof config.hadoopConfig == "string" ? 
-                                    JSON.stringify(JSON.parse(config.hadoopConfig),null,4): JSON.stringify(config.hadoopConfig,null,4) : ''
+                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == "string" ?
+                                    JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                             })(
                                 <Input
                                     className="no-scroll-bar"
                                     type="textarea" rows={5}
-                                    
+
                                     placeholder={hdfsConf}
                                 />,
                             )}
                             <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon 
-                                style={{position:"absolute",right:"-20px",bottom:"0px"}} 
-                                copyText={hdfsConf} 
+                            <CopyIcon
+                                style={{ position: "absolute", right: "-20px", bottom: "0px" }}
+                                copyText={hdfsConf}
                             />
                         </FormItem>
                     )
@@ -379,7 +379,7 @@ class BaseForm extends Component {
                             />,
                         )}
                     </FormItem>,
-                     <FormItem
+                    <FormItem
                         {...formItemLayout}
                         key="hbase_parent"
                         label="根目录"
@@ -389,7 +389,7 @@ class BaseForm extends Component {
                             rules: [],
                             initialValue: config.hbase_parent || '',
                         })(
-                            <Input 
+                            <Input
                                 placeholder="ZooKeeper中hbase创建的根目录，例如：/hbase"
                             />,
                         )}
@@ -402,8 +402,8 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.hbase_other', {
                             rules: [],
-                            initialValue: config.hbase_other ?   typeof config.hbase_other == "string" ? 
-                            JSON.stringify(JSON.parse(config.hbase_other),null,4): JSON.stringify(config.hbase_other,null,4) : ''
+                            initialValue: config.hbase_other ? typeof config.hbase_other == "string" ?
+                                JSON.stringify(JSON.parse(config.hbase_other), null, 4) : JSON.stringify(config.hbase_other, null, 4) : ''
                         })(
                             <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />,
                         )}
@@ -587,7 +587,7 @@ class BaseForm extends Component {
                             />,
                         )}
                     </FormItem>,
-                     <FormItem
+                    <FormItem
                         {...formItemLayout}
                         label="集群名称"
                         key="clusterName"
@@ -657,7 +657,7 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: '数据库不可为空！',
                             }],
-                            initialValue: '',
+                            initialValue: config.database || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -703,7 +703,7 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
-                            initialValue: '',
+                            initialValue: config.username || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -730,7 +730,7 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: '数据库不可为空！',
                             }],
-                            initialValue: '',
+                            initialValue: config.database || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
@@ -739,7 +739,7 @@ class BaseForm extends Component {
             }
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER: 
+            case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL: {
                 return [
                     <FormItem
@@ -753,8 +753,8 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！',
                             },
-                            jdbcRulePattern,
-                        ],
+                                jdbcRulePattern,
+                            ],
                             initialValue: config.jdbcUrl || '',
                         })(
                             <Input autoComplete="off" />,
@@ -790,7 +790,7 @@ class BaseForm extends Component {
                             }],
                             initialValue: '',
                         })(
-                            <Input type="password" autoComplete="off"/>,
+                            <Input type="password" autoComplete="off" />,
                         )}
                     </FormItem>
                 ]
@@ -800,8 +800,8 @@ class BaseForm extends Component {
     }
 
     render() {
-        
-        const { form, sourceData, status, types } = this.props;
+
+        const { form, sourceData, status, types, isPro, isTest, showSync } = this.props;
         const { getFieldDecorator } = form;
 
         const sourceTypeList = types.map(
@@ -815,8 +815,9 @@ class BaseForm extends Component {
             )
         )
         const sourceType = this.state.sourceType || types[0] && types[0].value
+        const isEdit = status == "edit";
 
-        return ( 
+        return (
             <Form autoComplete="off">
                 <FormItem
                     {...formItemLayout}
@@ -872,6 +873,17 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
+                {isTest && showSync && !isEdit && (<FormItem
+                    {...tailFormItemLayout}
+                >
+                    {getFieldDecorator('isCopyToProduceProject', {
+                        initialValue: sourceData.isCopyToProduceProject
+                    })(
+                        <Checkbox>
+                            复制到目标项目
+                        </Checkbox>
+                    )}
+                </FormItem>)}
                 <FormItem
                     {...tailFormItemLayout}
                     label=""
@@ -906,8 +918,8 @@ class DataSourceForm extends Component {
     }
 
     render() {
-        const { visible , title, sourceTypes } = this.props
-       
+        const { visible, title, sourceTypes } = this.props
+
         const FormWrapper = Form.create()(BaseForm)
 
         return (
@@ -919,10 +931,10 @@ class DataSourceForm extends Component {
                 footer={false}
                 maskClosable={false}
             >
-                <FormWrapper 
-                    types={sourceTypes} 
-                    ref={el => this.myFrom = el} 
-                    {...this.props} 
+                <FormWrapper
+                    types={sourceTypes}
+                    ref={el => this.myFrom = el}
+                    {...this.props}
                 />
             </Modal>
         )

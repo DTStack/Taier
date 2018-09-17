@@ -1,16 +1,64 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import DtWoker from "./dtsql.worker.js";
 
-let _DtParser;
-function loadDtParser(){
-    if(_DtParser){
-        return Promise.resolve(_DtParser)
-    }
-    return import('dt-sql-parser').then(
-        (mod)=>{
-            _DtParser=mod;
-            return _DtParser
+let _DtParserInstance;
+class DtParser{
+    constructor(){
+        this._DtParser=new DtWoker();
+        this._eventMap={};
+        this._DtParser.onmessage=(e)=>{
+            const data=e.data;
+            const eventId=data.eventId;
+            if(this._eventMap[eventId]){
+                this._eventMap[eventId].resolve(data.result)
+                this._eventMap[eventId]=null;
+            }
         }
-    )
+    }
+    parserSql(){
+        const arg=arguments;
+        const eventId=this._createId();
+        return new Promise((resolve,reject)=>{
+            this._DtParser.postMessage({
+                eventId:eventId,
+                type:"parserSql",
+                data:Array.from(arg)
+            });
+            this._eventMap[eventId]={
+                resolve,
+                reject,
+                arg,
+                type:"parserSql"
+            }
+        })
+    }
+    parseSyntax(){
+        const arg=arguments;
+        const eventId=this._createId();
+        return new Promise((resolve,reject)=>{
+            this._DtParser.postMessage({
+                eventId:eventId,
+                type:"parseSyntax",
+                data:Array.from(arg)
+            });
+            this._eventMap[eventId]={
+                resolve,
+                reject,
+                arg,
+                type:"parseSyntax"
+            }
+        })
+    }
+    _createId(){
+        return new Date().getTime()+''+~~(Math.random()*100000)
+    }
+}
+
+function loadDtParser(){
+    if(!_DtParserInstance){
+        _DtParserInstance=new DtParser();
+    }
+    return _DtParserInstance;
 }
 /**
  * Select thing from table, table, table;
@@ -20,6 +68,7 @@ function loadDtParser(){
 const selectRegExp = /Select\s+[\s\S]+\s+from(\s+\w+)((\s*,\s*\w+)*)\s*;/i;
 let cacheKeyWords = [];
 let _completeProvideFunc;
+let _tmp_decorations=[];
 function dtsqlWords() {
     return {
         // builtinFunctions: ["FROM_UNIXTIME", "UNIX_TIMESTAMP", "TO_DATE", "YEAR", "QUARTER", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND", "WEEKOFYEAR", "DATEDIFF", "DATE_ADD", "DATE_SUB", "FROM_UTC_TIMESTAMP", "TO_UTC_TIMESTAMP", "CURRENT_DATE", "CURRENT_TIMESTAMP", "ADD_MONTHS", "LAST_DAY", "NEXT_DAY", "TRUNC", "MONTHS_BETWEEN", "DATE_FORMAT", "ROUND", "BROUND", "FLOOR", "CEIL", "RAND", "EXP", "LN", "LOG10", "LOG2", "LOG", "POW", "SQRT", "BIN", "HEX", "UNHEX", "CONV", "ABS", "PMOD", "SIN", "ASIN", "COS", "ACOS", "TAN", "ATAN", "DEGREES", "RADIANS", "POSITIVE", "NEGATIVE", "SIGN", "E", "PI", "FACTORIAL", "CBRT", "SHIFTLEFT", "SHIFTRIGHT", "SHIFTRIGHTUNSIGNED", "GREATEST", "LEAST", "ASCII", "BASE64", "CONCAT", "CHR", "CONTEXT_NGRAMS", "CONCAT_WS", "DECODE", "ENCODE", "FIND_IN_SET", "FORMAT_NUMBER", "GET_JSON_OBJECT", "IN_FILE", "INSTR", "LENGTH", "LOCATE", "LOWER", "LPAD", "LTRIM", "NGRAMS", "PARSE_URL", "PRINTF", "REGEXP_EXTRACT", "REGEXP_REPLACE", "REPEAT", "REVERSE", "RPAD", "RTRIM", "SENTENCES", "SPACE", "SPLIT", "STR_TO_MAP", "SUBSTR", "SUBSTRING_INDEX", "TRANSLATE", "TRIM", "UNBASE64", "UPPER", "INITCAP", "LEVENSHTEIN", "SOUNDEX", "SIZE", "MAP_KEYS", "MAP_VALUES", "ARRAY_CONTAINS", "SORT_ARRAY", "ROW_NUMBER"],
@@ -96,8 +145,8 @@ monaco.languages.registerCompletionItemProvider("dtsql", {
             if (_completeProvideFunc) {
                 const textValue = model.getValue();
                 const cursorIndex = model.getOffsetAt(position);
-                const dtParser=await loadDtParser();
-                let autoComplete = dtParser.parser.parserSql([textValue.substr(0,cursorIndex),textValue.substr(cursorIndex)]);
+                const dtParser=loadDtParser();
+                let autoComplete =await  dtParser.parserSql([textValue.substr(0,cursorIndex),textValue.substr(cursorIndex)]);
                 let columnContext;
                 if(autoComplete.suggestColumns&&autoComplete.suggestColumns.tables&&autoComplete.suggestColumns.tables.length){
                     columnContext=autoComplete.suggestColumns.tables.map(
@@ -130,10 +179,12 @@ export function registeCompleteItemsProvider(completeProvideFunc) {
 export function disposeProvider() {
     _completeProvideFunc = null;
 }
-export async function onChange(value, _editor) {
-    const dtParser=await loadDtParser();
+export async function onChange(value='', _editor, callback) {
+    const dtParser=loadDtParser();
     const model = _editor.getModel();
-    let syntax = dtParser.parser.parseSyntax(value);
+    // const cursorIndex = model.getOffsetAt(_editor.getPosition());
+    let autoComplete = await dtParser.parserSql(value);
+    let syntax =await dtParser.parseSyntax(value.replace(/\r\n/g,'\n'));
     if (syntax&&syntax.token!="EOF") {
         const message=messageCreate(syntax);
         monaco.editor.setModelMarkers(model, model.getModeId(), [{
@@ -142,12 +193,28 @@ export async function onChange(value, _editor) {
             endLineNumber: syntax.loc.last_line,
             endColumn: syntax.loc.last_column+1,
             message: `[语法错误！] \n${message}`,
-            MarkerSeverity: 8
+            severity: 8
         }])
+        _tmp_decorations= _editor.deltaDecorations(_tmp_decorations,createLineMarker(syntax))
     } else {
+        _editor.deltaDecorations(_tmp_decorations,[])
         monaco.editor.setModelMarkers(model, model.getModeId(), [])
     }
+    if(callback){
+        callback(autoComplete,syntax);
+    }
     console.log(syntax)
+}
+
+function createLineMarker(syntax){
+    return [{
+        range: new monaco.Range(syntax.loc.first_line,1,syntax.loc.last_line,1), 
+        options: { 
+            isWholeLine: true, 
+            // linesDecorationsClassName: 'dt-monaco-line-error' ,
+            className:"dt-monaco-whole-line-error"
+        }
+    }]
 }
 
 function messageCreate(syntax){

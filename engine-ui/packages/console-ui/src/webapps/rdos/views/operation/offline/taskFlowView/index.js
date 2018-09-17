@@ -381,7 +381,8 @@ class TaskFlowView extends Component {
     }
 
     initContextMenu = (graph) => {
-        const ctx = this
+        const ctx = this;
+        const {isPro}=ctx.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -414,7 +415,7 @@ class TaskFlowView extends Component {
             menu.addItem('查看任务日志', null, function () {
                 ctx.showJobLog(currentNode.jobId)
             })
-            menu.addItem('修改任务', null, function () {
+            menu.addItem(`${isPro?'查看':'修改'}任务`, null, function () {
                 ctx.props.goToTaskDev(currentNode.taskId)
             })
             menu.addItem('查看任务属性', null, function () {
@@ -589,7 +590,7 @@ class TaskFlowView extends Component {
     /* eslint-enable */
     render() {
         const { selectedJob, taskLog } = this.state;
-        const { goToTaskDev, project, taskJob } = this.props;
+        const { goToTaskDev, project, taskJob, isPro } = this.props;
 
         return (
             <div className="graph-editor"
@@ -634,7 +635,7 @@ class TaskFlowView extends Component {
                 >
                     <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>
                     <span style={{ marginLeft: "15px" }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
-                    发布于&nbsp;
+                    {isPro?'发布':'提交'}于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
                 </div>
@@ -708,7 +709,7 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_ROUNDED] = false;
         return style;
     }
 }

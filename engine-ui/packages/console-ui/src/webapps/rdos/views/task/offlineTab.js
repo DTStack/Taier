@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { 
-    Icon, Tooltip, 
-    Tabs, Dropdown, Menu 
+import {
+    Icon, Tooltip,
+    Tabs, Dropdown, Menu
 } from 'antd';
 import { isEmpty, union } from 'lodash';
 
@@ -25,14 +25,15 @@ import {
     workbenchActions,
 } from '../../store/modules/offlineTask/offlineAction';
 
-import { MENU_TYPE } from '../../comm/const';
+import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
 import { showSeach } from '../../store/modules/comm';
 import { getTaskTypes } from '../../store/modules/offlineTask/comm';
+import { isProjectCouldEdit } from '../../comm';
 
 const TabPane = Tabs.TabPane;
 
 @connect(state => {
-    const { offlineTask } = state;
+    const { offlineTask, user } = state;
     const { currentTab, tabs } = offlineTask.workbench;
 
     const currentTabData = tabs.filter(tab => {
@@ -40,6 +41,7 @@ const TabPane = Tabs.TabPane;
     })[0];
 
     return {
+        user,
         project: state.project,
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
@@ -136,8 +138,8 @@ class OfflineTabPane extends Component {
         } = this.props;
 
         // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
-        if ( 
-            !currentTab || 
+        if (
+            !currentTab ||
             (type === MENU_TYPE.TASK_DEV && menu !== MENU_TYPE.TASK) ||
             (type === MENU_TYPE.SCRIPT && menu !== MENU_TYPE.SCRIPT)
         ) return;
@@ -212,10 +214,10 @@ class OfflineTabPane extends Component {
             isGetFile: !!1,
             nodePid: 0
         }).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const arrData = res.data.children;
 
-                this.setState({  subMenus: arrData, })
+                this.setState({ subMenus: arrData, })
 
                 for (let i = 0; i < arrData.length; i++) {
                     const menuItem = arrData[i]
@@ -331,11 +333,14 @@ class OfflineTabPane extends Component {
             tableTreeData,
             currentTab,
             currentTabData,
+            project,
+            user
         } = this.props;
 
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
-
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const couldEdit=isProjectCouldEdit(project,user);
         const menus = []
         if (subMenus && subMenus.length > 0) {
             for (let i = 0; i < subMenus.length; i++) {
@@ -354,21 +359,21 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        style={{fontSize: '12px'}}
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
                                 <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="task:newTask">
+                                        {couldEdit && <Menu.Item key="task:newTask">
                                             新建任务
-                                        </Menu.Item>
+                                        </Menu.Item>}
                                         <Menu.Item key="task:search">
                                             搜索任务（Ctrl + P）
                                         </Menu.Item>
-                                        <Menu.Item key="task:newFolder">
+                                        {couldEdit && <Menu.Item key="task:newFolder">
                                             新建文件夹
-                                        </Menu.Item>
+                                        </Menu.Item>}
                                     </Menu>
                                 } trigger={['click']}>
                                     <Icon type="bars" />
@@ -378,6 +383,8 @@ class OfflineTabPane extends Component {
                                 {
                                     !isEmpty(taskTreeData) &&
                                     <FolderTree
+                                        isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={MENU_TYPE.TASK_DEV}
                                         onExpand={this.onExpand}
                                         treeData={taskTreeData}
@@ -400,31 +407,35 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        style={{fontSize: '12px'}}
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
                                     />
                                 </Tooltip>
-                                <Dropdown overlay={
-                                    <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="script:newScript">
-                                            新建脚本
+                                {couldEdit && (
+                                    <Dropdown overlay={
+                                        <Menu onClick={this.onMenuClick}>
+                                            <Menu.Item key="script:newScript">
+                                                新建脚本
                                         </Menu.Item>
-                                        <Menu.Item key="script:newFolder">
-                                            新建文件夹
+                                            <Menu.Item key="script:newFolder">
+                                                新建文件夹
                                         </Menu.Item>
-                                    </Menu>
-                                } trigger={['click']}>
-                                    <Icon type="bars" />
-                                </Dropdown>
+                                        </Menu>
+                                    } trigger={['click']}>
+                                        <Icon type="bars" />
+                                    </Dropdown>
+                                )}
                             </header>
                             <div>
-                                { 
+                                {
                                     !isEmpty(scriptTreeData) &&
-                                    <FolderTree 
+                                    <FolderTree
+                                        isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={menuItem.catalogueType}
                                         expandedKeys={expandedKeys}
                                         onExpand={this.onExpand}
-                                        treeData={scriptTreeData} 
+                                        treeData={scriptTreeData}
                                     />
                                 }
                             </div>
@@ -437,34 +448,38 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        style={{fontSize: '12px'}}
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
                                     />
                                 </Tooltip>
-                                <Dropdown overlay={
-                                    <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="resource:upload">
-                                            上传资源
+                                {couldEdit && (
+                                    <Dropdown overlay={
+                                        <Menu onClick={this.onMenuClick}>
+                                            <Menu.Item key="resource:upload">
+                                                上传资源
                                         </Menu.Item>
-                                        <Menu.Item key="resource:replace">
-                                            替换资源
+                                            <Menu.Item key="resource:replace">
+                                                替换资源
                                         </Menu.Item>
-                                        <Menu.Item key="resource:newFolder">
-                                            新建文件夹
+                                            <Menu.Item key="resource:newFolder">
+                                                新建文件夹
                                         </Menu.Item>
-                                    </Menu>
-                                } trigger={['click']}>
-                                    <Icon type="bars" />
-                                </Dropdown>
+                                        </Menu>
+                                    } trigger={['click']}>
+                                        <Icon type="bars" />
+                                    </Dropdown>
+                                )}
                             </header>
                             <div>
                                 {
                                     !isEmpty(resourceTreeData) &&
-                                    <FolderTree 
-                                        type={menuItem.catalogueType} 
+                                    <FolderTree
+                                        isPro={isPro}
+                                        couldEdit={couldEdit}
+                                        type={menuItem.catalogueType}
                                         expandedKeys={expandedKeys}
                                         onExpand={this.onExpand}
-                                        treeData={resourceTreeData} 
+                                        treeData={resourceTreeData}
                                     />
                                 }
                             </div>
@@ -477,11 +492,12 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="刷新">
                                     <Icon
                                         type="sync"
-                                        style={{fontSize: '12px'}}
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
                                     />
                                 </Tooltip>
-                                <Dropdown overlay={
+                                {couldEdit&&(
+                                    <Dropdown overlay={
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="function:newFunc">
                                             新建函数
@@ -493,19 +509,24 @@ class OfflineTabPane extends Component {
                                 } trigger={['click']}>
                                     <Icon type="bars" />
                                 </Dropdown>
+                                )}
                             </header>
                             <div>
                                 {
                                     !isEmpty(functionTreeData) &&
-                                    <FolderTree 
-                                    type={MENU_TYPE.COSTOMFUC}
-                                    expandedKeys={expandedKeys}
-                                    onExpand={this.onExpand}
-                                    treeData={functionTreeData} />
+                                    <FolderTree
+                                        isPro={isPro}
+                                        couldEdit={couldEdit}
+                                        type={MENU_TYPE.COSTOMFUC}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
+                                        treeData={functionTreeData} />
                                 }
                                 {
                                     !isEmpty(sysFunctionTreeData) &&
-                                    <FolderTree 
+                                    <FolderTree
+                                        isPro={isPro}
+                                        couldEdit={couldEdit}
                                         type={MENU_TYPE.SYSFUC}
                                         expandedKeys={expandedKeys2}
                                         onExpand={this.onExpand2}
@@ -517,7 +538,7 @@ class OfflineTabPane extends Component {
                         break;
                     }
                     case MENU_TYPE.TABLE: {
-                        menuContent = <TableTree treeData={tableTreeData}/>
+                        menuContent = <TableTree treeData={tableTreeData} />
                         break;
                     }
                     default: {
@@ -526,8 +547,8 @@ class OfflineTabPane extends Component {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}> 
-                        {menuContent} 
+                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}>
+                        {menuContent}
                     </TabPane>
                 )
             }
@@ -551,7 +572,7 @@ class OfflineTabPane extends Component {
                     activeKey={this.state.menu}
                     onChange={this.onMenuChange}
                 >
-                    { this.renderTabPanes() }
+                    {this.renderTabPanes()}
                 </Tabs>
             </div>
         )
