@@ -4,9 +4,7 @@ import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.service.db.dao.*;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
@@ -102,31 +100,20 @@ public class ActionServiceImpl {
      * master 节点分发的容灾任务
      */
     public void masterSendJobs(Map<String, Object> params) throws Exception {
-        if(!params.containsKey("jobs")){
-            logger.info("invalid param:" + params);
-            return;
-        }
-        Object paramsObj = params.get("jobs");
-        if(!(paramsObj instanceof List)){
-            logger.info("invalid param:" + params);
-            return;
-        }
-        List<String> jobIds = (List<String>) paramsObj;
-        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
-        for (RdosEngineJobCache jobCache :jobCaches){
-            try {
-                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                JobClient jobClient = new JobClient(paramAction);
-                if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                    workNode.addSubmitJob(jobClient);
-                } else {
-                    workNode.afterSubmitJob(jobClient);
-                }
-            } catch (Exception e) {
-                //数据转换异常--打日志
-                logger.error("", e);
-                workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+        try {
+            if(!params.containsKey("jobIds")){
+                logger.info("invalid param:" + params);
+                return;
             }
+            Object paramsObj = params.get("jobIds");
+            if(!(paramsObj instanceof List)){
+                logger.info("invalid param:" + params);
+                return;
+            }
+            List<String> jobIds = (List<String>) paramsObj;
+            workNode.masterSendSubmitJob(jobIds);
+        }catch (Exception e){
+            logger.error("", e);
         }
     }
 

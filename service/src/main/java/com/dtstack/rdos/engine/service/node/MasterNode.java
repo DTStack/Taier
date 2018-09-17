@@ -279,6 +279,10 @@ public class MasterNode {
             if (nodeEntry.getValue().isEmpty()) {
                 continue;
             }
+            if (nodeEntry.getKey().equals(zkDistributed.getLocalAddress())){
+                workNode.masterSendSubmitJob(nodeEntry.getValue());
+                continue;
+            }
             Map<String, Object> params = new HashMap<>(1);
             params.put("jobIds", nodeEntry.getValue());
             HttpSendClient.masterSendJobs(nodeEntry.getKey(), params);

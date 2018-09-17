@@ -171,6 +171,25 @@ public class WorkNode {
         }
     }
 
+    public void masterSendSubmitJob(List<String> jobIds){
+        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        for (RdosEngineJobCache jobCache :jobCaches){
+            try {
+                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                JobClient jobClient = new JobClient(paramAction);
+                if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
+                    this.addSubmitJob(jobClient);
+                } else {
+                    this.afterSubmitJob(jobClient);
+                }
+            } catch (Exception e) {
+                //数据转换异常--打日志
+                LOG.error("", e);
+                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+            }
+        }
+    }
+
     public void addStopJob(ParamAction paramAction){
         jobStopQueue.addJob(paramAction);
     }
