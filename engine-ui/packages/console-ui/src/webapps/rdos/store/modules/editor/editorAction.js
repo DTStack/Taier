@@ -5,10 +5,11 @@ import {
 } from 'antd';
 
 import API from "../../../api";
+import { taskStatus, offlineTaskStatusFilter } from "../../../comm/const"
 import { editorAction } from './actionTypes';
 import { createLinkMark } from "widgets/code-editor/utils"
 
-const INTERVALS = 3000;
+const INTERVALS = 1500;
 const EXCHANGE_STATUS = {
     4: "running",
     5: "success",
@@ -47,14 +48,24 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                 //状态正常
                 if (res && res.code === 1) {
 
-                    switch (EXCHANGE_STATUS[res.data.status]) {
-                        case "success": {
+                    switch (res.data.status) {
+                        case taskStatus.FINISHED: {
                             //成功
                             getDataOver(dispatch, currentTab, res, jobId)
                             resolve(true);
                             return;
                         }
-                        case "running": {
+                        case taskStatus.FAILED:
+                            {
+                                dispatch(output(currentTab, `运行失败!`))
+                                if (res.data && res.data.download) {
+                                    dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                                }
+                                dispatch(removeLoadingTab(currentTab))
+                                resolve(false)
+                                return;
+                            }
+                        default: {
                             //正常运行，则再次请求,并记录定时器id
                             intervalsStore[currentTab] = setTimeout(
                                 () => {
@@ -63,20 +74,15 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                                         stopSign[currentTab] = false;
                                         return;
                                     }
-                                    dispatch(output(currentTab, `执行中.....`))
+                                    for(let i=0;i<offlineTaskStatusFilter.length;i++){
+                                        if(offlineTaskStatusFilter[i].value==res.data.status){
+                                            dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}.....`))
+                                            continue;
+                                        }
+                                    }
                                     doSelect(resolve, dispatch, jobId, currentTab)
                                 }, INTERVALS
                             )
-                            return;
-                        }
-                        case "fail":
-                        default: {
-                            //同失败
-                            if (res.data && res.data.download) {
-                                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                            }
-                            dispatch(removeLoadingTab(currentTab))
-                            resolve(false)
                             return;
                         }
                     }
