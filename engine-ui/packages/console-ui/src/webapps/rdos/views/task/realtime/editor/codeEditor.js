@@ -74,7 +74,7 @@ class CodeEditor extends Component {
                 readOnly: isLocked,
             },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme,
+            theme: editor.options.theme || "white",
             onChange: this.onContentChange,
             sync: currentPage.merged || undefined,
             onCursorSelection: this.debounceSelectionChange,

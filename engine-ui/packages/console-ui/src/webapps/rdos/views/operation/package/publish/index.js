@@ -207,8 +207,8 @@ class PackagePublish extends React.Component {
         }, mode)
             .then(
                 (res) => {
+                    this.getPackageList();
                     if (res.code == 1) {
-                        this.getPackageList();
                         message.success("发布成功")
                     }
                 }
