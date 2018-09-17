@@ -1,9 +1,8 @@
 package com.dtstack.rdos.engine.service.zk;
 
-import com.google.common.collect.Lists;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Collection;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -18,18 +17,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class ShardConsistentHash {
 
-    private static final int NUMBER_OF_REPLICAS = 5;
-
-    private static ShardConsistentHash singleton = new ShardConsistentHash(NUMBER_OF_REPLICAS, Lists.newArrayList());
-
-    public static ShardConsistentHash getInstance() {
-        return singleton;
-    }
-
     /**
      * 节点的复制因子,实际节点个数 * numberOfReplicas = 虚拟节点个数
      */
-    private int numberOfReplicas;
+    private static final int NUMBER_OF_REPLICAS = 100;
     /**
      * 存储虚拟节点的hash值到真实节点的映射
      */
@@ -42,21 +33,22 @@ public class ShardConsistentHash {
      * 仅用于节点宕机后数据迁移，计算其他机器节点任务分配的分片.
      * 其他情况下请使用单例引用对象
      */
-    public ShardConsistentHash(int numberOfReplicas, Collection<String> shards) {
-        this.numberOfReplicas = numberOfReplicas;
-        for (String shard : shards) {
-            add(shard);
+    public ShardConsistentHash(Collection<String> shards) {
+        if (shards != null && !shards.isEmpty()) {
+            for (String shard : shards) {
+                add(shard);
+            }
         }
     }
 
     public void add(String shard) {
-        for (int i = 0; i < numberOfReplicas; i++) {
+        for (int i = 0; i < NUMBER_OF_REPLICAS; i++) {
             circle.put(getHash(shard + i), shard);
         }
     }
 
     public void remove(String shard) {
-        for (int i = 0; i < numberOfReplicas; i++) {
+        for (int i = 0; i < NUMBER_OF_REPLICAS; i++) {
             circle.remove(getHash(shard + i));
         }
     }
@@ -81,18 +73,55 @@ public class ShardConsistentHash {
 
     private long getHash(String key) {
         try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update(key.getBytes());
-            byte[] bKey = md5.digest();
-            //具体的哈希函数实现细节--每个字节 & 0xFF 再移位
-            long result = ((long) (bKey[3] & 0xFF) << 24)
-                    | ((long) (bKey[2] & 0xFF) << 16
-                    | ((long) (bKey[1] & 0xFF) << 8) | (long) (bKey[0] & 0xFF));
-            return result & 0xffffffffL;
-        } catch (NoSuchAlgorithmException e) {
+            return hash64A(key.getBytes("utf-8"));
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         return 0L;
+    }
+
+
+    public static long hash64A(byte[] key) {
+        return hash64A(ByteBuffer.wrap(key), 0x1234ABCD);
+    }
+
+    public static long hash64A(ByteBuffer buf, int seed) {
+        ByteOrder byteOrder = buf.order();
+        buf.order(ByteOrder.LITTLE_ENDIAN);
+
+        long m = 0xc6a4a7935bd1e995L;
+        int r = 47;
+
+        long h = seed ^ (buf.remaining() * m);
+
+        long k;
+        while (buf.remaining() >= 8) {
+            k = buf.getLong();
+
+            k *= m;
+            k ^= k >>> r;
+            k *= m;
+
+            h ^= k;
+            h *= m;
+        }
+
+        if (buf.remaining() > 0) {
+            ByteBuffer finish = ByteBuffer.allocate(8).order(
+                    ByteOrder.LITTLE_ENDIAN);
+            // for big-endian version, do this first:
+            // finish.position(8-buf.remaining());
+            finish.put(buf).rewind();
+            h ^= finish.getLong();
+            h *= m;
+        }
+
+        h ^= h >>> r;
+        h *= m;
+        h ^= h >>> r;
+
+        buf.order(byteOrder);
+        return h;
     }
 
 }

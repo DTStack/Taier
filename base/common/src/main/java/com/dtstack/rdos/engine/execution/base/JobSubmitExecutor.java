@@ -5,12 +5,10 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -109,9 +107,7 @@ public class JobSubmitExecutor implements Closeable{
 
         if(exeQueueMgr.remove(jobClient.getEngineType(), jobClient.getGroupName(), jobClient.getTaskId())){
             //直接移除
-            Map<String, Integer> jobStatus = Maps.newHashMap();
-            jobStatus.put(JobClientCallBack.JOB_STATUS, RdosTaskStatus.CANCELED.getStatus());
-            jobClient.doJobClientCallBack(jobStatus);
+            jobClient.doStatusCallBack(RdosTaskStatus.CANCELED.getStatus());
         }
 
         if(jobClient.getEngineTaskId() == null){

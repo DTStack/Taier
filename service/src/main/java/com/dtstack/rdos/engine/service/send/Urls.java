@@ -16,15 +16,11 @@ public class Urls {
 
 	public final static String MIGRATION = String.format("%s/%s",ROOT,"migration");
 
-    public final static String MIGRATE = String.format("%s/%s",MIGRATION,"migrate");
-
-    public final static String START = String.format("%s/%s", ACTION,"start");
-	
-	public final static String STOP = String.format("%s/%s", ACTION, "stop");
+    public final static String MASTER_SEND_JOBS = String.format("%s/%s",ACTION,"masterSendJobs");
 
 	public final static String SUBMIT = String.format("%s/%s", ACTION, "submit");
 
-	public final static String MASTER_SEND_STOP = String.format("%s/%s", ACTION, "masterSendStop");
+	public final static String WORK_SEND_STOP = String.format("%s/%s", ACTION, "workSendStop");
 
 
 

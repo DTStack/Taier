@@ -1,10 +1,9 @@
 package com.dtstack.rdos.engine.service.node;
 
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobClientCallBack;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
@@ -15,14 +14,18 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +47,6 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author xuchao
  */
-
 public class WorkNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
@@ -57,6 +61,8 @@ public class WorkNode {
     private static final int DISPATCH_RETRY_LIMIT = 3;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -78,15 +84,39 @@ public class WorkNode {
     }
 
     private WorkNode(){
-        ExecutorService senderExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(), new CustomThreadFactory("submitDealer"));
-        SubmitDealer submitDealer = new SubmitDealer(priorityQueueMap);
-        senderExecutor.submit(submitDealer);
+        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("submitDealer"));
+        scheduledService.scheduleWithFixedDelay(
+                new SubmitDealer(priorityQueueMap),
+                0,
+                WAIT_INTERVAL,
+                TimeUnit.MILLISECONDS);
+
+        ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
+        recoverExecutor.submit(new RecoverDealer());
 
         jobStopQueue = new JobStopQueue(this);
         jobStopQueue.start();
+
+        zkLocalCache.setWorkNode(this);
     }
 
+    public GroupPriorityQueue getEngineTypeQueue(String engineType) {
+        return priorityQueueMap.computeIfAbsent(engineType, k->new GroupPriorityQueue());
+    }
+
+    /**
+     * 获取当前节点的队列大小信息
+     */
+    public Map<String, Map<String, Integer>> getEngineTypeQueueSizeInfo(){
+        Map<String, Map<String, Integer>> engineTypeQueueSizeInfo = Maps.newHashMap();
+        priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->queue.getGroupSizeInfo()));
+        return engineTypeQueueSizeInfo;
+    }
+
+    /**
+     * 任务分发
+     */
     public void addStartJob(JobClient jobClient){
         boolean distribute = distributeTask(jobClient,0,Lists.newArrayList());
         if (!distribute){
@@ -94,30 +124,41 @@ public class WorkNode {
         }
     }
 
+    /**
+     * 提交优先级队列->最终提交到具体执行组件
+     */
     public void addSubmitJob(JobClient jobClient) {
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        jobClient.setJobClientCallBack(new JobClientCallBack() {
-            @Override
-            public void execute(Map<String, ? extends Object> params) {
-                if(!params.containsKey(JOB_STATUS)){
-                    return;
-                }
-                int jobStatus = MathUtil.getIntegerVal(params.get(JOB_STATUS));
-                zkDistributed.updateJobZKStatus(zkTaskId, jobStatus);
-                updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
-            }
+        jobClient.setCallBack((jobStatus)-> {
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
+            updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
         saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
-        zkDistributed.updateJobZKStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+//        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
         this.redirectSubmitJob(jobClient);
+    }
+
+    /**
+     * 容灾时对已经提交到执行组件的任务，进行恢复
+     */
+    public void afterSubmitJob(JobClient jobClient) {
+        Integer computeType = jobClient.getComputeType().getType();
+        if(jobClient.getPluginInfo() != null){
+            updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
+        }
+        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+        //检查分片
+        zkLocalCache.checkShard();
+        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 
     public void redirectSubmitJob(JobClient jobClient){
@@ -127,6 +168,25 @@ public class WorkNode {
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
+        }
+    }
+
+    public void masterSendSubmitJob(List<String> jobIds){
+        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        for (RdosEngineJobCache jobCache :jobCaches){
+            try {
+                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                JobClient jobClient = new JobClient(paramAction);
+                if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
+                    this.addSubmitJob(jobClient);
+                } else {
+                    this.afterSubmitJob(jobClient);
+                }
+            } catch (Exception e) {
+                //数据转换异常--打日志
+                LOG.error("", e);
+                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+            }
         }
     }
 
@@ -148,10 +208,11 @@ public class WorkNode {
      * 3. cache的移除在任务发送完毕之后
      */
     public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+        String nodeAddress = zkDistributed.getLocalAddress();
         if(engineJobCacheDao.getJobById(jobId) != null){
-            engineJobCacheDao.updateJobStage(jobId, stage);
+            engineJobCacheDao.updateJobStage(jobId, stage, nodeAddress);
         }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo);
+            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
         }
     }
 
@@ -185,7 +246,7 @@ public class WorkNode {
         boolean result = groupPriorityQueue.remove(groupName, jobId);
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
-            zkDistributed.updateJobZKStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
             engineJobCacheDao.deleteJob(jobId);
             //修改任务状态
             if(ComputeType.BATCH.getType().equals(computeType)){
@@ -203,15 +264,15 @@ public class WorkNode {
      */
     private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
 
-        String address = zkDistributed.getDistributeNode(excludeNodes);
-        if(Strings.isNullOrEmpty(address)){
-            return false;
-        }
-        if (address.equals(zkDistributed.getLocalAddress())){
-            this.addSubmitJob(jobClient);
-            return true;
-        }
         try {
+            String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
+            if(Strings.isNullOrEmpty(address)){
+                return false;
+            }
+            if (address.equals(zkDistributed.getLocalAddress())){
+                this.addSubmitJob(jobClient);
+                return true;
+            }
             ParamAction paramAction = jobClient.getParamAction();
             paramAction.setRequestStart(RequestStart.NODE.getStart());
             if(HttpSendClient.actionSubmit(address, paramAction)){
@@ -238,9 +299,8 @@ public class WorkNode {
      * master 节点分发任务失败
      * @param taskId
      */
-    private void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
+    public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
         engineJobCacheDao.deleteJob(taskId);
-
         if(ComputeType.BATCH.typeEqual(computeType)){
             rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
         }else if(ComputeType.STREAM.typeEqual(computeType)){
@@ -254,7 +314,6 @@ public class WorkNode {
         return String.format("{\"msg_info\":\"%s\"}", msgInfo);
     }
 
-
     class SubmitDealer implements Runnable{
 
         private Map<String, GroupPriorityQueue> groupPriorityQueueMap;
@@ -265,25 +324,14 @@ public class WorkNode {
 
         @Override
         public void run() {
-            LOG.info("-----{}:优先级队列发送任务线程触发开始执行----");
-
-            while (true){
-                try{
-                    for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
-                        for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
-                            submitJobClient(queue);
-                        }
-                    }
-
-                }catch (Exception e){
-                    LOG.error("", e);
-                }finally {
-                    try {
-                        Thread.sleep(WAIT_INTERVAL);
-                    } catch (InterruptedException e) {
-                        LOG.error("", e);
+            try{
+                for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
+                    for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
+                        submitJobClient(queue);
                     }
                 }
+            }catch (Exception e){
+                LOG.error("", e);
             }
         }
 
@@ -299,16 +347,12 @@ public class WorkNode {
                 boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
                 //重试任务时间未满足条件，出队后进行优先级计算完后重新入队
                 if (!isRestartJobCanSubmit){
-                    it.remove();
-                    updateQueuePriority(priorityQueue);
-                    redirectSubmitJob(jobClient);
-                    break;
+                    jobClient.setPriority(jobClient.getPriority()-1);
+                    continue;
                 }
                 //提交到生产者消费者队列
                 if (jobClient.submitJob()) {
-                    saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(),
-                            EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
-                    priorityQueue.remove(jobClient);
+                    it.remove();
                 } else {
                     //更新剩余任务的优先级数据
                     updateQueuePriority(priorityQueue);
@@ -330,6 +374,60 @@ public class WorkNode {
 
         }
 
+    }
+
+    class RecoverDealer implements Runnable{
+        @Override
+        public void run() {
+            LOG.info("-----重启后任务开始恢复----");
+            try{
+                loadQueueFromDB();
+            }catch (Exception e){
+                LOG.error("----load data from DB error:{}", e);
+            }
+            LOG.info("-----重启后任务结束恢复-----");
+        }
+    }
+
+    /**
+     * 重启后，各自节点load自己的数据
+     */
+    public void loadQueueFromDB(){
+        List<InterProcessMutex> locks = null;
+        String localAddress = zkDistributed.getLocalAddress();
+        try {
+            locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
+            long startId = 0L;
+            while (true) {
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null);
+                if (CollectionUtils.isEmpty(jobCaches)) {
+                    //两种情况：
+                    //1. 可能本身没有jobcaches的数据
+                    //2. master节点已经为此节点做了容灾
+                    break;
+                }
+                for(RdosEngineJobCache jobCache : jobCaches){
+                    try {
+                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                        JobClient jobClient = new JobClient(paramAction);
+                        if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
+                            this.addSubmitJob(jobClient);
+                        } else {
+                            WorkNode.getInstance().afterSubmitJob(jobClient);
+                        }
+                        startId = jobCache.getId();
+                    } catch (Exception e) {
+                        //数据转换异常--打日志
+                        LOG.error("", e);
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("----broker:{} RecoverDealer error:{}", localAddress, e);
+        } finally {
+            zkDistributed.releaseLock(locks);
+        }
     }
 
 }

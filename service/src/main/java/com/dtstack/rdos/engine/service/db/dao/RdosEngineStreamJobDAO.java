@@ -44,17 +44,29 @@ public class RdosEngineStreamJobDAO {
 	}
 	
 	
-	public void updateTaskStatus(final String taskId,final int stauts){
+	public void updateTaskStatus(final String taskId,final int status){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				rdosTaskMapper.updateTaskStatus(taskId, stauts);
+				rdosTaskMapper.updateTaskStatus(taskId, status);
 				return null;
 			}
 			
+		});
+	}
+
+	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+			@Override
+			public Integer execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.updateTaskStatusCompareOld(taskId, status, oldStatus);
+			}
+
 		});
 	}
 
@@ -152,4 +164,5 @@ public class RdosEngineStreamJobDAO {
 
 		});
 	}
+
 }

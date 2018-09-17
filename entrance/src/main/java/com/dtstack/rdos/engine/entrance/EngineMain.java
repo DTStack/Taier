@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.web.VertxHttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class EngineMain {
 	private static ZkDistributed zkDistributed;
 
 	private static JobSubmitExecutor jobSubmitExecutor;
+
+	private static ZkLocalCache zkLocalCache;
 
 	public static void main(String[] args) {
 		try {
@@ -57,11 +60,13 @@ public class EngineMain {
 
 		zkDistributed.zkRegistration();
 
+		zkLocalCache = ZkLocalCache.getInstance();
+
 		logger.warn("start engine success...");
 
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor,zkLocalCache).addShutDownHook();
 	}
 }

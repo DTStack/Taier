@@ -76,6 +76,7 @@ public class ActionServiceImpl {
     }
 
     /**
+     * 节点间 http 交互方法
      * 执行从 work node 上下发的任务
      */
     public Map<String, Object> submit(Map<String, Object> params){
@@ -93,6 +94,27 @@ public class ActionServiceImpl {
             logger.error("", e);
         }
         return result;
+    }
+
+    /**
+     * master 节点分发的容灾任务
+     */
+    public void masterSendJobs(Map<String, Object> params) throws Exception {
+        try {
+            if(!params.containsKey("jobIds")){
+                logger.info("invalid param:" + params);
+                return;
+            }
+            Object paramsObj = params.get("jobIds");
+            if(!(paramsObj instanceof List)){
+                logger.info("invalid param:" + params);
+                return;
+            }
+            List<String> jobIds = (List<String>) paramsObj;
+            workNode.masterSendSubmitJob(jobIds);
+        }catch (Exception e){
+            logger.error("", e);
+        }
     }
 
     /**
@@ -126,7 +148,10 @@ public class ActionServiceImpl {
         }
     }
 
-    public void masterSendStop(Map<String, Object> params) throws Exception {
+    /**
+     * 节点间 http 交互方法
+     */
+    public void workSendStop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
         stopAction.stopJob(paramAction);
         logger.info("stop job:{} success." + paramAction.getTaskId());
@@ -148,31 +173,22 @@ public class ActionServiceImpl {
     }
 
     private boolean checkSubmitted(ParamAction paramAction){
-        boolean result;
         String jobId = paramAction.getTaskId();
         Integer computerType = paramAction.getComputeType();
-
         if (ComputeType.STREAM.getType().equals(computerType)) {
             RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineStreamJob == null){
-                logger.error("can't find job from engineStreamJob:" + paramAction);
-                return false;
+            if(rdosEngineStreamJob != null){
+                return true;
             }
-
-            result = RdosTaskStatus.canSubmitAgain(rdosEngineStreamJob.getStatus());
-
+            logger.error("can't find job from engineStreamJob:" + paramAction);
         }else{
             RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-            if(rdosEngineBatchJob == null){
-                logger.error("can't find job from engineBatchJob:" + paramAction);
-                return false;
+            if(rdosEngineBatchJob != null) {
+                return true;
             }
-
-            result = RdosTaskStatus.canSubmitAgain(rdosEngineBatchJob.getStatus());
-
+            logger.error("can't find job from engineBatchJob:" + paramAction);
         }
-
-        return result;
+        return false;
     }
 
     /**
@@ -205,7 +221,11 @@ public class ActionServiceImpl {
 
                     result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                     if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
-                        engineStreamTaskDAO.updateTaskStatus(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                        int oldStatus = rdosEngineStreamJob.getStatus().intValue();
+                        Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus);
+                        if (update==null||update!=1){
+                            result = false;
+                        }
                     }
                 }
             }else{
@@ -221,7 +241,11 @@ public class ActionServiceImpl {
 
                     result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
                     if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
-                        batchJobDAO.updateJobStatus(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus());
+                        int oldStatus = rdosEngineBatchJob.getStatus().intValue();
+                        Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus);
+                        if (update==null||update!=1){
+                            result = false;
+                        }
                     }
                 }
             }

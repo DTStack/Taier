@@ -7,21 +7,12 @@ import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 
 /**
  * Created by sishu.yss on 2017/3/14.
  */
 public class HttpSendClient {
-
-    private static ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-
-    public static void actionStart(String address, ParamAction paramAction) throws Exception{
-        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.START), PublicUtil.ObjectToMap(paramAction));
-    }
 
     /**
      * 返回数据格式{"send":true}
@@ -51,20 +42,11 @@ public class HttpSendClient {
         return MathUtil.getBoolean(sendData.get("send"));
     }
 
-    public static void actionStopJob(String address, Map<String, Object> params) throws IOException {
-        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.STOP), params);
-    }
-
     public static void actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
-        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.MASTER_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
+        PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.WORK_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
     }
 
-	public static void migration(final String node,String target)throws Exception{
-        Map<String,Object> params = new HashMap<String,Object>(){
-            {
-                put("node",node);
-            }
-        };
-        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MIGRATE),params);
+    public static void masterSendJobs(String target,Map<String, Object> params) {
+        PoolHttpClient.post(UrlUtil.getHttpUrl(target,Urls.MASTER_SEND_JOBS),params);
     }
 }

@@ -1,44 +1,78 @@
 package com.dtstack.rdos.engine.service.zk.data;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
+import java.util.Collections;
+import java.util.NavigableMap;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * 
- * Reason: TODO ADD REASON(可选)
- * Date: 2017年03月03日 下午1:25:18
- * Company: www.dtstack.com
- * @author sishu.yss
- *
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2018/9/1
  */
 public class BrokerDataShard {
 
-    /**FIXME 如果存储的key格式发生改变--需要修改 BrokerDataTreeMap 的构造函数*/
-	private BrokerDataTreeMap metas;
+    private BrokerDataTreeMap<String, Byte> metas;
+    private long version;
 
-	public BrokerDataTreeMap getMetas() {
-		return metas;
-	}
+    @JsonIgnore
+    private transient volatile AtomicLong newVersion;
 
-	public void setMetas(BrokerDataTreeMap metas) {
-		this.metas = metas;
-	}
-	
-	public static void copy(BrokerDataShard source, BrokerDataShard target, boolean isCover){
-    	if(source.getMetas()!=null){
-    		if(isCover){
-        		target.setMetas(source.getMetas());
-    		}else{
-    			target.getMetas().putAll(source.getMetas());
-    		}
-    	}
-	}
-	
-	public static BrokerDataShard initBrokerDataShard(){
-		BrokerDataShard brokerNode = new BrokerDataShard();
-		brokerNode.setMetas(new BrokerDataTreeMap());
-		return brokerNode;
-	}
-	
-	public static BrokerDataShard initNullBrokerShard(){
-		BrokerDataShard brokerDataShard = new BrokerDataShard();
-		return brokerDataShard;
-	}
+    /**
+     * 请使用 getView() 获取数据视图，不可修改！
+     * 仅用于ZkDistributed中的数据迁移，方便管理任务
+     */
+    public BrokerDataTreeMap<String, Byte> getMetas() {
+        return metas;
+    }
+
+    public void setMetas(BrokerDataTreeMap<String, Byte> metas) {
+        this.metas = metas;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    @JsonIgnore
+    public AtomicLong getNewVersion() {
+        return newVersion;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+        this.newVersion = new AtomicLong(version);
+    }
+
+    public Byte put(String key, Byte value) {
+        newVersion.incrementAndGet();
+        return metas.put(key, value);
+    }
+
+    public Byte remove(String key) {
+        newVersion.incrementAndGet();
+        return metas.remove(key);
+    }
+
+    public boolean containsKey(String key) {
+        return metas.containsKey(key);
+    }
+
+    public int metaSize() {
+        return metas.size();
+    }
+
+    @JsonIgnore
+    public NavigableMap<String, Byte> getView() {
+        return Collections.unmodifiableNavigableMap(metas);
+    }
+
+    public static BrokerDataShard initBrokerDataShard() {
+        BrokerDataShard brokerNode = new BrokerDataShard();
+        brokerNode.setMetas(BrokerDataTreeMap.initBrokerDataTreeMap());
+        brokerNode.setVersion(0);
+        return brokerNode;
+    }
+
 }

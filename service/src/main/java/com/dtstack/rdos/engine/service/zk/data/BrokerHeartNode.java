@@ -39,6 +39,7 @@ public class BrokerHeartNode {
 	
 	public static BrokerHeartNode initNullBrokerHeartNode(){
 		BrokerHeartNode brokerHeartNode = new BrokerHeartNode();
+		brokerHeartNode.setSeq(0L);
 		brokerHeartNode.setAlive(false);
 		return brokerHeartNode;
 	}
