@@ -265,14 +265,14 @@ class PackagePublish extends React.Component {
                     <Search
                         size="default"
                         placeholder="输入发布包名称"
-                        style={{ width: 120 }}
+                        style={{ width: 140 }}
                         onSearch={this.selectChange.bind(this, 'packageName')}
                     />
                 </FormItem>
                 <FormItem
                     label="发布人"
                 >
-                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'publishUserId')} style={{ width: 110 }}>
+                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'publishUserId')} style={{ width: 120 }}>
                         {users.map(
                             (user) => {
                                 return <Option key={user.userId} value={user.userId}>{user.user.userName}</Option>
@@ -283,7 +283,7 @@ class PackagePublish extends React.Component {
                 <FormItem
                     label="申请人"
                 >
-                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'applyUserId')} style={{ width: 110 }}>
+                    <Select allowClear size="default" onChange={this.selectChange.bind(this, 'applyUserId')} style={{ width: 120 }}>
                         {users.map(
                             (user) => {
                                 return <Option key={user.userId} value={user.userId}>{user.user.userName}</Option>
@@ -298,7 +298,7 @@ class PackagePublish extends React.Component {
                         onChange={this.dateChange.bind(this, 'publishTime')}
                         disabledDate={this.disabledDate}
                         size="default"
-                        style={{ width: 170 }}
+                        style={{ width: 190 }}
                         defaultValue={bussinessDate || null}
                     />
                 </FormItem>
@@ -309,7 +309,7 @@ class PackagePublish extends React.Component {
                         onChange={this.dateChange.bind(this, 'applyTime')}
                         disabledDate={this.disabledDate}
                         size="default"
-                        style={{ width: 170 }}
+                        style={{ width: 190 }}
                         defaultValue={bussinessDate || null}
                     />
                 </FormItem>
