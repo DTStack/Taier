@@ -22,6 +22,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class DtContainer {
@@ -41,6 +44,8 @@ public class DtContainer {
     private ContainerStatusNotifier containerStatusNotifier;
 
     private ProcessLogCollector processLogCollector;
+
+    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 
     private DtContainer() {
@@ -106,9 +111,18 @@ public class DtContainer {
         processLogCollector = new ProcessLogCollector(process);
         processLogCollector.start();
 
-        process.waitFor();
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    uploadOutputFiles();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }, 1000, 3000, TimeUnit.MILLISECONDS);
 
-        uploadOutputFiles();
+        process.waitFor();
 
         return true;
     }
