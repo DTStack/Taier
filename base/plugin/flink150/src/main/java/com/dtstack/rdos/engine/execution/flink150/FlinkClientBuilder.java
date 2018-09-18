@@ -324,7 +324,7 @@ public class FlinkClientBuilder {
                     continue;
                 }
 
-                if (!flinkConfig.getQueue().equals(report.getQueue())){
+                if (!report.getQueue().endsWith(flinkConfig.getQueue())){
                     continue;
                 }
 
