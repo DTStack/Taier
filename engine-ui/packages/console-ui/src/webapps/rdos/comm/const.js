@@ -61,6 +61,18 @@ export const APPLY_RESOURCE_TYPE = {
     SOURCE: 2,
 }
 
+//数据操作类型
+export const CAT_TYPE={
+    INSERT:1,
+    UPDATE:2,
+    DELETE:3
+}
+export const collect_type = {
+    ALL: 0,
+    TIME: 1,
+    FILE: 2
+}
+
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',

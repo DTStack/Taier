@@ -1,12 +1,10 @@
 import React from "react";
 import { Steps, message } from "antd";
-import {connect} from "react-redux";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 
 import ajax from "../../../../../api/index"
-import {
-    dataSourceListAction,
-    collectionAction
-} from '../../../../../store/modules/realtimeTask/actionTypes';
+import { actions as collectionActions, dataKey as collectionKey } from '../../../../../store/modules/realtimeTask/collection';
 
 import Source from "./collectionSource";
 import Target from "./collectionTarget";
@@ -15,12 +13,10 @@ import Complete from "./complete";
 const Step = Steps.Step;
 
 class CollectionGuide extends React.Component {
-    state = {
-        currentStep: 0
-    }
 
-    componentDidMount() {
+    componentWillMount() {
         this.props.getDataSource();
+        this.props.initCollectionTask(this.props.currentPage.id);
     }
 
     navtoStep(step) {
@@ -33,31 +29,37 @@ class CollectionGuide extends React.Component {
     }
 
     render() {
-        const { currentStep } = this.state;
+        const { currentPage } = this.props;
+        const collectionData=currentPage[collectionKey]||{};
+        const { currentStep } = collectionData;
         const isLocked = false;
         const steps = [
             {
                 title: '选择来源', content: <Source
                     currentStep={currentStep}
+                    updateSourceMap={this.props.updateSourceMap}
                     navtoStep={this.navtoStep.bind(this)}
+                    collectionData={collectionData}
                 />
             },
             {
                 title: '选择目标', content: <Target
                     currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
+                    collectionData={collectionData}
                 />
             },
             {
                 title: '预览保存', content: <Complete
                     currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
+                    collectionData={collectionData}
                     saveJob={this.save.bind(this)}
                 />
             },
         ];
         return (
-            <div className="m-datasync">
+            (currentStep||currentStep==0)?<div className="m-datasync">
                 <Steps current={currentStep}>
                     {steps.map(item => <Step key={item.title} title={item.title} />)}
                 </Steps>
@@ -65,76 +67,24 @@ class CollectionGuide extends React.Component {
                     {isLocked ? <div className="steps-mask"></div> : null}
                     {steps[currentStep].content}
                 </div>
-            </div>
+            </div>:<p>loading</p>
         )
     }
 }
 
 const mapState = (state) => {
-    const currentTab = state.offlineTask.workbench.currentTab
+    const currentPage = state.realtimeTask.currentPage
     return {
-        dataSync: state.offlineTask.dataSync,
-        tabs: state.offlineTask.workbench.tabs,
-        currentTab: currentTab,
-        user:state.user,
-        project:state.project
+        pages: state.realtimeTask.pages,
+        currentPage: currentPage,
+        user: state.user,
+        project: state.project
     }
 };
 
 const mapDispatch = dispatch => {
-    return {
-        getDataSource: () => {
-            ajax.getStreamDataSourceList()
-                .then(res => {
-                    let data = []
-                    if(res.code === 1) {
-                        data = res.data
-                    }
-                    dispatch({
-                        type: dataSourceListAction.LOAD_DATASOURCE,
-                        payload: data
-                    });
-                });
-        },
-        initJobData: (data) => {
-            dispatch({
-                type: collectionAction.INIT_JOBDATA,
-                payload: data
-            });
-        },
-        getDataSyncSaved: (params) => {
-            dispatch({
-                type: collectionAction.GET_DATASYNC_SAVED,
-                payload: params
-            });
-        },
-        setTabId: (id) => {
-            dispatch({
-                type: collectionAction.SET_TABID,
-                payload: id
-            });
-        },
-        setCurrentStep: (step) => {
-            dispatch({
-                type: collectionAction.SET_CURRENT_STEP,
-                payload: step
-            });
-        },
-        saveJobData(params) {
-            ajax.saveOfflineJobData(params)
-                .then(res => {
-                    if(res.code === 1) {
-                        message.success('保存成功！');
-                        dispatch({
-                            type: workbenchAction.SET_CURRENT_TAB_SAVED
-                        });
-                        dispatch({
-                            type: workbenchAction.MAKE_TAB_CLEAN
-                        })
-                    }
-                })
-        },
-    }
+    const actions = bindActionCreators(collectionActions, dispatch);
+    return actions;
 }
 
 export default connect(mapState, mapDispatch)(CollectionGuide);

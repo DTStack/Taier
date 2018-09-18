@@ -1,14 +1,246 @@
 import React from "react";
 
-class CollectionSource extends React.Component{
+import { Form, Select, Radio, Checkbox, DatePicker, Input } from "antd";
 
-    render(){
+import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE, CAT_TYPE, collect_type } from "../../../../../comm/const"
+
+import ajax from "../../../../../api/index"
+
+const FormItem = Form.Item;
+const Option = Select.Option;
+const RadioGroup = Radio.Group;
+const CheckboxGroup = Checkbox.Group;
+
+
+
+class CollectionSource extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            tableList: []
+        }
+    }
+    componentDidMount() {
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        if (sourceMap.sourceId) {
+            this.getTableList(sourceMap.sourceId)
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { collectionData } = nextProps;
+        const { sourceMap } = collectionData;
+        const { collectionData: old_col } = this.props;
+        const { sourceMap: old_source } = old_col;
+        if (sourceMap.sourceId && old_source.sourceId != sourceMap.sourceId) {
+            this.getTableList(sourceMap.sourceId)
+        }
+    }
+
+    getTableList(sourceId) {
+        ajax.getStreamTablelist({
+            sourceId,
+            isSys: false
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableList: res.data || []
+                });
+            }
+        });
+    }
+
+    render() {
+        const { tableList } = this.state;
         return (
             <div>
-                source
+                <WrapCollectionSourceForm tableList={tableList} {...this.props} />
             </div>
         )
     }
 }
+
+class CollectionSourceForm extends React.Component {
+    renderByCatType() {
+        const {collectionData, form} = this.props;
+        const {getFieldDecorator} =form;
+        const { sourceMap } = collectionData;
+        const { journalName, timestamp } = sourceMap;
+        const collectType =sourceMap.collect_type
+        switch (collectType) {
+            case collect_type.ALL: {
+                return null
+            }
+            case collect_type.TIME: {
+                return <FormItem
+                    {...formItemLayout}
+                    label="起始时间"
+                    style={{ textAlign: "left" }}
+                >
+                    {getFieldDecorator('timestamp', {
+                        rules: [{
+                            required: true, message: "请选择起始时间"
+                        }]
+                    })(
+                        <DatePicker
+                            showTime
+                            placeholder="请选择起始时间"
+                            format="YYYY-MM-DD HH:mm:ss"
+                        />
+                    )}
+                </FormItem>
+            }
+            case collect_type.FILE: {
+                return <FormItem
+                    {...formItemLayout}
+                    label="起始文件"
+                >
+                    {getFieldDecorator('journalName', {
+                        rules: [{
+                            required: true, message: "请填写起始文件"
+                        }]
+                    })(
+                        <Input placeholder="请填写起始文件" />
+                    )}
+                </FormItem>
+            }
+
+        }
+    }
+    render() {
+        const { collectionData, tableList } = this.props;
+        const { dataSourceList = [] } = collectionData;
+        const { getFieldDecorator } = this.props.form;
+        return (
+            <div>
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据源"
+                    >
+                        {getFieldDecorator('sourceId', {
+                            rules: [{ required: true, message: '请选择数据源' }],
+                        })(
+                            <Select
+                                placeholder="请选择数据源"
+                                style={{ width: "100%" }}
+                            >
+                                {dataSourceList.map((item) => {
+                                    if (item.type != DATA_SOURCE.MYSQL) {
+                                        return null
+                                    }
+                                    return <Option key={item.id} value={item.id}>{item.dataName}({DATA_SOURCE_TEXT[item.type]})</Option>
+                                }).filter(Boolean)}
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="表"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true, message: "请选择表"
+                            }]
+                        })(
+                            <Select
+                                mode="multiple"
+                                style={{ width: '100%' }}
+                                placeholder="请选择表"
+
+                            >
+                                {tableList.map(
+                                    (table) => {
+                                        return <Option key={`${table}`} value={table}>
+                                            {table}
+                                        </Option>
+                                    }
+                                )}
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="采集起点"
+                        style={{ textAlign: "left" }}
+                    >
+                        {getFieldDecorator('collectType', {
+                            rules: [{
+                                required: true, message: "请选择采集起点"
+                            }]
+                        })(
+                            <RadioGroup>
+                                <Radio value={collect_type.ALL}>全部</Radio>
+                                <Radio value={collect_type.TIME}>按时间选择</Radio>
+                                <Radio value={collect_type.FILE}>按文件选择</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                    {this.renderByCatType()}
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据操作"
+                    >
+                        {getFieldDecorator('cat', {
+                            rules: [{
+                                required: true, message: "请选择数据操作"
+                            }]
+                        })(
+                            <CheckboxGroup options={
+                                [{ label: 'Insert', value: CAT_TYPE.INSERT },
+                                { label: 'Update', value: CAT_TYPE.UPDATE },
+                                { label: 'Delete', value: CAT_TYPE.DELETE }]
+                            }
+                            />
+                        )}
+                    </FormItem>
+                </Form>
+            </div>
+        )
+    }
+}
+
+const WrapCollectionSourceForm = Form.create({
+    onValuesChange(props, fields) {
+        /**
+         * sourceId改变,则清空表
+         */
+        let clear = false;
+        if (fields.sourceId != undefined) {
+            clear = true
+        }
+        if(fields.collectType!=undefined){
+
+        }
+        props.updateSourceMap(fields, clear);
+    },
+    mapPropsToFields(props) {
+        const { collectionData } = props;
+        const sourceMap = collectionData.sourceMap;
+        return {
+            sourceId: {
+                value: sourceMap.sourceId
+            },
+            table: {
+                value: sourceMap.table
+            },
+            collectType: {
+                value: sourceMap.collectType
+            },
+            cat: {
+                value: sourceMap.cat
+            },
+            timestamp: {
+                value: sourceMap.timestamp
+            },
+            journalName: {
+                value: sourceMap.journalName
+            }
+        }
+
+    }
+})(CollectionSourceForm);
 
 export default CollectionSource;

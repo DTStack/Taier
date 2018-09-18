@@ -10,4 +10,6 @@ export default {
     GET_STREAM_TABLECOLUMN: `${RDOS_BASE_URL}/stream/streamDataSource/tablecolumn`,//输出tablecolumn
     GET_TASK_LIST_OF_STREAM_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/getSourceTaskRef`,//获取实时数据源的任务
     LINK_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/linkDataSource`,//关联映射数据源
+
+    GET_REALTIME_JOBDATA: `${RDOS_BASE_URL}/stream/streamDataSource/trace`,
 }
