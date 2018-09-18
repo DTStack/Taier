@@ -43,9 +43,9 @@ export const RESOURCE_TYPE = {
     JAR: 1,
     PY: 2,
 }
-export const RESOURCE_TYPE_MAP={
-    1:"jar",
-    2:"py"
+export const RESOURCE_TYPE_MAP = {
+    1: "jar",
+    2: "py"
 }
 
 // 调度状态
@@ -72,25 +72,25 @@ export const MENU_TYPE = {
     TABLE: 'TableQuery',
 }
 
-export const PROJECT_TYPE={
-    COMMON:0,//普通
-    TEST:1,//测试
-    PRO:2,//生产
+export const PROJECT_TYPE = {
+    COMMON: 0,//普通
+    TEST: 1,//测试
+    PRO: 2,//生产
 }
 
 //发布的item类别
-export const publishType={
-    TASK:0,
-    TABLE:1,
-    RESOURCE:2,
-    FUNCTION:3
+export const publishType = {
+    TASK: 0,
+    TABLE: 1,
+    RESOURCE: 2,
+    FUNCTION: 3
 }
 
 //发布状态
-export const publishStatus={
-    UNSUBMIT:0,
-    SUCCESS:1,
-    FAIL:2
+export const publishStatus = {
+    UNSUBMIT: 0,
+    SUCCESS: 1,
+    FAIL: 2
 }
 
 export const PROJECT_ROLE = { // 项目角色
@@ -120,28 +120,24 @@ export const TASK_TYPE = { // 任务类型
     SYNC: 2,
     PYTHON: 3,
     R: 4,
-    DEEP_LEARNING:5,
-    PYTHON_23:6,
-    SHELL:7,
-    ML:8,
+    DEEP_LEARNING: 5,
+    PYTHON_23: 6,
+    SHELL: 7,
+    ML: 8,
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
+    DATA_COLLECTION: 11,//实时采集
 }
 
-//实时任务类型
-export const REALTIME_TYPE={
-    SQL: 0,
-    MR: 1,
-    DATA_COLLECTION:7
-}
 
-export const LEARNING_TYPE={//深度学习框架
-    TENSORFLOW:0,
-    MXNET:1
+
+export const LEARNING_TYPE = {//深度学习框架
+    TENSORFLOW: 0,
+    MXNET: 1
 }
-export const PYTON_VERSION={
-    PYTHON2:2,
-    PYTHON3:3
+export const PYTON_VERSION = {
+    PYTHON2: 2,
+    PYTHON3: 3
 }
 
 export const DATA_SYNC_TYPE = { //数据同步配置模式
@@ -149,16 +145,16 @@ export const DATA_SYNC_TYPE = { //数据同步配置模式
     SCRIPT: 1
 }
 
-export const DEAL_MODEL_TYPE={//python和深度学习操作类型
-    EDIT:1,
-    RESOURCE:0
+export const DEAL_MODEL_TYPE = {//python和深度学习操作类型
+    EDIT: 1,
+    RESOURCE: 0
 }
 
 export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
-    PYTHON2:1,
-    PYTHON3:2,
-    SHELL:3
+    PYTHON2: 1,
+    PYTHON3: 2,
+    SHELL: 3
 }
 
 export const TASK_TYPE_ARRAY = [ //
@@ -229,8 +225,8 @@ export const mysqlFieldTypes = [// mysql类型
     "BOOL",
     "TINYINT",
     "SMALLINT",
-    "MEDIUMINT", 
-    "INT", 
+    "MEDIUMINT",
+    "INT",
     "BIGINT",
     "FLOAT",
     "DOUBLE",
@@ -369,23 +365,23 @@ export const offlineTaskTypeFilter = [
         id: 5,
         text: 'PySpark',
         value: TASK_TYPE.PYTHON,
-    },{
+    }, {
         id: 6,
         text: '深度学习',
         value: TASK_TYPE.DEEP_LEARNING,
-    },{
+    }, {
         id: 7,
         text: 'Python',
         value: TASK_TYPE.PYTHON_23,
-    },{
+    }, {
         id: 8,
         text: 'Shell',
         value: TASK_TYPE.SHELL,
-    },{
+    }, {
         id: 9,
         text: '机器学习',
         value: TASK_TYPE.ML,
-    },{
+    }, {
         id: 10,
         text: 'HadoopMR',
         value: TASK_TYPE.HAHDOOPMR,
@@ -484,10 +480,10 @@ export const StreamDataSourceTypeFilter = [{ // 实时数据源类型过滤选�
 }, {
     text: 'HBase',
     value: DATA_SOURCE.HBASE,
-},{
+}, {
     text: 'ElasticSearch',
     value: DATA_SOURCE.ES,
-},{
+}, {
     text: 'Kafka',
     value: DATA_SOURCE.KAFKA,
 }

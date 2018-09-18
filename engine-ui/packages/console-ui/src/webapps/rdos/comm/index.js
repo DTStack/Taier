@@ -79,6 +79,9 @@ export function taskTypeIcon(type, task = {}) {
             case TASK_TYPE.WORKFLOW: {
                 return 's-workflow'
             }
+            case TASK_TYPE.DATA_COLLECTION:{
+                return 's-collection'
+            }
             default: ''
         }
     } else {

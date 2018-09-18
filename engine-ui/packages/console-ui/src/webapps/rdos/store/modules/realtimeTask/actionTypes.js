@@ -59,3 +59,20 @@ export const commAction = mc([
     'GET_TASK_TYPES',
     'GET_TASK_TYPE_FILTER',
 ], {prefix: 'realtimeTask/comm/'});
+
+export const dataSourceListAction = mc([
+    'LOAD_DATASOURCE',
+    'RESET_DATASOURCE'
+], {prefix: 'realtimeTask/collection/dataSourceList/'});
+
+export const collectionAction = mc([
+    'INIT_JOBDATA',
+    'RESET_KEYMAP',
+    'SET_CURRENT_STEP',
+    'INIT_CURRENT_STEP',
+    'RESET_SOURCE_MAP',
+    'RESET_TARGET_MAP',
+    'SET_TABID',
+    'RESET_TABID',
+    'GET_DATASYNC_SAVED'
+], {prefix: 'realtimeTask/collection/'});

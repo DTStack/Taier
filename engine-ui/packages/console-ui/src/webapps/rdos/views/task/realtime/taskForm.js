@@ -8,7 +8,7 @@ import {
 import Api from '../../../api'
 import { mergeArray } from 'funcs'
 import FolderPicker from './folderTree'
-import { formItemLayout, TASK_TYPE, REALTIME_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
+import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -165,7 +165,7 @@ class TaskFormModal extends Component {
         const defaultRes = resRoot[0] && resRoot[0].children &&
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
-        const isDataCollection = taskType == REALTIME_TYPE.DATA_COLLECTION;
+        const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
         const isShowResource = createModel != DATA_SYNC_TYPE.SCRIPT;
         return (
             <Modal
@@ -229,7 +229,7 @@ class TaskFormModal extends Component {
                             )}
                         </FormItem>
                     )}
-                    {isShowResource && (
+                    {!isDataCollection && (
                         <FormItem
                             {...formItemLayout}
                             label="资源"

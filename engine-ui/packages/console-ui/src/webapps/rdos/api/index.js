@@ -730,6 +730,9 @@ export default {
     getStreamTablelist(params) {
         return http.post(stremReq.GET_STREAM_TABLELIST, params)
     },
+    getStreamDataSourceList(params){
+        return http.post(stremReq.GET_STREAM_DATASOURCE_LIST,params)
+    },
     streamQueryDataSource(params) {
         return http.post(stremReq.STREAM_QUERY_DATA_SOURCE, params)
     },
