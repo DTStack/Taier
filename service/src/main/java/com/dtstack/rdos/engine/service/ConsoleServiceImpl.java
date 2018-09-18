@@ -1,0 +1,89 @@
+package com.dtstack.rdos.engine.service;
+
+import com.dtstack.rdos.common.annotation.Param;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
+import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
+import com.dtstack.rdos.engine.service.node.WorkNode;
+import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 对接数栈控制台
+ * <p>
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2018/9/18
+ */
+public class ConsoleServiceImpl {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConsoleServiceImpl.class);
+
+    private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
+
+    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
+
+    private WorkNode workNode = WorkNode.getInstance();
+
+    public List<String> search(@Param("computeType") String computeType,
+                               @Param("jobName") String jobName) {
+        try {
+            Preconditions.checkNotNull(computeType, "parameters of computeType is required");
+            ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
+            Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
+            if (ComputeType.STREAM == type) {
+                return engineStreamTaskDAO.getByName(jobName);
+            } else {
+                return engineBatchJobDAO.getByName(jobName);
+            }
+        } catch (Exception e) {
+            logger.info("", e);
+        }
+        return null;
+    }
+
+    public List<String> engineTypes() {
+        List<String> types = new ArrayList<>(EngineType.values().length);
+        for (EngineType engineType : EngineType.values()) {
+            types.add(engineType.name().toLowerCase());
+        }
+        return types;
+    }
+
+    public Collection<Map<String, Object>> groups(@Param("engineType") String engineType) {
+        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
+        GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
+        if (queue != null) {
+            Map<String, OrderLinkedBlockingQueue<JobClient>> map = queue.getGroupPriorityQueueMap();
+            List<Map<String, Object>> groups = new ArrayList<>(map.size());
+            for (Map.Entry<String, OrderLinkedBlockingQueue<JobClient>> entry : map.entrySet()) {
+                String groupName = entry.getKey();
+                int groupSize = entry.getValue().size();
+                long generateTime = 0L;
+                if (groupSize > 0) {
+                    JobClient jobClient = entry.getValue().getTop();
+                    generateTime = jobClient.getGenerateTime();
+                }
+                Map<String, Object> element = new HashMap<>(3);
+                element.put("groupName", groupName);
+                element.put("groupSize", groupSize);
+                element.put("generateTime", generateTime);
+                groups.add(element);
+            }
+            return groups;
+        }
+        return Collections.EMPTY_SET;
+    }
+}

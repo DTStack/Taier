@@ -165,4 +165,15 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 
+    public List<String> getByName(String jobName) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+			@Override
+			public List<String> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.getByName(jobName);
+			}
+
+		});
+    }
 }
