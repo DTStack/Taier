@@ -1,7 +1,13 @@
 package com.dtstack.yarn.common.type;
 
-/**
- * Created by softfly on 18/9/15.
- */
-public class ShellType {
+
+import com.dtstack.yarn.DtYarnConfiguration;
+
+public class ShellType extends AppType {
+
+    @Override
+    public String cmdPrefix(DtYarnConfiguration config) {
+        return "bash";
+    }
+
 }

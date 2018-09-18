@@ -34,6 +34,7 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -162,15 +163,22 @@ public class Client {
             LOG.info("Copy xlearning files from local filesystem to remote.");
             for (int i = 0; i < clientArguments.files.length; i++) {
                 assert (!clientArguments.files[i].isEmpty());
-                Path xlearningFilesSrc = new Path(clientArguments.files[i]);
-                xlearningFilesDst[i] = Utilities.getRemotePath(
-                        conf, applicationId, new Path(clientArguments.files[i]).getName());
-                LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
-                dfs.copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
-                appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
+
+                if(!clientArguments.files[i].startsWith("hdfs:")) { //local
+                    Path xlearningFilesSrc = new Path(clientArguments.files[i]);
+                    xlearningFilesDst[i] = Utilities.getRemotePath(
+                            conf, applicationId, new Path(clientArguments.files[i]).getName());
+                    LOG.info("Copying " + clientArguments.files[i] + " to remote path " + xlearningFilesDst[i].toString());
+                    dfs.copyFromLocalFile(false, true, xlearningFilesSrc, xlearningFilesDst[i]);
+                    appFilesRemotePath.append(xlearningFilesDst[i].toUri().toString()).append(",");
+                } else { //hdfs
+                    appFilesRemotePath.append(clientArguments.files[i]).append(",");
+                }
+
             }
             appMasterEnv.put(DtYarnConstants.Environment.FILES_LOCATION.toString(),
                     appFilesRemotePath.deleteCharAt(appFilesRemotePath.length() - 1).toString());
+
         }
 
         if (StringUtils.isNotBlank(clientArguments.cacheFiles)) {

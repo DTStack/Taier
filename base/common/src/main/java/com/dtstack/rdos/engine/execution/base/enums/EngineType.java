@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
-    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6), Hive(7), Learning(8);
+    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6), Hive(7), Learning(8), DtYarnShell(9);
 
     private int val;
 
@@ -45,6 +45,8 @@ public enum EngineType {
             case "hive": return EngineType.Hive;
 
             case "learning": return EngineType.Learning;
+
+            case "DtYarnShell": return EngineType.DtYarnShell;
         }
          return null;
     }
@@ -107,6 +109,15 @@ public enum EngineType {
     public static boolean isLearning(String engineType){
         engineType = engineType.toLowerCase();
         if(engineType.startsWith("learning")){
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isDtYarnShell(String engineType){
+        engineType = engineType.toLowerCase();
+        if(engineType.startsWith("dt-yarn-shell")){
             return true;
         }
 

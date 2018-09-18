@@ -32,9 +32,10 @@ public class LocalLauncher {
     public static void main(String[] args) throws ClassNotFoundException, YarnException, ParseException, IOException {
         DtYarnConfiguration conf = loadConfig();
 
-//        conf.set(DtYarnConfiguration.PYTHON3_PATH, "/root/anaconda3/bin/python3");
-        //System.out.println(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH);
-        //conf.setStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH, "/opt/cloudera/parcels/CDH/jars/*");
+        conf.set(DtYarnConfiguration.PYTHON3_PATH, "/usr/bin/python");
+        conf.set("jlogstash.root", "/opt/dtstack/jlogstash");
+        conf.set("java.home", "/usr/java/default/bin");
+
         Client client = new Client(conf);
         client.submit(args);
     }

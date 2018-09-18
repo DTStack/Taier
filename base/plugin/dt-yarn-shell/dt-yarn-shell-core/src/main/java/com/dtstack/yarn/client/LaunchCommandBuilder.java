@@ -1,8 +1,6 @@
 package com.dtstack.yarn.client;
 
 import com.dtstack.yarn.DtYarnConfiguration;
-import com.dtstack.yarn.common.type.AppType;
-import org.apache.commons.lang.StringUtils;
 
 
 public class LaunchCommandBuilder {
@@ -10,10 +8,6 @@ public class LaunchCommandBuilder {
     private ClientArguments clientArguments;
 
     private DtYarnConfiguration conf;
-
-    private static final String PYTHON2 = "2.x";
-
-    private static final String PYTHON3 = "3.x";
 
     public LaunchCommandBuilder(ClientArguments clientArguments, DtYarnConfiguration conf) {
         this.clientArguments = clientArguments;
@@ -26,13 +20,7 @@ public class LaunchCommandBuilder {
 
 
     public String buildCmd() {
-        if (StringUtils.isNotBlank(clientArguments.launchCmd)) {
-            return clientArguments.launchCmd;
-        } else {
-            String fullPath = clientArguments.files[0];
-            String[] parts = fullPath.split("/");
-            return cmdPrefix() + " " + parts[parts.length - 1] + " " + clientArguments.cmdOpts;
-        }
+        return clientArguments.appType.buildCmd(clientArguments, conf);
     }
 
 }
