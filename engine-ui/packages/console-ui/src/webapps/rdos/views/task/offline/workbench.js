@@ -420,7 +420,7 @@ class Workbench extends React.Component {
             if (res.code === 1) {
                 message.success('提交成功！');
                 publishTask(res);
-                reloadTabTask(currentTab);
+                reloadTaskTab(currentTab);
                 this.closePublish();
             } else {
                 this.closePublish();

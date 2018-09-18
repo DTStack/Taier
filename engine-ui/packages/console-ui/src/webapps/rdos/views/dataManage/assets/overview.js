@@ -314,8 +314,8 @@ export default class ProjectList extends Component {
         if(type=='drawTable'){
             if (data && data.length > 0) {
                 for (let i = data.length - 1; i >= 0; i--) {
-                    y.push(`${data[i].projectname}.${data[i].tableName}`)
-                    x.push(parseInt(data[i].size, 10))
+                    y.push({value:`${data[i].projectname}.${data[i].tableName}`,userDefined:"111"})
+                    x.push({value:parseInt(data[i].size, 10),userDefined:"111"})
                 }
             }
         }else{
