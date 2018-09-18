@@ -412,7 +412,6 @@
 
 }
 
-
 .m-dirpicker {
     border: 1px solid #ddd;
     padding: 10px;
@@ -422,11 +421,12 @@
 
 .dt-dev-task .task-editor {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    padding-bottom: 30px;
-    overflow: hidden;
+    padding-bottom: 35px;
     background: #f2f3f8;
+    top: 0;
+    bottom:0;
+    left: 0;
+    right: 0;
 }
 
 .task-editor {
@@ -473,9 +473,10 @@
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
             line-height: 19px;
-            padding-left: 10px;
+            padding-left: 28px;
             margin-top: -1px;
             text-align: left;
+            min-width: 80px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -558,14 +559,13 @@
             border-color: #FF5722;
             position: absolute;
             top: 11px;
-            right: 5px;
+            right: 5.5px;
         }
 
         .tab-ellipsis {
             display: inline-block;
             max-width: 200px;
             overflow: hidden;
-            padding-left: 18px;
             text-overflow: ellipsis;
         }
 

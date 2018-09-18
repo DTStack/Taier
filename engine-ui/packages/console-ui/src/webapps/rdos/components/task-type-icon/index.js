@@ -96,6 +96,7 @@ export default class TaskTypeIcon extends Component {
                 height: '14px',
                 position: 'absolute', 
                 top: '8px',
+                left: '10px',
             }} 
         src={`/public/rdos/img/${iconName}`} />;
     }
