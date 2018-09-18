@@ -76,4 +76,8 @@
      <update id="updateSubmitLog">
         update rdos_engine_batch_job set log_info = #{submitLog}, gmt_modified=now() where job_id = #{jobId}
     </update>
+
+    <select id="getByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select job_name from rdos_engine_batch_job where job_name LIKE '%${jobName}%' and is_deleted=0;
+    </select>
 </mapper>

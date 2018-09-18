@@ -69,4 +69,8 @@
     <update id="updateSubmitLog">
         update rdos_engine_stream_job set log_info = #{submitLog}, gmt_modified=now() where task_id = #{taskId}
     </update>
+
+    <select id="getByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select task_name from rdos_engine_stream_job where task_name like '%${taskName}%' and is_deleted=0;
+    </select>
 </mapper>
