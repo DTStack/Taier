@@ -94,7 +94,7 @@ public final class ClusterSpecification {
         private int taskManagerMemoryMB = 768;
         private int numberTaskManagers = 1;
         private int slotsPerTaskManager = 1;
-        private int priority = 1;
+        private int priority = 0;
 
         public ClusterSpecificationBuilder setMasterMemoryMB(int masterMemoryMB) {
             this.masterMemoryMB = masterMemoryMB;

@@ -223,7 +223,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws MalformedURLException, ProgramMissingJobException, ProgramInvocationException {
+    public String runJob(PackagedProgram program, int parallelism) throws Exception {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
@@ -235,14 +235,19 @@ public class FlinkClient extends AbsClient {
                 cluster.setDetached(true);
                 cluster.run(program, parallelism);
 
-            } catch (Exception e) {
+            } catch (RuntimeException e){
+                logger.info("Couldn't deploy Yarn session cluster", e.getMessage());
+                throw new Exception("Couldn't deploy Yarn session cluster" + e.getMessage());
+            } catch (ProgramInvocationException | ProgramMissingJobException e) {
                 logger.info("Job run failure!", e);
+                throw new Exception("Job run failure!" + e.getMessage());
             }
             finally {
                 try {
                     cluster.shutdown();
                 } catch (Exception e) {
                     logger.info("Could not properly shut down the cluster.", e);
+                    throw new Exception("Could not properly shut down the cluster." + e.getMessage());
                 }
             }
             return cluster.getApplicationId().toString();

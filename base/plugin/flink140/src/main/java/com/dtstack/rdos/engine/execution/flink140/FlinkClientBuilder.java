@@ -309,9 +309,9 @@ public class FlinkClientBuilder {
                     continue;
                 }
 
-                /*if (!flinkConfig.getQueue().equals(report.getQueue())){
+                if (!flinkConfig.getQueue().equals(report.getQueue())){
                     continue;
-                }*/
+                }
 
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
                 int thisCores = report.getApplicationResourceUsageReport().getNeededResources().getVirtualCores();
