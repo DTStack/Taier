@@ -9,6 +9,7 @@
         <result column="exec_end_time" property="execEndTime" jdbcType="TIMESTAMP"/>
         <result column="exec_time" property="execTime" jdbcType="BIGINT"/>
         <result column="task_id" property="taskId" jdbcType="VARCHAR" />
+        <result column="task_name" property="taskName" jdbcType="VARCHAR" />
         <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
         <result column="status" property="status" jdbcType="INTEGER" />
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
@@ -17,8 +18,8 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
-	    insert into rdos_engine_stream_job(gmt_create,gmt_modified,exec_start_time,task_id,status, plugin_info_id)
-	    values(now(),now(),now(),#{taskId},#{status}, #{pluginInfoId})
+	    insert into rdos_engine_stream_job(gmt_create,gmt_modified,exec_start_time,task_id,status, plugin_info_id, task_name)
+	    values(now(),now(),now(),#{taskId},#{status}, #{pluginInfoId}, #{taskName})
 	    <selectKey resultType="long" keyProperty="id" order="AFTER">
 	       SELECT LAST_INSERT_ID() AS ID
 	    </selectKey>

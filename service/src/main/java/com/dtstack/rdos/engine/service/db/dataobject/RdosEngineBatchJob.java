@@ -15,6 +15,8 @@ public class RdosEngineBatchJob extends DataObject{
      */
     private String jobId;
 
+    private String jobName;
+
     /**
      * 执行引擎任务id
      */
@@ -46,6 +48,14 @@ public class RdosEngineBatchJob extends DataObject{
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 
     public String getEngineJobId() {
