@@ -43,10 +43,7 @@ import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
-import org.apache.hadoop.yarn.api.records.ApplicationId;
-import org.apache.hadoop.yarn.api.records.ApplicationReport;
-import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
-import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.api.records.*;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -62,12 +59,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -135,22 +127,22 @@ public class FlinkClient extends AbsClient {
         syncPluginInfo = SyncPluginInfo.create(flinkConfig);
         sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
+        initHadoopConf(flinkConfig);
+        flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
+
         boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
         if (yarnCluster){
             initYarnClient();
         }
 
-        initHadoopConf(flinkConfig);
-        flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
         initClient();
 
         if (yarnCluster&&flinkYarnMode!=FlinkYarnMode.PER_JOB){
             ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
-            //仅作用于yarn模式下
-            AbstractYarnClusterDescriptor yarnClusterDescriptor = flinkClientBuilder.getYarnClusterDescriptor();
+            //仅作用于yarn模式下 flinkClientBuilder.getYarnClient();
             //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClusterDescriptor, yarnMonitorES));
+            yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), yarnMonitorES));
         }
     }
 
@@ -232,17 +224,19 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException, MalformedURLException {
+    public String runJob(PackagedProgram program, int parallelism) throws Exception {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
-            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
+            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
+            descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
             try {
                 clusterClient.shutdown();
             } catch (Exception e) {
                 logger.info("Could not properly shut down the client.", e);
+                throw new Exception("Could not properly shut down the cluster." + e.getMessage());
             }
             return clusterClient.getClusterId().toString();
         } else {
@@ -438,7 +432,7 @@ public class FlinkClient extends AbsClient {
 
     public String getReqUrl() {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            return "1";
+            return "#";
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
             return getNewReqUrl();
         } else {
