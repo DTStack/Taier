@@ -32,9 +32,8 @@ import FnMoveModal from './realtime/function/fnMoveModal'
 import FnViewModal from './realtime/function/fnViewModal'
 
 import Api from '../../api'
-import { showSeach } from '../../store/modules/comm';
 
-import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
+import { MENU_TYPE } from '../../comm/const';
 
 const TabPane = Tabs.TabPane
 
@@ -502,10 +501,6 @@ class RealTimeTabPane extends Component {
                 this.doAction(modalAction.ADD_TASK_VISIBLE)
                 return;
             }
-            case 'task:search': {
-                dispatch(showSeach(true))
-                return;
-            }
             case 'resource:newFolder': {
                 this.setState({ activeNode: {} })
                 this.doAction(modalAction.ADD_RES_CATA_VISIBLE)
@@ -541,13 +536,13 @@ class RealTimeTabPane extends Component {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="定位">
+                                <Tooltip title="定位" placement="bottom">
                                     <Icon
                                         type="environment"
                                         onClick={() => this.locateFilePos(currentPage.id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
-                                <Tooltip title="刷新">
+                                <Tooltip title="刷新" placement="bottom">
                                     <Icon
                                         type="sync"
                                         style={{ fontSize: '12px' }}
@@ -558,9 +553,6 @@ class RealTimeTabPane extends Component {
                                     <Menu onClick={this.onMenuClick}>
                                         <Menu.Item key="task:newTask">
                                             新建任务
-                                        </Menu.Item>
-                                        <Menu.Item key="task:search">
-                                            搜索任务（Ctrl + P）
                                         </Menu.Item>
                                         <Menu.Item key="task:newFolder">
                                             新建文件夹

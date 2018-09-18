@@ -20,7 +20,8 @@ import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import * as TreeAction from '../../../store/modules/realtimeTask/tree'
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
-import { MENU_TYPE, TASK_TYPE, formItemLayout, PROJECT_TYPE } from '../../../comm/const';
+import { MENU_TYPE, TASK_TYPE, formItemLayout, } from '../../../comm/const';
+import { showSeach } from '../../../store/modules/comm';
 
 import TaskBrowser from './taskBrowser'
 
@@ -231,6 +232,10 @@ class TaskIndex extends Component {
         })
     }
 
+    searchTask = () => {
+        this.props.dispatch(showSeach(true));
+    }
+
     submitTab() {
         const {
             currentPage, dispatch
@@ -322,8 +327,10 @@ class TaskIndex extends Component {
     }
 
     render() {
-        const { dispatch, currentPage, project } = this.props
-        const disablePublish = currentPage.notSynced
+        const { dispatch, currentPage, editor } = this.props
+        const disablePublish = currentPage.notSynced;
+        const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+
         return (
             <Row className="task-editor">
                 <header className="toolbar clear">
@@ -343,7 +350,14 @@ class TaskIndex extends Component {
                                 title="保存任务"
                             >
                                 <MyIcon className="my-icon" type="save" />保存
-                                </Button>
+                            </Button>
+                            <Button
+                                onClick={this.searchTask}
+                                title="打开任务"
+                            >
+                                <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
+                                搜索
+                            </Button>
                         </span>
                         <FullScreenButton />
                     </Col>
@@ -380,7 +394,7 @@ class TaskIndex extends Component {
 
 export default connect((state) => {
     const { resources, pages, currentPage, inputData, outputData, dimensionData } = state.realtimeTask;
-    const { user, project } = state;
+    const { user, project, editor } = state;
     return {
         currentPage,
         pages,
@@ -389,6 +403,7 @@ export default connect((state) => {
         inputData,
         outputData,
         dimensionData,
-        project
+        project,
+        editor,
     }
 })(TaskIndex) 

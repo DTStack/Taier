@@ -1,14 +1,25 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import {
-    Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
-    message, Select, Collapse, Button,Radio,Popover,
-    Form,InputNumber
-} from 'antd'
+    Row,
+    Col,
+    Icon,
+    Table,
+    Input,
+    Select,
+    Collapse,
+    Button,
+    Radio,
+    Popover,
+    Form,
+    Switch,
+    Tooltip,
+    InputNumber
+} from "antd";
 
-import Api from '../../../api'
-import { mysqlFieldTypes } from '../../../comm/const';
-import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import Editor from '../../../components/code-editor'
+import Api from "../../../api";
+import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
+import Editor from "../../../components/code-editor";
+import { switchPartition } from "../../../views/helpDoc/docs";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -17,460 +28,559 @@ const { Column, ColumnGroup } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends Component {
-
-    componentDidMount(){
+    componentDidMount() {
         this.props.onRef(this);
     }
 
-    checkParams = (v) => {
+    checkParams = v => {
         //手动检测table参数
-        const { index,panelColumn } = this.props;
+        const { index, panelColumn } = this.props;
         const tableColumns = panelColumn[index].columns;
-        
+
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 result.status = true;
-                // if(tableColumns.length === 0){
-                //     result.status = false;
-                //     result.message = "至少添加一个字段"
-                // }else{
-                //     tableColumns.map(v=>{
-                //         if(!v.column||!v.type){
-                //             result.status = false;
-                //             result.message= "有未填写的字段或类型"
-                //         }
-                //     })
-                // }
-            }else{
+            } else {
                 result.status = false;
             }
         });
-        return result
-    }
+        return result;
+    };
 
-    originOption = (type,arrData)=> {
+    originOption = (type, arrData) => {
         switch (type) {
             case "originType":
-                return arrData.map(v=>{
-                    return  <Option key={v} value={`${v.id}`}>{v.name}</Option>
-                 })
+                return arrData.map(v => {
+                    return (
+                        <Option key={v} value={`${v.id}`}>
+                            {v.name}
+                        </Option>
+                    );
+                });
             case "currencyType":
-               return arrData.map(v=>{
-                    return  <Option key={v} value={`${v}`}>{v}</Option>
-                }) 
+                return arrData.map(v => {
+                    return (
+                        <Option key={v} value={`${v}`}>
+                            {v}
+                        </Option>
+                    );
+                });
             case "columnType":
-               return arrData.map((v,index)=>{
-                    return  <Option key={index} value={`${v.key}`}>{v.key}</Option>
-                }) 
+                return arrData.map((v, index) => {
+                    return (
+                        <Option key={index} value={`${v.key}`}>
+                            {v.key}
+                        </Option>
+                    );
+                });
             case "primaryType":
-                return arrData.map((v,index)=>{
-                    return  <Option key={index} value={`${v.column}`}>{v.column}</Option>
-                }) 
+                return arrData.map((v, index) => {
+                    return (
+                        <Option key={index} value={`${v.column}`}>
+                            {v.column}
+                        </Option>
+                    );
+                });
             default:
                 return null;
         }
-    }
+    };
 
-    editorParamsChange(a,b,c){
-        const { handleInputChange, index, } = this.props;
-        this._syncEditor=false;
-        handleInputChange("columnsText",index,b);
+    editorParamsChange(a, b, c) {
+        const { handleInputChange, index } = this.props;
+        this._syncEditor = false;
+        handleInputChange("columnsText", index, b);
         //this.props.editorParamsChange(...arguments);
     }
 
-    render(){
-        const { handleInputChange,index, sync, originOptionType,tableOptionType,panelColumn,tableColumnOptionType } = this.props;
+    render() {
+        const {
+            handleInputChange,
+            index,
+            sync,
+            originOptionType,
+            tableOptionType,
+            panelColumn,
+            tableColumnOptionType
+        } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
-        const tableOptionTypes = this.originOption('currencyType',tableOptionType[index]||[]);
-        const tableColumnOptionTypes = this.originOption('columnType',tableColumnOptionType[index]||[]);
-        const primaryKeyOptionTypes = this.originOption('primaryType',panelColumn[index].columns||[]);
+        const originOptionTypes = this.originOption(
+            "originType",
+            originOptionType[index] || []
+        );
+        const tableOptionTypes = this.originOption(
+            "currencyType",
+            tableOptionType[index] || []
+        );
+        const tableColumnOptionTypes = this.originOption(
+            "columnType",
+            tableColumnOptionType[index] || []
+        );
+        const primaryKeyOptionTypes = this.originOption(
+            "primaryType",
+            panelColumn[index].columns || []
+        );
         const formItemLayout = {
             labelCol: {
-              xs: { span: 24 },
-              sm: { span: 6 },
+                xs: { span: 24 },
+                sm: { span: 6 }
             },
             wrapperCol: {
-              xs: { span: 24 },
-              sm: { span: 18 },
-            },
+                xs: { span: 24 },
+                sm: { span: 18 }
+            }
         };
         return (
             <Row className="title-content">
-                <FormItem
-                    {...formItemLayout}
-                    label="存储类型"
-                >
-                    {getFieldDecorator('type', {
-                        rules: [
-                            {required: true, message: '请选择存储类型',}
-                        ],
+                <FormItem {...formItemLayout} label="存储类型">
+                    {getFieldDecorator("type", {
+                        rules: [{ required: true, message: "请选择存储类型" }]
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        <Select
+                            className="right-select"
+                            onChange={v => {
+                                handleInputChange("type", index, v);
+                            }}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                            }
                         >
-                                <Option value="1">MySQL</Option>
-                                <Option value="8">HBase</Option>
-                                {/* <Option value="11">ElasticSearch</Option> */}
+                            <Option value="1">MySQL</Option>
+                            <Option value="8">HBase</Option>
+                            {/* <Option value="11">ElasticSearch</Option> */}
                         </Select>
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="数据源"
-                >
-                    {getFieldDecorator('sourceId', {
+                <FormItem {...formItemLayout} label="数据源">
+                    {getFieldDecorator("sourceId", {
                         initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择数据源',}
-                        ],
+                        rules: [{ required: true, message: "请选择数据源" }]
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("sourceId",index,v)}}
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        <Select
+                            className="right-select"
+                            onChange={v => {
+                                handleInputChange("sourceId", index, v);
+                            }}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                            }
                         >
-                               {
-                                   originOptionTypes
-                               }
+                            {originOptionTypes}
                         </Select>
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="表"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [
-                            {required: true, message: '请选择表',}
-                        ],
+                <FormItem {...formItemLayout} label="表">
+                    {getFieldDecorator("table", {
+                        rules: [{ required: true, message: "请选择表" }]
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("table",index,v)}}
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        <Select
+                            className="right-select"
+                            onChange={v => {
+                                handleInputChange("table", index, v);
+                            }}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                            }
                         >
-                                {
-                                    tableOptionTypes
-                                }
+                            {tableOptionTypes}
                         </Select>
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="映射表"
-                >
-                    {getFieldDecorator('tableName')(
-                        <Input  placeholder="请输入映射表名" onChange={e => handleInputChange('tableName',index,e.target.value)}/>
+                <FormItem {...formItemLayout} label="映射表">
+                    {getFieldDecorator("tableName")(
+                        <Input
+                            placeholder="请输入映射表名"
+                            onChange={e =>
+                                handleInputChange(
+                                    "tableName",
+                                    index,
+                                    e.target.value
+                                )
+                            }
+                        />
                     )}
                 </FormItem>
                 <Row>
                     <Col span="6">
-                        <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : </span>
+                        <span
+                            style={{
+                                color: "rgba(0, 0, 0, 0.85)",
+                                paddingRight: 10,
+                                float: "right"
+                            }}
+                        >
+                            字段 :{" "}
+                        </span>
                     </Col>
-                    { 
-                        panelColumn[index].type == "1" 
-                        ?   <Col span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
-                                <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                                    <Column
-                                        title="字段"
-                                        dataIndex="column"
-                                        key="字段"
-                                        width='50%'
-                                        render={(text,record,subIndex)=>{ 
-                                            return  <Select className="sub-right-select" value={text} onChange={(v)=>{handleInputChange("subColumn",index,subIndex,v)}}
-                                                        showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                                    >
-                                                        {
-                                                            tableColumnOptionTypes
-                                                        }
-                                                    </Select>
-                                        }}
-                                    />
-                                    <Column
-                                        title="类型"
-                                        dataIndex="type"
-                                        key="类型"
-                                        width='40%'
-                                        render={(text,record,subIndex)=>{ 
-                                            return <Input value={text} disabled/>
-                                        }}
-                                    />
-                                    <Column
-                                        key="delete"
-                                        render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                                    />
-                                </Table>
-                                <div style={{padding: "0 20 20"}}>
-                                    <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
-                                        <Icon type="plus" /><span> 添加输入</span>
-                                    </Button>
-                                </div>
-                            </Col>
-                        :   <Col span="18" style={{marginBottom: 20,height: 200}}>
-                                <Editor 
-                                    style={{minHeight: 202,border: "1px solid #ddd"}}
-                                    key="params-editor"
-                                    sync={sync}
-                                    placeholder="字段 类型, 比如 id int 一行一个字段"
-                                    // options={jsonEditorOptions}
-                                    value={panelColumn[index].columnsText}
-                                    onChange={this.editorParamsChange.bind(this)}
+                    {panelColumn[index].type == "1" ? (
+                        <Col
+                            span="18"
+                            style={{
+                                marginBottom: 20,
+                                border: "1px solid #ddd"
+                            }}
+                        >
+                            <Table
+                                dataSource={panelColumn[index].columns}
+                                className="table-small"
+                                pagination={false}
+                                size="small"
+                            >
+                                <Column
+                                    title="字段"
+                                    dataIndex="column"
+                                    key="字段"
+                                    width="50%"
+                                    render={(text, record, subIndex) => {
+                                        return (
+                                            <Select
+                                                className="sub-right-select"
+                                                value={text}
+                                                onChange={v => {
+                                                    handleInputChange(
+                                                        "subColumn",
+                                                        index,
+                                                        subIndex,
+                                                        v
+                                                    );
+                                                }}
+                                                showSearch
+                                                filterOption={(input, option) =>
+                                                    option.props.children
+                                                        .toLowerCase()
+                                                        .indexOf(
+                                                            input.toLowerCase()
+                                                        ) >= 0
+                                                }
+                                            >
+                                                {tableColumnOptionTypes}
+                                            </Select>
+                                        );
+                                    }}
                                 />
-                            </Col>
-                    }
-                </Row>
-                {
-                    panelColumn[index].type == "1" 
-                    ?   <FormItem
-                            {...formItemLayout}
-                            label="主键"
-                        >
-                            {getFieldDecorator('primaryKey',{
-                                rules: [
-                                    {required: true, message: '请选择主键',}
-                                ],
-                            })(
-                                <Select className="right-select" onChange={(v)=>{handleInputChange("primaryKey",index,v)}} mode="multiple"
-                                    showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                <Column
+                                    title="类型"
+                                    dataIndex="type"
+                                    key="类型"
+                                    width="40%"
+                                    render={(text, record, subIndex) => {
+                                        return <Input value={text} disabled />;
+                                    }}
+                                />
+                                <Column
+                                    key="delete"
+                                    render={(text, record, subIndex) => {
+                                        return (
+                                            <Icon
+                                                type="close"
+                                                style={{
+                                                    fontSize: 16,
+                                                    color: "#888"
+                                                }}
+                                                onClick={() => {
+                                                    handleInputChange(
+                                                        "deleteColumn",
+                                                        index,
+                                                        subIndex
+                                                    );
+                                                }}
+                                            />
+                                        );
+                                    }}
+                                />
+                            </Table>
+                            <div style={{ padding: "0 20 20" }}>
+                                <Button
+                                    className="stream-btn"
+                                    type="dashed"
+                                    style={{ borderRadius: 5 }}
+                                    onClick={() => {
+                                        handleInputChange("columns", index, {});
+                                    }}
                                 >
-                                    {
-                                        primaryKeyOptionTypes
-                                    }
-                                </Select>
-                            )}
-                        </FormItem> 
-                    :   <FormItem
-                            {...formItemLayout}
-                            label="主键"
+                                    <Icon type="plus" />
+                                    <span> 添加输入</span>
+                                </Button>
+                            </div>
+                        </Col>
+                    ) : (
+                        <Col
+                            span="18"
+                            style={{ marginBottom: 20, height: 200 }}
                         >
-                            {getFieldDecorator('hbasePrimaryKey',{
-                                rules: [
-                                    {required: true, message: '请输入主键',}
-                                ],
-                            })(
-                                <Input  placeholder="请输入主键" onChange={e => handleInputChange('hbasePrimaryKey',index,e.target.value)}/>
-                            )}
-                        </FormItem> 
-                }
-                <FormItem
-                    {...formItemLayout}
-                    label="并行度"
-                >
-                    {getFieldDecorator('parallelism')(
-                        <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
+                            <Editor
+                                style={{
+                                    minHeight: 202,
+                                    border: "1px solid #ddd"
+                                }}
+                                key="params-editor"
+                                sync={sync}
+                                placeholder="字段 类型, 比如 id int 一行一个字段"
+                                // options={jsonEditorOptions}
+                                value={panelColumn[index].columnsText}
+                                onChange={this.editorParamsChange.bind(this)}
+                            />
+                        </Col>
+                    )}
+                </Row>
+                {panelColumn[index].type == "1" ? (
+                    <FormItem {...formItemLayout} label="主键">
+                        {getFieldDecorator("primaryKey", {
+                            rules: [{ required: true, message: "请选择主键" }]
+                        })(
+                            <Select
+                                className="right-select"
+                                onChange={v => {
+                                    handleInputChange("primaryKey", index, v);
+                                }}
+                                mode="multiple"
+                                showSearch
+                                filterOption={(input, option) =>
+                                    option.props.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                }
+                            >
+                                {primaryKeyOptionTypes}
+                            </Select>
+                        )}
+                    </FormItem>
+                ) : (
+                    <FormItem {...formItemLayout} label="主键">
+                        {getFieldDecorator("hbasePrimaryKey", {
+                            rules: [{ required: true, message: "请输入主键" }]
+                        })(
+                            <Input
+                                placeholder="请输入主键"
+                                onChange={e =>
+                                    handleInputChange(
+                                        "hbasePrimaryKey",
+                                        index,
+                                        e.target.value
+                                    )
+                                }
+                            />
+                        )}
+                    </FormItem>
+                )}
+                <FormItem {...formItemLayout} label="并行度">
+                    {getFieldDecorator("parallelism")(
+                        <InputNumber
+                            className="number-input"
+                            min={1}
+                            onChange={value =>
+                                handleInputChange("parallelism", index, value)
+                            }
+                        />
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="缓存策略"
-                >
-                    {getFieldDecorator('cache', {
-                        rules: [
-                            {required: true, message: '请选择缓存策略',}
-                        ],
+                <FormItem {...formItemLayout} label="缓存策略">
+                    {getFieldDecorator("cache", {
+                        rules: [{ required: true, message: "请选择缓存策略" }]
                     })(
-                        <Select placeholder="请选择" className="right-select" onChange={(v)=>{handleInputChange("cache",index,v)}}
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        <Select
+                            placeholder="请选择"
+                            className="right-select"
+                            onChange={v => {
+                                handleInputChange("cache", index, v);
+                            }}
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                            }
                         >
-                                <Option key="None" value="None">None</Option>
-                                <Option key="LRU" value="LRU">LRU</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                {
-                    panelColumn[index].cache === "LRU" ? 
-                        <FormItem
-                            {...formItemLayout}
-                            label="缓存大小(行)"
-                        >
-                            {getFieldDecorator('cacheSize', {
-                                rules: [
-                                    {required: true, message: '请输入缓存大小'},
-                                    // { validator: this.checkConfirm }
-                                ],
-                            })(
-                                <InputNumber className="number-input" min={0} onChange={value => handleInputChange('cacheSize',index,value)}/>
-                            )}
-                        </FormItem>: undefined
-                }
-                {
-                    panelColumn[index].cache === "LRU" ? 
-                        <FormItem
-                            {...formItemLayout}
-                            label="缓存超时时间(ms)"
-                        >
-                            {getFieldDecorator('cacheTTLMs', {
-                                rules: [
-                                    {required: true, message: '请输入缓存超时时间'},
-                                    // { validator: this.checkConfirm }
-                                ],
-                            })(
-                                <InputNumber className="number-input" min={0} onChange={value => handleInputChange('cacheTTLMs',index,value)}/>
-                            )}
-                        </FormItem>: undefined
-                }
-                {/* <FormItem
-                    {...formItemLayout}
-                    label="Topic"
-                >
-                    {getFieldDecorator('topic', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择Topic',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem> */}
-                {/*<FormItem
-                    {...formItemLayout}
-                    label="索引"
-                >
-                    {getFieldDecorator('index', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择索引',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("index",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
+                            <Option key="None" value="None">
+                                None
+                            </Option>
+                            <Option key="LRU" value="LRU">
+                                LRU
+                            </Option>
                         </Select>
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="类型"
+                {panelColumn[index].cache === "LRU" ? (
+                    <FormItem {...formItemLayout} label="缓存大小(行)">
+                        {getFieldDecorator("cacheSize", {
+                            rules: [
+                                { required: true, message: "请输入缓存大小" }
+                                // { validator: this.checkConfirm }
+                            ]
+                        })(
+                            <InputNumber
+                                className="number-input"
+                                min={0}
+                                onChange={value =>
+                                    handleInputChange("cacheSize", index, value)
+                                }
+                            />
+                        )}
+                    </FormItem>
+                ) : (
+                    undefined
+                )}
+                {panelColumn[index].cache === "LRU" ? (
+                    <FormItem {...formItemLayout} label="缓存超时时间(ms)">
+                        {getFieldDecorator("cacheTTLMs", {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: "请输入缓存超时时间"
+                                }
+                                // { validator: this.checkConfirm }
+                            ]
+                        })(
+                            <InputNumber
+                                className="number-input"
+                                min={0}
+                                onChange={value =>
+                                    handleInputChange(
+                                        "cacheTTLMs",
+                                        index,
+                                        value
+                                    )
+                                }
+                            />
+                        )}
+                    </FormItem>
+                ) : (
+                    undefined
+                )}
+                 <FormItem {...formItemLayout} 
+                  label={(
+                    <span >
+                        开启分区&nbsp;
+                        <Tooltip title={switchPartition}>
+                            <Icon type="question-circle-o" /> 
+                        </Tooltip>
+                    </span> )}
                 >
-                    {getFieldDecorator('type', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择类型',}
-                        ],
+                    {getFieldDecorator("partitionedJoin", {
+                        rules: [{ required: true, }]
                     })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
+                        <Switch 
+                            defaultChecked={false}
+                            onChange={checked =>
+                                handleInputChange("partitionedJoin", index, checked)
+                            } 
+                        />,
                     )}
                 </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="写入策略"
-                >
-                    {getFieldDecorator('writePolicy', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择写入策略',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem> */}
             </Row>
-        )
+        );
     }
 }
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-            const { type, sourceId, table, columns, parallelism, columnsText , cache, cacheSize,hbasePrimaryKey, cacheTTLMs, tableName, primaryKey } = props.panelColumn[props.index];
-            return {
-                type: { value: type },
-                sourceId: { value: sourceId },
-                table: { value: table },
-                tableName: { value: tableName },
-                columns: { value: columns },
-                parallelism: { value: parallelism },
-                columnsText: { value: columnsText},
-                cache: { value: cache },
-                cacheSize: { value: cacheSize },
-                cacheTTLMs: { value: cacheTTLMs },
-                primaryKey: { value: primaryKey },
-                hbasePrimaryKey: { value: hbasePrimaryKey },
-            }
-        } 
+        const {
+            type,
+            sourceId,
+            table,
+            columns,
+            parallelism,
+            columnsText,
+            cache,
+            cacheSize,
+            hbasePrimaryKey,
+            cacheTTLMs,
+            tableName,
+            primaryKey
+        } = props.panelColumn[props.index];
+        return {
+            type: { value: type },
+            sourceId: { value: sourceId },
+            table: { value: table },
+            tableName: { value: tableName },
+            columns: { value: columns },
+            parallelism: { value: parallelism },
+            columnsText: { value: columnsText },
+            cache: { value: cache },
+            cacheSize: { value: cacheSize },
+            cacheTTLMs: { value: cacheTTLMs },
+            primaryKey: { value: primaryKey },
+            hbasePrimaryKey: { value: hbasePrimaryKey }
+        };
+    }
 })(OutputOrigin);
 
 const initialData = {
     popoverVisible: false,
-    tabTemplate: [],//模版存储,所有输出源(记录个数)
-    panelActiveKey: [],//输出源是打开或关闭状态
-    popoverVisible: [],//删除显示按钮状态
-    panelColumn: [],//存储数据
-    checkFormParams: [],//存储要检查的参数from
-    originOptionType: [],//数据源选择数据
-    tableOptionType: [],//表选择数据
-    tableColumnOptionType: [],//表字段选择的类型
-}
+    tabTemplate: [], //模版存储,所有输出源(记录个数)
+    panelActiveKey: [], //输出源是打开或关闭状态
+    popoverVisible: [], //删除显示按钮状态
+    panelColumn: [], //存储数据
+    checkFormParams: [], //存储要检查的参数from
+    originOptionType: [], //数据源选择数据
+    tableOptionType: [], //表选择数据
+    tableColumnOptionType: [] //表字段选择的类型
+};
 
 export default class OutputPanel extends Component {
-
     constructor(props) {
-        super(props)
-        this.state =  {
+        super(props);
+        this.state = {
             popoverVisible: false,
-            tabTemplate: [],//模版存储,所有输出源(记录个数)
-            panelActiveKey: [],//输出源是打开或关闭状态
-            popoverVisible: [],//删除显示按钮状态
-            panelColumn: [],//存储数据
-            checkFormParams: [],//存储要检查的参数from
-            originOptionType: [],//数据源选择数据
-            tableOptionType: [],//表选择数据
-            tableColumnOptionType: [],//表字段选择的类型
+            tabTemplate: [], //模版存储,所有输出源(记录个数)
+            panelActiveKey: [], //输出源是打开或关闭状态
+            popoverVisible: [], //删除显示按钮状态
+            panelColumn: [], //存储数据
+            checkFormParams: [], //存储要检查的参数from
+            originOptionType: [], //数据源选择数据
+            tableOptionType: [], //表选择数据
+            tableColumnOptionType: [] //表字段选择的类型
         };
     }
-    
-    componentDidMount(){
+
+    componentDidMount() {
         const { side } = this.props.currentPage;
-        if(side&&side.length>0){
-            this.currentInitData(side)
+        if (side && side.length > 0) {
+            this.currentInitData(side);
         }
     }
 
-    currentInitData = (side) => {
-        const {tabTemplate,panelColumn} = this.state;
-        side.map( (v,index) => {
+    currentInitData = side => {
+        const { tabTemplate, panelColumn } = this.state;
+        side.map((v, index) => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
-            this.getTypeOriginData(index,v.type);
-            this.getTableType(index,v.sourceId);
-            if(v.type=="1"){
-                this.getTableColumns(index,v.sourceId,v.table)
+            this.getTypeOriginData(index, v.type);
+            this.getTableType(index, v.sourceId);
+            if (v.type == "1") {
+                this.getTableColumns(index, v.sourceId, v.table);
             }
-        })
-        this.setOutputData({ tabTemplate, panelColumn })
+        });
+        this.setOutputData({ tabTemplate, panelColumn });
         this.setState({
             tabTemplate,
             panelColumn
-        })
-    }
+        });
+    };
 
-    getCurrentData = (taskId,nextProps) => {
-        const { currentPage,dimensionData,dispatch } = nextProps;
+    getCurrentData = (taskId, nextProps) => {
+        const { currentPage, dimensionData, dispatch } = nextProps;
         const { side } = currentPage;
-        if(!dimensionData[taskId]&&side.length>0){
-            this.receiveState(taskId,side,dispatch)
-        }else{
+        if (!dimensionData[taskId] && side.length > 0) {
+            this.receiveState(taskId, side, dispatch);
+        } else {
             const copyInitialData = JSON.parse(JSON.stringify(initialData));
-            const data = dimensionData[taskId]||copyInitialData;
-            this.setState({...data})
+            const data = dimensionData[taskId] || copyInitialData;
+            this.setState({ ...data });
         }
-    }
+    };
 
-    receiveState = (taskId,side,dispatch) => {
+    receiveState = (taskId, side, dispatch) => {
         const tabTemplate = [];
         const panelColumn = [];
         const panelActiveKey = [];
@@ -478,107 +588,131 @@ export default class OutputPanel extends Component {
         const checkFormParams = [];
         const originOptionType = [];
         const tableOptionType = [];
-        const tableColumnOptionType = []
-        side.map( v => {
+        const tableColumnOptionType = [];
+        side.map(v => {
             tabTemplate.push(OutputForm);
             panelColumn.push(v);
-        })
-        dispatch(BrowserAction.setDimensionData({taskId ,side: {tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType}}));
-        this.setState({
-            tabTemplate,panelColumn,panelActiveKey,popoverVisible,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType
-        },()=>{
-            side.map((v,index)=>{
-                this.getTypeOriginData(index,v.type)
-                this.getTableType(index,v.sourceId)
-                if(v.type=="1"){
-                    this.getTableColumns(index,v.sourceId,v.table)
+        });
+        dispatch(
+            BrowserAction.setDimensionData({
+                taskId,
+                side: {
+                    tabTemplate,
+                    panelColumn,
+                    panelActiveKey,
+                    popoverVisible,
+                    checkFormParams,
+                    originOptionType,
+                    tableOptionType,
+                    tableColumnOptionType
                 }
             })
-        })
-    }
+        );
+        this.setState(
+            {
+                tabTemplate,
+                panelColumn,
+                panelActiveKey,
+                popoverVisible,
+                checkFormParams,
+                originOptionType,
+                tableOptionType,
+                tableColumnOptionType
+            },
+            () => {
+                side.map((v, index) => {
+                    this.getTypeOriginData(index, v.type);
+                    this.getTableType(index, v.sourceId);
+                    if (v.type == "1") {
+                        this.getTableColumns(index, v.sourceId, v.table);
+                    }
+                });
+            }
+        );
+    };
 
-    getTypeOriginData = (index,type) => {
+    getTypeOriginData = (index, type) => {
         const { originOptionType } = this.state;
-        Api.getTypeOriginData({type}).then(v=>{
-            if(index==='add'){
-                if(v.code===1){
-                    originOptionType.push(v.data) 
-                }else{
-                    originOptionType.push([]) 
+        Api.getTypeOriginData({ type }).then(v => {
+            if (index === "add") {
+                if (v.code === 1) {
+                    originOptionType.push(v.data);
+                } else {
+                    originOptionType.push([]);
                 }
-            }else{
-                if(v.code===1){
+            } else {
+                if (v.code === 1) {
                     originOptionType[index] = v.data;
-                }else{
+                } else {
                     originOptionType[index] = [];
                 }
             }
-            this.setOutputData({originOptionType});
+            this.setOutputData({ originOptionType });
             this.setState({
                 originOptionType
-            })
-        })
-    }
+            });
+        });
+    };
 
-    getTableType = (index,sourceId,type) => {
+    getTableType = (index, sourceId, type) => {
         const { tableOptionType } = this.state;
-        if(sourceId){
-            Api.getStremTableType({sourceId,"isSys":false}).then(v=>{
-                if(index==='add'){
-                    if(v.code===1){
-                        tableOptionType.push(v.data) 
-                    }else{
-                        tableOptionType.push([]) 
+        if (sourceId) {
+            Api.getStremTableType({ sourceId, isSys: false }).then(v => {
+                if (index === "add") {
+                    if (v.code === 1) {
+                        tableOptionType.push(v.data);
+                    } else {
+                        tableOptionType.push([]);
                     }
-                }else{
-                    if(v.code===1){
+                } else {
+                    if (v.code === 1) {
                         tableOptionType[index] = v.data;
-                    }else{
+                    } else {
                         tableOptionType[index] = [];
                     }
                 }
-                this.setOutputData({tableOptionType});
+                this.setOutputData({ tableOptionType });
                 this.setState({
                     tableOptionType
-                })
-            })
-        }else{
-            if(index="add"){
+                });
+            });
+        } else {
+            if ((index = "add")) {
                 tableOptionType.push([]);
-            }else{
+            } else {
                 tableOptionType[index] = [];
             }
-            this.setOutputData({tableOptionType});
+            this.setOutputData({ tableOptionType });
             this.setState({
                 tableOptionType
-            })
+            });
         }
-    }
+    };
 
-    getTableColumns = (index,sourceId,tableName) => {
+    getTableColumns = (index, sourceId, tableName) => {
         const { tableColumnOptionType } = this.state;
-        Api.getStreamTableColumn({sourceId,tableName}).then(v=>{
-            if(v.code === 1){
-               tableColumnOptionType[index] = v.data;
-            }else{
-               tableColumnOptionType[index] = []
+        Api.getStreamTableColumn({ sourceId, tableName }).then(v => {
+            if (v.code === 1) {
+                tableColumnOptionType[index] = v.data;
+            } else {
+                tableColumnOptionType[index] = [];
             }
-            this.setOutputData({tableColumnOptionType})
+            this.setOutputData({ tableColumnOptionType });
             this.setState({
                 tableColumnOptionType
-            })
-        })
-    }
+            });
+        });
+    };
 
     componentWillReceiveProps(nextProps) {
-        const currentPage = nextProps.currentPage
-        const oldPage = this.props.currentPage
+        const currentPage = nextProps.currentPage;
+        const oldPage = this.props.currentPage;
         if (currentPage.id !== oldPage.id) {
-            this.getCurrentData(currentPage.id,nextProps)
+            this.getCurrentData(currentPage.id, nextProps);
         }
     }
 
-    changeInputTabs = (type,index) =>{
+    changeInputTabs = (type, index) => {
         const inputData = {
             type: "1",
             columns: [],
@@ -591,29 +725,47 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             cache: "LRU",
             cacheSize: 10000,
-            cacheTTLMs: 60000,
-        }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType,tableOptionType,tableColumnOptionType } = this.state;
-        if(type==="add"){
+            cacheTTLMs: 60000
+        };
+        let {
+            tabTemplate,
+            panelActiveKey,
+            popoverVisible,
+            panelColumn,
+            checkFormParams,
+            originOptionType,
+            tableOptionType,
+            tableColumnOptionType
+        } = this.state;
+        if (type === "add") {
             tabTemplate.push(OutputForm);
             panelColumn.push(inputData);
-            this.getTypeOriginData("add",inputData.type);
-            this.getTableType('add',inputData.table);
+            this.getTypeOriginData("add", inputData.type);
+            this.getTableType("add", inputData.table);
             tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
-            panelActiveKey.push(pushIndex)
-        }else{
-            tabTemplate.splice(index,1);
-            panelColumn.splice(index,1);
-            originOptionType.splice(index,1);
-            tableOptionType.splice(index,1);
-            tableColumnOptionType.splice(index,1);
+            panelActiveKey.push(pushIndex);
+        } else {
+            tabTemplate.splice(index, 1);
+            panelColumn.splice(index, 1);
+            originOptionType.splice(index, 1);
+            tableOptionType.splice(index, 1);
+            tableColumnOptionType.splice(index, 1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.props.tableParamsChange()//添加数据改变标记
-        this.setOutputData({tabTemplate,panelActiveKey,popoverVisible,panelColumn,checkFormParams,originOptionType,tableOptionType,tableColumnOptionType});
+        this.props.tableParamsChange(); //添加数据改变标记
+        this.setOutputData({
+            tabTemplate,
+            panelActiveKey,
+            popoverVisible,
+            panelColumn,
+            checkFormParams,
+            originOptionType,
+            tableOptionType,
+            tableColumnOptionType
+        });
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -622,160 +774,189 @@ export default class OutputPanel extends Component {
             checkFormParams,
             originOptionType,
             tableOptionType,
-            tableColumnOptionType,
-        })
-    }
-
-    setOutputData = (data) => {
-        const { dispatch, currentPage } = this.props;
-        const dispatchSource = {...this.state,...data};
-        dispatch(BrowserAction.setDimensionData({taskId: currentPage.id ,side: dispatchSource}));
-    }
-
-    changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
-        const {panelActiveKey} = this.state;
-        const deleteActiveKey = `${index+1}`;
-        const deleteActiveKeyIndex  = panelActiveKey.indexOf(deleteActiveKey);
-        if(deleteActiveKeyIndex > -1){
-            panelActiveKey.splice(deleteActiveKeyIndex,1)
-        }
-        return panelActiveKey.map(v=>{
-            return Number(v) > Number(index) ? `${Number(v) -1}`: v
+            tableColumnOptionType
         });
-    }
+    };
 
-    handleActiveKey = (key) => {
-        let { panelActiveKey } = this.state;
-        panelActiveKey = key
-        this.setOutputData({panelActiveKey})
-        this.setState({
-            panelActiveKey,
-        })
-    }
-
-    tableColumnType = (index,column) => {
-        const { tableColumnOptionType } = this.state;
-        console.log('tableColumnOptionType',tableColumnOptionType);
-        
-        const filterColumn = tableColumnOptionType[index].filter(v=>{
-            return v.key === column
-        })
-        return filterColumn[0].type
-    }
-
-    filterPrimaryKey = (columns,primaryKeys) => {//删除导致原始的primaryKey不存在
-        console.log('primaryKeys',primaryKeys);
-        return primaryKeys.filter(v=>{
-            let flag = false;
-            columns.map(value=>{
-                if(value.column === v){
-                    flag = true
-                }
+    setOutputData = data => {
+        const { dispatch, currentPage } = this.props;
+        const dispatchSource = { ...this.state, ...data };
+        dispatch(
+            BrowserAction.setDimensionData({
+                taskId: currentPage.id,
+                side: dispatchSource
             })
-            return flag;
-        })
-    }
+        );
+    };
 
-    handleInputChange = (type,index,value,subValue) => {//监听数据改变
-        
-        const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
-        if(type === 'columns'){
+    changeActiveKey = index => {
+        // 删除导致key改变,处理被改变key的值
+        const { panelActiveKey } = this.state;
+        const deleteActiveKey = `${index + 1}`;
+        const deleteActiveKeyIndex = panelActiveKey.indexOf(deleteActiveKey);
+        if (deleteActiveKeyIndex > -1) {
+            panelActiveKey.splice(deleteActiveKeyIndex, 1);
+        }
+        return panelActiveKey.map(v => {
+            return Number(v) > Number(index) ? `${Number(v) - 1}` : v;
+        });
+    };
+
+    handleActiveKey = key => {
+        let { panelActiveKey } = this.state;
+        panelActiveKey = key;
+        this.setOutputData({ panelActiveKey });
+        this.setState({
+            panelActiveKey
+        });
+    };
+
+    tableColumnType = (index, column) => {
+        const { tableColumnOptionType } = this.state;
+        console.log("tableColumnOptionType", tableColumnOptionType);
+
+        const filterColumn = tableColumnOptionType[index].filter(v => {
+            return v.key === column;
+        });
+        return filterColumn[0].type;
+    };
+
+    filterPrimaryKey = (columns, primaryKeys) => {
+        //删除导致原始的primaryKey不存在
+        console.log("primaryKeys", primaryKeys);
+        return primaryKeys.filter(v => {
+            let flag = false;
+            columns.map(value => {
+                if (value.column === v) {
+                    flag = true;
+                }
+            });
+            return flag;
+        });
+    };
+
+    handleInputChange = (type, index, value, subValue) => {
+        //监听数据改变
+
+        const {
+            panelColumn,
+            originOptionType,
+            tableOptionType,
+            tableColumnOptionType
+        } = this.state;
+        if (type === "columns") {
             panelColumn[index][type].push(value);
-        }else if(type === "deleteColumn"){
-            panelColumn[index]["columns"].splice(value,1);
-            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"],panelColumn[index].primaryKey||[]);
+        } else if (type === "deleteColumn") {
+            panelColumn[index]["columns"].splice(value, 1);
+            const filterPrimaryKeys = this.filterPrimaryKey(
+                panelColumn[index]["columns"],
+                panelColumn[index].primaryKey || []
+            );
             panelColumn[index].primaryKey = filterPrimaryKeys;
-        }else if(type ==="subColumn"){
+        } else if (type === "subColumn") {
             panelColumn[index]["columns"][value].column = subValue;
-            const subType = this.tableColumnType(index,subValue);
+            const subType = this.tableColumnType(index, subValue);
             panelColumn[index]["columns"][value].type = subType;
-        }else{
+        } else {
             panelColumn[index][type] = value;
         }
-        if(type === "columnsText"){
-            this._syncEditor=false;
+        if (type === "columnsText") {
+            this._syncEditor = false;
             //this.parseColumnsText(index,value)
         }
-        const allParamsType = ["type", "sourceId", "table", "columns","columnsText", "parallelism", "cache", "cacheSize","hbasePrimaryKey", "cacheTTLMs", "tableName", "primaryKey"]
-        if(type==="type"){
+        const allParamsType = [
+            "type",
+            "sourceId",
+            "table",
+            "columns",
+            "columnsText",
+            "parallelism",
+            "cache",
+            "cacheSize",
+            "hbasePrimaryKey",
+            "cacheTTLMs",
+            "tableName",
+            "primaryKey"
+        ];
+        if (type === "type") {
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
-            allParamsType.map(v=>{
-                if(v!="type"){
-                    if(v=="parallelism"){
-                        panelColumn[index][v] = 1
-                    }else if(v=="columns"){
+            allParamsType.map(v => {
+                if (v != "type") {
+                    if (v == "parallelism") {
+                        panelColumn[index][v] = 1;
+                    } else if (v == "columns") {
                         panelColumn[index][v] = [];
-                    }else if(v=="cache"){
-                        panelColumn[index][v] = "LRU"
-                    }else if(v=="cacheSize"){
-                        panelColumn[index][v] = 10000
-                    }else if(v=="cacheTTLMs"){
-                        panelColumn[index][v] = 60000
-                    }else{
-                        panelColumn[index][v] = undefined
+                    } else if (v == "cache") {
+                        panelColumn[index][v] = "LRU";
+                    } else if (v == "cacheSize") {
+                        panelColumn[index][v] = 10000;
+                    } else if (v == "cacheTTLMs") {
+                        panelColumn[index][v] = 60000;
+                    } else {
+                        panelColumn[index][v] = undefined;
                     }
                 }
-            })
+            });
             //this.clearCurrentInfo(type,index,value)
-            this.getTypeOriginData(index,value);
-        }else if(type==="sourceId"){
+            this.getTypeOriginData(index, value);
+        } else if (type === "sourceId") {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             panelColumn[index].columns = [];
 
-            allParamsType.map(v=>{
-                if(v!="type"&&v!="sourceId"){
-                    if(v=="parallelism"){
-                        panelColumn[index][v] = 1
-                    }else if(v=="columns"){
+            allParamsType.map(v => {
+                if (v != "type" && v != "sourceId") {
+                    if (v == "parallelism") {
+                        panelColumn[index][v] = 1;
+                    } else if (v == "columns") {
                         panelColumn[index][v] = [];
-                    }else if(v=="cache"){
-                        panelColumn[index][v] = "LRU"
-                    }else if(v=="cacheSize"){
-                        panelColumn[index][v] = 10000
-                    }else if(v=="cacheTTLMs"){
-                        panelColumn[index][v] = 60000
-                    }else{
-                        panelColumn[index][v] = undefined
+                    } else if (v == "cache") {
+                        panelColumn[index][v] = "LRU";
+                    } else if (v == "cacheSize") {
+                        panelColumn[index][v] = 10000;
+                    } else if (v == "cacheTTLMs") {
+                        panelColumn[index][v] = 60000;
+                    } else {
+                        panelColumn[index][v] = undefined;
                     }
                 }
-            })
+            });
             //this.clearCurrentInfo(type,index,value)
-            this.getTableType(index,value,type)
-        }else if (type==="table"){
+            this.getTableType(index, value, type);
+        } else if (type === "table") {
             tableColumnOptionType[index] = [];
-            allParamsType.map(v=>{
-                if(v!="type"&&v!="sourceId"&&v!='table'){
-                    if(v=="parallelism"){
-                        panelColumn[index][v] = 1
-                    }else if(v=="columns"){
+            allParamsType.map(v => {
+                if (v != "type" && v != "sourceId" && v != "table") {
+                    if (v == "parallelism") {
+                        panelColumn[index][v] = 1;
+                    } else if (v == "columns") {
                         panelColumn[index][v] = [];
-                    }else if(v=="cache"){
-                        panelColumn[index][v] = "LRU"
-                    }else if(v=="cacheSize"){
-                        panelColumn[index][v] = 10000
-                    }else if(v=="cacheTTLMs"){
-                        panelColumn[index][v] = 60000
-                    }else{
-                        panelColumn[index][v] = undefined
+                    } else if (v == "cache") {
+                        panelColumn[index][v] = "LRU";
+                    } else if (v == "cacheSize") {
+                        panelColumn[index][v] = 10000;
+                    } else if (v == "cacheTTLMs") {
+                        panelColumn[index][v] = 60000;
+                    } else {
+                        panelColumn[index][v] = undefined;
                     }
                 }
-            })
+            });
             const { sourceId } = panelColumn[index];
-            if(panelColumn[index].type=="1"){
-                this.getTableColumns(index,sourceId,value)
+            if (panelColumn[index].type == "1") {
+                this.getTableColumns(index, sourceId, value);
             }
         }
-        this.props.tableParamsChange()//添加数据改变标记
-        this.setOutputData({panelColumn})
+        this.props.tableParamsChange(); //添加数据改变标记
+        this.setOutputData({ panelColumn });
         this.setState({
-            panelColumn,
-        })
-    }
+            panelColumn
+        });
+    };
 
-    clearCurrentInfo = (type,index,value) => {
+    clearCurrentInfo = (type, index, value) => {
         const { panelColumn, originOptionType, tableOptionType } = this.state;
         const inputData = {
             type: undefined,
@@ -786,98 +967,161 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             cache: "LRU",
             cacheSize: 10000,
-            cacheTTLMs: 60000,
-        }
-        if(type==="type"){
+            cacheTTLMs: 60000
+        };
+        if (type === "type") {
             inputData.type = value;
             panelColumn[index] = inputData;
             originOptionType[index] = [];
             tableOptionType[index] = [];
-        }else if(type==="sourceId"){
-            inputData.type = panelColumn[index]['type']
+        } else if (type === "sourceId") {
+            inputData.type = panelColumn[index]["type"];
             inputData.sourceId = value;
             panelColumn[index] = inputData;
             tableOptionType[index] = [];
         }
-        this.setOutputData({panelColumn,originOptionType,tableOptionType})
-        this.setState({panelColumn,originOptionType,tableOptionType});
-    }
+        this.setOutputData({ panelColumn, originOptionType, tableOptionType });
+        this.setState({ panelColumn, originOptionType, tableOptionType });
+    };
 
-    handlePopoverVisibleChange = (e,index,visible) => {
+    handlePopoverVisibleChange = (e, index, visible) => {
         let { popoverVisible } = this.state;
         popoverVisible[index] = visible;
         if (e) {
-            e.stopPropagation();//阻止删除按钮点击后冒泡到panel
-            if(visible){//只打开一个Popover提示
-                popoverVisible = popoverVisible.map( (v,i) => {
-                    return index == i ? true : false
-                })
+            e.stopPropagation(); //阻止删除按钮点击后冒泡到panel
+            if (visible) {
+                //只打开一个Popover提示
+                popoverVisible = popoverVisible.map((v, i) => {
+                    return index == i ? true : false;
+                });
             }
         }
-        this.setOutputData({popoverVisible})
+        this.setOutputData({ popoverVisible });
         this.setState({ popoverVisible });
-    }
+    };
 
-    panelHeader = (index) => {
+    panelHeader = index => {
         const { popoverVisible } = this.state;
-        const popoverContent = <div className="input-panel-title">
-            <div style={{padding: "8 0 12"}}> <Icon type="exclamation-circle" style={{color: "#faad14",}}/>  你确定要删除此输出源吗？</div>
-            <div style={{textAlign: "right",padding: "0 0 8"}}>
-                <Button style={{marginRight: 8}} size="small" onClick={()=>{this.handlePopoverVisibleChange(null,index,false)}}>取消</Button>
-                <Button type="primary" size="small" onClick={()=>{this.changeInputTabs('delete',index)}}>确定</Button>
+        const popoverContent = (
+            <div className="input-panel-title">
+                <div style={{ padding: "8 0 12" }}>
+                    {" "}
+                    <Icon
+                        type="exclamation-circle"
+                        style={{ color: "#faad14" }}
+                    />{" "}
+                    你确定要删除此输出源吗？
+                </div>
+                <div style={{ textAlign: "right", padding: "0 0 8" }}>
+                    <Button
+                        style={{ marginRight: 8 }}
+                        size="small"
+                        onClick={() => {
+                            this.handlePopoverVisibleChange(null, index, false);
+                        }}
+                    >
+                        取消
+                    </Button>
+                    <Button
+                        type="primary"
+                        size="small"
+                        onClick={() => {
+                            this.changeInputTabs("delete", index);
+                        }}
+                    >
+                        确定
+                    </Button>
+                </div>
             </div>
-        </div>
-        return <div className="input-panel-title">
-            <span>{` 维表 ${index+1}`}</span>
-            <Popover
-                trigger="click"
-                placement="topLeft"
-                content={popoverContent}
-                visible={popoverVisible[index]}
-                onClick={(e)=>{this.handlePopoverVisibleChange(e,index,!popoverVisible[index])}}
-            >
-                <span className="title-icon input-panel-title" ><Icon type="delete" /></span>
-            </Popover>
-        </div>
-    }
+        );
+        return (
+            <div className="input-panel-title">
+                <span>{` 维表 ${index + 1}`}</span>
+                <Popover
+                    trigger="click"
+                    placement="topLeft"
+                    content={popoverContent}
+                    visible={popoverVisible[index]}
+                    onClick={e => {
+                        this.handlePopoverVisibleChange(
+                            e,
+                            index,
+                            !popoverVisible[index]
+                        );
+                    }}
+                >
+                    <span className="title-icon input-panel-title">
+                        <Icon type="delete" />
+                    </span>
+                </Popover>
+            </div>
+        );
+    };
 
-    recordForm = (ref) => {//存储子组建的所有要检查的form表单
+    recordForm = ref => {
+        //存储子组建的所有要检查的form表单
         const { checkFormParams } = this.state;
         checkFormParams.push(ref);
-        this.setOutputData({checkFormParams})
+        this.setOutputData({ checkFormParams });
         this.setState({
             checkFormParams
-        })
-    }
-
+        });
+    };
 
     render() {
-        const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType,tableColumnOptionType } = this.state;
+        const {
+            tabTemplate,
+            panelActiveKey,
+            panelColumn,
+            originOptionType,
+            tableOptionType,
+            tableColumnOptionType
+        } = this.state;
         return (
             <div className="m-taksdetail panel-content">
-                <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey}>
-                    {
-                        tabTemplate.map( (OutputPutOrigin,index) => {
-                            return  (
-                                <Panel header={this.panelHeader(index)} key={index+1} style={{borderRadius: 5}} className="input-panel">
-                                    <OutputForm 
-                                        index={index}
-                                        sync={this._syncEditor}
-                                        handleInputChange={this.handleInputChange}
-                                        panelColumn={panelColumn} originOptionType={originOptionType} 
-                                        tableOptionType = {tableOptionType}
-                                        tableColumnOptionType = {tableColumnOptionType}
-                                        onRef={this.recordForm}
-                                        editorParamsChange={this.props.editorParamsChange}
-                                    />
-                                </Panel>
-                            )
-                        })
-                    }
+                <Collapse
+                    activeKey={panelActiveKey}
+                    bordered={false}
+                    onChange={this.handleActiveKey}
+                >
+                    {tabTemplate.map((OutputPutOrigin, index) => {
+                        return (
+                            <Panel
+                                header={this.panelHeader(index)}
+                                key={index + 1}
+                                style={{ borderRadius: 5 }}
+                                className="input-panel"
+                            >
+                                <OutputForm
+                                    index={index}
+                                    sync={this._syncEditor}
+                                    handleInputChange={this.handleInputChange}
+                                    panelColumn={panelColumn}
+                                    originOptionType={originOptionType}
+                                    tableOptionType={tableOptionType}
+                                    tableColumnOptionType={
+                                        tableColumnOptionType
+                                    }
+                                    onRef={this.recordForm}
+                                    editorParamsChange={
+                                        this.props.editorParamsChange
+                                    }
+                                />
+                            </Panel>
+                        );
+                    })}
                 </Collapse>
-                <Button className="stream-btn" onClick={()=> {this.changeInputTabs('add')}} style={{borderRadius: 5}}><Icon type="plus" /><span> 添加输入</span></Button>
+                <Button
+                    className="stream-btn"
+                    onClick={() => {
+                        this.changeInputTabs("add");
+                    }}
+                    style={{ borderRadius: 5 }}
+                >
+                    <Icon type="plus" />
+                    <span> 添加输入</span>
+                </Button>
             </div>
-        )
+        );
     }
 }
-

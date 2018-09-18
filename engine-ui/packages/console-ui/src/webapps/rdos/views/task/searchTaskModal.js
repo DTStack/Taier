@@ -136,7 +136,7 @@ class SearchTaskModal extends React.Component {
         )
 
         return <Modal
-            title="打开任务"
+            title="搜索并打开任务"
             visible={visibleSearchTask}
             footer=""
             onCancel={this.close}

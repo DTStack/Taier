@@ -69,11 +69,13 @@ $fontColor1: #2491F7;
         background: $color3;
         border-color: $color3;
 
-        .horizontal,
-        .horizontal:hover,
-        .vertical,
-        .vertical:hover {
-            border-color: $color3;
+        & {
+            .horizontal,
+            .horizontal:hover,
+            .vertical,
+            .vertical:hover {
+                border-color: $color3;
+            }
         }
     }
 
@@ -162,7 +164,7 @@ $fontColor1: #2491F7;
              }
      
              &::-webkit-scrollbar {
-                 width: 12px;
+                 width: 10px;
                  background-color: #252525;
              }
      

@@ -5,11 +5,9 @@ import {
 } from 'antd'
 
 import Api from '../../../api';
-import { mysqlFieldTypes } from '../../../comm/const';
 
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
-import { jsonEditorOptions, LOCK_TYPE } from '../../../comm/const'
 
 
 
@@ -17,6 +15,7 @@ const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
 const { Column, ColumnGroup } = Table;
+
 const FormItem = Form.Item;
 
 class InputOrigin extends Component {

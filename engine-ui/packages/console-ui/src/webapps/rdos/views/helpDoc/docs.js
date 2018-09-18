@@ -181,3 +181,9 @@ export const optionsTaskHelp=(
         任务执行时的命令行参数
     </div>
 )
+
+export const switchPartition = (
+    <span>
+        将上游节点与 JoinTable 节点的数据传输改成按 key 分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
+    </span>
+);

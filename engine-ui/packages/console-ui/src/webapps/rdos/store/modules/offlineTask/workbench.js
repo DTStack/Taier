@@ -57,18 +57,19 @@ export const workbenchReducer = (state = getCachedData(), action) => {
 
         case workbenchAction.CLOSE_TASK_TAB: {
             const tabId = action.payload;
-            let clone = cloneDeep(state);
-
-            const tabIndex = clone.tabs.findIndex(tab => tab.id === tabId);
             
-            if(tabId === state.currentTab) {
-                const nextTab = clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
-                clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
+            const tabIndex = state.tabs.findIndex(tab => tab.id === tabId);
+            
+            if (tabIndex > -1) {
+                let clone = cloneDeep(state);
+                if(tabId === state.currentTab) {
+                    const nextTab = clone.tabs[tabIndex + 1] || clone.tabs[tabIndex - 1];
+                    clone.currentTab = nextTab ? nextTab.id : clone.tabs[0].id;
+                }
+                // 删除
+                clone.tabs.splice(tabIndex, 1);
+                nextState = clone;
             }
-            // 删除
-            clone.tabs.splice(tabIndex, 1);
-
-            nextState = clone;
             break;
         }
 
