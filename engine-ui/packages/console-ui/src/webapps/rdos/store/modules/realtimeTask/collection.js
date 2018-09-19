@@ -78,15 +78,15 @@ export const actions = {
                 taskId
             }).then((res) => {
                 if (res.data) {
-                    actions.updateSourceMap(res.data.sourceMap)
-                    actions.updateTargetMap(res.data.targetMap)
+                    dispatch(actions.updateSourceMap(res.data.sourceMap,false,true)); 
+                    dispatch(actions.updateTargetMap(res.data.targetMap,false,true));
                     setCurrentPageValue(dispatch, "currentStep", 2);
                 }
             })
         }
     },
 
-    updateSourceMap(params = {}, clear) {
+    updateSourceMap(params = {}, clear,notDirty) {
         return dispatch => {
             const page = getCurrentPage();
             let { sourceMap } = page;
@@ -98,12 +98,12 @@ export const actions = {
                     ...sourceMap,
                     ...params
                 }),
-                true
+                notDirty?false:true
             )
         }
     },
 
-    updateTargetMap(params = {}, clear) {
+    updateTargetMap(params = {}, clear, notDirty) {
         return dispatch => {
             const page = getCurrentPage();
             let { targetMap } = page;
@@ -115,7 +115,7 @@ export const actions = {
                     ...targetMap,
                     ...params
                 }),
-                true
+                notDirty?false:true
             )
         }
     },

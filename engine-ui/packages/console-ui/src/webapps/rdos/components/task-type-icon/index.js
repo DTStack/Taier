@@ -60,6 +60,10 @@ export default class TaskTypeIcon extends Component {
                     iconName = "python.svg";
                     break;
                 }
+                case TASK_TYPE.DATA_COLLECTION: {
+                    iconName = "collection.svg";
+                    break;
+                }
                 case TASK_TYPE.WORKFLOW: {
                     iconName = "workflow.svg";
                     break;
