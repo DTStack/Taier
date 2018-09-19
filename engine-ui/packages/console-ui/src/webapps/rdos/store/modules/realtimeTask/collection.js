@@ -78,7 +78,9 @@ export const actions = {
                 taskId
             }).then((res) => {
                 if (res.data) {
-                    setCurrentPageValue(dispatch, "serverDate", res.data);
+                    updateSourceMap(res.data.sourceMap)
+                    updateTargetMap(res.data.targetMap)
+                    setCurrentPageValue(dispatch, "currentStep", 2);
                 }
             })
         }

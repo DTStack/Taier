@@ -207,6 +207,9 @@ export default {
     getRealtimeJobData(params) {
         return http.post(stremReq.GET_REALTIME_JOBDATA, params)
     },
+    getRealtimeCollectionTemplate(params) {
+        return http.post(stremReq.GET_SYNC_SCRIPT_TEMPLATE, params)
+    },
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
         return http.post(req.GET_CATALOGUE, params)

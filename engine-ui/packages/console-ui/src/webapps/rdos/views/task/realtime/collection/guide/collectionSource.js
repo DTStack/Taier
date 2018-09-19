@@ -121,9 +121,10 @@ class CollectionSourceForm extends React.Component {
         }
     }
     render() {
-        const { collectionData, tableList } = this.props;
-        const { dataSourceList = [] } = collectionData;
+        let { collectionData, tableList } = this.props;
+        let { dataSourceList = [],sourceMap } = collectionData;
         const { getFieldDecorator } = this.props.form;
+        const allTable=sourceMap.allTable;
         return (
             <div>
                 <Form>
@@ -161,14 +162,14 @@ class CollectionSourceForm extends React.Component {
                                 style={{ width: '100%' }}
                                 placeholder="请选择表"
 
-                            >
-                                {tableList.map(
+                            >   
+                                {[<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
                                     (table) => {
-                                        return <Option key={`${table}`} value={table}>
+                                        return <Option disabled={allTable} key={`${table}`} value={table}>
                                             {table}
                                         </Option>
                                     }
-                                )}
+                                ))}
                             </Select>
                         )}
                     </FormItem>
@@ -222,6 +223,19 @@ const WrapCollectionSourceForm = Form.create({
         if (fields.sourceId != undefined) {
             clear = true
         }
+        /**
+         * 改变table的情况
+         * 1.包含全部，则剔除所有其他选项，设置alltable=true
+         * 2.不包含全部，设置alltable=false
+         */
+        if(fields.table){
+            if(fields.table.includes(-1)){
+                fields.table=[];
+                fields.allTable=true;
+            }else{
+                fields.allTable=false;
+            }
+        }
         props.updateSourceMap(fields, clear);
     },
     mapPropsToFields(props) {
@@ -232,7 +246,7 @@ const WrapCollectionSourceForm = Form.create({
                 value: sourceMap.sourceId
             },
             table: {
-                value: sourceMap.table
+                value: sourceMap.allTable?-1:sourceMap.table
             },
             collectType: {
                 value: sourceMap.collectType

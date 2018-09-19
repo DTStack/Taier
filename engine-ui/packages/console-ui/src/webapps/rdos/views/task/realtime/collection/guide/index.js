@@ -26,7 +26,7 @@ class CollectionGuide extends React.Component {
     save() {
         return this.props.saveTask()
         .then(()=>{
-            this.navtoStep(2);
+            this.props.initCollectionTask();
         });
     }
 
@@ -34,7 +34,7 @@ class CollectionGuide extends React.Component {
         const { currentPage } = this.props;
         const collectionData=currentPage||{};
         const { currentStep } = collectionData;
-        const isLocked = false;
+        const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
         const steps = [
             {
                 title: '选择来源', content: <Source

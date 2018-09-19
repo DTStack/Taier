@@ -72,7 +72,8 @@ class CommonCodeEditor extends Component {
         const {
             currentPage,
             editor,
-            mode
+            mode,
+            toolBarOptions = {}
         } = this.props;
 
         const cursorPosition = currentPage.cursorPosition || undefined;
@@ -99,6 +100,7 @@ class CommonCodeEditor extends Component {
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
             },
+            ...toolBarOptions
         }
 
         return (

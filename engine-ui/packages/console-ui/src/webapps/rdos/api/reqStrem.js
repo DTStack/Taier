@@ -12,4 +12,5 @@ export default {
     LINK_SOURCE:`${RDOS_BASE_URL}/stream/streamDataSource/linkDataSource`,//关联映射数据源
 
     GET_REALTIME_JOBDATA: `${RDOS_BASE_URL}/stream/streamDataSource/trace`,
+    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/stream/streamTask/getJsonTemplate`,//获取数据采集脚本的模版
 }

@@ -2,8 +2,10 @@ import React from "react";
 import utils from "utils";
 
 import CommonEditor from "../../editor/commonEditor"
+import Toolbar from "./toolBar"
 
 class CollectionScript extends React.Component {
+    
     formatJson(text) {
         if (!text) {
             return text;
@@ -19,6 +21,9 @@ class CollectionScript extends React.Component {
             }
         )
     }
+    getLeftButton(){
+        return <Toolbar {...this.props} />
+    }
     render() {
         return (
             <div>
@@ -26,6 +31,9 @@ class CollectionScript extends React.Component {
                     mode="json"
                     {...this.props}
                     onFormat={this.formatJson}
+                    toolBarOptions={{
+                        leftCustomButton:this.getLeftButton()
+                    }}
                 />
             </div>
         )

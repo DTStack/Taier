@@ -82,6 +82,7 @@ class TaskIndex extends Component {
         }
         console.log('inputData,outputData', inputData, outputData, currentPage);
         const resList = currentPage.resourceList;
+        currentPage.preSave=true;
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
