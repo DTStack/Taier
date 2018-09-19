@@ -9,7 +9,7 @@ import ajax from "../../../api"
 export const dataKey = "ide_collection"
 
 const initState = {
-    currentStep: 0,
+    currentStep: null,
     sourceMap: {
         table: [],
         sourceId: undefined,
@@ -78,9 +78,18 @@ export const actions = {
                 taskId
             }).then((res) => {
                 if (res.data) {
+                    if(res.data.sourceMap.journalName){
+                        res.data.sourceMap.collectType=collect_type.FILE;
+                    } else if(res.data.sourceMap.timestamp){
+                        res.data.sourceMap.collectType=collect_type.TIME;
+                    }else{
+                        res.data.sourceMap.collectType=collect_type.ALL;
+                    }
                     dispatch(actions.updateSourceMap(res.data.sourceMap,false,true)); 
                     dispatch(actions.updateTargetMap(res.data.targetMap,false,true));
                     setCurrentPageValue(dispatch, "currentStep", 2);
+                }else{
+                    setCurrentPageValue(dispatch, "currentStep", 0);
                 }
             })
         }

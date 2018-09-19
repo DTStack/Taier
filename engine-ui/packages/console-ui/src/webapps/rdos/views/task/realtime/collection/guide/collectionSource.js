@@ -224,6 +224,12 @@ const WrapCollectionSourceForm = Form.create({
             clear = true
         }
         /**
+         * moment=>时间戳
+         */
+        if(fields.timestamp){
+            fields.timestamp=fields.timestamp.valueOf()
+        }
+        /**
          * 改变table的情况
          * 1.包含全部，则剔除所有其他选项，设置alltable=true
          * 2.不包含全部，设置alltable=false

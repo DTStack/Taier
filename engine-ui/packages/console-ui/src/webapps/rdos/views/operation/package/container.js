@@ -72,10 +72,15 @@ class PackageContainer extends React.Component {
                     tabBarStyle={{background:"transparent",borderWidth:"0px"}}
                 >
                     <TabPane className="m-panel2" tab="创建发布包" key="create">
-                        <PackageCreate changeTab={this.onChange.bind(this)} key={createKey} mode={mode} />
+                        <PackageCreate 
+                        changeTab={this.onChange.bind(this)} 
+                        // key={createKey} 
+                        mode={mode} />
                     </TabPane>
                     <TabPane className="m-panel2" tab="发布包" key="publish">
-                        <PackagePublish key={publishKey} mode={mode} />
+                        <PackagePublish 
+                        // key={publishKey} 
+                        mode={mode} />
                     </TabPane>
                 </Tabs>
                 {this.props.children}
