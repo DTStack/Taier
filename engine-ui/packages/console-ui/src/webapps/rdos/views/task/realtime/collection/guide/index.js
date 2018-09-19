@@ -24,10 +24,7 @@ class CollectionGuide extends React.Component {
     }
 
     save() {
-        return this.props.saveTask()
-        .then(()=>{
-            this.props.initCollectionTask();
-        });
+        this.props.saveTask();
     }
 
     render() {

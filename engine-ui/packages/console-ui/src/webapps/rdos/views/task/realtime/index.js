@@ -19,8 +19,9 @@ import MyIcon from '../../../components/icon'
 import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import * as TreeAction from '../../../store/modules/realtimeTask/tree'
+import { actions as collectionActions } from '../../../store/modules/realtimeTask/collection';
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
-import { MENU_TYPE, TASK_TYPE, formItemLayout, } from '../../../comm/const';
+import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE } from '../../../comm/const';
 import { showSeach } from '../../../store/modules/comm';
 
 import TaskBrowser from './taskBrowser'
@@ -112,6 +113,9 @@ class TaskIndex extends Component {
                             id: pageData.nodePid,
                             catalogueType: MENU_TYPE.TASK_DEV
                         }))
+                    }
+                    if(currentPage.taskType==TASK_TYPE.DATA_COLLECTION&&currentPage.createModel==DATA_SYNC_TYPE.GUIDE){
+                        dispatch(collectionActions.initCollectionTask(currentPage.id))
                     }
                     resolve(true)
                 }

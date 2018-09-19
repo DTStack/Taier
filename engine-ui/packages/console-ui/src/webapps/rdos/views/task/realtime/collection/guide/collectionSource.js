@@ -224,10 +224,14 @@ const WrapCollectionSourceForm = Form.create({
             clear = true
         }
         /**
-         * moment=>时间戳
+         * moment=>时间戳,并且清除其他的选项
          */
         if(fields.timestamp){
             fields.timestamp=fields.timestamp.valueOf()
+            fields.journalName=null;
+        }
+        if(fields.journalName){
+            fields.timestamp=null;
         }
         /**
          * 改变table的情况
