@@ -1,12 +1,18 @@
 package com.dtstack.rdos.engine.service;
 
 import com.dtstack.rdos.common.annotation.Param;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.google.common.base.Preconditions;
@@ -17,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -35,18 +42,71 @@ public class ConsoleServiceImpl {
 
     private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
+    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+
     private WorkNode workNode = WorkNode.getInstance();
 
-    public List<String> search(@Param("computeType") String computeType,
-                               @Param("jobName") String jobName) {
+    public Map<String, Object> search(@Param("computeType") String computeType,
+                                      @Param("jobName") String jobName,
+                                      @Param("pageSize") int pageSize,
+                                      @Param("currentPage") int currentPage) {
+        Preconditions.checkNotNull(computeType, "parameters of computeType is required");
+        ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
+        Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
+        String jobId = null;
+        if (ComputeType.STREAM == type) {
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
+            jobId = streamJob.getTaskId();
+        } else {
+            RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
+            jobId = batchJob.getJobId();
+        }
+        if (jobId == null) {
+            return null;
+        }
+        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        if (jobCache == null) {
+            return null;
+        }
+        try {
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+            JobClient jobClient = new JobClient(paramAction);
+            GroupPriorityQueue queue = workNode.getEngineTypeQueue(jobClient.getEngineType());
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(jobClient.getGroupName());
+            int queueSize = jobQueue.size();
+            JobClient theJob = jobQueue.getElement(jobId);
+
+            List<JobClient> topN = new ArrayList<>();
+            Iterator<JobClient> jobIt = jobQueue.iterator();
+            int startIndex = pageSize * (currentPage - 1);
+            int c = 0;
+            while (jobIt.hasNext()) {
+                if (pageSize-- <= 0 && startIndex >= c) {
+                    topN.add(jobIt.next());
+                }
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("queueSize", queueSize);
+            result.put("theJob", theJob);
+            result.put("topN", topN);
+            return result;
+        } catch (Exception e) {
+            logger.info("", e);
+        }
+        return null;
+    }
+
+    public List<String> getByName(@Param("computeType") String computeType,
+                                  @Param("jobName") String jobName) {
         try {
             Preconditions.checkNotNull(computeType, "parameters of computeType is required");
             ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
             Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
             if (ComputeType.STREAM == type) {
-                return engineStreamTaskDAO.getByName(jobName);
+                return engineStreamTaskDAO.listNames(jobName);
             } else {
-                return engineBatchJobDAO.getByName(jobName);
+                return engineBatchJobDAO.listNames(jobName);
             }
         } catch (Exception e) {
             logger.info("", e);

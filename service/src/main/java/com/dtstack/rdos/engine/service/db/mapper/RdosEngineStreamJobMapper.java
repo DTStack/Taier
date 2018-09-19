@@ -38,5 +38,7 @@ public interface RdosEngineStreamJobMapper {
 
 	Integer updateTaskStatusCompareOld(@Param("taskId") String taskId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus);
 
-    List<String> getByName(@Param("taskName") String taskName);
+	RdosEngineStreamJob getByName(@Param("taskName") String taskName);
+
+    List<String> listNames(@Param("taskName") String taskName);
 }
