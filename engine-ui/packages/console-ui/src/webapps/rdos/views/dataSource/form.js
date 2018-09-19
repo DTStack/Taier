@@ -170,7 +170,7 @@ class BaseForm extends Component {
     }
 
     renderDynamic() {
-        const { form, sourceData, } = this.props;
+        const { form, sourceData, showUserNameWarning } = this.props;
         const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
 
         const { getFieldDecorator } = form;
@@ -777,6 +777,9 @@ class BaseForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
+                        {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={"若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据"}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>}
                     </FormItem>,
                     <FormItem
                         key="password"
