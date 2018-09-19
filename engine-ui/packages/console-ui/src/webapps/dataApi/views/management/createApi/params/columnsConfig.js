@@ -299,7 +299,7 @@ class ColumnsConfig extends React.Component {
     }
 
     apiParamsConfig = ()=>{
-        const { mode, InputIsEdit, selectedRows, addColumns} =this.props;
+        const { mode, InputIsEdit, selectedRows, addColumns, removeColumns} =this.props;
         const { InputSelectedRows } = this.state;
 
         const inputAdd = classnames('params_exchange_button', {
