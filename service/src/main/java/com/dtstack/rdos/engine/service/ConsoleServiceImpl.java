@@ -91,11 +91,10 @@ public class ConsoleServiceImpl {
                 if (pageSize-- <= 0 && startIndex >= c) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    long generateTime = jobClient.getGenerateTime();
-                    Integer jobStatus = getJobStatusFromDB(type, jobId);
 
-                    jobMap.put("generateTime", generateTime);
-                    jobMap.put("status", jobStatus);
+                    setJobFromDB(type, jobId, jobMap);
+
+                    jobMap.put("generateTime", jobClient.getGenerateTime());
                     topN.add(jobMap);
                 }
             }
@@ -161,18 +160,21 @@ public class ConsoleServiceImpl {
         return Collections.EMPTY_SET;
     }
 
-    private Integer getJobStatusFromDB(ComputeType computeType, String jobId) {
+    private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
         if (ComputeType.STREAM == computeType) {
             RdosEngineStreamJob engineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (engineStreamJob != null) {
-                return engineStreamJob.getStatus().intValue();
+                Integer status = engineStreamJob.getStatus().intValue();
+                jobMap.put("status", status);
+                jobMap.put("execStartTime", engineStreamJob.getExecStartTime());
             }
         } else {
-            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getByName(jobId);
+            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
             if (engineBatchJob != null) {
-                return engineBatchJob.getStatus().intValue();
+                Integer status = engineBatchJob.getStatus().intValue();
+                jobMap.put("status", status);
+                jobMap.put("execStartTime", engineBatchJob.getExecStartTime());
             }
         }
-        return null;
     }
 }
