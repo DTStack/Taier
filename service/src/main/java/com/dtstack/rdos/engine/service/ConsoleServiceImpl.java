@@ -46,20 +46,29 @@ public class ConsoleServiceImpl {
 
     private WorkNode workNode = WorkNode.getInstance();
 
-    public Map<String, Object> search(@Param("computeType") String computeType,
-                                      @Param("jobName") String jobName,
-                                      @Param("pageSize") int pageSize,
-                                      @Param("currentPage") int currentPage) {
+    public Map<String, Object> searchJob(@Param("computeType") String computeType,
+                                         @Param("jobName") String jobName,
+                                         @Param("pageSize") int pageSize,
+                                         @Param("currentPage") int currentPage) {
         Preconditions.checkNotNull(computeType, "parameters of computeType is required");
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
+        Integer status = null;
         if (ComputeType.STREAM == type) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
-            jobId = streamJob.getTaskId();
+            if (streamJob != null) {
+                jobId = streamJob.getTaskId();
+                RdosEngineStreamJob engineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+                status = engineStreamJob.getStatus().intValue();
+            }
         } else {
             RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
-            jobId = batchJob.getJobId();
+            if (batchJob != null) {
+                jobId = batchJob.getJobId();
+                RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+                status = engineBatchJob.getStatus().intValue();
+            }
         }
         if (jobId == null) {
             return null;
@@ -70,19 +79,25 @@ public class ConsoleServiceImpl {
         }
         try {
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-            JobClient jobClient = new JobClient(paramAction);
-            GroupPriorityQueue queue = workNode.getEngineTypeQueue(jobClient.getEngineType());
-            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(jobClient.getGroupName());
+            JobClient theJobClient = new JobClient(paramAction);
+            GroupPriorityQueue queue = workNode.getEngineTypeQueue(theJobClient.getEngineType());
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(theJobClient.getGroupName());
             int queueSize = jobQueue.size();
             JobClient theJob = jobQueue.getElement(jobId);
 
-            List<JobClient> topN = new ArrayList<>();
+            List<Map<String,Object>> topN = new ArrayList<>();
             Iterator<JobClient> jobIt = jobQueue.iterator();
             int startIndex = pageSize * (currentPage - 1);
             int c = 0;
             while (jobIt.hasNext()) {
                 if (pageSize-- <= 0 && startIndex >= c) {
-                    topN.add(jobIt.next());
+                    JobClient jobClient = jobIt.next();
+                    Map<String,Object> jobMap = PublicUtil.ObjectToMap(jobClient);
+                    long generateTime = jobClient.getGenerateTime();
+
+                    jobMap.put("generateTime", generateTime);
+                    jobMap.put("status", status);
+                    topN.add(jobMap);
                 }
             }
 
@@ -97,7 +112,7 @@ public class ConsoleServiceImpl {
         return null;
     }
 
-    public List<String> getByName(@Param("computeType") String computeType,
+    public List<String> listNames(@Param("computeType") String computeType,
                                   @Param("jobName") String jobName) {
         try {
             Preconditions.checkNotNull(computeType, "parameters of computeType is required");

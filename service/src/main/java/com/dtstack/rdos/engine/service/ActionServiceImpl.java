@@ -71,7 +71,7 @@ public class ActionServiceImpl {
                 workNode.addStartJob(jobClient);
             }
         }catch (Exception e){
-            logger.info("", e);
+            logger.error("", e);
         }
     }
 
@@ -214,6 +214,7 @@ public class ActionServiceImpl {
                 if(rdosEngineStreamJob == null){
                     rdosEngineStreamJob = new RdosEngineStreamJob();
                     rdosEngineStreamJob.setTaskId(jobId);
+                    rdosEngineStreamJob.setTaskName(paramAction.getName());
                     rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                     engineStreamTaskDAO.insert(rdosEngineStreamJob);
                     result =  true;
@@ -233,6 +234,7 @@ public class ActionServiceImpl {
                 if(rdosEngineBatchJob == null){
                     rdosEngineBatchJob = new RdosEngineBatchJob();
                     rdosEngineBatchJob.setJobId(jobId);
+                    rdosEngineBatchJob.setJobName(paramAction.getName());
                     rdosEngineBatchJob.setSourceType(paramAction.getSourceType());
                     rdosEngineBatchJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
                     batchJobDAO.insert(rdosEngineBatchJob);

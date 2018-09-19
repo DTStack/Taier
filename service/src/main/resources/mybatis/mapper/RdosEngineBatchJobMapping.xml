@@ -78,10 +78,10 @@
     </update>
 
     <select id="getByName" parameterType="java.lang.String" resultMap="rdosEngineTaskResult">
-        select * from rdos_engine_batch_job where job_name = #{jobName} and is_deleted=0;
+        select * from rdos_engine_batch_job where job_name LIKE '%${jobName}%' and is_deleted=0;
     </select>
 
     <select id="listNames" parameterType="java.lang.String" resultType="java.lang.String">
-        select job_name from rdos_engine_batch_job where job_name LIKE '%${jobName}%' and is_deleted=0;
+        select job_name from rdos_engine_batch_job where job_name = #{jobName} and is_deleted=0;
     </select>
 </mapper>
