@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm, Badge } from "antd";
+import { Card, Table, Form, Select, DatePicker, Input, message, Popconfirm, Badge,Tooltip,Icon } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
 import utils from "utils";
@@ -60,7 +60,7 @@ class PackagePublish extends React.Component {
         const {
             tableParams,
             packageName, publishUserId, applyUserId,
-             publishTime, applyTime
+            publishTime, applyTime
         } = this.state;
         const sorter = tableParams.sorter;
         const filters = tableParams.filters;
@@ -73,7 +73,7 @@ class PackagePublish extends React.Component {
         Api.getPackageList({
             publishUserId,
             applyUserId,
-            status:(filters.status&&filters.status.length)?filters.status[0]:null,
+            status: (filters.status && filters.status.length) ? filters.status[0] : null,
             publishTimeStart: (publishTime && publishTime[0]) ? publishTime[0].valueOf() : null,
             publishTimeEnd: (publishTime && publishTime[1]) ? publishTime[1].valueOf() : null,
             applyTimeStart: (applyTime && applyTime[0]) ? applyTime[0].valueOf() : null,
@@ -132,7 +132,7 @@ class PackagePublish extends React.Component {
         }, {
             title: "发布状态",
             dataIndex: "status",
-            render(status) {
+            render(status,record) {
                 switch (status) {
                     case publishStatus.UNSUBMIT: {
                         return (<span>
@@ -141,7 +141,14 @@ class PackagePublish extends React.Component {
                     }
                     case publishStatus.FAIL: {
                         return (<span>
-                            <Badge status="error" text="发布失败" />
+                            <Badge status="error" text="发布失败"  />
+                            <Tooltip
+                                placement="right"
+                                title={record.log}
+                                overlayStyle={{ wordBreak: 'break-all' }}
+                            >
+                                <Icon className="font-14" style={{marginLeft:"5px"}} type={"close-circle-o"} />
+                            </Tooltip>
                         </span>)
                     }
                     case publishStatus.SUCCESS: {
@@ -151,17 +158,17 @@ class PackagePublish extends React.Component {
                     }
                 }
             },
-            filters:[{
-                text:"待发布",
-                value:publishStatus.UNSUBMIT
-            },{
-                text:"发布成功",
-                value:publishStatus.SUCCESS
-            },{
-                text:"发布失败",
-                value:publishStatus.FAIL
+            filters: [{
+                text: "待发布",
+                value: publishStatus.UNSUBMIT
+            }, {
+                text: "发布成功",
+                value: publishStatus.SUCCESS
+            }, {
+                text: "发布失败",
+                value: publishStatus.FAIL
             }],
-            filterMultiple:false
+            filterMultiple: false
         }, {
             title: "操作",
             dataIndex: "deal",
