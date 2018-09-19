@@ -84,19 +84,19 @@ public class TaskIdUtil {
         return true;
     }
 
-//    public static void main(String[] args) {
-//
-//        String str2 = "130asdadads";
-//        char c = str2.charAt(ONE_ENGINETYPE);
-//        System.out.println((int) c);
-//        System.out.println(c == '3');
-//        String str = "111dfefef";
-//        System.out.println(getZkTaskId(1, "flink", str2));
+    public static void main(String[] args) {
+
+        String str2 = "130asdadads";
+        char c = str2.charAt(ONE_ENGINETYPE);
+        System.out.println((int) c);
+        System.out.println(c == '3');
+        String str = "111dfefef";
+        System.out.println(getZkTaskId(1, "Hive", str2));
 //        System.out.println(isMigrationJob(str2));
 //        System.out.println(getComputeType(str2));
 //        System.out.println(getEngineType(str2));
 //        System.out.println(getTaskId(str2));
 //        System.out.println(convertToNoMigrationJob(str));
-//    }
+    }
 
 }
