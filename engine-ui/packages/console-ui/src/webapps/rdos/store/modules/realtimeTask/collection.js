@@ -78,8 +78,8 @@ export const actions = {
                 taskId
             }).then((res) => {
                 if (res.data) {
-                    updateSourceMap(res.data.sourceMap)
-                    updateTargetMap(res.data.targetMap)
+                    actions.updateSourceMap(res.data.sourceMap)
+                    actions.updateTargetMap(res.data.targetMap)
                     setCurrentPageValue(dispatch, "currentStep", 2);
                 }
             })
