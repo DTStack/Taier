@@ -274,6 +274,9 @@ class RealTimeTaskList extends Component {
                         break;
                 }
 
+                if(record.taskType==TASK_TYPE.DATA_COLLECTION){
+                    recover=null;
+                }
                 return (
                     <div key={record.id}>
                         <a onClick={() => { this.logInfo(record) }}>日志</a>
