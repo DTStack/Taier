@@ -204,7 +204,12 @@ export default {
     getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
-
+    getRealtimeJobData(params) {
+        return http.post(stremReq.GET_REALTIME_JOBDATA, params)
+    },
+    getRealtimeCollectionTemplate(params) {
+        return http.post(stremReq.GET_SYNC_SCRIPT_TEMPLATE, params)
+    },
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
         return http.post(req.GET_CATALOGUE, params)
@@ -729,6 +734,9 @@ export default {
     },
     getStreamTablelist(params) {
         return http.post(stremReq.GET_STREAM_TABLELIST, params)
+    },
+    getStreamDataSourceList(params){
+        return http.post(stremReq.GET_STREAM_DATASOURCE_LIST,params)
     },
     streamQueryDataSource(params) {
         return http.post(stremReq.STREAM_QUERY_DATA_SOURCE, params)

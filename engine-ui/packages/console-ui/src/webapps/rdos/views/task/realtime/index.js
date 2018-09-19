@@ -82,6 +82,7 @@ class TaskIndex extends Component {
         }
         console.log('inputData,outputData', inputData, outputData, currentPage);
         const resList = currentPage.resourceList;
+        currentPage.preSave = true;
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
@@ -95,77 +96,80 @@ class TaskIndex extends Component {
             currentPage.side = dimensionPanelColumn;
         }
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
-    
-        Api.saveTask(currentPage).then((res) => {
 
-            const updatePageStatus = (pageData) => {
-                message.success('任务保存成功')
-                pageData.notSynced = false;// 添加已保存标记
-                dispatch(BrowserAction.setCurrentPage(pageData))
-                console.log('pageData:', pageData)
-                // 如果mr任务更新，则需要刷新左侧文件树
-                if (currentPage.taskType === TASK_TYPE.MR) {
-                    dispatch(TreeAction.getRealtimeTree({
-                        id: pageData.nodePid,
-                        catalogueType: MENU_TYPE.TASK_DEV
-                    }))
+        return new Promise((resolve, reject) => {
+            Api.saveTask(currentPage).then((res) => {
+
+                const updatePageStatus = (pageData) => {
+                    message.success('任务保存成功')
+                    pageData.notSynced = false;// 添加已保存标记
+                    dispatch(BrowserAction.setCurrentPage(pageData))
+                    console.log('pageData:', pageData)
+                    // 如果mr任务更新，则需要刷新左侧文件树
+                    if (currentPage.taskType === TASK_TYPE.MR) {
+                        dispatch(TreeAction.getRealtimeTree({
+                            id: pageData.nodePid,
+                            catalogueType: MENU_TYPE.TASK_DEV
+                        }))
+                    }
+                    resolve(true)
                 }
-            }
 
-            if (res.code === 1) {
-                const lockInfo = res.data.readWriteLockVO;
-                const lockStatus = lockInfo.result
-                if (lockStatus === 0) { // 1-正常，2-被锁定，3-需同步
-                    updatePageStatus(res.data)
-                    // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
-                } else if (lockStatus === 1) { // 2-被锁定
-                    confirm({
-                        title: '锁定提醒', // 锁定提示
-                        content: <span>
-                            文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                            {utils.formatDateTime(lockInfo.gmtModified)}。
-                            强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                        </span>,
-                        okText: '确定保存',
-                        okType: 'danger',
-                        cancelText: '取消',
-                        onOk() {
-                            const succCall = (res) => {
-                                if (res.code === 1) updatePageStatus(res.data)
-                            }
-                            Api.forceUpdateTask(currentPage).then(succCall)
-                        },
-                    });
-                    // 如果同步状态，则提示会覆盖代码，
-                    // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
-                } else if (lockStatus === 2) { // 3-需同步
-                    confirm({
-                        title: '保存警告',
-                        content: <span>
-                            文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                            {utils.formatDateTime(lockInfo.gmtModified)}。
-                            点击确认按钮会<Tag color="orange">覆盖</Tag>
-                            您本地的代码，请您提前做好备份！
-                        </span>,
-                        okText: '确定覆盖',
-                        okType: 'danger',
-                        cancelText: '取消',
-                        onOk() {
-                            const reqParams = {
-                                id: currentPage.id,
-                                lockVersion: lockInfo.version,
-                            }
-                            Api.getTask(reqParams).then(res => {
-                                if (res.code === 1) {
-                                    const taskInfo = res.data
-                                    taskInfo.merged = true;
-                                    updatePageStatus(taskInfo)
+                if (res.code === 1) {
+                    const lockInfo = res.data.readWriteLockVO;
+                    const lockStatus = lockInfo.result
+                    if (lockStatus === 0) { // 1-正常，2-被锁定，3-需同步
+                        updatePageStatus(res.data)
+                        // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
+                    } else if (lockStatus === 1) { // 2-被锁定
+                        confirm({
+                            title: '锁定提醒', // 锁定提示
+                            content: <span>
+                                文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
+                                    {utils.formatDateTime(lockInfo.gmtModified)}。
+                                    强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
+                                </span>,
+                            okText: '确定保存',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const succCall = (res) => {
+                                    if (res.code === 1) updatePageStatus(res.data)
                                 }
-                            })
-                        },
-                    });
+                                Api.forceUpdateTask(currentPage).then(succCall)
+                            },
+                        });
+                        // 如果同步状态，则提示会覆盖代码，
+                        // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
+                    } else if (lockStatus === 2) { // 3-需同步
+                        confirm({
+                            title: '保存警告',
+                            content: <span>
+                                文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
+                                    {utils.formatDateTime(lockInfo.gmtModified)}。
+                                    点击确认按钮会<Tag color="orange">覆盖</Tag>
+                                您本地的代码，请您提前做好备份！
+                                </span>,
+                            okText: '确定覆盖',
+                            okType: 'danger',
+                            cancelText: '取消',
+                            onOk() {
+                                const reqParams = {
+                                    id: currentPage.id,
+                                    lockVersion: lockInfo.version,
+                                }
+                                Api.getTask(reqParams).then(res => {
+                                    if (res.code === 1) {
+                                        const taskInfo = res.data
+                                        taskInfo.merged = true;
+                                        updatePageStatus(taskInfo)
+                                    }
+                                })
+                            },
+                        });
+                    }
                 }
-            }
+            })
         })
     }
 
@@ -371,6 +375,7 @@ class TaskIndex extends Component {
                     ayncTree={this.loadTreeData}
                     editorParamsChange={this.editorParamsChange}
                     editorChange={this.debounceChange}
+                    saveTask={this.saveTask.bind(this)}
                 />
                 {this.renderPublish()}
             </Row>
