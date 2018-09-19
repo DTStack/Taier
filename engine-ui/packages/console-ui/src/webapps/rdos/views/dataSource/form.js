@@ -625,6 +625,21 @@ class BaseForm extends Component {
                                 placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />,
                         )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="broker地址"
+                        key="brokerList"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.brokerList', {
+                            initialValue: config.brokerList || '',
+                        })(
+                            <Input
+                                type="textarea" rows={4}
+                                placeholder="Broker地址，例如IP1:Port,IP2:Port,IP3:Port/子目录"
+                            />,
+                        )}
                     </FormItem>
                 ]
             }
