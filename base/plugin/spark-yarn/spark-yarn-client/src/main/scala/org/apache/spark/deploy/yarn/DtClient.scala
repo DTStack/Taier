@@ -37,6 +37,7 @@ import org.apache.hadoop.yarn.api.ApplicationConstants.Environment
 import org.apache.hadoop.yarn.api._
 import org.apache.hadoop.yarn.api.protocolrecords._
 import org.apache.hadoop.yarn.api.records._
+import org.apache.hadoop.yarn.api.records.impl.pb.PriorityPBImpl
 import org.apache.hadoop.yarn.client.api.{YarnClient, YarnClientApplication}
 import org.apache.hadoop.yarn.conf.YarnConfiguration
 import org.apache.hadoop.yarn.exceptions.ApplicationNotFoundException
@@ -143,7 +144,7 @@ private[spark] class DtClient(
     * creating applications and setting up the application submission context. This was not
     * available in the alpha API.
     */
-  def submitApplication(): ApplicationId = {
+  def submitApplication(priority : Int = 0): ApplicationId = {
     var appId: ApplicationId = null
     try {
       launcherBackend.connect()
@@ -159,6 +160,10 @@ private[spark] class DtClient(
       // Get a new application from our RM
       val newApp = yarnClient.createApplication()
       val newAppResponse = newApp.getNewApplicationResponse()
+
+      val newAppPriority = new PriorityPBImpl()
+      newAppPriority.setPriority(priority)
+      newApp.getApplicationSubmissionContext.setPriority(newAppPriority)
       appId = newAppResponse.getApplicationId()
       reportLauncherState(SparkAppHandle.State.SUBMITTED)
       launcherBackend.setAppId(appId.toString)
@@ -212,6 +217,7 @@ private[spark] class DtClient(
     val appContext = newApp.getApplicationSubmissionContext
     appContext.setApplicationName(sparkConf.get("spark.app.name", "Spark"))
     appContext.setQueue(sparkConf.get(QUEUE_NAME))
+    appContext.setPriority(newApp.getApplicationSubmissionContext.getPriority)
     appContext.setAMContainerSpec(containerContext)
     appContext.setApplicationType("SPARK")
 

@@ -257,6 +257,8 @@ public class FlinkClientBuilder {
         clusterClient.setDetached(isDetached);
         LOG.warn("---init flink client with yarn session success----");
 
+        yarnClusterDescriptor = clusterDescriptor;
+
         return clusterClient;
     }
 
@@ -278,7 +280,6 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
         clusterDescriptor.setQueue(flinkConfig.getQueue());
-        yarnClusterDescriptor = clusterDescriptor;
         return clusterDescriptor;
     }
 
@@ -377,5 +378,9 @@ public class FlinkClientBuilder {
 
     public void setYarnClient(YarnClient yarnClient) {
         this.yarnClient = yarnClient;
+    }
+
+    public YarnClient getYarnClient(){
+        return this.yarnClient;
     }
 }
