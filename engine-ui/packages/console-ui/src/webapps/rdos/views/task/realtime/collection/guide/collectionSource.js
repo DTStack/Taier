@@ -1,6 +1,7 @@
 import React from "react";
+import moment from "moment";
 
-import { Form, Select, Radio, Checkbox, DatePicker, Input } from "antd";
+import { Form, Select, Radio, Checkbox, DatePicker, Input, Button } from "antd";
 
 import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE, CAT_TYPE, collect_type } from "../../../../../comm/const"
 
@@ -51,12 +52,23 @@ class CollectionSource extends React.Component {
             }
         });
     }
-
+    next(){
+        this._form.validateFields(null,{},(err,values)=>{
+            if(!err){
+                this.props.navtoStep(1)
+            }
+        })
+    }
     render() {
         const { tableList } = this.state;
         return (
             <div>
-                <WrapCollectionSourceForm tableList={tableList} {...this.props} />
+                <WrapCollectionSourceForm ref={(f)=>{this._form=f}} tableList={tableList} {...this.props} />
+                {!this.props.readonly && (
+                    <div className="steps-action">
+                        <Button type="primary" onClick={() => this.next()}>下一步</Button>
+                    </div>
+                )}
             </div>
         )
     }
@@ -64,11 +76,10 @@ class CollectionSource extends React.Component {
 
 class CollectionSourceForm extends React.Component {
     renderByCatType() {
-        const {collectionData, form} = this.props;
-        const {getFieldDecorator} =form;
+        const { collectionData, form } = this.props;
+        const { getFieldDecorator } = form;
         const { sourceMap } = collectionData;
-        const { journalName, timestamp } = sourceMap;
-        const collectType =sourceMap.collect_type
+        const collectType = sourceMap.collectType
         switch (collectType) {
             case collect_type.ALL: {
                 return null
@@ -211,9 +222,6 @@ const WrapCollectionSourceForm = Form.create({
         if (fields.sourceId != undefined) {
             clear = true
         }
-        if(fields.collectType!=undefined){
-
-        }
         props.updateSourceMap(fields, clear);
     },
     mapPropsToFields(props) {
@@ -233,7 +241,7 @@ const WrapCollectionSourceForm = Form.create({
                 value: sourceMap.cat
             },
             timestamp: {
-                value: sourceMap.timestamp
+                value: sourceMap.timestamp?new moment(sourceMap.timestamp):undefined
             },
             journalName: {
                 value: sourceMap.journalName

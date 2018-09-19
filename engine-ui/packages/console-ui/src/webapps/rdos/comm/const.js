@@ -28,7 +28,8 @@ export const DATA_SOURCE_TEXT = {
     10: 'MaxCompute',
     11: 'ElasticSearch',
     12: 'Redis',
-    13: 'MongoDB'
+    13: 'MongoDB',
+    14: 'Kafka'
 }
 
 // 锁类型

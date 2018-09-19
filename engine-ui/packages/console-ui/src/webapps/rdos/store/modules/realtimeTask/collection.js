@@ -8,6 +8,19 @@ import ajax from "../../../api"
 
 export const dataKey = "ide_collection"
 
+const initState = {
+    currentStep: 0,
+    sourceMap: {
+        table: [],
+        sourceId: undefined,
+        collectType: collect_type.ALL
+    },
+    targetMap: {
+        sourceId:undefined,
+        topic:undefined
+    },
+}
+
 function getCurrentPage() {
     const state = store.getState();
     const { realtimeTask } = state;
@@ -17,10 +30,7 @@ function getCurrentPage() {
 
 function setCurrentPageValue(dispatch, key, value, isDirty) {
     const page = cloneDeep(getCurrentPage());
-    if (!page[dataKey]) {
-        page[dataKey] = {}
-    }
-    page[dataKey][key] = value;
+    page[key] = value;
     if (typeof isDirty == "boolean") {
         page.notSynced = isDirty
     }
@@ -29,20 +39,15 @@ function setCurrentPageValue(dispatch, key, value, isDirty) {
 
 function initCurrentPage(dispatch) {
     const page = cloneDeep(getCurrentPage());
-
-    page[dataKey] = {
-        currentStep: 0,
-        sourceMap: {
-            table: [],
-            sourceId: undefined,
-            collectType: collect_type.ALL
-        },
-        targetMap: {},
-    };
-    dispatch(setCurrentPage(page));
+    dispatch(setCurrentPage({...page,...initState}));
 }
 
 export const actions = {
+    navtoStep(step) {
+        return dispatch=>{
+            setCurrentPageValue(dispatch, "currentStep",step)
+        }
+    },
     getDataSource() {
         return dispatch => {
             ajax.getStreamDataSourceList()
@@ -65,7 +70,7 @@ export const actions = {
             /**
              * 假如已经存在这个属性，则说明当前的task不是第一次打开，所以采用原来的数据
              */
-            if (page[dataKey]) {
+            if (typeof page.currentStep!="undefined") {
                 return;
             }
             initCurrentPage(dispatch);
@@ -82,9 +87,9 @@ export const actions = {
     updateSourceMap(params = {}, clear) {
         return dispatch => {
             const page = getCurrentPage();
-            let { sourceMap } = page[dataKey];
+            let { sourceMap } = page;
             if (clear) {
-                sourceMap = {};
+                sourceMap = initState.sourceMap;
             }
             setCurrentPageValue(dispatch, "sourceMap",
                 cloneDeep({
@@ -94,7 +99,24 @@ export const actions = {
                 true
             )
         }
-    }
+    },
+
+    updateTargetMap(params = {}, clear) {
+        return dispatch => {
+            const page = getCurrentPage();
+            let { targetMap } = page;
+            if (clear) {
+                targetMap = initState.targetMap;
+            }
+            setCurrentPageValue(dispatch, "targetMap",
+                cloneDeep({
+                    ...targetMap,
+                    ...params
+                }),
+                true
+            )
+        }
+    },
 }
 
 

@@ -4,7 +4,7 @@ import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 
 import ajax from "../../../../../api/index"
-import { actions as collectionActions, dataKey as collectionKey } from '../../../../../store/modules/realtimeTask/collection';
+import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 
 import Source from "./collectionSource";
 import Target from "./collectionTarget";
@@ -20,23 +20,24 @@ class CollectionGuide extends React.Component {
     }
 
     navtoStep(step) {
-        this.setState({ currentStep: step });
-        this.props.setCurrentStep(step);
+        this.props.navtoStep(step);
     }
 
     save() {
-        console.log(save)
+        return this.props.saveTask()
+        .then(()=>{
+            this.navtoStep(2);
+        });
     }
 
     render() {
         const { currentPage } = this.props;
-        const collectionData=currentPage[collectionKey]||{};
+        const collectionData=currentPage||{};
         const { currentStep } = collectionData;
         const isLocked = false;
         const steps = [
             {
                 title: '选择来源', content: <Source
-                    currentStep={currentStep}
                     updateSourceMap={this.props.updateSourceMap}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
@@ -44,17 +45,17 @@ class CollectionGuide extends React.Component {
             },
             {
                 title: '选择目标', content: <Target
-                    currentStep={currentStep}
+                    updateTargetMap={this.props.updateTargetMap}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
                 />
             },
             {
                 title: '预览保存', content: <Complete
-                    currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
                     saveJob={this.save.bind(this)}
+                    currentPage={currentPage}
                 />
             },
         ];
@@ -67,7 +68,7 @@ class CollectionGuide extends React.Component {
                     {isLocked ? <div className="steps-mask"></div> : null}
                     {steps[currentStep].content}
                 </div>
-            </div>:<p>loading</p>
+            </div>:null
         )
     }
 }
