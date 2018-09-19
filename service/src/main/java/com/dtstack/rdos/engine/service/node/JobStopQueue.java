@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.service.node;
 
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -12,13 +13,16 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.send.HttpSendClient;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
+import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.collect.Queues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务停止消息
@@ -34,29 +38,31 @@ public class JobStopQueue {
 
     private BlockingQueue<ParamAction> queue = Queues.newLinkedBlockingQueue();
 
-    private MasterNode masterNode;
+    private WorkNode workNode;
 
     private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
-    private JobStopAction jobStopAction = new JobStopAction();
+    private JobStopAction jobStopAction;
 
-    private ExecutorService simpleES = Executors.newSingleThreadExecutor();
+    private ExecutorService simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
 
     private StopProcessor stopProcessor = new StopProcessor();
 
-    public JobStopQueue(MasterNode masterNode){
-        this.masterNode = masterNode;
+    public JobStopQueue(WorkNode workNode){
+        this.workNode = workNode;
+        this.jobStopAction = new JobStopAction(workNode);
     }
 
     public void start(){
         if(simpleES.isShutdown()){
-            simpleES = Executors.newSingleThreadExecutor();
+            simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
             stopProcessor.reStart();
         }
 
@@ -91,30 +97,23 @@ public class JobStopQueue {
                         continue;
                     }
 
-                    //在master等待队列中查找
-                    if(masterNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), jobId, paramAction.getComputeType())){
-                        LOG.info("stop job:{} success." + paramAction.getTaskId());
-                        continue;
-                    }
-
-                    //cache记录被删除说明已经在引擎上执行了,往对应的引擎发送停止任务指令
-                    if(engineJobCacheDao.getJobById(jobId) == null){
-                        jobStopAction.stopJob(paramAction);
-                        LOG.info("stop job:{} success." + paramAction.getTaskId());
-                        continue;
-                    }
-
                     //在zk上查找任务所在的worker-address
                     Integer computeType  = paramAction.getComputeType();
                     String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-                    String addr = zkDistributed.getJobLocationAddr(zkTaskId);
+                    String addr = zkLocalCache.getJobLocationAddr(zkTaskId);
                     if(addr == null){
                         LOG.info("can't get info from engine zk for jobId" + jobId);
                         continue;
                     }
 
-                    paramAction.setRequestStart(RequestStart.NODE.getStart());
-                    HttpSendClient.actionStopJobToWorker(addr, paramAction);
+                    if (!addr.equals(zkDistributed.getLocalAddress())){
+                        paramAction.setRequestStart(RequestStart.NODE.getStart());
+                        HttpSendClient.actionStopJobToWorker(addr, paramAction);
+                        LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), addr);
+                        continue;
+                    }
+
+                    jobStopAction.stopJob(paramAction);
                 } catch (Exception e) {
                     LOG.error("", e);
                 }

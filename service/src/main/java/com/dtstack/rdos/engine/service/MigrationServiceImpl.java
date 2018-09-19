@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.service;
 
+import com.dtstack.rdos.engine.service.node.MasterNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 
 import java.util.Map;
@@ -9,10 +10,10 @@ import java.util.Map;
  */
 public class MigrationServiceImpl {
 
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+    private MasterNode masterNode = MasterNode.getInstance();
 
     public void migrate(Map<String,Object> params) throws Exception{
         String node = (String)params.get("node");
-        zkDistributed.dataMigration(node);
+        masterNode.dataMigration(node);
     }
 }

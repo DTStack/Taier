@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.service.db.mapper.RdosEngineBatchJobMapper;
 import java.util.List;
 
 /**
- * 
+ *
  * Reason: TODO ADD REASON(可选)
  * Date: 2017年03月03日 下午1:25:18
  * Company: www.dtstack.com
@@ -17,7 +17,7 @@ import java.util.List;
  *
  */
 public class RdosEngineBatchJobDAO {
-	
+
 	public RdosEngineBatchJob getRdosTaskByTaskId(final String jobId){
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineBatchJob>(){
 
@@ -26,7 +26,7 @@ public class RdosEngineBatchJobDAO {
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				return rdosTaskMapper.getRdosJobByJobId(jobId);
 			}
-			
+
 		});
 	}
 
@@ -41,9 +41,9 @@ public class RdosEngineBatchJobDAO {
 
 		});
 	}
-	
+
 	public void updateJobStatus(final String jobId,final int status){
-		
+
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
@@ -52,7 +52,19 @@ public class RdosEngineBatchJobDAO {
 				rdosTaskMapper.updateJobStatus(jobId, status);
 				return null;
 			}
-			
+
+		});
+	}
+
+	public Integer updateTaskStatusCompareOld(String jobId, Integer status, Integer oldStatus) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+			@Override
+			public Integer execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				return rdosTaskMapper.updateTaskStatusCompareOld(jobId, status,oldStatus);
+			}
+
 		});
 	}
 
@@ -97,9 +109,9 @@ public class RdosEngineBatchJobDAO {
 
 		});
 	}
-	
+
 	public void updateJobEngineId(final String jobId,final String engineId){
-		
+
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
@@ -110,10 +122,10 @@ public class RdosEngineBatchJobDAO {
 			}
 		});
 	}
-	
-	
+
+
 	public void updateJobStatusAndExecTime(final String jobId, final int status){
-		
+
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
@@ -124,7 +136,7 @@ public class RdosEngineBatchJobDAO {
 			}
 		});
 	}
-	
+
     public void updateEngineLog(final String jobId, final String engineLog){
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
@@ -162,4 +174,26 @@ public class RdosEngineBatchJobDAO {
             }
         });
 	}
+
+    public RdosEngineBatchJob getByName(String jobName) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineBatchJob>(){
+
+            @Override
+            public RdosEngineBatchJob execute(SqlSession sqlSession) throws Exception {
+                RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+                return mapper.getByName(jobName);
+            }
+        });
+    }
+
+    public List<String> listNames(String jobName) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+			@Override
+			public List<String> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				return mapper.listNames(jobName);
+			}
+		});
+    }
 }

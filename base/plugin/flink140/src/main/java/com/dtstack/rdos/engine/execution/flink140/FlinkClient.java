@@ -35,6 +35,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.client.program.ProgramMissingJobException;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.FlinkException;
@@ -222,20 +223,35 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws ProgramInvocationException, FlinkException, MalformedURLException {
+    public String runJob(PackagedProgram program, int parallelism) throws Exception {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
-            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration());
-            final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
+            ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
-            YarnClusterClient clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph);
+            descriptor.setName(jobClient.getJobName());
+            YarnClusterClient cluster = null;
             try {
-                clusterClient.shutdown();
-            } catch (Exception e) {
-                logger.info("Could not properly shut down the client.", e);
+                cluster = descriptor.deploySessionCluster(clusterSpecification);
+                cluster.setDetached(true);
+                cluster.run(program, parallelism);
+
+            } catch (RuntimeException e){
+                logger.info("Couldn't deploy Yarn session cluster", e.getMessage());
+                throw new Exception("Couldn't deploy Yarn session cluster" + e.getMessage());
+            } catch (ProgramInvocationException | ProgramMissingJobException e) {
+                logger.info("Job run failure!", e);
+                throw new Exception("Job run failure!" + e.getMessage());
             }
-            return clusterClient.getApplicationId().toString();
-        } else {
+            finally {
+                try {
+                    cluster.shutdown();
+                } catch (Exception e) {
+                    logger.info("Could not properly shut down the cluster.", e);
+                    throw new Exception("Could not properly shut down the cluster." + e.getMessage());
+                }
+            }
+            return cluster.getApplicationId().toString();
+        } else{
             JobSubmissionResult result = client.run(program, parallelism);
             if (result.isJobExecutionResult()) {
                 logger.info("Program execution finished");
@@ -247,6 +263,7 @@ public class FlinkClient extends AbsClient {
             }
             return result.getJobID().toString();
         }
+
     }
 
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
@@ -627,8 +644,7 @@ public class FlinkClient extends AbsClient {
             return false;
         }
 
-        if(taskStatus == RdosTaskStatus.RESTARTING
-                || taskStatus == RdosTaskStatus.RUNNING){
+        if(taskStatus == RdosTaskStatus.RUNNING){
             return true;
         }
 

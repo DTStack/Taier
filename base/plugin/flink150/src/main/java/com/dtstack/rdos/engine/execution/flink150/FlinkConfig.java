@@ -7,7 +7,9 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.util.Map;
 
 /**
+ *
  * @author sishu.yss
+ *
  */
 public class FlinkConfig {
 
@@ -45,19 +47,19 @@ public class FlinkConfig {
 
     private String clusterMode; // 集群运行模式: standalone or yarn
 
-    private String flinkYarnMode; // new or legacy
-
-    private String flinkYarnNewModeMaxSlots; // max slots
-
-    private String flinkConfigDir;
-
-    private String flinkJarPath;
-
     private String queue;
 
     private Map<String, Object> hadoopConf;
 
     private Map<String, Object> yarnConf;
+
+    private String flinkYarnMode;
+
+    private String flinkJarPath;
+
+    private String elasticCapacity;
+
+    private String yarnAccepterTaskNumber;
 
 
     public String getFlinkZkAddress() {
@@ -122,12 +124,12 @@ public class FlinkConfig {
         this.flinkHighAvailabilityStorageDir = defaultVal;
     }
 
-    public void updateFlinkHighAvailabilityStorageDir(String defaultFS) {
-        if (Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)) {
+    public void updateFlinkHighAvailabilityStorageDir(String defaultFS){
+        if(Strings.isNullOrEmpty(flinkHighAvailabilityStorageDir)){
             return;
         }
 
-        if (flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)) {
+        if(flinkHighAvailabilityStorageDir.trim().startsWith(HDFS_FLAG)){
             return;
         }
 
@@ -144,7 +146,7 @@ public class FlinkConfig {
     }
 
     public String getFlinkPluginRoot() {
-        if (Strings.isNullOrEmpty(flinkPluginRoot)) {
+        if(Strings.isNullOrEmpty(flinkPluginRoot)){
             return DEFAULT_FLINK_PLUGIN_ROOT;
         }
 
@@ -165,7 +167,7 @@ public class FlinkConfig {
 
     public String getRemotePluginRootDir() {
 
-        if (Strings.isNullOrEmpty(remotePluginRootDir)) {
+        if(Strings.isNullOrEmpty(remotePluginRootDir)){
             return DEFAULT_REMOTE_PLUGIN_ROOT_DIR;
         }
 
@@ -184,23 +186,6 @@ public class FlinkConfig {
         this.clusterMode = clusterMode;
     }
 
-    public String getFlinkYarnMode() {
-        return flinkYarnMode;
-    }
-
-    public void setFlinkYarnMode(String flinkYarnMode) {
-        this.flinkYarnMode = flinkYarnMode;
-    }
-
-    public int getFlinkYarnNewModeMaxSlots() {
-        return StringUtils.isBlank(flinkYarnNewModeMaxSlots) ? 0 : NumberUtils.toInt(flinkYarnNewModeMaxSlots);
-    }
-
-    public void setFlinkYarnNewModeMaxSlots(String flinkYarnNewModeMaxSlots) {
-        this.flinkYarnNewModeMaxSlots = flinkYarnNewModeMaxSlots;
-    }
-
-
     public Map<String, Object> getHadoopConf() {
         return hadoopConf;
     }
@@ -217,12 +202,20 @@ public class FlinkConfig {
         this.yarnConf = yarnConf;
     }
 
-    public String getFlinkConfigDir() {
-        return flinkConfigDir;
+    public String getQueue() {
+        return StringUtils.isBlank(queue) ? "default" : queue;
     }
 
-    public void setFlinkConfigDir(String flinkConfigDir) {
-        this.flinkConfigDir = flinkConfigDir;
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
+
+    public String getFlinkYarnMode() {
+        return flinkYarnMode;
+    }
+
+    public void setFlinkYarnMode(String flinkYarnMode) {
+        this.flinkYarnMode = flinkYarnMode;
     }
 
     public String getFlinkJarPath() {
@@ -233,11 +226,19 @@ public class FlinkConfig {
         this.flinkJarPath = flinkJarPath;
     }
 
-    public String getQueue() {
-        return StringUtils.isBlank(queue) ? "default" : queue;
+    public String getElasticCapacity() {
+        return elasticCapacity;
     }
 
-    public void setQueue(String queue) {
-        this.queue = queue;
+    public void setElasticCapacity(String elasticCapacity) {
+        this.elasticCapacity = elasticCapacity;
+    }
+
+    public String getYarnAccepterTaskNumber() {
+        return yarnAccepterTaskNumber;
+    }
+
+    public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
     }
 }

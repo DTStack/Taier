@@ -6,23 +6,29 @@ import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author sishu.yss
  *
  */
 public class HadoopConf {
-	
-	private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(HadoopConf.class);
 
     private final static String HADOOP_CONF = System.getProperty("user.dir")+"/conf/hadoop/";
 
@@ -34,13 +40,13 @@ public class HadoopConf {
 
     private static final Object initLock = new Object();
 
-	private Configuration configuration;
+    private Configuration configuration;
 
 	private YarnConfiguration yarnConfiguration;
 
-	private static void initDefaultConfig(){
+    private static void initDefaultConfig(){
 
-	    if(defaultConfiguration == null){
+        if(defaultConfiguration == null){
             synchronized (initLock){
                 if(defaultConfiguration != null){
                     return;
@@ -87,16 +93,16 @@ public class HadoopConf {
 
     public void initHadoopConf(Map<String, Object> conf){
 
-	    if(conf == null || conf.size() == 0){
+        if(conf == null || conf.size() == 0){
             //读取环境变量--走默认配置
             configuration = getDefaultConfiguration();
             return;
         }
 
-	    String nameServices = HadoopConfTool.getDfsNameServices(conf);
-	    String defaultFs = HadoopConfTool.getFSDefaults(conf);
-	    String haNameNodesKey = HadoopConfTool.getDfsHaNameNodesKey(conf);
-	    String haNameNodesVal = HadoopConfTool.getDfsHaNameNodes(conf, haNameNodesKey);
+        String nameServices = HadoopConfTool.getDfsNameServices(conf);
+        String defaultFs = HadoopConfTool.getFSDefaults(conf);
+        String haNameNodesKey = HadoopConfTool.getDfsHaNameNodesKey(conf);
+        String haNameNodesVal = HadoopConfTool.getDfsHaNameNodes(conf, haNameNodesKey);
         List<String> nnRpcAddressList = HadoopConfTool.getDfsNameNodeRpcAddressKeys(conf);
         String proxyProviderKey = HadoopConfTool.getClientFailoverProxyProviderKey(conf);
         String proxyProvider = HadoopConfTool.getClientFailoverProxyProviderVal(conf, proxyProviderKey);
@@ -131,14 +137,23 @@ public class HadoopConf {
 
         String haRmIds = YarnConfTool.getYarnResourcemanagerHaRmIds(conf);
         List<String> addressKeys = YarnConfTool.getYarnResourceManagerAddressKeys(conf);
+        List<String> webAppAddrKeys = YarnConfTool.getYarnResourceManagerWebAppAddressKeys(conf);
         String haEnabled = YarnConfTool.getYarnResourcemanagerHaEnabled(conf);
 
         yarnConfiguration = new YarnConfiguration(configuration);
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_RM_IDS, haRmIds);
+
         addressKeys.forEach(key -> {
             String rmMgrAddr = YarnConfTool.getYarnResourceManagerAddressVal(conf, key);
             yarnConfiguration.set(key, rmMgrAddr);
         });
+
+        webAppAddrKeys.forEach(key -> {
+            String rmMgrWebAppAddr = YarnConfTool.getYarnResourceManagerWebAppAddressVal(conf, key);
+            yarnConfiguration.set(key, rmMgrWebAppAddr);
+
+        });
+
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
     }
 
@@ -157,14 +172,15 @@ public class HadoopConf {
     }
 
     public Configuration getConfiguration(){
-		return configuration;
-	}
-	
-	public String getDefaultFs(){
-		return configuration.get("fs.defaultFS");
-	}
+        return configuration;
+    }
 
-	public YarnConfiguration getYarnConfiguration() {
-		return yarnConfiguration;
-	}
+    public String getDefaultFs(){
+        return configuration.get("fs.defaultFS");
+    }
+
+    public YarnConfiguration getYarnConfiguration() {
+        return yarnConfiguration;
+    }
+
 }

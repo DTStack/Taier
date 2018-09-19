@@ -6,4 +6,4 @@ target/
 .project
 .settings/
 .classpath
-.vertx
+.vertx/

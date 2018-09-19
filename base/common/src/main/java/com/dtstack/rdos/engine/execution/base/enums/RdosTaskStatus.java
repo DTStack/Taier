@@ -30,8 +30,10 @@ public enum RdosTaskStatus {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-            WAITCOMPUTE.getStatus(), ENGINEACCEPTED.getStatus(),
-            ENGINEDISTRIBUTE.getStatus());
+//            ENGINEACCEPTED.getStatus(),
+//            ENGINEDISTRIBUTE.getStatus(),
+            WAITCOMPUTE.getStatus()
+    );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
 	
@@ -74,34 +76,20 @@ public enum RdosTaskStatus {
         return null;
     }
     
-    public static boolean needClean(Byte status){
-        return needClean(status.intValue());
-    }
-
     public static boolean needClean(Integer status){
 
         if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.FAILED.getStatus().equals(status)
                 || RdosTaskStatus.SUBMITFAILD.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
-                || RdosTaskStatus.KILLED.getStatus().equals(status)){
+                || RdosTaskStatus.KILLED.getStatus().equals(status) || RdosTaskStatus.RESTARTING.getStatus().equals(status)){
             return true;
         }
         return false;
     }
-    
+
     public static boolean canStartAgain(Byte status){
 		int sta = status.intValue();
-        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()
-                || sta == RdosTaskStatus.ENGINEACCEPTED.getStatus()){
+        if(sta == RdosTaskStatus.SUBMITTING.getStatus() || sta == RdosTaskStatus.UNSUBMIT.getStatus()){
     	    return true;
-        }
-
-        return false;
-    }
-
-    public static boolean canSubmitAgain(Byte status){
-        int sta = status.intValue();
-        if(sta == RdosTaskStatus.ENGINEACCEPTED.getStatus() || sta == RdosTaskStatus.SUBMITTING.getStatus()){
-            return true;
         }
 
         return false;
@@ -111,7 +99,4 @@ public enum RdosTaskStatus {
         return canStopStatus;
     }
     
-    public static void main(String[] args){
-    	System.out.println(RdosTaskStatus.NOTFOUND.name());
-    }
 }

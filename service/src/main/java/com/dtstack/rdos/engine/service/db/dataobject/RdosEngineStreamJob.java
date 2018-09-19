@@ -17,6 +17,8 @@ public class RdosEngineStreamJob extends DataObject{
 	 */
 	private String taskId;
 
+	private String taskName;
+
 	/**
 	 * 计算引擎任务id
 	 */
@@ -45,6 +47,14 @@ public class RdosEngineStreamJob extends DataObject{
 
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 
 	public String getEngineTaskId() {

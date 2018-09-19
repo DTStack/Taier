@@ -26,4 +26,18 @@ public enum FlinkYarnMode {
         }
     }
 
+    public static boolean isLegacy(FlinkYarnMode mode) {
+        if (mode != null && mode == LEGACY) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isPerJob(FlinkYarnMode mode) {
+        if (mode != null && mode == PER_JOB) {
+            return true;
+        }
+        return false;
+    }
+
 }

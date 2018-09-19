@@ -463,6 +463,25 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    public E getElement(String sign) {
+        if (sign == null){ return null;}
+        try {
+            allLock.lockInterruptibly();
+            for (Node<E> p = head.next; p != null; p = p.next){
+                OrderObject oo = (OrderObject)p.item;
+                if (sign.equals(oo.getId())) {
+                    return p.item;
+                }
+            }
+            return null;
+        } catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(e.getCause());
+        } finally {
+            allLock.unlock();
+        }
+    }
+
     /**
      * 获取元素但是不移除
      * @return

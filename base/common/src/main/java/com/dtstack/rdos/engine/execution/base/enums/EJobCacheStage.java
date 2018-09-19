@@ -8,7 +8,7 @@ package com.dtstack.rdos.engine.execution.base.enums;
  */
 
 public enum EJobCacheStage {
-    /**1:在master节点的队列上还未下发, 2:已经下发到执行节点上*/
+    /**1:在节点的优先级队列上还未下发, 2:已经下发到执行节点上*/
     IN_PRIORITY_QUEUE(1), IN_SUBMIT_QUEUE(2);
 
     int stage;

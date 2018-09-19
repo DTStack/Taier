@@ -37,12 +37,12 @@ public class YarnAppStatusMonitor implements Runnable, AutoCloseable {
 
     private ScheduledFuture<?> applicationStatusUpdateFuture;
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient, AbstractYarnClusterDescriptor clusterDescriptor, ScheduledExecutorService executorService) {
+    public YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient, ScheduledExecutorService executorService) {
         this.flinkClient = flinkClient;
+        this.yarnClient = yarnClient;
         try {
             ClusterClient<ApplicationId> clusterClient = (ClusterClient<ApplicationId>) flinkClient.getClient();
             applicationId = clusterClient.getClusterId();
-            yarnClient = clusterDescriptor.getYarnClient();
             LOG.warn("start flink monitor thread");
             applicationStatusUpdateFuture = new ScheduledExecutorServiceAdapter(executorService).scheduleWithFixedDelay(
                     this,

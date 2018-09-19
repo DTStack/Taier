@@ -11,12 +11,13 @@
         <result column="job_info" property="jobInfo" jdbcType="VARCHAR" />
         <result column="engine_type" property="engineType" jdbcType="VARCHAR"/>
         <result column="compute_type" property="computeType" jdbcType="INTEGER"/>
+        <result column="node_address" property="nodeAddress" jdbcType="VARCHAR"/>
         <result column="stage" property="stage" jdbcType="INTEGER"/>
     </resultMap>
 
     <insert id="insert">
-        replace into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info)
-        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo});
+        replace into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress});
     </insert>
 
     <delete id="delete">
@@ -28,11 +29,25 @@
     </select>
 
     <update id="updateStage">
-        update rdos_engine_job_cache set stage = #{stage} where job_id = #{jobId}
+        update rdos_engine_job_cache set node_address = #{nodeAddress}, stage = #{stage} where job_id = #{jobId}
     </update>
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
-        select * from rdos_engine_job_cache where stage = #{stage} and is_deleted=0 order by gmt_create asc;
+        select * from rdos_engine_job_cache
+        where id > #{id} and (node_address = #{nodeAddress} or node_address is null)
+        <if test="stage != null">
+            and stage = #{stage}
+        </if>
+        and is_deleted=0 order by id asc limit 500;
+    </select>
+
+    <select id="getByJobIds" resultMap="rdosEngineJobCacheResult">
+        select * from rdos_engine_job_cache
+        WHERE job_id in
+        <foreach collection="jobIds" item="jobId" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+        and is_deleted=0
     </select>
 
 </mapper>

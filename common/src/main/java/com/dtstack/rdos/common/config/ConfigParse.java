@@ -57,7 +57,7 @@ public class ConfigParse {
 
     public static int getExeQueueSize(){
         Object exeQueueSize = configs.get("exeQueueSize");
-        return exeQueueSize == null ? 2 : MathUtil.getIntegerVal(exeQueueSize);
+        return exeQueueSize == null ? 1 : MathUtil.getIntegerVal(exeQueueSize);
     }
 
     public static boolean isDebug(){
@@ -73,5 +73,25 @@ public class ConfigParse {
     public static Map<String, String> getDB(){
         Map<String, String> db = (Map<String, String>)configs.get("db");
         return db;
+    }
+
+    public static int getTaskDistributeQueueWeight() {
+        Object taskDistributeQueueWeight = configs.get("taskDistributeQueueWeight");
+        return taskDistributeQueueWeight==null ? 10 : MathUtil.getIntegerVal(taskDistributeQueueWeight);
+    }
+
+    public static int getTaskDistributeZkWeight() {
+        Object taskDistributeZkWeight = configs.get("taskDistributeZkWeight");
+        return taskDistributeZkWeight==null ? 0 : MathUtil.getIntegerVal(taskDistributeZkWeight);
+    }
+
+    public static int getTaskDistributeDeviation() {
+        Object taskDistributeDeviation = configs.get("taskDistributeDeviation");
+        return taskDistributeDeviation==null ? 3 : MathUtil.getIntegerVal(taskDistributeDeviation);
+    }
+
+    public static int getShardSize() {
+        Object shardSize = configs.get("shardSize");
+        return shardSize==null ? 200 : MathUtil.getIntegerVal(shardSize);
     }
 }

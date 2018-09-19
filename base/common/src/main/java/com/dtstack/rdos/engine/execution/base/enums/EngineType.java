@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
-    Flink120(0),Spark(1),Datax(2),Flink130(3),Sparkyarn(4),Mysql(5), Hadoop(6), Hive(7), Learning(8), DtYarnShell(9);
+    Flink(0), Spark(1), Datax(2),Learning(3), DtYarnShell(4);
 
     private int val;
 
@@ -24,31 +24,27 @@ public enum EngineType {
         return val;
     }
 
-    public static EngineType getEngineType(String type){
+    public static EngineType getEngineType(String type) {
 
-        switch (type.toLowerCase()){
+        switch (type.toLowerCase()) {
 
-            case "flink120":return EngineType.Flink120;
-            
-            case "flink130":return EngineType.Flink130;
+            case "flink":
+                return EngineType.Flink;
 
-            case "spark":return EngineType.Spark;
+            case "spark":
+                return EngineType.Spark;
 
-            case "datax":return EngineType.Datax;
+            case "datax":
+                return EngineType.Datax;
 
-            case "spark_yarn": return EngineType.Sparkyarn;
-
-            case "mysql": return EngineType.Mysql;
-
-            case "hadoop": return EngineType.Hadoop;
-
-            case "hive": return EngineType.Hive;
-
-            case "learning": return EngineType.Learning;
+            case "learning":
+                return EngineType.Learning;
 
             case "DtYarnShell": return EngineType.DtYarnShell;
+
+            default:
+                throw new UnsupportedOperationException("不支持的操作类型");
         }
-         return null;
     }
 
     public static EngineType getEngineType(int val){
@@ -57,8 +53,7 @@ public enum EngineType {
                 return type;
             }
         }
-
-        return null;
+        throw new UnsupportedOperationException("不支持的操作类型");
     }
 
     public static boolean isFlink(String engineType){

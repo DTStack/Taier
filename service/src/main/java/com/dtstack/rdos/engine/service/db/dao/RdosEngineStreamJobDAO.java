@@ -44,17 +44,29 @@ public class RdosEngineStreamJobDAO {
 	}
 	
 	
-	public void updateTaskStatus(final String taskId,final int stauts){
+	public void updateTaskStatus(final String taskId,final int status){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				rdosTaskMapper.updateTaskStatus(taskId, stauts);
+				rdosTaskMapper.updateTaskStatus(taskId, status);
 				return null;
 			}
 			
+		});
+	}
+
+	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+			@Override
+			public Integer execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.updateTaskStatusCompareOld(taskId, status, oldStatus);
+			}
+
 		});
 	}
 
@@ -137,5 +149,43 @@ public class RdosEngineStreamJobDAO {
                 return null;
             }
         });
+	}
+
+	public void submitFail(String taskId, Integer status, String s) {
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.submitFail(taskId, status, s);
+				return null;
+			}
+
+		});
+	}
+
+    public RdosEngineStreamJob getByName(String jobName) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineStreamJob>(){
+
+			@Override
+			public RdosEngineStreamJob execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.getByName(jobName);
+			}
+
+		});
+    }
+
+	public List<String> listNames(String jobName) {
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+			@Override
+			public List<String> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				return rdosTaskMapper.listNames(jobName);
+			}
+
+		});
 	}
 }

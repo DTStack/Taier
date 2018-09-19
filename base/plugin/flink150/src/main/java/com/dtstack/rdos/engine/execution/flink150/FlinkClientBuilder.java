@@ -4,7 +4,6 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
-import com.dtstack.rdos.engine.execution.flink150.util.FLinkConf;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
@@ -16,9 +15,11 @@ import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.JobManagerOptions;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.runtime.akka.AkkaUtils;
 import org.apache.flink.runtime.jobmanager.HighAvailabilityMode;
 import org.apache.flink.runtime.leaderretrieval.LeaderRetrievalException;
+import org.apache.flink.runtime.util.HadoopUtils;
 import org.apache.flink.runtime.util.LeaderConnectionInfo;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
@@ -63,6 +64,12 @@ public class FlinkClientBuilder {
 
     private Configuration flinkConfiguration;
 
+    private static String akka_ask_timeout = "50 s";
+
+    private static String akka_client_timeout="300 s";
+
+    private static String akka_tcp_timeout = "60 s";
+
     private YarnClient yarnClient;
 
     private FlinkClientBuilder() {
@@ -75,28 +82,60 @@ public class FlinkClientBuilder {
         return builder;
     }
 
-    public ClusterClient create(FlinkConfig flinkConfig) {
+    public ClusterClient create(FlinkConfig flinkConfig){
 
         String clusterMode = flinkConfig.getClusterMode();
-        if (StringUtils.isEmpty(clusterMode)) {
+        if(StringUtils.isEmpty(clusterMode)) {
             clusterMode = Deploy.standalone.name();
         }
 
         String defaultFS = hadoopConf.get(HadoopConfTool.FS_DEFAULTFS);
-        if (Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())) {
+        if(Strings.isNullOrEmpty(flinkConfig.getFlinkHighAvailabilityStorageDir())){
             //设置默认值
             flinkConfig.setDefaultFlinkHighAvailabilityStorageDir(defaultFS);
         }
 
         flinkConfig.updateFlinkHighAvailabilityStorageDir(defaultFS);
 
-        if (clusterMode.equals(Deploy.standalone.name())) {
+        if(clusterMode.equals( Deploy.standalone.name())) {
             return createStandalone(flinkConfig);
         } else if (clusterMode.equals(Deploy.yarn.name())) {
+            initFLinkConf(flinkConfig);
             return createYarnClient(flinkConfig);
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
+    }
+
+    private void initFLinkConf(FlinkConfig flinkConfig) {
+        Configuration config = new Configuration();
+        //FIXME 浙大环境测试修改,暂时写在这
+        config.setString("akka.client.timeout",akka_client_timeout);
+        config.setString("akka.ask.timeout",akka_ask_timeout);
+        config.setString("akka.tcp.timeout",akka_tcp_timeout);
+
+        if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
+            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
+            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
+        }
+
+        if(flinkConfig.getFlinkZkNamespace() != null){//不设置默认值"/flink"
+            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
+        }
+
+        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+        }
+
+        config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+        try {
+            FileSystem.initialize(config);
+        } catch (Exception e) {
+            LOG.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+        flinkConfiguration = config;
     }
 
     private ClusterClient createStandalone(FlinkConfig flinkConfig) {
@@ -200,7 +239,7 @@ public class FlinkClientBuilder {
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
-        AbstractYarnClusterDescriptor clusterDescriptor = createSessionClusterDescriptor(flinkConfig);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(),flinkConfiguration,yarnConf,".");
 
         ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
 
@@ -218,34 +257,15 @@ public class FlinkClientBuilder {
         clusterClient.setDetached(isDetached);
         LOG.warn("---init flink client with yarn session success----");
 
+        yarnClusterDescriptor = clusterDescriptor;
+
         return clusterClient;
     }
 
-    private AbstractYarnClusterDescriptor createSessionClusterDescriptor(FlinkConfig flinkConfig) {
-        Configuration config = new Configuration();
-        if (StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
-            config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_QUORUM, flinkConfig.getFlinkZkAddress());
-            config.setString(HighAvailabilityOptions.HA_STORAGE_PATH, flinkConfig.getFlinkHighAvailabilityStorageDir());
-        }
-
-        if (flinkConfig.getFlinkZkNamespace() != null) {//不设置默认值"/flink"
-            config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
-        }
-
-        if (flinkConfig.getFlinkClusterId() != null) {//不设置默认值"/default"
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
-        }
-
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), config, yarnConf, ".");
-        yarnClusterDescriptor = clusterDescriptor;
-        return clusterDescriptor;
-    }
-
-    public void createPerJobClusterDescriptor(FlinkConfig flinkConfig) {
-        flinkConfiguration = FLinkConf.getConfiguration(flinkConfig.getFlinkConfigDir());
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), flinkConfiguration, yarnConf, ".");
-
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
+        Configuration newConf = new Configuration(flinkConfiguration);
+        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), newConf, yarnConf, ".");
         String flinkJarPath = null;
         File flinkLib = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
@@ -253,12 +273,6 @@ public class FlinkClientBuilder {
                 throw new RdosException("The Flink jar path is not exist");
             }
             flinkJarPath = flinkConfig.getFlinkJarPath();
-        } else if ((flinkLib = new File(flinkConfiguration + "/../lib")).isDirectory()) {
-            for (File flinkJarFile : flinkLib.listFiles()) {
-                if (flinkJarFile.getName().startsWith("flink-dist")) {
-                    flinkJarPath = flinkJarFile.getPath();
-                }
-            }
         }
         if (flinkJarPath != null) {
             clusterDescriptor.setLocalJarPath(new Path(flinkJarPath));
@@ -266,7 +280,7 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
         clusterDescriptor.setQueue(flinkConfig.getQueue());
-        yarnClusterDescriptor = clusterDescriptor;
+        return clusterDescriptor;
     }
 
     private AbstractYarnClusterDescriptor getClusterDescriptor(
@@ -311,7 +325,7 @@ public class FlinkClientBuilder {
                     continue;
                 }
 
-                if (!flinkConfig.getQueue().equals(report.getQueue())){
+                if (!report.getQueue().endsWith(flinkConfig.getQueue())){
                     continue;
                 }
 
@@ -362,14 +376,11 @@ public class FlinkClientBuilder {
         return flinkConfiguration;
     }
 
-    public ClusterSpecification getDefaultClusterSpecification() {
-        if (flinkConfiguration == null) {
-            throw new RdosException("Configuration directory not set");
-        }
-        return FLinkConf.createClusterSpecification(flinkConfiguration);
-    }
-
     public void setYarnClient(YarnClient yarnClient) {
         this.yarnClient = yarnClient;
+    }
+
+    public YarnClient getYarnClient(){
+        return this.yarnClient;
     }
 }
