@@ -116,6 +116,7 @@ class TaskIndex extends Component {
                     }
                     if(currentPage.taskType==TASK_TYPE.DATA_COLLECTION&&currentPage.createModel==DATA_SYNC_TYPE.GUIDE){
                         dispatch(collectionActions.initCollectionTask(currentPage.id))
+                        dispatch(collectionActions.getDataSource())
                     }
                     resolve(true)
                 }
