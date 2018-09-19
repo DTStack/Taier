@@ -40,7 +40,7 @@ public enum EngineType {
             case "learning":
                 return EngineType.Learning;
 
-            case "DtYarnShell": return EngineType.DtYarnShell;
+            case "dtyarnshell": return EngineType.DtYarnShell;
 
             default:
                 throw new UnsupportedOperationException("不支持的操作类型");
