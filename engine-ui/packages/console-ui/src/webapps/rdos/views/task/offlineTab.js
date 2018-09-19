@@ -26,7 +26,6 @@ import {
 } from '../../store/modules/offlineTask/offlineAction';
 
 import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
-import { showSeach } from '../../store/modules/comm';
 import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 import { isProjectCouldEdit } from '../../comm';
 
@@ -287,10 +286,6 @@ class OfflineTabPane extends Component {
                 toggleCreateTask()
                 return;
             }
-            case 'task:search': {
-                dispatch(showSeach(true));
-                return;
-            }
             case 'script:newScript': {
                 toggleCreateScript()
                 return;
@@ -368,9 +363,6 @@ class OfflineTabPane extends Component {
                                         {couldEdit && <Menu.Item key="task:newTask">
                                             新建任务
                                         </Menu.Item>}
-                                        <Menu.Item key="task:search">
-                                            搜索任务（Ctrl + P）
-                                        </Menu.Item>
                                         {couldEdit && <Menu.Item key="task:newFolder">
                                             新建文件夹
                                         </Menu.Item>}
@@ -398,13 +390,13 @@ class OfflineTabPane extends Component {
                     case MENU_TYPE.SCRIPT: {
                         menuContent = <div className="menu-content">
                             <header>
-                                <Tooltip title="定位">
+                                <Tooltip title="定位" placement="bottom">
                                     <Icon
                                         type="environment"
                                         onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
                                     />
                                 </Tooltip>
-                                <Tooltip title="刷新">
+                                <Tooltip title="刷新" placement="bottom">
                                     <Icon
                                         type="sync"
                                         style={{ fontSize: '12px' }}

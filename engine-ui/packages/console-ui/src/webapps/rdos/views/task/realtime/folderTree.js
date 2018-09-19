@@ -91,20 +91,19 @@ class FolderTree extends Component {
                         default:
                             claTitle = 'folder-item'
                     }
-                }  
+                }
 
-                const title = (treeType === MENU_TYPE.TASK || treeType === MENU_TYPE.SCRIPT) && item.type === 'file'
-                    ? <Tooltip placement="right" title={this.renderFileInfo(treeType, item)} mouseEnterDelay={2} mouseLeaveDelay={0}>
-                        <span id={`JS_${item.id}`} className={claTitle}>
-                                { this.renderStatusBadge(treeType, item) }
-                                { item.name } 
-                        </span>
-                    </Tooltip>
-                    : <span id={`JS_${item.id}`} className={claTitle}>
+                const title = (
+                    <span 
+                        title={item.name}
+                        id={`JS_${item.id}`}
+                        className={claTitle}>
                         {this.renderStatusBadge(treeType, item)}
-                        {item.name}
-                        {/* <i style={creatorStyle}>{this.renderFileInfo(treeType, item)}</i> */}
+                        {item.name} 
+                        <i style={creatorStyle}>{this.renderFileInfo(treeType, item)}</i>
                     </span>
+                );
+
                 return (
                     <TreeNode 
                         title={title}

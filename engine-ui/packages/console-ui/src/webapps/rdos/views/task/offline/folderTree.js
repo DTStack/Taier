@@ -429,7 +429,6 @@ class FolderTree extends React.Component {
 
     onRightClick = (e) => {
         console.log(e);
-
     }
 
     genetateTreeNode() {
@@ -503,8 +502,7 @@ class FolderTree extends React.Component {
             type, placeholder, currentTab,
             onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
-        
-        console.log('expandedKeys', expandedKeys);
+
         return (
             <div>
                 {this.props.ispicker ?

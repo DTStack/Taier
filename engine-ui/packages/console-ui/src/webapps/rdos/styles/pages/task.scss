@@ -118,6 +118,20 @@
         &>.ant-tabs-content {
             margin: 0;
             padding: 0;
+
+            &::-webkit-scrollbar-track {
+                border: 1px solid #e5e7e7;
+                background-color: #ffffff;
+            }
+    
+            &::-webkit-scrollbar {
+                width: 10px;
+                background-color: #ffffff;
+            }
+    
+            &::-webkit-scrollbar-thumb {
+                background-color: #c2c2c2;
+            }
         }
 
         &>.ant-menu-inline, .ant-menu-vertical {
@@ -403,7 +417,6 @@
 
 }
 
-
 .m-dirpicker {
     border: 1px solid #ddd;
     padding: 10px;
@@ -413,11 +426,12 @@
 
 .dt-dev-task .task-editor {
     position: absolute;
-    width: 100%;
-    height: 100%;
-    padding-bottom: 30px;
-    overflow: hidden;
+    padding-bottom: 35px;
     background: #f2f3f8;
+    top: 0;
+    bottom:0;
+    left: 0;
+    right: 0;
 }
 
 .task-editor {
@@ -449,27 +463,33 @@
                     content:"";
                     position: absolute;
                     top: 0px;
-                    left:0px;
+                    left: -1px;
                     right: 0px;
                     height: 3px;
                     opacity: 0.8;
                     background: #2491F7;
                 }
             }
-            
         }
         .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close{
-            margin-top: -6px;
+            margin-top: -5px;
             line-height: 10px;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
-            line-height: 20px;
+            line-height: 19px;
+            padding-left: 28px;
             margin-top: -1px;
+            text-align: left;
+            min-width: 80px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
             background:#eef6fe;
+        }
+
+        .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover .not-synced {
+            visibility: hidden;
         }
 
         .ant-collapse-header{
@@ -499,10 +519,6 @@
 
 
     .toolbar {
-        // width: 100%;
-        // padding: 10px 20px;
-        // height: 48px;
-        // background: #fff;
 
         width: 100%;
         padding: 6px 20px;
@@ -513,6 +529,7 @@
             border: 0;
             position: relative;
             padding-left: 20px;
+            line-height: 28px;
             border: 0;
         }
         .ant-btn.disabled,
@@ -539,6 +556,16 @@
     .task-browser {
         position: relative;
         height: 100%;
+
+        .not-synced {
+            display: inline-block;
+            border-radius: 50%;
+            border: 3.5px solid;
+            border-color: #FF5722;
+            position: absolute;
+            top: 11px;
+            right: 5.5px;
+        }
 
         .tab-ellipsis {
             display: inline-block;

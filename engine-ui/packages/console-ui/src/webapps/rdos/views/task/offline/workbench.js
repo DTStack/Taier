@@ -16,15 +16,18 @@ import ajax from '../../../api';
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../../comm/const';
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
+import TaskTypeIcon from '../../../components/task-type-icon';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
 import ImportData from './dataImport';
 
+import { showSeach } from '../../../store/modules/comm';
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction';
 import { isProjectCouldEdit } from '../../../comm';
+
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -115,6 +118,10 @@ class Workbench extends React.Component {
         return false;
     }
 
+    searchTask = () => {
+        this.props.dispatch(showSeach(true));
+    }
+
     renderPublish = () => {
         const { user } = this.props;
         const { publishDesc } = this.state;
@@ -186,7 +193,7 @@ class Workbench extends React.Component {
             isSaveAvaliable = true;
         }
 
-        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || !currentTabData.notSynced;
+        isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || (currentTabData && !currentTabData.notSynced);
 
         //被锁就不能保存了
         if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
@@ -228,6 +235,13 @@ class Workbench extends React.Component {
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
+                    <Button
+                        onClick={this.searchTask}
+                        title="打开任务"
+                    >
+                        <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
+                        搜索
+                    </Button>
                     <FullScreenButton />
                 </Col>
 
@@ -323,16 +337,18 @@ class Workbench extends React.Component {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab) => {
                 let title = (<div>
-                    <SyncBadge notSynced={tab.notSynced} />
+                    <TaskTypeIcon task={tab} />
                     <span className="tab-ellipsis">{tab.name}</span>
+                    <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
                 if (tab.flowId) {
                     title = (<div>
-                        <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
+                        <TaskTypeIcon task={tab} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
                         </a><span className="tab-ellipsis">&nbsp;/ {tab.name}</span>
+                        <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                     </div>);
                 }
 
