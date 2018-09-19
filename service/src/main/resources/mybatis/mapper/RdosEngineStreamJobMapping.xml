@@ -71,10 +71,10 @@
     </update>
 
     <select id="getByName" parameterType="java.lang.String" resultMap="rdosTaskResult">
-        select * from rdos_engine_stream_job where task_name like '%${taskName}%' and is_deleted=0;
+        select * from rdos_engine_stream_job where task_name = #{taskName} and is_deleted=0;
     </select>
 
     <select id="listNames" parameterType="java.lang.String" resultType="java.lang.String">
-        select task_name from rdos_engine_stream_job where task_name = #{taskName} and is_deleted=0;
+        select task_name from rdos_engine_stream_job where task_name like '%${taskName}%' and is_deleted=0;
     </select>
 </mapper>
