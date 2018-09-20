@@ -273,7 +273,7 @@
                 text-align: right;
                 font-size: 18px;
                 position: absolute;
-                right: 0;
+                right: 10px;
                 z-index: 999;
                 background: #ffffff;
                 
@@ -284,9 +284,9 @@
                     margin-left: 5px;
                     color: #94A8C6;
                     letter-spacing: 0;
-                    &:last-child {
-                        margin-right: 12px;
-                    }
+                    // &:last-child {
+                    //     margin-right: 12px;
+                    // }
                 }
             }
             .ant-tree {
