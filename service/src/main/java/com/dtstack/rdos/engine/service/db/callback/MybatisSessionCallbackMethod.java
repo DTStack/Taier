@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.service.db.callback;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.RdosException;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
@@ -25,9 +27,9 @@ public class MybatisSessionCallbackMethod {
 			return mybatisSessionCallback.execute(sqlSession);
 		}catch(Exception e){
 			logger.error("MybatisSessionCallbackMethod error:{}", e);
+			throw new RdosException(ErrorCode.UNKNOWN_ERROR,e);
 		}finally{
 			if(sqlSession!=null){sqlSession.close();}
 		}
-		return null;
 	}
 }

@@ -37,7 +37,7 @@
    </update>
 
     <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
-        update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId} and status=#{oldStatus};
+        update rdos_engine_batch_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
     </update>
 
     <update id="updateJobPluginId" parameterType="java.util.HashMap">

@@ -73,7 +73,7 @@ public class TaskIdUtil {
 
     public static String getEngineType(String zkTaskId) {
         char c = zkTaskId.charAt(ONE_ENGINETYPE);
-        return EngineType.getEngineType(Integer.parseInt(String.valueOf(c))).name().toLowerCase();
+        return EngineType.getEngineType(c).name().toLowerCase();
     }
 
     public static boolean isMigrationJob(String zkTaskId) {
@@ -91,7 +91,7 @@ public class TaskIdUtil {
 //        System.out.println((int) c);
 //        System.out.println(c == '3');
 //        String str = "111dfefef";
-//        System.out.println(getZkTaskId(1, "flink", str2));
+//        System.out.println(getZkTaskId(1, "Hive", str2));
 //        System.out.println(isMigrationJob(str2));
 //        System.out.println(getComputeType(str2));
 //        System.out.println(getEngineType(str2));

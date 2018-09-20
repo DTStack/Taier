@@ -54,20 +54,15 @@ public class ConsoleServiceImpl {
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
         String jobId = null;
-        Integer status = null;
         if (ComputeType.STREAM == type) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
             if (streamJob != null) {
                 jobId = streamJob.getTaskId();
-                RdosEngineStreamJob engineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-                status = engineStreamJob.getStatus().intValue();
             }
         } else {
             RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
             if (batchJob != null) {
                 jobId = batchJob.getJobId();
-                RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
-                status = engineBatchJob.getStatus().intValue();
             }
         }
         if (jobId == null) {
@@ -84,26 +79,29 @@ public class ConsoleServiceImpl {
             OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(theJobClient.getGroupName());
             int queueSize = jobQueue.size();
             JobClient theJob = jobQueue.getElement(jobId);
+            if (theJob == null) {
+                return null;
+            }
 
-            List<Map<String,Object>> topN = new ArrayList<>();
+            List<Map<String, Object>> topN = new ArrayList<>();
             Iterator<JobClient> jobIt = jobQueue.iterator();
             int startIndex = pageSize * (currentPage - 1);
             int c = 0;
             while (jobIt.hasNext()) {
                 if (pageSize-- <= 0 && startIndex >= c) {
                     JobClient jobClient = jobIt.next();
-                    Map<String,Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    long generateTime = jobClient.getGenerateTime();
+                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
 
-                    jobMap.put("generateTime", generateTime);
-                    jobMap.put("status", status);
+                    setJobFromDB(type, jobId, jobMap);
+
+                    jobMap.put("generateTime", jobClient.getGenerateTime());
                     topN.add(jobMap);
                 }
             }
 
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("theJob", theJob);
+            result.put("jobId", jobId);
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
@@ -160,5 +158,23 @@ public class ConsoleServiceImpl {
             return groups;
         }
         return Collections.EMPTY_SET;
+    }
+
+    private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
+        if (ComputeType.STREAM == computeType) {
+            RdosEngineStreamJob engineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            if (engineStreamJob != null) {
+                Integer status = engineStreamJob.getStatus().intValue();
+                jobMap.put("status", status);
+                jobMap.put("execStartTime", engineStreamJob.getExecStartTime());
+            }
+        } else {
+            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
+            if (engineBatchJob != null) {
+                Integer status = engineBatchJob.getStatus().intValue();
+                jobMap.put("status", status);
+                jobMap.put("execStartTime", engineBatchJob.getExecStartTime());
+            }
+        }
     }
 }
