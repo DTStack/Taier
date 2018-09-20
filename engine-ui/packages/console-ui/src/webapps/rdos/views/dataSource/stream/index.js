@@ -323,6 +323,7 @@ class DataSourceManaStream extends Component {
                     testConnection={this.testConnection}
                     sourceData={source}
                     sourceTypes={sourceTypes}
+                    showUserNameWarning={true}
                     handCancel={() => { this.setState({ visible: false }) }}
                 />
                 <LinkModal 

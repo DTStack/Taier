@@ -12,7 +12,7 @@ import {
 import utils from 'utils'
 
 import Api from '../../../api'
-import { taskStatusFilter, TASK_STATUS } from '../../../comm/const'
+import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
 import { TaskStatus } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
@@ -198,7 +198,17 @@ class RealTimeTaskList extends Component {
             dataIndex: 'taskType',
             key: 'taskType',
             render: (text) => {
-                return <span style={{ fontSize: '12px' }}>{text === 0 ? 'SQL任务' : 'MR任务'}</span>
+                switch(text){
+                    case TASK_TYPE.SQL:{
+                        return 'FlinkSQL'
+                    }
+                    case TASK_TYPE.MR:{
+                        return 'FlinkMR'
+                    }
+                    case TASK_TYPE.DATA_COLLECTION:{
+                        return '实时采集'
+                    }
+                }
             },
         }, {
             title: '全部状态',
@@ -264,6 +274,9 @@ class RealTimeTaskList extends Component {
                         break;
                 }
 
+                if(record.taskType==TASK_TYPE.DATA_COLLECTION){
+                    recover=null;
+                }
                 return (
                     <div key={record.id}>
                         <a onClick={() => { this.logInfo(record) }}>日志</a>

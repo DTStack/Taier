@@ -170,7 +170,7 @@ class BaseForm extends Component {
     }
 
     renderDynamic() {
-        const { form, sourceData, } = this.props;
+        const { form, sourceData, showUserNameWarning } = this.props;
         const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
 
         const { getFieldDecorator } = form;
@@ -625,6 +625,21 @@ class BaseForm extends Component {
                                 placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />,
                         )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="broker地址"
+                        key="brokerList"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.brokerList', {
+                            initialValue: config.brokerList || '',
+                        })(
+                            <Input
+                                type="textarea" rows={4}
+                                placeholder="Broker地址，例如IP1:Port,IP2:Port,IP3:Port/子目录"
+                            />,
+                        )}
                     </FormItem>
                 ]
             }
@@ -777,6 +792,9 @@ class BaseForm extends Component {
                         })(
                             <Input autoComplete="off" />,
                         )}
+                        {showUserNameWarning && <Tooltip overlayClassName="big-tooltip" title={"若需要实时采集MySQL的数据，这里的用户需具有REPLICATION SLAVE权限，否则无法读取底层日志采集数据"}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>}
                     </FormItem>,
                     <FormItem
                         key="password"

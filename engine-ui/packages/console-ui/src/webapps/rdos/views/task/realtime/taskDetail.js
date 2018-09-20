@@ -6,6 +6,7 @@ import {
 
 import utils from 'utils'
 import Api from '../../../api'
+import { TASK_TYPE } from "../../../comm/const"
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import TaskVersion from '../offline/taskVersion';
 
@@ -68,7 +69,19 @@ export default class TaskDetail extends Component {
             }
         })
     }
-
+    getTaskName(type) {
+        switch (type) {
+            case TASK_TYPE.SQL: {
+                return "FlinkSQL"
+            }
+            case TASK_TYPE.MR: {
+                return "FlinkMR"
+            }
+            case TASK_TYPE.DATA_COLLECTION: {
+                return "实时采集"
+            }
+        }
+    }
     render() {
         const { visibleAlterRes, resList } = this.state
         const { resources, currentPage, editorChange } = this.props
@@ -80,6 +93,7 @@ export default class TaskDetail extends Component {
                 {item.resourceName}
             </Option>
         ))
+        const showResource = currentPage.taskType != TASK_TYPE.DATA_COLLECTION;
         return (
             <div className="m-taksdetail">
                 <Collapse bordered={false} defaultActiveKey={['1', '2']}>
@@ -93,14 +107,14 @@ export default class TaskDetail extends Component {
                             </Row>
                             <Row>
                                 <Col span="10" className="txt-right">任务类型：</Col>
-                                <Col span="14">{currentPage.taskType === 0 ? 'SQL任务' : 'MR任务'}</Col>
+                                <Col span="14">{this.getTaskName(currentPage.taskType)}</Col>
                             </Row>
-                            <Row>
+                            {showResource && <Row>
                                 <Col span="10" className="txt-right">资源：</Col>
                                 <Col span="14" style={{ marginTop: '10px' }}>{taskRes}
                                     {/* <a onClick={() => { this.setState({ visibleAlterRes: true }) }}>修改</a>*/}
                                 </Col>
-                            </Row>
+                            </Row>}
                             <Row>
                                 <Col span="10" className="txt-right">创建人员：</Col>
                                 <Col span="14">{currentPage.createUserName}</Col>

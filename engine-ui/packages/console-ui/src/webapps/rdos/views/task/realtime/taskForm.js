@@ -8,7 +8,7 @@ import {
 import Api from '../../../api'
 import { mergeArray } from 'funcs'
 import FolderPicker from './folderTree'
-import { formItemLayout } from '../../../comm/const'
+import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
@@ -19,9 +19,12 @@ class TaskFormModal extends Component {
     state = {
         taskType: 0,
         selectedRes: [],
+        createModel: DATA_SYNC_TYPE.GUIDE
     }
 
     _update = false; // update flag;
+
+
 
     componentWillReceiveProps(nextProps) {
         const newTask = nextProps.taskInfo
@@ -29,6 +32,7 @@ class TaskFormModal extends Component {
         if (newTask.id !== oldTask.id) {
             this.setState({
                 taskType: newTask.taskType,
+                createModel: newTask.createModel || DATA_SYNC_TYPE.GUIDE
             })
         }
     }
@@ -42,10 +46,10 @@ class TaskFormModal extends Component {
         if (isArray(value)) {
 
             const newVals = [...value]
-            
+
             const { taskInfo } = this.props
             const resourceList = isArray(taskInfo.resourceList) ?
-            taskInfo.resourceList.map(item => item.id) : []
+                taskInfo.resourceList.map(item => item.id) : []
 
             newVals.forEach((v, i) => {
                 if (isNumber(v) && resourceList.indexOf(v) < 0) {
@@ -88,7 +92,7 @@ class TaskFormModal extends Component {
         // 如果为进行过更新操作，忽略资源列表
         if (!this._update) {
             task.resourceIdList = taskInfo && taskInfo.resourceList ?
-            taskInfo.resourceList.map(res => res.id) : []
+                taskInfo.resourceList.map(res => res.id) : []
         }
 
         this.props.form.validateFields(fileds, (err) => {
@@ -123,11 +127,11 @@ class TaskFormModal extends Component {
                     flag = values === node.id
                 }
 
-                if(flag && node.type === 'folder') {
+                if (flag && node.type === 'folder') {
                     callback('请选择具体文件, 而非文件夹');
                     return;
                 }
-                else{
+                else {
                     loop(node.children || []);
                 }
             });
@@ -143,24 +147,26 @@ class TaskFormModal extends Component {
         } = this.props
 
         const { getFieldDecorator } = form
-        const { taskType } = this.state
+        const { taskType, createModel } = this.state
 
         const isEdit = operation && operation.indexOf('EDIT') > -1
-        const title = isEdit ? '编辑实时任务': '创建实时任务'
+        const title = isEdit ? '编辑实时任务' : '创建实时任务'
 
         const taskRadios = taskTypes && taskTypes.map(item =>
             <Radio key={item.key} value={item.key}>{item.value}</Radio>
         )
 
         const resourceIds = taskInfo && taskInfo.resourceList ?
-        taskInfo.resourceList.map(res => res.id) : []
+            taskInfo.resourceList.map(res => res.id) : []
 
         const resouceNames = taskInfo && taskInfo.resourceList ?
-        taskInfo.resourceList.map(res => res.resourceName) : []
+            taskInfo.resourceList.map(res => res.resourceName) : []
 
-        const defaultRes = resRoot[0] && resRoot[0].children && 
-        resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
+        const defaultRes = resRoot[0] && resRoot[0].children &&
+            resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
+        const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
+        const isShowResource = createModel != DATA_SYNC_TYPE.SCRIPT;
         return (
             <Modal
                 title={title}
@@ -203,31 +209,53 @@ class TaskFormModal extends Component {
                             </RadioGroup>,
                         )}
                     </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="资源"
-                    >
-                        {getFieldDecorator('resourceIdList', {
-                            rules: [{
-                                required: taskType === 1,
-                                message: '请选择资源！',
-                            },
-                            {
-                                validator: this.checkNotDir.bind(this)
-                            }],
-                            initialValue: defaultRes,
-                        })(
-                            <FolderPicker
-                                isPicker
-                                id="resourceIdList"
-                                placeholder="请选择资源"
-                                onChange={this.onChangeResList}
-                                multiple={ taskType !== 1 }
-                                treeData={ resRoot }
-                                loadData={ ayncTree }
-                            />
-                        )}
-                    </FormItem>
+                    {isDataCollection && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="配置模式"
+                        >
+                            {getFieldDecorator('createModel', {
+                                rules: [],
+                                initialValue: createModel,
+                            })(
+                                <RadioGroup onChange={
+                                    (e) => {
+                                        this.setState({ createModel: e.target.value })
+                                    }
+                                } disabled={isEdit}>
+                                    <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+                                    <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+                                </RadioGroup>,
+                            )}
+                        </FormItem>
+                    )}
+                    {!isDataCollection && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="资源"
+                        >
+                            {getFieldDecorator('resourceIdList', {
+                                rules: [{
+                                    required: taskType === 1,
+                                    message: '请选择资源！',
+                                },
+                                {
+                                    validator: this.checkNotDir.bind(this)
+                                }],
+                                initialValue: defaultRes,
+                            })(
+                                <FolderPicker
+                                    isPicker
+                                    id="resourceIdList"
+                                    placeholder="请选择资源"
+                                    onChange={this.onChangeResList}
+                                    multiple={taskType !== 1}
+                                    treeData={resRoot}
+                                    loadData={ayncTree}
+                                />
+                            )}
+                        </FormItem>
+                    )}
                     <FormItem
                         {...formItemLayout}
                         label="mainClass"
@@ -236,7 +264,7 @@ class TaskFormModal extends Component {
                         {getFieldDecorator('mainClass', {
                             rules: [{
                                 required: taskType === 1,
-                                message:'请输入mainClass'
+                                message: '请输入mainClass'
                             }],
                             initialValue: taskInfo && taskInfo.mainClass,
                         })(
@@ -271,8 +299,8 @@ class TaskFormModal extends Component {
                                 placeholder="请选择存储位置"
                                 isPicker
                                 isFolderPicker
-                                treeData={ taskRoot }
-                                loadData={ ayncTree }
+                                treeData={taskRoot}
+                                loadData={ayncTree}
                             />
                         )}
                     </FormItem>

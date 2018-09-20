@@ -185,6 +185,11 @@ class PackageCreate extends React.Component {
         })
         if (doJump && typeof doJump == "boolean") {
             this.props.changeTab('publish');
+            this.setState({
+                selectedRowKeys: [],
+                selectedRows: [],
+                addLinkModalData: {},
+            })
         }
     }
     showAddLink(record) {

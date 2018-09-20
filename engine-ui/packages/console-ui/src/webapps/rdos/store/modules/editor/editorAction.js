@@ -42,9 +42,11 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
     })
         .then(
             (res) => {
-                //获取到返回值
-                if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
-                if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+                if (res && res.code) {
+                    //获取到返回值
+                    if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+                    if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+                }
                 //状态正常
                 if (res && res.code === 1) {
 
@@ -74,8 +76,8 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                                         stopSign[currentTab] = false;
                                         return;
                                     }
-                                    for(let i=0;i<offlineTaskStatusFilter.length;i++){
-                                        if(offlineTaskStatusFilter[i].value==res.data.status){
+                                    for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
+                                        if (offlineTaskStatusFilter[i].value == res.data.status) {
                                             dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}.....`))
                                             continue;
                                         }
