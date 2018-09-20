@@ -101,9 +101,11 @@ class TaskBrowser extends Component {
         const { selected, expanded } = this.state
         if (activeKey === selected && expanded) {
             this.setState({ selected: '', expanded: false });
-            this.SideBench.style.width = '30px'
+            this.SideBench.style.width = '30px';
+            this.SideBench.style.borderLeft = 'none';
         } else if (activeKey !== selected) {
-            this.SideBench.style.width = '500px'
+            this.SideBench.style.width = '500px';
+            this.SideBench.style.borderLeft = '1px solid #dddddd';
             this.setState({ selected: activeKey, expanded: true });
         }
     }
@@ -312,7 +314,7 @@ class TaskBrowser extends Component {
                     </Tabs>
                     {this.renderLock(currentPage)}
                     <RealTimeEditor {...this.props} />
-                    <div className="m-siderbench bd-left" ref={(e) => { this.SideBench = e }}>
+                    <div className="m-siderbench" ref={(e) => { this.SideBench = e }}>
                         <Tabs
                             activeKey={this.state.selected}
                             type="card"

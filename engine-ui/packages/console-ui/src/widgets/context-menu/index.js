@@ -35,10 +35,10 @@ export class ContextMenu extends Component {
     }
 
     toggleMenu(evt) {
-        const { forEle, onChange } = this.props
+        const { targetClassName, onChange } = this.props
         const selfEle = this.selfEle
         if (!selfEle) return;
-        const parent = this.findParent(evt.target, forEle);
+        const parent = this.findParent(evt.target, targetClassName);
 
         if (parent) {
 
@@ -74,7 +74,7 @@ export class ContextMenu extends Component {
     }
 
     removeMenu(evt) {
-        const { forEle } = this.props
+        const { targetClassName } = this.props
         if (!this.selfEle) return
         const style = this.selfEle.style
         if (evt.which === 1 ) { // When mouse right click
@@ -82,7 +82,7 @@ export class ContextMenu extends Component {
             if (evt.target.nodeType !== 1) {
                  style.display = "none"; 
             } else {
-                let parent = this.findParent(evt.target, forEle)
+                let parent = this.findParent(evt.target, targetClassName)
                 if (!parent) { style.display = "none"; }
             }
         }
@@ -90,23 +90,13 @@ export class ContextMenu extends Component {
 
     findParent(child, selector) {
         try {
+            if (!selector || !child) return;
             selector = selector.toLowerCase();
-            if (!child) return;
             let node = child;
             while(node) {
                 if (node.nodeType === 1) { // just hand dom element
-                    let nodeName = node.nodeName && node.nodeName.toLowerCase(),
-                        className = node.className && node.className.toLowerCase(),
-                        id = node.id && node.id.toLowerCase();
-                    if (id && selector.indexOf("#") > -1 && 
-                        selector === "#" + id) {
-                        return node;
-                    } else if (className && selector.indexOf(".") > -1) {
-                        var cla = selector.replace(".", "");
-                        if (className.indexOf(cla) > -1) return node;
-                    } else if (nodeName === selector) {
-                        return node;
-                    }
+                    const className = node.getAttribute('class');
+                    if (className && className.includes(selector)) return node;
                 }
                 node = node.parentNode;
             }

@@ -44,7 +44,7 @@ class SourceForm extends React.Component {
     }
 
     componentDidMount() {
-        const { sourceMap, isCurrentTabNew } = this.props;
+        const { sourceMap } = this.props;
         const { sourceList } = sourceMap;
         if (sourceList) {
             for (let i = 0; i < sourceList.length; i++) {
@@ -201,6 +201,7 @@ class SourceForm extends React.Component {
     changeExtTable(key, value) {
         this.submitForm(null, key);
     }
+
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
         const { getFieldValue } = form
@@ -420,7 +421,7 @@ class SourceForm extends React.Component {
 
     renderExtDataSource = () => {
         const { selectHack } = this.state;
-        const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
+        const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
 

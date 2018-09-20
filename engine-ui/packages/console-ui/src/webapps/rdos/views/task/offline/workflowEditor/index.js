@@ -818,7 +818,7 @@ class WorkflowEditor extends Component {
             <KeyEventListener 
                 onKeyDown={this.onkeyDown} 
             >
-                <div className="graph-editor" 
+                <div className="graph-editor bd-right" 
                     style={{ 
                         position: 'relative',
                         overflow: 'hidden',

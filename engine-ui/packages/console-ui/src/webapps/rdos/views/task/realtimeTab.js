@@ -804,7 +804,7 @@ class RealTimeTabPane extends Component {
                 />
 
                 <div>
-                    <ContextMenu forEle=".task-folder-item">
+                    <ContextMenu targetClassName="task-folder-item">
                         <MenuItem
                             onClick={this.initAddTask}>
                             新建任务
@@ -833,7 +833,7 @@ class RealTimeTabPane extends Component {
                         </Popconfirm>
                     </ContextMenu>
 
-                    <ContextMenu forEle=".task-item">
+                    <ContextMenu targetClassName="task-item">
                         <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
                         <Popconfirm
                             title="确定删除这个任务吗?"
@@ -847,7 +847,7 @@ class RealTimeTabPane extends Component {
                         </Popconfirm>
                     </ContextMenu>
 
-                    <ContextMenu forEle=".resource-folder-item">
+                    <ContextMenu targetClassName="resource-folder-item">
                         <MenuItem
                             onClick={() => this.doAction(modalAction.ADD_RES_VISIBLE)}
                         >
@@ -874,7 +874,7 @@ class RealTimeTabPane extends Component {
                         </Popconfirm>
                     </ContextMenu>
 
-                    <ContextMenu forEle=".resource-item">
+                    <ContextMenu targetClassName="resource-item">
                         <MenuItem
                             onClick={() => { this.setState({ visibleResRename: true }) }}>重命名</MenuItem>
                         <Popconfirm
@@ -889,7 +889,7 @@ class RealTimeTabPane extends Component {
                         </Popconfirm>
                     </ContextMenu>
 
-                    <ContextMenu forEle=".function-folder-item">
+                    <ContextMenu targetClassName="function-folder-item">
                         <MenuItem
                             onClick={() => {
                                 this.setState({ visibleFn: true })
@@ -921,7 +921,7 @@ class RealTimeTabPane extends Component {
                         </Popconfirm>
                     </ContextMenu>
 
-                    <ContextMenu forEle=".function-item">
+                    <ContextMenu targetClassName="function-item">
                         <MenuItem onClick={() => {
                             this.setState({ visibleMoveFn: true })
                         }}>

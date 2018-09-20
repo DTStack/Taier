@@ -407,10 +407,13 @@ class OutputOrigin extends Component {
                             <Option key="LRU" value="LRU">
                                 LRU
                             </Option>
+                            <Option key="ALL" value="ALL">
+                                ALL
+                            </Option>
                         </Select>
                     )}
                 </FormItem>
-                {panelColumn[index].cache === "LRU" ? (
+                {panelColumn[index].cache === "LRU" ? ([
                     <FormItem {...formItemLayout} label="缓存大小(行)">
                         {getFieldDecorator("cacheSize", {
                             rules: [
@@ -426,12 +429,56 @@ class OutputOrigin extends Component {
                                 }
                             />
                         )}
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="缓存超时时间(ms)">
+                    {getFieldDecorator("cacheTTLMs", {
+                        rules: [
+                            {
+                                required: true,
+                                message: "请输入缓存超时时间"
+                            }
+                            // { validator: this.checkConfirm }
+                        ]
+                    })(
+                        <InputNumber
+                            className="number-input"
+                            min={0}
+                            onChange={value =>
+                                handleInputChange(
+                                    "cacheTTLMs",
+                                    index,
+                                    value
+                                )
+                            }
+                        />
+                    )}
+                    </FormItem>,
+                    <FormItem {...formItemLayout} 
+                    label={(
+                        <span >
+                            开启分区&nbsp;
+                            <Tooltip title={switchPartition}>
+                                <Icon type="question-circle-o" /> 
+                            </Tooltip>
+                        </span> )}
+                    >
+                        {getFieldDecorator("partitionedJoin", {
+                            rules: [{ required: true, }]
+                        })(
+                            <Switch 
+                                defaultChecked={false}
+                                onChange={checked =>
+                                    handleInputChange("partitionedJoin", index, checked)
+                                } 
+                            />,
+                        )}
                     </FormItem>
-                ) : (
+                ]) : (
                     undefined
                 )}
-                {panelColumn[index].cache === "LRU" ? (
-                    <FormItem {...formItemLayout} label="缓存超时时间(ms)">
+                {panelColumn[index].cache === "ALL" ? 
+                    (
+                        <FormItem {...formItemLayout} label="缓存超时时间(ms)">
                         {getFieldDecorator("cacheTTLMs", {
                             rules: [
                                 {
@@ -453,30 +500,8 @@ class OutputOrigin extends Component {
                                 }
                             />
                         )}
-                    </FormItem>
-                ) : (
-                    undefined
-                )}
-                 <FormItem {...formItemLayout} 
-                  label={(
-                    <span >
-                        开启分区&nbsp;
-                        <Tooltip title={switchPartition}>
-                            <Icon type="question-circle-o" /> 
-                        </Tooltip>
-                    </span> )}
-                >
-                    {getFieldDecorator("partitionedJoin", {
-                        rules: [{ required: true, }]
-                    })(
-                        <Switch 
-                            defaultChecked={false}
-                            onChange={checked =>
-                                handleInputChange("partitionedJoin", index, checked)
-                            } 
-                        />,
-                    )}
-                </FormItem>
+                        </FormItem>
+                    ) : undefined }
             </Row>
         );
     }
