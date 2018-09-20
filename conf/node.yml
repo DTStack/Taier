@@ -209,9 +209,9 @@ engineTypes:
 #        learning.history.webapp.https.address: rdos1:19885
 
     -
-         typeName: DtYarnShell
-         hadoop.conf.dir: /data/cdh/hadoop-2.6.0-cdh5.13.0/etc/hadoop
+         typeName: dtyarnshell
+         hadoop.conf.dir: /Users/softfly/Desktop/104
          yarn.resourcemanager.recovery.enabled: true
          jlogstash.root: /opt/dtstack/jlogstash
-         java.home: /usr/java/default/bin
+         java.home: /opt/java/bin
 

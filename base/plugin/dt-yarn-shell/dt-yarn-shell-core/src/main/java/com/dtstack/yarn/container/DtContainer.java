@@ -124,7 +124,8 @@ public class DtContainer {
 
         process.waitFor();
 
-        return true;
+        return process.exitValue() == 0;
+
     }
 
 
