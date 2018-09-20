@@ -343,11 +343,20 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(String jobId) {
-        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
-        try{
-            client.cancel(jobID);
-        }catch (Exception e){
-            return JobResult.createErrorResult(e);
+        if (jobId.startsWith("application")){
+            try {
+                ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+                flinkClientBuilder.getYarnClient().killApplication(appId);
+            } catch (Exception e) {
+                return JobResult.createErrorResult(e);
+            }
+        } else {
+            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
+            try{
+                client.cancel(jobID);
+            }catch (Exception e){
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
