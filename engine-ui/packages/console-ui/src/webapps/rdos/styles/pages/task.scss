@@ -108,7 +108,9 @@
                 border-top: 1px solid #dddddd;
                 border-bottom: 1px solid #dddddd;
             }
-
+            .ant-tabs-nav {
+                background: none;
+            }
             .ant-tabs-ink-bar {
                 left: 0;
                 width: 3px;
@@ -268,7 +270,8 @@
                 position: absolute;
                 right: 0;
                 z-index: 999;
-
+                background: #ffffff;
+                
                 .anticon {
                     font-size: 14px;
                     cursor: pointer;
@@ -648,7 +651,7 @@
                     content:"";
                     position: absolute;
                     top:0px;
-                    right: 0px;
+                    right: -1px;
                     width: 3px;
                     height: 100%;
                     opacity: 0.8;
@@ -659,7 +662,7 @@
                     content:"";
                     position: absolute;
                     top:0px;
-                    left: -1px;
+                    left: 0px;
                     width: 3px;
                     height: 100%;
                     z-index: 999;

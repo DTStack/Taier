@@ -57,9 +57,8 @@ export const workbenchReducer = (state = getCachedData(), action) => {
 
         case workbenchAction.CLOSE_TASK_TAB: {
             const tabId = action.payload;
-            
             const tabIndex = state.tabs.findIndex(tab => tab.id === tabId);
-            
+            nextState = state;
             if (tabIndex > -1) {
                 let clone = cloneDeep(state);
                 if(tabId === state.currentTab) {

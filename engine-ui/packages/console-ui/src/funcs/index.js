@@ -302,3 +302,9 @@ export function singletonNotification(title, message) {
         });
     }
 }
+
+export function getContainer(id) {
+    const container = document.createElement('div');
+    document.getElementById(id).appendChild(container);
+    return container;
+}

@@ -4,6 +4,7 @@ import { Modal, Select } from 'antd';
 import { debounce } from 'lodash';
 
 import pureRender from 'utils/pureRender';
+import { getContainer } from 'funcs';
 
 import ajax from '../../api';
 
@@ -128,43 +129,56 @@ class SearchTaskModal extends React.Component {
 
     render() {
         const { data } = this.state;
-        const { visibleSearchTask } = this.props;
+        const { visibleSearchTask, editor } = this.props;
         const options = data && data.map(item => 
             <Option key={item.id} data={item} value={item.name}>
                 {item.name}
             </Option>
         )
 
-        return <Modal
-            title="搜索并打开任务"
-            visible={visibleSearchTask}
-            footer=""
-            onCancel={this.close}
-        >
-            <Select
-                id="My_Search_Select"
-                mode="combobox"
-                showSearch
-                style={{width: '100%'}}
-                placeholder="按任务名称搜索"
-                notFoundContent="没有发现相关任务"
-                defaultActiveFirstOption={true}
-                showArrow={false}
-                filterOption={false}
-                autoComplete="off"
-                onChange={this.debounceSearch}
-                onSelect={this.onSelect}
+        // 如果是dark类的编辑器，则切换ide的theme为dark风格
+        const editorTheme = editor.options.theme;
+        const claName = editorTheme === 'vs-dark' || editorTheme === 'hc-black' ?  'theme-dark' : ''; 
+
+        return <div id="JS_search_task" className={claName}>
+            <Modal
+                title="搜索并打开任务"
+                visible={visibleSearchTask}
+                footer=""
+                onCancel={this.close}
+                getContainer={() => getContainer('JS_search_task')}
             >
-                {options}
-            </Select>
-        </Modal>
+                <Select
+                    id="My_Search_Select"
+                    mode="combobox"
+                    showSearch
+                    style={{width: '100%'}}
+                    placeholder="按任务名称搜索"
+                    notFoundContent="没有发现相关任务"
+                    defaultActiveFirstOption={true}
+                    showArrow={false}
+                    filterOption={false}
+                    autoComplete="off"
+                    onChange={this.debounceSearch}
+                    onSelect={this.onSelect}
+                    getPopupContainer={() => getContainer('JS_search_task')}
+                >
+                    {options}
+                </Select>
+            </Modal>
+        </div>
     }
 }
 
 export default connect(state => {
     const { workbench } = state.offlineTask;
     const { tabs, currentTab } = workbench;
-    return { tabs, currentTab, visibleSearchTask: state.visibleSearchTask }
+    return { 
+        tabs, 
+        currentTab, 
+        visibleSearchTask: state.visibleSearchTask,
+        editor: state.editor
+    }
 }, dispatch => {
     const actions = workbenchActions(dispatch)
     return {

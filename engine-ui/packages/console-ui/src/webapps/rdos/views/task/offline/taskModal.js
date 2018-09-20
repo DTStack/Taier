@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip, message } from 'antd';
 
 import ajax from '../../../api';
+import { getContainer } from 'funcs';
 
 import {
     modalAction,
@@ -141,7 +142,7 @@ class TaskForm extends React.Component {
                         }],
                         initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.name
                     })(
-                        <Input placeholder={`请输入${labelPrefix}名称`} />,
+                        <Input placeholder={`请输入${labelPrefix}名称`} autoComplete="off"/>,
                     )}
                 </FormItem>
                 <FormItem
@@ -588,12 +589,13 @@ class TaskModal extends React.Component {
         }
 
         return (
-            <div>
+            <div id="JS_task_modal">
                 <Modal
                     title={isCreate ? `新建离线${labelPrefix}` : `编辑离线${labelPrefix}`}
                     key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}
+                    getContainer={() => getContainer('JS_task_modal')}
                     footer={[
                         <Button key="back"
                             size="large"

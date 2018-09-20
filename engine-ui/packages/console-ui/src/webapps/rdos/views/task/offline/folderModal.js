@@ -1,16 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import assign from 'object-assign';
-import { Modal, Button, Form, Icon, Input } from 'antd';
+import { Modal, Button, Form, Input } from 'antd';
 
 import FolderPicker from './folderTree';
 
 import ajax from '../../../api';
+import { getContainer } from 'funcs';
+
 import {
-    taskTreeAction,
-    resTreeAction,
-    fnTreeAction,
-    scriptTreeAction,
     modalAction
 } from '../../../store/modules/offlineTask/actionType';
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
@@ -194,7 +192,7 @@ class FolderModal extends React.Component {
         }
 
         return (
-            <div>
+            <div id="JS_folder_modal">
                 <Modal
                     title={ !this.isCreate ? '编辑文件夹' : '新建文件夹' }
                     visible={ isModalShow }
@@ -204,6 +202,7 @@ class FolderModal extends React.Component {
                         <Button key="submit" type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
                     ]}
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_folder_modal')}
                 >
                     <FolderFormWrapper
                         ref={el => this.form = el}

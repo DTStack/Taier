@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select } from 'antd';
+import { Modal, Button, Form, Input, Select } from 'antd';
 
-
+import { getContainer } from 'funcs';
 import ajax from '../../../api';
 
 import FolderPicker from './folderTree';
@@ -122,7 +122,6 @@ class FnMoveModal extends React.Component {
         const form = this.form;
 
         form.validateFields((err, values) => {
-            console.log(values);
             if(!err) {
                 values.functionId = functionId;
                 delete values.name;
@@ -149,11 +148,11 @@ class FnMoveModal extends React.Component {
     }
 
     render() {
-        const { moveFnData, toggleMoveFn, functionTreeData } = this.props;
+        const { moveFnData, functionTreeData } = this.props;
         const isVisible = typeof moveFnData !== 'undefined';
 
         return (
-            <div>
+            <div id="JS_fnMove_modal">
                 <Modal
                     title="移动函数"
                     visible={ isVisible }
@@ -163,6 +162,7 @@ class FnMoveModal extends React.Component {
                     ]}
                     key={ this.dtcount }
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_fnMove_modal')}
                 >
                     <FnMoveFormWrapper
                         ref={el => this.form = el}

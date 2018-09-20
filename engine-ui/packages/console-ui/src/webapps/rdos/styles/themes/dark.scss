@@ -7,7 +7,15 @@ $fontColor1: #2491F7;
 
 .theme-dark {
 
-    background: $color1;
+    background: $color1 !important;
+    color: $fontColor;
+
+    .graph-editor,
+    .ant-select-dropdown-menu-item,
+    .ant-select-arrow {
+        color: $fontColor;
+    }
+
     // ================ Redifine antd styles ================ //
     .ant-steps {
         .ant-steps-head,
@@ -23,16 +31,88 @@ $fontColor1: #2491F7;
         }
     }
 
+    .ant-table, .ant-table-tbody > tr > td {
+        border-color: $fontColor;
+        color: $fontColor;
+    }
+
+
+    .ant-modal {
+        color: $fontColor;
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+        background: $color3;
+
+        .ant-modal-header {
+            border-bottom: 1px solid #252525;
+        }
+
+        .ant-modal-title, .ant-modal-close {
+            color: $fontColor;
+        }
+
+        .ant-modal-header, .ant-modal-content {
+            background: $color3;
+            box-shadow: none;
+        }
+
+        .ant-modal-footer {
+            border: none;
+        }
+
+    }
+
+    .operation-card {
+
+        .operation-content {
+            background: $color2;
+            border-color: $borderColor;
+
+            .operation-title {
+                color: $fontColor;
+            }
+        }
+    }
+
     .ant-modal
     .ant-tabs-content,
+    .ant-select-dropdown,
+    .ant-select-search__field,
     .ant-layout-sider {
         background: $color3;
         border-color: $color3;
     }
 
+    .task-sidebar .menu-content {
+        header {
+            background: #333333;
+        }
+
+        .tab-search {
+            background: #2D2D2D;
+        }
+    }
+
+    .ant-input, 
+    .ant-calendar-picker-icon:after,
+    .ant-select-selection {
+        border: 1px solid #5A5A5A;
+        background: #2D2D2D;
+        color: $fontColor;
+    }
+
+    .ant-input:focus,
+    .ant-select-selection:focus {
+        border-color: #58abf9;
+    }
+
     .ant-form {
+
         .ant-form-item {
             color: $fontColor;
+
+            label, span {
+                color: $fontColor;
+            }
         }
     }
 
@@ -110,9 +190,19 @@ $fontColor1: #2491F7;
             border-color: $color1;
         }
 
+        .task-browser .ant-tabs-bar {
+            // box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid #0f0f0f;
+        }
+
         .task-browser .task-params .ant-tabs-content {
             background: $color2;
             border: none;
+        }
+
+        .browser-content .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover {
+            background: #3d3d3d;
+            border-color: #1E1E1E;
         }
 
         .browser-content {
@@ -123,9 +213,14 @@ $fontColor1: #2491F7;
                     color: #ADADAD;
                     border-top: 0;
                     border-color: #2E2E2E;
+
+                    .anticon-close {
+                        color: inherit;
+                    }
                 }
+
                 .ant-tabs-bar .ant-tabs-tab-active {
-                    background: #2D2D2D;
+                    background: #3d3d3d;
                     border-color: #1E1E1E;
                 }
             }
