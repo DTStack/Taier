@@ -143,7 +143,9 @@ export default class TaskVersion extends React.Component {
     }
 
     taskTypeJudge = (taskInfo, record) => {
-        if (taskInfo.taskType === TASK_TYPE.SQL || taskInfo.taskType === TASK_TYPE.SYNC) {
+        if (taskInfo.taskType === TASK_TYPE.SQL 
+            || taskInfo.taskType === TASK_TYPE.SYNC
+            ||taskInfo.taskType==TASK_TYPE.DATA_COLLECTION) {
             return (
                 <div>
                     <a onClick={() => this.diffCode(record)}>代码</a>
