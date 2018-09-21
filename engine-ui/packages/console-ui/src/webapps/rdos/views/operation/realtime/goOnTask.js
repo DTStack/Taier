@@ -56,6 +56,7 @@ class GoOnTask extends Component {
         Api.startTask({
             id: this.props.taskId,
             externalPath,
+            isRestoration:0
         }).then((res) => {
             if (res.code === 1) {
                 message.success('续跑操作成功！')

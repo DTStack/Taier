@@ -218,7 +218,7 @@ class Header extends Component {
                     >
                         <span className="content">
 
-                            <img src="/public/rdos/img/icon/develop.svg" />测试项目
+                            <img src="/public/rdos/img/icon/develop.svg" />测试
                     </span>
                     </div>
                 )
@@ -230,7 +230,7 @@ class Header extends Component {
                     >
                         <span className="content">
 
-                            <img src="/public/rdos/img/icon/produce.svg" />生产项目
+                            <img src="/public/rdos/img/icon/produce.svg" />生产
                         </span>
                     </div>
                 )

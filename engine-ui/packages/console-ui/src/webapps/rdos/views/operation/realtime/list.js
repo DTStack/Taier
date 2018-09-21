@@ -113,7 +113,19 @@ class RealTimeTaskList extends Component {
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.SUBMIT_FAILED:{
                 if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
-                    this.setState({ goOnTask: task.id })
+                    if(task.taskType==TASK_TYPE.DATA_COLLECTION){
+                        Api.startTask({
+                            id: task.id,
+                            isRestoration: 0,
+                        }).then((res) => {
+                            if (res.code === 1) {
+                                message.success('续跑操作成功！')
+                                ctx.loadTaskList({ pageIndex: current })
+                            }
+                        })
+                    }else{
+                        this.setState({ goOnTask: task.id })
+                    }
                 } else {
                     Api.startTask({
                         id: task.id,
