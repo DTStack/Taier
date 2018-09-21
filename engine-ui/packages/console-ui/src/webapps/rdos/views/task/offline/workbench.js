@@ -16,7 +16,7 @@ import ajax from '../../../api';
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../../comm/const';
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
-import TaskTypeIcon from '../../../components/task-type-icon';
+import TabIcon from '../../../components/tab-icon';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -337,14 +337,14 @@ class Workbench extends React.Component {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab) => {
                 let title = (<div>
-                    <TaskTypeIcon task={tab} />
+                    <TabIcon tabData={tab} />
                     <span className="tab-ellipsis">{tab.name}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
                 if (tab.flowId) {
                     title = (<div>
-                        <TaskTypeIcon task={tab} />
+                        <TabIcon tabData={tab} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
                         </a><span className="tab-ellipsis">&nbsp;/ {tab.name}</span>

@@ -2,14 +2,14 @@ import React, { Component } from "react";
 
 import { TASK_TYPE, LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE } from "../../comm/const";
 
-export default class TaskTypeIcon extends Component {
+export default class TabIcon extends Component {
 
     render() {
-        const { task } = this.props;
-        const { pythonVersion, learningType, scriptType, taskType } = task;
+        const { tabData } = this.props;
+        const { pythonVersion, learningType, scriptText, taskType, type } = tabData;
 
         let iconName = "";
-        if (scriptType == null) {
+        if (scriptText == null) {
             switch (taskType) {
                 case TASK_TYPE.SQL: {
                     iconName = "sql.svg";
@@ -72,7 +72,7 @@ export default class TaskTypeIcon extends Component {
                     "";
             }
         } else {
-            switch (scriptType) {
+            switch (type) {
                 case SCRIPT_TYPE.SQL: {
                     iconName = "sql.svg";
                     break;
