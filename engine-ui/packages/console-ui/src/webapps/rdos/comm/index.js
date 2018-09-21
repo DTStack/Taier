@@ -273,6 +273,11 @@ export function isRDB(type) {
     return RDB_TYPE_ARRAY.indexOf(parseInt(type, 10)) > -1
 }
 
+/**
+ * 该项目是否可以编辑
+ * @param {project} project 
+ * @param {user} user 
+ */
 export function isProjectCouldEdit(project,user){
     const {adminUsers,projectType} = project;
     const isPro=projectType==PROJECT_TYPE.PRO;

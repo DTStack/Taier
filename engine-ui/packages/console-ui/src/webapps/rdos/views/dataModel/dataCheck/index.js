@@ -53,5 +53,6 @@ class DMCheckCenter extends Component {
 }
 
 export default connect(state => ({
-    project: state.project
+    project: state.project,
+    user:state.user
 }), null)(DMCheckCenter);
