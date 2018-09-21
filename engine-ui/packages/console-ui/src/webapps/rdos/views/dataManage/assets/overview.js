@@ -281,8 +281,11 @@ export default class ProjectList extends Component {
         option.legend.show = false
 
         option.tooltip.formatter = function (params) {
+            const param=params[0];
+            const data=param.data.data;
+            const {projectname, tableName} = data;
             const showVal = utils.convertBytes(params[0].value)
-            return `${params[0].seriesName}: ${showVal}`
+            return `项目:${projectname}<br/>表:${tableName}<br/>${params[0].seriesName}: ${showVal}`
         }
 
         option.yAxis.data = data.y
@@ -317,7 +320,7 @@ export default class ProjectList extends Component {
             if (data && data.length > 0) {
                 for (let i = data.length - 1; i >= 0; i--) {
                     y.push({ value: { value: `${data[i].projectname}.${data[i].tableName}`, data: data[i] }})
-                    x.push({ value: parseInt(data[i].size, 10), userDefined: "111" })
+                    x.push({ value: parseInt(data[i].size, 10), data: data[i] })
                 }
             }
         } else {
