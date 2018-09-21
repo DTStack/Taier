@@ -282,6 +282,10 @@ class TaskIndex extends Component {
                                 taskInfo.merged = true;
                                 taskInfo.notSynced = false;// 添加已保存标记
                                 dispatch(BrowserAction.setCurrentPage(taskInfo))
+                                if(taskInfo.taskType==TASK_TYPE.DATA_COLLECTION&&taskInfo.createModel==DATA_SYNC_TYPE.GUIDE){
+                                    dispatch(collectionActions.initCollectionTask(taskInfo.id))
+                                    dispatch(collectionActions.getDataSource())
+                                }
                             }
                         })
                     }
