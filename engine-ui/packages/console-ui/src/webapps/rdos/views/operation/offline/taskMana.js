@@ -389,7 +389,7 @@ class OfflineTaskMana extends Component {
                             <span className="ope-statistics">
                                 <span style={{ color: "#2E3943" }}>
                                     <Circle style={{ background: '#2E3943' }} />&nbsp;
-                            任务总数: &nbsp;{0}
+                            任务总数: &nbsp;{tasks.totalCount||0}
                                 </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                     <Circle style={{ background: '#F5A623 ' }} />&nbsp;

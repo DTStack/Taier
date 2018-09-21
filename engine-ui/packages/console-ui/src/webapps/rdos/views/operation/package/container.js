@@ -80,6 +80,7 @@ class PackageContainer extends React.Component {
                     <TabPane className="m-panel2" tab="发布包" key="publish">
                         <PackagePublish 
                         // key={publishKey} 
+                        activeKey={params.type}
                         mode={mode} />
                     </TabPane>
                 </Tabs>

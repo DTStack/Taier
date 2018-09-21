@@ -52,8 +52,8 @@ class SiderBench extends React.Component {
 
     getTabPanes = () => {
         const { tabData, project, user } = this.props;
-        const isPro=project.projectType==PROJECT_TYPE.PRO;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const couldEdit = isProjectCouldEdit(project, user);
         if (!tabData) return null;
 
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
@@ -61,7 +61,7 @@ class SiderBench extends React.Component {
         const prefixLabel = isWorkflowNode ? '节点' : '任务';
         const panes = [
             <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
-                <TaskDetail 
+                <TaskDetail
                     isPro={isPro}
                     couldEdit={couldEdit}
                     isWorkflowNode={isWorkflowNode}
@@ -73,7 +73,7 @@ class SiderBench extends React.Component {
         if (!isWorkflowNode) {
             panes.push(
                 <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
-                    <SchedulingConfig 
+                    <SchedulingConfig
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
@@ -91,7 +91,7 @@ class SiderBench extends React.Component {
             }
         }
 
-        if (tabData && utils.checkExist(tabData.taskType) && 
+        if (tabData && utils.checkExist(tabData.taskType) &&
             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
             tabData.taskType !== TASK_TYPE.WORKFLOW
         ) {
@@ -109,7 +109,7 @@ class SiderBench extends React.Component {
                 panes.push(
                     <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                         <SQLEditor
-                            options={{ readOnly: isLocked||!couldEdit }}
+                            options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false } }}
                             key={'params' + tabData.id}
                             value={tabData.taskParams}
                             onFocus={() => { }}
@@ -145,8 +145,8 @@ class SiderBench extends React.Component {
 
 export default connect(state => {
     return {
-        project:state.project,
-        user:state.user
+        project: state.project,
+        user: state.user
     }
 }, dispatch => {
     return {

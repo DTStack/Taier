@@ -43,6 +43,13 @@ class PackagePublish extends React.Component {
         this.getPackageList();
         this.getUsers();
     }
+    componentWillReceiveProps(nextProps) {
+        const {activeKey} = nextProps;
+        const {activeKey:old_activeKey}= this.props;
+        if(old_activeKey!=activeKey){
+            this.getPackageList();
+        }
+    }
     getUsers() {
         const { project } = this.props;
 

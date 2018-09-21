@@ -55,8 +55,11 @@ class DataSourceManaStream extends Component {
             currentPage: 1,
         }, params)
         Api.streamQueryDataSource(reqParams).then((res) => {
+            this.setState({
+                loading:false
+            })
             if (res.code === 1) {
-                ctx.setState({ dataSource: res.data, loading: false })
+                ctx.setState({ dataSource: res.data})
             }
         })
     }
