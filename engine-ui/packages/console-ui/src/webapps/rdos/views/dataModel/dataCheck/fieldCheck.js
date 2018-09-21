@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, hashHistory } from 'react-router';
 
+import { isProjectCouldEdit } from '../../../comm';
 import {
     Table, Select, Form, 
     Card, message, Checkbox,
@@ -110,6 +111,8 @@ export default class FieldCheck extends Component {
     }
 
     initColumns = () => {
+        const {project,user} = this.props;
+        const couldEdit = isProjectCouldEdit(project, user);
         return [{
             title: '字段名称',
             dataIndex: 'columnName',
@@ -143,9 +146,9 @@ export default class FieldCheck extends Component {
 
                 return (
                     <div key={record.id}>
-                        <Link to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
+                        <Link disabled={!couldEdit} to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.ignore(record) }}>{showText}</a>
+                        <a disabled={!couldEdit} onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             },

@@ -18,7 +18,14 @@ class CollectionGuide extends React.Component {
         this.props.getDataSource();
         this.props.initCollectionTask(this.props.currentPage.id);
     }
-
+    componentWillReceiveProps(nextProps){
+        const {currentPage} = nextProps;
+        const {currentPage:old_currentPage}=this.props;
+        if(currentPage.id!=old_currentPage.id){
+            this.props.initCollectionTask(currentPage.id)
+            this.props.getDataSource();
+        }
+    }
     navtoStep(step) {
         this.props.navtoStep(step);
     }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link, hashHistory } from 'react-router';
 
+import { isProjectCouldEdit } from '../../../comm';
 import {
     Table, Select, Form,
     Card, message, Checkbox,
@@ -112,6 +113,8 @@ export default class ModelCheck extends Component {
     }
 
     initColumns = () => {
+        const {project,user} = this.props;
+        const couldEdit = isProjectCouldEdit(project, user);
         return [{
             title: '表名',
             dataIndex: 'tableName',
@@ -162,9 +165,9 @@ export default class ModelCheck extends Component {
                 const showText = record.isIgnore ? '恢复' : '忽略';
                 return (
                     <div key={record.id}>
-                        <Link to={`/data-model/table/modify/${record.id}`}>修改</Link>
+                        <Link disabled={!couldEdit} to={`/data-model/table/modify/${record.id}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a onClick={() => { this.ignore(record) }}>{showText}</a>
+                        <a disabled={!couldEdit} onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             },
