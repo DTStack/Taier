@@ -287,6 +287,7 @@ class RealTimeTaskList extends Component {
                 }
 
                 if(record.taskType==TASK_TYPE.DATA_COLLECTION){
+                    normal=normal=="停止"?normal:null;
                     recover=null;
                 }
                 return (
@@ -295,7 +296,7 @@ class RealTimeTaskList extends Component {
                         {goOn ? <span className="ant-divider" /> : ''}
                         <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
                         {normal ? <span className="ant-divider" /> : ''}
-                        <a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>
+                        {normal?<a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>:null}
                         {recover ? <span className="ant-divider" /> : ''}
                         <Popconfirm
                             okText="确定"

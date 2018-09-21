@@ -41,7 +41,7 @@ export default class ProjectList extends Component {
         chart2: '',
         chart3: '',
         selectedDate: '',
-        selectedProject: this.props.projects[0]&&this.props.projects[0].id||'',
+        selectedProject: this.props.projects[0] && this.props.projects[0].id || '',
         topStyle: {
             width: '50%',
             height: '100%',
@@ -70,21 +70,21 @@ export default class ProjectList extends Component {
                 this.loadDataOverview(pid);
             })
             this.loadProjectCount();
-        }else if(nextProps.total!=this.props.total){
+        } else if (nextProps.total != this.props.total) {
             this.setState({
                 total: nextProps.total
             }, this.componentDidMount)
-           
+
         }
     }
-    
+
     loadProjectCount() {
         const ctx = this
         const { total } = this.state;
         const params = {};
-        
+
         params.total = total;
-        
+
         const userId = utils.getCookie('dt_user_id')
         Api.getProjectInfo(params).then((res) => {
             ctx.setState({
@@ -246,8 +246,8 @@ export default class ProjectList extends Component {
         myChart.setOption(option);
         myChart.on('click', (params) => {
             let projectId;
-            chartData.map(v=>{
-                if(v.projectname==params.value){
+            chartData.map(v => {
+                if (v.projectname == params.value) {
                     projectId = v.projectId
                 }
             })
@@ -274,7 +274,7 @@ export default class ProjectList extends Component {
     drawTableTop5(chartData) {
         let myChart = echarts.init(document.getElementById('TableTop5'));
         const option = cloneDeep(defaultBarOption);
-        const data = this.getPieData(chartData,'drawTable')
+        const data = this.getPieData(chartData, 'drawTable')
 
         option.color = ['#F5A623']
         option.title.text = '表占用存储TOP5'
@@ -292,7 +292,8 @@ export default class ProjectList extends Component {
         option.series[0].label.normal.formatter = function (params) {
             return utils.convertBytes(params.value)
         }
-        option.yAxis.axisLabel.formatter = (value) => {
+        option.yAxis.axisLabel.formatter = (item) => {
+            const { value } = item;
             if (value.length > 16) {
                 return value.slice(0, 16) + "...";
                 //return "..." + value.slice(-20) ;
@@ -303,22 +304,23 @@ export default class ProjectList extends Component {
         // 绘制图表
         myChart.setOption(option);
         myChart.on('click', (params) => {
-            let tableName = params.value&&params.value.split('.')[1];
-            if (tableName) hashHistory.push(`/data-manage/table?listType=3&tableName=${tableName}&`)
+            const {data} = params.value;
+            const {tableId}=data;
+            if (tableId||tableId==0) hashHistory.push(`/data-manage/table/view/${tableId}`)
         });
         this.setState({ chart3: myChart })
     }
 
-    getPieData(data,type) {
+    getPieData(data, type) {
         const y = [], x = []
-        if(type=='drawTable'){
+        if (type == 'drawTable') {
             if (data && data.length > 0) {
                 for (let i = data.length - 1; i >= 0; i--) {
-                    y.push({value:`${data[i].projectname}.${data[i].tableName}`,userDefined:"111"})
-                    x.push({value:parseInt(data[i].size, 10),userDefined:"111"})
+                    y.push({ value: { value: `${data[i].projectname}.${data[i].tableName}`, data: data[i] }})
+                    x.push({ value: parseInt(data[i].size, 10), userDefined: "111" })
                 }
             }
-        }else{
+        } else {
             if (data && data.length > 0) {
                 for (let i = data.length - 1; i >= 0; i--) {
                     y.push(data[i].projectname)
@@ -326,16 +328,16 @@ export default class ProjectList extends Component {
                 }
             }
         }
-        
+
         return { y, x }
     }
 
     resizeChart = () => {
         const { chart1, chart2, chart3 } = this.state
         let chartSpan;
-        if(document.body.clientWidth < 1430){
+        if (document.body.clientWidth < 1430) {
             chartSpan = 24
-        }else{
+        } else {
             chartSpan = 12
         }
         this.setState({
@@ -363,7 +365,7 @@ export default class ProjectList extends Component {
         this.setState({ selectedProject }, () => {
             this.loadDataOverview(selectedProject)
         })
-    } 
+    }
 
     render() {
         const { project, selectedProject, projectTable, projectStore, topStyle, total, chartSpan } = this.state
@@ -373,7 +375,7 @@ export default class ProjectList extends Component {
         }) : []
 
         return (
-            <div style={{margin: '0 14px'}}>
+            <div style={{ margin: '0 14px' }}>
                 <Abstract
                     project={project}
                     projectTable={projectTable}
@@ -382,50 +384,50 @@ export default class ProjectList extends Component {
                 />
                 <Resize onResize={this.resizeChart}>
                     <Row style={{ marginTop: 20 }}>
-                            <Col span={chartSpan} style={{marginBottom: 20}} >
-                                <div className="chart-board shadow">
-                                    <section id="DataOverview" style={{ width: '100%', height: '100%' }} /> 
-                                    <div className="filter">
-                                        <span className="chart-tip"> &nbsp;&nbsp;&nbsp;项目：</span>
-                                        <Select
-                                            showSearch
-                                            value={selectedProject}
-                                            onChange={this.projectOnChange}
-                                            style={{ width: '100px' }}
-                                            title=""
-                                            filterOption={(input, option) =>  option.props.children.props.children.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                        >
-                                            {projectOptions}
-                                        </Select>
-                                        &nbsp;&nbsp;
+                        <Col span={chartSpan} style={{ marginBottom: 20 }} >
+                            <div className="chart-board shadow">
+                                <section id="DataOverview" style={{ width: '100%', height: '100%' }} />
+                                <div className="filter">
+                                    <span className="chart-tip"> &nbsp;&nbsp;&nbsp;项目：</span>
+                                    <Select
+                                        showSearch
+                                        value={selectedProject}
+                                        onChange={this.projectOnChange}
+                                        style={{ width: '100px' }}
+                                        title=""
+                                        filterOption={(input, option) => option.props.children.props.children.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                    >
+                                        {projectOptions}
+                                    </Select>
+                                    &nbsp;&nbsp;
                                         <RangePicker
-                                            style={{ width: '230px' }}
-                                            format="YYYY-MM-DD"
-                                            defaultValue={[moment().subtract(6, 'days'), moment()]}
-                                            disabledDate={this.disabledDate}
-                                            onChange={this.changeDate}
-                                            ranges={{
-                                                '最近7天': [moment().subtract(6, 'days'), moment()],
-                                                '最近30天': [moment().subtract(29, 'days'), moment()],
-                                                '最近60天': [moment().subtract(59, 'days'), moment()]
-                                            }}
-                                        />
-                                    </div>
+                                        style={{ width: '230px' }}
+                                        format="YYYY-MM-DD"
+                                        defaultValue={[moment().subtract(6, 'days'), moment()]}
+                                        disabledDate={this.disabledDate}
+                                        onChange={this.changeDate}
+                                        ranges={{
+                                            '最近7天': [moment().subtract(6, 'days'), moment()],
+                                            '最近30天': [moment().subtract(29, 'days'), moment()],
+                                            '最近60天': [moment().subtract(59, 'days'), moment()]
+                                        }}
+                                    />
                                 </div>
-                            </Col>
-                            <Col span={chartSpan} style={{minWidth: 600}}>
-                                <div className="chart-board shadow">
-                                    <section
-                                        id="StoreTop5"
-                                        color={this.state.color}
-                                        style={topStyle}>
-                                    </section>
-                                    <section
-                                        id="TableTop5"
-                                        style={topStyle}>
-                                    </section>
-                                </div>
-                            </Col>
+                            </div>
+                        </Col>
+                        <Col span={chartSpan} style={{ minWidth: 600 }}>
+                            <div className="chart-board shadow">
+                                <section
+                                    id="StoreTop5"
+                                    color={this.state.color}
+                                    style={topStyle}>
+                                </section>
+                                <section
+                                    id="TableTop5"
+                                    style={topStyle}>
+                                </section>
+                            </div>
+                        </Col>
                     </Row>
                 </Resize>
             </div>
@@ -434,9 +436,9 @@ export default class ProjectList extends Component {
 }
 
 function Abstract(props) {
-    const { project, projectTable, projectStore,total } = props
+    const { project, projectTable, projectStore, total } = props
     return (
-        <Row gutter={32} style={{padding: "0 10"}} type="flex" justify="space-between">
+        <Row gutter={32} style={{ padding: "0 10" }} type="flex" justify="space-between">
             <Col span={8} >
                 <div className="indicator-col shadow">
                     <div className="left indicator-icon">
@@ -444,7 +446,7 @@ function Abstract(props) {
                     </div>
                     <div className="left indicator-detail">
                         <section className="indicator-title">总项目数</section>
-                        <section className="indicator-content">{ total ? project.allProjects || 0 : project.joinProjects || 0 }</section>
+                        <section className="indicator-content">{total ? project.allProjects || 0 : project.joinProjects || 0}</section>
                     </div>
                 </div>
             </Col>
