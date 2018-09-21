@@ -35,6 +35,11 @@ class CollectionSource extends React.Component {
         const { sourceMap } = collectionData;
         const { collectionData: old_col } = this.props;
         const { sourceMap: old_source } = old_col;
+        if(collectionData.id!=old_col.id){
+            this.setState({
+                tableList:[]
+            })
+        }
         if (sourceMap.sourceId && old_source.sourceId != sourceMap.sourceId) {
             this.getTableList(sourceMap.sourceId)
         }
@@ -163,13 +168,13 @@ class CollectionSourceForm extends React.Component {
                                 placeholder="请选择表"
 
                             >   
-                                {[<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
+                                {tableList.length?[<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
                                     (table) => {
                                         return <Option disabled={allTable} key={`${table}`} value={table}>
                                             {table}
                                         </Option>
                                     }
-                                ))}
+                                )):[]}
                             </Select>
                         )}
                     </FormItem>
