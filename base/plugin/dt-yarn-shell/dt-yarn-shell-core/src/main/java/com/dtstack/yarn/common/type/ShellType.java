@@ -10,4 +10,9 @@ public class ShellType extends AppType {
         return "bash";
     }
 
+    @Override
+    public String name() {
+        return "SHELL";
+    }
+
 }
