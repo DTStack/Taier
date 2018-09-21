@@ -393,7 +393,7 @@ class OfflineTaskMana extends Component {
                                 </span>&nbsp;
                         <span style={{ color: "#F5A623" }}>
                                     <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            已发布: &nbsp;{0}
+                            已发布: &nbsp;{tasks.publishedTasks||0}
                                 </span>&nbsp;
                     </span>
                         </div>
