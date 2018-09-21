@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link, hashHistory } from "react-router";
-import {debounce} from "lodash";
 
 import moment from 'moment'
 
@@ -10,6 +9,7 @@ import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin
 import ProjectForm from '../project/form'
 import Api from '../../api'
 import * as ProjectAction from "../../store/modules/project";
+import NoData from '../../components/no-data';
 
 const Search = Input.Search;
 
@@ -276,7 +276,7 @@ class Index extends Component {
                         <Col span="24" >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
-                                    projectListInfo.map(v => {
+                                    projectListInfo && projectListInfo.length > 0 && !loading ? projectListInfo.map(v => {
                                         return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
@@ -352,7 +352,7 @@ class Index extends Component {
                                                 }
                                             </Card>
                                         </Col>
-                                    })
+                                    }) : <NoData/>
                                 }
                             </Row>
                             <Row>

@@ -57,7 +57,7 @@ export default class TaskTypeIcon extends Component {
                     }
                 }
                 case TASK_TYPE.SHELL: {
-                    iconName = "python.svg";
+                    iconName = "shell.svg";
                     break;
                 }
                 case TASK_TYPE.DATA_COLLECTION: {
@@ -72,7 +72,7 @@ export default class TaskTypeIcon extends Component {
                     "";
             }
         } else {
-            switch (taskType) {
+            switch (scriptType) {
                 case SCRIPT_TYPE.SQL: {
                     iconName = "sql.svg";
                     break;

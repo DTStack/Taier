@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select } from 'antd';
+import { Modal, Button, Form, Input, Select } from 'antd';
+
+import { getContainer } from 'funcs';
 
 import FolderPicker from './folderTree';
 import ajax from '../../../api';
@@ -8,7 +10,6 @@ import { MENU_TYPE } from '../../../comm/const';
 import {
     modalAction,
     fnTreeAction,
-    sysFnTreeActon
 } from '../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
@@ -271,14 +272,14 @@ class FnModal extends React.Component {
     }
 
     render() {
-        const { isModalShow, toggleCreateFn, functionTreeData, resTreeData, defaultData } = this.props;
+        const { isModalShow, functionTreeData, resTreeData, defaultData } = this.props;
 
         const isCreateNormal = typeof defaultData === 'undefined';
         const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
 
         return (
-            <div>
+            <div id="JS_func_modal">
                 <Modal
                     title="创建函数"
                     visible={ isModalShow }
@@ -288,6 +289,7 @@ class FnModal extends React.Component {
                     ]}
                     key={ this.dtcount }
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_func_modal')}
                 >
                     <FnFormWrapper
                         ref={el => this.form = el}

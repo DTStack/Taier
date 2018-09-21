@@ -44,7 +44,7 @@ class SourceForm extends React.Component {
     }
 
     componentDidMount() {
-        const { sourceMap, isCurrentTabNew } = this.props;
+        const { sourceMap } = this.props;
         const { sourceList } = sourceMap;
         if (sourceList) {
             for (let i = 0; i < sourceList.length; i++) {
@@ -98,7 +98,6 @@ class SourceForm extends React.Component {
             tableName = tableName[0];
         }
         if (!tableName) {
-            console.log('tableName',tableName);
             handleTableCopateChange([]);
             //form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
             form.setFields({
@@ -157,7 +156,6 @@ class SourceForm extends React.Component {
         const firstSource = sourceMap && sourceMap.sourceList && sourceMap.sourceList[0];
         const type = option.props.dataType;
         const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(type) > -1;
-        console.log(supportSubLibrary);
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
@@ -192,7 +190,6 @@ class SourceForm extends React.Component {
     }
 
     changeTable(type, value) {
-        console.log(value, type);
         if (value) {
             this.getTableColumn(value, type);
         }
@@ -204,6 +201,7 @@ class SourceForm extends React.Component {
     changeExtTable(key, value) {
         this.submitForm(null, key);
     }
+
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
         const { getFieldValue } = form
@@ -307,7 +305,8 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('sourceId', {
                         rules: [{
-                            required: true
+                            required: true,
+                            message: '数据源为必填项'
                         }],
                         initialValue: isEmpty(sourceMap) ? '' : `${sourceMap.sourceId}`
                     })(
@@ -422,7 +421,7 @@ class SourceForm extends React.Component {
 
     renderExtDataSource = () => {
         const { selectHack } = this.state;
-        const { sourceMap, isCurrentTabNew, dataSourceList } = this.props;
+        const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
 
@@ -622,7 +621,8 @@ class SourceForm extends React.Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [{
-                                required: true
+                                required: true,
+                                message: '数据源表为必选项！'
                             }],
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(
@@ -747,7 +747,8 @@ class SourceForm extends React.Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [{
-                                required: true
+                                required: true,
+                                message: '数据源表为必选项！'
                             }],
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(

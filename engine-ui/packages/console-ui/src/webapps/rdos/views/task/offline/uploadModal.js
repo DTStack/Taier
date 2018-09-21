@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, message } from 'antd';
-import assign from 'object-assign';
+import { Modal, Button, Form, Input, Select, message } from 'antd';
 
 import ajax from '../../../api';
+import { getContainer } from 'funcs';
 
 import {
     modalAction,
@@ -410,7 +410,7 @@ class ResModal extends React.Component {
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
 
         return (
-            <div>
+            <div id="JS_upload_modal">
                 <Modal
                     title={ isCoverUpload ? '替换离线资源' : isEditExist ? '编辑资源' : '上传离线计算资源' }
                     visible={ isModalShow }
@@ -420,6 +420,7 @@ class ResModal extends React.Component {
                     ]}
                     key={ this.dtcount }
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_upload_modal')}
                 >
                     <ResFormWrapper
                         ref={el => this.form = el}

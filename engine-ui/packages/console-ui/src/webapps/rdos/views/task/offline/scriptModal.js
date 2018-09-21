@@ -1,15 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, Radio } from 'antd';
+import { Modal, Button, Form, Input, Select, Radio } from 'antd';
 
 import ajax from '../../../api';
+import { getContainer } from 'funcs';
+
 import {
     modalAction,
     scriptTreeAction,
     workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 
-import { formItemLayout, SCRIPT_TYPE, MENU_TYPE, TASK_TYPE } from '../../../comm/const'
+import { formItemLayout, MENU_TYPE } from '../../../comm/const'
 import FolderPicker from './folderTree';
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
@@ -272,7 +274,7 @@ class ScriptModal extends React.Component {
         }
 
         return (
-            <div>
+            <div id="JS_script_modal">
                 <Modal
                     title={!this.isCreate ? '编辑脚本' : '新建脚本' }
                     visible={ isModalShow }
@@ -288,6 +290,7 @@ class ScriptModal extends React.Component {
                         > 确认 </Button>
                     ]}
                     onCancel={this.closeModal}
+                    getContainer={() => getContainer('JS_script_modal')}
                 >
                     <ScriptFormWrapper
                         ref={el => this.form = el}

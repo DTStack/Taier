@@ -131,7 +131,7 @@
 }*/
 
 .Resizer.horizontal {
-    height: 11px;
+    height: 10px;
     margin: -5px 0;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
@@ -146,7 +146,7 @@
 }
 
 .Resizer.vertical {
-    width: 11px;
+    width: 10px;
     margin: 0 -5px;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;

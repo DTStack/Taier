@@ -143,7 +143,7 @@ class TableTree extends React.Component {
                     <Tooltip title="表查询">
                         <Icon
                             type="search"
-                            style={{ marginRight: '8px' }}
+                            style={{ fontSize: '15px' }}
                             className="right" onClick={this.onClickSearch}
                         />
                     </Tooltip>
