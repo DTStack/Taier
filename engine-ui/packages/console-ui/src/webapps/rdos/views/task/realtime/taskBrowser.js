@@ -9,7 +9,7 @@ import Api from '../../../api'
 import { LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge'
 import Editor from 'widgets/editor'
-import TaskTypeIcon from '../../../components/task-type-icon'
+import TabIcon from '../../../components/tab-icon'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { updateRealtimeTreeNode } from '../../../store/modules/realtimeTask/tree'
 
@@ -81,7 +81,7 @@ class TaskBrowser extends Component {
         if (panes && panes.length > 0) {
             return panes.map((pane) => {
                 const title = (<span>
-                    <TaskTypeIcon task={pane} />
+                    <TabIcon tabData={pane} />
                     <SyncBadge notSynced={pane.notSynced} />
                     <span className="tab-ellipsis">{pane.name}</span>
                 </span>)
