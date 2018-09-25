@@ -4,6 +4,7 @@ import {
  } from 'antd'
 
 import utils from 'utils'
+import { getContainer } from 'funcs';
 
 class ResInfoModal extends Component {
 
@@ -13,12 +14,14 @@ class ResInfoModal extends Component {
             handCancel, visible,
         } = this.props
         return (
+            <div id="JS_res_modal">
             <Modal
               title={title}
               wrapClassName="vertical-center-modal"
               visible={visible}
               onCancel={handCancel}
               footer={null}
+              getContainer={() => getContainer('JS_res_modal')}
             >
                 <div className="ant-table ant-table-bordered bd-top bd-left" >
                     <table>
@@ -38,6 +41,7 @@ class ResInfoModal extends Component {
                     </table>
                 </div>
             </Modal>
+            </div>
         )
     }
 }

@@ -187,6 +187,9 @@ class PublishModal extends React.Component {
                         rules: [{
                             required: true,
                             message: "请输入发布包名称"
+                        },{
+                            pattern: /^\w*$/,
+                            message: '发布包名称只能由字母、数字、下划线组成!',
                         }],
                         initialValue:isPublish?data.name:''
                     })(

@@ -453,6 +453,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.resourceType;
+                baseItem.modifyTime=row.gmtModified;
                 break;
             }
             case publishType.FUNCTION: {
@@ -461,6 +462,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.type;
+                baseItem.modifyTime=row.gmtModified;
                 break;
             }
             case publishType.TABLE: {
@@ -685,7 +687,12 @@ class PackageCreate extends React.Component {
                         <div className="tool-bottom">
                             <Button onClick={this.clearSelect.bind(this)} className="clear" size="small">清空</Button>
                             <div className="pagn">
-                                <Pagination onChange={this.changeRightPage.bind(this)} size="small" {...pagination} total={selectedRows.length} />
+                                <Pagination 
+                                onChange={this.changeRightPage.bind(this)} 
+                                size="small" 
+                                maxShowPage={3}
+                                {...pagination} 
+                                total={selectedRows.length} />
                             </div>
                         </div>
                     </div>

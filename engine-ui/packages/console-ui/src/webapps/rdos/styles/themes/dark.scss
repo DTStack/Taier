@@ -11,6 +11,7 @@ $fontColor1: #2491F7;
     color: $fontColor;
 
     .graph-editor,
+    .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
     .ant-select-dropdown-menu-item,
     .ant-select-arrow {
         color: $fontColor;
@@ -58,7 +59,16 @@ $fontColor1: #2491F7;
         .ant-modal-footer {
             border: none;
         }
-
+        .ant-btn {
+            background: $color3;
+            color: $fontColor;
+            border: none;
+        }
+        .ant-btn-primary {
+            color: #fff;
+            background-color: #2491F7;
+            border-color: #2491F7;
+        }
     }
 
     .operation-card {
@@ -144,10 +154,9 @@ $fontColor1: #2491F7;
         }
     }
 
-
     .Resizer {
-        background: $color3;
-        border-color: $color3;
+        // background: $color3;
+        // border-color: $color3;
 
         & {
             .horizontal,
@@ -175,6 +184,10 @@ $fontColor1: #2491F7;
         }
     }
 
+    .ide-editor {
+        border-color: $borderColor;
+    }
+
     .ide-editor .ide-header {
         background: $color2;
         border-bottom: 0;
@@ -190,6 +203,8 @@ $fontColor1: #2491F7;
             border-color: $color1;
         }
 
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close
+
         .task-browser .ant-tabs-bar {
             // box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
             border-bottom: 1px solid #0f0f0f;
@@ -200,7 +215,7 @@ $fontColor1: #2491F7;
             border: none;
         }
 
-        .browser-content .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover {
+        .browser-content .browser-tabs.ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab:hover {
             background: #3d3d3d;
             border-color: #1E1E1E;
         }
@@ -325,5 +340,4 @@ $fontColor1: #2491F7;
         }
 
     }
-
 }

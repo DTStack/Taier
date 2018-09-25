@@ -52,9 +52,7 @@ class TaskIndex extends Component {
         const { checkFormParams = [], panelColumn = [] } = inputData[currentPage.id] || {};
         const { checkFormParams: outputCheckFormParams = [], panelColumn: outputPanelColumn = [] } = outputData[currentPage.id] || {};
         const { checkFormParams: dimensionCheckFormParams = [], panelColumn: dimensionPanelColumn = [] } = dimensionData[currentPage.id] || {};
-        // if (panelColumn.length === 0){
-        //     return message.error("源表至少添加一个输入源");
-        // }
+
         for (let index = 0, len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
             console.log('result', result);
@@ -63,9 +61,7 @@ class TaskIndex extends Component {
                 return message.error(`源表--输入源${checkFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
             }
         }
-        // if (outputPanelColumn.length === 0){
-        //     return message.error("结果表至少添加一个输出源");
-        // }
+
         if (outputCheckFormParams.length > 0) {
             for (let index = 0, len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
@@ -250,7 +246,7 @@ class TaskIndex extends Component {
             currentPage, dispatch
         } = this.props;
 
-        const { publishDesc } = this.state
+        const { publishDesc } = this.state;
         const result = cloneDeep(currentPage);
 
         // 添加提交描述信息
@@ -355,14 +351,14 @@ class TaskIndex extends Component {
                                 }}
                                 title="创建任务"
                             >
-                                <MyIcon className="my-icon" type="focus" /> 新建任务
+                                <MyIcon className="my-icon" type="focus" themeDark={themeDark}/> 新建任务
                                 </Button>
                             <Button
                                 disabled={currentPage.invalid}
                                 onClick={this.saveTask}
                                 title="保存任务"
                             >
-                                <MyIcon className="my-icon" type="save" />保存
+                                <MyIcon className="my-icon" type="save" themeDark={themeDark}/>保存
                             </Button>
                             <Button
                                 onClick={this.searchTask}
@@ -372,7 +368,7 @@ class TaskIndex extends Component {
                                 搜索
                             </Button>
                         </span>
-                        <FullScreenButton />
+                        <FullScreenButton themeDark={themeDark}/>
                     </Col>
                     <Col className="right">
                         <span>
@@ -382,13 +378,13 @@ class TaskIndex extends Component {
                                 mouseLeaveDelay={0}
                             >
                                 <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
-                                    <Icon type="upload" style={{ color: "#000" }} /> 提交
+                                    <Icon type="upload" /> 提交
                             </Button>
                             </Tooltip>
                         </span>
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
-                                <MyIcon className="my-icon" type="goin" /> 运维
+                                <MyIcon className="my-icon" type="goin" themeDark={themeDark}/> 运维
                             </Button>
                         </Link>
                     </Col>

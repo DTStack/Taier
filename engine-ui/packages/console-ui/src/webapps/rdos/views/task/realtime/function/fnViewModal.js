@@ -1,14 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Modal, Button, Spin } from 'antd';
 import moment from 'moment';
+
+import { getContainer } from 'funcs';
 
 import {
     modalAction
 } from '../../../../store/modules/offlineTask/actionType';
 
 import ajax from '../../../../api';
-import { MENU_TYPE } from '../../../../comm/const';
 
 class FnViewModal extends React.Component {
 
@@ -49,51 +49,55 @@ class FnViewModal extends React.Component {
         const { visible, fnId, handCancel } = this.props;
         const { data, loading } = this.state;
 
-        return <Modal
-            title="函数详情"
-            visible={ visible }
-            onCancel={ handCancel }
-            key={ fnId }
-            footer={[
-                <Button size="large" onClick={ handCancel } key="cancel">取消</Button>,
-            ]}
-        >
-            { loading ? <Spin/> :
-                data === null ? '系统异常':
-                <table className="ant-table ant-table-bordered bd-top bd-left" style={{ width: '100%' }}>
-                    <tbody className="ant-table-tbody">
-                        <tr>
-                            <td width="15%">函数名称</td>
-                            <td>{ data.name }</td>
-                        </tr>
-                        <tr>
-                            <td>类型</td>
-                            <td>{ data.udfType === 1 ? 'Table' : 'Scala' }</td>
-                        </tr>
-                        <tr>
-                            <td>用途</td>
-                            <td>{ data.purpose }</td>
-                        </tr>
-                        <tr>
-                            <td>命令格式</td>
-                            <td>{ data.commandFormat || '/' }</td>
-                        </tr>
-                        <tr>
-                            <td>参数说明</td>
-                            <td>{ data.paramDesc || '/' }</td>
-                        </tr>
-                        <tr>
-                            <td>创建</td>
-                            <td>{ data.createUser.userName } 于 { moment(data.gmtCreate).format('YYYY-MM-DD hh:mm:ss') }</td>
-                        </tr>
-                        <tr>
-                            <td>最后修改</td>
-                            <td>{ data.modifyUser.userName } 于 { moment(data.gmtModified).format('YYYY-MM-DD hh:mm:ss') }</td>
-                        </tr>
-                    </tbody>
-                </table>
-            }
-        </Modal>
+        return <div id="JS_func_detail">
+
+            <Modal
+                title="函数详情"
+                visible={ visible }
+                onCancel={ handCancel }
+                key={ fnId }
+                footer={[
+                    <Button size="large" onClick={ handCancel } key="cancel">取消</Button>,
+                ]}
+                getContainer={() => getContainer('JS_func_detail')}
+            >
+                { loading ? <Spin/> :
+                    data === null ? '系统异常':
+                    <table className="ant-table ant-table-bordered bd-top bd-left" style={{ width: '100%' }}>
+                        <tbody className="ant-table-tbody">
+                            <tr>
+                                <td width="15%">函数名称</td>
+                                <td>{ data.name }</td>
+                            </tr>
+                            <tr>
+                                <td>类型</td>
+                                <td>{ data.udfType === 1 ? 'Table' : 'Scala' }</td>
+                            </tr>
+                            <tr>
+                                <td>用途</td>
+                                <td>{ data.purpose }</td>
+                            </tr>
+                            <tr>
+                                <td>命令格式</td>
+                                <td>{ data.commandFormat || '/' }</td>
+                            </tr>
+                            <tr>
+                                <td>参数说明</td>
+                                <td>{ data.paramDesc || '/' }</td>
+                            </tr>
+                            <tr>
+                                <td>创建</td>
+                                <td>{ data.createUser.userName } 于 { moment(data.gmtCreate).format('YYYY-MM-DD hh:mm:ss') }</td>
+                            </tr>
+                            <tr>
+                                <td>最后修改</td>
+                                <td>{ data.modifyUser.userName } 于 { moment(data.gmtModified).format('YYYY-MM-DD hh:mm:ss') }</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+            </Modal>
+        </div>
     }
 }
 

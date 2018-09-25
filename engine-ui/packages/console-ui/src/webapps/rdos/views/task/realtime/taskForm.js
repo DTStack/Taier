@@ -1,18 +1,16 @@
 import React, { Component } from 'react'
 import { isArray, isNumber } from 'lodash';
 import {
-    Form, Input, Icon, Select,
+    Form, Input, Select,
     Radio, Modal,
 } from 'antd'
 
-import Api from '../../../api'
-import { mergeArray } from 'funcs'
+import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
-const Option = Select.Option;
 
 class TaskFormModal extends Component {
 
@@ -23,8 +21,6 @@ class TaskFormModal extends Component {
     }
 
     _update = false; // update flag;
-
-
 
     componentWillReceiveProps(nextProps) {
         const newTask = nextProps.taskInfo
@@ -166,161 +162,163 @@ class TaskFormModal extends Component {
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
-        const isShowResource = createModel != DATA_SYNC_TYPE.SCRIPT;
+        
         return (
-            <Modal
-                title={title}
-                wrapClassName="vertical-center-modal"
-                visible={visible}
-                onOk={this.submit}
-                onCancel={this.cancle}
-            >
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="任务名称"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('name', {
-                            rules: [{
-                                required: true, message: '任务名称不可为空！',
-                            }, {
-                                pattern: /^[A-Za-z0-9_-]+$/,
-                                message: '任务名称只能由字母、数字、下划线组成!',
-                            }, {
-                                max: 64,
-                                message: '任务名称不得超过64个字符！',
-                            }],
-                            initialValue: taskInfo ? taskInfo.name : '',
-                        })(
-                            <Input />,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="任务类型"
-                    >
-                        {getFieldDecorator('taskType', {
-                            rules: [],
-                            initialValue: taskInfo.taskType || 0,
-                        })(
-                            <RadioGroup onChange={this.taskTypeChange} disabled={isEdit}>
-                                {taskRadios}
-                            </RadioGroup>,
-                        )}
-                    </FormItem>
-                    {isDataCollection && (
+            <div id="JS_task_modal">
+                <Modal
+                    title={title}
+                    visible={visible}
+                    onOk={this.submit}
+                    onCancel={this.cancle}
+                    getContainer={() => getContainer('JS_task_modal')}
+                >
+                    <Form>
                         <FormItem
                             {...formItemLayout}
-                            label="配置模式"
+                            label="任务名称"
+                            hasFeedback
                         >
-                            {getFieldDecorator('createModel', {
-                                rules: [],
-                                initialValue: createModel,
+                            {getFieldDecorator('name', {
+                                rules: [{
+                                    required: true, message: '任务名称不可为空！',
+                                }, {
+                                    pattern: /^[A-Za-z0-9_-]+$/,
+                                    message: '任务名称只能由字母、数字、下划线组成!',
+                                }, {
+                                    max: 64,
+                                    message: '任务名称不得超过64个字符！',
+                                }],
+                                initialValue: taskInfo ? taskInfo.name : '',
                             })(
-                                <RadioGroup onChange={
-                                    (e) => {
-                                        this.setState({ createModel: e.target.value })
-                                    }
-                                } disabled={isEdit}>
-                                    <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-                                    <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+                                <Input />,
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="任务类型"
+                        >
+                            {getFieldDecorator('taskType', {
+                                rules: [],
+                                initialValue: taskInfo.taskType || 0,
+                            })(
+                                <RadioGroup onChange={this.taskTypeChange} disabled={isEdit}>
+                                    {taskRadios}
                                 </RadioGroup>,
                             )}
                         </FormItem>
-                    )}
-                    {!isDataCollection && (
+                        {isDataCollection && (
+                            <FormItem
+                                {...formItemLayout}
+                                label="配置模式"
+                            >
+                                {getFieldDecorator('createModel', {
+                                    rules: [],
+                                    initialValue: createModel,
+                                })(
+                                    <RadioGroup onChange={
+                                        (e) => {
+                                            this.setState({ createModel: e.target.value })
+                                        }
+                                    } disabled={isEdit}>
+                                        <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+                                        <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+                                    </RadioGroup>,
+                                )}
+                            </FormItem>
+                        )}
+                        {!isDataCollection && (
+                            <FormItem
+                                {...formItemLayout}
+                                label="资源"
+                            >
+                                {getFieldDecorator('resourceIdList', {
+                                    rules: [{
+                                        required: taskType === 1,
+                                        message: '请选择资源！',
+                                    },
+                                    {
+                                        validator: this.checkNotDir.bind(this)
+                                    }],
+                                    initialValue: defaultRes,
+                                })(
+                                    <FolderPicker
+                                        isPicker
+                                        id="resourceIdList"
+                                        placeholder="请选择资源"
+                                        onChange={this.onChangeResList}
+                                        multiple={taskType !== 1}
+                                        treeData={resRoot}
+                                        loadData={ayncTree}
+                                    />
+                                )}
+                            </FormItem>
+                        )}
                         <FormItem
                             {...formItemLayout}
-                            label="资源"
+                            label="mainClass"
+                            style={{ display: taskType === 1 ? 'block' : 'none' }}
                         >
-                            {getFieldDecorator('resourceIdList', {
+                            {getFieldDecorator('mainClass', {
                                 rules: [{
                                     required: taskType === 1,
-                                    message: '请选择资源！',
-                                },
-                                {
-                                    validator: this.checkNotDir.bind(this)
+                                    message: '请输入mainClass'
                                 }],
-                                initialValue: defaultRes,
+                                initialValue: taskInfo && taskInfo.mainClass,
+                            })(
+                                <Input placeholder="请输入mainClass" />,
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="参数"
+                            style={{ display: taskType === 1 ? 'block' : 'none' }}
+                        >
+                            {getFieldDecorator('exeArgs', {
+                                rules: [{}],
+                                initialValue: taskInfo && taskInfo.exeArgs,
+                            })(
+                                <Input placeholder="请输入任务参数" />,
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="选择存储位置"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('nodePid', {
+                                rules: [{
+                                    required: true, message: '必须选择存储位置！',
+                                }],
+                                initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : taskRoot && taskRoot[0] ? taskRoot[0].id : '',
                             })(
                                 <FolderPicker
+                                    id="nodePid"
+                                    placeholder="请选择存储位置"
                                     isPicker
-                                    id="resourceIdList"
-                                    placeholder="请选择资源"
-                                    onChange={this.onChangeResList}
-                                    multiple={taskType !== 1}
-                                    treeData={resRoot}
+                                    isFolderPicker
+                                    treeData={taskRoot}
                                     loadData={ayncTree}
                                 />
                             )}
                         </FormItem>
-                    )}
-                    <FormItem
-                        {...formItemLayout}
-                        label="mainClass"
-                        style={{ display: taskType === 1 ? 'block' : 'none' }}
-                    >
-                        {getFieldDecorator('mainClass', {
-                            rules: [{
-                                required: taskType === 1,
-                                message: '请输入mainClass'
-                            }],
-                            initialValue: taskInfo && taskInfo.mainClass,
-                        })(
-                            <Input placeholder="请输入mainClass" />,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="参数"
-                        style={{ display: taskType === 1 ? 'block' : 'none' }}
-                    >
-                        {getFieldDecorator('exeArgs', {
-                            rules: [{}],
-                            initialValue: taskInfo && taskInfo.exeArgs,
-                        })(
-                            <Input placeholder="请输入任务参数" />,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="选择存储位置"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('nodePid', {
-                            rules: [{
-                                required: true, message: '必须选择存储位置！',
-                            }],
-                            initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : taskRoot && taskRoot[0] ? taskRoot[0].id : '',
-                        })(
-                            <FolderPicker
-                                id="nodePid"
-                                placeholder="请选择存储位置"
-                                isPicker
-                                isFolderPicker
-                                treeData={taskRoot}
-                                loadData={ayncTree}
-                            />
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="描述"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('taskDesc', {
-                            rules: [{
-                                max: 200,
-                                message: '描述请控制在200个字符以内！',
-                            }],
-                            initialValue: taskInfo ? taskInfo.taskDesc : '',
-                        })(
-                            <Input type="textarea" rows={4} />,
-                        )}
-                    </FormItem>
-                </Form>
-            </Modal>
+                        <FormItem
+                            {...formItemLayout}
+                            label="描述"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('taskDesc', {
+                                rules: [{
+                                    max: 200,
+                                    message: '描述请控制在200个字符以内！',
+                                }],
+                                initialValue: taskInfo ? taskInfo.taskDesc : '',
+                            })(
+                                <Input type="textarea" rows={4} />,
+                            )}
+                        </FormItem>
+                    </Form>
+                </Modal>
+            </div>
         )
     }
 }

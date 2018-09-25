@@ -91,7 +91,7 @@ export default class FullScreenButton extends Component {
     render() {
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
-
+        
         return (
             <KeyCombiner onTrigger={this.keyPressFullScreen} keyMap={{
                 70: true,
@@ -99,7 +99,11 @@ export default class FullScreenButton extends Component {
                 16: true,
             }}>
                 <Button {...this.props} onClick={this.fullScreen}>
-                    <MyIcon className="my-icon" type={iconType} />
+                    <MyIcon 
+                        className="my-icon" 
+                        type={iconType} 
+                        themeDark={this.props.themeDark}
+                    />
                     {title}
                 </Button>
             </KeyCombiner>
