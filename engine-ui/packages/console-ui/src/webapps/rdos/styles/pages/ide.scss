@@ -45,7 +45,7 @@
             width: 100%;
             height: 100%;
         }
-        .ant-tabs-bar .ant-tabs-tab-active{
+        .ant-tabs-bar .ant-tabs-tab-active {
             background: #fff;
             &:after{
                 content:"";
@@ -145,6 +145,7 @@
                         border: none;
                         width: 100%;
                         text-indent: 5px;
+                        background: inherit;
                     }
                 }
             }

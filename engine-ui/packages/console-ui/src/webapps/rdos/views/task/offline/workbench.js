@@ -178,7 +178,7 @@ class Workbench extends React.Component {
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const isTest= project.projectType==PROJECT_TYPE.TEST;
+        const isTest= project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
 
@@ -257,8 +257,8 @@ class Workbench extends React.Component {
                                 disabled={disablePublish}
                                 onClick={this.showPublish.bind(this)}
                             >
-                                <Icon type="upload" style={{ color: "#000" }} themeDark={themeDark}/>提交
-                        </Button>
+                                <Icon type="upload" themeDark={themeDark}/>提交
+                            </Button>
                         </Tooltip>
                         {isTest && <Tooltip
                             placement="bottom"
@@ -270,7 +270,7 @@ class Workbench extends React.Component {
                                 onClick={this.toPublishView.bind(this)}
                             >
                                 <MyIcon className="my-icon" type="fly" themeDark={themeDark}/>发布
-                        </Button>
+                            </Button>
                         </Tooltip>}
                     </span>)}
 

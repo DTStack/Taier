@@ -179,7 +179,7 @@ class TableTree extends React.Component {
 
                 </div>
                 {
-                    tableId && <div className="tb-info bd-top">
+                    tableId && <div className="tb-info">
                         <TableInfoPane tableId={tableId} />
                     </div>
                 }

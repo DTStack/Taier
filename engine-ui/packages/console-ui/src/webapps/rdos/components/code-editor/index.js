@@ -27,7 +27,6 @@ class CodeEditor extends Component {
         const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
-        console.log(options)
         const instance = this.getCodeMirrorIns()
         const { 
             value, onChange, onFocus, cursor,

@@ -51,7 +51,6 @@
     position: absolute;
 }
 
-
 .pointer {
     cursor: pointer;
 }
@@ -211,4 +210,15 @@
 }
 .table-row-color_level5{
     background: rgba(207, 207, 207, 0.5)
+}
+
+.mask-lock-layer {
+    position: absolute;
+    top: 48;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: not-allowed;
 }
