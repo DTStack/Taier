@@ -228,8 +228,8 @@ public class FlinkClient extends AbsClient {
         JobClient jobClient = jobClientThreadLocal.get();
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
-            final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
+            final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
             try {
@@ -575,7 +575,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public EngineResourceInfo getAvailSlots() {
 
-        if(!isClientOn.get()){
+        /*if(!isClientOn.get()){
             return null;
         }
 
@@ -586,7 +586,69 @@ public class FlinkClient extends AbsClient {
             resourceInfo = new FlinkResourceInfo();
         }
 
+        return resourceInfo;*/
+        FlinkPerJobResourceInfo resourceInfo = new FlinkPerJobResourceInfo();
+        try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            if (acceptedApps.size() > flinkConfig.getYarnAccepterTaskNumber()) {
+                return resourceInfo;
+            }
+            List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
+            int containerLimit = 0;
+            float capacity = 1;
+            if (!flinkConfig.getElasticCapacity()){
+                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            }
+            resourceInfo.setCapacity(capacity);
+            for(NodeReport report : nodeReports){
+                Resource capability = report.getCapability();
+                Resource used = report.getUsed();
+                int totalMem = capability.getMemory();
+                int totalCores = capability.getVirtualCores();
+
+                int usedMem = used.getMemory();
+                int usedCores = used.getVirtualCores();
+
+                Map<String, Object> workerInfo = Maps.newHashMap();
+                workerInfo.put(FlinkPerJobResourceInfo.CORE_TOTAL_KEY, totalCores);
+                workerInfo.put(FlinkPerJobResourceInfo.CORE_USED_KEY, usedCores);
+                workerInfo.put(FlinkPerJobResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+
+                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_TOTAL_KEY, totalMem);
+                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_USED_KEY, usedMem);
+                int free = totalMem - usedMem;
+                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_FREE_KEY, free);
+
+                if (free > containerLimit) {
+                    containerLimit = free;
+                }
+
+                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+            }
+            resourceInfo.setContainerLimit(containerLimit);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return resourceInfo;
+    }
+
+    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+        float capacity = 0;
+        for (QueueInfo queueInfo : queueInfos){
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+            }
+            if (flinkConfig.getQueue().equals(queueInfo.getQueueName())){
+                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity>0){
+                return capacity;
+            }
+        }
+        return capacity;
     }
 
     @Override

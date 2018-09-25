@@ -226,16 +226,16 @@ public class FlinkConfig {
         this.flinkJarPath = flinkJarPath;
     }
 
-    public String getElasticCapacity() {
-        return elasticCapacity;
+    public boolean getElasticCapacity() {
+        return StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
     }
 
     public void setElasticCapacity(String elasticCapacity) {
         this.elasticCapacity = elasticCapacity;
     }
 
-    public String getYarnAccepterTaskNumber() {
-        return yarnAccepterTaskNumber;
+    public int getYarnAccepterTaskNumber() {
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 2: NumberUtils.toInt(yarnAccepterTaskNumber,2);
     }
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {

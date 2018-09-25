@@ -37,7 +37,7 @@ public class YarnAppStatusMonitor implements Runnable, AutoCloseable {
 
     private ScheduledFuture<?> applicationStatusUpdateFuture;
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient, ScheduledExecutorService executorService) {
+    public /**/YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient, ScheduledExecutorService executorService) {
         this.flinkClient = flinkClient;
         this.yarnClient = yarnClient;
         try {
