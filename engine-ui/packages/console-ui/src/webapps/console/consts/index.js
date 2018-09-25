@@ -8,7 +8,7 @@ export const DATA_SOURCE = {
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
-    ADS:11
+    ADSMAXCOMPUTE:11
 }
 
 export const API_MODE = {
