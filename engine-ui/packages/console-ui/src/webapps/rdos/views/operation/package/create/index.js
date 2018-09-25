@@ -67,10 +67,27 @@ class PackageCreate extends React.Component {
     }
 
     componentDidMount() {
+        this.initComponent();
+    }
+    initComponent(){
+        this.setState({
+            selectedRowKeys: [],
+            selectedRows: [],
+            addLinkModalData: {},
+        })
         this.props.getTaskTypes();
         this.props.realtimeGetTaskTypes();
         this.getTaskList();
         this.getUsers();
+    }
+    componentWillReceiveProps(nextProps) {
+        const {project={}} = nextProps;
+        const {old_project={}} = this.props;
+        if(old_project.id!=project.id){
+           setTimeout(()=>{
+               this.initComponent();
+           },100)
+        }
     }
     getUsers() {
         const { project } = this.props;
