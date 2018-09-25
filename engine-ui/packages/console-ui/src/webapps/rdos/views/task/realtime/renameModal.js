@@ -3,6 +3,7 @@ import {
     Form, Input, Modal,
  } from 'antd'
 
+ import { getContainer } from 'funcs';
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
@@ -24,11 +25,13 @@ class RenameModal extends Component {
         const { data, visible, handCancel } = this.props
         const { getFieldDecorator } = this.props.form
         return (
+            <div id="JS_rename_modal">
             <Modal
               title="重命名"
               visible={visible}
               onOk={this.submit}
               onCancel={handCancel}
+              getContainer={() => getContainer('JS_rename_modal')}
             >
                 <Form>
                     <FormItem
@@ -47,6 +50,7 @@ class RenameModal extends Component {
                     </FormItem>
                 </Form>
             </Modal>
+            </div>
         )
     }
 }

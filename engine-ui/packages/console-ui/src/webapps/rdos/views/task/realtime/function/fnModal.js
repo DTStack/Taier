@@ -1,17 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { 
-    Modal, Button, Form,
-    Icon, Input, Select, Radio,
+    Modal, Button, Form, Input, Radio,
 } from 'antd';
 import { isEmpty }  from 'lodash';
 
-import ajax from '../../../../api';
+import { getContainer } from 'funcs';
 import { formItemLayout, MENU_TYPE } from '../../../../comm/const';
 
 import FolderPicker from '../folderTree';
 const FormItem = Form.Item;
-const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class FnForm extends React.Component {
@@ -265,7 +262,7 @@ class FnModal extends React.Component {
             return item.catalogueType === MENU_TYPE.COSTOMFUC
         })
         return (
-            <div>
+            <div id="JS_create_func">
                 <Modal
                     title="创建函数"
                     visible={ visible }
@@ -274,6 +271,7 @@ class FnModal extends React.Component {
                         <Button key="submit" type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
                     ]}
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_create_func')}
                 >
                     <FnFormWrapper
                         ref={el => this.form = el}

@@ -1,9 +1,8 @@
 import React from 'react';
 import { isEmpty }  from 'lodash';
-import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select } from 'antd';
+import { Modal, Button, Form, Input } from 'antd';
 
-import ajax from '../../../../api';
+import { getContainer } from 'funcs';
 import { MENU_TYPE, formItemLayout } from '../../../../comm/const';
 
 import {
@@ -14,7 +13,6 @@ import {
 import FolderPicker from '../folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class FnMoveForm extends React.Component {
     constructor(props) {
@@ -112,7 +110,7 @@ class FnMoveModal extends React.Component {
         })
 
         return (
-            <div>
+            <div id="JS_func_modal">
                 <Modal
                     title="移动函数"
                     visible={ visible }
@@ -121,6 +119,7 @@ class FnMoveModal extends React.Component {
                         <Button key="submit" type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
                     ]}
                     onCancel={this.handleCancel}
+                    getContainer={() => getContainer('JS_func_modal')}
                 >
                     <FnMoveFormWrapper
                         ref={el => this.form = el}
