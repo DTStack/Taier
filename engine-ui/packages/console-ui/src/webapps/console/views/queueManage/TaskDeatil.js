@@ -2,11 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-<<<<<<< HEAD
-* @Last Modified time: 2018-09-25 15:00:08
-=======
 * @Last Modified time: 2018-09-25 13:17:41
->>>>>>> 930_console
 */
 
 import React, { Component } from 'react';

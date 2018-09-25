@@ -2,11 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-<<<<<<< HEAD
-* @Last Modified time: 2018-09-25 15:00:44
-=======
 * @Last Modified time: 2018-09-25 14:24:11
->>>>>>> 930_console
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
