@@ -2,7 +2,11 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-21 11:49:55
+<<<<<<< HEAD
+* @Last Modified time: 2018-09-25 15:00:44
+=======
+* @Last Modified time: 2018-09-25 14:24:11
+>>>>>>> 930_console
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
@@ -116,7 +120,7 @@ class QueueManage extends Component {
 				}
 			},
 			{
-				title: "group",
+				title: "group名称",
 				dataIndex: "groupName",
 				render(text,record) {
 					return record.groupName;
@@ -127,7 +131,8 @@ class QueueManage extends Component {
 				dataIndex: "headWait",
 				sorter: true,
 				render(text,record) {
-          			return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
+          			// return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
+          			return record.generateTime
           		},
           		sorter: (a,b) => a.generateTime - b.generateTime
 			},
