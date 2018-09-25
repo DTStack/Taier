@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-21 18:19:33
+* @Last Modified time: 2018-09-25 13:17:41
 */
 
 import React, { Component } from 'react';
@@ -11,8 +11,8 @@ import moment from "moment";
 import ViewDetail from '../../components/ViewDetail';
 import KillTask from '../../components/KillTask';
 import Reorder from '../../components/Reorder';
+import Resource from '../../components/Resource'
 import Api from "../../api/console";
-
 
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
@@ -30,6 +30,16 @@ class TaskDeatil extends Component {
 	        	"executionSequence": 2, "clusterName": "clusterName2", 
 	        	"engine": "Flink1.4", "groupName": "groupName2", "tenement": "dtstack租户", 
 	        	"taskName": "jobName2", "state": "等待提交2", "submissionTime": "", "beenWaiting": "2分钟"
+	        },
+	        {
+	        	"executionSequence": 3, "clusterName": "clusterName1", 
+	        	"engine": "Spark2.1", "groupName": "groupName1", "tenement": "dtstack租户", 
+	        	"taskName": "jobName1", "state": "等待提交1", "submissionTime": "", "beenWaiting": "12分钟"
+	        },
+	        {
+	        	"executionSequence": 4, "clusterName": "clusterName2", 
+	        	"engine": "Flink1.4", "groupName": "groupName2", "tenement": "dtstack租户", 
+	        	"taskName": "jobName2", "state": "等待提交2", "submissionTime": "", "beenWaiting": "2分钟"
 	        }
 		],
         // dataSource: [],
@@ -41,10 +51,14 @@ class TaskDeatil extends Component {
         TaskList: [],
         computeType: "batch",
         jobName: "",
+        // 剩余资源
+        isShowResource: false,
         // 查看详情
         isShowViewDetail: false,
         // 杀任务
         isShowKill: false,
+        // 让点击杀任务背景变红
+        isBgc: true,
         // 一键展现此任务所在group下的所有任务
         isShowAll: false,
         isShowReorder: false
@@ -88,7 +102,6 @@ class TaskDeatil extends Component {
     		return <Option value={item}>{item}</Option>
     	})
    	}
-
 
    	// 根据任务名搜索任务
    	searchTaskList() {
@@ -153,27 +166,15 @@ class TaskDeatil extends Component {
 			},
 			{
 				title: "集群",
-				dataIndex: "clusterName",
-				filters: [
-			        { text: 'Joe', value: 'Joe' },
-			        { text: 'Jim', value: 'Jim' },
-			    ]
+				dataIndex: "clusterName"
 			},
 			{
 				title: "引擎",
-				dataIndex: "engine",
-				filters: [
-			        { text: 'Joe', value: 'Joe' },
-			        { text: 'Jim', value: 'Jim' },
-			    ]
+				dataIndex: "engine"
 			},
 			{
-				title: "group",
-				dataIndex: "groupName",
-				filters: [
-			        { text: 'Joe', value: 'Joe' },
-			        { text: 'Jim', value: 'Jim' },
-			    ]
+				title: "队列名称",
+				dataIndex: "groupName"
 			},
 			{
 				title: "租户",
@@ -199,6 +200,17 @@ class TaskDeatil extends Component {
 		]
 	}
 
+	// 剩余资源
+	handleClickResource() {
+		this.setState({
+			isShowResource: true
+		})
+	}
+	handleCloseResource() {
+		this.setState({
+			isShowResource: false
+		})
+	}
 	// 查看详情
 	viewDetails() {
 		this.setState({
@@ -247,12 +259,17 @@ class TaskDeatil extends Component {
 		
 	}
 	render() {
+		const { isShowResource, isShowViewDetail, isShowKill, isShowReorder } = this.state;
 		const columns = this.initTableColumns();
 		const { dataSource, table } = this.state;
 		const { loading } = table;
 		const isShowAll = this.state.isShowAll ? "inline-block" : "none";
 		const style = {
 			display: isShowAll
+		}
+		const isBgc = this.state.isBgc ?"red" : "none";
+		const taskBgc = {
+			background: isBgc
 		}
 		return (
 			<div>
@@ -281,9 +298,34 @@ class TaskDeatil extends Component {
 						}
 					</Select>
 					<span style={style}>查找此任务所在<a>group</a>的所有任务</span>
+					<div style={{float: "right"}}>
+						<Button type="primary" style={{marginRight: "9px"}} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
+						<Button>刷新</Button>
+					</div>
 				</div>
+				<div className="select">
+					集群:
+					<Select
+						placeholder="请选择集群"
+						style={{width: "150px",marginRight: "10px"}} 
+					>
 
-
+					</Select>
+					引擎:
+					<Select
+						placeholder="请选择集群"
+						style={{width: "150px",marginRight: "10px"}} 
+					>
+						
+					</Select>
+					group:
+					<Select
+						placeholder="请选择集群"
+						style={{width: "150px",marginRight: "10px"}} 
+					>
+						
+					</Select>
+				</div>
 				<Table
 					rowKey={(record) => {
 	                    return record.dataIndex
@@ -296,21 +338,27 @@ class TaskDeatil extends Component {
 					columns={columns}
 					footer={() => {
 						return (
-							<div>任务总数<span>12</span>个</div>
+							<div style={{lineHeight: "40px",paddingLeft: "18px"}}>
+								任务总数<span>12</span>个
+							</div>
 						)
 					}}
 				/>
-				
+				<Resource
+					visible={isShowResource}
+					onCancel={this.handleCloseResource.bind(this)}
+				/>
 				<ViewDetail
-					visible={this.state.isShowViewDetail}
+					visible={isShowViewDetail}
 					onCancel={this.handleCloseViewDetail.bind(this)}
 				/>
 				<KillTask
-					visible={this.state.isShowKill}
+					visible={isShowKill}
 					onCancel={this.handleCloseKill.bind(this)}
+					
 				/>
 				<Reorder
-					visible={this.state.isShowReorder}
+					visible={isShowReorder}
 					onCancel={this.handleCloseReorder.bind(this)}
 				/>
 			</div>	

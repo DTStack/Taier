@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:32:11
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-21 14:59:00
+* @Last Modified time: 2018-09-25 11:32:07
 */
 
 // 最外层背景
@@ -18,17 +18,17 @@
 	margin-top: 20px;
 }
 
-
 // 按任务搜索input框
 .task-search {
     width: 150px;
     margin-right: 15px;
 }
 // 下拉框
-// .select {
-// 	overflow: hidden;
-// 	margin-top: 20px;
-// }
+.select {
+	overflow: hidden;
+	margin-left: 20px;
+	// margin-top: 20px;
+}
 // .select-item {
 // 	float: left;
 // 	margin-left:20px;
