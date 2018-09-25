@@ -289,7 +289,7 @@ class RealTimeTaskList extends Component {
                 }
 
                 if(record.taskType==TASK_TYPE.DATA_COLLECTION){
-                    normal=normal=="停止"?normal:null;
+                    normal=normal=="重试"?null:normal;
                     recover=null;
                 }
                 return (

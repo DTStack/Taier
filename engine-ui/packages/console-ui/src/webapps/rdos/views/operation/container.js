@@ -28,9 +28,10 @@ class Container extends Component {
         this.props.dispatch(getTaskTypes());
     }
     componentWillReceiveProps(nextProps){
-        const {project} = nextProps;
-        const {old_project} = this.props;
+        const {project={}} = nextProps;
+        const {project:old_project={}} = this.props;
         if(old_project.id!=project.id){
+            console.log(old_project.id,project.id)
             this.initUsers(project);
         }
     }
