@@ -292,10 +292,24 @@ class Workbench extends React.Component {
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}
-                                onClick={({ key }) => closeAllorOthers(key, tabs, currentTab)}
                             >
-                                <Menu.Item key="OHTERS">关闭其他</Menu.Item>
-                                <Menu.Item key="ALL">关闭所有</Menu.Item>
+                                <Menu.Item  key="OHTERS">
+                                <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
+                                </Menu.Item>
+                                <Menu.Item key="ALL">
+                                <a onClick={() => closeAllorOthers("ALL", tabs, currentTab)} >关闭所有</a>
+                                </Menu.Item>
+                                <Menu.Divider />
+                                {tabs.map((tab)=>{
+                                    return <Menu.Item key={tab.id} >
+                                    <a 
+                                    onClick={this.switchTab.bind(this,currentTab,tab.id)}
+                                    style={tab.id==currentTab?{color:"#2491F7"}:{}}
+                                    >
+                                    {tab.name}
+                                    </a>
+                                    </Menu.Item>
+                                })}
                             </Menu>
                         }>
                             <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18, }} />
