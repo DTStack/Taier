@@ -36,10 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.InetSocketAddress;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 /**
  * 根据不同的配置创建对应的client
@@ -262,23 +261,32 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), newConf, yarnConf, ".");
         String flinkJarPath = null;
-        File flinkLib = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
                 throw new RdosException("The Flink jar path is not exist");
             }
             flinkJarPath = flinkConfig.getFlinkJarPath();
         }
+        List<URL> classpaths = new ArrayList<URL>();
         if (flinkJarPath != null) {
-            clusterDescriptor.setLocalJarPath(new Path(flinkJarPath));
+            File[] jars = new File(flinkJarPath).listFiles();
+            for (File file : jars){
+                if (file.toURI().toURL().toString().contains("flink-dist")){
+                    clusterDescriptor.setLocalJarPath(new Path(file.toURI().toURL().toString()));
+                } else {
+                    classpaths.add(file.toURI().toURL());
+                }
+            }
         } else {
             throw new RdosException("The Flink jar path is null");
         }
+        clusterDescriptor.setProvidedUserJarFiles(classpaths);
+
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }

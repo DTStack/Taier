@@ -13,7 +13,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <flink.version>1.5.0</flink.version>
+        <flink.version>1.5.4</flink.version>
     </properties>
 
     <dependencies>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
-            <version>1.5.0</version>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>
