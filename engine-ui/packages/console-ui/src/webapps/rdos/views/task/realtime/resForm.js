@@ -87,7 +87,6 @@ class ResFormModal extends Component {
             <div id="JS_res_modal">
                 <Modal
                     title={title}
-                    wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.submit}
                     onCancel={handCancel}

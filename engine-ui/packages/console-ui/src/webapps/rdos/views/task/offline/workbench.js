@@ -242,7 +242,7 @@ class Workbench extends React.Component {
                         <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
                         搜索
                     </Button>
-                    <FullScreenButton />
+                    <FullScreenButton themeDark={themeDark}/>
                 </Col>
 
                 {showPublish ? (<Col className="right">
