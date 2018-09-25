@@ -687,7 +687,12 @@ class PackageCreate extends React.Component {
                         <div className="tool-bottom">
                             <Button onClick={this.clearSelect.bind(this)} className="clear" size="small">清空</Button>
                             <div className="pagn">
-                                <Pagination onChange={this.changeRightPage.bind(this)} size="small" {...pagination} total={selectedRows.length} />
+                                <Pagination 
+                                onChange={this.changeRightPage.bind(this)} 
+                                size="small" 
+                                maxShowPage={3}
+                                {...pagination} 
+                                total={selectedRows.length} />
                             </div>
                         </div>
                     </div>

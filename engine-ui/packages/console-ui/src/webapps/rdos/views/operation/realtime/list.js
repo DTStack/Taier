@@ -111,6 +111,7 @@ class RealTimeTaskList extends Component {
             case TASK_STATUS.WAIT_SUBMIT:
             case TASK_STATUS.STOPED:
             case TASK_STATUS.RUN_FAILED:
+            case TASK_STATUS.KILLED:
             case TASK_STATUS.SUBMIT_FAILED:{
                 if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
                     if(task.taskType==TASK_TYPE.DATA_COLLECTION){
@@ -264,6 +265,7 @@ class RealTimeTaskList extends Component {
                         popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
                         break;
                     case TASK_STATUS.STOPED:
+                    case TASK_STATUS.KILLED:
                         goOn = '续跑'
                         popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
                         recover = <a>重跑</a>
