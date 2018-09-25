@@ -50,7 +50,6 @@ class CataFormModal extends Component {
                 <Modal
                     title={title}
                     key={operation}
-                    wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.submit}
                     onCancel={handCancel}

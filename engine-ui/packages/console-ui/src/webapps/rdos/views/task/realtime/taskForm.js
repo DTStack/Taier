@@ -167,7 +167,6 @@ class TaskFormModal extends Component {
             <div id="JS_task_modal">
                 <Modal
                     title={title}
-                    wrapClassName="vertical-center-modal"
                     visible={visible}
                     onOk={this.submit}
                     onCancel={this.cancle}
