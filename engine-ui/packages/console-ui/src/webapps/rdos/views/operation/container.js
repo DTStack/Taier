@@ -24,10 +24,22 @@ class Container extends Component {
     };
 
     componentDidMount() {
-        this.props.dispatch(UserAction.getProjectUsers());
+        this.initUsers(this.props.project);
         this.props.dispatch(getTaskTypes());
     }
-
+    componentWillReceiveProps(nextProps){
+        const {project} = nextProps;
+        const {old_project} = this.props;
+        if(old_project.id!=project.id){
+            this.initUsers(project);
+        }
+    }
+    initUsers(project){
+        const {id} = project;
+        if(id){
+            this.props.dispatch(UserAction.getProjectUsers());
+        }
+    }
     onCollapse = (collapsed) => {
         this.setState({
             collapsed,
@@ -52,4 +64,8 @@ class Container extends Component {
 }
 Container.propTypes = propType
 Container.defaultProps = defaultPro
-export default connect()(Container)
+export default connect(state=>{
+    return {
+        project:state.project
+    }
+})(Container)
