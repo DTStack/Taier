@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import {
-    Form, Input, TreeSelect, Modal, Tree, Select
+    Form, Input, Modal,
  } from 'antd'
  import { isEmpty }  from 'lodash'
+
+ import { getContainer } from 'funcs';
 
 import { formItemLayout } from '../../../comm/const'
 import FolderPicker from './folderTree'
 
-const FormItem = Form.Item
-const TreeNode = TreeSelect.TreeNode;
-const Option = Select.Option;
+const FormItem = Form.Item;
 
 class CataFormModal extends Component {
 
@@ -46,54 +46,57 @@ class CataFormModal extends Component {
         }
 
         return (
-            <Modal
-              title={title}
-              key={operation}
-              wrapClassName="vertical-center-modal"
-              visible={visible}
-              onOk={this.submit}
-              onCancel={handCancel}
-            >
-                <Form>
-                    <FormItem
-                        {...formItemLayout}
-                        label="目录名称"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('nodeName', {
-                            rules: [{
-                                required: true, message: '目录名称不可为空！',
-                            }, {
-                                max: 20,
-                                message: '项目名称不得超过20个字符！',
-                            }],
-                            initialValue: isEdit ? defaultData.name : '',
-                        })(
-                            <Input />,
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
-                        label="选择存储位置"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('nodePid', {
-                            rules: [{
-                                required: true, message: '请您选择存储位置！',
-                            }],
-                            initialValue: savePath,
-                        })(
-                            <FolderPicker
-                                isPicker
-                                id="cataForm"
-                                isFolderPicker
-                                treeData={ treeData }
-                                loadData={ loadTreeData }
-                            />
-                        )}
-                    </FormItem>
-                </Form>
-            </Modal>
+            <div id="JS_cata_modal">
+                <Modal
+                    title={title}
+                    key={operation}
+                    wrapClassName="vertical-center-modal"
+                    visible={visible}
+                    onOk={this.submit}
+                    onCancel={handCancel}
+                    getContainer={() => getContainer('JS_cata_modal')}
+                >
+                    <Form>
+                        <FormItem
+                            {...formItemLayout}
+                            label="目录名称"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('nodeName', {
+                                rules: [{
+                                    required: true, message: '目录名称不可为空！',
+                                }, {
+                                    max: 20,
+                                    message: '项目名称不得超过20个字符！',
+                                }],
+                                initialValue: isEdit ? defaultData.name : '',
+                            })(
+                                <Input />,
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="选择存储位置"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('nodePid', {
+                                rules: [{
+                                    required: true, message: '请您选择存储位置！',
+                                }],
+                                initialValue: savePath,
+                            })(
+                                <FolderPicker
+                                    isPicker
+                                    id="cataForm"
+                                    isFolderPicker
+                                    treeData={ treeData }
+                                    loadData={ loadTreeData }
+                                />
+                            )}
+                        </FormItem>
+                    </Form>
+                </Modal>
+            </div>
         )
     }
 }
