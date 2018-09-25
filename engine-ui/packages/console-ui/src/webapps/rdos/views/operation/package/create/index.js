@@ -53,7 +53,8 @@ class PackageCreate extends React.Component {
         },
         pagination: {
             current: 1,
-            pageSize: 8
+            pageSize: 8,
+            total:0
         },
         listType: publishType.TASK,
         modifyUser: undefined,
@@ -177,7 +178,8 @@ class PackageCreate extends React.Component {
             this.setState({
                 pagination: {
                     current: Math.max(Math.ceil(count / pageSize), 1),
-                    pageSize
+                    pageSize,
+                    total:0
                 }
             })
         }
@@ -705,9 +707,9 @@ class PackageCreate extends React.Component {
                             <Button onClick={this.clearSelect.bind(this)} className="clear" size="small">清空</Button>
                             <div className="pagn">
                                 <Pagination 
+                                simple
                                 onChange={this.changeRightPage.bind(this)} 
                                 size="small" 
-                                maxShowPage={3}
                                 {...pagination} 
                                 total={selectedRows.length} />
                             </div>
