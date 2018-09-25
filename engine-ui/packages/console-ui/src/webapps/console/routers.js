@@ -20,7 +20,6 @@ import RoleEdit from 'main/views/admin/role/edit'
 
 // 数据API
 import Container from './views'
-import QueueManage from './views/queueManage'
 import ResourceManage from './views/resourceManage'
 import ClusterManage from "./views/clusterManage"
 import EditCluster from "./views/clusterManage/edit"
@@ -47,8 +46,7 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/console" component={ Container }>
-            <IndexRoute component={ QueueManage } />
-            <Route path="queueManage" component={QueueManage} />
+            <IndexRoute component={ ResourceManage } />
             <Route path="resourceManage" component={ ResourceManage } />
             <Route path="clusterManage" component={ClusterManage} />
             <Route path="clusterManage/editCluster" component={ EditCluster } />
