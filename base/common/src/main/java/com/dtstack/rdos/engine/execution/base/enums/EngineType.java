@@ -56,7 +56,7 @@ public enum EngineType {
         }
     }
 
-    public static EngineType getEngineType(int val) {
+    public static EngineType getEngineType(char val) {
         for (EngineType type : EngineType.values()) {
             if (type.val == val) {
                 return type;

@@ -34,7 +34,7 @@
     </update>
 
     <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
-        update rdos_engine_stream_job set gmt_modified=now(),status=#{status} where task_id=#{taskId} and status=#{oldStatus};
+        update rdos_engine_stream_job set gmt_modified=now(),status=#{status},task_name=#{taskName} where task_id=#{taskId} and status=#{oldStatus};
     </update>
 
     <update id="updateTaskPluginId" parameterType="java.util.HashMap">

@@ -13,4 +13,9 @@ public class Python2Type extends AppType {
         return StringUtils.isNotBlank(python) ? python : "python";
     }
 
+    @Override
+    public String name() {
+        return "PYTHON2";
+    }
+
 }

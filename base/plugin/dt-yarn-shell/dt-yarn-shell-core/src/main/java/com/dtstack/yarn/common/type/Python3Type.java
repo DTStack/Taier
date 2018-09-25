@@ -12,4 +12,9 @@ public class Python3Type extends AppType {
         return StringUtils.isNotBlank(python) ? python : "python3";
     }
 
+    @Override
+    public String name() {
+        return "PYTHON3";
+    }
+
 }

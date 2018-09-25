@@ -56,13 +56,13 @@ public class RdosEngineBatchJobDAO {
 		});
 	}
 
-	public Integer updateTaskStatusCompareOld(String jobId, Integer status, Integer oldStatus) {
+	public Integer updateTaskStatusCompareOld(String jobId, Integer status, Integer oldStatus,String jobName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
 			@Override
 			public Integer execute(SqlSession sqlSession) throws Exception {
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
-				return rdosTaskMapper.updateTaskStatusCompareOld(jobId, status,oldStatus);
+				return rdosTaskMapper.updateTaskStatusCompareOld(jobId, status,oldStatus, jobName);
 			}
 
 		});

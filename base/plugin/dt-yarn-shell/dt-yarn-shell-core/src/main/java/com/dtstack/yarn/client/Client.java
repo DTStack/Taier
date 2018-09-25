@@ -139,7 +139,7 @@ public class Client {
         ApplicationSubmissionContext applicationContext = newAPP.getApplicationSubmissionContext();
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
-        applicationContext.setApplicationType(clientArguments.appType.toString());
+        applicationContext.setApplicationType(clientArguments.appType.name());
         Path appJarSrc = new Path(clientArguments.appMasterJar);
         Path appJarDst = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.APP_MASTER_JAR);
         LOG.info("Copying " + appJarSrc + " to remote path " + appJarDst.toString());

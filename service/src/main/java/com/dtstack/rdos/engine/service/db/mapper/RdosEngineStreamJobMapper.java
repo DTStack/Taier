@@ -36,7 +36,7 @@ public interface RdosEngineStreamJobMapper {
 
 	void submitFail(@Param("taskId") String taskId,@Param("status") Integer status,@Param("submitLog") String s);
 
-	Integer updateTaskStatusCompareOld(@Param("taskId") String taskId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus);
+	Integer updateTaskStatusCompareOld(@Param("taskId") String taskId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("taskName") String taskName);
 
 	RdosEngineStreamJob getByName(@Param("taskName") String taskName);
 

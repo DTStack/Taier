@@ -142,7 +142,7 @@ public class ExeQueueMgr {
                     if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
                         return;
                     }
-                    cService.submit(new JobSubmitProcessor(jobClient, gq));
+                    cService.submit(new JobSubmitProcessor(jobClient, gq.getGroupName(), engineType));
                     semaphore.release();
                 }catch (Exception e){
                     LOG.error("", e);
@@ -154,7 +154,8 @@ public class ExeQueueMgr {
                 Future<JobSubmitProcessor> future = cService.take();
                 JobSubmitProcessor processor = future.get();
                 if (processor!=null){
-                    processor.getGq().remove(processor.getJobClient().getTaskId());
+                    EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(processor.getEngineType());
+                    engineTypeQueue.remove(processor.getGroupName(),processor.getJobClient().getTaskId());
                 }
             } catch (Exception e){
                 LOG.error("{}",e);

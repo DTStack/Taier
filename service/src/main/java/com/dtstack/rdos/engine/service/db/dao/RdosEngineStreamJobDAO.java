@@ -58,13 +58,13 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 
-	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus) {
+	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus,String taskName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
 			@Override
 			public Integer execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				return rdosTaskMapper.updateTaskStatusCompareOld(taskId, status, oldStatus);
+				return rdosTaskMapper.updateTaskStatusCompareOld(taskId, status, oldStatus, taskName);
 			}
 
 		});

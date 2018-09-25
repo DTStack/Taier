@@ -40,4 +40,6 @@ public abstract class AppType {
         }
     }
 
+    abstract public String name();
+
 }

@@ -223,7 +223,7 @@ public class ActionServiceImpl {
                     result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                     if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
                         int oldStatus = rdosEngineStreamJob.getStatus().intValue();
-                        Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus);
+                        Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus, paramAction.getName());
                         if (update==null||update!=1){
                             result = false;
                         }
@@ -244,7 +244,7 @@ public class ActionServiceImpl {
                     result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
                     if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
                         int oldStatus = rdosEngineBatchJob.getStatus().intValue();
-                        Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus);
+                        Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
                         if (update==null||update!=1){
                             result = false;
                         }

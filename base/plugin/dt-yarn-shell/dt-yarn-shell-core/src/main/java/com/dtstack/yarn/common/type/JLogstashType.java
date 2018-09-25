@@ -44,5 +44,10 @@ public class JLogstashType extends AppType {
 
     }
 
+    @Override
+    public String name() {
+        return "JLOGSTASH";
+    }
+
 
 }

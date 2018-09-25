@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.queue.GroupExeQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +21,13 @@ public class JobSubmitProcessor implements Callable<JobSubmitProcessor> {
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
     private JobClient jobClient;
-    private GroupExeQueue gq;
+    private String groupName;
+    private String engineType;
 
-    public JobSubmitProcessor(JobClient jobClient, GroupExeQueue gq) {
+    public JobSubmitProcessor(JobClient jobClient, String groupName, String engineType) {
         this.jobClient = jobClient;
-        this.gq = gq;
+        this.groupName = groupName;
+        this.engineType = engineType;
     }
 
     @Override
@@ -86,7 +87,12 @@ public class JobSubmitProcessor implements Callable<JobSubmitProcessor> {
         return jobClient;
     }
 
-    public GroupExeQueue getGq() {
-        return gq;
+    public String getGroupName() {
+        return groupName;
     }
+
+    public String getEngineType() {
+        return engineType;
+    }
+
 }
