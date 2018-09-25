@@ -22,7 +22,7 @@ const confirm = Modal.confirm;
 
     return {
         realTimeTabs: pages,
-        offlineTabs: workbench.tabs,
+        offlineTabs: workbench.tabs
     }
 })
 class Header extends Component {
@@ -127,12 +127,12 @@ class Header extends Component {
             routes.length > 0 && routes[1] !== "" ? routes[1] : "overview";
         if (
             path &&
-            (path.indexOf("task") > -1 || path.indexOf("offline") > -1)
+            (path.indexOf("task") > -1 || path.indexOf("offline") > -1|| path.indexOf("realtime") > -1)
         ) {
             this.setState({
                 devPath: pathname
             });
-            path = "realtime";
+            path="realtime"
         }
         if (path !== this.state.current) {
             this.setState({
