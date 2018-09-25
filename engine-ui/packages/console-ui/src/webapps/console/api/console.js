@@ -33,5 +33,27 @@ export default {
     },
     updateCluster(params){
         return http.postAsFormData(req.UPDATE_CLUSTER,params);
-    }
+    },
+
+    // 任务管理模块
+    // 概览-获取集群
+    getClusterDetail(params) {
+        return http.post(req.GET_CLUSTER_DETAIL,params);
+    },
+    // 概览-集群下拉列表
+    getClusterSelect(params) {
+        return http.post(req.GET_CLUSTER_SELECT,params);
+    },
+    // 明细-根据任务名搜索任务
+    searchTaskList(params) {
+        return http.post(req.SEARCH_TASKNAME_LIST,params);
+    },
+    // 明细-模糊查询任务名
+    searchTaskFuzzy(params) {
+        return http.post(req.SEARCH_TASKNAME_FUZZY,params);
+    },
+    // 明细-杀任务
+    killTask(params) {
+        return http.post(req.KILL_TASK,params);
+    },
 }

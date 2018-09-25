@@ -25,6 +25,11 @@ class Header extends Component {
         const baseUrl = '/console.html#/console'
 
         const menuItems = [{
+            id: 'queueManage',
+            name: '队列管理',
+            link: `${baseUrl}/queueManage`,
+            enable: true,
+        }, {
             id: 'resourceManage',
             name: '资源管理',
             link: `${baseUrl}/resourceManage`,
