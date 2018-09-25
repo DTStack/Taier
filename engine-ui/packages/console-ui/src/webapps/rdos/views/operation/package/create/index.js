@@ -453,6 +453,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.resourceType;
+                baseItem.modifyTime=row.gmtModified;
                 break;
             }
             case publishType.FUNCTION: {
@@ -461,6 +462,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.type;
+                baseItem.modifyTime=row.gmtModified;
                 break;
             }
             case publishType.TABLE: {
