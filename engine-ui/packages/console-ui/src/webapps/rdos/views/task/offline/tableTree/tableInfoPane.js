@@ -177,7 +177,6 @@ export default class TableInfoPane extends React.Component {
                                     return <TableCell style={{ minWidth: 80 }} value={text} />
                                 }
                             }))}
-                            bordered
                             rowKey="key"
                             pagination={{ simple: true, size: 'small' }}
                             dataSource={previewData}

@@ -344,7 +344,8 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [{
-                                required: true
+                                required: true,
+                                message: '请选择表',
                             }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                         })(
@@ -432,7 +433,8 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('table', {
                             rules: [{
-                                required: true
+                                required: true,
+                                message: '请选择表',
                             }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                         })(
