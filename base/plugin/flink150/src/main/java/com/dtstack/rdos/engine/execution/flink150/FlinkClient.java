@@ -35,11 +35,10 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
-import org.apache.flink.client.program.ProgramInvocationException;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.FlinkException;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -113,6 +112,8 @@ public class FlinkClient extends AbsClient {
     private FlinkYarnMode flinkYarnMode;
 
     private YarnClient yarnClient;
+
+    private List<String> jarPaths = new LinkedList<>();
 
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
@@ -230,6 +231,7 @@ public class FlinkClient extends AbsClient {
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
+            addJarsToJobGraph(jobGraph, flinkConfig.getFlinkPluginRoot() + "/sqlplugin");
             descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
             try {
@@ -250,6 +252,25 @@ public class FlinkClient extends AbsClient {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
             }
             return result.getJobID().toString();
+        }
+    }
+
+    private void addJarsToJobGraph(JobGraph jobGraph, String path){
+        listFiles(new File(path));
+        for (String jar : jarPaths){
+            jobGraph.addJar(new Path(jar));
+        }
+    }
+
+    private void listFiles(File file){
+        File[] fs = file.listFiles();
+        for(File f : fs){
+            if(f.isDirectory())	{
+                listFiles(f);
+            }
+            if(f.isFile()){
+                jarPaths.add(f.toURI().toString());
+            }
         }
     }
 
@@ -332,11 +353,20 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(String jobId) {
-        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
-        try{
-            client.cancel(jobID);
-        }catch (Exception e){
-            return JobResult.createErrorResult(e);
+        if (jobId.startsWith("application")){
+            try {
+                ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+                flinkClientBuilder.getYarnClient().killApplication(appId);
+            } catch (Exception e) {
+                return JobResult.createErrorResult(e);
+            }
+        } else {
+            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
+            try{
+                client.cancel(jobID);
+            }catch (Exception e){
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);
