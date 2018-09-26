@@ -482,6 +482,27 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    public E getIndexOrLast(int idx) {
+        if (idx <= 0){ return null;}
+        try {
+            allLock.lockInterruptibly();
+            int i = 1;
+            for (Node<E> pre = head,p = pre.next; p == null || i>=idx; pre=p,p = p.next,i++){
+                if (p != null){
+                    return p.item;
+                } else {
+                    return pre.item;
+                }
+            }
+            return null;
+        } catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(e.getCause());
+        } finally {
+            allLock.unlock();
+        }
+    }
+
     /**
      * 获取元素但是不移除
      * @return

@@ -77,6 +77,9 @@ public class ConsoleServiceImpl {
             JobClient theJobClient = new JobClient(paramAction);
             GroupPriorityQueue queue = workNode.getEngineTypeQueue(theJobClient.getEngineType());
             OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(theJobClient.getGroupName());
+            if (jobQueue == null) {
+                return null;
+            }
             int queueSize = jobQueue.size();
             JobClient theJob = jobQueue.getElement(jobId);
             if (theJob == null) {
@@ -91,9 +94,7 @@ public class ConsoleServiceImpl {
                 if (pageSize-- <= 0 && startIndex >= c) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-
-                    setJobFromDB(type, jobId, jobMap);
-
+                    setJobFromDB(type, jobClient.getTaskId(), jobMap);
                     jobMap.put("generateTime", jobClient.getGenerateTime());
                     topN.add(jobMap);
                 }
@@ -105,7 +106,7 @@ public class ConsoleServiceImpl {
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
-            logger.info("", e);
+            logger.error("{}", e);
         }
         return null;
     }
@@ -122,7 +123,7 @@ public class ConsoleServiceImpl {
                 return engineBatchJobDAO.listNames(jobName);
             }
         } catch (Exception e) {
-            logger.info("", e);
+            logger.error("{}", e);
         }
         return null;
     }
@@ -158,6 +159,78 @@ public class ConsoleServiceImpl {
             return groups;
         }
         return Collections.EMPTY_SET;
+    }
+
+    public Map<String, Object> groupDetail(@Param("engineType") String engineType,
+                                           @Param("groupName") String groupName,
+                                           @Param("pageSize") int pageSize,
+                                           @Param("currentPage") int currentPage) {
+        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
+        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+        try {
+            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
+            int queueSize = jobQueue.size();
+            List<Map<String, Object>> topN = new ArrayList<>();
+            Iterator<JobClient> jobIt = jobQueue.iterator();
+            int startIndex = pageSize * (currentPage - 1);
+            int c = 0;
+            while (jobIt.hasNext()) {
+                if (pageSize-- <= 0 && startIndex >= c) {
+                    JobClient jobClient = jobIt.next();
+                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
+                    setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
+                    jobMap.put("generateTime", jobClient.getGenerateTime());
+                    topN.add(jobMap);
+                }
+            }
+            Map<String, Object> result = new HashMap<>();
+            result.put("queueSize", queueSize);
+            result.put("jobId", null);
+            result.put("topN", topN);
+            return result;
+        } catch (Exception e) {
+            logger.error("{}", e);
+        }
+        return null;
+    }
+
+    public Boolean jobPriority(@Param("jobId") String jobId,
+                               @Param("engineType") String engineType,
+                               @Param("groupName") String groupName,
+                               @Param("jobIndex") int jobIndex) {
+
+        Preconditions.checkNotNull(engineType, "parameters of engineType is required");
+        Preconditions.checkNotNull(groupName, "parameters of groupName is required");
+        Preconditions.checkNotNull(jobId, "parameters of jobId is required");
+
+        try {
+            GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
+            OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
+            if (jobQueue == null) {
+                return false;
+            }
+            JobClient theJob = jobQueue.getElement(jobId);
+            if (theJob == null) {
+                return false;
+            }
+            JobClient idxJob = jobQueue.getIndexOrLast(jobIndex);
+            if (idxJob == null) {
+                return false;
+            }
+            if (theJob.getPriority() == idxJob.getPriority() &&
+                    theJob.getGenerateTime() == idxJob.getGenerateTime()) {
+                return true;
+            }
+            theJob.setPriority(idxJob.getPriority());
+            theJob.setGenerateTime(idxJob.getGenerateTime() - 1);
+            jobQueue.remove(theJob.getTaskId());
+            jobQueue.put(theJob);
+            return true;
+        } catch (Exception e) {
+            logger.error("{}", e);
+        }
+        return false;
     }
 
     private void setJobFromDB(ComputeType computeType, String jobId, Map<String, Object> jobMap) {
