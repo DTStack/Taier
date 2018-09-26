@@ -280,22 +280,25 @@ export const tableModelRules = [{
 // 16,17 等待运行
 export const taskStatusFilter = [{
     text: '等待提交',
-    value: 0,
+    value: TASK_STATUS.WAIT_SUBMIT,
 }, {
     text: '提交中',
-    value: 10,
+    value: TASK_STATUS.SUBMITTING,
+}, {
+    text: '提交失败',
+    value: TASK_STATUS.SUBMIT_FAILED,
 }, {
     text: '等待运行',
-    value: 16,
+    value: TASK_STATUS.WAIT_RUN,
 }, {
     text: '运行中',
-    value: 4,
+    value: TASK_STATUS.RUNNING,
 }, {
     text: '取消',
-    value: 7,
+    value: TASK_STATUS.STOPED,
 }, {
     text: '失败',
-    value: 8,
+    value: TASK_STATUS.RUN_FAILED,
 }]
 
 export const taskStatus = {

@@ -99,11 +99,11 @@ class PublishModal extends React.Component {
         }, {
             title: "类型",
             dataIndex: "itemType",
-            width:"60px",
-            render(text){
+            width:"100px",
+            render(text,record){
                 switch(text){
                     case publishType.TASK:{
-                        return "任务"
+                        return `${offlineTaskTypesMap.get(record.itemInnerType)}任务`
                     }
                     case publishType.RESOURCE:{
                         return "资源"
@@ -170,7 +170,7 @@ class PublishModal extends React.Component {
             <Modal
                 width={800}
                 visible={visible}
-                title="发布"
+                title={isPublish?'查看发布包':'创建发布包'}
                 footer={isPublish ? null : (
                     <span>
                         <Button onClick={this.props.onCancel}>取消</Button>

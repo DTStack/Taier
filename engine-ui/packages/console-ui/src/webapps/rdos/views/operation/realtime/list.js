@@ -103,9 +103,7 @@ class RealTimeTaskList extends Component {
         const ctx = this
         const current = this.state.current
         const status = task.status
-        const stopArr = [4, 16, 17, 11, 10];
-        const startArr = [0, 7, 8, 9];
-        const isRestore = status === 7 || status === 8 || status === 0 ? 1 : 0
+        const isRestore = status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED || status === TASK_STATUS.WAIT_SUBMIT ? 1 : 0
         
         switch(status){
             case TASK_STATUS.WAIT_SUBMIT:
@@ -113,7 +111,7 @@ class RealTimeTaskList extends Component {
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.KILLED:
             case TASK_STATUS.SUBMIT_FAILED:{
-                if (mode !== 'normal' && (status === 7 || status === 8)) { // 续跑
+                if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
                     if(task.taskType==TASK_TYPE.DATA_COLLECTION){
                         Api.startTask({
                             id: task.id,
@@ -324,7 +322,7 @@ class RealTimeTaskList extends Component {
         const { tasks, logInfo } = this.state
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 20,
         };
         return (
             <div className="box-1 m-card">

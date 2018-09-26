@@ -183,7 +183,7 @@ export default class ImportLocalData extends Component {
         const subArr = arr.slice(startLine - 1)
 
         this.setState({
-            data: subArr,
+            data: subArr||[],
             step: 'source',
             visible: true,
             originLineCount: data.length,

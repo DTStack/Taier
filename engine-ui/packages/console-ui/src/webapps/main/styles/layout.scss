@@ -1,6 +1,7 @@
 @import './const.scss';
 
 .container {
+    min-width: $minWidth;
     position: absolute;
     top: 50px;
     left: 0;
