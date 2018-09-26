@@ -324,7 +324,7 @@ class RealTimeTaskList extends Component {
         const { tasks, logInfo } = this.state
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 20,
         };
         return (
             <div className="box-1 m-card">

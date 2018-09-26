@@ -2,7 +2,7 @@ import React from "react";
 import {
     Card, Table, Form, Select,
     DatePicker, Input, Radio, Pagination,
-    Button, Icon, Checkbox
+    Button, Icon, Checkbox,notification
 } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
@@ -68,6 +68,15 @@ class PackageCreate extends React.Component {
     }
 
     componentDidMount() {
+        let test="test";
+        for(let i=0;i<20;i++){
+            test=test+"\n"+test;
+        }
+        notification.success({
+            message:"test",
+            description:test,
+            duration:20
+        })
         this.initComponent();
     }
     initComponent(){
