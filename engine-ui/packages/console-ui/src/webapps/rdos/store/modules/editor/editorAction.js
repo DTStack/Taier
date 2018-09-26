@@ -10,11 +10,7 @@ import { editorAction } from './actionTypes';
 import { createLinkMark } from "widgets/code-editor/utils"
 
 const INTERVALS = 1500;
-const EXCHANGE_STATUS = {
-    4: "running",
-    5: "success",
-    8: "fail"
-}
+
 //储存各个tab的定时器id，用来stop任务时候清楚定时任务
 const intervalsStore = {}
 //停止信号量，stop执行成功之后，设置信号量，来让所有正在执行中的网络请求知道任务已经无需再继续

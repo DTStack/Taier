@@ -203,7 +203,7 @@ export default class ImportTarget extends Component {
         const { formState, warning } = this.props;
         const { pagination } = this.state;
         const { columnMap } = formState;
-        const options = data ? data[0].map((item, index) => {
+        const options = data&&data.length ? data[0].map((item, index) => {
             return (
                 <Option key={`col-${index}`} value={item}>
                     {item}

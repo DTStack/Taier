@@ -277,6 +277,8 @@ export default class DataSourceModal extends Component {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.RDS:
+            case DATA_SOURCE.DB2:
             default: {
                 return [
                     <FormItem {...formItemLayout} label="JDBC URL" key="jdbcUrl" hasFeedback>
