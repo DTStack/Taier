@@ -2,7 +2,7 @@ import React from "react";
 import {
     Card, Table, Form, Select,
     DatePicker, Input, Radio, Pagination,
-    Button, Icon, Checkbox,notification
+    Button, Icon, Checkbox
 } from "antd";
 import moment from "moment";
 import { connect } from "react-redux";
@@ -69,14 +69,9 @@ class PackageCreate extends React.Component {
 
     componentDidMount() {
         let test="test";
-        for(let i=0;i<20;i++){
+        for(let i=0;i<18;i++){
             test=test+"\n"+test;
         }
-        notification.success({
-            message:"test",
-            description:test,
-            duration:20
-        })
         this.initComponent();
     }
     initComponent(){
@@ -248,7 +243,7 @@ class PackageCreate extends React.Component {
                                     this.showCreateModal();
                                 })
                         }
-                    }>发布</a>
+                    }>打包</a>
             )
         };
 
@@ -706,7 +701,7 @@ class PackageCreate extends React.Component {
                             发布到目标项目：{project.produceProject}
                         </div>
                         <div className="tool-top">
-                            待发布对象 <span className="publish-num">{selectedRows.length}</span>
+                            待打包对象 <span className="publish-num">{selectedRows.length}</span>
                             <Button disabled={selectedRows.length == 0} onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
                         </div>
                         <div className="main">

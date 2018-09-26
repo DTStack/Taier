@@ -170,7 +170,7 @@ class PublishModal extends React.Component {
             <Modal
                 width={800}
                 visible={visible}
-                title="发布"
+                title={isPublish?'查看发布包':'创建发布包'}
                 footer={isPublish ? null : (
                     <span>
                         <Button onClick={this.props.onCancel}>取消</Button>
