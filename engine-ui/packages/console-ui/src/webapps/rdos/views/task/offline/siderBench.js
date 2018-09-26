@@ -44,11 +44,8 @@ class SiderBench extends React.Component {
         if (activeKey === selected && expanded) {
             this.setState({ selected: '', expanded: false });
             this.SideBench.style.width = '30px'
-            this.SideBench.style.borderLeft = 'none'
         } else if (activeKey !== selected) {
             this.SideBench.style.width = '500px'
-            this.SideBench.style.borderLeft = '1px solid #dddddd';
-           
             this.setState({ selected: activeKey, expanded: true });
         }
     }
