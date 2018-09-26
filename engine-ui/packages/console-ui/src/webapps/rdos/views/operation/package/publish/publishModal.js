@@ -99,11 +99,11 @@ class PublishModal extends React.Component {
         }, {
             title: "类型",
             dataIndex: "itemType",
-            width:"60px",
-            render(text){
+            width:"100px",
+            render(text,record){
                 switch(text){
                     case publishType.TASK:{
-                        return "任务"
+                        return `${offlineTaskTypesMap.get(record.itemInnerType)}任务`
                     }
                     case publishType.RESOURCE:{
                         return "资源"
