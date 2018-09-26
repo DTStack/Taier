@@ -39,6 +39,12 @@ public class ApplicationContainerListener
 
     private volatile boolean failed = false;
 
+    public String getFailedMsg() {
+        return failedMsg;
+    }
+
+    private volatile String failedMsg = "";
+
     private final ApplicationContext applicationContext;
 
 
@@ -140,6 +146,7 @@ public class ApplicationContainerListener
                 oldEntity.setDtContainerStatus(status);
                 if(status == DtContainerStatus.FAILED && oldEntity.getAttempts() == maxAttempts) {
                     failed = true;
+                    failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
                 }
             }
         }

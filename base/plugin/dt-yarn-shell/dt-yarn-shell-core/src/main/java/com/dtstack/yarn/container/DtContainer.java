@@ -5,7 +5,9 @@ import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -129,8 +131,12 @@ public class DtContainer {
     }
 
 
-    private void reportFailedAndExit() {
+    private void reportFailedAndExit(String msg) {
+        if(StringUtils.isNotBlank(msg)) {
+            LOG.error("my error msg is: " + msg);
+        }
         Date now = new Date();
+        containerStatusNotifier.setContainerErrorMessage(msg);
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.FAILED);
 
@@ -141,6 +147,10 @@ public class DtContainer {
         Utilities.sleep(3000);
 
         System.exit(-1);
+    }
+
+    private void reportFailedAndExit() {
+        reportFailedAndExit("");
     }
 
     private void reportSucceededAndExit() {
@@ -205,9 +215,9 @@ public class DtContainer {
                 LOG.error("DtContainer run failed!");
                 container.reportFailedAndExit();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            container.reportFailedAndExit();
+            container.reportFailedAndExit(DebugUtil.stackTrace(e));
         }
         Utilities.sleep(3000);
     }
