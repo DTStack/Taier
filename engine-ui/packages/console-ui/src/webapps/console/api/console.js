@@ -56,4 +56,25 @@ export default {
     killTask(params) {
         return http.post(req.KILL_TASK,params);
     },
+
+    // 引擎列表
+    getEngineList(params) {
+        return http.post(req.GET_ENGINE_LIST,params);
+    },
+    // group列表
+    getGroupList(params) {
+        return http.post(req.GET_GROUP_LIST,params);
+    },
+    // 查看明细 和搜索条件
+    getViewDetail(params) {
+        return http.post(req.GET_VIEW_DETAIL,params);
+    },
+    // 顺序调整调整优先级
+    changeJobPriority(params) {
+        return http.post(req.CHANGE_JOB_PRIORITY,params);
+    },
+    // 查看剩余资源
+    getClusterResources(params) {
+        return http.post(req.GET_CLUSTER_RESOURCES,params);
+    }
 }

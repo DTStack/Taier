@@ -2,14 +2,17 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-25 14:24:11
+* @Last Modified time: 2018-09-26 19:21:24
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
 import moment from "moment";
+import utils from "utils"
+
 import Api from "../../api/console";
 import '../../styles/main.scss';
-import TaskDetail from './TaskDeatil';
+import TaskDetail from './taskDetail';
+
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;
@@ -21,7 +24,7 @@ class QueueManage extends Component {
             total: 0,
             loading: true
         },
-        activeKey: "1",
+        nowView: utils.getParameterByName("tab")||"overview",
         clusterList: [],
         clusterId: undefined,
         // 查看明细所需信息
@@ -68,7 +71,6 @@ class QueueManage extends Component {
     			this.setState({
     				clusterList: data || []
     			})
-    			
     		}
     	})
     }
@@ -128,7 +130,7 @@ class QueueManage extends Component {
 				sorter: true,
 				render(text,record) {
           			// return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
-          			return record.generateTime
+          			return record.waitTime
           		},
           		sorter: (a,b) => a.generateTime - b.generateTime
 			},
@@ -157,20 +159,34 @@ class QueueManage extends Component {
 	viewDetails(detailInfo) {
 		this.setState({
 			detailInfo: detailInfo,
-			activeKey: "2"
+			nowView: "detail"
+		},()=>{
+			this.props.router.push({
+			pathname:"/console/queueManage",
+			query:{
+				tab: 'detail'
+			}
+		});
 		})
 	}
 	// 面板切换
 	handleClick(e) {
 		this.setState({
-			activeKey: e
+			nowView: e
 		})
+		this.props.router.push({
+			pathname:"/console/queueManage",
+			query:{
+				tab: e
+			}
+		});
 	}
 	render() {
 		const columns = this.initTableColumns();
-		const { dataSource, table } = this.state;
+		const { dataSource, table, clusterList } = this.state;
+		const { detailInfo } = this.state;
 		const { loading } = table;
-		const activeKey = this.state.activeKey;
+		const {nowView} = this.state;
 		return (
 			<div className=" api-mine nobackground m-card height-auto m-tabs" style={{marginTop: "20px"}}>
 				<Card
@@ -181,10 +197,10 @@ class QueueManage extends Component {
 					<Tabs
 			            style={{overflow:"unset"}}
 			            animated={false}
-			            activeKey={activeKey}
 			            onChange={this.handleClick.bind(this)}
+			            activeKey={nowView}
 			            >
-		                <Tabs.TabPane tab="概览" key="1">
+		                <Tabs.TabPane tab="概览" key="overview">
 		                   <div style={{margin: "20px"}}>
 		                   		集群: <Select style={{ width: 150 }}
 		                   		placeholder="选择集群"
@@ -209,9 +225,10 @@ class QueueManage extends Component {
 		                   >
 		                   </Table>
 		                </Tabs.TabPane>
-		                <Tabs.TabPane tab="明细" key="2">
+		                <Tabs.TabPane tab="明细" key="detail">
 		                    <TaskDetail
-		                    	// detailInfo={detailInfo}
+		                    	clusterList={clusterList}
+		                    	detailInfo={detailInfo}
 		                    >
 		                    </TaskDetail>
 		                </Tabs.TabPane>

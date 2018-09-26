@@ -2,8 +2,9 @@ import React from "react";
 import { Card, Table, Modal, Select } from "antd";
 import moment from "moment";
 
-import Api from "../../api/console"
-import ChangeResourceModal from "../../components/changeResource"
+import Api from "../../api/console";
+import ChangeResourceModal from "../../components/changeResource";
+
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;

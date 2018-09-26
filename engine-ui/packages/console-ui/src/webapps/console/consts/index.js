@@ -1,3 +1,28 @@
+
+// 任务状态
+export const TASK_STATE = {
+    UNSUBMIT: 0,
+    CREATED: 1,
+    SCHEDULED: 2,
+    DEPLOYING: 3,
+    RUNNING: 4,
+    FINISHED: 5,
+    CANCELLING: 6,
+    CANCELED: 7,
+    FAILED: 8,
+    SUBMITFAILD: 9,
+    SUBMITTING: 10,
+    RESTARTING: 11,
+    MANUALSUCCESS: 12,
+    KILLED: 13,
+    SUBMITTED: 14,
+    NOTFOUND: 15,
+    WAITENGINE: 16,
+    WAITCOMPUTE: 17,
+    FROZEN: 18,
+    ENGINEACCEPTED: 19,
+    ENGINEDISTRIBUTE: 20
+}
 // 常量
 export const DATA_SOURCE = {
     MYSQL: 1,

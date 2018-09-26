@@ -25,4 +25,10 @@ export default {
     SEARCH_TASKNAME_LIST:  `${CONSOLE_BASE_URL}/group/searchJob`,  // 明细-根据任务名搜索任务
     SEARCH_TASKNAME_FUZZY: `${CONSOLE_BASE_URL}/group/listNames`,   // 明细-模糊查询任务名
     KILL_TASK: `${CONSOLE_BASE_URL}/group/stopJob`,    // 明细-杀任务
+    
+    GET_ENGINE_LIST: `${CONSOLE_BASE_URL}/group/engineTypes`,   // 引擎列表
+    GET_GROUP_LIST: `${CONSOLE_BASE_URL}/group/groups`,   // group列表
+    GET_VIEW_DETAIL: `${CONSOLE_BASE_URL}/group/groupDetail`,   // 查看明细 和搜索条件
+    CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/group/jobPriority`,  //顺序调整调整优先级
+    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources`, // 查看剩余资源
 } 
