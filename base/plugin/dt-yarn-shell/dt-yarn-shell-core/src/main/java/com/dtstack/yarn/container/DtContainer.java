@@ -7,7 +7,6 @@ import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -16,8 +15,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,7 +132,7 @@ public class DtContainer {
 
 
     private void reportFailedAndExit(String msg) {
-        if(StringUtils.isNotBlank(msg)) {
+        if(msg == null || msg.length() == 0) {
             LOG.error("my error msg is: " + msg);
         }
         Date now = new Date();
@@ -194,7 +194,12 @@ public class DtContainer {
                 }
                 if (localFs.exists(localPath)) {
                     dfs.copyFromLocalFile(false, false, localPath, remotePath);
-                    LOG.info("Upload output " + localPath + " to remote path " + remotePath + " finished.");
+                    String localAbsolutePath = new File(outputInfo.getLocalLocation()).getAbsolutePath();
+                    String hostName =  (InetAddress.getLocalHost()).getHostName();
+                    if (hostName == null) {
+                        hostName = "";
+                    }
+                    LOG.info(hostName + "Upload output " + localAbsolutePath + " to remote path " + remotePath + " finished.");
                 }
                 localFs.close();
             }
