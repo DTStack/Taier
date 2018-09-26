@@ -103,8 +103,6 @@ class RealTimeTaskList extends Component {
         const ctx = this
         const current = this.state.current
         const status = task.status
-        const stopArr = [4, 16, 17, 11, 10];
-        const startArr = [0, 7, 8, 9];
         const isRestore = status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED || status === TASK_STATUS.WAIT_SUBMIT ? 1 : 0
         
         switch(status){

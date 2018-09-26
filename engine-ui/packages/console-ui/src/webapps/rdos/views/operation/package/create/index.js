@@ -12,6 +12,7 @@ import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
 import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP, PROJECT_TYPE } from "../../../../comm/const"
+import {RDOS_ROLE} from "main/consts";
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
@@ -222,18 +223,32 @@ class PackageCreate extends React.Component {
         })
     }
     initColumns() {
-        const { listType } = this.state;
+        const { listType, users } = this.state;
         const { taskTypes } = this.props;
         const offlineTaskTypes = taskTypes.offline;
         const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
+        /**
+         * 这边判断该用户是否具有打包权限
+         * 目前只有访客无打包权限
+         */
+        const myRoles=users.length?users[0].roles:{};
+        let havePermission=false
+        for(let i=0;i<myRoles.length;i++){
+            let role=myRoles[i];
+            if(role.roleType!=RDOS_ROLE.VISITOR){
+                havePermission=true;
+                break;
+            }
+        }
         const addButtonCreate = (record) => {
             return (this.isSelect(record) ?
-                <a onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
-                : <a onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
+                <a disabled={!havePermission} onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
+                : <a disabled={!havePermission} onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
         }
         const publishButtonCreate = (record) => {
             return (
                 <a
+                    disabled={!havePermission}
                     onClick={
                         () => {
                             this.clearSelect();
