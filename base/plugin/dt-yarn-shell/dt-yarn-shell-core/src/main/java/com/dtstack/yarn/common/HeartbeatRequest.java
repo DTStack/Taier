@@ -16,11 +16,13 @@ public class HeartbeatRequest implements Writable {
   private String containersStartTime;
   private String containersFinishTime;
   private String containerUserDir;
+  private String errMsg;
 
   public HeartbeatRequest() {
     xlearningContainerStatus = DtContainerStatus.UNDEFINED;
     interResultSavedStatus = new BooleanWritable(false);
     progressLog = "";
+    errMsg = "";
     containersStartTime = "";
     containersFinishTime = "";
     containerUserDir = "";
@@ -74,6 +76,13 @@ public class HeartbeatRequest implements Writable {
     this.containerUserDir = containerUserDir;
   }
 
+  public String getErrMsg() {
+    return errMsg;
+  }
+
+  public void setErrMsg(String errMsg) {
+    this.errMsg = errMsg;
+  }
 
   @Override
   public void write(DataOutput dataOutput) throws IOException {
