@@ -49,7 +49,7 @@ class PackagePublish extends React.Component {
         if(old_activeKey!=activeKey){
             this.getPackageList();
         }
-        if(project.id!=old_project.id){
+        if(project.id!=old_project.id&&project.projectType==PROJECT_TYPE.TEST){
             this.getUsers();
             this.getPackageList();
             this.setState({

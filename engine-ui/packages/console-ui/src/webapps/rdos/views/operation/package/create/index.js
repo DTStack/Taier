@@ -11,7 +11,7 @@ import utils from "utils";
 import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
-import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP } from "../../../../comm/const"
+import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP, PROJECT_TYPE } from "../../../../comm/const"
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
@@ -83,8 +83,8 @@ class PackageCreate extends React.Component {
     }
     componentWillReceiveProps(nextProps) {
         const {project={}} = nextProps;
-        const {old_project={}} = this.props;
-        if(old_project.id!=project.id){
+        const {project:old_project={}} = this.props;
+        if(old_project.id!=project.id&&project.projectType==PROJECT_TYPE.TEST){
            setTimeout(()=>{
                this.initComponent();
            },100)
