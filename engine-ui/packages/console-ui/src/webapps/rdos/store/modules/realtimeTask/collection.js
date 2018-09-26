@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 
 import { store } from '../../index';
 import { setCurrentPage } from "./browser";
-import { collect_type } from "../../../comm/const"
+import { collect_type, CAT_TYPE } from "../../../comm/const"
 import ajax from "../../../api"
 
 export const dataKey = "ide_collection"
@@ -13,7 +13,8 @@ const initState = {
     sourceMap: {
         table: [],
         sourceId: undefined,
-        collectType: collect_type.ALL
+        collectType: collect_type.ALL,
+        cat:[CAT_TYPE.INSERT,CAT_TYPE.UPDATE,CAT_TYPE.DELETE]
     },
     targetMap: {
         sourceId:undefined,
