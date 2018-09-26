@@ -15,7 +15,7 @@ public class OrderObject implements Serializable{
 
     protected int priority = 0;
 
-    private long generateTime = System.nanoTime();
+    private long generateTime = System.currentTimeMillis();
 
     public int getPriority() {
         return priority;
