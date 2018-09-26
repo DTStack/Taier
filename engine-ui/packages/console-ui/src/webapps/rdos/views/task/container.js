@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 
 import Sidebar from "./sidebar";
 import SearchTaskModal from "./searchTaskModal";
-import { stopSql } from "../../store/modules/editor/editorAction";
+import { stopSql, getEditorThemeClassName } from "../../store/modules/editor/editorAction";
 
 const { Content } = Layout;
 
@@ -64,9 +64,7 @@ class Container extends Component {
 
     render() {
         const { children, editor } = this.props;
-        // 如果是dark类的编辑器，则切换ide的theme为dark风格
-        const editorTheme = editor.options.theme;
-        const claName = editorTheme === 'vs-dark' || editorTheme === 'hc-black' ?  'theme-dark' : ''; 
+        const claName = getEditorThemeClassName(editor.options.theme); 
 
         return (
             <Layout className={`dt-dev-task ${claName}`}>
