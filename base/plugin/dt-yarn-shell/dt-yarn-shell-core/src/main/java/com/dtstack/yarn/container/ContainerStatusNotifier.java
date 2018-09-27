@@ -90,7 +90,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void heartbeatResponseHandle(HeartbeatResponse heartbeatResponse) {
-        LOG.info("hyf handle response: " + heartbeatResponse.toString());
+        LOG.info("handle response: " + heartbeatResponse.toString());
     }
 
     @Override

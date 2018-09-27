@@ -6,7 +6,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,7 @@ public class ContainerEnvBuilder {
                 String.valueOf(containerListener.getServerPort()));
         containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString()));
 
-        LOG.info("hyf container env:" + containerEnv.toString());
+        LOG.info("container env:" + containerEnv.toString());
         Set<String> envStr = containerEnv.keySet();
         for (String anEnvStr : envStr) {
             LOG.debug("env:" + anEnvStr);
