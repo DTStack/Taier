@@ -129,8 +129,6 @@ public class FlinkClient extends AbsClient {
 
     private YarnClient yarnClient;
 
-    private List<String> jarPaths = new LinkedList<>();
-
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
@@ -300,24 +298,6 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private void addJarsToJobGraph(JobGraph jobGraph, String path){
-        listFiles(new File(path));
-        for (String jar : jarPaths){
-            jobGraph.addJar(new Path(jar));
-        }
-    }
-
-    private void listFiles(File file){
-        File[] fs = file.listFiles();
-        for(File f : fs){
-            if(f.isDirectory())	{
-                listFiles(f);
-            }
-            if(f.isFile()){
-                jarPaths.add(f.toURI().toString());
-            }
-        }
-    }
 
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
 
