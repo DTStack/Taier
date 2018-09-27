@@ -3,6 +3,7 @@ $color2: #2D2D2D;
 $color3: #333333;
 $fontColor: #ADADAD;
 $borderColor: #1E1E1E;
+$borderColor1: #5A5A5A;
 $fontColor1: #2491F7;
 
 .theme-dark {
@@ -10,11 +11,27 @@ $fontColor1: #2491F7;
     background: $color1 !important;
     color: $fontColor;
 
+    .container .ant-layout {
+        background: $color1 !important;
+    }
+
     .ant-btn.ant-btn-loading:before,
     .mask-lock-layer {
         opacity: 0;
     }
 
+    .bd,
+    table,
+    .ant-table-fixed,
+    .ant-table-placeholder {
+        border-color: $borderColor1 !important;
+    }
+
+    .ant-dropdown-menu-item-divider {
+        background-color: $borderColor1;
+    }
+
+    .ant-input-number-input,
     .graph-editor {
         border: none;
     }
@@ -26,8 +43,8 @@ $fontColor1: #2491F7;
         }
     
         &::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background-color: transparent;
         }
     
@@ -43,15 +60,31 @@ $fontColor1: #2491F7;
     .ant-pagination-item a,
     .ant-pagination-jump-prev:after, 
     .ant-pagination-jump-next:after,
+    .CodeMirror-scroll,
+    .ant-confirm-title,
+    .ant-confirm-content,
+    .ant-dropdown-menu-item,
+    .ant-dropdown-menu-item a,
+    .header .my-menu .ant-menu-sub .ant-menu-item,
     .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
     .ant-select-dropdown-menu-item,
     .ant-select-arrow {
         color: $fontColor;
     }
 
+    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
+        background: rgba(255,255,255,0.30);
+    }
+
+    .CodeMirror-scroll {
+        background: $color3;
+    }
+
     .ant-pagination-prev .ant-pagination-item-link, 
     .ant-pagination-simple-pager,
     .ant-pagination-item,
+    .stream-btn,
+    .task-editor .CodeMirror-gutters,
     .ant-pagination-next .ant-pagination-item-link {
         background: $color3;
         color: $fontColor;
@@ -74,13 +107,9 @@ $fontColor1: #2491F7;
     }
 
     .ant-table-thead > tr > th {
-        background: #666666;
-        color: $fontColor;
-        border-color: #5A5A5A;
-    }
-
-    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
-        background: rgba(255,255,255,0.30);
+        background: #666666 !important;
+        color: $fontColor !important;
+        border-color: #5A5A5A !important;
     }
 
     .m-datasync {
@@ -162,9 +191,14 @@ $fontColor1: #2491F7;
 
     .ant-table-placeholder,
     .ide-console .console-table table .ant-table-tbody > tr > td,
+    .no-table-padding table .ant-table-tbody > tr > td,
     .ant-table, .ant-table-tbody > tr > td {
         border-color: #5A5A5A;
         color: $fontColor;
+        background: #2D2D2D;
+    }
+    .ant-table-header,
+    .ant-table-fixed-header > .ant-table-content > .ant-table-scroll > .ant-table-body {
         background: #2D2D2D;
     }
 
@@ -239,15 +273,34 @@ $fontColor1: #2491F7;
     .ant-input-number,
     .ant-input-number-input,
     .ant-calendar-picker-icon:after,
+    .task-browser .panel-content .title-content .right-select .ant-select-selection,
     .ant-pagination-simple .ant-pagination-simple-pager input,
     .ant-select-selection {
         border: 1px solid #5A5A5A;
         background: #2D2D2D;
         color: $fontColor;
     }
+    
+    .ant-dropdown-menu,
+    .ant-menu-sub,
+    .ant-select-dropdown-menu {
+        background: #333333;
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+        border-radius: 2px;
+    }
 
-    .ant-input-number-input {
-        border: 0;
+    .ant-menu-item:hover,
+    .ant-menu-item-active,
+    .ant-menu-item-selected,
+    .ant-select-dropdown-menu-item-active,
+    .ant-select-dropdown-menu-item:hover,
+    .ant-select-dropdown-menu-item-selected,
+    .ant-dropdown-menu-item:hover, 
+    .ant-dropdown-menu-item-selected,
+    .ant-dropdown-menu-submenu-title:hover {
+        background: rgba(255,255,255,0.10);
+        border-radius: 2px 2px 0 0;
+        color: #2491F7;
     }
 
     .ant-input:focus,
@@ -259,7 +312,7 @@ $fontColor1: #2491F7;
         .ant-form-item {
             color: $fontColor;
 
-            label, span {
+            label {
                 color: $fontColor;
             }
         }
@@ -362,9 +415,7 @@ $fontColor1: #2491F7;
             border-color: $color1;
         }
 
-        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close
-
-        .task-browser .ant-tabs-bar {
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close .task-browser .ant-tabs-bar {
             border-bottom: 1px solid #0f0f0f;
         }
 
@@ -402,7 +453,7 @@ $fontColor1: #2491F7;
                     border-color: #3C3C3C;
 
                     .anticon-close {
-                        color: inherit;
+                        color: #ADADAD;
                     }
                 }
 
@@ -459,22 +510,7 @@ $fontColor1: #2491F7;
     .sidebar {
         border: 0;
         .ant-tabs-content {
-     
              border: none;
-
-             &::-webkit-scrollbar-track {
-                 border: 1px solid #252525;
-                 background-color: #252525;
-             }
-     
-             &::-webkit-scrollbar {
-                 width: 10px;
-                 background-color: #252525;
-             }
-     
-             &::-webkit-scrollbar-thumb {
-                 background-color: #4d4d4d;
-             }
          }
     }
 
@@ -490,11 +526,11 @@ $fontColor1: #2491F7;
             .ant-collapse-content {
                 color: $fontColor;
                 border: 0;
-                background-color: $color2;
+                background-color: $color2  !important;
             }
 
             .ant-collapse-item {
-                border-color: $color3;
+                border-color: #5A5A5A;
                 border-bottom: 1px solid #5A5A5A;
             }
 

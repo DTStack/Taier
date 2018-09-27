@@ -435,7 +435,6 @@ class FolderTree extends React.Component {
 
         const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
         const treeType = type;
-        console.log('genetateTreeNode', this.props);
 
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
@@ -459,7 +458,7 @@ class FolderTree extends React.Component {
                     ispicker?
                     <span className={claName}>
                         { name }
-                        <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                        <i className="item-tooltip">
                             {createUser}
                         </i>
                     </span> :
@@ -474,7 +473,7 @@ class FolderTree extends React.Component {
                             className={claName}>
                             { this.renderStatusBadge(treeType, data) }
                             { name }&nbsp; 
-                            <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                            <i className="item-tooltip">
                                 { this.renderFileInfo(treeType, data) }
                             </i>
                         </span>

@@ -8,11 +8,6 @@ import { taskTypeIcon } from '../../../comm'
 
 const TreeNode = Tree.TreeNode
 
-const creatorStyle = {
-    color: '#d9d9d9',
-    fontSize: '12px',
-}
-
 class FolderTree extends Component {
 
     renderFileInfo = (menuType, file) => {
@@ -58,9 +53,6 @@ class FolderTree extends Component {
                     return null;
                 }
 
-                const creator = item.createUser ? 
-                <i style={creatorStyle}>{item.createUser}</i> : ''
-
                 let claTitle = ''
                 if (item.type === 'file') {
                     switch (treeType) {
@@ -100,7 +92,7 @@ class FolderTree extends Component {
                         className={claTitle}>
                         {this.renderStatusBadge(treeType, item)}
                         {item.name} 
-                        <i style={creatorStyle}>{this.renderFileInfo(treeType, item)}</i>
+                        <i className="item-tooltip">{this.renderFileInfo(treeType, item)}</i>
                     </span>
                 );
 

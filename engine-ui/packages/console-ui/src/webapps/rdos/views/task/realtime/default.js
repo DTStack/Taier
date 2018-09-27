@@ -1,25 +1,21 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Icon } from 'antd'
+import { Row, Col } from 'antd'
 import utils from "utils";
 
-import MyIcon from '../../../components/icon'
 import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { PROJECT_TYPE } from '../../../comm/const';
 
 class Default extends Component {
     componentDidMount() {
-        const {dispatch} = this.props;
         const taskId = utils.getParameterByName("taskId")
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
         }
     }
     render() {
-        const { dispatch, project } = this.props
-        const iconStyle = { width: '60px', height: '60px', marginTop: '25px' }
+        const { dispatch } = this.props
         return (
             <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
                 <Col className="operation-card" >

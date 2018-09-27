@@ -331,7 +331,7 @@ class TaskBrowser extends Component {
                     </Tabs>
                     {this.renderLock(currentPage)}
                     <RealTimeEditor {...this.props} />
-                    <div className="m-siderbench" ref={(e) => { this.SideBench = e }}>
+                    <div className="m-siderbench padding-r0" ref={(e) => { this.SideBench = e }}>
                         <Tabs
                             activeKey={this.state.selected}
                             type="card"

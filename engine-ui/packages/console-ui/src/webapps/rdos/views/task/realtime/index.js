@@ -15,16 +15,18 @@ import FullScreenButton from 'widgets/fullscreen';
 
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
+import ThemeSwitcher from '../../../components/theme-switcher';
 
 import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import * as TreeAction from '../../../store/modules/realtimeTask/tree'
 import { actions as collectionActions } from '../../../store/modules/realtimeTask/collection';
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
-import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE } from '../../../comm/const';
 import { showSeach } from '../../../store/modules/comm';
+import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
 
 import TaskBrowser from './taskBrowser'
+import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE } from '../../../comm/const';
 
 const confirm = Modal.confirm;
 const FormItem = Form.Item;
@@ -78,7 +80,6 @@ class TaskIndex extends Component {
                 }
             }
         }
-        console.log('inputData,outputData', inputData, outputData, currentPage);
         const resList = currentPage.resourceList;
         currentPage.preSave = true;
         if (resList && resList.length > 0) {
@@ -102,7 +103,6 @@ class TaskIndex extends Component {
                     message.success('任务保存成功')
                     pageData.notSynced = false;// 添加已保存标记
                     dispatch(BrowserAction.setCurrentPage(pageData))
-                    console.log('pageData:', pageData)
                     // 如果mr任务更新，则需要刷新左侧文件树
                     if (currentPage.taskType === TASK_TYPE.MR) {
                         dispatch(TreeAction.getRealtimeTree({
@@ -369,6 +369,12 @@ class TaskIndex extends Component {
                             </Button>
                         </span>
                         <FullScreenButton themeDark={themeDark}/>
+                        <ThemeSwitcher 
+                            editorTheme={editor.options.theme}
+                            onThemeChange={(theme) => {
+                                dispatch(updateEditorOptions({ theme }))
+                            }}
+                        />
                     </Col>
                     <Col className="right">
                         <span>
