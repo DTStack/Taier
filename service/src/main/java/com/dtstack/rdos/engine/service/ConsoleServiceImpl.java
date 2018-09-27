@@ -82,11 +82,10 @@ public class ConsoleServiceImpl {
                 return null;
             }
             int queueSize = jobQueue.size();
-            JobClient theJob = jobQueue.getElement(jobId);
-            if (theJob == null) {
+            OrderLinkedBlockingQueue.IndexNode<JobClient> idxNode = jobQueue.getElement(jobId);
+            if (idxNode == null) {
                 return null;
             }
-
             List<Map<String, Object>> topN = new ArrayList<>();
             Iterator<JobClient> jobIt = jobQueue.iterator();
             int startIndex = pageSize * (currentPage - 1);
@@ -103,7 +102,8 @@ public class ConsoleServiceImpl {
 
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("theJob", Lists.newArrayList(theJobClient));
+            result.put("theJob", Lists.newArrayList(idxNode.getItem()));
+            result.put("theJobIdx", idxNode.getIndex());
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
@@ -211,10 +211,11 @@ public class ConsoleServiceImpl {
             if (jobQueue == null) {
                 return false;
             }
-            JobClient theJob = jobQueue.getElement(jobId);
-            if (theJob == null) {
+            OrderLinkedBlockingQueue.IndexNode<JobClient> jobIdxNode = jobQueue.getElement(jobId);
+            if (jobIdxNode == null) {
                 return false;
             }
+            JobClient theJob = jobIdxNode.getItem();
             JobClient idxJob = jobQueue.getIndexOrLast(jobIndex);
             if (idxJob == null) {
                 return false;
