@@ -286,7 +286,6 @@ public class FlinkClientBuilder {
             throw new RdosException("The Flink jar path is null");
         }
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
-
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }

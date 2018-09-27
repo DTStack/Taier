@@ -92,6 +92,7 @@ public class ActionServiceImpl {
             workNode.addSubmitJob(jobClient);
         }catch (Exception e){
             logger.error("", e);
+            result.put("send", false);
         }
         return result;
     }
