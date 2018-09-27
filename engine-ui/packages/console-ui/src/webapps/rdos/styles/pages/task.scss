@@ -43,12 +43,12 @@
             margin-bottom: 0;
             border-bottom: 0;
             position: absolute;
-            right: 0;
+            left: 62px;
             z-index: 5;
 
             .ant-tabs-nav-container {
                 height: 30px;
-                padding: 4px 4px;
+                padding-top: 6px;
             }
 
             .ant-tabs-tab {
@@ -120,21 +120,6 @@
         &>.ant-tabs-content {
             margin: 0;
             padding: 0;
-
-            &::-webkit-scrollbar-track {
-                border: 1px solid #e5e7e7;
-                background-color: #ffffff;
-                border-right: none;
-            }
-    
-            &::-webkit-scrollbar {
-                width: 10px;
-                background-color: #ffffff;
-            }
-    
-            &::-webkit-scrollbar-thumb {
-                background-color: #c2c2c2;
-            }
         }
 
         &>.ant-menu-inline, .ant-menu-vertical {
@@ -265,7 +250,14 @@
 
         .menu-content {
 
-            margin-top: 30px;
+            margin-top: 35px;
+            height: 100%;
+            overflow-y: auto;
+            padding-bottom: 35px;
+
+            &::-webkit-scrollbar-track {
+                border-right: none;
+            }
 
             header {
 
@@ -276,6 +268,7 @@
                 position: absolute;
                 right: 10px;
                 z-index: 999;
+                top: 0;
                 background: #ffffff;
                 
                 .anticon {
@@ -433,6 +426,7 @@
     position: absolute;
     padding-bottom: 35px;
     background: #f2f3f8;
+    border-left: 1px solid #e9e9e9;
     top: 0;
     bottom:0;
     left: 0;
@@ -449,8 +443,6 @@
         height: 100%;
         width: 100%;
         position: relative;
-        // margin-top: -1px;
-        // margin-left: -2px;
         padding-right: 30px;
         padding-bottom: 30px;
         background: #FAFAFA;
@@ -477,17 +469,20 @@
                 }
             }
         }
-        .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close{
+        .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close {
             margin-top: -5px;
             line-height: 10px;
+            // opacity: 1;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
-            margin-right: -1px;
+            margin-right: 0px;
             line-height: 19px;
             padding-left: 28px;
             border-top: none;
+            border-left: none;
             text-align: left;
             min-width: 80px;
+            border-radius: 0;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -498,7 +493,7 @@
             visibility: hidden;
         }
 
-        .ant-collapse-header{
+        .ant-collapse-header {
             font-size: 14px;
         }
        
@@ -588,7 +583,7 @@
         .ant-tabs-bar {
             margin-bottom: 1px;
             border-bottom: 0;
-            border-radius: 4px;
+            border-radius: 0px;
             margin-left: -1px;
             border-left: none;
         }
@@ -608,13 +603,17 @@
             padding-bottom: 40px;
             overflow: auto;
             right: -1px;
-            .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab {
-                margin-bottom: -1px;
-                border-left: 1px solid #e9e9e9;
+            .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar {
+
+                .ant-tabs-tab {
+                    margin-bottom: -1px;
+                    border-left: 1px solid #e9e9e9;
+                }
+                .ant-tabs-tab:hover{
+                    background:#eef6fe;
+                }
             }
-            .ant-tabs-tab:hover{
-                background:#eef6fe;
-            }
+            
         }
         .editor-container {
             height: 100%;
@@ -623,7 +622,6 @@
             border-top-left-radius: 0;
             background: #fff;
             border-left: 0;
-            border-right: 0;
         }
         .add-tab {
             position: absolute;
@@ -653,11 +651,12 @@
                 border: 0;
                 border-bottom: 2px solid #f9f9f9;
                 border-top: 1px solid #f9f9f9;
+                border-radius: 0;
             }
             .ant-tabs-bar .ant-tabs-tab-active {
                 background: #fff;
-                border-bottom: 2px solid #ddd;
-                border-top: 1px solid #ddd;
+                border-bottom: 2px solid #e9e9e9;
+                border-top: 1px solid #e9e9e9;
                 &:after{
                     content:"";
                     position: absolute;

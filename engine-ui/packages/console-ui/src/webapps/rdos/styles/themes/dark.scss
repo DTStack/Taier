@@ -10,19 +10,25 @@ $fontColor1: #2491F7;
     background: $color1 !important;
     color: $fontColor;
 
+    .ant-btn.ant-btn-loading:before,
     .mask-lock-layer {
         opacity: 0;
     }
 
+    .graph-editor {
+        border: none;
+    }
+
     * {
         &::-webkit-scrollbar-track {
-            border: 1px solid #252525;
-            background-color: #252525;
+            border: none;
+            background-color: transparent;
         }
     
         &::-webkit-scrollbar {
             width: 10px;
-            background-color: #252525;
+            height: 10px;
+            background-color: transparent;
         }
     
         &::-webkit-scrollbar-thumb {
@@ -34,20 +40,23 @@ $fontColor1: #2491F7;
     .ant-card-head-title,
     .ant-tabs-tab-arrow-show,
     .ant-tree .ant-tree-switcher,
+    .ant-pagination-item a,
+    .ant-pagination-jump-prev:after, 
+    .ant-pagination-jump-next:after,
     .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
     .ant-select-dropdown-menu-item,
     .ant-select-arrow {
         color: $fontColor;
     }
-    
 
     .ant-pagination-prev .ant-pagination-item-link, 
     .ant-pagination-simple-pager,
+    .ant-pagination-item,
     .ant-pagination-next .ant-pagination-item-link {
         background: $color3;
         color: $fontColor;
+        border-color: #5A5A5A;
     }
-
 
     .task-sidebar .menu-content .tb-info {
         border-color: #2D2D2D;
@@ -56,7 +65,7 @@ $fontColor1: #2491F7;
             background: #2D2D2D;
             border-color: #2D2D2D;
             .ant-tabs-tab {
-                background: #1E1E1E;
+                background: #252525;
                 color: #ADADAD;
                 border-top: 0;
                 border-color: #3C3C3C;
@@ -64,11 +73,14 @@ $fontColor1: #2491F7;
         }
     }
 
-
     .ant-table-thead > tr > th {
         background: #666666;
         color: $fontColor;
         border-color: #5A5A5A;
+    }
+
+    .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
+        background: rgba(255,255,255,0.30);
     }
 
     .m-datasync {
@@ -81,7 +93,6 @@ $fontColor1: #2491F7;
         .m-keymapbox .m-col {
             border-bottom: 1px dotted #5A5A5A;
         }
-
 
         .steps-content {
             background: #333333;
@@ -137,6 +148,15 @@ $fontColor1: #2491F7;
 
         .ant-steps-item.ant-steps-status-process .ant-steps-title {
             color: $fontColor1;
+        }
+
+        .ant-steps-item.ant-steps-status-wait .ant-steps-head-inner {
+            background: transparent;
+            border-color: #5A5A5A;
+
+            .ant-steps-icon {
+                color: $fontColor;
+            }
         }
     }
 
@@ -256,8 +276,7 @@ $fontColor1: #2491F7;
 
     // ================ Custom page styles ================ //
     .toolbar .ant-btn, 
-    .ant-tabs-bar .ant-tabs-tab,
-    .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+    .ant-tabs-bar .ant-tabs-tab,{
         background: $color2;
         color: $fontColor;
         border-color: $color2;
@@ -275,11 +294,12 @@ $fontColor1: #2491F7;
         .ant-tabs-tab-active {
             background: $color2;
             border-color: $color2;
+            color: #ffffff;
         }
     }
 
     .ide-editor .Pane2 {
-        background: #2d2d2d;
+        background: transparent;
     }
 
     .SplitPane {
@@ -287,7 +307,6 @@ $fontColor1: #2491F7;
         .horizontal:hover,
         .vertical,
         .vertical:hover {
-            // border-color: $color3;
             border-color: transparent;
         }
     }
@@ -303,9 +322,20 @@ $fontColor1: #2491F7;
             border-color: $color2;
         }
 
-        .ant-tabs-bar {
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar {
             border-bottom: 0;
             box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+
+            .ant-tabs-tab {
+                background: $color2;
+                color: $fontColor;
+                border-color: #3C3C3C;
+                border-right: 1px solid #3C3C3C;
+                border-left: 1px solid #3C3C3C;
+            }
+            .ant-tabs-tab-active {
+                color: #ffffff;
+            }
         }
 
         .CodeMirror {
@@ -340,7 +370,7 @@ $fontColor1: #2491F7;
 
         .task-browser .task-params .ant-tabs-content {
             background: $color2; 
-            border: none;
+            border-color: #2d2d2d;
         }
 
         .browser-content .browser-tabs.ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab:hover {
@@ -355,6 +385,8 @@ $fontColor1: #2491F7;
                 .ant-tabs-bar {
                     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
                     border-bottom: 1px solid #1E1E1E;
+                    // box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+                    // border-bottom: 1px solid #1E1E1E;
                 }
 
                 .ant-tabs-extra-content {
@@ -374,10 +406,21 @@ $fontColor1: #2491F7;
                     }
                 }
 
-
                 .ant-tabs-bar .ant-tabs-tab-active {
-                    background: #3d3d3d;
-                    border-color: #1E1E1E;
+                    background: #2d2d2d;
+                    border-color: #2d2d2d;
+                    color: #ffffff;
+
+                    &:before {
+                        content: "";
+                        position: absolute;
+                        background: #2d2d2d;
+                        z-index: 3;
+                        left: -1px;
+                        height: 100%;
+                        width: 1px;
+                        top: 0;
+                    }
                 }
             }
         }
@@ -400,11 +443,13 @@ $fontColor1: #2491F7;
                 .ant-tabs-tab-active {
                     background: $color2;
                     border-color: $color2;
+                    color: #ffffff;
                 }
             }
 
         }
     }
+
     .ide-header
     .task-dev-switcher > .ant-tabs-bar .ant-tabs-tab {
         background: rgba(255,255,255,0.30);

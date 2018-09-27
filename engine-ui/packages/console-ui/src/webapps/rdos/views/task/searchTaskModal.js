@@ -12,6 +12,7 @@ import {
     workbenchActions
 } from '../../store/modules//offlineTask/offlineAction';
 import { showSeach } from '../../store/modules/comm';
+import { getEditorThemeClassName } from '../../store/modules/editor/editorAction'
 
 import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
@@ -136,9 +137,7 @@ class SearchTaskModal extends React.Component {
             </Option>
         )
 
-        // 如果是dark类的编辑器，则切换ide的theme为dark风格
-        const editorTheme = editor.options.theme;
-        const claName = editorTheme === 'vs-dark' || editorTheme === 'hc-black' ?  'theme-dark' : ''; 
+        const claName = getEditorThemeClassName(editor.options.theme); 
 
         return <div id="JS_search_task" className={claName}>
             <Modal
