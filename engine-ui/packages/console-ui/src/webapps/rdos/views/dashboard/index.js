@@ -276,7 +276,10 @@ class Index extends Component {
                         <Col span="24" >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
-                                    projectListInfo && projectListInfo.length > 0 && !loading ? projectListInfo.map(v => {
+                                    projectListInfo && projectListInfo.length === 0 && !loading ? <NoData/> : ''
+                                }
+                                {
+                                    projectListInfo && projectListInfo.map(v => {
                                         return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
@@ -352,7 +355,7 @@ class Index extends Component {
                                                 }
                                             </Card>
                                         </Col>
-                                    }) : <NoData/>
+                                    })
                                 }
                             </Row>
                             <Row>

@@ -15,17 +15,6 @@ export default class Toolbar extends Component {
         )
     }
 
-    viewMenu = () => {
-        const { onThemeChange, editorTheme } = this.props;
-        return (
-            <Menu selectedKeys={[editorTheme]} onClick={({ key }) => { onThemeChange(key) }}>
-                <Menu.Item key="vs">默认</Menu.Item>
-                <Menu.Item key="vs-dark">灰色</Menu.Item>
-                <Menu.Item key="hc-black">高对比灰色</Menu.Item>
-            </Menu>
-        )
-    }
-
     renderRun = () => {
         const {
             isRunning, onRun, onStop, enableRun
@@ -83,11 +72,6 @@ export default class Toolbar extends Component {
                         编辑<Icon type="down" />
                     </Button>
                 </Dropdown>}
-                <Dropdown overlay={this.viewMenu()} trigger={['click']}>
-                    <Button icon="skin" title="主题">
-                        主题<Icon type="down" />
-                    </Button>
-                </Dropdown>
                 <span style={{ float: "right", position: "relative", marginRight: "18px", lineHeight: "28px", zIndex: "901" }}>
                     {rightCustomButton}
                 </span>

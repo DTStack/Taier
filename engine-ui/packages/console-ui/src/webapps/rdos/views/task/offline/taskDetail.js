@@ -167,7 +167,7 @@ class TaskDetail extends React.Component {
                 </SchedulingConfig> : ''
             }
             <Collapse bordered={false} defaultActiveKey={['3']}>
-                <Panel key="3" header={`历史${pre}版本`}>
+                <Panel key="3" header={`历史版本`}>
                     <TaskVersion
                         isPro={isPro}
                         taskInfo={tabData}

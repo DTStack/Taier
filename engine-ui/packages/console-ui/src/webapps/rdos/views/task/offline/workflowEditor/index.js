@@ -71,7 +71,7 @@ const applyCellStyle = (cellState, style) => {
 }
 
 @connect(state => {
-    const { offlineTask, project, user } = state;
+    const { offlineTask, project, user, editor } = state;
     const { workbench, workflow } = offlineTask;
     const { currentTab, tabs } = workbench;
 
@@ -80,6 +80,7 @@ const applyCellStyle = (cellState, style) => {
         user,
         workflow,
         currentTab,
+        editor,
         taskTypes: offlineTask.comm.taskTypes,
         project:project
     }
@@ -814,6 +815,9 @@ class WorkflowEditor extends Component {
             return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
         })
 
+        const { editor } = this.props;
+        const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+
         return (
             <KeyEventListener 
                 onKeyDown={this.onkeyDown} 
@@ -843,16 +847,20 @@ class WorkflowEditor extends Component {
                     />
                     <div className="graph-toolbar">
                         <Tooltip placement="bottom" title="布局">
-                            <MyIcon type="flowchart" onClick={this.layout}/>
+                            <MyIcon type="flowchart" onClick={this.layout} themeDark={themeDark}/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="放大">
-                            <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                            <MyIcon onClick={this.zoomIn} type="zoom-in" themeDark={themeDark}/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="缩小">
-                            <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                            <MyIcon onClick={this.zoomOut} type="zoom-out" themeDark={themeDark}/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="搜索节点">
-                            <Icon type="search" onClick={this.initShowSearch} style={{fontSize: '17px', color: '#333333'}}/>
+                            <Icon 
+                                type="search" 
+                                onClick={this.initShowSearch} 
+                                style={{fontSize: '17px', color: themeDark ? '#ADADAD' :'#333333'}}
+                            />
                         </Tooltip>
                     </div>
                     <Modal 

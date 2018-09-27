@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import {
-    Row,Col,Icon,Tooltip,Table,Input,Select,
+    Row,Col,Icon,Tooltip,Input,Select,
     Collapse, Button,Radio,Popover,Form,InputNumber
-} from 'antd'
+} from 'antd';
+import { debounce } from 'lodash';
 
 import Api from '../../../api';
 
@@ -10,11 +11,9 @@ import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
 
 
-
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
-const { Column, ColumnGroup } = Table;
 
 const FormItem = Form.Item;
 
@@ -31,17 +30,6 @@ class InputOrigin extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 result.status = true;
-                // if(tableColumns.length === 0){
-                //     result.status = false;
-                //     result.message = "至少添加一个字段"
-                // }else{
-                //     tableColumns.map(v=>{
-                //         if(!v.column||!v.type){
-                //             result.status = false;
-                //             result.message= "有未填写的字段或类型"
-                //         }
-                //     })
-                // }
             }else{
                 result.status = false;
             }
@@ -72,18 +60,18 @@ class InputOrigin extends Component {
         const { handleInputChange, index, } = this.props;
         this._syncEditor=false;
         handleInputChange("columnsText",index,b);
-        //this.props.editorParamsChange(...arguments);
     }
+
+    debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
     render(){
         const { handleInputChange, index, panelColumn,sync,timeColumoption=[],originOptionType=[],topicOptionType=[] } = this.props;
         const originOptionTypes = this.originOption('originType',originOptionType[index]||[]);
         const topicOptionTypes = this.originOption('currencyType',topicOptionType[index]||[]);
-        console.log('timeColumoption[index]',timeColumoption[index]);
         
         const eventTimeOptionType = this.originOption('eventTime',timeColumoption[index]||[]);
-        //const mysqlOptionType = this.originOption('currencyType',mysqlFieldTypes)
         const { getFieldDecorator } = this.props.form;
+
         const formItemLayout = {
             labelCol: {
               xs: { span: 24 },
@@ -165,57 +153,21 @@ class InputOrigin extends Component {
                         )}
                     </FormItem>
                     <Row>
-                        <Col span="6">
-                            <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
-                        </span>
-                        </Col>
+                        <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+                            <label>字段</label>
+                        </div>
                         <Col span="18" style={{marginBottom: 20,height: 202}}>
                             <Editor 
-                                style={{minHeight: 202,border: "1px solid #ddd"}}
+                                style={{ minHeight: 202 }}
+                                className="bd"
                                 key="params-editor"
                                 sync={sync}
                                 placeholder="字段 类型, 比如 id int 一行一个字段"
-                                // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.editorParamsChange.bind(this)}
                             />
                         </Col>
                     </Row>
-                    {/* <Col style={{marginBottom: 20}}>
-                        <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                            <Column
-                                title="字段"
-                                dataIndex="column"
-                                key="字段"
-                                width='50%'
-                                render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
-                            />
-                            <Column
-                                title="类型"
-                                dataIndex="type"
-                                key="类型"
-                                width='40%'
-                                render={(text,record,subIndex)=>{
-                                    return (
-                                        <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}>
-                                            {
-                                                mysqlOptionType
-                                            }
-                                        </Select>
-                                    )
-                                }}
-                            />
-                            <Column
-                                key="delete"
-                                render={(text,record,subIndex)=>{return <Icon type="close" style={{fontSize: 16,color: "#888"}} onClick={()=>{handleInputChange("deleteColumn",index,subIndex)}}/>}}
-                            />
-                        </Table>
-                        <div style={{padding: "0 20"}}>
-                            <Button className="stream-btn" type="dashed" style={{borderRadius: 5}} onClick={()=>{handleInputChange("columns",index,{})}}>
-                                <Icon type="plus" /><span> 添加输入</span>
-                            </Button>
-                        </div>
-                    </Col> */}
                     <FormItem
                         {...formItemLayout}
                         label="时间特征"
@@ -264,7 +216,6 @@ class InputOrigin extends Component {
                                 {getFieldDecorator('offset', {
                                     rules: [
                                         {required: true, message: '请输入时间偏移量'},
-                                        // { validator: this.checkConfirm }
                                     ],
                                 })(
                                     <InputNumber className="number-input" min={0} onChange={value => handleInputChange('offset',index,value)}/>
@@ -279,19 +230,6 @@ class InputOrigin extends Component {
                             <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
                         )}
                     </FormItem>
-                    {/* <FormItem
-                        {...formItemLayout}
-                        label="别名"
-                    >
-                        {getFieldDecorator('alias', {
-                            initialValue: panelColumn[index].alias,
-                            rules: [
-                                {required: true, message: '请输入别名',}
-                            ],
-                        })(
-                            <Input  placeholder="请输入别名" className="right-input" onChange={e => handleInputChange('alias',index,e.target.value)}/>
-                        )}
-                    </FormItem> */}
                 </Form>
             </Row>
         )

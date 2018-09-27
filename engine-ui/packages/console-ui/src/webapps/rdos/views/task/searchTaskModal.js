@@ -136,11 +136,7 @@ class SearchTaskModal extends React.Component {
             </Option>
         )
 
-        // 如果是dark类的编辑器，则切换ide的theme为dark风格
-        const editorTheme = editor.options.theme;
-        const claName = editorTheme === 'vs-dark' || editorTheme === 'hc-black' ?  'theme-dark' : ''; 
-
-        return <div id="JS_search_task" className={claName}>
+        return <div id="JS_search_task">
             <Modal
                 title="搜索并打开任务"
                 visible={visibleSearchTask}

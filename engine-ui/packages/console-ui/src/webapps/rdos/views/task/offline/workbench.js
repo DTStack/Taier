@@ -17,6 +17,7 @@ import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../.
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
+import ThemeSwitcher from '../../../components/theme-switcher';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -26,6 +27,8 @@ import { showSeach } from '../../../store/modules/comm';
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction';
+import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
+
 import { isProjectCouldEdit } from '../../../comm';
 
 
@@ -172,7 +175,7 @@ class Workbench extends React.Component {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
             closeTab, closeAllorOthers, project,
-            user, editor
+            user, editor, dispatch
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
@@ -243,6 +246,12 @@ class Workbench extends React.Component {
                         搜索
                     </Button>
                     <FullScreenButton themeDark={themeDark}/>
+                    <ThemeSwitcher 
+                        editorTheme={editor.options.theme}
+                        onThemeChange={(theme) => {
+                           dispatch(updateEditorOptions({ theme }))
+                        }}
+                    />
                 </Col>
 
                 {showPublish ? (<Col className="right">

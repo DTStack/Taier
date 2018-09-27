@@ -70,10 +70,6 @@ class PackageCreate extends React.Component {
     }
 
     componentDidMount() {
-        let test = "test";
-        for (let i = 0; i < 18; i++) {
-            test = test + "\n" + test;
-        }
         this.initComponent();
     }
     initComponent() {
@@ -98,7 +94,9 @@ class PackageCreate extends React.Component {
     }
     getUsers() {
         const { project } = this.props;
-
+        if(!project.id){
+            return ;
+        }
         Api.getProjectUsers({
             projectId: project.id,
             currentPage: 1,
