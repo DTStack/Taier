@@ -102,7 +102,7 @@ public class ConsoleServiceImpl {
 
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("jobId", jobId);
+            result.put("theJob", theJobClient);
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
