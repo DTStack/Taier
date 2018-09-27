@@ -13,6 +13,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
+import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataNode;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerHeartNode;
@@ -151,6 +152,7 @@ public class ZkDistributed implements Closeable{
 		executors.execute(new TaskStatusListener());
 		executors.execute(new QueueListener());
 		LocalCacheSyncZkListener localCacheSyncZKListener = new LocalCacheSyncZkListener();
+		ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
 		if(ConfigParse.getPluginStoreInfo()!=null){
 			executors.execute(new LogStoreListener(masterListener));
 		}

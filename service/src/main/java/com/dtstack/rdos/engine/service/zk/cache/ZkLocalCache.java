@@ -67,9 +67,6 @@ public class ZkLocalCache implements Closeable {
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();
         perShardSize = ConfigParse.getShardSize();
         zkShardManager.init(zkDistributed);
-        if (distributeZkWeight > 0) {
-            ZkSyncLocalCacheListener zkSyncLocalCacheListener = new ZkSyncLocalCacheListener();
-        }
     }
 
     public void updateLocalMemTaskStatus(String zkTaskId, Integer status) {
@@ -178,10 +175,6 @@ public class ZkLocalCache implements Closeable {
      */
     public Map<String, BrokerDataShard> cloneShardData() {
         return new HashMap<>(localDataCache.getShards());
-    }
-
-    public void cover(Map<String, Integer> zkSize) {
-        zkDataSizeCache = zkSize;
     }
 
     public void checkShard() {

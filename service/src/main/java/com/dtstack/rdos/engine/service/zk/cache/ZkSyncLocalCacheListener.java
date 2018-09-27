@@ -44,7 +44,7 @@ public class ZkSyncLocalCacheListener implements Runnable {
                 logger.warn("ZkSyncLocalCacheListener start again");
             }
             Map<String, Integer> zkSize = zkDistributed.getAliveBrokerShardSize();
-            zkLocalCache.cover(zkSize);
+            zkLocalCache.setZkDataSizeCache(zkSize);
         } catch (Throwable e) {
             logger.error("AllTaskStatusListener error:{}", ExceptionUtil.getErrorMessage(e));
         }
