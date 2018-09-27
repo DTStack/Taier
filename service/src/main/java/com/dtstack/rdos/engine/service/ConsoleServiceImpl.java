@@ -16,6 +16,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +103,7 @@ public class ConsoleServiceImpl {
 
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("theJob", theJobClient);
+            result.put("theJob", Lists.newArrayList(theJobClient));
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
