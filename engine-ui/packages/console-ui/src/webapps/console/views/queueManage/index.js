@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-26 19:21:24
+* @Last Modified time: 2018-09-27 16:07:56
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
@@ -27,8 +27,8 @@ class QueueManage extends Component {
         nowView: utils.getParameterByName("tab")||"overview",
         clusterList: [],
         clusterId: undefined,
-        // 查看明细所需信息
-        detailInfo: {}
+        // 会重新渲染detail组件
+        resetKey:Math.random()
 	}
 
 	componentDidMount() {
@@ -83,9 +83,17 @@ class QueueManage extends Component {
     }
     // option改变
     clusterOptionChange(clusterId) {
-    	this.setState({
+    	if (!clusterId) {
+    		this.setState({
+    			dataSource: [],
+    			clusterId: undefined
+    		},this.getClusterDetail.bind(this))
+    	}else {
+    		this.setState({
     		clusterId: clusterId
     	},this.getClusterDetail.bind(this))
+    	}
+    	
     }
     // 页表
     getPagination() {
@@ -156,24 +164,31 @@ class QueueManage extends Component {
 		]
 	}
 	// 查看明细(需要传入参数 集群,引擎,group) detailInfo
-	viewDetails(detailInfo) {
-		this.setState({
-			detailInfo: detailInfo,
-			nowView: "detail"
-		},()=>{
-			this.props.router.push({
+	viewDetails(record) {
+		this.props.router.push({
 			pathname:"/console/queueManage",
 			query:{
-				tab: 'detail'
+				tab: 'detail',
+				clusterName: record.clusterName,
+				engineType: record.engineType,
+				groupName: record.groupName
 			}
 		});
+		this.setState({
+			nowView: "detail",
+			resetKey:Math.random()
 		})
 	}
 	// 面板切换
 	handleClick(e) {
 		this.setState({
-			nowView: e
+			nowView: e,
 		})
+		if(e=="detail"){
+			this.setState({
+				resetKey:Math.random()
+			})
+		}
 		this.props.router.push({
 			pathname:"/console/queueManage",
 			query:{
@@ -184,9 +199,9 @@ class QueueManage extends Component {
 	render() {
 		const columns = this.initTableColumns();
 		const { dataSource, table, clusterList } = this.state;
-		const { detailInfo } = this.state;
 		const { loading } = table;
 		const {nowView} = this.state;
+		const query=this.props.router.location.query;
 		return (
 			<div className=" api-mine nobackground m-card height-auto m-tabs" style={{marginTop: "20px"}}>
 				<Card
@@ -204,6 +219,7 @@ class QueueManage extends Component {
 		                   <div style={{margin: "20px"}}>
 		                   		集群: <Select style={{ width: 150 }}
 		                   		placeholder="选择集群"
+		                   		allowClear
 		                   		onChange={this.clusterOptionChange.bind(this)}
 		                   		value={this.state.clusterId} 
 		                   		>
@@ -227,8 +243,9 @@ class QueueManage extends Component {
 		                </Tabs.TabPane>
 		                <Tabs.TabPane tab="明细" key="detail">
 		                    <TaskDetail
+		                    	key={this.state.resetKey}
 		                    	clusterList={clusterList}
-		                    	detailInfo={detailInfo}
+		                    	query={query}
 		                    >
 		                    </TaskDetail>
 		                </Tabs.TabPane>
