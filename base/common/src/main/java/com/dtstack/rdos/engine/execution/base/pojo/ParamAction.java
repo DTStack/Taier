@@ -53,6 +53,7 @@ public class ParamAction {
 
 	private long restartTime;
 
+	private long tenantId;
 	
 	public Integer getRequestStart() {
 		return requestStart;
@@ -174,6 +175,14 @@ public class ParamAction {
 
 	public void setRestartTime(long restartTime) {
 		this.restartTime = restartTime;
+	}
+
+	public long getTenantId() {
+		return tenantId;
+	}
+
+	public void setTenantId(long tenantId) {
+		this.tenantId = tenantId;
 	}
 
 	@Override
