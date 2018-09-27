@@ -33,6 +33,14 @@ function getDataOver(dispatch, currentTab, res, jobId) {
 }
 
 function doSelect(resolve, dispatch, jobId, currentTab) {
+    function outputStatus(status,extText){
+        for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
+            if (offlineTaskStatusFilter[i].value == status) {
+                dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}${extText||''}`))
+                continue;
+            }
+        }
+    }
     API.selectSQLResultData({
         jobId: jobId
     })
@@ -54,15 +62,15 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                             return;
                         }
                         case taskStatus.FAILED:
-                            {
-                                dispatch(output(currentTab, `运行失败!`))
-                                if (res.data && res.data.download) {
-                                    dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                                }
-                                dispatch(removeLoadingTab(currentTab))
-                                resolve(false)
-                                return;
+                        case taskStatus.CANCELED: {
+                            outputStatus(res.data.status)
+                            if (res.data && res.data.download) {
+                                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
                             }
+                            dispatch(removeLoadingTab(currentTab))
+                            resolve(false)
+                            return;
+                        }
                         default: {
                             //正常运行，则再次请求,并记录定时器id
                             intervalsStore[currentTab] = setTimeout(
@@ -72,12 +80,7 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
                                         stopSign[currentTab] = false;
                                         return;
                                     }
-                                    for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
-                                        if (offlineTaskStatusFilter[i].value == res.data.status) {
-                                            dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}.....`))
-                                            continue;
-                                        }
-                                    }
+                                    outputStatus(res.data.status,".....")
                                     doSelect(resolve, dispatch, jobId, currentTab)
                                 }, INTERVALS
                             )
@@ -94,6 +97,8 @@ function doSelect(resolve, dispatch, jobId, currentTab) {
             }
         )
 }
+
+
 
 function selectData(dispatch, jobId, currentTab) {
     return new Promise(
@@ -207,6 +212,10 @@ export function stopSql(currentTab, currentTabData, isSilent) {
         const jobId = runningSql[currentTab]
         if (!jobId) return
         const succCall = res => {
+            /**
+             * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
+             */
+            return ;
             if (res.code === 1) {
                 dispatch(output(currentTab, "执行停止"))
                 //消除轮询定时器
