@@ -114,7 +114,7 @@ public class JobClient extends OrderObject{
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
-        this.restartTime = paramAction.getTenantId();
+        this.tenantId = paramAction.getTenantId();
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
