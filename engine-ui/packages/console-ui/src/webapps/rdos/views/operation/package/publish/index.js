@@ -60,7 +60,9 @@ class PackagePublish extends React.Component {
     }
     getUsers() {
         const { project } = this.props;
-
+        if(!project.id){
+            return ;
+        }
         Api.getProjectUsers({
             projectId: project.id,
             currentPage: 1,
