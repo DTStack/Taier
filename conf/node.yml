@@ -202,9 +202,9 @@ engineTypes:
 #        learning.history.webapp.address: rdos1:19886
 #        learning.history.webapp.https.address: rdos1:19885
 
-    -
-         typeName: dtyarnshell
-         hadoop.conf.dir: /Users/softfly/Desktop/104
-         yarn.resourcemanager.recovery.enabled: true
-         jlogstash.root: /opt/dtstack/jlogstash
-         java.home: /opt/java/bin
+#    -
+#         typeName: dtyarnshell
+#         hadoop.conf.dir: /Users/softfly/Desktop/104
+#         yarn.resourcemanager.recovery.enabled: true
+#         jlogstash.root: /opt/dtstack/jlogstash
+#         java.home: /opt/java/bin
