@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
@@ -35,14 +36,20 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
-import org.apache.flink.core.fs.Path;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
-import org.apache.hadoop.yarn.api.records.*;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+import org.apache.hadoop.yarn.api.records.ApplicationReport;
+import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
+import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
+import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -58,7 +65,14 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -73,6 +87,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FlinkClient extends AbsClient {
 
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
+
+    private static final String CLASS_FILE_NAME_PRESTR = "class_path";
 
     private static final int failureRate = 3;
 
@@ -112,8 +128,6 @@ public class FlinkClient extends AbsClient {
     private FlinkYarnMode flinkYarnMode;
 
     private YarnClient yarnClient;
-
-    private List<String> jarPaths = new LinkedList<>();
 
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
@@ -231,7 +245,7 @@ public class FlinkClient extends AbsClient {
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
-            addJarsToJobGraph(jobGraph, flinkConfig.getFlinkPluginRoot() + "/sqlplugin");
+            fillJobGraphClassPath(jobGraph);
             descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
             try {
@@ -255,24 +269,35 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private void addJarsToJobGraph(JobGraph jobGraph, String path){
-        listFiles(new File(path));
-        for (String jar : jarPaths){
-            jobGraph.addJar(new Path(jar));
+    private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
+        Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
+        Set<String> classPathKeySet = Sets.newHashSet();
+
+        for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
+            if(Strings.isNullOrEmpty(tmp.getValue())){
+                continue;
+            }
+
+            if(tmp.getValue().startsWith(CLASS_FILE_NAME_PRESTR)){
+                //DISTRIBUTED_CACHE_FILE_NAME_1
+                //DISTRIBUTED_CACHE_FILE_PATH_1
+                String key = tmp.getKey();
+                String[] array = key.split("_");
+                if(array.length < 5){
+                    continue;
+                }
+
+                array[3] = "PATH";
+                classPathKeySet.add(StringUtils.join(array, "_"));
+            }
+        }
+
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
         }
     }
 
-    private void listFiles(File file){
-        File[] fs = file.listFiles();
-        for(File f : fs){
-            if(f.isDirectory())	{
-                listFiles(f);
-            }
-            if(f.isFile()){
-                jarPaths.add(f.toURI().toString());
-            }
-        }
-    }
 
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
 
