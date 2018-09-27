@@ -487,7 +487,7 @@ public class FlinkClient extends AbsClient {
 
     public String getReqUrl() {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            return "#";
+            return getLegacyReqUrl();
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
             return getNewReqUrl();
         } else {
@@ -592,7 +592,7 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
-        if (FlinkYarnMode.PER_JOB == flinkYarnMode){
+        if (jobId.startsWith("application_")){
             ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
 
             YarnLog yarnLog = new YarnLog();

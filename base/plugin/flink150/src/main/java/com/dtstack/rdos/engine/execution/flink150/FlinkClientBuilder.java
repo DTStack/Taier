@@ -238,7 +238,7 @@ public class FlinkClientBuilder {
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(),flinkConfiguration,yarnConf,".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration,yarnConf,".");
 
         ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
 
@@ -264,7 +264,7 @@ public class FlinkClientBuilder {
     public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfig.getFlinkYarnMode(), newConf, yarnConf, ".");
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
         String flinkJarPath = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
@@ -291,25 +291,15 @@ public class FlinkClientBuilder {
     }
 
     private AbstractYarnClusterDescriptor getClusterDescriptor(
-            String flinkMode,
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
-        if (FlinkYarnMode.NEW == FlinkYarnMode.mode(flinkMode) || FlinkYarnMode.PER_JOB == FlinkYarnMode.mode(flinkMode)) {
             return new YarnClusterDescriptor(
                     configuration,
                     yarnConfiguration,
                     configurationDirectory,
                     yarnClient,
                     false);
-        } else {
-            return new LegacyYarnClusterDescriptor(
-                    configuration,
-                    yarnConfiguration,
-                    configurationDirectory,
-                    yarnClient,
-                    false);
-        }
     }
 
     private ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
