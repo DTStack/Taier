@@ -79,7 +79,7 @@ public class AppArguments {
             ContainerId containerId = ConverterUtils
                     .toContainerId(envs.get(ApplicationConstants.Environment.CONTAINER_ID.toString()));
 
-            LOG.info("hyf container_id: " + containerId.toString());
+            LOG.info("container_id: " + containerId.toString());
             applicationAttemptID = containerId.getApplicationAttemptId();
 
             LOG.info("second applicationAttemptID: " + applicationAttemptID);

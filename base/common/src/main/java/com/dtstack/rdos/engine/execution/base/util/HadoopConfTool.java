@@ -32,7 +32,6 @@ public class HadoopConfTool {
 
     public static String getDfsNameServices(Map<String, Object> conf){
         String nameServices = MathUtil.getString(conf.get(DFS_NAME_SERVICES));
-        Preconditions.checkNotNull(nameServices, DFS_NAME_SERVICES + "不能为空");
         return nameServices;
     }
 

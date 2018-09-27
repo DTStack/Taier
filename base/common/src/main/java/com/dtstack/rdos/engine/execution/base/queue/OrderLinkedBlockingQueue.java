@@ -93,6 +93,25 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     }
 
     /**
+     * Linked list node class
+     */
+    public static class IndexNode<E> {
+        E item;
+        int index;
+
+        public IndexNode(E item, int index) {
+            this.item = item;
+            this.index = index;
+        }
+        public E getItem() {
+            return item;
+        }
+        public int getIndex() {
+            return index;
+        }
+    }
+
+    /**
      *
      */
     private static final long serialVersionUID = -4798912640993489687L;
@@ -463,14 +482,16 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
-    public E getElement(String sign) {
+    public IndexNode<E> getElement(String sign) {
         if (sign == null){ return null;}
         try {
             allLock.lockInterruptibly();
+            int idx=0;
             for (Node<E> p = head.next; p != null; p = p.next){
+                idx++;
                 OrderObject oo = (OrderObject)p.item;
                 if (sign.equals(oo.getId())) {
-                    return p.item;
+                    return new IndexNode<E>(p.item,idx);
                 }
             }
             return null;

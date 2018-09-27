@@ -22,16 +22,19 @@ public class ProcessLogCollector {
         this.executorService = Executors.newFixedThreadPool(2);
     }
 
-    private void logStream (InputStream inputStream) {
-        LOG.info("logStream: " + inputStream);
+    private void logStream (InputStream inputStream, boolean error) {
+
         executorService.submit(new Runnable() {
             @Override
             public void run() {
                 try(BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                    LOG.info("log reader: " + reader);
                     String stdoutLog;
                     while ((stdoutLog = reader.readLine()) != null) {
-                        LOG.info(stdoutLog);
+                        if(error) {
+                            LOG.error(stdoutLog);
+                        } else {
+                            LOG.info(stdoutLog);
+                        }
                     }
                 } catch (Exception e) {
                     LOG.warn("Exception in thread stdoutRedirectThread");
@@ -43,8 +46,8 @@ public class ProcessLogCollector {
 
     public void start() {
         LOG.info("start");
-        logStream(process.getInputStream());
-        logStream(process.getErrorStream());
+        logStream(process.getInputStream(), false);
+        logStream(process.getErrorStream(), true);
     }
 
     public void stop() {

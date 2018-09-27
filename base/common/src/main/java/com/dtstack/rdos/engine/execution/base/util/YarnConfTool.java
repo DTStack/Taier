@@ -21,15 +21,19 @@ public class YarnConfTool {
     public static final String YARN_RESOURCEMANAGER_ADDRESS = "yarn.resourcemanager.address.%s";
     public static final String YARN_RESOURCEMANAGER_HA_ENABLED = "yarn.resourcemanager.ha.enabled";
     public static final String YARN_RESOURCEMANAGER_WEBAPP_ADDRESS = "yarn.resourcemanager.webapp.address.%s";
+    public static final String YARN_RESOURCEMANAGER_ADDRESS_SIMPLE = "yarn.resourcemanager.address";
+    public static final String YARN_RESOURCEMANAGER_WEBAPP_ADDRESS_SIMPLE = "yarn.resourcemanager.webapp.address";
 
     public static String getYarnResourcemanagerHaRmIds(Map<String, Object> conf){
         String resourceManagerHaRmIds = MathUtil.getString(conf.get(YARN_RESOURCEMANAGER_HA_RM_IDS));
-        Preconditions.checkNotNull(resourceManagerHaRmIds, YARN_RESOURCEMANAGER_HA_RM_IDS + "不能为空");
         return resourceManagerHaRmIds;
     }
 
     public static List<String> getYarnResourceManagerAddressKeys(Map<String, Object> conf){
         String haRmIds = getYarnResourcemanagerHaRmIds(conf);
+        if (StringUtils.isBlank(haRmIds)){
+            return Lists.newArrayList(YARN_RESOURCEMANAGER_ADDRESS_SIMPLE);
+        }
         String[] haRmIdArr = haRmIds.split(",");
 
         List<String> rmAddressKeys = Lists.newArrayList();
@@ -61,6 +65,9 @@ public class YarnConfTool {
 
     public static List<String> getYarnResourceManagerWebAppAddressKeys(Map<String, Object> conf){
         String haRmIds = getYarnResourcemanagerHaRmIds(conf);
+        if (StringUtils.isBlank(haRmIds)){
+            return Lists.newArrayList(YARN_RESOURCEMANAGER_WEBAPP_ADDRESS_SIMPLE);
+        }
         String[] haRmIdArr = haRmIds.split(",");
 
         List<String> rmWebAppAddressKeys = Lists.newArrayList();

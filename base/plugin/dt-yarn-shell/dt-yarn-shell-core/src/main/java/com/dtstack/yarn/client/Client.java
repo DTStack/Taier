@@ -32,9 +32,7 @@ import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
-
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -96,10 +94,9 @@ public class Client {
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
 
-        if (clientArguments.queue == null || clientArguments.queue.equals("")) {
-            clientArguments.queue = appSubmitterUserName;
+        if (clientArguments.queue != null && !clientArguments.queue.equals("")) {
+            conf.set(DtYarnConfiguration.DT_APP_QUEUE, clientArguments.queue);
         }
-        conf.set(DtYarnConfiguration.LEARNING_APP_QUEUE, clientArguments.queue);
 
         if (clientArguments.confs != null) {
             setConf();
@@ -255,8 +252,7 @@ public class Client {
         Priority priority = Records.newRecord(Priority.class);
         priority.setPriority(conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY));
         applicationContext.setPriority(priority);
-        applicationContext.setQueue(conf.get(DtYarnConfiguration.LEARNING_APP_QUEUE, DtYarnConfiguration.DEFAULT_LEARNING_APP_QUEUE));
-        System.out.println("hyf submitApplication");
+        applicationContext.setQueue(conf.get(DtYarnConfiguration.DT_APP_QUEUE, DtYarnConfiguration.DEFAULT_DT_APP_QUEUE));
         applicationId = yarnClient.submitApplication(applicationContext);
 
         return applicationId.toString();

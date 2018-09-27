@@ -55,9 +55,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static Boolean DEFAULT_LEARNING_MXNET_MODE_SINGLE = false;
 
-    public static final String LEARNING_APP_QUEUE = "xlearning.app.queue";
+    public static final String DT_APP_QUEUE = "queue";
 
-    public static final String DEFAULT_LEARNING_APP_QUEUE = "DEFAULT";
+    public static final String DEFAULT_DT_APP_QUEUE = "default";
 
     public static final String APP_PRIORITY = "yarn.app.priority";
 

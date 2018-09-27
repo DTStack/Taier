@@ -16,6 +16,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +82,10 @@ public class ConsoleServiceImpl {
                 return null;
             }
             int queueSize = jobQueue.size();
-            JobClient theJob = jobQueue.getElement(jobId);
-            if (theJob == null) {
+            OrderLinkedBlockingQueue.IndexNode<JobClient> idxNode = jobQueue.getElement(jobId);
+            if (idxNode == null) {
                 return null;
             }
-
             List<Map<String, Object>> topN = new ArrayList<>();
             Iterator<JobClient> jobIt = jobQueue.iterator();
             int startIndex = pageSize * (currentPage - 1);
@@ -100,9 +100,15 @@ public class ConsoleServiceImpl {
                 }
             }
 
+            JobClient theJob=idxNode.getItem();
+            Map<String, Object> theJobMap = PublicUtil.ObjectToMap(theJob);
+            setJobFromDB(type, theJob.getTaskId(), theJobMap);
+            theJobMap.put("generateTime", theJob.getGenerateTime());
+
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("jobId", jobId);
+            result.put("theJob", Lists.newArrayList(theJobMap));
+            result.put("theJobIdx", idxNode.getIndex());
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
@@ -186,7 +192,6 @@ public class ConsoleServiceImpl {
             }
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("jobId", null);
             result.put("topN", topN);
             return result;
         } catch (Exception e) {
@@ -210,10 +215,11 @@ public class ConsoleServiceImpl {
             if (jobQueue == null) {
                 return false;
             }
-            JobClient theJob = jobQueue.getElement(jobId);
-            if (theJob == null) {
+            OrderLinkedBlockingQueue.IndexNode<JobClient> jobIdxNode = jobQueue.getElement(jobId);
+            if (jobIdxNode == null) {
                 return false;
             }
+            JobClient theJob = jobIdxNode.getItem();
             JobClient idxJob = jobQueue.getIndexOrLast(jobIndex);
             if (idxJob == null) {
                 return false;
