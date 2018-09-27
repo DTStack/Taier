@@ -37,7 +37,7 @@ public class JLogstashType extends AppType {
 
         System.out.println("encodedOpts: " + encodedOpts);
 
-        String cmd = javaHome + "/java -cp " + root + "/jlogstash.jar com.dtstack.jlogstash.Main -l stdout -f " + encodedOpts + " -p " + root;
+        String cmd = javaHome + "/java -cp " + root + "/jlogstash.jar com.dtstack.jlogstash.Main -l stdout -vvv -f " + encodedOpts + " -p " + root;
 
         System.out.println("my cmd: " + cmd);
         return cmd;
