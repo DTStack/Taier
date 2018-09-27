@@ -135,6 +135,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                            style={{width:"140px"}}
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -143,6 +144,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                        style={{width:"140px"}}
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
