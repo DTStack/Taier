@@ -474,6 +474,7 @@
             margin-top: -5px;
             line-height: 10px;
             opacity: 1;
+            font-size: 11px;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: 0px;
@@ -563,12 +564,12 @@
             display: inline-block;
             border-radius: 50%;
             position: absolute;
-            top: 12px;
-            right: 5.5px;
-            width: 6px;
-            height: 6px;
+            top: 10.5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
             z-index: 99;
-            background-color: #FF5722;
+            background-color: rgba(255, 87, 34, 0.7);
         }
 
         .tab-ellipsis {
