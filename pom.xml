@@ -17,7 +17,6 @@
 		<module>base/common</module>
 		<module>base/plugin/spark</module>
 		<module>base/plugin/flink</module>
-		<module>base/plugin/datax</module>
 		<module>web</module>
 		<module>service</module>
 		<module>base/plugin/flink130</module>

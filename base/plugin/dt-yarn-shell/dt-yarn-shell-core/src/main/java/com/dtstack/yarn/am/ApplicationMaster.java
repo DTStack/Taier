@@ -179,6 +179,7 @@ public class ApplicationMaster extends CompositeService {
 
         for(int i = 0; i < appArguments.workerNum; ++i) {
             Container container = rmCallbackHandler.take();
+            LOG.info("containerAddress: " + container.getNodeHttpAddress());
             launchContainer(containerLocalResource, workerContainerEnv,
                     workerContainerLaunchCommands, container, i);
             containerListener.registerContainer(-1, new DtContainerId(container.getId()));
@@ -206,10 +207,10 @@ public class ApplicationMaster extends CompositeService {
         }
 
         if(containerListener.isFailed()) {
-            unregister(FinalApplicationStatus.FAILED, "FUCKING SHIT");
+            unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
             return false;
         } else {
-            unregister(FinalApplicationStatus.SUCCEEDED, "YES, YOU CAN");
+            unregister(FinalApplicationStatus.SUCCEEDED, "Task is success.");
             return true;
         }
 
@@ -312,7 +313,9 @@ public class ApplicationMaster extends CompositeService {
                 tag = appMaster.run();
             } catch(Throwable t) {
                 tag = false;
-                LOG.error(DebugUtil.stackTrace(t));
+                String stackTrace = DebugUtil.stackTrace(t);
+                appMaster.unregister(FinalApplicationStatus.FAILED, stackTrace);
+                LOG.error(stackTrace);
             }
 
             if (tag) {

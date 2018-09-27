@@ -47,6 +47,10 @@ public class ContainerStatusNotifier implements Runnable {
         this.heartbeatRetryMax = this.conf.getInt(DtYarnConfiguration.XLEARNING_CONTAINER_HEARTBEAT_RETRY, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_HEARTBEAT_RETRY);
     }
 
+    public void setContainerErrorMessage(String msg) {
+        heartbeatRequest.setErrMsg(msg);
+    }
+
     public void setContainerStatus(DtContainerStatus containerStatus) {
         this.heartbeatRequest.setXLearningContainerStatus(containerStatus);
     }

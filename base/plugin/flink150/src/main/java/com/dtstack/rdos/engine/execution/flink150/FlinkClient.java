@@ -129,6 +129,8 @@ public class FlinkClient extends AbsClient {
 
     private YarnClient yarnClient;
 
+    private List<String> jarPaths = new LinkedList<>();
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
@@ -298,6 +300,25 @@ public class FlinkClient extends AbsClient {
         }
     }
 
+    private void addJarsToJobGraph(JobGraph jobGraph, String path){
+        listFiles(new File(path));
+        for (String jar : jarPaths){
+            jobGraph.addJar(new Path(jar));
+        }
+    }
+
+    private void listFiles(File file){
+        File[] fs = file.listFiles();
+        for(File f : fs){
+            if(f.isDirectory())	{
+                listFiles(f);
+            }
+            if(f.isFile()){
+                jarPaths.add(f.toURI().toString());
+            }
+        }
+    }
+
     private SavepointRestoreSettings buildSavepointSetting(JobClient jobClient){
 
         if(jobClient.getExternalPath() == null){
@@ -377,11 +398,20 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(String jobId) {
-        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
-        try{
-            client.cancel(jobID);
-        }catch (Exception e){
-            return JobResult.createErrorResult(e);
+        if (jobId.startsWith("application")){
+            try {
+                ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+                flinkClientBuilder.getYarnClient().killApplication(appId);
+            } catch (Exception e) {
+                return JobResult.createErrorResult(e);
+            }
+        } else {
+            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
+            try{
+                client.cancel(jobID);
+            }catch (Exception e){
+                return JobResult.createErrorResult(e);
+            }
         }
 
         JobResult jobResult = JobResult.newInstance(false);

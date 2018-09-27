@@ -53,7 +53,6 @@ public class ParamAction {
 
 	private long restartTime;
 
-	
 	public Integer getRequestStart() {
 		return requestStart;
 	}

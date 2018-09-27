@@ -5,6 +5,7 @@ import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,8 +15,9 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.util.ConverterUtils;
-
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,8 +131,12 @@ public class DtContainer {
     }
 
 
-    private void reportFailedAndExit() {
+    private void reportFailedAndExit(String msg) {
+        if(msg == null || msg.length() == 0) {
+            LOG.error("my error msg is: " + msg);
+        }
         Date now = new Date();
+        containerStatusNotifier.setContainerErrorMessage(msg);
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.FAILED);
 
@@ -141,6 +147,10 @@ public class DtContainer {
         Utilities.sleep(3000);
 
         System.exit(-1);
+    }
+
+    private void reportFailedAndExit() {
+        reportFailedAndExit("");
     }
 
     private void reportSucceededAndExit() {
@@ -184,7 +194,12 @@ public class DtContainer {
                 }
                 if (localFs.exists(localPath)) {
                     dfs.copyFromLocalFile(false, false, localPath, remotePath);
-                    LOG.info("Upload output " + localPath + " to remote path " + remotePath + " finished.");
+                    String localAbsolutePath = new File(outputInfo.getLocalLocation()).getAbsolutePath();
+                    String hostName =  (InetAddress.getLocalHost()).getHostName();
+                    if (hostName == null) {
+                        hostName = "";
+                    }
+                    LOG.info(hostName + "Upload output " + localAbsolutePath + " to remote path " + remotePath + " finished.");
                 }
                 localFs.close();
             }
@@ -205,9 +220,9 @@ public class DtContainer {
                 LOG.error("DtContainer run failed!");
                 container.reportFailedAndExit();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            container.reportFailedAndExit();
+            container.reportFailedAndExit(DebugUtil.stackTrace(e));
         }
         Utilities.sleep(3000);
     }
