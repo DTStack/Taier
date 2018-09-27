@@ -31,9 +31,9 @@ public class GroupExeQueue {
             if(jobClient.getGenerateTime() > maxTime){
                 maxTime = jobClient.getGenerateTime();
             }
-
-            if(jobClient.getPriority() > maxPriority){
-                maxPriority = jobClient.getPriority();
+            //使用原始的任务优先级
+            if(jobClient.getPriorityLevel() > maxPriority){
+                maxPriority = jobClient.getPriorityLevel();
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -71,8 +71,8 @@ public class GroupExeQueue {
                 maxTime = jobClient.getGenerateTime();
             }
 
-            if(jobClient.getPriority() > maxPriority){
-                maxPriority = jobClient.getPriority();
+            if(jobClient.getPriorityLevel() > maxPriority){
+                maxPriority = jobClient.getPriorityLevel();
             }
         });
     }
