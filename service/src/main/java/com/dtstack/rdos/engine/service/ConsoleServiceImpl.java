@@ -100,9 +100,14 @@ public class ConsoleServiceImpl {
                 }
             }
 
+            JobClient theJob=idxNode.getItem();
+            Map<String, Object> theJobMap = PublicUtil.ObjectToMap(theJob);
+            setJobFromDB(type, theJob.getTaskId(), theJobMap);
+            theJobMap.put("generateTime", theJob.getGenerateTime());
+
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
-            result.put("theJob", Lists.newArrayList(idxNode.getItem()));
+            result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", idxNode.getIndex());
             result.put("topN", topN);
             return result;
