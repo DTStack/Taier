@@ -137,7 +137,7 @@ class TaskDetail extends React.Component {
         const isPro=project.projectType==PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
-        const pre=isPro?'':'提交'
+        const pre=isPro?'发布':'提交'
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
@@ -167,7 +167,7 @@ class TaskDetail extends React.Component {
                 </SchedulingConfig> : ''
             }
             <Collapse bordered={false} defaultActiveKey={['3']}>
-                <Panel key="3" header={`历史${pre}版本`}>
+                <Panel key="3" header={`历史版本`}>
                     <TaskVersion
                         isPro={isPro}
                         taskInfo={tabData}
