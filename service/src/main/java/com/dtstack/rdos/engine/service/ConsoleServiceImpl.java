@@ -86,31 +86,38 @@ public class ConsoleServiceImpl {
             if (idxNode == null) {
                 return null;
             }
-            List<Map<String, Object>> topN = new ArrayList<>();
-            Iterator<JobClient> jobIt = jobQueue.iterator();
-            int startIndex = pageSize * (currentPage - 1);
-            int c = 0;
-            while (jobIt.hasNext()) {
-                c++;
-                if (startIndex < c && pageSize-- > 0) {
-                    JobClient jobClient = jobIt.next();
-                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    setJobFromDB(type, jobClient.getTaskId(), jobMap);
-                    jobMap.put("generateTime", jobClient.getGenerateTime());
-                    topN.add(jobMap);
-                }
-            }
-
-            JobClient theJob=idxNode.getItem();
+            JobClient theJob = idxNode.getItem();
             Map<String, Object> theJobMap = PublicUtil.ObjectToMap(theJob);
             setJobFromDB(type, theJob.getTaskId(), theJobMap);
             theJobMap.put("generateTime", theJob.getGenerateTime());
 
+            List<Map<String, Object>> topN = new ArrayList<>();
             Map<String, Object> result = new HashMap<>();
             result.put("queueSize", queueSize);
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", idxNode.getIndex());
             result.put("topN", topN);
+
+            Iterator<JobClient> jobIt = jobQueue.iterator();
+            int startIndex = pageSize * (currentPage - 1);
+            if (startIndex > queueSize) {
+                return result;
+            }
+            int c = 0;
+            while (jobIt.hasNext()) {
+                c++;
+                JobClient jobClient = jobIt.next();
+                if (startIndex < c && pageSize-- > 0) {
+                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
+                    setJobFromDB(type, jobClient.getTaskId(), jobMap);
+                    jobMap.put("generateTime", jobClient.getGenerateTime());
+                    topN.add(jobMap);
+                }
+                if (pageSize <= 0) {
+                    break;
+                }
+            }
+
             return result;
         } catch (Exception e) {
             logger.error("{}", e);
@@ -179,22 +186,30 @@ public class ConsoleServiceImpl {
             OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
             int queueSize = jobQueue.size();
             List<Map<String, Object>> topN = new ArrayList<>();
+            Map<String, Object> result = new HashMap<>();
+            result.put("queueSize", queueSize);
+            result.put("topN", topN);
+
             Iterator<JobClient> jobIt = jobQueue.iterator();
             int startIndex = pageSize * (currentPage - 1);
+            if (startIndex > queueSize) {
+                return result;
+            }
             int c = 0;
             while (jobIt.hasNext()) {
+                JobClient jobClient = jobIt.next();
                 c++;
                 if (startIndex < c && pageSize-- > 0) {
-                    JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
                     setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
                     jobMap.put("generateTime", jobClient.getGenerateTime());
                     topN.add(jobMap);
                 }
+                if (pageSize <= 0) {
+                    break;
+                }
             }
-            Map<String, Object> result = new HashMap<>();
-            result.put("queueSize", queueSize);
-            result.put("topN", topN);
+
             return result;
         } catch (Exception e) {
             logger.error("{}", e);
