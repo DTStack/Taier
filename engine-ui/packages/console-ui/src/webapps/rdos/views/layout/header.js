@@ -160,7 +160,18 @@ class Header extends Component {
             project && project.projectName
                 ? project.projectAlias || project.projectName
                 : "项目选择";
+        let projectTypeText='';
+        switch(project.projectType){
+            case PROJECT_TYPE.TEST:{
+                projectTypeText=" (测试项目))"
+                break;
+            }
+            case PROJECT_TYPE.PRO:{
+                projectTypeText=" (生产项目))"
+                break;
+            }
 
+        }
         const menu = (
             <Menu
                 onClick={this.selectedProject}
@@ -170,13 +181,13 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width: '145px'
+                    width: '160px'
                 }}
             >
                 {this.getProjectItems()}
             </Menu>
         )
-
+        
         return (
             <SubMenu
                 className="my-menu-item"
@@ -199,8 +210,9 @@ class Header extends Component {
                             >
                                 {projectName}
                             </span>
+                            <span>{projectTypeText}</span>
                             &nbsp;
-                            <Icon type="caret-down" />
+                            <Icon style={{fontSize:"12px"}} type="caret-down" />
                         </span>
                     </Dropdown>
                 }
