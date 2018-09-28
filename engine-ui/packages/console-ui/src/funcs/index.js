@@ -308,3 +308,19 @@ export function getContainer(id) {
     document.getElementById(id).appendChild(container);
     return container;
 }
+
+/**
+ * 替换对象数组中某个对象的字段名称
+ * @param {} data 
+ * @param {*} targetField 
+ * @param {*} replaceName 
+ */
+export function replaceObjectArrayFiledName(data, targetField, replaceName) {
+    data && data.map(item => {
+        if (item[targetField] && item[targetField].length > 0) {
+            item[replaceName] = [...item[targetField]];
+            delete item[targetField];
+        }
+        return item;
+    })
+}
