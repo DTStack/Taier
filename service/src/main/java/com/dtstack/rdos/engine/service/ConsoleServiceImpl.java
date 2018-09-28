@@ -91,7 +91,8 @@ public class ConsoleServiceImpl {
             int startIndex = pageSize * (currentPage - 1);
             int c = 0;
             while (jobIt.hasNext()) {
-                if (pageSize-- <= 0 && startIndex >= c) {
+                c++;
+                if (startIndex >= c && pageSize-- > 0) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
                     setJobFromDB(type, jobClient.getTaskId(), jobMap);
@@ -182,7 +183,8 @@ public class ConsoleServiceImpl {
             int startIndex = pageSize * (currentPage - 1);
             int c = 0;
             while (jobIt.hasNext()) {
-                if (pageSize-- <= 0 && startIndex >= c) {
+                c++;
+                if (startIndex >= c && pageSize-- > 0) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
                     setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
