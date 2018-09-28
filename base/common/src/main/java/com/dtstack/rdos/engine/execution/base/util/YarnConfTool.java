@@ -53,7 +53,11 @@ public class YarnConfTool {
     public static String getYarnResourcemanagerHaEnabled(Map<String, Object> conf){
         String haEnable = MathUtil.getString(conf.get(YARN_RESOURCEMANAGER_HA_ENABLED));
         if(StringUtils.isEmpty(haEnable)){
-            return "true";
+            if (StringUtils.isEmpty(getYarnResourcemanagerHaRmIds(conf))){
+                return Boolean.toString(Boolean.FALSE);
+            } else {
+                return Boolean.toString(Boolean.TRUE);
+            }
         }
 
         return haEnable;
