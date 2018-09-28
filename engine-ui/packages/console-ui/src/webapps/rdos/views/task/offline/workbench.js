@@ -300,7 +300,7 @@ class Workbench extends React.Component {
                         className="browser-tabs"
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2 }}
+                            <Menu style={{ marginRight: 2,maxHeight:"500px",overflowY:"auto" }}
                             >
                                 <Menu.Item  key="OHTERS">
                                 <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
