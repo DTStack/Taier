@@ -57,15 +57,7 @@ export function LogInfo(props) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
     if (log.msg_info) {
-        let log_sql=log["sql"];
-        if(log_sql&&typeof log_sql=="object"){
-            log_sql=JSON.stringify(log_sql,null,2);
-        }
-        if (log_sql) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${log_sql}\n`
-        }
         logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info}`
-
     }
 
     if (log['perf']) {
@@ -73,13 +65,22 @@ export function LogInfo(props) {
     }
 
     if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${log['root-exception']||''}`
+        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${log['root-exception'] || ''}`
     }
 
     if (appLogs || driverLog) {
         logText = `${logText} \n${appLogs} \n ${driverLog}`
     }
 
+    if (log.msg_info) {
+        let log_sql = log["sql"];
+        if (log_sql && typeof log_sql == "object") {
+            log_sql = JSON.stringify(log_sql, null, 2);
+        }
+        if (log_sql) {
+            logText = `${logText}${wrappTitle('任务信息')}\n${log_sql}\n`
+        }
+    }
     return (
         <div>
             {
