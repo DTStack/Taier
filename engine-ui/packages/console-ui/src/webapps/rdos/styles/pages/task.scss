@@ -365,6 +365,11 @@
             .ant-badge-status {
                 left: -35px;
                 width: 0px;
+                top: -1px;
+                .ant-badge-status-dot {
+                    width: 7px;
+                    height: 7px;
+                }
             }
         }
     } // -----------------离线---------------------
@@ -483,7 +488,7 @@
             border-top: none;
             border-left: none;
             text-align: left;
-            min-width: 80px;
+            min-width: 120px;
             border-radius: 0;
         }
 

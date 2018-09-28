@@ -190,6 +190,7 @@ class TaskBrowser extends Component {
     closeAllorOthers(key) {
         const { pages, currentPage, dispatch } = this.props;
 
+        console.log('key:', key);
         if (key === 'ALL') {
             let allClean = true;
 

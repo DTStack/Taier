@@ -54,6 +54,7 @@ $fontColor1: #2491F7;
     }
 
     .graph-editor,
+    .ant-input-suffix,
     .ant-card-head-title,
     .ant-tabs-tab-arrow-show,
     .ant-tree .ant-tree-switcher,
@@ -65,9 +66,11 @@ $fontColor1: #2491F7;
     .ant-confirm-content,
     .ant-dropdown-menu-item,
     .ant-dropdown-menu-item a,
+    .ant-radio-disabled + span,
     .header .my-menu .ant-menu-sub .ant-menu-item,
     .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
     .ant-select-dropdown-menu-item,
+    .ant-select-tree li .ant-select-tree-node-content-wrapper,
     .ant-select-arrow {
         color: $fontColor;
     }
@@ -86,7 +89,7 @@ $fontColor1: #2491F7;
     .stream-btn,
     .task-editor .CodeMirror-gutters,
     .ant-pagination-next .ant-pagination-item-link {
-        background: $color3;
+        background: $color3 !important;
         color: $fontColor;
         border-color: #5A5A5A;
     }
@@ -208,20 +211,22 @@ $fontColor1: #2491F7;
 
     .ant-modal {
         color: $fontColor;
-        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
-        background: $color3;
-
+        
         .ant-modal-header {
             border-bottom: 1px solid #252525;
         }
-
+        
         .ant-modal-title, .ant-modal-close {
             color: $fontColor;
         }
 
         .ant-modal-header, .ant-modal-content {
             background: $color3;
-            box-shadow: none;
+        }
+
+        .ant-modal-content {
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+            background: $color3;
         }
 
         .ant-modal-footer {
@@ -253,13 +258,13 @@ $fontColor1: #2491F7;
         }
     }
 
-    // .ant-select-search__field,
     .ant-modal
     .ant-tabs-content,
     .ant-select-dropdown,
+    .ant-select-search__field,
     .ant-layout-sider {
         background: $color2;
-        border-color: $color2;
+        border-color: $borderColor1 !important;
     }
 
     .task-sidebar .menu-content {
@@ -271,16 +276,20 @@ $fontColor1: #2491F7;
 
     .ant-input, 
     .ant-input-number,
-    .ant-input-number-input,
     .ant-calendar-picker-icon:after,
     .task-browser .panel-content .title-content .right-select .ant-select-selection,
     .ant-pagination-simple .ant-pagination-simple-pager input,
     .ant-select-selection {
-        border: 1px solid #5A5A5A;
+        border-color: #5A5A5A;
         background: #2D2D2D;
         color: $fontColor;
     }
-    
+
+    .ant-input-number-input {
+        background: #2D2D2D;
+        color: $fontColor;
+    }
+
     .ant-dropdown-menu,
     .ant-menu-sub,
     .ant-select-dropdown-menu {
@@ -292,12 +301,14 @@ $fontColor1: #2491F7;
     .ant-menu-item:hover,
     .ant-menu-item-active,
     .ant-menu-item-selected,
+
     .ant-select-dropdown-menu-item-active,
     .ant-select-dropdown-menu-item:hover,
     .ant-select-dropdown-menu-item-selected,
     .ant-dropdown-menu-item:hover, 
     .ant-dropdown-menu-item-selected,
-    .ant-dropdown-menu-submenu-title:hover {
+    .ant-dropdown-menu-submenu-title:hover,
+    .ant-select-tree li .ant-select-tree-node-content-wrapper:hover {
         background: rgba(255,255,255,0.10);
         border-radius: 2px 2px 0 0;
         color: #2491F7;
