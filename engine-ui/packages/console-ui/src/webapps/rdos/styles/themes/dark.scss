@@ -87,6 +87,7 @@ $fontColor1: #2491F7;
     .ant-pagination-simple-pager,
     .ant-pagination-item,
     .stream-btn,
+    .btn-download,
     .task-editor .CodeMirror-gutters,
     .ant-pagination-next .ant-pagination-item-link {
         background: $color3 !important;
@@ -301,7 +302,6 @@ $fontColor1: #2491F7;
     .ant-menu-item:hover,
     .ant-menu-item-active,
     .ant-menu-item-selected,
-
     .ant-select-dropdown-menu-item-active,
     .ant-select-dropdown-menu-item:hover,
     .ant-select-dropdown-menu-item-selected,
@@ -396,13 +396,15 @@ $fontColor1: #2491F7;
                 border-color: #3C3C3C;
                 border-right: 1px solid #3C3C3C;
                 border-left: 1px solid #3C3C3C;
+                border-bottom: 0;
             }
             .ant-tabs-tab-active {
                 color: #ffffff;
             }
         }
 
-        .CodeMirror {
+        .CodeMirror
+        .CodeMirror-scroll {
             background: $color1;
             color: $fontColor;
         }
