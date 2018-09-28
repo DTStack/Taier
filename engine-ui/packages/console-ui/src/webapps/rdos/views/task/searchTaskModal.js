@@ -12,7 +12,6 @@ import {
     workbenchActions
 } from '../../store/modules//offlineTask/offlineAction';
 import { showSeach } from '../../store/modules/comm';
-import { getEditorThemeClassName } from '../../store/modules/editor/editorAction'
 
 import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
@@ -137,9 +136,7 @@ class SearchTaskModal extends React.Component {
             </Option>
         )
 
-        const claName = getEditorThemeClassName(editor.options.theme); 
-
-        return <div id="JS_search_task" className={claName}>
+        return <div id="JS_search_task">
             <Modal
                 title="搜索并打开任务"
                 visible={visibleSearchTask}

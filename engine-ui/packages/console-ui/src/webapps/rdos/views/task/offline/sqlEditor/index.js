@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { Button, Modal, Checkbox, } from "antd";
 
 import utils from 'utils';
-import { filterComments, splitSql } from 'funcs';
+import { filterComments, splitSql, getContainer } from 'funcs';
 import Editor from 'widgets/editor';
 import { commonFileEditDelegator } from "widgets/editor/utils";
 import { language } from "widgets/editor/languages/dtsql/dtsql";
@@ -25,7 +25,6 @@ import {
 import { updateUser } from "../../../../store/modules/user";
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
-import { PROJECT_TYPE } from '../../../../comm/const';
 
 @pureRender
 class EditorContainer extends Component {
@@ -45,7 +44,6 @@ class EditorContainer extends Component {
     _tableLoading = {}
 
     componentDidMount() {
-
         const currentNode = this.props.currentTabData;
         if (currentNode) {
             this.props.getTab(currentNode.id)//初始化console所需的数据结构
@@ -401,12 +399,12 @@ class EditorContainer extends Component {
                     })
                 }
             )
-
-        console.log(autoComplete, syntax);
     }
+    
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
     debounceSyntaxChange=debounce(this.onSyntaxChange.bind(this),200,{ 'maxWait': 2000 })
+    
     render() {
 
         const { editor, currentTabData, value, project, user } = this.props;
@@ -477,11 +475,13 @@ class EditorContainer extends Component {
                     toolbar={toolbarOpts}
                     console={consoleOpts}
                 />
+                <div id="JS_ddl_confirm_modal">
                 <Modal
                     maskClosable
                     visible={execConfirmVisible}
                     title="执行的语句中包含DDL语句，是否确认执行？"
                     wrapClassName="vertical-center-modal modal-body-nopadding"
+                    getContainer={() => getContainer('JS_ddl_confirm_modal')}
                     onCancel={() => {
                         this.setState({ execConfirmVisible: false });
                     }}
@@ -519,6 +519,7 @@ class EditorContainer extends Component {
                         />
                     </div>
                 </Modal>
+                </div>
             </div>
         )
     }

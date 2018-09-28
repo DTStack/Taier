@@ -184,13 +184,13 @@ class TaskBrowser extends Component {
 
     /**
     * @description 关闭所有/其他tab
-    * @param {any} item
+    * @param {any} key
     * @memberof Workbench
     */
-    closeAllorOthers(item) {
-        const { key } = item;
+    closeAllorOthers(key) {
         const { pages, currentPage, dispatch } = this.props;
 
+        console.log('key:', key);
         if (key === 'ALL') {
             let allClean = true;
 
@@ -298,8 +298,7 @@ class TaskBrowser extends Component {
                         className="browser-tabs"
                         onEdit={this.onEdit}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2 }}
-                            >
+                            <Menu style={{ marginRight: 2 }}>
                                 <Menu.Item key="OHTERS">
                                     <a onClick={this.closeAllorOthers.bind(this, "OHTERS")} >关闭其他</a>
                                 </Menu.Item>
@@ -331,7 +330,7 @@ class TaskBrowser extends Component {
                     </Tabs>
                     {this.renderLock(currentPage)}
                     <RealTimeEditor {...this.props} />
-                    <div className="m-siderbench" ref={(e) => { this.SideBench = e }}>
+                    <div className="m-siderbench padding-r0" ref={(e) => { this.SideBench = e }}>
                         <Tabs
                             activeKey={this.state.selected}
                             type="card"

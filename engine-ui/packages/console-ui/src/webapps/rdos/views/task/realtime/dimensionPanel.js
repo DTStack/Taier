@@ -211,23 +211,15 @@ class OutputOrigin extends Component {
                     )}
                 </FormItem>
                 <Row>
-                    <Col span="6">
-                        <span
-                            style={{
-                                color: "rgba(0, 0, 0, 0.85)",
-                                paddingRight: 10,
-                                float: "right"
-                            }}
-                        >
-                            字段 :{" "}
-                        </span>
-                    </Col>
+                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+                        <label>字段</label>
+                    </div>
                     {panelColumn[index].type == "1" ? (
                         <Col
                             span="18"
+                            className="bd"
                             style={{
                                 marginBottom: 20,
-                                border: "1px solid #ddd"
                             }}
                         >
                             <Table

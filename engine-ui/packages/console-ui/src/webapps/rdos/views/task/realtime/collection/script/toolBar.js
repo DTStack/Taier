@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import moment from 'moment';
-import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 
 import {
-    Col, Button, message, Modal, Form, Select, Icon
+    Button, message, Modal, Form, Select,
 } from 'antd'
 
 import utils from 'utils'
+import { getContainer } from 'funcs'
 
 import API from '../../../../../api'
 import { DatabaseType } from '../../../../../components/status';
@@ -156,12 +155,14 @@ class ImportTemplateForm extends Component {
         )
 
         return (
+            <div id="JS_import_modal">
             <Modal
                 maskClosable
                 visible={execConfirmVisible}
                 title="导入模版"
                 onCancel={this.props.onCancel}
                 onOk={this.getTemplateFromNet.bind(this)}
+                getContainer={() => getContainer('JS_cata_modal')}
             >
                 <Form>
                     <FormItem
@@ -237,6 +238,7 @@ class ImportTemplateForm extends Component {
                     </FormItem>
                 </Form>
             </Modal>
+            </div>
         )
     }
 }

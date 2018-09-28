@@ -124,10 +124,10 @@ export const running = (state = [], action) => {
 /**
  * 编辑器选项
  */
- const initialEditorOptions = function() {
+const initialEditorOptions = function() {
     const defaultEditorOptions = localDb.get(KEY_EDITOR_OPTIONS);
     return defaultEditorOptions || { theme: 'vs' };
- }
+}
 
 export const options = (state = initialEditorOptions(), action) => {
     switch(action.type) {

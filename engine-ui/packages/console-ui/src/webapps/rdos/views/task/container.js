@@ -23,11 +23,14 @@ function mapStateToProps(state) {
 
 @connect(mapStateToProps)
 class Container extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
             loading: "success"
         };
+        this.loadIDETheme(this.props.editor.options.theme);
+
     }
 
     componentDidMount() {
@@ -44,6 +47,13 @@ class Container extends Component {
             dispatch(stopSql(running[i], null, true));
         }
         window.removeEventListener("beforeunload", this.beforeunload, false);
+        this.unloadIDETheme();
+    }
+
+    componentWillReceiveProps (nextProps) {
+        if (nextProps.editor.options.theme !== this.props.editor.options.theme) {
+            this.loadIDETheme(nextProps.editor.options.theme);
+        }
     }
 
     beforeunload = e => {
@@ -62,12 +72,21 @@ class Container extends Component {
         }, 200);
     };
 
-    render() {
-        const { children, editor } = this.props;
-        const claName = getEditorThemeClassName(editor.options.theme); 
+    loadIDETheme = (theme) => {
+        console.log("componentDidMount 开发套件：", this.props.editor)
+        const claName = getEditorThemeClassName(theme); 
+        document.body.className = claName;
+    }
 
+    unloadIDETheme = () => {
+        console.log("componentWillUnmount 开发套件：", this.props.editor);
+        document.body.className = "";
+    }
+
+    render() {
+        const { children } = this.props;
         return (
-            <Layout className={`dt-dev-task ${claName}`}>
+            <Layout className="dt-dev-task">
                 <SplitPane
                     split="vertical"
                     minSize={230}
