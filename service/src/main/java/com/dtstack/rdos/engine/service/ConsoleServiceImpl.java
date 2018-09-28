@@ -92,7 +92,7 @@ public class ConsoleServiceImpl {
             int c = 0;
             while (jobIt.hasNext()) {
                 c++;
-                if (startIndex >= c && pageSize-- > 0) {
+                if (startIndex < c && pageSize-- > 0) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
                     setJobFromDB(type, jobClient.getTaskId(), jobMap);
@@ -184,7 +184,7 @@ public class ConsoleServiceImpl {
             int c = 0;
             while (jobIt.hasNext()) {
                 c++;
-                if (startIndex >= c && pageSize-- > 0) {
+                if (startIndex < c && pageSize-- > 0) {
                     JobClient jobClient = jobIt.next();
                     Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
                     setJobFromDB(jobClient.getComputeType(), jobClient.getTaskId(), jobMap);
