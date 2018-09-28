@@ -85,7 +85,12 @@ public class EngineTypeQueue {
                 break;
             }
         }
-
+        //fixme  去掉提交队列
+        if (!result){
+            GroupExeQueue exeQueue = groupExeQueueMap.get(groupName);
+            exeQueue.incrementPriority();
+            groupMaxPriority.put(groupName,exeQueue.getMaxPriority());
+        }
         return result;
     }
 
