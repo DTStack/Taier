@@ -180,7 +180,6 @@ class Workbench extends React.Component {
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest= project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;

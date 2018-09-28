@@ -82,7 +82,6 @@ class TaskFlowView extends Component {
         this.hideMenu();
         this.loadTaskChidren({
             jobId: id,
-            level: 6,
         })
     }
 

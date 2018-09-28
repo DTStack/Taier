@@ -184,11 +184,10 @@ class TaskBrowser extends Component {
 
     /**
     * @description 关闭所有/其他tab
-    * @param {any} item
+    * @param {any} key
     * @memberof Workbench
     */
-    closeAllorOthers(item) {
-        const { key } = item;
+    closeAllorOthers(key) {
         const { pages, currentPage, dispatch } = this.props;
 
         if (key === 'ALL') {
@@ -283,10 +282,13 @@ class TaskBrowser extends Component {
 
     render() {
         const {
-            currentPage, pages, router,
-        } = this.props
+            currentPage, pages, router, editor,
+        } = this.props;
+
         if (pages.length === 0) router.push('/realtime')
+        
         const panels = this.mapPanels(pages)
+        
         return (
             <Row className="task-browser">
                 <div className="browser-content">
@@ -298,8 +300,7 @@ class TaskBrowser extends Component {
                         className="browser-tabs"
                         onEdit={this.onEdit}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2 }}
-                            >
+                            <Menu style={{ marginRight: 2 }}>
                                 <Menu.Item key="OHTERS">
                                     <a onClick={this.closeAllorOthers.bind(this, "OHTERS")} >关闭其他</a>
                                 </Menu.Item>
@@ -364,6 +365,7 @@ class TaskBrowser extends Component {
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
                                     language="ini"
+                                    options={{ theme: editor.options.theme }}
                                 />
                             </TabPane>
                         </Tabs>
@@ -380,5 +382,6 @@ export default connect((state) => {
         currentPage,
         pages,
         resources,
+        editor: state.editor,
     }
 })(TaskBrowser) 

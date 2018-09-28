@@ -32,8 +32,6 @@ class Main extends Component {
         const { dispatch } = this.props;
         // dispatch(UserAction.getUser())
         dispatch(updateApp(consoleApp));
-        
-        
     }
 
     render() {

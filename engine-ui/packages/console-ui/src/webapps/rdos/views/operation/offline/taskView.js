@@ -97,7 +97,6 @@ export default class TaskView extends Component {
         this.hideMenu()
         this.loadTaskChidren({
             taskId: id,
-            level: 6,
         })
     }
 
