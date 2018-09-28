@@ -161,13 +161,16 @@ class Header extends Component {
                 ? project.projectAlias || project.projectName
                 : "项目选择";
         let projectTypeText='';
+        let projectTypeIcon=null;
         switch(project.projectType){
             case PROJECT_TYPE.TEST:{
-                projectTypeText=" (测试项目))"
+                projectTypeText=" (测试项目)"
+                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/develop.svg" />
                 break;
             }
             case PROJECT_TYPE.PRO:{
-                projectTypeText=" (生产项目))"
+                projectTypeText=" (生产项目)"
+                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/produce.svg" />
                 break;
             }
 
@@ -181,7 +184,7 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width: '160px'
+                    width:"170px"
                 }}
             >
                 {this.getProjectItems()}
@@ -190,7 +193,7 @@ class Header extends Component {
         
         return (
             <SubMenu
-                className="my-menu-item"
+                className="my-menu-item" 
                 title={
                     <Dropdown
                         overlay={menu}
@@ -204,6 +207,7 @@ class Header extends Component {
                             }}
                             className="my-menu-item"
                         >
+                           {projectTypeIcon}
                             <span
                                 className="menu-text-ellipsis"
                                 title={projectName}
@@ -294,14 +298,14 @@ class Header extends Component {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        {showProjectSelect && projectTypeView && <Menu.Item
+                        {/* {showProjectSelect && projectTypeView && <Menu.Item
                             className="my-menu-item tip"
                             key="env_logo"
                             style={{ display }}
                             disabled
                         >
                             {this.renderProjectType()}
-                        </Menu.Item>}
+                        </Menu.Item>} */}
                         <Menu.Item
                             className="my-menu-item"
                             key="database"
