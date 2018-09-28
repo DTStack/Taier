@@ -10,6 +10,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { replaceObjectArrayFiledName } from 'funcs';
 import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
@@ -118,7 +119,8 @@ class OfflineTaskMana extends Component {
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data })
+                replaceObjectArrayFiledName(res.data.data, 'relatedTasks', 'children');
+                ctx.setState({ tasks: res.data });
             }
             this.setState({ loading: false })
         })

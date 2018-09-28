@@ -238,6 +238,10 @@ const WrapCollectionSourceForm = Form.create({
         if(fields.journalName){
             fields.timestamp=null;
         }
+        if(fields.collectType!=undefined&&fields.collectType==collect_type.ALL){
+            fields.journalName=null;
+            fields.timestamp=null;
+        }
         /**
          * 改变table的情况
          * 1.包含全部，则剔除所有其他选项，设置alltable=true

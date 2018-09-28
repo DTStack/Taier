@@ -283,10 +283,13 @@ class TaskBrowser extends Component {
 
     render() {
         const {
-            currentPage, pages, router,
-        } = this.props
+            currentPage, pages, router, editor,
+        } = this.props;
+
         if (pages.length === 0) router.push('/realtime')
+        
         const panels = this.mapPanels(pages)
+        
         return (
             <Row className="task-browser">
                 <div className="browser-content">
@@ -363,6 +366,7 @@ class TaskBrowser extends Component {
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
                                     language="ini"
+                                    options={{ theme: editor.options.theme }}
                                 />
                             </TabPane>
                         </Tabs>
@@ -379,5 +383,6 @@ export default connect((state) => {
         currentPage,
         pages,
         resources,
+        editor: state.editor,
     }
 })(TaskBrowser) 

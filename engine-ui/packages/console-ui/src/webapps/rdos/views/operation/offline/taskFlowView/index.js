@@ -82,7 +82,6 @@ class TaskFlowView extends Component {
         this.hideMenu();
         this.loadTaskChidren({
             jobId: id,
-            level: 6,
         })
     }
 
@@ -135,7 +134,7 @@ class TaskFlowView extends Component {
         graph.setTooltips(true)
         graph.view.setScale(1)
         // Enables HTML labels
-        graph.setHtmlLabels(false);
+        graph.setHtmlLabels(true);
 
         graph.setAllowDanglingEdges(false)
         // 禁止连接
@@ -177,6 +176,8 @@ class TaskFlowView extends Component {
 
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
+        // 转换value显示的内容
+        graph.convertValueToString = this.corvertValueToString
 
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
@@ -212,6 +213,21 @@ class TaskFlowView extends Component {
         const taskName = task.name.length > 12 ? `${task.name.substring(0, 10)}...` : task.name;
         const str = `${taskName || ''} \n ${taskType}(${taskStatus})`;
         return str;
+    }
+
+    corvertValueToString = (cell) => {
+        if (cell.vertex && cell.value) {
+            const task = cell.value.batchTask || {};
+            const taskType = taskTypeText(task.taskType);
+            const taskStatus = taskStatusText(cell.value.status);
+
+            if (task) {
+                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}</span>
+                <span class="vertex-desc">${taskType}(${taskStatus})</span>
+                </div>`
+            }
+        }
+        return '';
     }
 
     preHandGraphTree = (data, nodeType) => {
@@ -279,7 +295,7 @@ class TaskFlowView extends Component {
             let style = getVertxtStyle(data.status);
             let cy = 10;
 
-            const valueStr = this.getShowStr(data);
+            // const valueStr = this.getShowStr(data);
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId;
@@ -299,11 +315,11 @@ class TaskFlowView extends Component {
             if (parentCell && parentCell.geometry) {
                 cy = parentCell.geometry.y + VertexSize.height + 5;
             }
-            
+
             const cell = graph.insertVertex(
                 parentCell,
                 data.id, 
-                valueStr, 
+                data, 
                 10, cy,
                 width, height, 
                 style,
