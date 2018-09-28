@@ -73,7 +73,7 @@ export function LogInfo(props) {
     }
 
     if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${log['root-exception']}`
+        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${log['root-exception']||''}`
     }
 
     if (appLogs || driverLog) {
