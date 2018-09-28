@@ -63,6 +63,14 @@ public class GroupExeQueue {
         });
     }
 
+    public void incrementPriority(){
+        for(JobClient e: exeQueue){
+            int currPriority = e.getPriority();
+            e.setPriority(currPriority + 1);
+        }
+        updateExtInfo();
+    }
+
     public int size(){
         return exeQueue.size();
     }

@@ -140,10 +140,7 @@ public class ExeQueueMgr {
                     }
                     //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
                     if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
-                        for(JobClient e: gq.getExeQueue()){
-                            int currPriority = e.getPriority();
-                            jobClient.setPriority(currPriority + 1);
-                        }
+                        gq.incrementPriority();
                         return;
                     }
                     cService.submit(new JobSubmitProcessor(jobClient, gq.getGroupName(), engineType));
