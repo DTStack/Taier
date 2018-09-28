@@ -219,10 +219,10 @@ export default class TaskView extends Component {
                             loop(nodeData, parent, level - 1, currentNodeGeo)
                         }
 
-                        const isExist = relationTree.find(t => t.source.id === nodeData.id &&
-                            t.target && t.target.id === currentNodeData.id);
+                        // const isExist = relationTree.find(t => t.source.id === nodeData.id &&
+                        //     t.target && t.target.id === currentNodeData.id);
 
-                        console.log('parentNodes isExist:', isExist);
+                        // console.log('parentNodes isExist:', isExist);
 
                         relationTree.push({
                             parent: parent,
@@ -254,15 +254,15 @@ export default class TaskView extends Component {
                             target: nodeData,
                         };
 
-                        const isExist = relationTree.findIndex(t => t.source.id === currentNodeData.id &&
-                            t.target && t.target.id === nodeData.id);
-                        if (isExist > -1) {
-                            console.log('childNodes isExist:', isExist, relationTree[isExist]);
-                            console.log('childNodes isExist:', currentNodeData, nodeData);
-                            // relationTree[isExist] = treeItem;
-                        } else {
-                            relationTree.push(treeItem);
-                        }
+                        // const isExist = relationTree.findIndex(t => t.source.id === currentNodeData.id &&
+                        //     t.target && t.target.id === nodeData.id);
+                        // if (isExist > -1) {
+                        //     console.log('childNodes isExist:', isExist, relationTree[isExist]);
+                        //     console.log('childNodes isExist:', currentNodeData, nodeData);
+                        //     // relationTree[isExist] = treeItem;
+                        // } else {
+                        // }
+                        relationTree.push(treeItem);
                     }
                 }
             }

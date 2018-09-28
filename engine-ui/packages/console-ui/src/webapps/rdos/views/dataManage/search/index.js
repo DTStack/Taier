@@ -48,10 +48,6 @@ class SearchTable extends Component {
         this.search();
     }
 
-    componentWillReceiveProps(nextProps) {
-
-    }
-
     search = () => {
         this.setState({
             cardLoading: true,
