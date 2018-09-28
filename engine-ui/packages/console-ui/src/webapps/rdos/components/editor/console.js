@@ -138,7 +138,7 @@ class Console extends Component {
                                 }`}
                                 download
                             >
-                                <Button style={exportStyle}>下载</Button>
+                                <Button className="btn-download" style={exportStyle}>下载</Button>
                             </a>
                         ) : null}
                     </TabPane>
