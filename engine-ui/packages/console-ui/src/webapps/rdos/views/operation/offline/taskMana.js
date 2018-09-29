@@ -473,7 +473,7 @@ class OfflineTaskMana extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
                         >
                             <Tabs animated={false} onChange={this.onTabChange}>
                                 <TabPane tab="依赖视图" key="taskFlow">
