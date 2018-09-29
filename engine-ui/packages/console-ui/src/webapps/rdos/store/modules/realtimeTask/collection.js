@@ -75,6 +75,9 @@ export const actions = {
                 return;
             }
             initCurrentPage(dispatch);
+            if(page.taskVersions&&page.taskVersions.length){
+                setCurrentPageValue(dispatch, "isEdit", true);
+            }
             ajax.getRealtimeJobData({
                 taskId
             }).then((res) => {
@@ -88,8 +91,7 @@ export const actions = {
                     }
                     dispatch(actions.updateSourceMap(res.data.sourceMap,false,true)); 
                     dispatch(actions.updateTargetMap(res.data.targetMap,false,true));
-                    setCurrentPageValue(dispatch, "currentStep", 2);
-                    setCurrentPageValue(dispatch, "isEdit", true);
+                    setCurrentPageValue(dispatch, "currentStep", 2);    
                 }else{
                     setCurrentPageValue(dispatch, "currentStep", 0);
                 }
