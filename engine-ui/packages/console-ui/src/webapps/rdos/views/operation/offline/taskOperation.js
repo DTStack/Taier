@@ -660,7 +660,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed' }}
+                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed', paddingTop: '50px'  }}
                         >
                             <TaskFlowView
                                 isPro={isPro}
