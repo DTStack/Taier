@@ -135,11 +135,11 @@ public class ExeQueueMgr {
                 try {
                     //队列为空
                     if (jobClient == null) {
-                        return;
+                        continue;
                     }
                     //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
                     if (!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)) {
-                        return;
+                        continue;
                     }
                     gq.remove(jobClient.getTaskId());
                     jobPool.submit(new JobSubmitProcessor(jobClient, ()-> gq.addJobClient(jobClient)));
