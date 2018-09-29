@@ -80,7 +80,7 @@ class CollectionTargetForm extends React.Component {
 
     render() {
         const { collectionData, topicList } = this.props;
-        const { dataSourceList = [] } = collectionData;
+        const { dataSourceList = [], isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
         return (
             <div>
@@ -93,6 +93,7 @@ class CollectionTargetForm extends React.Component {
                             rules: [{ required: true, message: '请选择数据源' }],
                         })(
                             <Select
+                                disabled={isEdit}
                                 placeholder="请选择数据源"
                                 style={{ width: "100%" }}
                             >
@@ -115,6 +116,7 @@ class CollectionTargetForm extends React.Component {
                             }]
                         })(
                             <Select
+                                disabled={isEdit}
                                 style={{ width: '100%' }}
                                 placeholder="请选择topic"
 

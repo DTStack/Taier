@@ -89,6 +89,7 @@ export const actions = {
                     dispatch(actions.updateSourceMap(res.data.sourceMap,false,true)); 
                     dispatch(actions.updateTargetMap(res.data.targetMap,false,true));
                     setCurrentPageValue(dispatch, "currentStep", 2);
+                    setCurrentPageValue(dispatch, "isEdit", true);
                 }else{
                     setCurrentPageValue(dispatch, "currentStep", 0);
                 }
