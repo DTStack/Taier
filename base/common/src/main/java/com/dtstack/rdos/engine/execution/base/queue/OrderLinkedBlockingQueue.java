@@ -508,14 +508,15 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         try {
             allLock.lockInterruptibly();
             int i = 1;
-            for (Node<E> pre = head,p = pre.next; p == null || i>=idx; pre=p,p = p.next,i++){
-                if (p != null){
-                    return p.item;
-                } else {
-                    return pre.item;
+            for (Node<E> pre = head,p = pre.next;; pre=p,p = p.next,i++){
+                if (i>=idx||p==null){
+                    if (p != null){
+                        return p.item;
+                    } else {
+                        return pre.item;
+                    }
                 }
             }
-            return null;
         } catch(Exception e){
             e.printStackTrace();
             throw new RuntimeException(e.getCause());
