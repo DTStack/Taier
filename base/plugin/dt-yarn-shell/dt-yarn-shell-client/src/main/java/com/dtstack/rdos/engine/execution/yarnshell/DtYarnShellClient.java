@@ -192,14 +192,14 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
+        Map<String,Object> jobLog = new HashMap<>();
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            Map<String,Object> jobLog = new HashMap<>();
-            jobLog.put("msgInfo", applicationReport.getDiagnostics());
-            return gson.toJson(jobLog, Map.class);
+            jobLog.put("msg_info", applicationReport.getDiagnostics());
         } catch (Exception e) {
+            jobLog.put("msg_info", e.getMessage());
             LOG.error("", e);
-            return e.getMessage();
         }
+        return gson.toJson(jobLog, Map.class);
     }
 }
