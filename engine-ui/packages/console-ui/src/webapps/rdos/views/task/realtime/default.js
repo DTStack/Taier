@@ -15,21 +15,24 @@ class Default extends Component {
         }
     }
     render() {
-        const { dispatch } = this.props
+        const { dispatch, editor } = this.props;
+        const themeDark = editor.options.theme !== "vs" ? true : undefined;
+        const iconBaseUrl = themeDark ? '/public/rdos/img/theme-dark' : '/public/rdos/img';
+
         return (
             <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>
                 <Col className="operation-card" >
                     <div
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE)) }}
                         className="operation-content">
-                        <img src="/public/rdos/img/icon_createtask.png" className="anticon" />
+                        <img src={`${iconBaseUrl}/create_task.png`} className="anticon" />
                         <p className="txt-center operation-title">创建实时任务</p>
                     </div>
                 </Col><Col className="operation-card">
                     <div
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
                         className="operation-content">
-                        <img src="/public/rdos/img/icon_upload.png" className="anticon" />
+                        <img src={`${iconBaseUrl}/upload_res.png`} className="anticon" />
                             <p className="txt-center operation-title">上传实时计算资源</p>
                     </div>
                 </Col>
@@ -39,6 +42,7 @@ class Default extends Component {
 }
 export default connect(state => {
     return {
-        project: state.project
+        project: state.project,
+        editor: state.editor,
     }
 })(Default)

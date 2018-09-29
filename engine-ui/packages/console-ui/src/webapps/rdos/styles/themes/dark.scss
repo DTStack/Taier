@@ -250,11 +250,14 @@ $fontColor1: #2491F7;
     .operation-card {
 
         .operation-content {
-            background: $color2;
-            border-color: $borderColor;
+
+            border-color: #1E1E1E;
+            background: #292929;
+            box-shadow: 0 2px 6px 0 rgba(0,0,0,0.08);
+            border-radius: 2px;
 
             .operation-title {
-                color: $fontColor;
+                color: #DDDDDD;
             }
         }
     }
