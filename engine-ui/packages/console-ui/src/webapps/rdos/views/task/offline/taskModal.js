@@ -279,7 +279,7 @@ class TaskForm extends React.Component {
                             {getFieldDecorator('options', {
                                 initialValue: this.isEditExist ? defaultData.options : ''
                             })(
-                                <TextArea autosize={{ minRows: 2, maxRows: 4 }} placeholder="输入命令行参数，多个参数用空格隔开" />
+                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="输入命令行参数，多个参数用空格隔开" />
                             )}
                             {/* <HelpDoc doc="optionsTaskHelp" /> */}
                         </FormItem>

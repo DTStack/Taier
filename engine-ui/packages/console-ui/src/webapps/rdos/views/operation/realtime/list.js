@@ -103,7 +103,11 @@ class RealTimeTaskList extends Component {
         const ctx = this
         const current = this.state.current
         const status = task.status
-        const isRestore = status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED || status === TASK_STATUS.WAIT_SUBMIT ? 1 : 0
+        const isRestore = status === TASK_STATUS.STOPED 
+        || status === TASK_STATUS.RUN_FAILED 
+        || status === TASK_STATUS.WAIT_SUBMIT 
+        || status === TASK_STATUS.SUBMIT_FAILED
+        ? 1 : 0
         
         switch(status){
             case TASK_STATUS.WAIT_SUBMIT:
@@ -256,6 +260,7 @@ class RealTimeTaskList extends Component {
                 let popTxt = '确定执行当前操作吗?'
                 switch (record.status) {
                     case TASK_STATUS.WAIT_SUBMIT:
+                    case TASK_STATUS.SUBMIT_FAILED:
                         normal = '提交'
                         break;
                     case TASK_STATUS.FINISHED:

@@ -58,6 +58,27 @@ class TableTree extends React.Component {
             expandedKeys: keys,
         })
     }
+
+    handleSelect = (key, { node }) => {
+        const table = node.props.data
+        const { expandedKeys } = this.state;
+        if (table && table.type !== 'folder') {
+            this.setState({ tableId: table.id })
+        } else if ( table && table.type === 'folder') {
+            const { eventKey } = node.props;
+            const eventKeyIndex = expandedKeys.indexOf(eventKey);
+            if (eventKeyIndex > -1) {
+                this.onLoadData(node);
+                expandedKeys.splice(eventKeyIndex, 1);
+                this.onExpand(expandedKeys, { expanded: false });
+            } else {
+                this.onLoadData(node)
+                expandedKeys.push(eventKey)
+                this.onExpand(expandedKeys, { expanded: true })
+            }
+        }
+    }
+
     onLoadData = (treeNode) => {
         const { data } = treeNode.props;
         return new Promise((resolve) => {
@@ -81,7 +102,6 @@ class TableTree extends React.Component {
     refresh = () => {
         this.doReq('')
         this.setState({ tableId: '' })
-
     }
 
     doReq = (queryName, id) => {
@@ -118,12 +138,6 @@ class TableTree extends React.Component {
         })
     }
 
-    handleSelect = (key, { node }) => {
-        const table = node.props.data
-        if (table && table.type !== 'folder') {
-            this.setState({ tableId: table.id })
-        }
-    }
     tableChange(value) {
         this.setState({
             projectId: value
@@ -176,7 +190,6 @@ class TableTree extends React.Component {
                         onExpand={this.onExpand}
                         treeData={this.props.treeData}
                     />
-
                 </div>
                 {
                     tableId && <div className="tb-info">
@@ -190,9 +203,11 @@ class TableTree extends React.Component {
 
 //抽离组件防止其他影响的卡顿
 class TreeContent extends React.PureComponent {
+
     jumpToDataMap(id) {
         window.open(`${location.pathname}#/data-manage/table/view/${id}`);
     }
+
     renderNodes = () => {
         const { treeData } = this.props;
         const loop = (data) => {
