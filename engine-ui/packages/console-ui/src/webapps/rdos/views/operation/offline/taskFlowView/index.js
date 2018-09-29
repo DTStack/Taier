@@ -393,7 +393,9 @@ class TaskFlowView extends Component {
                 }
             }
         }
-        graph.view.setTranslate(cx, cy)
+        // graph.view.setTranslate(cx, cy)
+        // graph.scrollCellToVisible(parent, true);
+        graph.center();
     }
 
     initContextMenu = (graph) => {
