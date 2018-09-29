@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,6 +40,8 @@ import java.util.Properties;
 public class DtYarnShellClient extends AbsClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DtYarnShellClient.class);
+
+    private static final Gson gson = new Gson();
 
     private Client client;
 
@@ -190,8 +194,9 @@ public class DtYarnShellClient extends AbsClient {
     public String getJobLog(String jobId) {
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            String msgInfo = applicationReport.getDiagnostics();
-            return msgInfo;
+            Map<String,Object> jobLog = new HashMap<>();
+            jobLog.put("msgInfo", applicationReport.getDiagnostics());
+            return gson.toJson(jobLog, Map.class);
         } catch (Exception e) {
             LOG.error("", e);
             return e.getMessage();
