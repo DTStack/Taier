@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -62,7 +63,7 @@ public class ExeQueueMgr {
         executorService =new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("timerClear"));
         executorService.submit(new TimerClear(typeList));
-        jobPool = new ThreadPoolExecutor(3, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
+        jobPool = new ThreadPoolExecutor(3, 10, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory("jobExecutor"));
     }
 
@@ -126,39 +127,28 @@ public class ExeQueueMgr {
     }
 
     public void checkQueueAndSubmit(){
-        CompletionService<JobSubmitProcessor> cService = new ExecutorCompletionService<>(jobPool);
-        Semaphore semaphore = new Semaphore(0);
-        for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
+        out:for(EngineTypeQueue engineTypeQueue : engineTypeQueueMap.values()){
             String engineType = engineTypeQueue.getEngineType();
             Map<String, GroupExeQueue> engineTypeQueueMap = engineTypeQueue.getGroupExeQueueMap();
-            engineTypeQueueMap.values().forEach(gq ->{
-                try{
+            for (GroupExeQueue gq:engineTypeQueueMap.values()){
+                JobClient jobClient = gq.getTop();
+                try {
                     //队列为空
-                    JobClient jobClient = gq.getTop();
-                    if(jobClient == null){
+                    if (jobClient == null) {
                         return;
                     }
                     //判断该队列在集群里面是不是可以执行的--->保证同一个groupName的执行顺序一致
-                    if(!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)){
+                    if (!checkLocalPriorityIsMax(engineType, gq.getGroupName(), localAddress)) {
                         return;
                     }
-                    cService.submit(new JobSubmitProcessor(jobClient, gq.getGroupName(), engineType));
-                    semaphore.release();
-                }catch (Exception e){
+                    gq.remove(jobClient.getTaskId());
+                    jobPool.submit(new JobSubmitProcessor(jobClient, ()-> gq.addJobClient(jobClient)));
+                } catch (RejectedExecutionException e){
+                    gq.addJobClient(jobClient);
+                    break out;
+                } catch (Exception e){
                     LOG.error("", e);
                 }
-            });
-        }
-        while (semaphore.tryAcquire()){
-            try {
-                Future<JobSubmitProcessor> future = cService.take();
-                JobSubmitProcessor processor = future.get();
-                if (processor!=null){
-                    EngineTypeQueue engineTypeQueue = engineTypeQueueMap.get(processor.getEngineType());
-                    engineTypeQueue.remove(processor.getGroupName(),processor.getJobClient().getTaskId());
-                }
-            } catch (Exception e){
-                LOG.error("{}",e);
             }
         }
     }
