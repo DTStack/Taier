@@ -5,7 +5,6 @@ import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
-import com.dtstack.rdos.engine.execution.base.queue.ExeQueueMgr;
 import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -44,12 +43,7 @@ public class QueueListener implements Runnable{
                 ClusterQueueInfo.getInstance().updateClusterQueueInfo(queueInfo);
 
                 //更新当前节点的queue 信息
-                Map<String, Map<String, Integer>>  localQueuePriority = ExeQueueMgr.getInstance().getEngineTypePriorityInfo();
-                Map<String, Map<String, Integer>>  localQueueSize = WorkNode.getInstance().getEngineTypeQueueSizeInfo();
-
-                Map<String,Map<String,GroupInfo>> engineTypeGroup = Maps.newHashMap();
-                combineQueuePriority(localQueuePriority,engineTypeGroup);
-                combineQueueSize(localQueueSize,engineTypeGroup);
+                Map<String, Map<String, GroupInfo>>  engineTypeGroup = WorkNode.getInstance().getEngineTypeQueueInfo();
 
                 BrokerQueueNode localQueueNode = new BrokerQueueNode();
                 localQueueNode.setGroupQueueInfo(engineTypeGroup);
@@ -67,27 +61,4 @@ public class QueueListener implements Runnable{
         }
 
 	}
-
-    private void combineQueuePriority(Map<String, Map<String, Integer>> localQueue,
-                                  Map<String,Map<String,GroupInfo>> engineTypeGroup) {
-	    for (Map.Entry<String,Map<String, Integer>> engineTypeEntry:localQueue.entrySet()){
-            Map<String,GroupInfo> group = engineTypeGroup.computeIfAbsent(engineTypeEntry.getKey(),k->Maps.newHashMap());
-            for (Map.Entry<String,Integer> engineTypeGroupEntry: engineTypeEntry.getValue().entrySet()){
-                GroupInfo groupInfo = group.computeIfAbsent(engineTypeGroupEntry.getKey(),k->new GroupInfo());
-                groupInfo.setPriority(engineTypeGroupEntry.getValue());
-            }
-        }
-    }
-
-    private void combineQueueSize(Map<String, Map<String, Integer>> localQueue,
-                                  Map<String,Map<String,GroupInfo>> engineTypeGroup) {
-        for (Map.Entry<String,Map<String, Integer>> engineTypeEntry:localQueue.entrySet()){
-            Map<String,GroupInfo> group = engineTypeGroup.computeIfAbsent(engineTypeEntry.getKey(),k->Maps.newHashMap());
-            for (Map.Entry<String,Integer> engineTypeGroupEntry: engineTypeEntry.getValue().entrySet()){
-                GroupInfo groupInfo = group.computeIfAbsent(engineTypeGroupEntry.getKey(),k->new GroupInfo());
-                groupInfo.setSize(engineTypeGroupEntry.getValue());
-            }
-        }
-    }
-
 }

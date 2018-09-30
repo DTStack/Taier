@@ -13,7 +13,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
+import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

@@ -1,4 +1,4 @@
-package com.dtstack.rdos.engine.service.node;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
@@ -22,12 +22,10 @@ public class GroupPriorityQueue {
     private Map<String, OrderLinkedBlockingQueue<JobClient>> groupPriorityQueueMap = Maps.newHashMap();
 
     public GroupPriorityQueue(){
-        groupPriorityQueueMap.put(DEFAULT_GROUP_NAME, new OrderLinkedBlockingQueue<>());
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        String groupName = jobClient.getGroupName();
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        String groupName = jobClient.getGroupName() == null ? DEFAULT_GROUP_NAME : jobClient.getGroupName();
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
                 k -> new OrderLinkedBlockingQueue<>());
 
@@ -40,16 +38,6 @@ public class GroupPriorityQueue {
 
     public Map<String, OrderLinkedBlockingQueue<JobClient>> getGroupPriorityQueueMap() {
         return groupPriorityQueueMap;
-    }
-
-    public Map<String,Integer> getGroupSizeInfo(){
-        Map<String,Integer> groupSizeInfo = Maps.newHashMap();
-        groupPriorityQueueMap.forEach((group, queue)->groupSizeInfo.computeIfAbsent(group,k->queue.size()));
-        return groupSizeInfo;
-    }
-
-    public Collection<OrderLinkedBlockingQueue<JobClient>> getOrderList(){
-        return groupPriorityQueueMap.values();
     }
 
     public boolean remove(String groupName, String jobId){
