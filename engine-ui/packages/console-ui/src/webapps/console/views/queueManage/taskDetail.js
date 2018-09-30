@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-29 19:31:01
+* @Last Modified time: 2018-09-30 16:08:33
 */
 
 import React, { Component } from 'react';
@@ -616,7 +616,7 @@ class TaskDetail extends Component {
 					<Select className="task-search"
 						mode="combobox"
 						value={this.state.jobName}
-						style={{width:"180px"}}
+						style={{width:"250px"}}
 						// notFoundContent="没有搜索到该任务"
 						filterOption={false}
 						onChange={this.changeTaskName.bind(this)}
