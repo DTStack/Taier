@@ -136,10 +136,17 @@ class RealTimeTabPane extends Component {
 
 
     chooseTask = (selectedKeys, info) => {
-        const { dispatch } = this.props
+        const { dispatch, pages } = this.props
         const { data } = info.node.props
         if (data.type === 'file') {
-            dispatch(BrowserAction.openPage({ id: data.id }))
+            const page=pages.find((item)=>{
+                return item.id==data.id
+            })
+            if(page){
+                dispatch(BrowserAction.setCurrentPage(page))
+            }else{
+                dispatch(BrowserAction.openPage({ id: data.id }))
+            }
         } else {
             this.clickFolderOpen(info)
         }

@@ -83,7 +83,7 @@ class CollectionSourceForm extends React.Component {
     renderByCatType() {
         const { collectionData, form } = this.props;
         const { getFieldDecorator } = form;
-        const { sourceMap } = collectionData;
+        const { sourceMap, isEdit } = collectionData;
         const collectType = sourceMap.collectType
         switch (collectType) {
             case collect_type.ALL: {
@@ -101,6 +101,7 @@ class CollectionSourceForm extends React.Component {
                         }]
                     })(
                         <DatePicker
+                            disabled={isEdit}
                             showTime
                             placeholder="请选择起始时间"
                             format="YYYY-MM-DD HH:mm:ss"
@@ -118,7 +119,7 @@ class CollectionSourceForm extends React.Component {
                             required: true, message: "请填写起始文件"
                         }]
                     })(
-                        <Input placeholder="请填写起始文件" />
+                        <Input disabled={isEdit} placeholder="请填写起始文件" />
                     )}
                 </FormItem>
             }
@@ -127,7 +128,7 @@ class CollectionSourceForm extends React.Component {
     }
     render() {
         let { collectionData, tableList } = this.props;
-        let { dataSourceList = [],sourceMap } = collectionData;
+        let { dataSourceList = [],sourceMap, isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const allTable=sourceMap.allTable;
         return (
@@ -141,6 +142,7 @@ class CollectionSourceForm extends React.Component {
                             rules: [{ required: true, message: '请选择数据源' }],
                         })(
                             <Select
+                                disabled={isEdit}
                                 placeholder="请选择数据源"
                                 style={{ width: "100%" }}
                             >
@@ -188,7 +190,7 @@ class CollectionSourceForm extends React.Component {
                                 required: true, message: "请选择采集起点"
                             }]
                         })(
-                            <RadioGroup>
+                            <RadioGroup disabled={isEdit}>
                                 <Radio value={collect_type.ALL}>全部</Radio>
                                 <Radio value={collect_type.TIME}>按时间选择</Radio>
                                 <Radio value={collect_type.FILE}>按文件选择</Radio>
@@ -236,6 +238,10 @@ const WrapCollectionSourceForm = Form.create({
             fields.journalName=null;
         }
         if(fields.journalName){
+            fields.timestamp=null;
+        }
+        if(fields.collectType!=undefined&&fields.collectType==collect_type.ALL){
+            fields.journalName=null;
             fields.timestamp=null;
         }
         /**

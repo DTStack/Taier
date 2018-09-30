@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Modal, Button, Form,
-    Icon, Input, Select,
-    message, Spin
+    Modal, Button, message,
 } from 'antd';
 
 import DataSource from './source'
@@ -183,7 +181,7 @@ export default class ImportLocalData extends Component {
         const subArr = arr.slice(startLine - 1)
 
         this.setState({
-            data: subArr,
+            data: subArr||[],
             step: 'source',
             visible: true,
             originLineCount: data.length,
@@ -260,7 +258,7 @@ export default class ImportLocalData extends Component {
     render() {
         const { data, file, visible, step, targetExchangeWarning } = this.state
         return (
-            <div>
+            <div id="JS_import_modal">
                 <input
                     name="file"
                     type="file"

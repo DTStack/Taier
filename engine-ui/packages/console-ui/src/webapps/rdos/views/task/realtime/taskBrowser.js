@@ -4,7 +4,7 @@ import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 
 import utils from 'utils'
 import { debounce, cloneDeep } from 'lodash';
- 
+
 import Api from '../../../api'
 import { LOCK_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge'
@@ -40,16 +40,16 @@ class TaskBrowser extends Component {
             dispatch(BrowserAction.getDimensionData())
         }
     }
-      
+
     componentWillReceiveProps(nextProps) {
-        if(nextProps.currentPage!=this.props.currentPage){
-            this._syncEditor=true;
+        if (nextProps.currentPage != this.props.currentPage) {
+            this._syncEditor = true;
         }
     }
 
     onEdit = (targetKey, action) => {
         const { pages, dispatch } = this.props
-        const targetPage = pages.filter(v=> v.id == targetKey)[0]||{};
+        const targetPage = pages.filter(v => v.id == targetKey)[0] || {};
         switch (action) {
             case 'remove': {
                 if (targetPage.notSynced) {
@@ -102,10 +102,8 @@ class TaskBrowser extends Component {
         if (activeKey === selected && expanded) {
             this.setState({ selected: '', expanded: false });
             this.SideBench.style.width = '30px';
-            this.SideBench.style.borderLeft = 'none';
         } else if (activeKey !== selected) {
             this.SideBench.style.width = '500px';
-            this.SideBench.style.borderLeft = '1px solid #dddddd';
             this.setState({ selected: activeKey, expanded: true });
         }
     }
@@ -186,13 +184,13 @@ class TaskBrowser extends Component {
 
     /**
     * @description 关闭所有/其他tab
-    * @param {any} item
+    * @param {any} key
     * @memberof Workbench
     */
-    closeAllorOthers(item) {
-        const { key } = item;
+    closeAllorOthers(key) {
         const { pages, currentPage, dispatch } = this.props;
 
+        console.log('key:', key);
         if (key === 'ALL') {
             let allClean = true;
 
@@ -221,7 +219,7 @@ class TaskBrowser extends Component {
                     },
                     onCancel() { }
                 });
-            } 
+            }
         }
         else {
             let allClean = true;
@@ -255,11 +253,11 @@ class TaskBrowser extends Component {
         }
     }
 
-    editorParamsChange(value){//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
-        if(!this._syncEditor){
+    editorParamsChange(value) {//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+        if (!this._syncEditor) {
             this.debounceChange(value);
-        }else{
-            this._syncEditor=false;
+        } else {
+            this._syncEditor = false;
             this.editorParamsChange(value);
         }
     }
@@ -279,16 +277,19 @@ class TaskBrowser extends Component {
         dispatch(BrowserAction.setCurrentPage(currentPage))
     }
 
-    tableParamsChange = ()=>{
+    tableParamsChange = () => {
         this.props.editorChange();
     }
 
     render() {
         const {
-            currentPage, pages, router,
-        } = this.props
+            currentPage, pages, router, editor,
+        } = this.props;
+
         if (pages.length === 0) router.push('/realtime')
+        
         const panels = this.mapPanels(pages)
+        
         return (
             <Row className="task-browser">
                 <div className="browser-content">
@@ -300,21 +301,39 @@ class TaskBrowser extends Component {
                         className="browser-tabs"
                         onEdit={this.onEdit}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2 }}
-                                onClick={this.closeAllorOthers.bind(this)}
-                            >
-                                <Menu.Item key="OHTERS">关闭其他</Menu.Item>
-                                <Menu.Item key="ALL">关闭所有</Menu.Item>
+                            <Menu style={{ marginRight: 2 }}>
+                                <Menu.Item key="OHTERS">
+                                    <a onClick={this.closeAllorOthers.bind(this, "OHTERS")} >关闭其他</a>
+                                </Menu.Item>
+                                <Menu.Item key="ALL">
+                                    <a onClick={this.closeAllorOthers.bind(this, "ALL")} >关闭所有</a>
+                                </Menu.Item>
+                                <Menu.Divider />
+                                {pages.map((tab) => {
+                                    return <Menu.Item key={tab.id} >
+                                        <a
+                                            onClick={()=>{
+                                                if(currentPage.id==tab.id){
+                                                    return;
+                                                }
+                                                this.onChange(tab.id)
+                                            }}
+                                            style={tab.id == currentPage.id ? { color: "#2491F7" } : {}}
+                                        >
+                                            {tab.name}
+                                        </a>
+                                    </Menu.Item>
+                                })}
                             </Menu>
                         }>
-                            <Icon type="bars" style={{ margin: '7 0 0 0',fontSize: 18, }} />
+                            <Icon type="bars" style={{ margin: '7 0 0 0', fontSize: 18, }} />
                         </Dropdown>}
                     >
                         {panels}
                     </Tabs>
                     {this.renderLock(currentPage)}
                     <RealTimeEditor {...this.props} />
-                    <div className="m-siderbench" ref={(e) => { this.SideBench = e }}>
+                    <div className="m-siderbench padding-r0" ref={(e) => { this.SideBench = e }}>
                         <Tabs
                             activeKey={this.state.selected}
                             type="card"
@@ -323,23 +342,23 @@ class TaskBrowser extends Component {
                             onTabClick={this.tabClick}
                         >
                             <TabPane tab={<span className="title-vertical">任务详情</span>} key="params1">
-                                <TaskDetail {...this.props}  />
+                                <TaskDetail {...this.props} />
                             </TabPane>
                             {
-                               currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>源表</span>} key="params3">
-                                        <InputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
-                                    </TabPane> : ""
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>源表</span>} key="params3">
+                                    <InputPanel {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ""
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 5,paddingBottom:3}}>结果表</span>} key="params4">
-                                    <OutputPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
-                                </TabPane>:""
-                            } 
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 5, paddingBottom: 3 }}>结果表</span>} key="params4">
+                                    <OutputPanel {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ""
+                            }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{marginTop: 10,paddingBottom:10}}>维表</span>} key="params5">
-                                    <DimensionPanel {...this.props} tableParamsChange={this.tableParamsChange}/>
-                                </TabPane>:""
-                            } 
+                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>维表</span>} key="params5">
+                                    <DimensionPanel {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ""
+                            }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
                                     key="params-editor"
@@ -347,6 +366,7 @@ class TaskBrowser extends Component {
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
                                     language="ini"
+                                    options={{ theme: editor.options.theme }}
                                 />
                             </TabPane>
                         </Tabs>
@@ -363,5 +383,6 @@ export default connect((state) => {
         currentPage,
         pages,
         resources,
+        editor: state.editor,
     }
 })(TaskBrowser) 

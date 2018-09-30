@@ -123,7 +123,7 @@ class Console extends Component {
     renderTabs(tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
-                const title = <span>结果{index + 1}</span>;
+                const title = <span>结果{tab.id?tab.id:(index+1)}</span>;
                 return (
                     <TabPane
                         style={{ minHeight: "100%", position: "relative" }}
@@ -138,7 +138,7 @@ class Console extends Component {
                                 }`}
                                 download
                             >
-                                <Button style={exportStyle}>下载</Button>
+                                <Button className="btn-download" style={exportStyle}>下载</Button>
                             </a>
                         ) : null}
                     </TabPane>

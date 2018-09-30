@@ -10,7 +10,9 @@ export const DATA_SOURCE = {
     FTP: 9,
     MAXCOMPUTE: 10,
     ADS:11,
-    POSTAGERSQL: 15
+    POSTAGERSQL: 15,
+    RDS:16,
+    DB2:17,
 }
 
 export const API_MODE = {

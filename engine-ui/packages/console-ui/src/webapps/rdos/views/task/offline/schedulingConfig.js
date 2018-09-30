@@ -59,7 +59,8 @@ class ScheduleForm extends React.Component {
         const disabledInvokeTime = wFScheduleConf && (
             wFScheduleConf.periodType === "0" ||
             wFScheduleConf.periodType === "1" );
-
+        
+        console.log('disabledInvoke:', disabledInvokeTime, wFScheduleConf)
         const generateHours = () => {
             let options = [];
             for(let i = 0; i <= 23; i++) {
@@ -135,6 +136,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                            style={{width:"140px"}}
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -143,6 +145,7 @@ class ScheduleForm extends React.Component {
                         initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                     })(
                         <DatePicker
+                        style={{width:"140px"}}
                             onChange={ this.changeScheduleConf.bind(this) }
                         />
                     )}
@@ -796,7 +799,7 @@ class SchedulingConfig extends React.Component {
             loading, wFScheduleConf, selfReliance
         } = this.state;
         
-        const { tabData, isWorkflowNode, isPro, couldEdit } = this.props;
+        const { tabData, isWorkflowNode, couldEdit } = this.props;
         console.log('tabData', tabData, isWorkflowNode);
         
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
@@ -821,7 +824,7 @@ class SchedulingConfig extends React.Component {
             scheduleConf.periodType = 2;
         } 
 
-        console.log('scheduleConf:', scheduleConf);
+        console.log('isLocked:', isLocked);
 
         const columns = [
             {
@@ -858,7 +861,7 @@ class SchedulingConfig extends React.Component {
         };
         
         return <div className="m-scheduling" style={{position: 'relative'}}>
-            {isLocked||!couldEdit?<div className="cover-mask"></div>:null} 
+            { isLocked || !couldEdit? <div className="cover-mask"></div> : null } 
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap

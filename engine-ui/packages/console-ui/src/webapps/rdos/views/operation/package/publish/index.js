@@ -6,7 +6,7 @@ import utils from "utils";
 
 import Api from "../../../../api"
 import PublishModal from "./publishModal";
-import { publishStatus } from "../../../../comm/const";
+import { publishStatus, PROJECT_TYPE } from "../../../../comm/const";
 
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -44,15 +44,25 @@ class PackagePublish extends React.Component {
         this.getUsers();
     }
     componentWillReceiveProps(nextProps) {
-        const {activeKey} = nextProps;
-        const {activeKey:old_activeKey}= this.props;
+        const {activeKey,project} = nextProps;
+        const {activeKey:old_activeKey,project:old_project}= this.props;
         if(old_activeKey!=activeKey){
             this.getPackageList();
+        }
+        if(project.id!=old_project.id&&project.projectType==PROJECT_TYPE.TEST){
+            this.getUsers();
+            this.getPackageList();
+            this.setState({
+                publishUserId:null,
+                applyUserId:null
+            })
         }
     }
     getUsers() {
         const { project } = this.props;
-
+        if(!project.id){
+            return ;
+        }
         Api.getProjectUsers({
             projectId: project.id,
             currentPage: 1,

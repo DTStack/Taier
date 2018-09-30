@@ -10,6 +10,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { replaceObjectArrayFiledName } from 'funcs';
 import SlidePane from 'widgets/slidePane'
 
  import Api from '../../../api'
@@ -118,7 +119,8 @@ class OfflineTaskMana extends Component {
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ tasks: res.data })
+                replaceObjectArrayFiledName(res.data.data, 'relatedTasks', 'children');
+                ctx.setState({ tasks: res.data });
             }
             this.setState({ loading: false })
         })
@@ -471,7 +473,7 @@ class OfflineTaskMana extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '80%', height: '100%', minHeight: '530px' }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
                         >
                             <Tabs animated={false} onChange={this.onTabChange}>
                                 <TabPane tab="依赖视图" key="taskFlow">

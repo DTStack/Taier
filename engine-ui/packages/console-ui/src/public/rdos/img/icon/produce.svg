@@ -1,1 +1,18 @@
-<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1535527916507" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2186" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"><defs><style type="text/css"></style></defs><path d="M512 967.111111c170.666667-68.266667 284.444444-164.977778 341.333333-284.444444 73.955556-142.222222 91.022222-307.2 56.888889-500.622223L512 56.888889 113.777778 187.733333c-34.133333 187.733333-17.066667 352.711111 51.2 494.933334C227.555556 802.133333 341.333333 898.844444 512 967.111111z m-295.822222-307.2C153.6 534.755556 136.533333 392.533333 164.977778 227.555556L512 113.777778l347.022222 113.777778c22.755556 164.977778 5.688889 307.2-56.888889 426.666666-51.2 102.4-147.911111 182.044444-290.133333 244.622222-147.911111-56.888889-244.622222-142.222222-295.822222-238.933333z" fill="#ffffff" p-id="2187"></path><path d="M512 631.466667L318.577778 438.044444l45.511111-39.822222L512 546.133333 716.8 341.333333l45.511111 39.822223z" fill="#ffffff" p-id="2188"></path></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="14px" viewBox="0 0 14 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>icon_develop</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="数据开发初始面板-copy" transform="translate(-161.000000, -19.000000)" fill="#FFFFFF">
+            <g id="menu">
+                <g id="icon_develop" transform="translate(161.000000, 19.000000)">
+                    <rect id="Rectangle-10" x="2" y="13" width="10" height="1" rx="0.5"></rect>
+                    <path d="M5,5 L9.5,5 C9.77614237,5 10,5.22385763 10,5.5 C10,5.77614237 9.77614237,6 9.5,6 L4.5,6 C4.36192881,6 4.23692881,5.94403559 4.14644661,5.85355339 C4.05596441,5.76307119 4,5.63807119 4,5.5 L4,2.5 C4,2.22385763 4.22385763,2 4.5,2 C4.77614237,2 5,2.22385763 5,2.5 L5,5 Z" id="Combined-Shape" transform="translate(7.000000, 4.000000) rotate(-45.000000) translate(-7.000000, -4.000000) "></path>
+                    <path d="M1,1 L1,10 L13,10 L13,1 L1,1 Z M1,0 L13,0 C13.5522847,-1.52655666e-16 14,0.44771525 14,1 L14,10 C14,10.5522847 13.5522847,11 13,11 L1,11 C0.44771525,11 6.76353751e-17,10.5522847 0,10 L0,1 C-6.76353751e-17,0.44771525 0.44771525,1.52655666e-16 1,0 Z" id="Rectangle-17" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

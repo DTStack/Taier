@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tag, Badge } from 'antd'
-import { TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
+import { TASK_STATUS, TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
 import { Circle } from 'widgets/circle'
 
 export function ProjectStatus(props) {
@@ -22,42 +22,57 @@ export function ProjectStatus(props) {
 export function TaskStatus(props) {
     const value = props.value
     switch (value) {
-        case 4:
+        case TASK_STATUS.RUNNING:
             return <span>
                 <Circle style={{ background: '#2491F7' }} />&nbsp;
                     运行中
                 </span>
-        case 5:
+        case TASK_STATUS.FINISHED:
             return <span color="green">
                 <Circle style={{ background: '#00A755' }} />&nbsp;
                 已完成
             </span>
-        case 7:
+        case TASK_STATUS.STOPED:
             return <span>
                 <Circle style={{ background: '#EF5350' }} />&nbsp;
                     取消
             </span>
-        case 8:
+        case TASK_STATUS.RUN_FAILED:
             return <span color="red">
                 <Circle style={{ background: '#EF5350' }} />&nbsp;
                 失败
             </span>
-        case 10:
+        case TASK_STATUS.SUBMITTING:
             return <span color="green">
                 <Circle style={{ background: '#2491F7' }} />&nbsp;
                 提交中
             </span>
-        case 16:
+        case TASK_STATUS.SUBMIT_FAILED:
+            return <span color="green">
+                <Circle style={{ background: '#501917' }} />&nbsp;
+                提交失败
+            </span>
+        case TASK_STATUS.WAIT_RUN:
             return <span color="green" >
                 <Circle style={{ background: '#F5A623' }} />&nbsp;
                 等待运行
         </span>
-        case 18:
+        case TASK_STATUS.FROZEN:
             return <span>
                 <Circle style={{ background: '#26DAD2' }} />&nbsp;
                     冻结
                 </span>
-        case 0:
+        case TASK_STATUS.KILLED:
+            return <span>
+                <Circle style={{ background: '#a43937' }} />&nbsp;
+                    已停止
+            </span>
+        case TASK_STATUS.RESTARTING:
+            return <span>
+                <Circle style={{ background: '#3d6b96' }} />&nbsp;
+                    重启中
+            </span>
+        case TASK_STATUS.WAIT_SUBMIT:
         default:
             return <span>
                 <Circle style={{ background: '#d9d9d9' }} />&nbsp;
@@ -242,7 +257,7 @@ export function TaskType(props) {
         case TASK_TYPE.HAHDOOPMR:
             return <span>HadoopMR</span>
         case TASK_TYPE.WORKFLOW:
-            return <span>工作流</span>            
+            return <span>工作流</span>
         case TASK_TYPE.SQL:
         default:
             return <span>SparkSQL</span>

@@ -133,7 +133,7 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode, project, tabs } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit } = this.props;
         const isPro=project.projectType==PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
@@ -142,6 +142,7 @@ class TaskDetail extends React.Component {
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
                     <TaskInfo 
+                        couldEdit={couldEdit}
                         isPro={isPro}
                         taskInfo={tabData} 
                         labelPrefix={labelPrefix}
@@ -160,6 +161,7 @@ class TaskDetail extends React.Component {
             {
                 isWorkflowNode ? 
                 <SchedulingConfig 
+                    couldEdit={couldEdit}
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
                     tabs={tabs}
@@ -167,7 +169,7 @@ class TaskDetail extends React.Component {
                 </SchedulingConfig> : ''
             }
             <Collapse bordered={false} defaultActiveKey={['3']}>
-                <Panel key="3" header={`历史${pre}版本`}>
+                <Panel key="3" header={`历史版本`}>
                     <TaskVersion
                         isPro={isPro}
                         taskInfo={tabData}

@@ -11,6 +11,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { replaceObjectArrayFiledName } from 'funcs';
 import SlidePane from 'widgets/slidePane'
 import { Circle } from 'widgets/circle'
 
@@ -143,6 +144,7 @@ class OfflineTaskList extends Component {
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
+                replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({
@@ -658,7 +660,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed', paddingTop: '50px'  }}
                         >
                             <TaskFlowView
                                 isPro={isPro}

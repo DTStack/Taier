@@ -17,6 +17,7 @@ import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../.
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
+import ThemeSwitcher from '../../../components/theme-switcher';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -26,6 +27,8 @@ import { showSeach } from '../../../store/modules/comm';
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction';
+import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
+
 import { isProjectCouldEdit } from '../../../comm';
 
 
@@ -172,13 +175,12 @@ class Workbench extends React.Component {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
             closeTab, closeAllorOthers, project,
-            user, editor
+            user, editor, dispatch
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const isTest= project.projectType==PROJECT_TYPE.TEST;
+        const isTest= project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
 
@@ -243,6 +245,12 @@ class Workbench extends React.Component {
                         搜索
                     </Button>
                     <FullScreenButton themeDark={themeDark}/>
+                    <ThemeSwitcher 
+                        editorTheme={editor.options.theme}
+                        onThemeChange={(theme) => {
+                           dispatch(updateEditorOptions({ theme }))
+                        }}
+                    />
                 </Col>
 
                 {showPublish ? (<Col className="right">
@@ -257,8 +265,8 @@ class Workbench extends React.Component {
                                 disabled={disablePublish}
                                 onClick={this.showPublish.bind(this)}
                             >
-                                <Icon type="upload" style={{ color: "#000" }} themeDark={themeDark}/>提交
-                        </Button>
+                                <Icon type="upload" themeDark={themeDark}/>提交
+                            </Button>
                         </Tooltip>
                         {isTest && <Tooltip
                             placement="bottom"
@@ -270,7 +278,7 @@ class Workbench extends React.Component {
                                 onClick={this.toPublishView.bind(this)}
                             >
                                 <MyIcon className="my-icon" type="fly" themeDark={themeDark}/>发布
-                        </Button>
+                            </Button>
                         </Tooltip>}
                     </span>)}
 
@@ -291,11 +299,25 @@ class Workbench extends React.Component {
                         className="browser-tabs"
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2 }}
-                                onClick={({ key }) => closeAllorOthers(key, tabs, currentTab)}
+                            <Menu style={{ marginRight: 2,maxHeight:"500px",overflowY:"auto" }}
                             >
-                                <Menu.Item key="OHTERS">关闭其他</Menu.Item>
-                                <Menu.Item key="ALL">关闭所有</Menu.Item>
+                                <Menu.Item  key="OHTERS">
+                                <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
+                                </Menu.Item>
+                                <Menu.Item key="ALL">
+                                <a onClick={() => closeAllorOthers("ALL", tabs, currentTab)} >关闭所有</a>
+                                </Menu.Item>
+                                <Menu.Divider />
+                                {tabs.map((tab)=>{
+                                    return <Menu.Item key={tab.id} >
+                                    <a 
+                                    onClick={this.switchTab.bind(this,currentTab,tab.id)}
+                                    style={tab.id==currentTab?{color:"#2491F7"}:{}}
+                                    >
+                                    {tab.name}
+                                    </a>
+                                    </Menu.Item>
+                                })}
                             </Menu>
                         }>
                             <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18, }} />

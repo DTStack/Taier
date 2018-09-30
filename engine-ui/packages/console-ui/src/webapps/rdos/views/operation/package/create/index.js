@@ -11,7 +11,8 @@ import utils from "utils";
 import { cloneDeep } from "lodash";
 
 import Api from "../../../../api"
-import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP } from "../../../../comm/const"
+import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP, PROJECT_TYPE } from "../../../../comm/const"
+import { RDOS_ROLE } from "main/consts";
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
@@ -29,7 +30,8 @@ const Search = Input.Search;
         taskTypes: {
             realtime: state.realtimeTask.comm.taskTypes,
             offline: state.offlineTask.comm.taskTypes
-        }
+        },
+        user:state.user
     }
 }, dispatch => {
     return bindActionCreators({
@@ -53,7 +55,8 @@ class PackageCreate extends React.Component {
         },
         pagination: {
             current: 1,
-            pageSize: 8
+            pageSize: 8,
+            total: 0
         },
         listType: publishType.TASK,
         modifyUser: undefined,
@@ -67,14 +70,33 @@ class PackageCreate extends React.Component {
     }
 
     componentDidMount() {
+        this.initComponent();
+    }
+    initComponent() {
+        this.setState({
+            selectedRowKeys: [],
+            selectedRows: [],
+            addLinkModalData: {},
+        })
         this.props.getTaskTypes();
         this.props.realtimeGetTaskTypes();
         this.getTaskList();
         this.getUsers();
     }
+    componentWillReceiveProps(nextProps) {
+        const { project = {} } = nextProps;
+        const { project: old_project = {} } = this.props;
+        if (old_project.id != project.id && project.projectType == PROJECT_TYPE.TEST) {
+            setTimeout(() => {
+                this.initComponent();
+            }, 100)
+        }
+    }
     getUsers() {
         const { project } = this.props;
-
+        if(!project.id){
+            return ;
+        }
         Api.getProjectUsers({
             projectId: project.id,
             currentPage: 1,
@@ -160,7 +182,8 @@ class PackageCreate extends React.Component {
             this.setState({
                 pagination: {
                     current: Math.max(Math.ceil(count / pageSize), 1),
-                    pageSize
+                    pageSize,
+                    total: 0
                 }
             })
         }
@@ -199,18 +222,33 @@ class PackageCreate extends React.Component {
         })
     }
     initColumns() {
-        const { listType } = this.state;
-        const { taskTypes } = this.props;
+        const { listType, users } = this.state;
+        const { taskTypes, user } = this.props;
         const offlineTaskTypes = taskTypes.offline;
         const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
+        /**
+         * 这边判断该用户是否具有打包权限
+         * 目前只有访客无打包权限
+         */
+        const mine=users.find((userItem)=>{return userItem.userId==user.id})||{};
+        const myRoles = mine.roles||[];
+        let havePermission = false
+        for (let i = 0; i < myRoles.length; i++) {
+            let role = myRoles[i];
+            if (role.roleValue != RDOS_ROLE.VISITOR) {
+                havePermission = true;
+                break;
+            }
+        }
         const addButtonCreate = (record) => {
             return (this.isSelect(record) ?
-                <a onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
-                : <a onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
+                <a disabled={!havePermission} onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: "#888" }}>取消</a>
+                : <a disabled={!havePermission} onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
         }
         const publishButtonCreate = (record) => {
             return (
                 <a
+                    disabled={!havePermission}
                     onClick={
                         () => {
                             this.clearSelect();
@@ -220,7 +258,7 @@ class PackageCreate extends React.Component {
                                     this.showCreateModal();
                                 })
                         }
-                    }>发布</a>
+                    }>打包</a>
             )
         };
 
@@ -268,7 +306,7 @@ class PackageCreate extends React.Component {
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
-                            <a onClick={this.showAddLink.bind(this, record)}>添加关联</a>
+                            <a disabled={!havePermission} onClick={this.showAddLink.bind(this, record)}>添加关联</a>
                             <span className="ant-divider"></span>
                             {publishButtonCreate(record)}
                         </span>
@@ -453,7 +491,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.resourceType;
-                baseItem.modifyTime=row.gmtModified;
+                baseItem.modifyTime = row.gmtModified;
                 break;
             }
             case publishType.FUNCTION: {
@@ -462,7 +500,7 @@ class PackageCreate extends React.Component {
                 baseItem.modifyUser = row.modifyUser.userName;
                 baseItem.chargeUser = row.chargeUser;
                 baseItem.itemInnerType = row.type;
-                baseItem.modifyTime=row.gmtModified;
+                baseItem.modifyTime = row.gmtModified;
                 break;
             }
             case publishType.TABLE: {
@@ -678,7 +716,7 @@ class PackageCreate extends React.Component {
                             发布到目标项目：{project.produceProject}
                         </div>
                         <div className="tool-top">
-                            待发布对象 <span className="publish-num">{selectedRows.length}</span>
+                            待打包对象 <span className="publish-num">{selectedRows.length}</span>
                             <Button disabled={selectedRows.length == 0} onClick={this.showCreateModal.bind(this)} type="primary" className="pack">打包</Button>
                         </div>
                         <div className="main">
@@ -687,12 +725,12 @@ class PackageCreate extends React.Component {
                         <div className="tool-bottom">
                             <Button onClick={this.clearSelect.bind(this)} className="clear" size="small">清空</Button>
                             <div className="pagn">
-                                <Pagination 
-                                onChange={this.changeRightPage.bind(this)} 
-                                size="small" 
-                                maxShowPage={3}
-                                {...pagination} 
-                                total={selectedRows.length} />
+                                <Pagination
+                                    simple
+                                    onChange={this.changeRightPage.bind(this)}
+                                    size="small"
+                                    {...pagination}
+                                    total={selectedRows.length} />
                             </div>
                         </div>
                     </div>

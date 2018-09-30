@@ -22,7 +22,7 @@ const confirm = Modal.confirm;
 
     return {
         realTimeTabs: pages,
-        offlineTabs: workbench.tabs,
+        offlineTabs: workbench.tabs
     }
 })
 class Header extends Component {
@@ -127,12 +127,12 @@ class Header extends Component {
             routes.length > 0 && routes[1] !== "" ? routes[1] : "overview";
         if (
             path &&
-            (path.indexOf("task") > -1 || path.indexOf("offline") > -1)
+            (path.indexOf("task") > -1 || path.indexOf("offline") > -1|| path.indexOf("realtime") > -1)
         ) {
             this.setState({
                 devPath: pathname
             });
-            path = "realtime";
+            path="realtime"
         }
         if (path !== this.state.current) {
             this.setState({
@@ -160,7 +160,21 @@ class Header extends Component {
             project && project.projectName
                 ? project.projectAlias || project.projectName
                 : "项目选择";
+        let projectTypeText='';
+        let projectTypeIcon=null;
+        switch(project.projectType){
+            case PROJECT_TYPE.TEST:{
+                projectTypeText=" (测试项目)"
+                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/develop.svg" />
+                break;
+            }
+            case PROJECT_TYPE.PRO:{
+                projectTypeText=" (生产项目)"
+                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/produce.svg" />
+                break;
+            }
 
+        }
         const menu = (
             <Menu
                 onClick={this.selectedProject}
@@ -170,16 +184,16 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width: '145px'
+                    width:"170px"
                 }}
             >
                 {this.getProjectItems()}
             </Menu>
         )
-
+        
         return (
             <SubMenu
-                className="my-menu-item"
+                className="my-menu-item" 
                 title={
                     <Dropdown
                         overlay={menu}
@@ -193,14 +207,16 @@ class Header extends Component {
                             }}
                             className="my-menu-item"
                         >
+                           {projectTypeIcon}
                             <span
                                 className="menu-text-ellipsis"
                                 title={projectName}
                             >
                                 {projectName}
                             </span>
+                            <span>{projectTypeText}</span>
                             &nbsp;
-                            <Icon type="caret-down" />
+                            <Icon style={{fontSize:"12px"}} type="caret-down" />
                         </span>
                     </Dropdown>
                 }
@@ -282,14 +298,14 @@ class Header extends Component {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        {showProjectSelect && projectTypeView && <Menu.Item
+                        {/* {showProjectSelect && projectTypeView && <Menu.Item
                             className="my-menu-item tip"
                             key="env_logo"
                             style={{ display }}
                             disabled
                         >
                             {this.renderProjectType()}
-                        </Menu.Item>}
+                        </Menu.Item>} */}
                         <Menu.Item
                             className="my-menu-item"
                             key="database"

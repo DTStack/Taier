@@ -50,7 +50,13 @@ const console = (state = {}, action) => {
         let updated = cloneDeep(state);
         const update_arr = [...updated[updatedKey].results]
         if (updated[updatedKey] && action.data) {
-            update_arr.push(action.data)
+            const lastResult=update_arr[update_arr.length-1];
+            let index=1;
+            //根据最后一个结果的id序号来递增序号
+            if(lastResult){
+                index=lastResult.id?(lastResult.id+1):(update_arr.length+1)
+            }
+            update_arr.push({...action.data,id:index})
             updated[updatedKey].results = update_arr
             updated[updatedKey].showRes = true
         } else {
@@ -61,7 +67,7 @@ const console = (state = {}, action) => {
     }
     case editorAction.DELETE_RESULT: {// 删除结果
         const key = action.key
-        const index = action.data
+        let index = action.data
         const origin = cloneDeep(state)
         const arr = origin[key].results
         if (arr.length > 0 && index !== undefined) {
@@ -118,10 +124,10 @@ export const running = (state = [], action) => {
 /**
  * 编辑器选项
  */
- const initialEditorOptions = function() {
+const initialEditorOptions = function() {
     const defaultEditorOptions = localDb.get(KEY_EDITOR_OPTIONS);
     return defaultEditorOptions || { theme: 'vs' };
- }
+}
 
 export const options = (state = initialEditorOptions(), action) => {
     switch(action.type) {

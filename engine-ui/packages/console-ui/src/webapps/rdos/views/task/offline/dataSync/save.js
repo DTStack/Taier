@@ -7,16 +7,7 @@ import Keymap from './keymap';
 import Channel from './channel';
 
 function Mask() {
-    return <div style={{
-        position: 'absolute',
-        top: 48,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        zIndex: 3,
-        background: 'rgba(255, 255, 255, 0.4)',
-        cursor: 'not-allowed'
-    }} />
+    return <div className="mask-lock-layer" />
 }
 
 export default class Save extends React.Component{

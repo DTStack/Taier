@@ -2,21 +2,11 @@ import React from "react";
 
 import {Card, Button} from "antd";
 
-import ajax from "../../../../../api/index"
 import Source from "./collectionSource"
 import Target from "./collectionTarget"
 
 function Mask() {
-    return <div style={{
-        position: 'absolute',
-        top: 48,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        zIndex: 3,
-        background: 'rgba(255, 255, 255, 0.4)',
-        cursor: 'not-allowed'
-    }} />
+    return <div className="mask-lock-layer" />
 }
 
 class CollectionComplete extends React.Component {

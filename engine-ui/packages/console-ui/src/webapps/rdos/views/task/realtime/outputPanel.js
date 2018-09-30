@@ -1,17 +1,14 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Modal, Tag, Icon,Tooltip,Table,Input,
+    Row, Col, Icon,Tooltip,Table,Input,
     message, Select, Collapse, Button,Radio,Popover,
     Form,InputNumber
 } from 'antd'
 
-import utils from 'utils'
 import Api from '../../../api'
-import { mysqlFieldTypes } from '../../../comm/const';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import Editor from '../../../components/code-editor'
 
-import TaskVersion from '../offline/taskVersion';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -34,17 +31,6 @@ class OutputOrigin extends Component {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 result.status = true;
-                // if(tableColumns.length === 0){
-                //     result.status = false;
-                //     result.message = "至少添加一个字段"
-                // }else{
-                //     tableColumns.map(v=>{
-                //         if(!v.column||!v.type){
-                //             result.status = false;
-                //             result.message= "有未填写的字段或类型"
-                //         }
-                //     })
-                // }
             }else{
                 result.status = false;
             }
@@ -79,7 +65,6 @@ class OutputOrigin extends Component {
         const { handleInputChange, index, } = this.props;
         this._syncEditor=false;
         handleInputChange("columnsText",index,b);
-        //this.props.editorParamsChange(...arguments);
     }
 
     render(){
@@ -224,26 +209,6 @@ class OutputOrigin extends Component {
                         )}
                     </FormItem> : ""
                 }
-                {/* {
-
-                    panelColumn[index].type == "11" ?
-                    <FormItem
-                        {...formItemLayout}
-                        label="写入策略"
-                    >
-                        {getFieldDecorator('writePolicy', {
-                            rules: [
-                                {required: true, message: '请选择写入策略',}
-                            ],
-                        })(
-                            <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}
-                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                            >
-                                    <Option value="AppendChild">AppendChild</Option>
-                            </Select>
-                        )}
-                    </FormItem>:""
-                } */}
                 <FormItem
                     {...formItemLayout}
                     label="映射表"
@@ -257,38 +222,13 @@ class OutputOrigin extends Component {
                     )}
                 </FormItem>
                 <Row>
-                    <Col span="6">
-                        <span style={{color: "rgba(0, 0, 0, 0.85)",paddingRight: 10,float: "right"}}>字段 : 
-                    </span>
-                    </Col>
+                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+                        <label>字段</label>
+                    </div>
                     { 
                         panelColumn[index].type == "1" 
-                        ?<Col  span="18" style={{marginBottom: 20,border: "1px solid #ddd"}}>
+                        ?<Col span="18" className="bd" style={{ marginBottom: 20 }}>
                             <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
-                                {/* <Column
-                                    title="字段"
-                                    dataIndex="column"
-                                    key="字段"
-                                    width='50%'
-                                    render={(text,record,subIndex)=>{return <Input value={text} placeholder="支持字母、数字和下划线" onChange={e => handleInputChange('subColumn',index,subIndex,e.target.value)}/>}}
-                                />
-                                <Column
-                                    title="类型"
-                                    dataIndex="type"
-                                    key="类型"
-                                    width='40%'
-                                    render={(text,record,subIndex)=>{
-                                        return (
-                                            <Select placeholder="请选择" value={text} className="sub-right-select" onChange={(v)=>{handleInputChange("subType",index,subIndex,v)}}
-                                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                            >
-                                                {
-                                                    mysqlOptionType
-                                                }
-                                            </Select>
-                                        )
-                                    }}
-                                /> */}
                                 <Column
                                     title="字段"
                                     dataIndex="column"
@@ -330,7 +270,6 @@ class OutputOrigin extends Component {
                                 key="params-editor"
                                 sync={sync}
                                 placeholder="字段 类型, 比如 id int 一行一个字段"
-                                // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.editorParamsChange.bind(this)}
                             />
@@ -363,78 +302,6 @@ class OutputOrigin extends Component {
                         <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism',index,value)}/>
                     )}
                 </FormItem>
-                {/* <FormItem
-                    {...formItemLayout}
-                    label="Topic"
-                >
-                    {getFieldDecorator('topic', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择Topic',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("topic",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem> */}
-                {/*<FormItem
-                    {...formItemLayout}
-                    label="索引"
-                >
-                    {getFieldDecorator('index', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择索引',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("index",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="类型"
-                >
-                    {getFieldDecorator('type', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择类型',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("type",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
-                    label="写入策略"
-                >
-                    {getFieldDecorator('writePolicy', {
-                        initialValue: "disabled",
-                        rules: [
-                            {required: true, message: '请选择写入策略',}
-                        ],
-                    })(
-                        <Select className="right-select" onChange={(v)=>{handleInputChange("writePolicy",index,v)}}>
-                                <Option value="jack">Jack</Option>
-                                <Option value="lucy">Lucy</Option>
-                                <Option value="disabled" >Disabled</Option>
-                                <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    )}
-                </FormItem> */}
             </Row>
         )
     }
@@ -911,7 +778,6 @@ export default class OutputPanel extends Component {
             checkFormParams
         })
     }
-
 
     render() {
         const { tabTemplate,panelActiveKey,panelColumn,originOptionType,tableOptionType,tableColumnOptionType } = this.state;

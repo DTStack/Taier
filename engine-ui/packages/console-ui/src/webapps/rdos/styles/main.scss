@@ -2,7 +2,8 @@
 body {
     // font-size: $font1 !important;
     background-color: $bgColor !important;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: auto;
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;

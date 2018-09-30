@@ -10,6 +10,7 @@ import {
 import SlidePane from 'widgets/slidePane'
 import { Circle } from 'widgets/circle'
 import GoBack from 'main/components/go-back'
+import { replaceObjectArrayFiledName } from 'funcs';
 
 import Api from '../../../api'
 import {
@@ -132,6 +133,7 @@ class PatchDataDetail extends Component {
         Api.getFillDataDetail(params).then((res) => {
             if (res.code === 1) {
                 this.debounceSearch();
+                replaceObjectArrayFiledName(res.data.data.recordList, 'relatedRecords', 'children');
                 ctx.setState({ table: res.data })
             }
             this.setState({ loading: false })
@@ -629,7 +631,7 @@ class PatchDataDetail extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed', paddingTop: '50px'  }}
                         >
                             <TaskFlowView
                                 visibleSlidePane={visibleSlidePane}

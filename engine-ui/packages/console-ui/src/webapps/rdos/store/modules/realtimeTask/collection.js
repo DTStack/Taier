@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 
 import { store } from '../../index';
 import { setCurrentPage } from "./browser";
-import { collect_type } from "../../../comm/const"
+import { collect_type, CAT_TYPE } from "../../../comm/const"
 import ajax from "../../../api"
 
 export const dataKey = "ide_collection"
@@ -13,7 +13,8 @@ const initState = {
     sourceMap: {
         table: [],
         sourceId: undefined,
-        collectType: collect_type.ALL
+        collectType: collect_type.ALL,
+        cat:[CAT_TYPE.INSERT,CAT_TYPE.UPDATE,CAT_TYPE.DELETE]
     },
     targetMap: {
         sourceId:undefined,
@@ -74,6 +75,9 @@ export const actions = {
                 return;
             }
             initCurrentPage(dispatch);
+            if(page.taskVersions&&page.taskVersions.length){
+                setCurrentPageValue(dispatch, "isEdit", true);
+            }
             ajax.getRealtimeJobData({
                 taskId
             }).then((res) => {
@@ -87,7 +91,7 @@ export const actions = {
                     }
                     dispatch(actions.updateSourceMap(res.data.sourceMap,false,true)); 
                     dispatch(actions.updateTargetMap(res.data.targetMap,false,true));
-                    setCurrentPageValue(dispatch, "currentStep", 2);
+                    setCurrentPageValue(dispatch, "currentStep", 2);    
                 }else{
                     setCurrentPageValue(dispatch, "currentStep", 0);
                 }
