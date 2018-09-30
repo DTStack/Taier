@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-27 16:07:56
+* @Last Modified time: 2018-09-30 16:36:23
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
@@ -217,7 +217,8 @@ class QueueManage extends Component {
 			            >
 		                <Tabs.TabPane tab="概览" key="overview">
 		                   <div style={{margin: "20px"}}>
-		                   		集群: <Select style={{ width: 150 }}
+		                   		集群：
+		                   		<Select style={{ width: 150 }}
 		                   		placeholder="选择集群"
 		                   		allowClear
 		                   		onChange={this.clusterOptionChange.bind(this)}

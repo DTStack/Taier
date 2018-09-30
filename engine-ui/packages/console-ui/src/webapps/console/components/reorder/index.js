@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-19 19:24:01
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-29 17:04:08
+* @Last Modified time: 2018-09-30 17:15:36
 */
 
 // 顺序调整
@@ -20,7 +20,7 @@ class Reorder extends Component {
 		const {jobIndex} = this.state;
 		// 获取集群
 		var groupName,clusterName,computeTypeInt;
-		const arr = priorityResource.groupName.split("_");
+		const arr = (priorityResource.groupName || "").split("_");
 		if (arr.length == 1) {
 			clusterName = priorityResource.groupName
 		} else {

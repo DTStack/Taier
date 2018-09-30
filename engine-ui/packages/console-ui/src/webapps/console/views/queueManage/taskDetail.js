@@ -2,7 +2,7 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-30 16:08:33
+* @Last Modified time: 2018-09-30 17:13:12
 */
 
 import React, { Component } from 'react';
@@ -319,7 +319,7 @@ class TaskDetail extends Component {
 	changeJobPriority(record) {
 		// 获取集群
 		var groupName,clusterName,computeTypeInt;
-		const arr = record.groupName.split("_");
+		const arr = (record.groupName || "").split("_");
 		if (arr.length == 1) {
 			clusterName = record.groupName
 		} else {
@@ -455,7 +455,7 @@ class TaskDetail extends Component {
 				title: "集群",
 				dataIndex: "clusterName",
 				render(text,record) {
-					const arr = record.groupName.split("_");
+					const arr = (record.groupName || "").split("_");
 					if (arr.length == 1) {
 						return record.groupName
 					} else {
@@ -464,6 +464,7 @@ class TaskDetail extends Component {
 							return arr[0]
 						}
 					}
+					// return record.groupName;
 				}
 			},
 			{
@@ -635,7 +636,7 @@ class TaskDetail extends Component {
 					</div>
 				</div>
 				<div className="select">
-					集群:
+					集群：
 					<Select
 						placeholder="请选择集群"
 						style={{width: "150px",marginRight: "10px"}}
@@ -645,7 +646,7 @@ class TaskDetail extends Component {
 					>
 						{this.getClusterListOptionView()}
 					</Select>
-					引擎:
+					引擎：
 					<Select
 						placeholder="请选择引擎"
 						style={{width: "150px",marginRight: "10px"}} 
@@ -655,7 +656,7 @@ class TaskDetail extends Component {
 					>
 						{this.getEngineListOptionView()}
 					</Select>
-					group:
+					group：
 					<Select
 						value={this.state.groupName}
 						placeholder="请选择group"
