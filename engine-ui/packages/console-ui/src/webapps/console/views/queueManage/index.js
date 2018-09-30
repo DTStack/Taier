@@ -2,14 +2,17 @@
 * @Author: 12574
 * @Date:   2018-09-17 15:22:48
 * @Last Modified by:   12574
-* @Last Modified time: 2018-09-25 14:24:11
+* @Last Modified time: 2018-09-27 16:07:56
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card } from 'antd';
 import moment from "moment";
+import utils from "utils"
+
 import Api from "../../api/console";
 import '../../styles/main.scss';
-import TaskDetail from './TaskDeatil';
+import TaskDetail from './taskDetail';
+
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;
@@ -21,11 +24,11 @@ class QueueManage extends Component {
             total: 0,
             loading: true
         },
-        activeKey: "1",
+        nowView: utils.getParameterByName("tab")||"overview",
         clusterList: [],
         clusterId: undefined,
-        // 查看明细所需信息
-        detailInfo: {}
+        // 会重新渲染detail组件
+        resetKey:Math.random()
 	}
 
 	componentDidMount() {
@@ -68,7 +71,6 @@ class QueueManage extends Component {
     			this.setState({
     				clusterList: data || []
     			})
-    			
     		}
     	})
     }
@@ -81,9 +83,17 @@ class QueueManage extends Component {
     }
     // option改变
     clusterOptionChange(clusterId) {
-    	this.setState({
+    	if (!clusterId) {
+    		this.setState({
+    			dataSource: [],
+    			clusterId: undefined
+    		},this.getClusterDetail.bind(this))
+    	}else {
+    		this.setState({
     		clusterId: clusterId
     	},this.getClusterDetail.bind(this))
+    	}
+    	
     }
     // 页表
     getPagination() {
@@ -128,7 +138,7 @@ class QueueManage extends Component {
 				sorter: true,
 				render(text,record) {
           			// return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
-          			return record.generateTime
+          			return record.waitTime
           		},
           		sorter: (a,b) => a.generateTime - b.generateTime
 			},
@@ -154,23 +164,44 @@ class QueueManage extends Component {
 		]
 	}
 	// 查看明细(需要传入参数 集群,引擎,group) detailInfo
-	viewDetails(detailInfo) {
+	viewDetails(record) {
+		this.props.router.push({
+			pathname:"/console/queueManage",
+			query:{
+				tab: 'detail',
+				clusterName: record.clusterName,
+				engineType: record.engineType,
+				groupName: record.groupName
+			}
+		});
 		this.setState({
-			detailInfo: detailInfo,
-			activeKey: "2"
+			nowView: "detail",
+			resetKey:Math.random()
 		})
 	}
 	// 面板切换
 	handleClick(e) {
 		this.setState({
-			activeKey: e
+			nowView: e,
 		})
+		if(e=="detail"){
+			this.setState({
+				resetKey:Math.random()
+			})
+		}
+		this.props.router.push({
+			pathname:"/console/queueManage",
+			query:{
+				tab: e
+			}
+		});
 	}
 	render() {
 		const columns = this.initTableColumns();
-		const { dataSource, table } = this.state;
+		const { dataSource, table, clusterList } = this.state;
 		const { loading } = table;
-		const activeKey = this.state.activeKey;
+		const {nowView} = this.state;
+		const query=this.props.router.location.query;
 		return (
 			<div className=" api-mine nobackground m-card height-auto m-tabs" style={{marginTop: "20px"}}>
 				<Card
@@ -181,13 +212,14 @@ class QueueManage extends Component {
 					<Tabs
 			            style={{overflow:"unset"}}
 			            animated={false}
-			            activeKey={activeKey}
 			            onChange={this.handleClick.bind(this)}
+			            activeKey={nowView}
 			            >
-		                <Tabs.TabPane tab="概览" key="1">
+		                <Tabs.TabPane tab="概览" key="overview">
 		                   <div style={{margin: "20px"}}>
 		                   		集群: <Select style={{ width: 150 }}
 		                   		placeholder="选择集群"
+		                   		allowClear
 		                   		onChange={this.clusterOptionChange.bind(this)}
 		                   		value={this.state.clusterId} 
 		                   		>
@@ -209,9 +241,11 @@ class QueueManage extends Component {
 		                   >
 		                   </Table>
 		                </Tabs.TabPane>
-		                <Tabs.TabPane tab="明细" key="2">
+		                <Tabs.TabPane tab="明细" key="detail">
 		                    <TaskDetail
-		                    	// detailInfo={detailInfo}
+		                    	key={this.state.resetKey}
+		                    	clusterList={clusterList}
+		                    	query={query}
 		                    >
 		                    </TaskDetail>
 		                </Tabs.TabPane>
