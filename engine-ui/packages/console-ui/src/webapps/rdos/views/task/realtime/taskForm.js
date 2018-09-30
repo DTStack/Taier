@@ -164,13 +164,13 @@ class TaskFormModal extends Component {
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
         
         return (
-            <div id="JS_task_modal">
+            <div id="JS_task_modal_realtime">
                 <Modal
                     title={title}
                     visible={visible}
                     onOk={this.submit}
                     onCancel={this.cancle}
-                    getContainer={() => getContainer('JS_task_modal')}
+                    getContainer={() => getContainer('JS_task_modal_realtime')}
                 >
                     <Form>
                         <FormItem
