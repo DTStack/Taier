@@ -1,7 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ public abstract class AbsClient implements IClient{
             jobResult = processSubmitJobWithType(jobClient);
             if (jobResult == null){
                 jobResult = JobResult.createErrorResult("not support job type of " + jobClient.getJobType() + "," +
-                        " you need to set it in(MR, SQL, SYNC, PYTHON)");
+                        " you need to set it in(" + StringUtils.join(EJobType.values(),",") + ")");
             }
         }catch (Exception e){
             logger.error("", e);
