@@ -19,6 +19,7 @@ module.exports = function () {
         entry: {
             main: MY_PATH.MAIN_APP_FILE,
             rdos: MY_PATH.RDOS_APP_FILE,
+            stream: MY_PATH.STREAM_APP_FILE,
             dataQuality: MY_PATH.DATA_QUALITY_APP_FILE,
             dataApi: MY_PATH.DATA_API_APP_FILE,
             dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
@@ -109,6 +110,7 @@ module.exports = function () {
                 // 应用根目录
                 main: MY_PATH.MAIN_APP_PATH, // 主应用
                 rdos: MY_PATH.RDOS_PATH, // RDOS
+                stream: MY_PATH.STREAM_APP_FILE, // 流计算
                 dataQuality: MY_PATH.DATA_QUALITY_PATH, // 数据质量
                 dataApi: MY_PATH.DATA_API_PATH, // 数据API
                 dataLabel: MY_PATH.DATA_LABEL_PATH, // 标签工厂

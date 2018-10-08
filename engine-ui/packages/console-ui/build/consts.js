@@ -9,6 +9,7 @@ const PWA = path.resolve(APP_PATH, 'pwa');              // pwa
 // 所有应用
 const MAIN_APP_PATH = path.resolve(WEB_APPS, 'main');             // 主应用
 const RDOS_PATH = path.resolve(WEB_APPS, 'rdos');                 // RDOS
+const STREAM_PATH = path.resolve(WEB_APPS, 'stream');                 // 流计算
 const DATA_QUALITY_PATH = path.resolve(WEB_APPS, 'dataQuality');  // 数据质量
 const DATA_API_PATH = path.resolve(WEB_APPS, 'dataApi');          // 数据API
 const DATA_LABEL_PATH = path.resolve(WEB_APPS, 'dataLabel');      // 标签工厂
@@ -20,6 +21,7 @@ const CORE_DATA_PATH = path.resolve(WEB_APPS, 'coreData');        // 主数据
 // 根目录文件app地址
 const MAIN_APP_FILE = path.resolve(MAIN_APP_PATH, 'app');
 const RDOS_APP_FILE = path.resolve(RDOS_PATH, 'app');
+const STREAM_APP_FILE = path.resolve(STREAM_PATH, 'app');
 const DATA_QUALITY_APP_FILE = path.resolve(DATA_QUALITY_PATH, 'app');
 const DATA_API_APP_FILE = path.resolve(DATA_API_PATH, 'app');
 const DATA_LABEL_APP_FILE = path.resolve(DATA_LABEL_PATH, 'app');
@@ -40,6 +42,7 @@ module.exports = {
 
     MAIN_APP_PATH,
     RDOS_PATH,
+    STREAM_PATH,
     DATA_QUALITY_PATH,
     DATA_API_PATH,
     DATA_LABEL_PATH,
@@ -50,6 +53,7 @@ module.exports = {
 
     MAIN_APP_FILE,
     RDOS_APP_FILE,
+    STREAM_APP_FILE,
     DATA_QUALITY_APP_FILE,
     DATA_API_APP_FILE,
     DATA_LABEL_APP_FILE,
