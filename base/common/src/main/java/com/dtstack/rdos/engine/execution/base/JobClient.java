@@ -30,11 +30,11 @@ public class JobClient extends OrderObject{
 
     private static final Logger logger = LoggerFactory.getLogger(JobClient.class);
 
-    /**默认的优先级*/
-    private static final int DEFAULT_PRIORITY_LEVEL_VALUE = 1;
+    /**默认的优先级，值越小，优先级越高*/
+    private static final int DEFAULT_PRIORITY_LEVEL_VALUE = 10;
 
     /**用户填写的优先级占的比重*/
-    private static final int PRIORITY_LEVEL_WEIGHT = 10;
+    private static final int PRIORITY_LEVEL_WEIGHT = 100000;
 
     private JobClientCallBack jobClientCallBack;
 
@@ -78,6 +78,8 @@ public class JobClient extends OrderObject{
 
     private long restartTime = 0;
 
+    private long generateTime;
+
     /***
      * 获取engine上job执行的状态
      * @param engineTaskId engine jobId
@@ -95,7 +97,7 @@ public class JobClient extends OrderObject{
         return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path, pluginInfo);
     }
 
-
+    @Deprecated
     public JobClient() {
 
     }
@@ -115,13 +117,14 @@ public class JobClient extends OrderObject{
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
-
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
+        }
+        if (priority <= 0){
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
-            //获取priority值
-            this.priority =  priorityLevel * PRIORITY_LEVEL_WEIGHT;
+            //设置priority值, 值越小，优先级越高
+            this.priority = paramAction.getGenerateTime() + priorityLevel * PRIORITY_LEVEL_WEIGHT;
         }
         this.groupName = paramAction.getGroupName();
 
@@ -144,6 +147,8 @@ public class JobClient extends OrderObject{
         action.setExeArgs(classArgs);
         action.setGroupName(groupName);
         action.setRestartTime(restartTime);
+        action.setGenerateTime(generateTime);
+        action.setPriority(priority);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -321,6 +326,18 @@ public class JobClient extends OrderObject{
 
     public void setRestartTime(long restartTime) {
         this.restartTime = restartTime;
+    }
+
+    public long getGenerateTime() {
+        return generateTime;
+    }
+
+    public void setGenerateTime(long generateTime) {
+        this.generateTime = generateTime;
+    }
+
+    public int getJobPriority() {
+        return Integer.MAX_VALUE - (int)(getPriority() / 1000);
     }
 
     @Override

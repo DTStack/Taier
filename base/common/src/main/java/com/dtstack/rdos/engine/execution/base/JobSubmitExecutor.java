@@ -50,7 +50,14 @@ public class JobSubmitExecutor {
     private String localAddress;
 
     private ExecutorService jobSubmitPool = new ThreadPoolExecutor(3, 10, 60L,TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory("jobSubmitPool"));
+                new SynchronousQueue<>(true), new CustomThreadFactory("jobSubmitPool"),
+            //BlockCallerPolicy
+            (r,executor)->{
+                try {
+                    executor.getQueue().put(r);
+                } catch (InterruptedException e) {
+                    throw new RejectedExecutionException("Unexpected InterruptedException", e);
+                }});
 
     private JobSubmitExecutor(){
         init();
@@ -140,9 +147,8 @@ public class JobSubmitExecutor {
             while (it.hasNext()){
                 JobClient jobClient = it.next();
                 boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
-                //重试任务时间未满足条件，出队后进行优先级计算完后重新入队
+                //重试任务时间未满足条件
                 if (!isRestartJobCanSubmit){
-                    jobClient.setPriority(jobClient.getPriority()-1);
                     continue;
                 }
                 if (!checkLocalPriorityIsMax(engineType,groupName,jobClient.getPriority())){
@@ -152,13 +158,31 @@ public class JobSubmitExecutor {
                 if (submitJob(jobClient,priorityQueue)) {
                     it.remove();
                 }
-                //更新剩余任务的优先级数据
-                updateQueuePriority(priorityQueue);
+                //一次提交一个任务
                 break;
             }
         }
 
-        private boolean checkLocalPriorityIsMax(String engineType, String groupName, int localPriority) {
+        private boolean submitJob(JobClient jobClient,OrderLinkedBlockingQueue<JobClient> priorityQueue){
+            try {
+                jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerNoResource(jobClient,priorityQueue)));
+                return true;
+            } catch (RejectedExecutionException e){
+                logger.error("", e);
+                return false;
+            }
+        }
+
+        private void handlerNoResource(JobClient jobClient, OrderLinkedBlockingQueue<JobClient> priorityQueue){
+            try {
+                jobClient.setPriority(jobClient.getPriority() + 100);
+                priorityQueue.put(jobClient);
+            } catch (InterruptedException e){
+                logger.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e);
+            }
+        }
+
+        private boolean checkLocalPriorityIsMax(String engineType, String groupName, long localPriority) {
             if(clusterQueueInfo.isEmpty()){
                 //等待第一次从zk上获取信息
                 return false;
@@ -183,36 +207,6 @@ public class JobSubmitExecutor {
             }
             return result;
         }
-
-        private boolean submitJob(JobClient jobClient,OrderLinkedBlockingQueue<JobClient> priorityQueue){
-            try {
-                jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerNoResource(jobClient,priorityQueue)));
-                return true;
-            } catch (RejectedExecutionException e){
-                logger.error("", e);
-                return false;
-            }
-        }
-
-        private void handlerNoResource(JobClient jobClient, OrderLinkedBlockingQueue<JobClient> priorityQueue){
-            try {
-                priorityQueue.put(jobClient);
-            } catch (InterruptedException e){
-                logger.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e);
-            }
-        }
-
-        /**
-         * 每次判断过后对剩下的任务的priority值加上一个固定值
-         */
-        private void updateQueuePriority(OrderLinkedBlockingQueue<JobClient> priorityQueue){
-            for(JobClient jobClient: priorityQueue){
-                int currPriority = jobClient.getPriority();
-                currPriority = currPriority + PRIORITY_ADD_VAL;
-                jobClient.setPriority(currPriority);
-            }
-        }
-
     }
 }
 

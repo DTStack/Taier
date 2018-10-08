@@ -41,7 +41,10 @@ public class JobSubmitProcessor implements Runnable {
             }
 
             EngineResourceInfo resourceInfo = clusterClient.getAvailSlots();
-
+            if (resourceInfo!=null){
+                handler.handle();
+                return;
+            }
             if (resourceInfo != null && resourceInfo.judgeSlots(jobClient)) {
                 if (logger.isInfoEnabled()) {
                     logger.info("--------submit job:{} to engine start----.", jobClient.toString());

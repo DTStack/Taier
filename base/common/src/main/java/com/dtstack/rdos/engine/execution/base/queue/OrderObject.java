@@ -13,24 +13,14 @@ public class OrderObject implements Serializable{
 
     protected String id = UUID.randomUUID().toString();
 
-    protected int priority = 0;
+    protected long priority = 0;
 
-    private long generateTime = System.currentTimeMillis();
-
-    public int getPriority() {
+    public long getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(long priority) {
         this.priority = priority;
-    }
-
-    public long getGenerateTime() {
-        return generateTime;
-    }
-
-    public void setGenerateTime(long generateTime) {
-        this.generateTime = generateTime;
     }
 
     public String getId() {

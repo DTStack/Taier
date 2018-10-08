@@ -7,15 +7,15 @@ package com.dtstack.rdos.engine.execution.base.queue;
  */
 public class GroupInfo {
 
-    private int priority;
+    private long priority;
 
     private int size;
 
-    public int getPriority() {
+    public long getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(long priority) {
         this.priority = priority;
     }
 

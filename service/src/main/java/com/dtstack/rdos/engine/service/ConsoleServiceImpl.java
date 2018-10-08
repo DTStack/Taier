@@ -241,12 +241,10 @@ public class ConsoleServiceImpl {
             if (idxJob == null) {
                 return false;
             }
-            if (theJob.getPriority() == idxJob.getPriority() &&
-                    theJob.getGenerateTime() == idxJob.getGenerateTime()) {
+            if (theJob.getPriority() == idxJob.getPriority()) {
                 return true;
             }
-            theJob.setPriority(idxJob.getPriority());
-            theJob.setGenerateTime(idxJob.getGenerateTime() - 1);
+            theJob.setPriority(idxJob.getPriority() - 1);
             jobQueue.remove(theJob.getTaskId());
             jobQueue.put(theJob);
             return true;
