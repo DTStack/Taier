@@ -19,7 +19,7 @@ export const rdosApp = {
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
     apiBase: '/rdos',
-}
+} 
 
 export const dqApp = {
     id: 'dataQuality',
@@ -59,6 +59,18 @@ export const consoleApp = {
     target: '_blank',
     enable: false,
     apiBase: '/console',
+    needRoot:true,
+    disableExt:true
+}
+
+export const aeApp = {
+    id: 'analgsisEngine',
+    name: '分析引擎',
+    link: 'analysisEngine.html#/',
+    filename: 'analysisEngine.html',
+    target: '_blank',
+    enable: false,
+    apiBase: '/analysisEngine',
     needRoot:true,
     disableExt:true
 }

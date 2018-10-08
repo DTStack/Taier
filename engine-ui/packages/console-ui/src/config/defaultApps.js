@@ -73,5 +73,17 @@ module.exports = [
         enable: false,
         apiBase: '/map',
         description: '可视化的数据资产中心，帮助企业全盘掌控数据资产情况和数据的来源去向',
+    },{
+        id: 'analysisEngine',
+        name: '分析引擎',
+        link: 'analysisEngine.html#/',
+        filename: 'analysisEngine.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/analysisEngine',
+        icon: '/public/main/img/icon_5.png',
+        description: '计算资源分配、多集群管理',
+        needRoot:true,
+        disableExt:true
     },
 ];
