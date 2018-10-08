@@ -376,25 +376,21 @@ public class ActionServiceImpl {
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        String log = null;
+        Map<String,String> log = new HashMap<>(2);
         if (ComputeType.STREAM.getType().equals(computeType)) {
             RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
-                log = streamJob.getLogInfo();
-                if (StringUtils.isNotBlank(streamJob.getEngineLog())){
-                    log+="\n engineLog:"+streamJob.getEngineLog();
-                }
+                log.put("logInfo",streamJob.getLogInfo());
+                log.put("engineLog",streamJob.getEngineLog());
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
             if (batchJob != null) {
-                log = batchJob.getLogInfo();
-                if (StringUtils.isNotBlank(batchJob.getEngineLog())){
-                    log+="\n engineLog:"+batchJob.getEngineLog();
-                }
+                log.put("logInfo",batchJob.getLogInfo());
+                log.put("engineLog",batchJob.getEngineLog());
             }
         }
-        return log;
+        return PublicUtil.objToString(log);
     }
 
     /**
@@ -416,11 +412,8 @@ public class ActionServiceImpl {
                     data.put("jobId", streamJob.getTaskId());
                     data.put("status", streamJob.getStatus());
                     data.put("execStartTime", streamJob.getExecStartTime());
-                    String log = streamJob.getLogInfo();
-                    if (StringUtils.isNotBlank(streamJob.getEngineLog())){
-                        log+="\n engineLog:"+streamJob.getEngineLog();
-                    }
-                    data.put("log", log);
+                    data.put("logInfo", streamJob.getLogInfo());
+                    data.put("engineLog", streamJob.getEngineLog());
                     result.add(data);
                 }
             }
@@ -433,11 +426,8 @@ public class ActionServiceImpl {
                     data.put("jobId", batchJob.getJobId());
                     data.put("status", batchJob.getStatus());
                     data.put("execStartTime", batchJob.getExecStartTime());
-                    String log = batchJob.getLogInfo();
-                    if (StringUtils.isNotBlank(batchJob.getEngineLog())){
-                        log+="\n engineLog:"+batchJob.getEngineLog();
-                    }
-                    data.put("log", log);
+                    data.put("logInfo", batchJob.getLogInfo());
+                    data.put("engineLog", batchJob.getEngineLog());
                     result.add(data);
                 }
             }

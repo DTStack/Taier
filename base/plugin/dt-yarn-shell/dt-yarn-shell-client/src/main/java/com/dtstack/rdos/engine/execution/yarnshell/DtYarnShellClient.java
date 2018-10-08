@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -79,6 +80,16 @@ public class DtYarnShellClient extends AbsClient {
     }
 
     @Override
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.PYTHON.equals(jobType)){
+            jobResult = submitPythonJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    @Override
     public JobResult cancelJob(String jobId) {
         try {
             client.kill(jobId);
@@ -144,8 +155,7 @@ public class DtYarnShellClient extends AbsClient {
         return null;
     }
 
-    @Override
-    public JobResult submitPythonJob(JobClient jobClient){
+    private JobResult submitPythonJob(JobClient jobClient){
         LOG.info("LearningClient.submitPythonJob");
         try {
             String[] args = DtYarnShellUtil.buildPythonArgs(jobClient);
@@ -192,14 +202,13 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public String getJobLog(String jobId) {
-        Map<String,Object> jobLog = new HashMap<>();
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            jobLog.put("msg_info", applicationReport.getDiagnostics());
+            String msgInfo = applicationReport.getDiagnostics();
+            return msgInfo;
         } catch (Exception e) {
-            jobLog.put("msg_info", e.getMessage());
             LOG.error("", e);
+            return e.getMessage();
         }
-        return gson.toJson(jobLog, Map.class);
     }
 }

@@ -364,6 +364,8 @@ public class JobClient extends OrderObject{
                 ", again=" + again +
                 ", groupName=" + groupName +
                 ", restartTime=" + restartTime +
+                ", generateTime=" + generateTime +
+                ", priority=" + priority +
                 '}';
     }
 }
