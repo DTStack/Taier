@@ -1,10 +1,10 @@
 package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class GroupPriorityQueue {
 
-    private static final String DEFAULT_GROUP_NAME = "default";
-
     /**key: groupName*/
     private Map<String, OrderLinkedBlockingQueue<JobClient>> groupPriorityQueueMap = Maps.newHashMap();
 
@@ -25,7 +23,7 @@ public class GroupPriorityQueue {
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        String groupName = jobClient.getGroupName() == null ? DEFAULT_GROUP_NAME : jobClient.getGroupName();
+        String groupName = StringUtils.isEmpty(jobClient.getGroupName()) ? ConfigConstant.DEFAULT_GROUP_NAME : jobClient.getGroupName();
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
                 k -> new OrderLinkedBlockingQueue<>());
 
@@ -41,7 +39,7 @@ public class GroupPriorityQueue {
     }
 
     public boolean remove(String groupName, String jobId){
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
+        groupName = StringUtils.isEmpty(groupName) ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
         return queue.remove(jobId);
     }

@@ -32,11 +32,8 @@ public class JobSubmitExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
-    /**经过每轮的判断之后剩下的job优先级数值增量*/
-    private static final int PRIORITY_ADD_VAL = 1;
-
     /***循环间隔时间3s*/
-    private static final int WAIT_INTERVAL = 3 * 1000;
+    private static final int WAIT_INTERVAL = 2 * 1000;
 
     /**用于taskListener处理*/
     private LinkedBlockingQueue<JobClient> queueForTaskListener = new LinkedBlockingQueue<>();
