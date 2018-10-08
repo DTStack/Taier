@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -50,7 +50,7 @@ public class JobSubmitExecutor {
     private String localAddress;
 
     private ExecutorService jobSubmitPool = new ThreadPoolExecutor(3, 10, 60L,TimeUnit.SECONDS,
-                new SynchronousQueue<>(true), new CustomThreadFactory("jobSubmitPool"),
+                new ArrayBlockingQueue<Runnable>(1), new CustomThreadFactory("jobSubmitPool"),
             //BlockCallerPolicy
             (r,executor)->{
                 try {
@@ -158,7 +158,7 @@ public class JobSubmitExecutor {
                 if (submitJob(jobClient,priorityQueue)) {
                     it.remove();
                 }
-                //一次提交一个任务
+                //group queue 一次提交一个任务
                 break;
             }
         }
