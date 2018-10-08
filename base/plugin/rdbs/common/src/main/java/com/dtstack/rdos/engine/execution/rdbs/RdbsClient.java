@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.rdbs;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -48,13 +49,23 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }else if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    private JobResult submitSqlJob(JobClient jobClient) {
         String submitId = exeQueue.submit(jobClient);
         return JobResult.createSuccessResult(submitId);
     }
 
-    @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
+    private JobResult submitJobWithJar(JobClient jobClient) {
         throw new RdosException(dbType + "client not support MR job");
     }
 

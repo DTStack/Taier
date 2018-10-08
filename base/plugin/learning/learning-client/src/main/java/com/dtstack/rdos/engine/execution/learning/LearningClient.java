@@ -5,6 +5,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -75,6 +76,16 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.PYTHON.equals(jobType)){
+            jobResult = submitPythonJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    @Override
     public JobResult cancelJob(String jobId) {
         try {
             client.kill(jobId);
@@ -140,8 +151,7 @@ public class LearningClient extends AbsClient {
         return null;
     }
 
-    @Override
-    public JobResult submitPythonJob(JobClient jobClient){
+    private JobResult submitPythonJob(JobClient jobClient){
         LOG.info("LearningClient.submitPythonJob");
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);

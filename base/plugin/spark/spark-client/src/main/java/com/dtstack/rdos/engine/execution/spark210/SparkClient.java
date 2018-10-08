@@ -82,9 +82,20 @@ public class SparkClient extends AbsClient {
         }
     }
 
-    //FIXME spark conf 设置细化
     @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }else if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    //FIXME spark conf 设置细化
+    private JobResult submitJobWithJar(JobClient jobClient) {
 
         JobParam jobParam = new JobParam(jobClient);
 
@@ -119,8 +130,7 @@ public class SparkClient extends AbsClient {
     }
 
 
-    @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJob(JobClient jobClient) {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){

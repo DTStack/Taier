@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.flink120.util.FlinkUtil;
@@ -202,13 +203,26 @@ public class FlinkClient extends AbsClient {
         return pluginRoot + sp + syncPluginDirName;
     }
 
+    @Override
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }else if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }else if(EJobType.SYNC.equals(jobType)){
+            jobResult = submitSyncJob(jobClient);
+        }
+        return jobResult;
+    }
+
     /***
      * 提交 job-jar 到 cluster 的方式, jobname 需要在job-jar里面指定
      * @param jobClient
      * @return
      */
-    @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
+    private JobResult submitJobWithJar(JobClient jobClient) {
 
         JobParam jobParam = new JobParam(jobClient);
 
@@ -300,8 +314,7 @@ public class FlinkClient extends AbsClient {
         return SavepointRestoreSettings.forPath(externalPath, allowNonRestoredState);
     }
 
-    @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJob(JobClient jobClient) {
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){
             throw new RdosException("need to set compute type.");
@@ -328,7 +341,7 @@ public class FlinkClient extends AbsClient {
      * @param jobClient
      * @return
      */
-    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJobForStream(JobClient jobClient) {
         throw new RuntimeException("not support for flink1.2 stream sql.");
     }
 
@@ -454,8 +467,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    @Override
-    public JobResult submitSyncJob(JobClient jobClient) {
+    private JobResult submitSyncJob(JobClient jobClient) {
         throw new RuntimeException("no support for ");
     }
 

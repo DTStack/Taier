@@ -109,7 +109,20 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public JobResult submitJobWithJar(JobClient jobClient){
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }else if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }else if(EJobType.PYTHON.equals(jobType)){
+            jobResult = submitPythonJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    private JobResult submitJobWithJar(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         String mainClass = jobParam.getMainClass();
@@ -162,8 +175,7 @@ public class SparkYarnClient extends AbsClient {
 
     }
 
-    @Override
-    public JobResult submitPythonJob(JobClient jobClient){
+    private JobResult submitPythonJob(JobClient jobClient){
         setHadoopUserName(sparkYarnConfig);
         JobParam jobParam = new JobParam(jobClient);
         //.py .egg .zip 存储的hdfs路径
@@ -307,8 +319,7 @@ public class SparkYarnClient extends AbsClient {
         throw new RdosException("not support spark sql job for stream type.");
     }
 
-    @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJob(JobClient jobClient) {
 
         ComputeType computeType = jobClient.getComputeType();
         if(computeType == null){

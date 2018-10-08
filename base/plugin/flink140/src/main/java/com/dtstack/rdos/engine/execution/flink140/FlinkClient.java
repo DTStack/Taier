@@ -166,9 +166,21 @@ public class FlinkClient extends AbsClient {
         yarnConf = customerConf.getYarnConfiguration();
     }
 
-
     @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }else if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }else if(EJobType.SYNC.equals(jobType)){
+            jobResult = submitSyncJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    private JobResult submitJobWithJar(JobClient jobClient) {
         List<URL> classPaths = Lists.newArrayList();
         List<String> programArgList = Lists.newArrayList();
         return submitJobWithJar(jobClient, classPaths, programArgList);
@@ -282,8 +294,7 @@ public class FlinkClient extends AbsClient {
         return SavepointRestoreSettings.forPath(externalPath, allowNonRestoredState);
     }
 
-    @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    private JobResult submitSqlJob(JobClient jobClient) {
 
         if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
             if(existsJobOnFlink(jobClient.getEngineTaskId())){
@@ -313,7 +324,7 @@ public class FlinkClient extends AbsClient {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private JobResult submitSqlJobForStream(JobClient jobClient) throws IOException, ClassNotFoundException{
+    private JobResult submitSqlJobForStream(JobClient jobClient) {
 
         try {
             //构建args
@@ -336,7 +347,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private JobResult submitSqlJobForBatch(JobClient jobClient) throws FileNotFoundException, MalformedURLException, ClassNotFoundException {
+    private JobResult submitSqlJobForBatch(JobClient jobClient) {
         throw new RdosException("not support for flink batch sql now!!!");
 
     }
@@ -503,8 +514,7 @@ public class FlinkClient extends AbsClient {
 
 
 
-    @Override
-    public JobResult submitSyncJob(JobClient jobClient) {
+    private JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
         JarFileInfo coreJar = syncPluginInfo.createAddJarInfo();
         jobClient.setCoreJarInfo(coreJar);
