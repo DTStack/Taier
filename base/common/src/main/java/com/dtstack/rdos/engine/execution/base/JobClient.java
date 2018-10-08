@@ -114,17 +114,20 @@ public class JobClient extends OrderObject{
         this.engineType = paramAction.getEngineType();
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
+        this.generateTime = paramAction.getGenerateTime();
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
         if(taskParams != null){
             this.confProperties = PublicUtil.stringToProperties(taskParams);
         }
-        if (priority <= 0){
+        if (paramAction.getPriority() <= 0){
             String valStr = confProperties == null ? null : confProperties.getProperty(ConfigConstant.CUSTOMER_PRIORITY_VAL);
             this.priorityLevel = valStr == null ? DEFAULT_PRIORITY_LEVEL_VALUE : MathUtil.getIntegerVal(valStr);
             //设置priority值, 值越小，优先级越高
             this.priority = paramAction.getGenerateTime() + priorityLevel * PRIORITY_LEVEL_WEIGHT;
+        } else {
+            priority = paramAction.getPriority();
         }
         this.groupName = paramAction.getGroupName();
 
