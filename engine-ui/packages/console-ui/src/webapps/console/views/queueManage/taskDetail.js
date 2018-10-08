@@ -240,9 +240,15 @@ class TaskDetail extends Component {
 			}, this.getGroupList.bind(this))
 		} else {
 			this.setState({
+				dataSource: [],
 				jobName: undefined,
 				engineType: value,
-				groupName: undefined
+				groupName: undefined,
+				table: {
+					...table,
+					loading: false,
+					total: 0
+				}
 			}, this.getGroupList.bind(this))
 		}
 
