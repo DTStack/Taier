@@ -312,7 +312,7 @@ class Header extends Component {
                             style={{ display }}
 
                         >
-                            <a href={`${basePath}/database`}>数据集成</a>
+                            <a href={`${basePath}/database`}>数据源</a>
                         </Menu.Item>
                         <Menu.Item
                             className="my-menu-item"

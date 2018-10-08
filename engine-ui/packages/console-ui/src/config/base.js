@@ -12,7 +12,7 @@ export const CONSOLE_BASE_UPLOAD_URL='/api/console';
 
 export const rdosApp = {
     id: 'rdos',
-    name: '开发套件',
+    name: '离线计算',
     filename: 'ide.html',
     link: '/ide.html#',
     target: '_blank',

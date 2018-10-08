@@ -65,12 +65,12 @@ class OfflineCount extends Component {
         return (
             <div>
                 <h1 className="box-title box-title-bolder" style={{padding:"0 10 0 20"}}>
-                    离线任务
+                    {/* 离线任务 */}
                     {isTest && <Button type="primary" className="right" style={{ fontWeight:200,marginTop: '8px', marginLeft: "8px" }}>
-                        <Link to="/package/create?type=offline">离线任务发布</Link>
+                        <Link to="/package/create?type=offline">任务发布</Link>
                     </Button>}
                     <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
-                        <Link to="/operation/offline-operation">离线任务运维</Link>
+                        <Link to="/operation/offline-operation">任务运维</Link>
                     </Button>
                 </h1>
                 <div className="box-4 m-card m-card-small" style={{margin:"0 10 0 20"}}>
@@ -78,7 +78,7 @@ class OfflineCount extends Component {
                         noHovering
                         bordered={false}
                         loading={false}
-                        title="今日周期实例完成情况"
+                        title="周期实例执行汇总"
                     >
                         <Row className="m-count" >
                             {/* <Col style={flex}>

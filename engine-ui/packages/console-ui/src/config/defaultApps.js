@@ -12,7 +12,7 @@ module.exports = [
         apiBase: '/main',
     }, {
         id: 'rdos',
-        name: '开发套件',
+        name: '离线计算',
         filename: 'ide.html',
         link: '/ide.html#',
         target: '_self',

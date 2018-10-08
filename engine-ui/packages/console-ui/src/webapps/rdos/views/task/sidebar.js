@@ -26,7 +26,7 @@ class Sidebar extends Component {
         return (
             <div className="sidebar">
                 <Row>
-                    <Tabs
+                    {/* <Tabs
                         type="card"
                         className="task-dev-switcher"
                         defaultActiveKey={ activeKey } 
@@ -46,7 +46,8 @@ class Sidebar extends Component {
                         } key="realtime" style={{marginRight: 10}}>
                             <RealTimeTabPanel />
                         </TabPane>
-                    </Tabs>
+                    </Tabs> */}
+                    <OfflineTabPanel/>
                 </Row>
             </div>
         )

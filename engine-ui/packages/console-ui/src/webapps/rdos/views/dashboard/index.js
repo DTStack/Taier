@@ -124,10 +124,8 @@ class Index extends Component {
         const { dispatch } = this.props;
         if (type === "operation") {
             src = "/operation"
-        } else if (type === "offline") {
+        } else {
             src = "/offline/task"
-        } else {//realtime
-            src = "/realtime"
         }
         dispatch(ProjectAction.getProject(v.id));
         hashHistory.push(src)
@@ -230,20 +228,12 @@ class Index extends Component {
         }
     }
 
-    handleMouseOver = (type, e) => {
-        if (type === "realtime") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.svg"
-        } else {
+    handleMouseOver = (e) => {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.svg"
-        }
     }
 
-    handleMouseOut = (type, e) => {
-        if (type === "realtime") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.svg"
-        } else {
+    handleMouseOut = (e) => {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.svg"
-        }
     }
 
 
@@ -310,33 +300,20 @@ class Index extends Component {
                                                     <Col span="24" className="card-task-padding">
                                                         {
                                                             v.status != 1 ? "" : <Row >
-                                                                <Col span="8">
+                                                                <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('offline', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver('offline', e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut('offline', e) }}
+                                                                        onMouseOver={(e) => { this.handleMouseOver(e) }}
+                                                                        onMouseOut={(e) => { this.handleMouseOut(e) }}
                                                                         noHovering
                                                                     >
                                                                         <span className="img-container">
                                                                             <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
                                                                         </span>
-                                                                        离线任务开发
+                                                                        数据开发
                                                                             </Card>
                                                                 </Col>
-                                                                <Col span="8">
-                                                                    <Card className="card-task"
-                                                                        onClick={() => { this.setRouter('realtime', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver('realtime', e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut('realtime', e) }}
-                                                                        noHovering
-                                                                    >
-                                                                        <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/realtime2.svg" />
-                                                                        </span>
-                                                                        实时任务开发
-                                                                            </Card>
-                                                                </Col >
-                                                                <Col span="8">
+                                                                <Col span="12">
                                                                     <Card className="card-task" style={{ padding: "1.5 0" }}
                                                                         onClick={() => { this.setRouter('operation', v) }}
                                                                         noHovering
