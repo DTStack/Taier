@@ -186,7 +186,7 @@ public class JobSubmitExecutor {
 
         private boolean submitJob(JobClient jobClient,OrderLinkedBlockingQueue<JobClient> priorityQueue){
             try {
-                jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerError(jobClient,priorityQueue)));
+                jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerNoResource(jobClient,priorityQueue)));
                 return true;
             } catch (RejectedExecutionException e){
                 logger.error("", e);
@@ -194,7 +194,7 @@ public class JobSubmitExecutor {
             }
         }
 
-        private void handlerError(JobClient jobClient, OrderLinkedBlockingQueue<JobClient> priorityQueue){
+        private void handlerNoResource(JobClient jobClient, OrderLinkedBlockingQueue<JobClient> priorityQueue){
             try {
                 priorityQueue.put(jobClient);
             } catch (InterruptedException e){
