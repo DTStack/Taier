@@ -203,7 +203,7 @@ class TaskDetail extends Component {
    		this.setState({
    			clusterName: value,
    			engineType: engineType,
-   			groupName: undefined
+			groupName: undefined
    		},this.getGroupList.bind(this))
    	}
    	// 获取引擎下拉数据
@@ -225,12 +225,18 @@ class TaskDetail extends Component {
    	}
    	// 改变引擎option值
    	changeEngineValue(value) {
-   		const engineType = this.state.engineType;
+		   const engineType = this.state.engineType;
+		   const {table} = this.state;
    		if (!value) {
    			this.setState({
    				dataSource: [],
    				engineType: undefined,
-   				groupName:undefined
+				groupName:undefined,
+				table: {
+				...table,
+				loading: false,
+				total: 0
+				}
    			},this.getGroupList.bind(this))
    		}else {
 	   		this.setState({
