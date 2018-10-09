@@ -1,10 +1,10 @@
 import React from "react"
 
 import {
-    Tabs,Button
+    Tabs, Button
 } from 'antd'
 import SlidePane from 'widgets/slidePane'
-import {TaskStatus} from "../../../../components/status"
+import { TaskStatus } from "../../../../components/status"
 import AlarmMsg from "./tabs/alarmMsg"
 import BaseInfo from "./tabs/BaseInfo"
 import CheckPoint from "./tabs/checkPoint"
@@ -22,17 +22,25 @@ class TaskDetailPane extends React.Component {
     getTabs() {
         const { data = {} } = this.props;
         const { taskType } = data;
+        const scrollStyle = {
+            position: "absolute",
+            top: "36px",
+            bottom: "50px",
+            overflow: "auto",
+            paddingBottom: "1px",
+            paddingTop: "20px"
+        }
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
                 return [
                     <TabPane tab="基本指标" key="taskFlow">
-                        <BaseInfo data={data}/>
+                        <BaseInfo data={data} />
                     </TabPane>,
-                    <TabPane tab="运行代码" key="runCode">
-                        <RunCode data={data}/>
+                    <TabPane style={scrollStyle} tab="运行代码" key="runCode">
+                        <RunCode data={data} />
                     </TabPane>,
                     <TabPane tab="告警信息" key="alarmMsg">
-                        <AlarmMsg data={data}/>
+                        <AlarmMsg data={data} />
                     </TabPane>
                 ]
             }
@@ -40,19 +48,19 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.MR: {
                 return [
                     <TabPane tab="基本指标" key="taskFlow">
-                        <BaseInfo data={data}/>
+                        <BaseInfo data={data} />
                     </TabPane>,
                     <TabPane tab="数据延迟" key="dataDelay">
-                        <DataDelay data={data}/>
+                        <DataDelay data={data} />
                     </TabPane>,
                     <TabPane tab="checkpoint" key="checkpoint">
-                        <CheckPoint data={data}/>
+                        <CheckPoint data={data} />
                     </TabPane>,
-                    <TabPane tab="运行代码" key="runCode">
-                        <RunCode data={data}/>
+                    <TabPane style={scrollStyle} tab="运行代码" key="runCode">
+                        <RunCode data={data} />
                     </TabPane>,
                     <TabPane tab="告警信息" key="alarmMsg">
-                        <AlarmMsg data={data}/>
+                        <AlarmMsg data={data} />
                     </TabPane>
                 ]
             }
@@ -63,22 +71,27 @@ class TaskDetailPane extends React.Component {
     }
     render() {
         const {
-            visibleSlidePane,data={},extButton,
+            visibleSlidePane, data = {}, extButton,
             closeSlidePane
         } = this.props;
+        const extButtonStyle = {
+            position: "absolute",
+            right: "30px",
+            top: "11px"
+        }
         return (
             <SlidePane
                 className="m-tabs bd-top bd-right m-slide-pane"
                 onClose={closeSlidePane}
                 visible={visibleSlidePane}
                 style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
-            >   
+            >
                 <header className="detailPane-header">
-                    <span style={{fontSize:"14px"}}>{data.name}</span>
-                    <span style={{marginLeft:"25px"}}><TaskStatus value={data.status} /></span>
-                    <span style={{float:"right"}}>{extButton}</span>
+                    <span style={{ fontSize: "14px" }}>{data.name}</span>
+                    <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
+                    <span style={extButtonStyle}>{extButton}</span>
                 </header>
-                <Tabs style={{borderTop:"1px solid #DDDDDD"}} animated={false} onChange={this.onTabChange}>
+                <Tabs style={{ borderTop: "1px solid #DDDDDD", position: "relative" }} animated={false} onChange={this.onTabChange}>
                     {this.getTabs()}
                 </Tabs>
             </SlidePane>

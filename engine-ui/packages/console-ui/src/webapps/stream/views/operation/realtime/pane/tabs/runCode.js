@@ -16,14 +16,14 @@ class RunCode extends React.Component {
         const { data } = this.props;
         return (
             <div>
-                <Collapse defaultActiveKey={['code', 'env']}>
+                <Collapse className="middle-collapse" defaultActiveKey={['code', 'env']}>
                     <Panel header="运行代码" key="code">
                         <Editor
                             sync={true}
                             style={{ height: "400px" }}
                             options={{ readOnly: false }}
                             language="dtsql"
-                            options={{ readOnly: true }}
+                            options={{ readOnly: true, minimap: { enabled: false } }}
                             value={data.sqlText} 
                         />
                     </Panel>
@@ -33,7 +33,7 @@ class RunCode extends React.Component {
                             style={{ height: "400px" }}
                             options={{ readOnly: false }}
                             language="ini"
-                            options={{ readOnly: true }}
+                            options={{ readOnly: true, minimap: { enabled: false } }}
                             value={data.taskParams} 
                         />
                     </Panel>
