@@ -11,7 +11,7 @@ import {
 
 import utils from 'utils'
 
-import { formItemLayout, PROJECT_TYPE } from '../../comm/const'
+import { formItemLayout } from '../../comm/const'
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 
@@ -112,120 +112,7 @@ class ProjectConfig extends Component {
                 }
             )
     }
-    bindProject() {
-        const { bindProject } = this.state;
-        const { project, dispatch } = this.props;
-        if (!bindProject.name) {
-            message.warning("请选择发布目标");
-            return;
-        }
-        Modal.confirm({
-            title: '确认绑定发布目标',
-            content: (<div style={{ color: "ff0000", fontWeight: "bold" }}>
-                <p>是否确定将{bindProject.name}项目指定为发布目标？</p>
-                <p>此配置不可逆，确认后不可修改</p>
-            </div>),
-            iconType: "exclamation-circle",
-            onOk: () => {
-                this.setState({
-                    bindLoading: true
-                })
-                Api.bindProductionProject({
-                    produceProjectId: bindProject.id
-                }).then(
-                    (res) => {
-                        this.setState({
-                            bindLoading: false
-                        })
-                        if (res.code == 1) {
-                            message.success("绑定成功！")
-                            const newProject = cloneDeep(Object.assign(project,
-                                {
-                                    produceProject: bindProject.name,
-                                    produceProjectId: bindProject.id,
-                                    projectType:PROJECT_TYPE.TEST
-                                }
-                            ))
-                            dispatch(ProjectAction.setProject(newProject))
-                            dispatch(ProjectAction.getProjects())
-                            this.changeBindModalVisible(false);
-                        }
-                    }
-                )
-            },
-            onCancel() {
-                return;
-            },
-        });
-    }
-    changeBindModalVisible(isShow) {
-        const {project}=this.props;
-        if (!isShow) {
-            this.setState({
-                bindProject: {}
-            })
-        }else{
-            Api.getBindingProjectList({
-                projectAlias:project.projectAlias
-            }).then(
-                (res)=>{
-                    this.setState({
-                        projectBindList:res.data
-                    })
-                }
-            )
-        }
-        this.setState({
-            visibleChangeProduce: isShow
-        })
-    }
-    renderSubmit(project) {
-        switch (project.projectType) {
-            case PROJECT_TYPE.COMMON: {
-                return (
-                    <tr>
-                        <td className="t-title">
-                            发布目标
-                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                                <Icon className="help-doc" type="question-circle-o" />
-                            </Tooltip>
-                        </td>
-                        <td>
-                            <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
-                        </td>
-                    </tr>
-                )
-            }
-            case PROJECT_TYPE.TEST: {
-                return (
-                    <tr>
-                        <td className="t-title">
-                            发布目标
-                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                                <Icon className="help-doc" type="question-circle-o" />
-                            </Tooltip>
-                        </td>
-                        <td>
-                            {project.produceProject}
-                        </td>
-                    </tr>
-                )
-            }
-            case PROJECT_TYPE.PRO: {
-                return (
-                    <tr>
-                        <td className="t-title">发布源</td>
-                        <td>
-                            {project.testProject}
-                        </td>
-                    </tr>
-                )
-            }
-            default: {
-                return null;
-            }
-        }
-    }
+
     render() {
         const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading,projectBindList } = this.state
         const { params, project = {}, projects = [] } = this.props
@@ -270,7 +157,6 @@ class ProjectConfig extends Component {
                                     <Link to={`/project/${params.pid}/member`}> 成员管理</Link>
                                 </td>
                             </tr>
-                            {this.renderSubmit(project)}
                             <tr>
                                 <td className="t-title">启动周期调度</td>
                                 <td>
@@ -293,52 +179,6 @@ class ProjectConfig extends Component {
                     onCancel={() => { this.setState({ visibleUpdateDesc: false }); this.myForm.resetFields(); }}
                 >
                     <DescForm ref={(e) => { this.myForm = e }} {...this.props} />
-                </Modal>
-                <Modal
-                    title="绑定发布目标"
-                    visible={visibleChangeProduce}
-                    onOk={this.bindProject.bind(this)}
-                    onCancel={this.changeBindModalVisible.bind(this, false)}
-                    confirmLoading={bindLoading}
-                >
-                    <FormItem
-                        label="指定发布目标"
-                        {...formItemLayout}
-                        required
-                    >
-                        <Select
-                            placeholder="请选择发布项目"
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="children"
-                            value={bindProject.id}
-                            onSelect={(value, option) => {
-                                this.setState({
-                                    bindProject: {
-                                        id: value,
-                                        name: option.props.children
-                                    }
-                                })
-                            }}
-                        >
-                            {projectBindList.map(
-                                (project) => {
-                                    return <Option
-                                        key={project.id}
-                                        value={project.id}>
-                                        {project.projectAlias}
-                                    </Option> 
-                                }
-                            ).filter(Boolean)}
-                        </Select>
-                    </FormItem>
-                    <Row>
-                        <Col offset={1} span={23}>
-                            <p style={{ color: "#ff0000", fontWeight: "bold" }}>此配置不可逆，请确认后操作</p>
-                            <p>可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。</p>
-                            <p>发布目标的项目必须是空的，不能包含任何的任务、资源、函数、表。</p>
-                        </Col>
-                    </Row>
                 </Modal>
             </div>
         )

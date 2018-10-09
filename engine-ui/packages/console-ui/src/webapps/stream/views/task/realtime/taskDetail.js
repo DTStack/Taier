@@ -8,7 +8,7 @@ import utils from 'utils'
 import Api from '../../../api'
 import { TASK_TYPE } from "../../../comm/const"
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import TaskVersion from '../offline/taskVersion';
+import TaskVersion from '../taskVersion/taskVersion';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;

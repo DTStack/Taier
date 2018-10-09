@@ -3,10 +3,10 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import { isEmpty } from "lodash"
 import {
-    Table, message, Modal,
+    Table, message, Modal,Button,
     Input, Card, Popconfirm,
     DatePicker, TimePicker,
-    Select, Form,Tooltip,Icon
+    Select, Form, Tooltip, Icon
 } from 'antd'
 
 import utils from 'utils'
@@ -16,6 +16,7 @@ import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
 import { TaskStatus } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
+import DetailPane from "./pane"
 import LogInfo from './logInfo'
 import GoOnTask from './goOnTask'
 
@@ -34,6 +35,8 @@ class RealTimeTaskList extends Component {
         loading: false,
         continue: false,
         logVisible: false,
+        visibleSlidePane: false,
+        selectTask: null,
         current: 1,
         taskName: utils.getParameterByName('tname') || '',
         goOnTask: '',
@@ -54,7 +57,7 @@ class RealTimeTaskList extends Component {
         }
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         clearTimeout(this._timeClock);
         this._isUnmounted = true;
     }
@@ -63,23 +66,23 @@ class RealTimeTaskList extends Component {
             taskName: query,
         }, this.loadTaskList)
     }
-    debounceLoadtask(){
-        if(this._isUnmounted){
-            return ;
+    debounceLoadtask() {
+        if (this._isUnmounted) {
+            return;
         }
-        this._timeClock=setTimeout(() => {
-             this.loadTaskList(null,true);
-         }, 5000);
-     }
+        this._timeClock = setTimeout(() => {
+            this.loadTaskList(null, true);
+        }, 5000);
+    }
     onChange = (e) => {
         this.setState({
             continue: e.target.value,
         });
     }
 
-    loadTaskList(params,isSilent) { // currentPage, pageSize, isTimeSortDesc, status
+    loadTaskList(params, isSilent) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
-        if(!isSilent||typeof isSilent!="boolean"){
+        if (!isSilent || typeof isSilent != "boolean") {
             this.setState({ loading: true })
         }
         const reqParams = Object.assign({
@@ -103,20 +106,20 @@ class RealTimeTaskList extends Component {
         const ctx = this
         const current = this.state.current
         const status = task.status
-        const isRestore = status === TASK_STATUS.STOPED 
-        || status === TASK_STATUS.RUN_FAILED 
-        || status === TASK_STATUS.WAIT_SUBMIT 
-        || status === TASK_STATUS.SUBMIT_FAILED
-        ? 1 : 0
-        
-        switch(status){
+        const isRestore = status === TASK_STATUS.STOPED
+            || status === TASK_STATUS.RUN_FAILED
+            || status === TASK_STATUS.WAIT_SUBMIT
+            || status === TASK_STATUS.SUBMIT_FAILED
+            ? 1 : 0
+
+        switch (status) {
             case TASK_STATUS.WAIT_SUBMIT:
             case TASK_STATUS.STOPED:
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.KILLED:
-            case TASK_STATUS.SUBMIT_FAILED:{
+            case TASK_STATUS.SUBMIT_FAILED: {
                 if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
-                    if(task.taskType==TASK_TYPE.DATA_COLLECTION){
+                    if (task.taskType == TASK_TYPE.DATA_COLLECTION) {
                         Api.startTask({
                             id: task.id,
                             isRestoration: 0,
@@ -126,7 +129,7 @@ class RealTimeTaskList extends Component {
                                 ctx.loadTaskList({ pageIndex: current })
                             }
                         })
-                    }else{
+                    } else {
                         this.setState({ goOnTask: task.id })
                     }
                 } else {
@@ -146,7 +149,7 @@ class RealTimeTaskList extends Component {
             case TASK_STATUS.SUBMITTING:
             case TASK_STATUS.RESTARTING:
             case TASK_STATUS.WAIT_RUN:
-            case TASK_STATUS.WAIT_COMPUTE:{
+            case TASK_STATUS.WAIT_COMPUTE: {
                 Api.stopTask({
                     id: task.id,
                 }).then((res) => {
@@ -194,10 +197,18 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    chooseTask = (task) => {
-        this.props.dispatch(BrowserAction.openPage({
-            id: task.id,
-        }))
+    chooseTask = (index) => {
+        this.setState({
+            selectTask: index,
+            visibleSlidePane: true
+        })
+    }
+
+    closeSlidePane() {
+        this.setState({
+            visibleSlidePane: false,
+            selectTask: null
+        })
     }
 
     initTaskColumns = () => {
@@ -205,30 +216,15 @@ class RealTimeTaskList extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-            render: (text, record) => {
-                return <a onClick={() => { this.chooseTask(record) }}>{text}</a>
+            width: 150,
+            render: (text, record, index) => {
+                return <a onClick={() => { this.chooseTask(index) }}>{text}</a>
             },
         }, {
-            title: '任务类型',
-            dataIndex: 'taskType',
-            key: 'taskType',
-            render: (text) => {
-                switch(text){
-                    case TASK_TYPE.SQL:{
-                        return 'FlinkSQL'
-                    }
-                    case TASK_TYPE.MR:{
-                        return 'FlinkMR'
-                    }
-                    case TASK_TYPE.DATA_COLLECTION:{
-                        return '实时采集'
-                    }
-                }
-            },
-        }, {
-            title: '全部状态',
+            title: '状态',
             dataIndex: 'status',
             key: 'status',
+            width: 180,
             render: (text) => {
                 return <TaskStatus value={text} />
             },
@@ -236,85 +232,133 @@ class RealTimeTaskList extends Component {
             filteredValue: this.state.filter,
             filterMultiple: false,
         }, {
+            title: '业务延时',
+            dataIndex: 'delay',
+            key: 'delay',
+            width: 150,
+        }, {
+            title: '任务类型',
+            dataIndex: 'taskType',
+            key: 'taskType',
+            width: 150,
+            render: (text) => {
+                switch (text) {
+                    case TASK_TYPE.SQL: {
+                        return 'FlinkSQL'
+                    }
+                    case TASK_TYPE.MR: {
+                        return 'FlinkMR'
+                    }
+                    case TASK_TYPE.DATA_COLLECTION: {
+                        return '实时采集'
+                    }
+                }
+            },
+        }, {
             title: '责任人',
             dataIndex: 'createUserName',
             key: 'createUserName',
+            width: 200,
         }, {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
+            width: 150,
             render: text => utils.formatDateTime(text),
             sorter: (a, b) => a.gmtModified - b.gmtModified,
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUserName',
             key: 'modifyUserName',
+            width: 150,
         }, {
             title: '操作',
-            width: 120,
+            width: 150,
             key: 'operation',
             render: (text, record) => {
-                let normal = ''
-                let recover = ''
-                let goOn = ''
-                let popTxt = '确定执行当前操作吗?'
-                switch (record.status) {
-                    case TASK_STATUS.WAIT_SUBMIT:
-                    case TASK_STATUS.SUBMIT_FAILED:
-                        normal = '提交'
-                        break;
-                    case TASK_STATUS.FINISHED:
-                        recover = <a>重跑</a>
-                        popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-                        break;
-                    case TASK_STATUS.STOPED:
-                    case TASK_STATUS.KILLED:
-                        goOn = '续跑'
-                        popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-                        recover = <a>重跑</a>
-                        break;
-                    case TASK_STATUS.RUN_FAILED:
-                        goOn = '续跑'
-                        normal = '重试'
-                        break;
-                    case TASK_STATUS.SUBMIT_FAILED:
-                        normal = '重试'
-                        break;
-                    case TASK_STATUS.RUNNING:
-                    case TASK_STATUS.WAIT_RUN:
-                    case TASK_STATUS.WAIT_COMPUTE:
-                    case TASK_STATUS.SUBMITTING:
-                    case TASK_STATUS.RESTARTING:
-                        normal = '停止'
-                        break;
-                    default:
-                        break;
-                }
-
-                if(record.taskType==TASK_TYPE.DATA_COLLECTION){
-                    normal=normal=="重试"?null:normal;
-                    recover=null;
-                }
-                return (
-                    <div key={record.id}>
-                        <a onClick={() => { this.logInfo(record) }}>日志</a>
-                        {goOn ? <span className="ant-divider" /> : ''}
-                        <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
-                        {normal ? <span className="ant-divider" /> : ''}
-                        {normal?<a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>:null}
-                        {recover ? <span className="ant-divider" /> : ''}
-                        <Popconfirm
-                            okText="确定"
-                            cancelText="取消"
-                            onConfirm={() => { this.recoverTask(record) }}
-                            title={popTxt}
-                        >
-                            {recover}
-                        </Popconfirm>
-                    </div>
-                )
+               return this.getDealButton(record)
             },
         }]
+    }
+
+    getDealButton(record, isPane) {
+        if(!record){
+            return null;
+        }
+        let normal = ''
+        let recover = ''
+        let goOn = ''
+        let popTxt = '确定执行当前操作吗?'
+        switch (record.status) {
+            case TASK_STATUS.WAIT_SUBMIT:
+            case TASK_STATUS.SUBMIT_FAILED:
+                normal = '提交'
+                break;
+            case TASK_STATUS.FINISHED:
+                recover = <a>重跑</a>
+                popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                break;
+            case TASK_STATUS.STOPED:
+            case TASK_STATUS.KILLED:
+                goOn = '续跑'
+                popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                recover = <a>重跑</a>
+                break;
+            case TASK_STATUS.RUN_FAILED:
+                goOn = '续跑'
+                normal = '重试'
+                break;
+            case TASK_STATUS.SUBMIT_FAILED:
+                normal = '重试'
+                break;
+            case TASK_STATUS.RUNNING:
+            case TASK_STATUS.WAIT_RUN:
+            case TASK_STATUS.WAIT_COMPUTE:
+            case TASK_STATUS.SUBMITTING:
+            case TASK_STATUS.RESTARTING:
+                normal = '停止'
+                break;
+            default:
+                break;
+        }
+
+        if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
+            normal = normal == "重试" ? null : normal;
+            recover = null;
+        }
+        if (isPane) {
+            return (
+                <span className="buttonMargin">
+                    {goOn ? <Button type="primary" onClick={() => { this.updateTaskStatus(record) }}>{goOn}</Button> : null}
+                    {normal ? <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button> : null}
+                    {recover?<Popconfirm
+                        okText="确定"
+                        cancelText="取消"
+                        onConfirm={() => { this.recoverTask(record) }}
+                        title={popTxt}
+                    >
+                        <Button type="primary">{recover}</Button>
+                    </Popconfirm>:null}
+                </span>
+            )
+        } else {
+            return (
+                <div key={record.id}>
+                    <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
+                    {normal && goOn ? <span className="ant-divider" /> : ''}
+                    {normal ? <a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a> : null}
+                    {recover ? <span className="ant-divider" /> : ''}
+                    <Popconfirm
+                        okText="确定"
+                        cancelText="取消"
+                        onConfirm={() => { this.recoverTask(record) }}
+                        title={popTxt}
+                    >
+                        {recover}
+                    </Popconfirm>
+                </div>
+            )
+        }
     }
 
     hideGoOnTask = () => {
@@ -324,7 +368,9 @@ class RealTimeTaskList extends Component {
     }
 
     render() {
-        const { tasks, logInfo } = this.state
+        const { tasks, logInfo, selectTask } = this.state
+        const dataSource = tasks.data || [];
+        const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
@@ -345,7 +391,7 @@ class RealTimeTaskList extends Component {
                     }
                     extra={
                         <Tooltip title="刷新数据">
-                            <Icon type="sync" onClick={this.loadTaskList.bind(this,null)}
+                            <Icon type="sync" onClick={this.loadTaskList.bind(this, null)}
                                 style={{
                                     cursor: 'pointer',
                                     marginTop: '16px',
@@ -358,11 +404,20 @@ class RealTimeTaskList extends Component {
                     <Table
                         rowKey="id"
                         className="m-table full-screen-table-90"
+                        rowClassName={
+                            (record, index) => {
+                                if (selectTask && selectTask.id == record.id) {
+                                    return "row-select"
+                                } else {
+                                    return "";
+                                }
+                            }
+                        }
                         style={{ marginTop: '1px' }}
                         pagination={pagination}
                         loading={this.state.loading}
                         columns={this.initTaskColumns()}
-                        dataSource={tasks.data || []}
+                        dataSource={dataSource}
                         onChange={this.handleTableChange}
                     />
                     <GoOnTask
@@ -382,6 +437,12 @@ class RealTimeTaskList extends Component {
                 >
                     <LogInfo log={logInfo} height="520px" />
                 </Modal>
+                <DetailPane
+                    data={detailPaneData}
+                    visibleSlidePane={this.state.visibleSlidePane}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                    extButton={this.getDealButton(detailPaneData, true)}
+                />
             </div>
         )
     }

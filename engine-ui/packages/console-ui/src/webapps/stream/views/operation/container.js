@@ -3,11 +3,10 @@ import PropTypes from 'prop-types'
 import { Layout, Button } from 'antd'
 import { connect } from 'react-redux'
 
-import Sidebar from './sidebar'
 import * as UserAction from '../../store/modules/user'
 import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 
-const { Sider, Content } = Layout;
+const {  Content } = Layout;
 
 const propType = {
     children: PropTypes.node,
@@ -53,9 +52,6 @@ class Container extends Component {
         const collapsed = this.state.collapsed
         return (
             <Layout className="dt-operation">
-                <Sider className="bg-w">
-                    <Sidebar {...this.props} mode={this.state.mode} />
-                </Sider>
                 <Content>
                     { children || "i'm container." }
                 </Content>

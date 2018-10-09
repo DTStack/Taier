@@ -146,7 +146,7 @@ class TaskFormModal extends Component {
         const { taskType, createModel } = this.state
 
         const isEdit = operation && operation.indexOf('EDIT') > -1
-        const title = isEdit ? '编辑实时任务' : '创建实时任务'
+        const title = isEdit ? '编辑任务' : '创建任务'
 
         const taskRadios = taskTypes && taskTypes.map(item =>
             <Radio key={item.key} value={item.key}>{item.value}</Radio>
