@@ -7,15 +7,15 @@
 
 // 最外层背景
 .contentBox{
-	overflow: hidden;
+    overflow: hidden;
     background: #fff;
     box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
     background: #FFFFFF;
 }
 // 表格
 .q-table {
-	// margin: 20px 0 20px 20px;
-	margin-top: 20px;
+    // margin: 20px 0 20px 20px;
+    margin-top: 20px;
 }
 
 // 按任务搜索input框
@@ -25,11 +25,11 @@
 }
 // 下拉框
 .select {
-	overflow: hidden;
-	margin-left: 20px;
+    overflow: hidden;
+    margin-left: 20px;
 }
 
 // 杀任务
 .killTask {
-	background: rgba(255,186,180,.4);
+    background: rgba(255,186,180,.4);
 }
