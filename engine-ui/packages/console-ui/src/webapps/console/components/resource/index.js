@@ -31,8 +31,8 @@ class Resource extends Component {
 			Api.getClusterResources({
 				clusterName: clusterName
 			}).then( (res) => {
-				const yarnList = res.data.yarn;
-				const flinkList = res.data.flink;
+				const yarnList = res.data ? res.data.yarn : undefined;
+				const flinkList = res.data ? res.data.flink : undefined;
 				this.setState({
 					yarnListSource: yarnList,
 					flinkListSource: flinkList
