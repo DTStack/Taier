@@ -5,7 +5,7 @@
 * @Last Modified time: 2018-09-30 16:36:23
 */
 import React, { Component } from 'react';
-import { Table, Tabs, Select, Card } from 'antd';
+import { Table, Tabs, Select, Card, Tooltip, Icon } from 'antd';
 import moment from "moment";
 import utils from "utils"
 
@@ -213,7 +213,21 @@ class QueueManage extends Component {
 			            style={{overflow:"unset"}}
 			            animated={false}
 			            onChange={this.handleClick.bind(this)}
-			            activeKey={nowView}
+						activeKey={nowView}
+						tabBarExtraContent={
+							(nowView == "overview") ? (
+								<Tooltip title="刷新数据">
+									<Icon type="sync" onClick={this.getClusterDetail.bind(this)}
+										style={{
+											cursor: 'pointer',
+											marginTop: '12px',
+											marginRight: '15px',
+											color: '#94A8C6'
+										}}
+									/>
+                            	</Tooltip>
+							) : null
+                        }
 			            >
 		                <Tabs.TabPane tab="概览" key="overview">
 		                   <div style={{margin: "20px"}}>
