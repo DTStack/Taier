@@ -38,7 +38,13 @@ class QueueManage extends Component {
 	// 渲染集群
 	getClusterDetail() {
 		const { table, clusterId } = this.state;
-        const { pageIndex } = table;
+		const { pageIndex } = table;
+		this.setState({
+			table: {
+				...table,
+				loading: true
+			}
+		})
        	Api.getClusterDetail({
        		currentPage: pageIndex,
             pageSize: PAGE_SIZE,

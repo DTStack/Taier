@@ -153,7 +153,11 @@ class TaskDetail extends Component {
 		const { table } = this.state;
 		const { pageIndex } = table;
 		this.setState({
-			dataSource: []
+			dataSource: [],
+			table: {
+				...table,
+				loading: true
+			}
 		})
 		if (jobName) {
 			Api.searchTaskList({
@@ -293,9 +297,14 @@ class TaskDetail extends Component {
 	getDetailTaskList() {
 		const { engineType, groupName } = this.state;
 		const { table } = this.state;
+		const { loading } = table;
 		const { pageIndex } = table;
 		this.setState({
-			dataSource: []
+			dataSource: [],
+			table: {
+				...table,
+				loading: true
+			}
 		})
 		if (engineType && groupName) {
 			Api.getViewDetail({
@@ -397,7 +406,7 @@ class TaskDetail extends Component {
 				render(text, record) {
 					return record.jobName;
 				},
-				width: "180px"
+				width: "250px"
 			},
 			{
 				title: "状态",
@@ -687,7 +696,7 @@ class TaskDetail extends Component {
 					rowKey={(record) => {
 						return record.taskId
 					}}
-					// loading={loading}
+					loading={loading}
 					// className="m-table no-card-table q-table"
 					className="m-table s-table q-table"
 					pagination={this.getPagination()}
@@ -701,7 +710,7 @@ class TaskDetail extends Component {
 					onChange={this.onTableChange}
 					footer={() => {
 						return (
-							<div style={{ lineHeight: "40px", paddingLeft: "18px" }}>
+							<div style={{lineHeight: "20px", paddingLeft: "18px" }}>
 								任务总数<span>{total}</span>个
 							</div>
 						)
