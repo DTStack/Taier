@@ -459,7 +459,7 @@ class FolderTree extends React.Component {
                 title={
                     ispicker?
                     <span className={claName}>
-                        { name }
+                        { name }&nbsp;
                         <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
                             {createUser}
                         </i>

@@ -3,6 +3,8 @@ import {
     Form,
     Collapse,
     Input,
+    Icon,
+    Tooltip,
  } from 'antd';
 
  import HelpDoc from '../../helpDoc';
@@ -13,11 +15,11 @@ const Panel = Collapse.Panel;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 8 },
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 16 },
+        sm: { span: 14 },
     },
 }
 
@@ -31,13 +33,26 @@ class TaskParams extends React.Component {
             taskVariables[index].paramCommand = value;
             onChange({taskVariables})
         }
-    
+    }
+
+    removeParams = (index) => {
+        const { tabData, onChange } = this.props;
+        const taskVariables = [...tabData.taskVariables];
+        console.log('removeParams:', index, taskVariables[index]);
+        taskVariables.splice(index, 1);
+        onChange({taskVariables})
     }
 
     getFormItems = () => {
         const { getFieldDecorator } = this.props.form;
         const { taskVariables } = this.props.tabData;
         const sysArr = [], customArr = [];
+        const removeIcon = {
+            position: "absolute",
+            top: "10px",
+            right: "-20px",
+            cursor: 'pointer',
+        }
         const getFormItem = (index, param) => (
             <FormItem
                 key={param.paramName}
@@ -57,6 +72,9 @@ class TaskParams extends React.Component {
                         onChange={(e) => { this.onChange(index, e.target.value) }}
                     />
                 )}
+                {/* <Tooltip placement="top" title="移除变量">
+                    <Icon type="minus-circle-o" style={removeIcon} onClick={() => this.removeParams(index)}/>
+                </Tooltip> */}
             </FormItem>
         )
         if (taskVariables) {
@@ -77,7 +95,7 @@ class TaskParams extends React.Component {
     }
 
     render() {
-        const {tabData} = this.props;
+        const { tabData } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const formItems = this.getFormItems()
         
@@ -89,7 +107,6 @@ class TaskParams extends React.Component {
                             系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />
                         </span>
                     }>
-                       
                         {formItems.sysItems}
                     </Panel>
                     <Panel key="2" header={

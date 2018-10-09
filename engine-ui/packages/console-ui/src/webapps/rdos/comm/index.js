@@ -194,7 +194,7 @@ export function matchTaskParams(taskCustomParams, sqlText) {
     const data = [];
     let res = null;
     while ((res = regx.exec(sqlText)) !== null) {
-        const name = res[1]
+        const name = res[1];
         const param = {
             paramName: name,
             paramCommand: '',
