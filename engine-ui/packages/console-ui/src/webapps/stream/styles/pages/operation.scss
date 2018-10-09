@@ -270,3 +270,13 @@
         }
     }
 }
+.detailPane-header{
+    padding: 16px 30px 16px 18px;
+    line-height: 17px;
+    color:#333333;
+    .buttonMargin{
+        button:not(:last-child){
+            margin-right:8px;
+        }
+    }
+}

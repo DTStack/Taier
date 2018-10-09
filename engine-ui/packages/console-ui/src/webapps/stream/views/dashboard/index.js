@@ -310,20 +310,7 @@ class Index extends Component {
                                                     <Col span="24" className="card-task-padding">
                                                         {
                                                             v.status != 1 ? "" : <Row >
-                                                                <Col span="8">
-                                                                    <Card className="card-task"
-                                                                        onClick={() => { this.setRouter('offline', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver('offline', e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut('offline', e) }}
-                                                                        noHovering
-                                                                    >
-                                                                        <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
-                                                                        </span>
-                                                                        离线任务开发
-                                                                            </Card>
-                                                                </Col>
-                                                                <Col span="8">
+                                                                <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('realtime', v) }}
                                                                         onMouseOver={(e) => { this.handleMouseOver('realtime', e) }}
@@ -333,10 +320,10 @@ class Index extends Component {
                                                                         <span className="img-container">
                                                                             <img className="task-img" src="/public/rdos/img/icon/realtime2.svg" />
                                                                         </span>
-                                                                        实时任务开发
+                                                                        数据开发
                                                                             </Card>
                                                                 </Col >
-                                                                <Col span="8">
+                                                                <Col span="12">
                                                                     <Card className="card-task" style={{ padding: "1.5 0" }}
                                                                         onClick={() => { this.setRouter('operation', v) }}
                                                                         noHovering
