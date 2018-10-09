@@ -56,7 +56,7 @@ class PackageContainer extends React.Component {
         const {createKey,publishKey} = this.state;
         const {params} = this.props;
         const mode=utils.getParameterByName("type")
-        const title=`${mode=="realtime"?'实时':'离线'}任务发布`
+        const title="任务发布"
         return (
             <div
                 className="m-tabs box-pd-h"

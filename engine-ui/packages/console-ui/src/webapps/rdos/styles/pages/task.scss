@@ -36,56 +36,56 @@
         }
     }
 
-    .task-dev-switcher {
-        bottom: 0;
-        height: 100%;
-        & >.ant-tabs-bar {
-            margin-bottom: 0;
-            border-bottom: 0;
-            position: absolute;
-            left: 62px;
-            z-index: 5;
+    // .task-dev-switcher {
+    //     bottom: 0;
+    //     height: 100%;
+    //     & >.ant-tabs-bar {
+    //         margin-bottom: 0;
+    //         border-bottom: 0;
+    //         position: absolute;
+    //         left: 62px;
+    //         z-index: 5;
 
-            .ant-tabs-nav-container {
-                height: 30px;
-                padding-top: 6px;
-            }
+    //         .ant-tabs-nav-container {
+    //             height: 30px;
+    //             padding-top: 6px;
+    //         }
 
-            .ant-tabs-tab {
-                background: #DDDDDD;
-                color: #ffffff;
-                border-radius: 50% 50%;
-                height: 22px;
-                border: 0;
-                line-height: 22px;
-                width: 22px;
-                display: inline-block;
-                padding: 0;
-                margin-right: 6px;
+    //         .ant-tabs-tab {
+    //             background: #DDDDDD;
+    //             color: #ffffff;
+    //             border-radius: 50% 50%;
+    //             height: 22px;
+    //             border: 0;
+    //             line-height: 22px;
+    //             width: 22px;
+    //             display: inline-block;
+    //             padding: 0;
+    //             margin-right: 6px;
 
-                .anticon {
-                    margin: auto;
-                    line-height: 22px;
-                    height: 22px;
-                    display: block;
-                }
-                .tabs-icon{
-                    height:16px;
-                    margin-top: 50%;
-                    margin-left: 50%;
-                    transform: translate(-50%,-50%);
-                }
-            }
+    //             .anticon {
+    //                 margin: auto;
+    //                 line-height: 22px;
+    //                 height: 22px;
+    //                 display: block;
+    //             }
+    //             .tabs-icon{
+    //                 height:16px;
+    //                 margin-top: 50%;
+    //                 margin-left: 50%;
+    //                 transform: translate(-50%,-50%);
+    //             }
+    //         }
 
-            .ant-tabs-tab-active {
-                background: #2491F7 !important;
-                color: #fff !important;
-            }
-        }
-        .ant-menu-inline, .ant-menu-vertical {
-            border-right: 0;
-        }
-    }
+    //         .ant-tabs-tab-active {
+    //             background: #2491F7 !important;
+    //             color: #fff !important;
+    //         }
+    //     }
+    //     .ant-menu-inline, .ant-menu-vertical {
+    //         border-right: 0;
+    //     }
+    // }
 
     .task-tab-menu {
 
@@ -254,7 +254,7 @@
 
         .menu-content {
 
-            margin-top: 35px;
+            // margin-top: 35px;
             height: 100%;
             overflow-y: auto;
             padding-bottom: 35px;

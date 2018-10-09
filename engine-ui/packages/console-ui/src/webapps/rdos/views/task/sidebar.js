@@ -7,8 +7,6 @@ import {
 
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
-
-import RealTimeTabPanel from './realtimeTab'
 import OfflineTabPanel from './offlineTab'
 
 const TabPane = Tabs.TabPane
@@ -26,27 +24,6 @@ class Sidebar extends Component {
         return (
             <div className="sidebar">
                 <Row>
-                    {/* <Tabs
-                        type="card"
-                        className="task-dev-switcher"
-                        defaultActiveKey={ activeKey } 
-                        onTabClick={this.switchTaskPanel}
-                    >
-                        <TabPane tab={
-                            <Tooltip placement="bottom" title="离线任务">
-                                <img className="tabs-icon" src="/public/rdos/img/icon/offline.png" />
-                            </Tooltip>
-                        } key="offline">
-                            <OfflineTabPanel/>
-                        </TabPane>
-                        <TabPane tab={
-                            <Tooltip placement="bottom" title="实时任务">
-                                <img className="tabs-icon" src="/public/rdos/img/icon/realtime.png" />
-                            </Tooltip>
-                        } key="realtime" style={{marginRight: 10}}>
-                            <RealTimeTabPanel />
-                        </TabPane>
-                    </Tabs> */}
                     <OfflineTabPanel/>
                 </Row>
             </div>

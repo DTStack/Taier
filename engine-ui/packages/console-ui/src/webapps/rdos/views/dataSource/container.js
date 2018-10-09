@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Layout } from 'antd'
 
-// import Sidebar from './sidebar'
 import '../../styles/pages/dataSource.scss';
 
 const { Sider, Content } = Layout;
@@ -19,9 +18,6 @@ class Container extends Component {
         const { children } = this.props
         return (
             <Layout >
-                {/* <Sider className="bg-w">
-                    <Sidebar {...this.props} />
-                </Sider> */}
                 <Content className="inner-container">
                     { children || "i'm container." }
                 </Content>

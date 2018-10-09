@@ -33,7 +33,6 @@ import RoleEdit from './views/project/role/edit'
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
-import Default from './views/task/realtime/default'
 import OpenOfflineTask from './views/task/offline/openOfflineTask'
 // import OfflineDefault from '././views/task/offline/default'
 
@@ -50,7 +49,6 @@ import DirtyData from './views/operation/dirtyData/index';
 import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
 import DataSourceOffline from './views/dataSource/offline';
-import DataSourceStream from './views/dataSource/stream';
 import DataSourceMigrationOffline from './views/dataSource/dbSync';
 
 // ======= 数据管理 =======
@@ -81,9 +79,7 @@ import DataModelConfig from './views/dataModel/configure';
 const ProjectContainer = asyncComponent(() => import('./views/project/container')
 .then(module => module.default), { name: 'projectContainer' })
 
-// ======= 实时任务 =========
-const TaskIndex = asyncComponent(() => import('./views/task/realtime')
-.then(module => module.default), { name: 'pageTask' })
+
 
 // ======= 离线任务 =========
 const TaskOffline = asyncComponent(() => import('./views/task/offline')
@@ -143,11 +139,6 @@ export default (
                 <Route path="role/add" component={RoleAdd} />
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
-            <Route path="/realtime" component={TaskContainer} onEnter={isSelectedProject}>
-                <IndexRoute component={Default} />
-                <Route path="task" component={TaskIndex} />
-                <Route path="task/:tid" component={TaskIndex} />
-            </Route>
             <Route path="/offline" component={TaskContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={OfflineDefault} />
                 <Route path="task" component={TaskOffline} />
@@ -156,7 +147,6 @@ export default (
             <Route path="/package/:type" component={PackageContainer} onEnter={isSelectedProject} />
             <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
                 <IndexRoute component={OperationOverview} />
-                <Route path="realtime" component={OpeRealTimeList} />
                 <Route path="offline-operation" component={OpeOfflineList} />
                 <Route path="offline-management" component={OpeOfflineTaskMana} />
                 <Route path="task-runtime/:jobId" component={OpeOfflineTaskRunTime} />
@@ -173,7 +163,6 @@ export default (
                 <IndexRoute component={DataSourceOffline} />
                 <Route path="offLineData" component={DataSourceOffline} />
                 <Route path="offLineData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
-                <Route path="streamData" component={DataSourceStream} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>

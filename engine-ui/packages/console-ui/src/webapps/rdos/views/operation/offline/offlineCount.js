@@ -64,16 +64,15 @@ class OfflineCount extends Component {
         
         return (
             <div>
-                <h1 className="box-title box-title-bolder" style={{padding:"0 10 0 20"}}>
-                    {/* 离线任务 */}
-                    {isTest && <Button type="primary" className="right" style={{ fontWeight:200,marginTop: '8px', marginLeft: "8px" }}>
+                <div style={{width: "400px",height: "40px",position: "absolute", zIndex: 10, right: "20px",top:"0px",}}>
+                    {isTest&&<Button type="primary" className="right" style={{marginTop:"6px", marginRight:"10px",fontWeight:200}}>
                         <Link to="/package/create?type=offline">任务发布</Link>
                     </Button>}
-                    <Button type="primary" className="right" style={{marginTop: '8px',fontWeight:200}}>
+                    <Button type="primary" className="right" style={{marginTop:"6px", marginRight:"10px",fontWeight:200}}>
                         <Link to="/operation/offline-operation">任务运维</Link>
                     </Button>
-                </h1>
-                <div className="box-4 m-card m-card-small" style={{margin:"0 10 0 20"}}>
+                </div>
+                <div className="box-4 m-card m-card-small">
                     <Card
                         noHovering
                         bordered={false}
