@@ -3,7 +3,7 @@ import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionTypes'
 import localDb from 'utils/localDb';
 
-const KEY_EDITOR_OPTIONS = 'editor_options';
+const KEY_EDITOR_OPTIONS = 'stream_editor_options';
 
 // Console Reducers 
 const console = (state = {}, action) => {

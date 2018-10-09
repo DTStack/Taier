@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import utils from 'utils'
 
-import { rdosApp } from 'config/base'
+import { streamApp } from 'config/base'
 import { updateApp } from 'main/actions/app'
 
 import Header from './layout/header'
@@ -29,7 +29,7 @@ class Container extends Component {
         dispatch(ProjectAction.getAllProjects())
         dispatch(DataManageAction.getCatalogues({isGetFile:false}))
 
-        dispatch(updateApp(rdosApp))
+        dispatch(updateApp(streamApp))
         this.initProject()
     }
 

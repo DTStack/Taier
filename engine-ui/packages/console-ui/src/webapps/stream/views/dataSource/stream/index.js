@@ -11,7 +11,6 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from '../form';
 import DataSourceTaskListModal from "../dataSourceTaskListModal"
-import LinkModal from "../linkModal"
 import { StreamDataSourceTypeFilter } from '../../../comm/const';
 import { DatabaseType } from '../../../components/status';
 import {ExtTableCell} from "../extDataSourceMsg"
@@ -24,8 +23,6 @@ class DataSourceManaStream extends Component {
         dataSource: {
             data: [],
         },
-        visible: false,
-        syncModalVisible: false,
         loading: false,
         title: '新增数据源',
         status: 'add',
@@ -260,7 +257,7 @@ class DataSourceManaStream extends Component {
     }
 
     render() {
-        const { visible, syncModalVisible, source, dataSource, linkModalVisible } = this.state
+        const {  source, dataSource } = this.state
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
@@ -328,13 +325,6 @@ class DataSourceManaStream extends Component {
                     sourceTypes={sourceTypes}
                     showUserNameWarning={true}
                     handCancel={() => { this.setState({ visible: false }) }}
-                />
-                <LinkModal 
-                    sourceData={source}
-                    visible={linkModalVisible}
-                    type="offline"
-                    onCancel={()=>{this.setState({linkModalVisible:false})}}
-                    onOk={()=>{this.loadDataSources();this.setState({linkModalVisible:false})}}
                 />
             </div>
         )

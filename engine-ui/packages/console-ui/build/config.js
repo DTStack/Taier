@@ -28,7 +28,7 @@ module.exports = {
                 // target: "http://172.16.8.162:9020", // tmp test server
                 // ignorePath: true,  
                 // Mock
-                 pathRewrite:{"^/api/streamapp":"/api/rdos"},
+                pathRewrite:{"^/api/streamapp":"/api/rdos"},
                 changeOrigin: true,
                 secure: false,
             },
