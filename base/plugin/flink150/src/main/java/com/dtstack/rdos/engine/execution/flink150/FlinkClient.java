@@ -5,10 +5,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.AbsClient;
-import com.dtstack.rdos.engine.execution.base.JarFileInfo;
-import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobParam;
+import com.dtstack.rdos.engine.execution.base.*;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
@@ -36,6 +33,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
+import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -73,9 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -129,6 +125,8 @@ public class FlinkClient extends AbsClient {
 
     private YarnClient yarnClient;
 
+    private ExecutorService yarnMonitorES;
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
@@ -153,11 +151,12 @@ public class FlinkClient extends AbsClient {
 
         initClient();
 
-        if (yarnCluster&&flinkYarnMode!=FlinkYarnMode.PER_JOB){
-            ScheduledExecutorService yarnMonitorES = Executors.newSingleThreadScheduledExecutor();
-            //仅作用于yarn模式下 flinkClientBuilder.getYarnClient();
+        if (yarnCluster && flinkYarnMode != FlinkYarnMode.PER_JOB){
+            yarnMonitorES = new ThreadPoolExecutor(1, 1,
+                    0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
             //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this, flinkClientBuilder.getYarnClient(), yarnMonitorES));
+            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient));
         }
     }
 
@@ -518,7 +517,7 @@ public class FlinkClient extends AbsClient {
     private String getLegacyReqUrl(){
         String url = "";
         try{
-            Field yarnClientField = ((YarnClusterClient) client).getClass().getDeclaredField("yarnClient");
+            Field yarnClientField = ((RestClusterClient) client).getClass().getDeclaredField("yarnClient");
             yarnClientField.setAccessible(true);
             Object yarnClientObj = yarnClientField.get(client);
 
@@ -541,10 +540,11 @@ public class FlinkClient extends AbsClient {
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
             String addr = hadoopConf.get(key);
-            String appId = ((YarnClusterClient) client).getApplicationId().toString();
+            String appId = client.getClusterId().toString();
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
             url = client.getWebInterfaceURL();
+            logger.error("Getting URL failed" + e);
         }
 
         logger.info("get req url=" + url);
