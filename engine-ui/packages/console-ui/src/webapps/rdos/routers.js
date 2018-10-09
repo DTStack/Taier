@@ -37,7 +37,7 @@ import OpenOfflineTask from './views/task/offline/openOfflineTask'
 // import OfflineDefault from '././views/task/offline/default'
 
 // ======= 运维 =======
-import OpeRealTimeList from './views/operation/realtime/list'
+// import OpeRealTimeList from './views/operation/realtime/list'
 import OpeAlarm from './views/operation/alarm/list'
 import OpeAlarmConfig from './views/operation/alarm/config'
 import OpeOfflineList from './views/operation/offline/taskOperation'
