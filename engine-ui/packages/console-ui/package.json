@@ -1,7 +1,7 @@
 {
   "name": "data-stack-web",
   "version": "2.10.0",
-  "description": "data-stack-web DTinsight 2.10.0 version.",
+  "description": "data-stack-web DTinsight version 2.10.0.",
   "main": "src/app.js",
   "dependencies": {
     "antd": "2.13.11",
