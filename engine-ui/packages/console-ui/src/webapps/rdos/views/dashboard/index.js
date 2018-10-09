@@ -4,7 +4,7 @@ import { Link, hashHistory } from "react-router";
 
 import moment from 'moment'
 
-import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from "antd"
+import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from "antd"
 
 import ProjectForm from '../project/form'
 import Api from '../../api'
@@ -12,7 +12,7 @@ import * as ProjectAction from "../../store/modules/project";
 import NoData from '../../components/no-data';
 
 const Search = Input.Search;
-
+const Option = Select.Option;
 class Index extends Component {
 
     state = {
@@ -134,6 +134,10 @@ class Index extends Component {
     generalTitle = (data) => {
         const deleteImg = <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
         const setTopImg = <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
+        // 生产项目图标
+        const produceImg = <img src="/public/rdos/img/icon/produce.svg" />;
+        // 测试项目图标
+        const developImg = <img src="/public/rdos/img/icon/develop.svg" />;
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
@@ -153,7 +157,7 @@ class Index extends Component {
         </div>
         const title = <div>
             <Row>
-                <Col span="20" >
+                <Col span="16" >
                     {data.status == 1 ? (
                         <Link to={`/offline/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
@@ -164,6 +168,9 @@ class Index extends Component {
                         {data.projectAlias}&nbsp;&nbsp;
                 </span>)}
                     {this.renderTitleText(data)}
+                </Col>
+                <Col span="4">
+                    {produceImg}
                 </Col>
                 <Col span="4">
                     {tooltipImg}
@@ -243,7 +250,15 @@ class Index extends Component {
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
                     <Row gutter={10}>
-                        <Col span="10" >
+                        <Col span="16" >
+                            <Select
+                                className="project-select"
+                                allowClear
+                                placeholder="请选择项目"
+                            >
+                                <Option key="1">生产项目</Option>
+                                <Option key="2">测试项目</Option>
+                            </Select>
                             <div className="project-search" >
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
@@ -254,7 +269,7 @@ class Index extends Component {
                                 创建项目
                             </Button>
                         </Col>
-                        <Col span="14" >
+                        <Col span="8" >
                             <div className="sortTitle">
                                 <span className="faileSort" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
                                 <span className="faileSort">|</span>
