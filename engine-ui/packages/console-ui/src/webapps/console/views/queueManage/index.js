@@ -141,20 +141,17 @@ class QueueManage extends Component {
             {
                 title: "头部等待时长",
                 dataIndex: "headWait",
-                sorter: true,
                 render(text, record) {
                     // return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
                     return record.waitTime
-                },
-                sorter: (a, b) => a.generateTime - b.generateTime
+                }
             },
             {
                 title: "总任务数",
                 dataIndex: "totalCount",
                 render(text, record) {
                     return record.groupSize;
-                },
-                sorter: (a, b) => a.groupSize - b.groupSize
+                }
             },
             {
                 title: "操作",

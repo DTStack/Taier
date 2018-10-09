@@ -6,7 +6,7 @@
 */
 
 import React, { Component } from 'react';
-import { Input, Select, Card, Table, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from "antd"
+import { Input, Select, Card, Table, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Radio } from "antd"
 import moment from "moment";
 import '../../styles/main.scss'
 import ViewDetail from '../../components/viewDetail';
@@ -19,7 +19,7 @@ import utils from 'utils';
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
-
+const RadioGroup = Radio.Group;
 class TaskDetail extends Component {
     state = {
         dataSource: [],
@@ -53,7 +53,9 @@ class TaskDetail extends Component {
         // 置顶
         // 一键展现此任务所在group下的所有任务
         isShowAll: false,
-        isShowReorder: false
+        isShowReorder: false,
+        // 单选框值
+        radioValue: 1
     }
 
     // componentWillReceiveProps(nextProps) {
@@ -614,6 +616,12 @@ class TaskDetail extends Component {
     onClusterChange() {
 
     }
+    // 改变单选框值
+    changeRadioValue(e) {
+        this.setState({
+            radioValue: e.target.value
+        })
+    }
     render() {
         const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, isShowStick } = this.state;
         const columns = this.initTableColumns();
@@ -627,71 +635,85 @@ class TaskDetail extends Component {
         }
         const { total } = this.state.table;
         const { clusterList } = this.props;
+        const {radioValue} = this.state;
         return (
             <div>
                 <div style={{ margin: "20px" }}>
-                    计算类型: <Select
-                        style={{ width: "80px", marginRight: "10px" }}
-                        value={this.state.computeType}
-                        onChange={this.changeComputeValue.bind(this)}
-                    >
-                        <Option value="batch">离线</Option>
-                        <Option value="stream">实时</Option>
-                    </Select>
-
-                    <Select className="task-search"
-                        mode="combobox"
-                        value={this.state.jobName}
-                        style={{ width: "250px" }}
-                        // notFoundContent="没有搜索到该任务"
-                        filterOption={false}
-                        onChange={this.changeTaskName.bind(this)}
-                        onSelect={this.changeSelectValue.bind(this)}
-                        allowClear
-                        // onPressEnter={this.searchTask}
-                        placeholder="输入任务名称搜索">
-                        {
-                            this.getTaskNameListView()
-                        }
-                    </Select>
-                    <span style={style}>查找此任务所在<a onClick={this.handleGroupClick.bind(this)}>group</a>的所有任务</span>
-                    <div style={{ float: "right" }}>
-                        <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
-                        <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
+                    <RadioGroup onChange={this.changeRadioValue.bind(this)} value={this.state.radioValue}>
+                        <Radio value={1}>按group筛选</Radio>
+                        <Radio value={2}>按任务搜索</Radio>
+                    </RadioGroup>
+                </div>
+                {(radioValue == 1 ) ? (
+                    <div className="select">
+                        集群：
+                        <Select
+                            placeholder="请选择集群"
+                            style={{ width: "150px", marginRight: "10px" }}
+                            value={this.state.clusterName}
+                            onChange={this.changeClusterValue.bind(this)}
+                            allowClear
+                        >
+                            {this.getClusterListOptionView()}
+                        </Select>
+                        引擎：
+                        <Select
+                            placeholder="请选择引擎"
+                            style={{ width: "150px", marginRight: "10px" }}
+                            onChange={this.changeEngineValue.bind(this)}
+                            value={this.state.engineType}
+                            allowClear
+                        >
+                            {this.getEngineListOptionView()}
+                        </Select>
+                        group：
+                        <Select
+                            value={this.state.groupName}
+                            placeholder="请选择group"
+                            style={{ width: "150px", marginRight: "10px" }}
+                            onChange={this.changeGroupValue.bind(this)}
+                            allowClear
+                        >
+                            {this.getGroupOptionView()}
+                        </Select>
+                        <div style={{ float: "right" }}>
+                            <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
+                            <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
+                        </div>
                     </div>
-                </div>
-                <div className="select">
-                    集群：
-                    <Select
-                        placeholder="请选择集群"
-                        style={{ width: "150px", marginRight: "10px" }}
-                        value={this.state.clusterName}
-                        onChange={this.changeClusterValue.bind(this)}
-                        allowClear
-                    >
-                        {this.getClusterListOptionView()}
-                    </Select>
-                    引擎：
-                    <Select
-                        placeholder="请选择引擎"
-                        style={{ width: "150px", marginRight: "10px" }}
-                        onChange={this.changeEngineValue.bind(this)}
-                        value={this.state.engineType}
-                        allowClear
-                    >
-                        {this.getEngineListOptionView()}
-                    </Select>
-                    group：
-                    <Select
-                        value={this.state.groupName}
-                        placeholder="请选择group"
-                        style={{ width: "150px", marginRight: "10px" }}
-                        onChange={this.changeGroupValue.bind(this)}
-                        allowClear
-                    >
-                        {this.getGroupOptionView()}
-                    </Select>
-                </div>
+                ) : (
+                    <div style={{ margin: "20px" }}>
+                        计算类型: <Select
+                            style={{ width: "80px", marginRight: "10px" }}
+                            value={this.state.computeType}
+                            onChange={this.changeComputeValue.bind(this)}
+                        >
+                            <Option value="batch">离线</Option>
+                            <Option value="stream">实时</Option>
+                        </Select>
+
+                        <Select className="task-search"
+                            mode="combobox"
+                            value={this.state.jobName}
+                            style={{ width: "250px" }}
+                            // notFoundContent="没有搜索到该任务"
+                            filterOption={false}
+                            onChange={this.changeTaskName.bind(this)}
+                            onSelect={this.changeSelectValue.bind(this)}
+                            allowClear
+                            // onPressEnter={this.searchTask}
+                            placeholder="输入任务名称搜索">
+                            {
+                                this.getTaskNameListView()
+                            }
+                        </Select>
+                        <span style={style}>查找此任务所在<a onClick={this.handleGroupClick.bind(this)}>group</a>的所有任务</span>
+                        <div style={{ float: "right" }}>
+                            <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
+                            <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
+                        </div>
+                    </div>
+                )}
                 <Table
                     rowKey={(record) => {
                         return record.taskId
