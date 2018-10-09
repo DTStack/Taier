@@ -64,13 +64,13 @@ export const consoleApp = {
 }
 
 export const aeApp = {
-    id: 'analgsisEngine',
+    id: 'analyticsEngine',
     name: '分析引擎',
-    link: 'analysisEngine.html#/',
-    filename: 'analysisEngine.html',
+    link: 'analytics.html#/',
+    filename: 'analytics.html',
     target: '_blank',
-    enable: false,
-    apiBase: '/analysisEngine',
-    needRoot:true,
-    disableExt:true
+    enable: true,
+    apiBase: '/analytics',
+    needRoot: true,
+    disableExt: true
 }
