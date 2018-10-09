@@ -11,6 +11,8 @@ import {
     setSelectionContent,
 } from '../../../store/modules/editor/editorAction';
 
+import { matchTaskParams } from '../../../comm';
+
 import {
     modalAction,
     sourceMapAction,
@@ -251,6 +253,47 @@ export const workbenchActions = (dispatch) => {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: taskFields,
+            });
+        },
+
+        /**
+         * 集中处理Data同步中的变量
+         * @param {Object} dataSync 
+         */
+        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+            console.log('update:', sourceMap, targetMap);
+            let taskVariables = [];
+
+            // SourceMap
+            if (sourceMap.where) {
+                const vbs = matchTaskParams(taskCustomParams, sourceMap.where)
+                taskVariables = taskVariables.concat(vbs);
+            }
+
+            // 分区，获取任务自定义参数
+            if (sourceMap.partition) {
+                const vbs = matchTaskParams(taskCustomParams, sourceMap.partition)
+                taskVariables = taskVariables.concat(vbs);
+            }
+            
+            // TagetMap
+            // where, 获取任务自定义参数
+            const sqlText = `${targetMap.preSql} ${targetMap.postSql}`
+            if (sqlText) {
+                const vbs = matchTaskParams(taskCustomParams, sqlText)
+                taskVariables = taskVariables.concat(vbs);
+            }
+
+            if (targetMap.partition) {
+                const vbs = matchTaskParams(taskCustomParams, targetMap.partition)
+                taskVariables = taskVariables.concat(vbs);
+            }
+
+            dispatch({
+                type: workbenchAction.SET_TASK_FIELDS_VALUE,
+                payload: {
+                    taskVariables
+                },
             });
         },
 
