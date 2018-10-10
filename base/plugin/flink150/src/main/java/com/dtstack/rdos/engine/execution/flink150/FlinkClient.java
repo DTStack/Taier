@@ -517,13 +517,9 @@ public class FlinkClient extends AbsClient {
     private String getLegacyReqUrl(){
         String url = "";
         try{
-            Field yarnClientField = ((RestClusterClient) client).getClass().getDeclaredField("yarnClient");
-            yarnClientField.setAccessible(true);
-            Object yarnClientObj = yarnClientField.get(client);
-
-            Field rmClientField = yarnClientObj.getClass().getDeclaredField("rmClient");
+            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClientObj);
+            Object rmClient = rmClientField.get(yarnClient);
 
             Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
             hField.setAccessible(true);
@@ -540,10 +536,14 @@ public class FlinkClient extends AbsClient {
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
             String addr = hadoopConf.get(key);
+
+            if(addr == null) {
+                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            }
+
             String appId = client.getClusterId().toString();
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
-            url = client.getWebInterfaceURL();
             logger.error("Getting URL failed" + e);
         }
 
