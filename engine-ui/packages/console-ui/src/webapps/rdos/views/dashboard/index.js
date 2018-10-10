@@ -135,9 +135,9 @@ class Index extends Component {
         const deleteImg = <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
         const setTopImg = <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
         // 生产项目图标
-        const produceImg = <img className="tooltip-img" style={{backgroundColor:"black"}} src="/public/rdos/img/icon/produce.svg" />;
+        const produceImg = <img className="produce-test-img" src="/public/rdos/img/icon/produce.svg" />;
         // 测试项目图标
-        const developImg = <img style={{backgroundColor:"red"}} src="/public/rdos/img/icon/develop.svg" />;
+        const developImg = <img className="produce-test-img" src="/public/rdos/img/icon/develop.svg" />;
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
@@ -168,11 +168,9 @@ class Index extends Component {
                         {data.projectAlias}&nbsp;&nbsp;
                 </span>)}
                     {this.renderTitleText(data)}
+                    {developImg}
                 </Col>
-                <Col span="4">
-                    {produceImg}
-                </Col>
-                <Col span="4">
+                <Col span="8">
                     {tooltipImg}
                 </Col>
             </Row>
