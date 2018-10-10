@@ -64,7 +64,17 @@ module.exports = [
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
-    },{
+    }, {
+        id: 'analyticsEngine',
+        name: '分析引擎',
+        link: 'analytics.html#/',
+        filename: 'analytics.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/analytics',
+        icon: '/public/main/img/icon_5.png',
+        description: '计算资源分配、多集群管理',
+    }, {
         id: 'console',
         name: '控制台',
         link: 'console.html#/',
@@ -74,8 +84,8 @@ module.exports = [
         apiBase: '/console',
         icon: '/public/main/img/icon_5.png',
         description: '计算资源分配、多集群管理',
-        needRoot:true,
-        disableExt:true
+        needRoot: true,
+        disableExt: true // 是否禁用消息，橘色管理模块
     }, {
         id: 'map',
         name: '数据地图',

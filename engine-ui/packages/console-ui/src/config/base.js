@@ -20,7 +20,7 @@ export const rdosApp = {
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
     apiBase: '/rdos',
-}
+} 
 
 export const streamApp = {
     id: 'stream',
@@ -74,4 +74,16 @@ export const consoleApp = {
     apiBase: '/console',
     needRoot:true,
     disableExt:true
+}
+
+export const aeApp = {
+    id: 'analyticsEngine',
+    name: '分析引擎',
+    link: 'analytics.html#/',
+    filename: 'analytics.html',
+    target: '_blank',
+    enable: true,
+    apiBase: '/analytics',
+    needRoot: true,
+    disableExt: true
 }

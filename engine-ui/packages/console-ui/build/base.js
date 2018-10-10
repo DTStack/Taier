@@ -24,6 +24,7 @@ module.exports = function () {
             dataApi: MY_PATH.DATA_API_APP_FILE,
             dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
             console: MY_PATH.CONSOLE_APP_FILE,
+            analyticsEngine: MY_PATH.ANALYTICS_ENGINE_APP_FILE,
         },
         output: {
             path: MY_PATH.BUILD_PATH,
@@ -117,7 +118,8 @@ module.exports = function () {
                 console: MY_PATH.CONSOLE_PATH, // 控制台
                 dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
                 metaData: MY_PATH.META_DATA_PATH, // 元数据
-                coreData: MY_PATH.CORE_DATA_PATH // 主数据
+                coreData: MY_PATH.CORE_DATA_PATH, // 主数据
+                analytics: MY_PATH.ANALYTICS_ENGINE_PATH,//分析引擎
             }
         },
         plugins: [

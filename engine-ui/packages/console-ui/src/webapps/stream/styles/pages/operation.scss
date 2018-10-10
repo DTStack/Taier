@@ -271,6 +271,7 @@
     }
 }
 .detailPane-header{
+    position: relative;
     padding: 16px 30px 16px 18px;
     line-height: 17px;
     color:#333333;
@@ -278,5 +279,22 @@
         button:not(:last-child){
             margin-right:8px;
         }
+    }
+}
+.middle-collapse{
+    &.ant-collapse {
+        & > .ant-collapse-item{
+            
+            & > .ant-collapse-header{
+                padding-top:4px;
+                padding-bottom:4px;
+                &[aria-expanded="true"]{
+                    border-bottom: 1px solid #ddd;
+                }
+                .arrow{
+                    line-height: 30px;
+                }
+            }
+        } 
     }
 }

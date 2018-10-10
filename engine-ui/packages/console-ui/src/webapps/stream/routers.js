@@ -68,9 +68,6 @@ const DataSourceContainer = asyncComponent(() => import('./views/dataSource/cont
 const Test = asyncComponent(() => import('./views/test')
 .then(module => module.default), { name: 'testPage' })
 
-// ======= 发布 =======
-const PackageContainer = asyncComponent(() => import('./views/operation/package/container')
-.then(module => module.default), { name: 'packageContainer' })
 
 export default (
     <Route path="/" component={Main}>
@@ -102,7 +99,6 @@ export default (
                 <Route path="task" component={TaskIndex} />
                 <Route path="task/:tid" component={TaskIndex} />
             </Route>
-            <Route path="/package/:type" component={PackageContainer} onEnter={isSelectedProject} />
             <Route path="/operation" component={Operation} onEnter={isSelectedProject}>
                 <IndexRoute component={OpeRealTimeList} />
                 <Route path="realtime" component={OpeRealTimeList} />

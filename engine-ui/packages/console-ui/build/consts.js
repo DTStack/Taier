@@ -15,6 +15,7 @@ const DATA_API_PATH = path.resolve(WEB_APPS, 'dataApi');          // 数据API
 const DATA_LABEL_PATH = path.resolve(WEB_APPS, 'dataLabel');      // 标签工厂
 const DATA_MAP_PATH = path.resolve(WEB_APPS, 'dataMap');          // 数据地图
 const CONSOLE_PATH = path.resolve(WEB_APPS, 'console');          // 控制台
+const ANALYTICS_ENGINE_PATH = path.resolve(WEB_APPS, 'analyticsEngine'); // 分析引擎
 const META_DATA_PATH = path.resolve(WEB_APPS, 'metaData');        // 元数据
 const CORE_DATA_PATH = path.resolve(WEB_APPS, 'coreData');        // 主数据
 
@@ -29,6 +30,8 @@ const CONSOLE_APP_FILE = path.resolve(CONSOLE_PATH, 'app');
 const DATA_MAP_APP_FILE = path.resolve(DATA_MAP_PATH, 'app');
 const META_DATA_APP_FILE = path.resolve(META_DATA_PATH, 'app');
 const CORE_DATA_APP_FILE = path.resolve(CORE_DATA_PATH, 'app');
+const ANALYTICS_ENGINE_APP_FILE = path.resolve(ANALYTICS_ENGINE_PATH, 'app');
+
 
 const BUILD_PATH = path.resolve(ROOT_PATH, 'dist');      // 发布文件所存放的目录
 
@@ -50,6 +53,7 @@ module.exports = {
     DATA_MAP_PATH,
     META_DATA_PATH,
     CORE_DATA_PATH,
+    ANALYTICS_ENGINE_PATH,
 
     MAIN_APP_FILE,
     RDOS_APP_FILE,
@@ -61,6 +65,7 @@ module.exports = {
     DATA_MAP_APP_FILE,
     META_DATA_APP_FILE,
     CORE_DATA_APP_FILE,
+    ANALYTICS_ENGINE_APP_FILE,
 
     BUILD_PATH,
 }
