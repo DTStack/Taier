@@ -3,6 +3,7 @@
  */
 export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
+export const STREAM_BASE_URL = '/api/streamapp';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
@@ -20,6 +21,18 @@ export const rdosApp = {
     default: true, // 是否为默认应用选项
     apiBase: '/rdos',
 } 
+
+export const streamApp = {
+    id: 'stream',
+    name: '流计算',
+    filename: 'stream.html',
+    link: '/stream.html#',
+    target: '_blank',
+    enable: true,
+    hasProject: true, // 是否拥有项目选择
+    default: true, // 是否为默认应用选项
+    apiBase: '/streamapp',
+}
 
 export const dqApp = {
     id: 'dataQuality',

@@ -22,6 +22,16 @@ module.exports = {
                 changeOrigin: true,
                 secure: false,
             },
+            "/api/streamapp": {
+                // target: "http://172.16.10.51:9020", // formal test ser
+                target: "http://172.16.8.104:9020", // formal test ser
+                // target: "http://172.16.8.162:9020", // tmp test server
+                // ignorePath: true,  
+                // Mock
+                pathRewrite:{"^/api/streamapp":"/api/rdos"},
+                changeOrigin: true,
+                secure: false,
+            },
             "/uic": { // UIC地址
                 target: "http://dtuic.dtstack.net",
                 changeOrigin: true,
