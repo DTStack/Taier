@@ -103,7 +103,7 @@ public class WorkNode {
                 GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setSize(groupQueue.size());
                 JobClient topJob = groupQueue.getTop();
-                groupInfo.setPriority(topJob==null ? Integer.MAX_VALUE:topJob.getPriority());
+                groupInfo.setPriority(topJob==null ? 0 : topJob.getPriority());
                 return groupInfo;
             }));
             return groupInfos;
