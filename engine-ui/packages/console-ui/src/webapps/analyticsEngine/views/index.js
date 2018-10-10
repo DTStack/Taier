@@ -6,7 +6,7 @@ import utils from 'utils'
 import { dqApp } from 'config/base'
 
 import Header from './layout/header'
-import Dashboard from '../views/dashboard'
+import Workbench from '../views/workbench'
 
 import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
@@ -37,7 +37,7 @@ class Main extends Component {
             <div className="main header-fixed">
                 <Header/>
                 <div className="container">
-                    { children || <Dashboard /> }
+                    { children || <Workbench /> }
                 </div>
             </div>
         )

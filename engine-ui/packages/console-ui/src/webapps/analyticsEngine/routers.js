@@ -18,7 +18,7 @@ import RoleEdit from 'main/views/admin/role/edit'
 
 // 数据质量
 import Container from './views'
-import Dashboard from './views/dashboard'
+import Workbench from './views/workbench'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -40,7 +40,7 @@ export default (
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
         <Route path="/workbench" component={ Container }>
-            <IndexRoute component={ Dashboard } />
+            <IndexRoute component={ Workbench } />
         </Route>
     </Route>
 )
