@@ -20,9 +20,7 @@ class Header extends Component {
     }
 
     render() {
-        const { user, apps } = this.props;
-        const baseUrl = '/analytics.html#';
-
+  
         const menuItems = [];
 
         const logo = <span>
