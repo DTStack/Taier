@@ -13,8 +13,17 @@ import java.util.regex.Pattern;
 
 public enum EngineType {
 
-    Flink('0'), Spark('1'), Datax('2'), Learning('3'), DtYarnShell('4'), Mysql('5'), Oracle('6'), Sqlserver('7'), Maxcompute('8'),
-    Hadoop('9'), Hive('a');
+    Flink('0'),
+    Spark('1'),
+//    Datax('2'),
+    Learning('3'),
+    DtYarnShell('4'),
+    Mysql('5'),
+    Oracle('6'),
+    Sqlserver('7'),
+    Maxcompute('8'),
+    Hadoop('9'),
+    Hive('a');
 
     private char val;
 
@@ -33,8 +42,8 @@ public enum EngineType {
                 return EngineType.Flink;
             case "spark":
                 return EngineType.Spark;
-            case "datax":
-                return EngineType.Datax;
+//            case "datax":
+//                return EngineType.Datax;
             case "learning":
                 return EngineType.Learning;
             case "dtyarnshell":
@@ -92,14 +101,14 @@ public enum EngineType {
         return false;
     }
 
-    public static boolean isDataX(String engineType) {
-        engineType = engineType.toLowerCase();
-        if (engineType.startsWith("datax")) {
-            return true;
-        }
-
-        return false;
-    }
+//    public static boolean isDataX(String engineType) {
+//        engineType = engineType.toLowerCase();
+//        if (engineType.startsWith("datax")) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     public static boolean isMysql(String engineType) {
         engineType = engineType.toLowerCase();
