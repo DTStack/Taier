@@ -26,7 +26,7 @@ class TaskDetail extends Component {
         table: {
             pageIndex: 1,
             total: 0,
-            loading: true
+            loading: false
         },
         taskList: [],
         computeType: "batch",
@@ -38,6 +38,7 @@ class TaskDetail extends Component {
         clusterName: undefined,
         // 执行顺序
         queueNum: undefined,
+        moreTaskNum: undefined,
         // 剩余资源
         isShowResource: false,
         // 查看详情
@@ -71,6 +72,7 @@ class TaskDetail extends Component {
     //         })
     //     }
     // }
+    
     componentDidMount() {
         const { query = {} } = this.props;
         this.searchTaskFuzzy();
@@ -80,7 +82,6 @@ class TaskDetail extends Component {
             engineType: query.engineType,
             groupName: query.groupName
         }, this.getDetailTaskList.bind(this))
-        this.getDetailTaskList();
         this.searchTaskList();
     }
     // 获取计算类型
@@ -143,9 +144,15 @@ class TaskDetail extends Component {
     }
     // 显示更多任务
     handleGroupClick() {
-        const { moreTask, dataSource } = this.state;
+        const { moreTask, moreTaskNum, dataSource } = this.state;
+        const { table } = this.state;
         this.setState({
-            dataSource: [...dataSource, ...moreTask]
+            dataSource: [...dataSource, ...moreTask],
+            table: {
+                ...table,
+                loading: false,
+                total: moreTaskNum
+            }
         })
     }
     // 根据任务名搜索任务
@@ -157,8 +164,7 @@ class TaskDetail extends Component {
         this.setState({
             dataSource: [],
             table: {
-                ...table,
-                loading: true
+                ...table
             }
         })
         if (jobName) {
@@ -175,10 +181,11 @@ class TaskDetail extends Component {
                         queueNum: res.data,
                         // 展示更多任务
                         moreTask: res.data.topN,
+                        moreTaskNum: res.data.queueSize,
                         table: {
                             ...table,
                             loading: false,
-                            total: res.data.queueSize
+                            total: 1
                         },
                         isShowAll: true
                     })
@@ -187,7 +194,8 @@ class TaskDetail extends Component {
                     this.setState({
                         table: {
                             ...table,
-                            loading: false
+                            loading: false,
+                            total: 0
                         }
                     })
                 }
@@ -303,12 +311,14 @@ class TaskDetail extends Component {
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
-            table: {
-                ...table,
-                loading: true
-            }
         })
         if (engineType && groupName) {
+            this.setState({
+                table: {
+                    ...table,
+                    loading: true
+                }
+            })
             Api.getViewDetail({
                 engineType: engineType,
                 groupName: groupName,
