@@ -53,6 +53,10 @@ class RealTimeTaskList extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
+            this.setState({
+                visibleSlidePane:false,
+                selectTask:null
+            })
             this.loadTaskList()
         }
     }
@@ -406,7 +410,7 @@ class RealTimeTaskList extends Component {
                         className="m-table full-screen-table-90"
                         rowClassName={
                             (record, index) => {
-                                if (selectTask && selectTask.id == record.id) {
+                                if (selectTask ==index) {
                                     return "row-select"
                                 } else {
                                     return "";
