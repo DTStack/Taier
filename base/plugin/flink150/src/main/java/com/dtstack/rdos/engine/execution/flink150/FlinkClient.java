@@ -535,7 +535,7 @@ public class FlinkClient extends AbsClient {
             String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
-            String addr = hadoopConf.get(key);
+            String addr = yarnConf.get(key);
 
             if(addr == null) {
                 addr = yarnConf.get("yarn.resourcemanager.webapp.address");
