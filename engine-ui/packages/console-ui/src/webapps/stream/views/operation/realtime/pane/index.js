@@ -30,16 +30,23 @@ class TaskDetailPane extends React.Component {
             paddingBottom: "1px",
             paddingTop: "20px"
         }
+        const scrollStyleNoPt = {
+            position: "absolute",
+            top: "36px",
+            bottom: "50px",
+            overflow: "auto",
+            paddingBottom: "1px"
+        }
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
                 return [
-                    <TabPane tab="基本指标" key="taskFlow">
+                    <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
                         <BaseInfo data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyle} tab="运行代码" key="runCode">
                         <RunCode data={data} />
                     </TabPane>,
-                    <TabPane tab="告警信息" key="alarmMsg">
+                    <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
                         <AlarmMsg data={data} />
                     </TabPane>
                 ]
@@ -47,19 +54,19 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.SQL:
             case TASK_TYPE.MR: {
                 return [
-                    <TabPane tab="基本指标" key="taskFlow">
+                    <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
                         <BaseInfo data={data} />
                     </TabPane>,
-                    <TabPane tab="数据延迟" key="dataDelay">
+                    <TabPane style={scrollStyleNoPt} tab="数据延迟" key="dataDelay">
                         <DataDelay data={data} />
                     </TabPane>,
-                    <TabPane tab="checkpoint" key="checkpoint">
+                    <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
                         <CheckPoint data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyle} tab="运行代码" key="runCode">
                         <RunCode data={data} />
                     </TabPane>,
-                    <TabPane tab="告警信息" key="alarmMsg">
+                    <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
                         <AlarmMsg data={data} />
                     </TabPane>
                 ]
