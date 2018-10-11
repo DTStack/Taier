@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import {
-    Form, Input,
+    Form, Input, InputNumber,
     Select, Modal, Checkbox,
 } from 'antd'
 import { isEmpty } from "lodash";
 
-import { formItemLayout } from "../../../../../../comm/const"
+import { formItemLayout, TASK_TYPE, alarmTriggerType } from "../../../../../../comm/const"
+import HelpDoc from "../../../../../helpDoc";
 
 const FormItem = Form.Item
 const Option = Select.Option
@@ -15,13 +16,15 @@ class AlarmForm extends Component {
 
     state = {
         senderTypes: [],
+        myTrigger: alarmTriggerType.TASK_FAIL
     }
 
     componentWillReceiveProps(nextProps) {
-        const { alarmInfo={}, visible } = nextProps;
+        const { alarmInfo = {}, visible } = nextProps;
         if (visible && this.props.visible != visible) {
             this.setState({
                 senderTypes: alarmInfo.senderTypes || [],
+                myTrigger: alarmInfo.myTrigger || alarmTriggerType.TASK_FAIL
             })
         }
     }
@@ -34,11 +37,15 @@ class AlarmForm extends Component {
         alarm.receiveUsers = alarm.receiveUsers.join(',')
         this.props.form.validateFields((err) => {
             if (!err) {
-                ctx.props.form.resetFields()
-                if(alarmInfo){
-                    updateAlarm(alarm)
-                }else{
-                    addAlarm(alarm)
+                
+                if (alarmInfo) {
+                    updateAlarm(alarm).then((isSuccess)=>{
+                        isSuccess&&ctx.props.form.resetFields()
+                    })
+                } else {
+                    addAlarm(alarm).then((isSuccess)=>{
+                        isSuccess&&ctx.props.form.resetFields()
+                    })
                 }
             }
         });
@@ -59,18 +66,25 @@ class AlarmForm extends Component {
             senderTypes: values
         });
     }
-
+    changeMyTrigger(value) {
+        this.setState({
+            myTrigger: value
+        })
+    }
     render() {
+        let showDD = false;
         let {
             form, title, projectUsers,
-            visible, alarmInfo, user, taskName
+            visible, alarmInfo, user, taskName, data
         } = this.props
         const { getFieldDecorator } = form
-        alarmInfo=alarmInfo||{};
-        const { senderTypes } = this.state;
+        const { senderTypes, myTrigger } = this.state;
+        let isFlink = data.taskType == TASK_TYPE.SQL || data.taskType == TASK_TYPE.MR;
+        const isDelayTrigger=myTrigger==alarmTriggerType.DELAY_COST||myTrigger==alarmTriggerType.DELAY_COST_P;
+        alarmInfo = alarmInfo || {};
 
-
-
+        const receivers = alarmInfo.receiveUsers ?
+            alarmInfo.receiveUsers.map(item => item.userId) : []
         const userItems = projectUsers && projectUsers.length > 0 ?
             projectUsers.map((item) => {
                 return (<Option key={item.id} value={item.userId} name={item.user.userName}>
@@ -78,13 +92,11 @@ class AlarmForm extends Component {
                 </Option>)
             }) : []
 
-        const receivers = alarmInfo.receiveUsers ?
-            alarmInfo.receiveUsers.map(item => item.userId) : []
-
-        let showDD = false;
         if (senderTypes.indexOf(4) > -1) {
             showDD = true;
         }
+
+
         return (
             <Modal
                 title={title}
@@ -163,14 +175,64 @@ class AlarmForm extends Component {
                             rules: [{
                                 required: true, message: '请您选择任务触发方式！',
                             }],
-                            initialValue: alarmInfo.myTrigger || 0, // 任务失败
+                            initialValue: myTrigger,
                         })(
-                            <Select>
-                                <Option value={0}>任务失败</Option>
-                                <Option value={3}>任务停止</Option>
+                            <Select onChange={this.changeMyTrigger.bind(this)}>
+                                <Option value={alarmTriggerType.TASK_FAIL}>任务失败</Option>
+                                <Option value={alarmTriggerType.TASK_STOP}>任务停止</Option>
+                                {isFlink && [
+                                    <Option value={alarmTriggerType.DELAY_COST}>延迟消费数</Option>,
+                                    <Option value={alarmTriggerType.DELAY_COST_P}>延迟消费比例</Option>
+                                ]}
                             </Select>,
                         )}
+                        <HelpDoc doc="alarmWarning" />
                     </FormItem>
+                    {myTrigger == alarmTriggerType.DELAY_COST ? (
+                        <FormItem
+                            {...formItemLayout}
+                            label="延迟消费数量"
+                        >
+                            {getFieldDecorator('delayNum', {
+                                rules: [{
+                                    required: true, message: '请填写延迟消费数量！',
+                                }],
+                                initialValue: alarmInfo.delayNum,
+                            })(
+                                <InputNumber precision={0} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费数量" />
+                            )}
+                            <span style={{ paddingLeft: "8px" }}>条</span>
+                        </FormItem>
+                    ):null}
+                    {myTrigger == alarmTriggerType.DELAY_COST_P ? (
+                        <FormItem
+                            {...formItemLayout}
+                            label="延迟消费/总消息数"
+                        >
+                            {getFieldDecorator('delayNumP', {
+                                rules: [{
+                                    required: true, message: '请填写延迟消费比例！',
+                                }],
+                                initialValue: alarmInfo.delayNum,
+                            })(
+                                <InputNumber min={0} max={100} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费比例" />
+                            )}
+                            <span style={{ paddingLeft: "8px" }}>%</span>
+                        </FormItem>
+                    ):null}
+                    {isFlink&&isDelayTrigger?<FormItem
+                            {...formItemLayout}
+                            label="告警抑制"
+                        >
+                            30分钟内，触发超过
+                            {getFieldDecorator('alarmY', {
+                                initialValue: alarmInfo.alarmY
+                            })(
+                                <InputNumber precision={0} min={1} max={999} style={{ width: "48px", margin: "0px 5px" }} />
+                            )}
+                            次延迟消费告警后，1小时内不再发送
+                        </FormItem>:null
+                    }
                     <FormItem
                         {...formItemLayout}
                         label="接收人"

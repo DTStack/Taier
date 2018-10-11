@@ -442,6 +442,13 @@ export const AlarmStatusFilter = [{ // 告警状态过滤选项
     value: 1,
 }]
 
+export const alarmTriggerType={
+    TASK_FAIL:0,
+    TASK_STOP:3,
+    DELAY_COST:4,
+    DELAY_COST_P:5,
+}
+
 export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
     text: '全部',
     value: '',

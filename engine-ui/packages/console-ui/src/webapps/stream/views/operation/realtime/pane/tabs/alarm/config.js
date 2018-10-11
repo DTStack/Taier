@@ -167,10 +167,11 @@ class AlarmConfigList extends React.Component {
         const ctx = this
         alarm.taskId=data.id;
         
-        Api.addAlarm(alarm).then((res) => {
+        return Api.addAlarm(alarm).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ visible: false, alarmInfo:undefined })
                 ctx.loadAlarmRules()
+                resolve(true);
             }
         })
     }
@@ -212,11 +213,12 @@ class AlarmConfigList extends React.Component {
         alarm.taskId=data.id;
 
         alarm.id = alarmInfo.alarmId
-        Api.updateAlarm(alarm).then((res) => {
+       return Api.updateAlarm(alarm).then((res) => {
             if (res.code === 1) {
                 message.success('告警更新成功！')
                 ctx.setState({ visible: false, alarmInfo:undefined })
                 ctx.loadAlarmRules()
+                resolve(true);
             }
         })
     }
@@ -239,6 +241,7 @@ class AlarmConfigList extends React.Component {
                     onChange={this.handleTableChange.bind(this)}
                 />
                 <AlarmForm
+                    data={data}
                     projectUsers={projectUsers}
                     taskName={data.name}
                     title={!alarmInfo ? '新建告警规则' : '修改告警规则'}
