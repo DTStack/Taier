@@ -62,6 +62,7 @@ public class JobSubmitProcessor implements Runnable {
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             } else {
+                jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handler.handle();
             }
         } catch (Throwable e) {
