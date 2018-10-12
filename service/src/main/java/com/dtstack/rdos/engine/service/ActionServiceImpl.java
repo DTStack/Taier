@@ -217,11 +217,13 @@ public class ActionServiceImpl {
                     rdosEngineStreamJob.setTaskId(jobId);
                     rdosEngineStreamJob.setTaskName(paramAction.getName());
                     rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
+                    rdosEngineStreamJob.setEngineLog("");
+                    rdosEngineStreamJob.setLogInfo("");
+                    rdosEngineStreamJob.setExecTime(0L);
                     engineStreamTaskDAO.insert(rdosEngineStreamJob);
                     result =  true;
                 }else{
-
-                    result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
+                    result = RdosTaskStatus.UNSUBMIT.getStatus() == rdosEngineStreamJob.getStatus().intValue();
                     if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
                         int oldStatus = rdosEngineStreamJob.getStatus().intValue();
                         Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus, paramAction.getName());
