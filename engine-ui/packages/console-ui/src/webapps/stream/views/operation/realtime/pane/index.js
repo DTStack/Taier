@@ -22,11 +22,11 @@ class TaskDetailPane extends React.Component {
     state = {
         tabKey: 'taskFlow'
     }
-    
+
     componentWillReceiveProps(nextProps) {
         if (this.props.data != nextProps.data) {
             this.setState({
-                tabKey:"taskFlow"
+                tabKey: "taskFlow"
             })
         }
     }
@@ -36,7 +36,7 @@ class TaskDetailPane extends React.Component {
         })
     }
     getTabs() {
-        const {tabKey} = this.state;
+        const { tabKey } = this.state;
         const { data = {} } = this.props;
         const { taskType } = data;
         const scrollStyle = {
@@ -58,7 +58,7 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.DATA_COLLECTION: {
                 return [
                     <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo isShow={tabKey=="taskFlow"} data={data} />
+                        <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyle} tab="运行代码" key="runCode">
                         <RunCode data={data} />
@@ -72,7 +72,7 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.MR: {
                 return [
                     <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo isShow={tabKey=="taskFlow"} data={data} />
+                        <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyleNoPt} tab="数据延迟" key="dataDelay">
                         <DataDelay data={data} />
@@ -105,26 +105,29 @@ class TaskDetailPane extends React.Component {
             top: "11px"
         }
         return (
-            <SlidePane
-                className="m-tabs bd-top bd-right m-slide-pane"
-                onClose={closeSlidePane}
-                visible={visibleSlidePane}
-                style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
-            >
-                <header className="detailPane-header">
-                    <span style={{ fontSize: "14px" }}>{data.name}</span>
-                    <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
-                    <span style={extButtonStyle}>{extButton}</span>
-                </header>
-                <Tabs
-                    style={{ borderTop: "1px solid #DDDDDD", position: "relative" }}
-                    animated={false}
-                    onChange={this.onTabChange.bind(this)}
-                    activeKey={tabKey}
+            <div>
+                <SlidePane
+                    className="m-tabs bd-top bd-right m-slide-pane"
+                    onClose={closeSlidePane}
+                    visible={visibleSlidePane}
+                    style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
                 >
-                    {this.getTabs()}
-                </Tabs>
-            </SlidePane>
+                    <header className="detailPane-header">
+                        <span style={{ fontSize: "14px" }}>{data.name}</span>
+                        <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
+                        <span style={extButtonStyle}>{extButton}</span>
+                    </header>
+                    <Tabs
+                        style={{ borderTop: "1px solid #DDDDDD", position: "relative" }}
+                        animated={false}
+                        onChange={this.onTabChange.bind(this)}
+                        activeKey={tabKey}
+                    >
+                        {this.getTabs()}
+                    </Tabs>
+                </SlidePane>
+            </div>
+
         )
     }
 }

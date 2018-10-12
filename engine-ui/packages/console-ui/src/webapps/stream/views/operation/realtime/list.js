@@ -78,7 +78,10 @@ class RealTimeTaskList extends Component {
         if (this._isUnmounted) {
             return;
         }
-        const {data=[]} = resData;
+        const {data} = resData;
+        if(!data){
+            return ;
+        }
         let haveRun=false;
         let haveRunList=[
             TASK_STATUS.WAIT_SUBMIT,
