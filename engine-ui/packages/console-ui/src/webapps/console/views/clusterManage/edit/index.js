@@ -45,6 +45,9 @@ class EditCluster extends React.Component {
         testStatus: TEST_STATUS.NOTHING,
         flink_params: [],
         spark_params: [],
+        // learning和dtyarnshell
+        learning_params: [],
+        dtyarnshell_params: [],
         core: null,
         nodeNumber: null,
         memory: null,
@@ -246,31 +249,49 @@ class EditCluster extends React.Component {
         }
     }
     addParam(type, ) {
-        const { flink_params, spark_params } = this.state;
+        const { flink_params, spark_params, learning_params, dtyarnshell_params} = this.state;
         if (type == "flink") {
             this.setState({
                 flink_params: [...flink_params, {
                     id: giveMeAKey()
                 }]
             })
-        } else {
+        } else if(type == "spark") {
             this.setState({
                 spark_params: [...spark_params, {
+                    id: giveMeAKey()
+                }]
+            })
+        } else if(type == "learning") {
+            this.setState({
+                learning_params: [...learning_params, {
+                    id: giveMeAKey()
+                }]
+            })
+        } else {
+            this.setState({
+                dtyarnshell_params: [...dtyarnshell_params, {
                     id: giveMeAKey()
                 }]
             })
         }
     }
     deleteParam(id, type) {
-        const { flink_params, spark_params } = this.state;
+        const { flink_params, spark_params, learning_params, dtyarnshell_params } = this.state;
         let tmpParams;
         let tmpStateName;
         if (type == "flink") {
             tmpStateName = "flink_params";
             tmpParams = flink_params;
-        } else {
+        } else if (type == "spark") {
             tmpStateName = "spark_params";
             tmpParams = spark_params;
+        } else if(type == "learning") {
+            tmpStateName = "learning_params";
+            tmpParams = learning_params;
+        } else {
+            tmpStateName = "dtyarnshell_params";
+            tmpParams = dtyarnshell_params;
         }
         tmpParams = tmpParams.filter(
             (param) => {
@@ -282,15 +303,19 @@ class EditCluster extends React.Component {
         })
     }
     renderExtraParam(type) {
-        const { flink_params, spark_params, extDefaultValue } = this.state;
+        const { flink_params, spark_params, learning_params, dtyarnshell_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == "view"
         let tmpParams;
         if (type == "flink") {
             tmpParams = flink_params;
-        } else {
+        } else if(type == "spark") {
             tmpParams = spark_params;
+        } else if(type == "learning") {
+            tmpParams = learning_params;
+        } else {
+            tmpParams = dtyarnshell_params;
         }
         return tmpParams.map(
             (param) => {
@@ -554,7 +579,7 @@ class EditCluster extends React.Component {
 
         return (
             <div className="contentBox">
-                <p className="box-title" style={{ height: "auto", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
+                <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
                 <Card
                     noHovering
                     className="contentBox shadow">
@@ -886,6 +911,166 @@ class EditCluster extends React.Component {
                             </Row>
                         )}
                     </div>
+
+
+
+                    {/* Learning */}
+                    <p className="config-title">Learning</p>
+                    <div className="config-content" style={{ width: "680px" }}>
+                        <FormItem
+                            label="learning.python3.path"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('learningConf.learningPython3Path', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入learning.python3.path"
+                                }],
+                                // initialValue: "/root/anaconda3/bin/python3"
+                            })(
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="learning.python2.path"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('learningConf.learningPython2Path', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入learning.python2.path"
+                                }],
+                                // initialValue: "/root/anaconda3/bin/python2"
+                            })(
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="learning.history.address"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('learningConf.learningHistoryAddress', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入learning.history.address"
+                                }],
+                                // initialValue: "rdos1:10021"
+                            })(
+                                <Input disabled={isView} placeholder="rdos1:10021"/>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="learning.history.webapp.address"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('learningConf.learningHistoryWebappAddress', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入learning.history.webapp.address"
+                                }],
+                                // initialValue: "rdos1:19886"
+                            })(
+                                <Input disabled={isView} placeholder="rdos1:19886" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="learning.history.webapp.https.address"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('learningConf.learningHistoryWebappHttpsAddress', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入learning.history.webapp.https.address"
+                                }],
+                                // initialValue: "rdos1:19885"
+                            })(
+                                <Input disabled={isView} placeholder="rdos1:19885" />
+                            )}
+                        </FormItem>
+                        {this.renderExtraParam("learning")}
+                        {isView ? null : (
+                            <Row>
+                                <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                    <a onClick={this.addParam.bind(this, "learning")}>添加自定义参数</a>
+                                </Col>
+                            </Row>
+                        )}
+                    </div>
+
+                    
+                    {/* DTYarnShell */}
+                    <p className="config-title">DTYarnShell</p>
+                    <div className="config-content" style={{ width: "680px" }}>
+                        <FormItem
+                            label="jlogstash.root"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('dtyarnshellConf.jlogstashRoot', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入jlogstash.root"
+                                }],
+                                // initialValue: "/opt/dtstack/jlogstash"
+                            })(
+                                <Input disabled={isView} placeholder="/opt/dtstack/jlogstash" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="java.home"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('dtyarnshellConf.javaHome', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入java.home"
+                                }],
+                                // initialValue: "/opt/java/bin"
+                            })(
+                                <Input disabled={isView} placeholder="/opt/java/bin" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="python2.path"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('dtyarnshellConf.python2Path', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入python2.path"
+                                }],
+                                // initialValue: "/root/anaconda3/bin/python3"
+                            })(
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python3"/>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label={<Tooltip title="python3.path">python3.path</Tooltip>}
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('dtyarnshellConf.python3Path', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入python3.path"
+                                }],
+                                // initialValue: "/root/anaconda3/bin/python3"
+                            })(
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
+                            )}
+                        </FormItem>
+                        {this.renderExtraParam("dtyarnshell")}
+                        {isView ? null : (
+                            <Row>
+                                <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                    <a onClick={this.addParam.bind(this, "dtyarnshell")}>添加自定义参数</a>
+                                </Col>
+                            </Row>
+                        )}
+                    </div>
+
+
+
                     <p className="config-title"></p>
                     {isView ? null : (
                         <div className="config-content" style={{ width: "100%" }}>

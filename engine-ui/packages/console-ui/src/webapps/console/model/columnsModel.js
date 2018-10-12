@@ -9,6 +9,6 @@ export  default class ColumnsModel {
         this.id = column.id||new Date().getTime() + '' + ~~(Math.random() * 10000);
     }
     resetDataFromService(column){
-
+        
     }
 }
