@@ -27,6 +27,10 @@ class QueueManage extends Component {
         nowView: utils.getParameterByName("tab") || "overview",
         clusterList: [],
         clusterId: undefined,
+        nodeList: [],
+        // 节点值
+        // node:"localhost:8080",
+        node: undefined,
         // 会重新渲染detail组件
         resetKey: Math.random()
     }
@@ -34,10 +38,11 @@ class QueueManage extends Component {
     componentDidMount() {
         this.getClusterDetail();
         this.getClusterSelect();
+        this.getNodeAddressSelect();
     }
     // 渲染集群
     getClusterDetail() {
-        const { table, clusterId } = this.state;
+        const { table, clusterId, node } = this.state;
         const { pageIndex } = table;
         this.setState({
             table: {
@@ -45,29 +50,32 @@ class QueueManage extends Component {
                 loading: true
             }
         })
-        Api.getClusterDetail({
-            currentPage: pageIndex,
-            pageSize: PAGE_SIZE,
-            clusterId: clusterId
-        }).then((res) => {
-            if (res.code == 1) {
-                this.setState({
-                    dataSource: res.data.data,
-                    table: {
-                        ...table,
-                        loading: false,
-                        total: res.data.totalCount
-                    }
-                })
-            } else {
-                this.setState({
-                    table: {
-                        ...table,
-                        loading: false
-                    }
-                })
-            }
-        })
+        if(node) {
+            Api.getClusterDetail({
+                currentPage: pageIndex,
+                pageSize: PAGE_SIZE,
+                clusterId: clusterId,
+                node: node
+            }).then((res) => {
+                if (res.code == 1) {
+                    this.setState({
+                        dataSource: res.data.data,
+                        table: {
+                            ...table,
+                            loading: false,
+                            total: res.data.totalCount
+                        }
+                    })
+                } else {
+                    this.setState({
+                        table: {
+                            ...table,
+                            loading: false
+                        }
+                    })
+                }
+            })
+        }
     }
     // 获取集群下拉数据
     getClusterSelect() {
@@ -87,7 +95,7 @@ class QueueManage extends Component {
             return <Option key={item.id} value={item.id}>{item.clusterName}</Option>
         })
     }
-    // option改变
+    // 集群option改变
     clusterOptionChange(clusterId) {
         if (!clusterId) {
             this.setState({
@@ -99,7 +107,40 @@ class QueueManage extends Component {
                 clusterId: clusterId
             }, this.getClusterDetail.bind(this))
         }
-
+    }
+    // 获取节点下拉数据
+    getNodeAddressSelect() {
+        return Api.getNodeAddressSelect().then((res) => {
+            const {nodeList} = this.state;
+            if(res.code == 1) {
+                const data = res.data;
+                this.setState({
+                    nodeList: data || []
+                })
+                console.log(data);
+            }
+        })
+    }
+    // 获取节点下拉视图
+    getNodeAddressOptionView() {
+        const {nodeList} = this.state;
+        return nodeList.map((item,index) => {
+            return <Option key={index} value={item}>{item}</Option>
+        })
+    }
+    // 节点option改变
+    nodeAddressrOptionChange(value) {
+        if(!value) {
+            this.setState({
+                dataSource: [],
+                node:value
+            })
+        } else {
+            this.setState({
+                node: value
+            },this.getClusterDetail.bind(this))
+        }
+        
     }
     // 页表
     getPagination() {
@@ -168,13 +209,14 @@ class QueueManage extends Component {
     }
     // 查看明细(需要传入参数 集群,引擎,group) detailInfo
     viewDetails(record) {
+        const {node} = this.state;
         this.props.router.push({
             pathname: "/console/queueManage",
             query: {
                 tab: 'detail',
                 clusterName: record.clusterName,
                 engineType: record.engineType,
-                groupName: record.groupName
+                groupName: record.groupName,
             }
         });
         this.setState({
@@ -202,6 +244,7 @@ class QueueManage extends Component {
     render() {
         const columns = this.initTableColumns();
         const { dataSource, table, clusterList } = this.state;
+        const {nodeList, node} = this.state;
         const { loading } = table;
         const { nowView } = this.state;
         const query = this.props.router.location.query;
@@ -235,7 +278,7 @@ class QueueManage extends Component {
                         <Tabs.TabPane tab="概览" key="overview">
                             <div style={{ margin: "20px" }}>
                                 集群：
-		                   		<Select style={{ width: 150 }}
+		                   		<Select style={{ width: 150, marginRight: "10px" }}
                                     placeholder="选择集群"
                                     allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
@@ -243,6 +286,19 @@ class QueueManage extends Component {
                                 >
                                     {
                                         this.getClusterOptionView()
+                                    }
+                                </Select>
+
+                                 节点：
+		                   		<Select style={{ width: 150 }}
+                                    placeholder="选择节点"
+                                    allowClear={true}
+                                    // defaultValue={1}
+                                    onChange={this.nodeAddressrOptionChange.bind(this)}
+                                    value={this.state.node}
+                                >
+                                    {
+                                        this.getNodeAddressOptionView()
                                     }
                                 </Select>
                             </div>
@@ -263,7 +319,9 @@ class QueueManage extends Component {
                             <TaskDetail
                                 key={this.state.resetKey}
                                 clusterList={clusterList}
+                                nodeList={nodeList}
                                 query={query}
+                                node={node}
                             >
                             </TaskDetail>
                         </Tabs.TabPane>

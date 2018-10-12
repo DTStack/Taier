@@ -37,15 +37,17 @@ class KillTask extends Component {
             engineType: killResource.engineType,
             jobId: killResource.taskId,
             queueName: queueName,
+            node: this.props.node,
             clusterName: clusterName
         }).then((res) => {
             if (res.code == 1) {
                 this.props.killSuccess(killResource.taskId);
-                message.success("删除成功");
-                // 异步,成功之后才能删除
+                message.success("操作成功");
+                this.props.autoRefresh();
+                // 异步,成功之后才能关闭
                 this.props.onCancel();
             } else {
-                message.success("删除失败");
+                message.success("操作失败");
             }
         })
     }
@@ -60,7 +62,7 @@ class KillTask extends Component {
                 onCancel={this.props.onCancel}
                 onOk={this.confirmKilltask.bind(this)}
             >
-                <p>是否要删除此任务?</p>
+                <p>是否要杀死此任务?</p>
             </Modal>
         )
     }

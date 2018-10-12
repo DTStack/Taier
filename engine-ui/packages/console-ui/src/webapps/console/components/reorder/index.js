@@ -30,6 +30,7 @@ class Reorder extends Component {
         Api.changeJobPriority({
             engineType: priorityResource.engineType,
             groupName: priorityResource.groupName,
+            node: this.props.node,
             jobId: priorityResource.taskId,
             jobIndex: jobIndex
         }).then((res) => {

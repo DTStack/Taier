@@ -995,7 +995,7 @@ class EditCluster extends React.Component {
 
                     {/* Learning */}
                     <p className="config-title">Learning</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: "680px"}}>
                         <FormItem
                             label="learning.python3.path"
                             {...formItemLayout}
@@ -1039,7 +1039,7 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                         <FormItem
-                            label="learning.history.webapp.address"
+                            label={<Tooltip title="learning.history.webapp.address">learning.history.webapp.address</Tooltip>}
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningHistoryWebappAddress', {
@@ -1053,7 +1053,7 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                         <FormItem
-                            label="learning.history.webapp.https.address"
+                            label={<Tooltip title="learning.history.webapp.https.address">learning.history.webapp.https.address</Tooltip>}
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningHistoryWebappHttpsAddress', {

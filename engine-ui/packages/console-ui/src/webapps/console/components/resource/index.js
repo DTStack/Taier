@@ -7,7 +7,7 @@
 
 // 剩余资源
 import React, { Component } from 'react';
-import { Modal, Select, Form, Table } from "antd";
+import { Modal, Select, Form, Table, Button } from "antd";
 import { formItemLayout } from "../../consts";
 import Api from "../../api/console";
 
@@ -149,6 +149,11 @@ class Resource extends Component {
                     onCancel={this.props.onCancel}
                     onOk={this.props.onCancel}
                     className="m-card"
+                    footer={[
+                        <Button key="submit" type="primary" size="large"  onClick={this.props.onCancel}>
+                        关闭
+                        </Button>
+                    ]}
                 >
                     <Form.Item
                         label="集群"

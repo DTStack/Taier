@@ -36,6 +36,7 @@ class TaskDetail extends Component {
         engineType: undefined,
         groupName: undefined,
         clusterName: undefined,
+        node: undefined,
         // 执行顺序
         queueNum: undefined,
         moreTaskNum: undefined,
@@ -84,7 +85,8 @@ class TaskDetail extends Component {
         this.getGroupList();
         this.setState({
             engineType: query.engineType,
-            groupName: query.groupName
+            groupName: query.groupName,
+            node: this.props.node
         }, this.getDetailTaskList.bind(this))
         this.searchTaskList();
     }
@@ -254,6 +256,30 @@ class TaskDetail extends Component {
             groupName: undefined
         }, this.getGroupList.bind(this))
     }
+
+    
+    // 获取节点下拉
+    getNodeAddressOptionView() {
+        const { nodeList } = this.props;
+        return nodeList.map((item, index) => {
+            return <Option key={item} value={item}>{item}</Option>
+        })
+    }
+    // 改变节点值
+    changeNodeAddressValue(value) {
+        if(!value) {
+            this.setState({
+                dataSource: [],
+                node: value,
+                groupList: []
+            })
+        } else {
+            this.setState({
+                node: value
+            },this.getDetailTaskList.bind(this))
+        }
+    }
+
     // 获取引擎下拉数据
     getEngineList() {
         return Api.getEngineList().then((res) => {
@@ -302,14 +328,15 @@ class TaskDetail extends Component {
 
     }
     getGroupList() {
-        const { engineType, clusterName } = this.state;
+        const { engineType, clusterName, node } = this.state;
         this.setState({
             groupList: []
         })
-        if (engineType) {
+        if (engineType && node) {
             return Api.getGroupList({
                 engineType: engineType,
-                clusterName: clusterName
+                clusterName: clusterName,
+                node: node
             })
                 .then((res) => {
                     if (res.code == 1) {
@@ -339,14 +366,14 @@ class TaskDetail extends Component {
     }
     // 获取详细任务
     getDetailTaskList() {
-        const { engineType, groupName } = this.state;
+        const { engineType, groupName, node } = this.state;
         const { table } = this.state;
         const { loading } = table;
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
         })
-        if (engineType && groupName) {
+        if (engineType && groupName && node) {
             this.setState({
                 table: {
                     ...table,
@@ -356,6 +383,7 @@ class TaskDetail extends Component {
             Api.getViewDetail({
                 engineType: engineType,
                 groupName: groupName,
+                node: node,
                 pageSize: PAGE_SIZE,
                 currentPage: pageIndex
                 // clusterName: 
@@ -395,10 +423,11 @@ class TaskDetail extends Component {
                 groupName = arr[1];
             }
         }
-
+        const {node} = this.state;
         return Api.changeJobPriority({
             engineType: record.engineType,
             groupName: record.groupName,
+            node: node,
             jobId: record.taskId,
             jobIndex: 1
         }).then((res) => {
@@ -711,6 +740,7 @@ class TaskDetail extends Component {
         }
         const { total } = this.state.table;
         const { clusterList } = this.props;
+        const { node } = this.state;
         const {radioValue} = this.state;
         const {isClickGroup} = this.state;
         const {moreTaskNum} = this.state;
@@ -753,6 +783,16 @@ class TaskDetail extends Component {
                             allowClear
                         >
                             {this.getGroupOptionView()}
+                        </Select>
+                        节点：
+                        <Select
+                            value={this.state.node}
+                            placeholder="请选择节点"
+                            style={{ width: "150px", marginRight: "10px" }}
+                            onChange={this.changeNodeAddressValue.bind(this)}
+                            allowClear={true}
+                        >
+                            {this.getNodeAddressOptionView()}
                         </Select>
                         <div style={{ float: "right" }}>
                             <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
@@ -836,11 +876,14 @@ class TaskDetail extends Component {
                     onCancel={this.handleCloseKill.bind(this)}
                     killResource={killResource}
                     killSuccess={this.killSuccess.bind(this)}
+                    autoRefresh={this.autoRefresh.bind(this)}
+                    node={node}
                 />
                 <Reorder
                     visible={isShowReorder}
                     onCancel={this.handleCloseReorder.bind(this)}
                     priorityResource={priorityResource}
+                    node={node}
                     autoRefresh={this.autoRefresh.bind(this)}
                     total={total}
                 />
