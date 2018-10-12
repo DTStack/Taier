@@ -68,7 +68,8 @@ class EditCluster extends React.Component {
                             let clusterConf = cluster.clusterConf;
                             clusterConf = JSON.parse(clusterConf);
                             const extParams = this.exchangeServerParams(clusterConf)
-
+                            const flinkConf = clusterConf.flinkConf;
+                            this.myUpperCase(flinkConf);
                             this.setState({
                                 core: cluster.totalCore,
                                 memory: cluster.totalMemory,
@@ -80,6 +81,8 @@ class EditCluster extends React.Component {
                                 }),
                                 flink_params: extParams.flinkKeys,
                                 spark_params: extParams.sparkKeys,
+                                learning_params: extParams.learningKeys,
+                                dtyarnshell_params: extParams.dtyarnshellKeys,
                                 extDefaultValue: extParams.default
                             })
                             form.setFieldsValue({
@@ -87,6 +90,8 @@ class EditCluster extends React.Component {
                                 hiveConf: clusterConf.hiveConf,
                                 sparkConf: clusterConf.sparkConf,
                                 flinkConf: clusterConf.flinkConf,
+                                learningConf: this.myUpperCase(clusterConf.learningConf),
+                                dtyarnshellConf: this.myUpperCase(clusterConf.dtyarnshellConf)
                             })
                         }
                     }
@@ -102,6 +107,8 @@ class EditCluster extends React.Component {
         let result = {
             flinkKeys: [],
             sparkKeys: [],
+            learningKeys: [],
+            dtyarnshellKeys: [],
             default: {}
         };
         let notExtKeys_flink = ["typeName", "flinkZkAddress",
@@ -109,9 +116,13 @@ class EditCluster extends React.Component {
             "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
-        let sparkConfig = config.sparkConf;
-        let flinkConfig = config.flinkConf;
-
+        let notExtKeys_learning = ["learningPython3Path", "learningPython2Path", 
+        "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
+        let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
+        let sparkConfig = config.sparkConf || {};
+        let flinkConfig = config.flinkConf || {};
+        let learningConfig = config.learningConf||{};
+        let dtyarnshellConfig = config.dtyarnshellConf || {};
         function setDefault(config, notExtKeys, type, keys) {
             const keyAndValue = Object.entries(config);
             keyAndValue.map(
@@ -130,8 +141,71 @@ class EditCluster extends React.Component {
 
         setDefault(sparkConfig, notExtKeys_spark, "spark", result.sparkKeys)
         setDefault(flinkConfig, notExtKeys_flink, "flink", result.flinkKeys)
+        setDefault(learningConfig, notExtKeys_learning, "learning", result.learningKeys)
+        setDefault(dtyarnshellConfig, notExtKeys_dtyarnshell, "dtyarnshell", result.dtyarnshellKeys)
         return result;
     }
+    // 表单字段. => 驼峰转化
+    myUpperCase (obj) {
+        var after = {},
+            keys = [],
+            values = [],
+            newKeys = [];
+        // . --> 驼峰
+          for (let i in obj){
+            if (obj.hasOwnProperty(i)) {
+              keys.push(i);
+              values.push(obj[i]);
+            }
+          }
+          keys.forEach(function (item, index) {
+            var itemSplit = item.split('.');
+            var newItem = itemSplit[0];
+            for (let i = 1; i < itemSplit.length; i++) {
+              var letters = itemSplit[i].split('');
+              var firstLetter = letters.shift();
+              firstLetter = firstLetter.toUpperCase();
+              letters.unshift(firstLetter);
+              newItem += letters.join("")
+            }
+            newKeys[index] = newItem;
+          })
+          for (let i = 0; i < values.length; i++){
+            after['"'+newKeys[i]+'"'] = values[i]
+          }
+          console.log(after)
+        return after;
+    }
+
+    // 驼峰 => .转化
+    myLowerCase (obj) {
+        var after = {},
+            keys = [],
+            newKeys = [],
+            alphabet = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
+        for (let i in obj){
+          if (obj.hasOwnProperty(i)) {
+            let keySplit = "";
+            keySplit = i.split('');
+            for (var j = 0; j < keySplit.length; j++) {
+              if (keySplit[j] == ".") {
+                keySplit.splice(j,1);
+                keySplit[j] = keySplit[j].toUpperCase();
+              } else if (alphabet.indexOf(keySplit[j]) != -1) {
+                keySplit[j] = keySplit[j].toLowerCase();
+                keySplit.splice(j,0,'.');
+                j++;
+              }
+            }
+            keySplit = keySplit.join('');
+            after['"' + keySplit + '"'] = obj[i];
+          }
+        }
+        console.log(after)
+        return after;
+    }
+
+
     getUserOptions() {
         const { consoleUser } = this.props;
         const { selectUserMap } = this.state;
@@ -516,6 +590,7 @@ class EditCluster extends React.Component {
     getServerParams(formValues, haveFile) {
         const { mode, cluster } = this.props.location.state || {};
         const clusterConf = this.getClusterConf(formValues);
+        console.log(clusterConf);
         const params = {
             clusterName: formValues.clusterName,
             clusterConf: JSON.stringify(clusterConf)
@@ -537,12 +612,16 @@ class EditCluster extends React.Component {
         let clusterConf = {};
         const sparkExtParams = this.getCustomParams(formValues, "spark")
         const flinkExtParams = this.getCustomParams(formValues, "flink")
+        const learningExtParams = this.getCustomParams(formValues, "learning");
+        const dtyarnshellExtParams = this.getCustomParams(formValues, "dtyarnshell")
         clusterConf["hadoopConf"] = zipConfig.hadoopConf;
         clusterConf["yarnConf"] = zipConfig.yarnConf;
         clusterConf["hiveMeta"] = zipConfig.hiveMeta;
         clusterConf["hiveConf"] = formValues.hiveConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
+        clusterConf["learningConf"] = { ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
+        clusterConf["dtyarnshellConf"] = { ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
         //服务端兼容，不允许null
         clusterConf["hiveConf"].username = clusterConf["hiveConf"].username || '';
         clusterConf["hiveConf"].password = clusterConf["hiveConf"].password || '';
