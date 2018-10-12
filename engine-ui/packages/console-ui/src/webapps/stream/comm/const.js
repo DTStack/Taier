@@ -584,6 +584,14 @@ export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换
     'BOOLEAN'
 ]
 
+export const TIME_TYPE={
+    M10:'10m',
+    H1:'1h',
+    H6:'6h',
+    D1:'1d',
+    D7:'7d',
+    W1:"1w"
+}
 
 export const formItemLayout = { // 表单正常布局
     labelCol: {

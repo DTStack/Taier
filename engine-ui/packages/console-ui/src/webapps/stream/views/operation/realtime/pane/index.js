@@ -19,7 +19,24 @@ import { TASK_TYPE } from "../../../../../stream/comm/const";
 const TabPane = Tabs.TabPane;
 
 class TaskDetailPane extends React.Component {
+    state = {
+        tabKey: 'taskFlow'
+    }
+    
+    componentWillReceiveProps(nextProps) {
+        if (this.props.data != nextProps.data) {
+            this.setState({
+                tabKey:"taskFlow"
+            })
+        }
+    }
+    onTabChange(activeKey) {
+        this.setState({
+            tabKey: activeKey
+        })
+    }
     getTabs() {
+        const {tabKey} = this.state;
         const { data = {} } = this.props;
         const { taskType } = data;
         const scrollStyle = {
@@ -41,7 +58,7 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.DATA_COLLECTION: {
                 return [
                     <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo data={data} />
+                        <BaseInfo isShow={tabKey=="taskFlow"} data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyle} tab="运行代码" key="runCode">
                         <RunCode data={data} />
@@ -55,7 +72,7 @@ class TaskDetailPane extends React.Component {
             case TASK_TYPE.MR: {
                 return [
                     <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo data={data} />
+                        <BaseInfo isShow={tabKey=="taskFlow"} data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyleNoPt} tab="数据延迟" key="dataDelay">
                         <DataDelay data={data} />
@@ -81,6 +98,7 @@ class TaskDetailPane extends React.Component {
             visibleSlidePane, data = {}, extButton,
             closeSlidePane
         } = this.props;
+        const { tabKey } = this.state;
         const extButtonStyle = {
             position: "absolute",
             right: "30px",
@@ -98,7 +116,12 @@ class TaskDetailPane extends React.Component {
                     <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
                     <span style={extButtonStyle}>{extButton}</span>
                 </header>
-                <Tabs style={{ borderTop: "1px solid #DDDDDD", position: "relative" }} animated={false} onChange={this.onTabChange}>
+                <Tabs
+                    style={{ borderTop: "1px solid #DDDDDD", position: "relative" }}
+                    animated={false}
+                    onChange={this.onTabChange.bind(this)}
+                    activeKey={tabKey}
+                >
                     {this.getTabs()}
                 </Tabs>
             </SlidePane>

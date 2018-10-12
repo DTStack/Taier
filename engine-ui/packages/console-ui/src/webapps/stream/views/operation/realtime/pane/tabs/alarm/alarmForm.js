@@ -87,7 +87,7 @@ class AlarmForm extends Component {
             alarmInfo.receiveUsers.map(item => item.userId) : []
         const userItems = projectUsers && projectUsers.length > 0 ?
             projectUsers.map((item) => {
-                return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+                return (<Option key={item.userId} value={item.userId} name={item.user.userName}>
                     {item.user.userName}
                 </Option>)
             }) : []
@@ -178,11 +178,11 @@ class AlarmForm extends Component {
                             initialValue: myTrigger,
                         })(
                             <Select onChange={this.changeMyTrigger.bind(this)}>
-                                <Option value={alarmTriggerType.TASK_FAIL}>任务失败</Option>
-                                <Option value={alarmTriggerType.TASK_STOP}>任务停止</Option>
+                                <Option key={alarmTriggerType.TASK_FAIL} >任务失败</Option>
+                                <Option key={alarmTriggerType.TASK_STOP} >任务停止</Option>
                                 {isFlink && [
-                                    <Option value={alarmTriggerType.DELAY_COST}>延迟消费数</Option>,
-                                    <Option value={alarmTriggerType.DELAY_COST_P}>延迟消费比例</Option>
+                                    <Option key={alarmTriggerType.DELAY_COST} >延迟消费数</Option>,
+                                    <Option key={alarmTriggerType.DELAY_COST_P} >延迟消费比例</Option>
                                 ]}
                             </Select>,
                         )}
