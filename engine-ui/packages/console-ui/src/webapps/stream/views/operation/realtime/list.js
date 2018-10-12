@@ -70,9 +70,34 @@ class RealTimeTaskList extends Component {
             taskName: query,
         }, this.loadTaskList)
     }
-    debounceLoadtask() {
+    /**
+     * 这里判断是否需要自动刷新，
+     * 当有等待提交之类的状态，则自动刷新
+     */
+    debounceLoadtask(resData={}) {
         if (this._isUnmounted) {
             return;
+        }
+        const {data=[]} = resData;
+        let haveRun=false;
+        let haveRunList=[
+            TASK_STATUS.WAIT_SUBMIT,
+            TASK_STATUS.RUNNING,
+            TASK_STATUS.STOPING,
+            TASK_STATUS.SUBMITTING,
+            TASK_STATUS.RESTARTING,
+            TASK_STATUS.WAIT_RUN,
+            TASK_STATUS.WAIT_COMPUTE,
+        ];
+        for(let i=0;i<data.length;i++){
+            let status=data[i].status;
+            if(haveRunList.indexOf(status)>-1){
+                haveRun=true;
+                break;
+            }
+        }
+        if(!haveRun){
+            return ;
         }
         this._timeClock = setTimeout(() => {
             this.loadTaskList(null, true);
@@ -99,7 +124,7 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                // this.debounceLoadtask();
+                this.debounceLoadtask(res.data);
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({ loading: false })
