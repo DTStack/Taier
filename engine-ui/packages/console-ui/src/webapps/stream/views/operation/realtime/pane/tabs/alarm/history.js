@@ -12,7 +12,7 @@ import Api from '../../../../../../api'
 
 const { RangePicker } = DatePicker;
 
-class AlarmMsg extends React.Component {
+class AlarmHistory extends React.Component {
 
     state = {
         pagination: {
@@ -26,7 +26,6 @@ class AlarmMsg extends React.Component {
     }
 
     componentDidMount() {
-        console.log("AlarmMsgHistory")
         this.loadAlarms();
     }
     componentWillReceiveProps(nextProps) {
@@ -51,7 +50,7 @@ class AlarmMsg extends React.Component {
             this.setState({
                 loading: false
             })
-            if (res.code === 1) {
+            if (res.code == 1) {
                 this.setState({
                     alarmRecords: res.data.data || [],
                     pagination: {
@@ -91,6 +90,13 @@ class AlarmMsg extends React.Component {
         }, {
             title: '接收人',
             dataIndex: 'receiveUsers',
+            render: (text, record) => {
+                const recivers = record.receiveUsers
+                if (recivers.length > 0) {
+                    return recivers.map(item => <span>{item.userName};</span>)
+                }
+                return ''
+            },
         }, {
             title: '告警内容',
             dataIndex: 'alarmContent',
@@ -98,7 +104,7 @@ class AlarmMsg extends React.Component {
         }]
     }
     render() {
-        const { pagination, times, loading } = this.state;
+        const { pagination, times, loading, alarmRecords } = this.state;
         return (
             <section className="pane-alarm-configList">
                 <header>
@@ -118,10 +124,12 @@ class AlarmMsg extends React.Component {
                 />
 
                 <Table
-                    rowKey="id"
+                    rowKey={(record,index)=>{
+                        return index;
+                    }}
                     className="m-table"
                     columns={this.initHistoryColumns()}
-                    dataSource={[]}
+                    dataSource={alarmRecords||[]}
                     loading={loading}
                     pagination={pagination}
                 />
@@ -130,4 +138,4 @@ class AlarmMsg extends React.Component {
     }
 }
 
-export default AlarmMsg;
+export default AlarmHistory;

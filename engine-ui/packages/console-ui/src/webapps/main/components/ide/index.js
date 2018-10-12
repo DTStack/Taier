@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from 'prop-types';
 import SplitPane from "react-split-pane";
+import "./ide.scss";
 
 import Editor from "widgets/editor";
 import ToolBar from "./toolbar";

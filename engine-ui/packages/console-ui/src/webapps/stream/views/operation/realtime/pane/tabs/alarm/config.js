@@ -140,7 +140,7 @@ class AlarmConfigList extends React.Component {
                 return (
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
-                        <span key={1} className="ant-divider" />
+                        <span  className="ant-divider" />
                         <Popconfirm
                             title="确定删除这条告警吗?"
                             onConfirm={() => { this.deleteAlarm(record) }}
@@ -149,7 +149,7 @@ class AlarmConfigList extends React.Component {
                         >
                             <a>删除</a>
                         </Popconfirm>
-                        <span key={2} className="ant-divider" />
+                        <span  className="ant-divider" />
                         <a onClick={() => { this.updateAlarmStatus(record) }}>{isOpen}</a>
                     </div>
                 )
@@ -232,7 +232,7 @@ class AlarmConfigList extends React.Component {
                         <Button onClick={() => { this.setState({ visible: true }) }} type="primary" >添加告警</Button>
                 </header>
                 <Table
-                    rowKey="id"
+                    rowKey="alarmId"
                     className="m-table"
                     loading={loading}
                     columns={this.initConfigListColumns()}

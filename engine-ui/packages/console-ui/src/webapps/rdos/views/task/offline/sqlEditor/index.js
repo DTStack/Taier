@@ -14,7 +14,7 @@ import pureRender from 'utils/pureRender';
 
 import reqOfflineUrl from "../../../../api/reqOffline";
 import API from '../../../../api';
-import IDEEditor from "../../../../components/editor";
+import IDEEditor from "main/components/ide";
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 

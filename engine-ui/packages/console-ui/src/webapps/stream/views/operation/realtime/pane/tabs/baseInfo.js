@@ -3,6 +3,7 @@ import React from "react"
 import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'
 
+import StreamDetailGraph from "./graph"
 import { TASK_TYPE, TASK_STATUS } from "../../../../../comm/const";
 
 const editorOptions = {
@@ -19,8 +20,16 @@ class BaseInfo extends React.Component {
         console.log("BaseInfo")
     }
     getBaseInfo(){
-        const {data={}} = this.props;
+        const {data={},isShow} = this.props;
         const {status} = data;
+        /**
+         * 不显示的时候这里不能渲染，
+         * 因为Editor和echarts绘图的时候会计算当前dom大小
+         * 不显示的时候大小为0，会造成显示错误
+         */
+        if(!isShow){
+            return null;
+        }
         switch(status){
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.SUBMIT_FAILED:{
@@ -31,7 +40,7 @@ class BaseInfo extends React.Component {
             case TASK_STATUS.RUNNING:
             case TASK_STATUS.SET_SUCCESS:{
                 return (
-                    "此处有图"
+                   <StreamDetailGraph />
                 )
             }
             default:{
