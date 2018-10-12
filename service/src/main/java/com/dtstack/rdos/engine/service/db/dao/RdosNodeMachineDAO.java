@@ -8,6 +8,8 @@ import com.dtstack.rdos.engine.service.db.callback.MybatisSessionCallbackMethod;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosNodeMachine;
 import com.dtstack.rdos.engine.service.db.mapper.RdosNodeMachineMapper;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -119,4 +121,26 @@ public class RdosNodeMachineDAO {
             }
         });
     }
+
+    public List<RdosNodeMachine> listByAppType(String type){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosNodeMachine>>(){
+			@Override
+			public List<RdosNodeMachine> execute(SqlSession sqlSession) throws Exception {
+				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
+				rdosNodeMachineMapper.listByAppType(type);
+				return null;
+			}
+		});
+	}
+
+	public RdosNodeMachine getByAppTypeAndMachineType(String appType,int machineType){
+		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosNodeMachine>(){
+			@Override
+			public RdosNodeMachine execute(SqlSession sqlSession) throws Exception {
+				RdosNodeMachineMapper rdosNodeMachineMapper = sqlSession.getMapper(RdosNodeMachineMapper.class);
+				rdosNodeMachineMapper.getByAppTypeAndMachineType(appType,machineType);
+				return null;
+			}
+		});
+	}
 }

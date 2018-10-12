@@ -4,6 +4,8 @@ import org.apache.ibatis.annotations.Param;
 
 import com.dtstack.rdos.engine.service.db.dataobject.RdosNodeMachine;
 
+import java.util.List;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -25,4 +27,8 @@ public interface RdosNodeMachineMapper {
 	void updateOneTypeMachineToSlave(@Param("type") String type);
 
 	void updateMachineToMaster(@Param("ip") String ip, @Param("appType") String appType);
+
+	List<RdosNodeMachine> listByAppType(@Param("appType") String appType);
+
+	RdosNodeMachine getByAppTypeAndMachineType(@Param("appType") String appType,@Param("machineType") int machineType);
 }

@@ -42,5 +42,14 @@
     <update id="updateMachineToMaster">
          update rdos_node_machine set machine_type=0, gmt_modified=now() where ip=#{ip} and app_type=#{appType};
     </update>
-   
+
+    <select id="listByAppType" resultMap="rdosNodeMachineResult">
+        SELECT * FROM rdos_node_machine
+        WHERE is_deleted=0 AND app_type=#{appType} ORDER BY machine_type ASC
+    </select>
+
+    <select id="getByAppTypeAndMachineType" resultMap="rdosNodeMachineResult">
+        SELECT * FROM rdos_node_machine
+        WHERE is_deleted=0 AND app_type=#{appType} AND machine_type=#{machineType} limit 1
+    </select>
 </mapper>
