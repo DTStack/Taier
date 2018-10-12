@@ -102,6 +102,7 @@ public class ConsoleServiceImpl {
             Map<String, Object> result = new HashMap<>();
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", idxNode.getIndex());
+            result.put("node", jobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
