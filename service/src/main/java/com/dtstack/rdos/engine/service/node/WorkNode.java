@@ -274,6 +274,7 @@ public class WorkNode {
             if(HttpSendClient.actionSubmit(address, paramAction)){
                 return true;
             }else{
+                excludeNodes.add(address);
                 //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
                 if(retryNum >= DISPATCH_RETRY_LIMIT){
                     LOG.error("任务 taskId:{} 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId());
