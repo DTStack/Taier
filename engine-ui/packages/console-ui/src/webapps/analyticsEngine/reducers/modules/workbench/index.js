@@ -1,17 +1,11 @@
-import { cloneDeep } from 'lodash';
+import { combineReducers } from 'redux';
 
-const initialState = {
-    loading: false,
-    topRecords: [],
-    alarmTrend: [],
-    alarmSum: {},
-    usage: {}
-}
+import mainBench from './mainBench';
+import folderTree from './folderTree';
 
-export default function dashBoard(state = initialState, action) {
-    const { type, payload } = action;
-    switch (type) {  
-        default:
-            return state;
-    }
-}
+const workbenchReducer = combineReducers({
+    mainBench,
+    folderTree,
+})
+
+export default workbenchReducer;

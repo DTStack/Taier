@@ -1,12 +1,13 @@
-import commonActionType from '../../consts/commonActionType';
 import { cloneDeep } from 'lodash';
+
+import commonActionType from '../../consts/commonActionType';
 
 const initialState = {
     userList: [],
     allDict: {},
 }
 
-export default function dataCheck(state = initialState, action) {
+export default function comm(state = initialState, action) {
     const { type, payload } = action;
     switch (type) {  
 

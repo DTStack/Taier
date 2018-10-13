@@ -1,15 +1,31 @@
 import React, { Component } from 'react';
-import PropTypes from "prop-types";
 import { Layout } from "antd";
 import SplitPane from "react-split-pane";
 import { connect } from "react-redux";
+import { bindActionCreators } from 'redux';
 
 
 import Sidebar from './sidebar';
+import Default from './default';
+import MainBench from "./mainBench";
+
+import * as workbenchActions from '../../actions/workbenchActions';
 
 const { Content } = Layout;
 
-export default class Workbench extends Component {
+@connect(
+    state => {
+        const { workbench } = state;
+        return {
+            mainBench: workbench.mainBench,
+        };
+    },
+    dispatch => {
+        const actions = bindActionCreators(workbenchActions, dispatch);
+        return actions;
+    }
+)
+class Workbench extends Component {
 
     componentDidMount() {
         if (process.env.NODE_ENV === 'production') {
@@ -21,18 +37,16 @@ export default class Workbench extends Component {
         window.removeEventListener("beforeunload", this.beforeunload, false);
     }
 
-    beforeunload = e => {
-        /* eslint-disable */
-        const confirmationMessage = "\o/";
-        (e || window.event).returnValue = confirmationMessage; // Gecko + IE
-        return confirmationMessage; // Webkit, Safari, Chrome
-        /* eslint-disable */
-    };
-
     render() {
-        const { children } = this.props;
+
+        const {
+            mainBench,
+            onSQLQuery,
+            onCreateTable,
+        } = this.props;
+
         return (
-            <Layout className="dt-dev-task">
+            <Layout>
                 <SplitPane
                     split="vertical"
                     minSize={240}
@@ -41,16 +55,33 @@ export default class Workbench extends Component {
                     primary="first"
                 >
                     <div
-                        className="ant-layout-sider"
+                        className="ant-layout-sider bd-right"
                         style={{ width: "inherit", height: '100%' }}
                     >
                         <Sidebar />
                     </div>
                     <Content style={{height: '100%'}}>
-                        {children || "i'm container."}
+                        {
+                            mainBench.tabs.length ? <MainBench /> :
+                            <Default 
+                                onSQLQuery={onSQLQuery}
+                                onCreateTable={onCreateTable}
+                            />
+                        }
                     </Content>
                 </SplitPane>
             </Layout>
         );
     }
+
+    beforeunload = e => {
+        /* eslint-disable */
+        const confirmationMessage = "\o/";
+        (e || window.event).returnValue = confirmationMessage; // Gecko + IE
+        return confirmationMessage; // Webkit, Safari, Chrome
+        /* eslint-disable */
+    };
+
 }
+
+export default Workbench;
