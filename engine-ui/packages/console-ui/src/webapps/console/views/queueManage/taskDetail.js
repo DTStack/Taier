@@ -803,16 +803,6 @@ class TaskDetail extends Component {
                         >
                             {this.getEngineListOptionView()}
                         </Select>
-                        group：
-                        <Select
-                            value={this.state.groupName}
-                            placeholder="请选择group"
-                            style={{ width: "150px", marginRight: "10px" }}
-                            onChange={this.changeGroupValue.bind(this)}
-                            allowClear={true}
-                        >
-                            {this.getGroupOptionView()}
-                        </Select>
                         节点：
                         <Select
                             value={this.state.node}
@@ -823,6 +813,17 @@ class TaskDetail extends Component {
                         >
                             {this.getNodeAddressOptionView()}
                         </Select>
+                        group：
+                        <Select
+                            value={this.state.groupName}
+                            placeholder="请选择group"
+                            style={{ width: "150px", marginRight: "10px" }}
+                            onChange={this.changeGroupValue.bind(this)}
+                            allowClear={true}
+                        >
+                            {this.getGroupOptionView()}
+                        </Select>
+                        
                         <div style={{ float: "right" }}>
                             <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
                             <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
