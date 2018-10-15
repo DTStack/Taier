@@ -619,14 +619,20 @@ class EditCluster extends React.Component {
         const flinkExtParams = this.getCustomParams(formValues, "flink")
         const learningExtParams = this.getCustomParams(formValues, "learning");
         const dtyarnshellExtParams = this.getCustomParams(formValues, "dtyarnshell")
+        const learningTypeName = {
+            typeName: "learning"
+        }
+        const dtyarnshellTypeName = {
+            typeName: "dtyarnshell"
+        }
         clusterConf["hadoopConf"] = zipConfig.hadoopConf;
         clusterConf["yarnConf"] = zipConfig.yarnConf;
         clusterConf["hiveMeta"] = zipConfig.hiveMeta;
         clusterConf["hiveConf"] = formValues.hiveConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
-        clusterConf["learningConf"] = { ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
-        clusterConf["dtyarnshellConf"] = { ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
+        clusterConf["learningConf"] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
+        clusterConf["dtyarnshellConf"] = { ...dtyarnshellTypeName, ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
         //服务端兼容，不允许null
         clusterConf["hiveConf"].username = clusterConf["hiveConf"].username || '';
         clusterConf["hiveConf"].password = clusterConf["hiveConf"].password || '';
