@@ -208,7 +208,7 @@ engineTypes:
         hadoop.conf.dir: /opt/dtstack/hadoop
         yarn.resourcemanager.recovery.enabled: true
         jlogstash.root: /opt/dtstack/jlogstash
-        java.home: /opt/dtstack/java/bin
+        java.home: /opt/java/bin
 #        hadoopConf:
 #            fs.defaultFS: hdfs://ns1
 #            dfs.ha.namenodes.ns1: nn1,nn2
