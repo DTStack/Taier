@@ -273,9 +273,53 @@ export default class DataSourceModal extends Component {
                     </FormItem>
                 ]
             }
+            case DATA_SOURCE.ORACLE: {
+                return [
+                    <FormItem {...formItemLayout} label="JDBC URL" key="jdbcUrl" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.jdbcUrl', {
+                                rules: [{
+                                    required: true, message: 'jdbcUrl不可为空！',
+                                }],
+                                initialValue: config.jdbcUrl || '',
+                            })(
+                                <Input autoComplete="off" />,
+                            )
+                        }
+                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="用户名" key="username" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.username', {
+                                rules: [{
+                                    required: true, message: '用户名不可为空！',
+                                }],
+                                initialValue: config.username || '',
+                            })(
+                                <Input autoComplete="off" />,
+                            )
+                        }
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="密码" key="password" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.password', {
+                                rules: [{
+                                    required: true, message: '密码不可为空！',
+                                }],
+                                initialValue: '',
+                            })(
+                                <Input type="password" />,
+                            )
+                        }
+                    </FormItem>,
+                ]
+            }
+
 
             case DATA_SOURCE.MYSQL:
-            case DATA_SOURCE.ORACLE:
+            // case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.RDS:
             case DATA_SOURCE.DB2:
