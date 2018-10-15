@@ -1,4 +1,23 @@
 
+/**
+ * 目录类型
+ */
+export const CATALOGUE_TYPE = {
+    DATA_BASE: 'database',
+    DATA_MAP: 'datamap',
+    TABLE: 'table',
+    FOLDER: 'folder',
+}
+
+/**
+ * SQL执行状态
+ */
+export const sqlExecStatus = {
+    FAILED: -1,
+    FINISHED: 1,
+    CANCELED: 2,
+}
+
 
 export const formItemLayout = { // 表单常用布局
     labelCol: {

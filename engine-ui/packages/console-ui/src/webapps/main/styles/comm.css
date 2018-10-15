@@ -222,3 +222,36 @@
     background: rgba(255, 255, 255, 0.4);
     cursor: not-allowed;
 }
+
+/**
+* 操作卡片样式表
+*/
+.operation-card {
+    width: 210px;
+    margin: 0 10px;
+    display: inline-block;
+}
+
+.operation-content {
+    height: 165px;
+    background: #ffffff;
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #e9e9e9;
+    border-radius: 3px;
+    font-size: 60px;
+    color: #808080;
+    cursor: pointer;
+}
+
+.operation-content .anticon {
+    width: 100px;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.operation-content .operation-title {
+    line-height: 20px;
+    font-size: 14px;
+    color: #333;
+}

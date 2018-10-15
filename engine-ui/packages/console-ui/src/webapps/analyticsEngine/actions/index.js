@@ -1,6 +1,6 @@
 import commonActionType from '../consts/commonActionType';
 import { message } from 'antd';
-import API from '../api/common';
+import API from '../api';
 
 export const commonActions = {
 	getUserList(params) {
