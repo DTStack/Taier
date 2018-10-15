@@ -3,9 +3,7 @@ import utils from 'utils'
 
 import req from './req'
 import http from './http'
-import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
-import dataManageReq from './reqDataManage';
 import {publishType} from "../comm/const";
 
 /* eslint-disable */
@@ -23,7 +21,7 @@ export default {
     },
 
     unlockFile(params) {// 解锁文件
-        return http.post(offlineReq.UNLOCK_FILE, params)
+        return http.post(req.UNLOCK_FILE, params)
     },
 
     // ========== User ========== //
