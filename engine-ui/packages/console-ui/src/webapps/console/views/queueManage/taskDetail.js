@@ -516,43 +516,43 @@ class TaskDetail extends Component {
                 render(text, record) {
                     switch (text) {
                         case TASK_STATE.UNSUBMIT:
-                            return "未提交";
+                            return "UNSUBMIT";
                         case TASK_STATE.CREATED:
-                            return "已创建";
+                            return "CREATED";
                         case TASK_STATE.SCHEDULED:
-                            return "已调度";
+                            return "SCHEDULED";
                         case TASK_STATE.DEPLOYING:
                             return "DEPLOYING";
                         case TASK_STATE.RUNNING:
-                            return "运行中";
+                            return "RUNNING";
                         case TASK_STATE.FINISHED:
-                            return "运行完成";
+                            return "FINISHED";
                         case TASK_STATE.CANCELLING:
-                            return "取消中";
+                            return "CANCELLING";
                         case TASK_STATE.CANCELED:
-                            return "已取消";
+                            return "CANCELED";
                         case TASK_STATE.FAILED:
-                            return "运行失败";
+                            return "FAILED";
                         case TASK_STATE.SUBMITFAILD:
-                            return "提交失败";
+                            return "SUBMITFAILD";
                         case TASK_STATE.SUBMITTING:
-                            return "提交中";
+                            return "SUBMITTING";
                         case TASK_STATE.RESTARTING:
-                            return "重启中";
+                            return "RESTARTING";
                         case TASK_STATE.MANUALSUCCESS:
                             return "MANUALSUCCESS";
                         case TASK_STATE.KILLED:
-                            return "已停止";
+                            return "KILLED";
                         case TASK_STATE.SUBMITTED:
-                            return "已提交";
+                            return "SUBMITTED";
                         case TASK_STATE.NOTFOUND:
                             return "NOTFOUND";
                         case TASK_STATE.WAITENGINE:
                             return "WAITENGINE";
                         case TASK_STATE.WAITCOMPUTE:
-                            return "等待运行";
+                            return "WAITCOMPUTE";
                         case TASK_STATE.FROZEN:
-                            return "已冻结";
+                            return "FROZEN";
                         case TASK_STATE.ENGINEACCEPTED:
                             return "ENGINEACCEPTED";
                         case TASK_STATE.ENGINEDISTRIBUTE:
@@ -823,7 +823,6 @@ class TaskDetail extends Component {
                         >
                             {this.getGroupOptionView()}
                         </Select>
-                        
                         <div style={{ float: "right" }}>
                             <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
                             <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>

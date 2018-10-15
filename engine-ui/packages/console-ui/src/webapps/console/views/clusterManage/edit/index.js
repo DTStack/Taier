@@ -116,9 +116,14 @@ class EditCluster extends React.Component {
             "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
-        let notExtKeys_learning = ["learningPython3Path", "learningPython2Path", 
-        "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
-        let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
+        // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path", 
+        // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
+        // let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
+
+        let notExtKeys_learning = ["learning.python3.path", "learning.python2.path", 
+        "learning.history.address", "learning.history.webapp.address", "learning.history.webapp.https.address"];
+        let notExtKeys_dtyarnshell = ["jlogstash.root", "java.home", "python2.path", "python3.path"]
+
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
         let learningConfig = config.learningConf||{};
@@ -171,7 +176,7 @@ class EditCluster extends React.Component {
             newKeys[index] = newItem;
           })
           for (let i = 0; i < values.length; i++){
-            after['"'+newKeys[i]+'"'] = values[i]
+            after[newKeys[i]] = values[i]
           }
           console.log(after)
         return after;
@@ -198,7 +203,7 @@ class EditCluster extends React.Component {
               }
             }
             keySplit = keySplit.join('');
-            after['"' + keySplit + '"'] = obj[i];
+            after[keySplit] = obj[i];
           }
         }
         console.log(after)
