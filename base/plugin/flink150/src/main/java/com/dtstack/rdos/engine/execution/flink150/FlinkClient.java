@@ -542,6 +542,12 @@ public class FlinkClient extends AbsClient {
             }
 
             String appId = client.getClusterId().toString();
+            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) client.getClusterId()).getYarnApplicationState();
+            if (YarnApplicationState.RUNNING != yarnApplicationState){
+                this.initClient();
+                appId = client.getClusterId().toString();
+            }
+
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
             logger.error("Getting URL failed" + e);
