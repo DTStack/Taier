@@ -360,7 +360,8 @@ class Workbench extends React.Component {
             return tabs.map((tab) => {
                 let title = (<div>
                     <TabIcon tabData={tab} />
-                    <span className="tab-ellipsis">{tab.name}</span>
+                    {/* <span className="tab-ellipsis">{tab.name}</span> */}
+                    <span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
