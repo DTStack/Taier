@@ -3,20 +3,11 @@ import { Table, Modal, Button } from "antd";
 import {connect} from "react-redux";
 
 import Api from "../../api"
-import {
-    workbenchActions
-} from '../../store/modules/offlineTask/offlineAction' 
+
 
 @connect((state) => {
     return {
         project: state.project,
-    }
-}, dispatch => {
-    const actions = workbenchActions(dispatch)
-    return {
-        goToTaskDev: (id) => {
-            actions.openTaskInDev(id)
-        }
     }
 })
 class DataSourceTaskListModal extends React.Component {

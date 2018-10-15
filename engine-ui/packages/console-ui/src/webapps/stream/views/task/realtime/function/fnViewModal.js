@@ -4,10 +4,6 @@ import moment from 'moment';
 
 import { getContainer } from 'funcs';
 
-import {
-    modalAction
-} from '../../../../store/modules/offlineTask/actionType';
-
 import ajax from '../../../../api';
 
 class FnViewModal extends React.Component {

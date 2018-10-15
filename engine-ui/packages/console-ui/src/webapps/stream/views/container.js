@@ -11,7 +11,6 @@ import Header from './layout/header'
 import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
-import  DataManageAction from '../store/modules/dataManage/actionCreator';
 
 const propType = {
     children: PropTypes.node,
