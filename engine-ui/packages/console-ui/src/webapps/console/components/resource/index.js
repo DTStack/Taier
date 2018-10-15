@@ -72,28 +72,32 @@ class Resource extends Component {
                 dataIndex: "virtualCores",
                 render(text, record) {
                     return record.virtualCores;
-                }
+                },
+                width: "150px"
             },
             {
                 title: "usedVirtualCores",
                 dataIndex: "usedVirtualCores",
                 render(text, record) {
                     return record.usedVirtualCores;
-                }
+                },
+                width: "170px"
             },
             {
                 title: "memory",
                 dataIndex: "memory",
                 render(text, record) {
                     return record.memory;
-                }
+                },
+                width: "150px"
             },
             {
                 title: "usedMemory",
                 dataIndex: "usedMemory",
                 render(text, record) {
                     return record.usedMemory;
-                }
+                },
+                width: "150px"
             }
         ]
     }
@@ -104,35 +108,40 @@ class Resource extends Component {
                 dataIndex: "freeSlots",
                 render(text, record) {
                     return record.freeSlots;
-                }
+                },
+                width: "130px"
             },
             {
                 title: "cpuCores",
                 dataIndex: "cpuCores",
                 render(text, record) {
                     return record.cpuCores;
-                }
+                },
+                width: "120px"
             },
             {
                 title: "slotsNumber",
                 dataIndex: "slotsNumber",
                 render(text, record) {
                     return record.slotsNumber;
-                }
+                },
+                width: "160px"
             },
             {
                 title: "freeMemory",
                 dataIndex: "freeMemory",
                 render(text, record) {
                     return record.freeMemory;
-                }
+                },
+                width: "160px"
             },
             {
                 title: "physicalMemory",
                 dataIndex: "physicalMemory",
                 render(text, record) {
                     return record.physicalMemory;
-                }
+                },
+                width: "210px"
             }
         ]
     }

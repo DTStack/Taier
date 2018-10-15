@@ -1006,10 +1006,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningPython3Path', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入learning.python3.path"
-                                }],
+                                // rules: [{
+                                //     message: "请输入learning.python3.path"
+                                // }],
                                 // initialValue: "/root/anaconda3/bin/python3"
                             })(
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
@@ -1020,10 +1019,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningPython2Path', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入learning.python2.path"
-                                }],
+                                // rules: [{
+                                //     message: "请输入learning.python2.path"
+                                // }],
                                 // initialValue: "/root/anaconda3/bin/python2"
                             })(
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
@@ -1034,10 +1032,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningHistoryAddress', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入learning.history.address"
-                                }],
+                                // rules: [{
+                                //     message: "请输入learning.history.address"
+                                // }],
                                 // initialValue: "rdos1:10021"
                             })(
                                 <Input disabled={isView} placeholder="rdos1:10021"/>
@@ -1048,10 +1045,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningHistoryWebappAddress', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入learning.history.webapp.address"
-                                }],
+                                // rules: [{
+                                //     message: "请输入learning.history.webapp.address"
+                                // }],
                                 // initialValue: "rdos1:19886"
                             })(
                                 <Input disabled={isView} placeholder="rdos1:19886" />
@@ -1062,10 +1058,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('learningConf.learningHistoryWebappHttpsAddress', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入learning.history.webapp.https.address"
-                                }],
+                                // rules: [{
+                                //     message: "请输入learning.history.webapp.https.address"
+                                // }],
                                 // initialValue: "rdos1:19885"
                             })(
                                 <Input disabled={isView} placeholder="rdos1:19885" />
@@ -1119,10 +1114,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('dtyarnshellConf.python2Path', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入python2.path"
-                                }],
+                                // rules: [{
+                                //     message: "请输入python2.path"
+                                // }],
                                 // initialValue: "/root/anaconda3/bin/python3"
                             })(
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python2"/>
@@ -1133,10 +1127,9 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('dtyarnshellConf.python3Path', {
-                                rules: [{
-                                    required: true,
-                                    message: "请输入python3.path"
-                                }],
+                                // rules: [{
+                                //     message: "请输入python3.path"
+                                // }],
                                 // initialValue: "/root/anaconda3/bin/python3"
                             })(
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
