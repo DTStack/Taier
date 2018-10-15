@@ -8,7 +8,7 @@ import { filterComments, splitSql } from "funcs";
 import { commonFileEditDelegator } from "widgets/editor/utils";
 import { language } from "widgets/editor/languages/dtsql/dtsql";
 
-import IDEEditor from "main/components/editor";
+import IDEEditor from "main/components/ide";
 
 import API from "../../../../api";
 import reqUrls from '../../../../consts/reqUrls';
