@@ -1125,7 +1125,7 @@ class EditCluster extends React.Component {
                                 }],
                                 // initialValue: "/root/anaconda3/bin/python3"
                             })(
-                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python3"/>
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python2"/>
                             )}
                         </FormItem>
                         <FormItem
