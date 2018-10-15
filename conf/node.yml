@@ -203,10 +203,25 @@ engineTypes:
 ##        learning.history.webapp.https.address: rdos1:19885
 #        yarn.application.classpath: /opt/cloudera/parcels/CDH/jars/*
 #
-#    -
-#         typeName: dtyarnshell
-#         hadoop.conf.dir: /Users/softfly/Desktop/ccy
-#         yarn.resourcemanager.recovery.enabled: true
-#         jlogstash.root: /opt/dtstack/jlogstash
-#         java.home: /opt/dtstack/java/bin
-
+    -
+        typeName: dtyarnshell
+        hadoop.conf.dir: /opt/dtstack/hadoop
+        yarn.resourcemanager.recovery.enabled: true
+        jlogstash.root: /opt/dtstack/jlogstash
+        java.home: /opt/dtstack/java/bin
+#        hadoopConf:
+#            fs.defaultFS: hdfs://ns1
+#            dfs.ha.namenodes.ns1: nn1,nn2
+#            dfs.namenode.rpc-address.ns1.nn2: node03:9000
+#            dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+#            dfs.namenode.rpc-address.ns1.nn1: node02:9000
+#            dfs.nameservices: ns1
+#            fs.hdfs.impl.disable.cache: true
+#            fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem
+#        yarnConf:
+#            yarn.resourcemanager.address.rm1: node02:8032
+#            yarn.resourcemanager.webapp.address.rm2: node03:8088
+#            yarn.resourcemanager.webapp.address.rm1: node02:8088
+#            yarn.resourcemanager.ha.rm-ids: rm1,rm2
+#            yarn.resourcemanager.address.rm2: node03:8032
+#            yarn.resourcemanager.ha.enabled: true

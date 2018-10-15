@@ -279,8 +279,8 @@ public class WorkNode {
                     LOG.error("任务 taskId:{} 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId());
                     return false;
                 }
-
                 retryNum++;
+                excludeNodes.add(address);
                 return distributeTask(jobClient, retryNum, excludeNodes);
             }
 

@@ -17,12 +17,10 @@ public class JLogstashType extends AppType {
         if(StringUtils.isBlank(root)) {
             throw new IllegalArgumentException("Must specify jlogstash.root");
         }
-        if(StringUtils.isBlank(root)) {
+        String javaHome = conf.get("java.home");
+        if(StringUtils.isBlank(javaHome)) {
             throw new IllegalArgumentException("Must specify java.home");
         }
-
-        String javaHome = conf.get("java.home");
-
         String cmdOpts = clientArguments.getCmdOpts();
         if(StringUtils.isBlank(cmdOpts)) {
             throw new IllegalArgumentException("Must specify cmdOpts");

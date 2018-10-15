@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
+import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -47,10 +48,18 @@ public class ConsoleServiceImpl {
 
     private WorkNode workNode = WorkNode.getInstance();
 
+    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
+
+    public List<String> nodes() {
+        try {
+            return zkDistributed.getAliveBrokersChildren();
+        } catch (Exception e) {
+            return Collections.EMPTY_LIST;
+        }
+    }
+
     public Map<String, Object> searchJob(@Param("computeType") String computeType,
-                                         @Param("jobName") String jobName,
-                                         @Param("pageSize") int pageSize,
-                                         @Param("currentPage") int currentPage) {
+                                         @Param("jobName") String jobName) {
         Preconditions.checkNotNull(computeType, "parameters of computeType is required");
         ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
         Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
@@ -81,7 +90,6 @@ public class ConsoleServiceImpl {
             if (jobQueue == null) {
                 return null;
             }
-            int queueSize = jobQueue.size();
             OrderLinkedBlockingQueue.IndexNode<JobClient> idxNode = jobQueue.getElement(jobId);
             if (idxNode == null) {
                 return null;
@@ -91,32 +99,10 @@ public class ConsoleServiceImpl {
             setJobFromDB(type, theJob.getTaskId(), theJobMap);
             theJobMap.put("generateTime", theJob.getGenerateTime());
 
-            List<Map<String, Object>> topN = new ArrayList<>();
             Map<String, Object> result = new HashMap<>();
-            result.put("queueSize", queueSize);
             result.put("theJob", Lists.newArrayList(theJobMap));
             result.put("theJobIdx", idxNode.getIndex());
-            result.put("topN", topN);
-
-            Iterator<JobClient> jobIt = jobQueue.iterator();
-            int startIndex = pageSize * (currentPage - 1);
-            if (startIndex > queueSize) {
-                return result;
-            }
-            int c = 0;
-            while (jobIt.hasNext()) {
-                c++;
-                JobClient jobClient = jobIt.next();
-                if (startIndex < c && pageSize-- > 0) {
-                    Map<String, Object> jobMap = PublicUtil.ObjectToMap(jobClient);
-                    setJobFromDB(type, jobClient.getTaskId(), jobMap);
-                    jobMap.put("generateTime", jobClient.getGenerateTime());
-                    topN.add(jobMap);
-                }
-                if (pageSize <= 0) {
-                    break;
-                }
-            }
+            result.put("node", jobCache.getNodeAddress());
 
             return result;
         } catch (Exception e) {
