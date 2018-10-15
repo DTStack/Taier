@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import workbenchAction from '../../../consts/workbenchActionType';
 
 import CreateTable from './createTable';
-import CreateDataMap from './createDataMap';
+import CreateDataMap from './datamap/create';
 import TableDetail from './tableDetail';
-import DatabaseDetail from './databaseDetail';
+import DatabaseDetail from './database/detail';
 import SQLEditor from './sqlEditor';
 
 class BenchContent extends Component {

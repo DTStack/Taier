@@ -14,4 +14,7 @@ export default {
         return http.post(req.GET_CATALOGUES, params);
     },
 
+    createOrUpdateDB(params) {
+        return http.post(req.CREATE_OR_UPDATE_DB, params);
+    },
 }

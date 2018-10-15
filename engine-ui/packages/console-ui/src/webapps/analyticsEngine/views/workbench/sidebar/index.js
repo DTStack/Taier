@@ -90,7 +90,7 @@ class Sidebar extends Component {
     render() {
         const {
             folderTree,
-            onCreateDb,
+            onCreateDB,
             onSQLQuery,
             loadCatalogue,
         } = this.props;
@@ -99,7 +99,7 @@ class Sidebar extends Component {
                 <ToolBar 
                     onSearch={this.searchTable}
                     onRefresh={() => loadCatalogue()}
-                    onCreateDb={() => onCreateDb()}
+                    onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
                 />
                 <FolderTree

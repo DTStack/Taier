@@ -1,7 +1,18 @@
 import API from '../api';
 import moment from 'moment';
 import workbenchAction from '../consts/workbenchActionType';
+import modalAction from '../consts/modalActionType';
+
 // import { CATALOGUE_} from '../consts';
+
+export const updateModal = (value) => {
+    return { type: modalAction.UPDATE_MODAL, data: value }
+}
+
+export const resetModal = (value) => {
+    return { type: modalAction.RESET_MODAL }
+}
+
 
 export function switchTab(currentTab) {
     return {
@@ -28,9 +39,12 @@ export function updateTab(tab) {
 
 }
 
-
-export function onCreateDb() {
-
+export function onCreateDB() {
+    const modalValue = {
+        visibleModal: workbenchAction.OPEN_CREATE_DATABASE,
+        modalData: null,
+    }
+    return updateModal(modalValue);
 }
 
 export function onCreateDataMap() {
@@ -42,7 +56,7 @@ export function onCreateTable() {
 }
 
 export function onSQLQuery() {
-    
+
     return (dispatch, getStore) => {
         const { workbench } = getStore();
         console.log('onSqlQuery:', workbench);
