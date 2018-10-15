@@ -583,7 +583,8 @@
 
         .tab-ellipsis {
             display: inline-block;
-            max-width: 200px;
+            // max-width: 200px;
+            width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
         }

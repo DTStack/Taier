@@ -120,9 +120,9 @@ class EditCluster extends React.Component {
         // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
         // let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
 
-        let notExtKeys_learning = ["learning.python3.path", "learning.python2.path", 
+        let notExtKeys_learning = ["typeName","learning.python3.path", "learning.python2.path", 
         "learning.history.address", "learning.history.webapp.address", "learning.history.webapp.https.address"];
-        let notExtKeys_dtyarnshell = ["jlogstash.root", "java.home", "python2.path", "python3.path"]
+        let notExtKeys_dtyarnshell = ["typeName","jlogstash.root", "java.home", "python2.path", "python3.path"]
 
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
