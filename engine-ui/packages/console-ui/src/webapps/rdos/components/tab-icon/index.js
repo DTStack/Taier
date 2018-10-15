@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { TASK_TYPE, LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE } from "../../comm/const";
+import { TASK_TYPE, LEARNING_TYPE, PYTON_VERSION, SCRIPT_TYPE, TASK_STATUS } from "../../comm/const";
 
 export default class TabIcon extends Component {
 
@@ -58,6 +58,10 @@ export default class TabIcon extends Component {
                 }
                 case TASK_TYPE.SHELL: {
                     iconName = "shell.svg";
+                    break;
+                }
+                case TASK_TYPE.ML: {
+                    iconName = "computerStudy.svg";
                     break;
                 }
                 case TASK_TYPE.DATA_COLLECTION: {
