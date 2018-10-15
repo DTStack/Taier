@@ -109,7 +109,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.freeSlots;
                 },
-                width: "130px"
+                width: "140px"
             },
             {
                 title: "cpuCores",
@@ -117,7 +117,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.cpuCores;
                 },
-                width: "120px"
+                width: "140px"
             },
             {
                 title: "slotsNumber",
@@ -125,7 +125,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.slotsNumber;
                 },
-                width: "160px"
+                width: "170px"
             },
             {
                 title: "freeMemory",
@@ -133,7 +133,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.freeMemory;
                 },
-                width: "160px"
+                width: "165px"
             },
             {
                 title: "physicalMemory",
@@ -141,7 +141,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.physicalMemory;
                 },
-                width: "210px"
+                width: "215px"
             }
         ]
     }
