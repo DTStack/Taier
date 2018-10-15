@@ -1,6 +1,6 @@
 import React from "react";
 import { Table, Modal, Button } from "antd";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 
 import Api from "../../api"
 
@@ -13,12 +13,12 @@ import Api from "../../api"
 class DataSourceTaskListModal extends React.Component {
     state = {
         visible: false,
-        loading:false,
-        taskList:[],
-        pagination:{
-            current:1,
-            pageSize:10,
-            total:0
+        loading: false,
+        taskList: [],
+        pagination: {
+            current: 1,
+            pageSize: 10,
+            total: 0
         }
     }
     closeModal() {
@@ -26,75 +26,64 @@ class DataSourceTaskListModal extends React.Component {
             visible: false
         })
     }
-    showModal(){
+    showModal() {
         this.setState({
-            visible:true,
+            visible: true,
         })
         this.getTaskList();
     }
-    getTaskList(){
-        const {pagination} = this.state;
-        const {type,dataSource} = this.props;
+    getTaskList() {
+        const { pagination } = this.state;
+        const { type, dataSource } = this.props;
         this.setState({
-            loading:true
+            loading: true
         })
-        const params={
-            sourceId:dataSource.id,
-            pageSize:pagination.pageSize,
-            currentPage:pagination.current
+        const params = {
+            sourceId: dataSource.id,
+            pageSize: pagination.pageSize,
+            currentPage: pagination.current
         }
-        let func="";
-        if(type=="stream"){
-            func="getTaskOfStreamSource";
-           
-        }else if(type=="offline"){
-            func="getTaskOfOfflineSource";
-        }
-        Api[func](params)
-        .then(
-            (res)=>{
-                this.setState({
-                    loading:false
-                })
-                if(res.code==1){
+        Api.getTaskOfStreamSource(params)
+            .then(
+                (res) => {
                     this.setState({
-                        taskList:res.data.data||[],
-                        pagination:{
-                            ...pagination,
-                            total:res.data.totalCount
-                        }
+                        loading: false
                     })
+                    if (res.code == 1) {
+                        this.setState({
+                            taskList: res.data.data || [],
+                            pagination: {
+                                ...pagination,
+                                total: res.data.totalCount
+                            }
+                        })
+                    }
                 }
-            }
-        )
+            )
     }
-    initColumns(){
-        const {type} = this.props;
+    initColumns() {
+        const { type } = this.props;
         return [{
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-        },{
+        }, {
             title: '操作',
             dataIndex: 'edit',
             key: 'edit',
-            width:"100px",
-            render(t,record){
-                if(type=="stream"){
-                    return <a target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
-                }else{
-                    return <a target="_blank" href={`${location.pathname}#/offline?taskId=${record.id}`}>编辑</a>
-                }
+            width: "100px",
+            render(t, record) {
+                return <a target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
             }
         }]
     }
-    handleTableChange(pagination){
-        this.setState({ pagination: pagination },()=>{
+    handleTableChange(pagination) {
+        this.setState({ pagination: pagination }, () => {
             this.getTaskList();
         })
     }
     render() {
-        const {visible, pagination, loading, taskList} = this.state;
+        const { visible, pagination, loading, taskList } = this.state;
         const { dataSource = {}, children } = this.props;
         return (
             <div>
@@ -108,13 +97,13 @@ class DataSourceTaskListModal extends React.Component {
                     )}
                 >
                     <Table
-                     className="m-table"
-                     rowKey="id"
-                     pagination={pagination}
-                     onChange={this.handleTableChange.bind(this)}
-                     loading={loading}
-                     columns={this.initColumns()}
-                     dataSource={taskList}
+                        className="m-table"
+                        rowKey="id"
+                        pagination={pagination}
+                        onChange={this.handleTableChange.bind(this)}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        dataSource={taskList}
                     />
                 </Modal>
                 <a onClick={this.showModal.bind(this)}>{children}</a>
