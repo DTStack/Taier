@@ -58,6 +58,33 @@ public class ConsoleServiceImpl {
         }
     }
 
+    public String getNodeByJobName(@Param("computeType") String computeType,
+                                     @Param("jobName") String jobName) {
+        Preconditions.checkNotNull(computeType, "parameters of computeType is required");
+        ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
+        Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
+        String jobId = null;
+        if (ComputeType.STREAM == type) {
+            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getByName(jobName);
+            if (streamJob != null) {
+                jobId = streamJob.getTaskId();
+            }
+        } else {
+            RdosEngineBatchJob batchJob = engineBatchJobDAO.getByName(jobName);
+            if (batchJob != null) {
+                jobId = batchJob.getJobId();
+            }
+        }
+        if (jobId == null) {
+            return null;
+        }
+        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+        if (jobCache == null) {
+            return null;
+        }
+        return jobCache.getNodeAddress();
+    }
+
     public Map<String, Object> searchJob(@Param("computeType") String computeType,
                                          @Param("jobName") String jobName) {
         Preconditions.checkNotNull(computeType, "parameters of computeType is required");
