@@ -102,6 +102,13 @@ class Index extends Component {
         })
     }
 
+    // 选择测试或生产项目搜索
+    changeProjectType(value) {
+        
+    }
+
+
+
     createProject = (project) => {
         const { dispatch } = this.props;
         Api.createProject(project).then((res) => {
@@ -168,7 +175,8 @@ class Index extends Component {
                         {data.projectAlias}&nbsp;&nbsp;
                 </span>)}
                     {this.renderTitleText(data)}
-                    {developImg}
+                    {(data.projectType == 1) ? developImg : ((data.projectType == 2) ? produceImg : null)}
+                    {/* {produceImg} */}
                 </Col>
                 <Col span="8">
                     {tooltipImg}
@@ -251,8 +259,9 @@ class Index extends Component {
                         <Col span="16" >
                             <Select
                                 className="project-select"
-                                allowClear
+                                allowClear={true}
                                 placeholder="请选择项目"
+                                onChange={this.changeProjectType.bind(this)}
                             >
                                 <Option key="1">生产项目</Option>
                                 <Option key="2">测试项目</Option>
