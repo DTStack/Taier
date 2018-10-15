@@ -37,4 +37,11 @@ public class StreamTaskServiceImpl {
     public List<RdosEngineStreamJob> getEngineStreamJob(@Param("taskIds") List<String> taskIds){
         return rdosEngineStreamJobDAO.getRdosTaskByTaskIds(taskIds);
     }
+
+    /**
+     * 获取某个状态的任务task_id
+     */
+    public List<String> getTaskIdsByStatus(@Param("status") Integer status){
+        return rdosEngineStreamJobDAO.getTaskIdsByStatus(status);
+    }
 }

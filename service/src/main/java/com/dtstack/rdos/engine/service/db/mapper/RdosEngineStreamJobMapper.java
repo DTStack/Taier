@@ -41,4 +41,6 @@ public interface RdosEngineStreamJobMapper {
 	RdosEngineStreamJob getByName(@Param("taskName") String taskName);
 
     List<String> listNames(@Param("taskName") String taskName);
+
+	List<String> getTaskIdsByStatus(@Param("status") Integer status);
 }

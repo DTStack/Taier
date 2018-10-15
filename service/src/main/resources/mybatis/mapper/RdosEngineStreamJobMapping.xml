@@ -77,4 +77,9 @@
     <select id="listNames" parameterType="java.lang.String" resultType="java.lang.String">
         select task_name from rdos_engine_stream_job where task_name like '%${taskName}%' and is_deleted=0;
     </select>
+
+    <select id="getTaskIdsByStatus" resultType="java.lang.String">
+        select task_id from rdos_engine_stream_job
+        where status = #{status} and is_deleted=0
+    </select>
 </mapper>
