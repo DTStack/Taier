@@ -2,7 +2,7 @@ import React from 'react'
 import { isArray } from 'lodash'
 import { Button, Row } from 'antd'
 
-import Editor from '../../../components/code-editor'
+import Editor from 'main/components/code-editor'
 const editorStyle = { height: '300px' }
 
 const editorOptions = {
