@@ -13,11 +13,6 @@ import { DatabaseType } from '../../../../../components/status';
 import { formItemLayout, DATA_SOURCE } from '../../../../../comm/const'
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 
-import {
-    workbenchAction,
-    dataSourceListAction
-} from '../../../../../store/modules/offlineTask/actionType';
-
 const FormItem = Form.Item;
 const Option = Select.Option;
 

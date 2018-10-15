@@ -90,6 +90,12 @@ export const PROJECT_TYPE = {
     TEST: 1,//测试
     PRO: 2,//生产
 }
+export const PROJECT_STATUS = {
+    INITIALIZE: 0,//创建中
+    NORMAL: 1,//正常
+    DISABLE: 2,//禁用
+    FAIL:3,//创建失败
+}
 
 //发布的item类别
 export const publishType = {
@@ -536,15 +542,6 @@ export const jsonEditorOptions = { // json编辑器选项
     matchBrackets: true
 }
 
-export const defaultEditorOptions = { // 编辑器选项
-    mode: 'text/x-sql',
-    lint: true,
-    indentWithTabs: true,
-    smartIndent: true,
-    lineNumbers: true,
-    autofocus: false,
-    // extraKeys: { 'Ctrl-Space': 'autocomplete' },
-}
 
 export const transformRuleType = { // 整库迁移高级设置转换类型
     1: 'nameRule',

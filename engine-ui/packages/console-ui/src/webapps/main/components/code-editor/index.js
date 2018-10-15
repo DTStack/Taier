@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import { defaultEditorOptions } from '../../comm/const'
 import pureRender  from 'utils/pureRender'
 
 const codemirror = require('codemirror')
@@ -19,6 +18,16 @@ require("codemirror/addon/edit/matchbrackets")
 
 // require('codemirror/addon/lint/lint')
 // require('../../assets/js/sql-lint')
+
+const defaultEditorOptions={ // 编辑器选项
+    mode: 'text/x-sql',
+    lint: true,
+    indentWithTabs: true,
+    smartIndent: true,
+    lineNumbers: true,
+    autofocus: false,
+    // extraKeys: { 'Ctrl-Space': 'autocomplete' },
+}
 
 @pureRender
 class CodeEditor extends Component {

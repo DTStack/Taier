@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { cloneDeep } from "lodash";
 
 import {
-    Row, Col, Modal, Card, Tooltip,
-    Input, Form, message, Icon,
-    Switch, Select
+    Modal,
+    Input, Form, message, 
+    Select
 } from 'antd'
 
 import utils from 'utils'
@@ -90,34 +89,9 @@ class ProjectConfig extends Component {
         });
     }
 
-    changeScheduleStatus(checked) {
-        const { params, project, dispatch } = this.props
-        this.setState({
-            scheduleStatusLoading: true
-        })
-        Api.updateProjectSchedule({
-            status: checked ? 0 : 1
-        })
-            .then(
-                (res) => {
-                    this.setState({
-                        scheduleStatusLoading: false
-                    })
-                    if (res.code == 1) {
-                        message.success("周期调度状态切换成功！")
-                        const newProject = cloneDeep(Object.assign(project, { scheduleStatus: checked ? 0 : 1 }))
-                        dispatch(ProjectAction.setProject(newProject))
-                        dispatch(ProjectAction.getProjects())
-                    }
-                }
-            )
-    }
-
     render() {
-        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading,projectBindList } = this.state
-        const { params, project = {}, projects = [] } = this.props
-        const scheduleStatus = project && project.scheduleStatus;
-        const isScheduleEnAbled = scheduleStatus == 0;
+        const { visibleUpdateDesc } = this.state
+        const { params, project = {}} = this.props
         const adminLength = project && project.adminUsers && project.adminUsers.length;
         const memberLength = project && project.memberUsers && project.memberUsers.length;
         const admins = project && project.adminUsers && project.adminUsers.length > 0 ?
@@ -155,17 +129,6 @@ class ProjectConfig extends Component {
                                 <td>
                                     {members}
                                     <Link to={`/project/${params.pid}/member`}> 成员管理</Link>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td className="t-title">启动周期调度</td>
-                                <td>
-                                    <Switch
-                                        checkedChildren="开"
-                                        unCheckedChildren="关"
-                                        disabled={scheduleStatusLoading}
-                                        checked={isScheduleEnAbled}
-                                        onChange={this.changeScheduleStatus.bind(this)} />
                                 </td>
                             </tr>
                         </tbody>

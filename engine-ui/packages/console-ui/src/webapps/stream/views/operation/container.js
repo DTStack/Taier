@@ -4,7 +4,6 @@ import { Layout, Button } from 'antd'
 import { connect } from 'react-redux'
 
 import * as UserAction from '../../store/modules/user'
-import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 
 const {  Content } = Layout;
 
@@ -24,7 +23,6 @@ class Container extends Component {
 
     componentDidMount() {
         this.initUsers(this.props.project);
-        this.props.dispatch(getTaskTypes());
     }
     componentWillReceiveProps(nextProps){
         const {project={}} = nextProps;

@@ -3,9 +3,6 @@ import mc from 'mirror-creator';
 import utils from 'utils'
 import Api from '../../api'
 
-import {
-    workbenchAction,
-} from '../../store/modules/offlineTask/actionType';
 import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 
@@ -34,9 +31,6 @@ export function getProject(id) {
             utils.setCookie(projectKey, id)
             // 当切换项目时，应当清理任务开发导航中的缓存数据
             dispatch(clearPages());
-            dispatch({ 
-                type: workbenchAction.CLOSE_ALL_TABS
-            });
         } 
         Api.getProjectByID({
             projectId: id,

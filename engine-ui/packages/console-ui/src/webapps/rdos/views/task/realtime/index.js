@@ -15,7 +15,7 @@ import FullScreenButton from 'widgets/fullscreen';
 
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
-import ThemeSwitcher from '../../../components/theme-switcher';
+import ThemeSwitcher from 'main/components/theme-switcher';
 
 import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'

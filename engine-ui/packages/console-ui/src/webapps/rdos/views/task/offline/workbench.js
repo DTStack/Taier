@@ -17,7 +17,7 @@ import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../.
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
-import ThemeSwitcher from '../../../components/theme-switcher';
+import ThemeSwitcher from 'main/components/theme-switcher';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';

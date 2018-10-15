@@ -5,7 +5,6 @@ import { Menu, Icon, Dropdown, Modal } from "antd";
 import { MenuRight } from "main/components/nav";
 
 import Api from "../../api";
-import { inOffline, inRealtime } from '../../comm';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from "../../store/modules/project";
 
@@ -17,12 +16,10 @@ const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
 
 @connect(state => {
-    const { workbench } = state.offlineTask;
     const { pages } = state.realtimeTask;
 
     return {
-        realTimeTabs: pages,
-        offlineTabs: workbench.tabs
+        realTimeTabs: pages
     }
 })
 class Header extends Component {
@@ -56,7 +53,7 @@ class Header extends Component {
                 dispatch(ProjectAction.getProject(projectId));
                 // 清理tab数据
                 if (this.state.current === "overview") {
-                    router.push("/offline/task");
+                    router.push("/realtime/task");
                 }
             }
             this.checkUnSaveTask(switchProject);
@@ -64,8 +61,8 @@ class Header extends Component {
     }
 
     checkUnSaveTask = (onOk) => {
-        const { realTimeTabs, offlineTabs } = this.props;
-        const tabsData = inOffline() ? offlineTabs : inRealtime() ? realTimeTabs : [];
+        const { realTimeTabs } = this.props;
+        const tabsData =realTimeTabs;
 
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {
