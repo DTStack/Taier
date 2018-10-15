@@ -36,21 +36,21 @@ class QueueManage extends Component {
     }
 
     componentDidMount() {
-        this.getClusterDetail();
         this.getClusterSelect();
         this.getNodeAddressSelect();
+        this.getClusterDetail();
     }
     // 渲染集群
     getClusterDetail() {
         const { table, clusterId, node } = this.state;
         const { pageIndex } = table;
-        this.setState({
-            table: {
-                ...table,
-                loading: true
-            }
-        })
         if(node) {
+            this.setState({
+                table: {
+                    ...table,
+                    loading: true
+                }
+            })
             Api.getClusterDetail({
                 currentPage: pageIndex,
                 pageSize: PAGE_SIZE,
@@ -97,26 +97,36 @@ class QueueManage extends Component {
     }
     // 集群option改变
     clusterOptionChange(clusterId) {
+        const {node} = this.state;
+        const {table} =  this.state;
         if (!clusterId) {
             this.setState({
                 dataSource: [],
-                clusterId: undefined
-            }, this.getClusterDetail.bind(this))
+                clusterId: undefined,
+                node: node,
+                table: {
+                    ...table,
+                    loading: false,
+                    total: 0
+                }
+            })
         } else {
             this.setState({
-                clusterId: clusterId
-            }, this.getClusterDetail.bind(this))
+                clusterId: clusterId,
+                node: node
+            }, (node) ? this.getClusterDetail.bind(this) : null)
         }
     }
     // 获取节点下拉数据
     getNodeAddressSelect() {
         return Api.getNodeAddressSelect().then((res) => {
-            const {nodeList} = this.state;
+            const {nodeList, node} = this.state;
             if(res.code == 1) {
                 const data = res.data;
                 this.setState({
-                    nodeList: data || []
-                })
+                    nodeList: data || [],
+                    node:data&&data.length?data[0]:undefined
+                },this.getClusterDetail.bind(this))
                 console.log(data);
             }
         })
@@ -130,10 +140,16 @@ class QueueManage extends Component {
     }
     // 节点option改变
     nodeAddressrOptionChange(value) {
+        const {table} = this.state;
         if(!value) {
             this.setState({
                 dataSource: [],
-                node:value
+                node:value,
+                table: {
+                    ...table,
+                    loading: false,
+                    total: 0
+                }
             })
         } else {
             this.setState({
@@ -293,7 +309,7 @@ class QueueManage extends Component {
 		                   		<Select style={{ width: 150 }}
                                     placeholder="选择节点"
                                     allowClear={true}
-                                    // defaultValue={1}
+                                    // defaultValue="1"
                                     onChange={this.nodeAddressrOptionChange.bind(this)}
                                     value={this.state.node}
                                 >
