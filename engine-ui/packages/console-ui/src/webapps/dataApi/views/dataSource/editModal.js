@@ -286,7 +286,15 @@ export default class DataSourceModal extends Component {
                                 <Input autoComplete="off" />,
                             )
                         }
-                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
+                        <Tooltip overlayClassName="big-tooltip" title={
+                            (
+                                <span style={{wordBreak:" break-all"}}> 
+                                    SID示例：{ jdbcUrlExample[sourceType][0]}
+                                    <br/>  
+                                    ServiceName示例：{jdbcUrlExample[sourceType][1]}
+                                </span>
+                            )
+                        }>
                             <Icon className="help-doc" type="question-circle-o" />
                         </Tooltip>
                     </FormItem>,
