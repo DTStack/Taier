@@ -598,7 +598,7 @@ class TaskDetail extends Component {
                 render(text, record) {
                     return record.engineType;
                 },
-                width: "70px"
+                width: "80px"
             },
             {
                 title: "group",
