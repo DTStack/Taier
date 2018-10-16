@@ -9,15 +9,18 @@ import {
 
 import TabIcon from '../../../components/tab-icon';
 import * as workbenchActions from '../../../actions/workbenchActions';
+
 import BenchContent from './benchContent';
+import CreateDBModal from './database/create';
 
 const TabPane = Tabs.TabPane;
 
 @connect(
     state => {
-        const { workbench } = state;
+        const { workbench, modal } = state;
         return {
             workbench,
+            modal,
         };
     }, 
     dispatch => {
@@ -67,6 +70,7 @@ class MainBench extends Component {
                 >
                     {this.renderTabs(tabs)}
                 </Tabs>
+                <CreateDBModal {...this.props} />
             </div>
         )
     }

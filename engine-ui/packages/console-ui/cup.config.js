@@ -16,6 +16,7 @@ module.exports = {
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
         "/api/analytics/getCatalogue": `${base}/catalogue/get_catalogues.json`, 
+        "/api/analytics/createOrUpdateDB": `${base}/is_ok.json`, 
         // "/api/rdos/batch/batchJobJob/displayOffSpring": `${base}/task/get_task_instances.json`, 
     },
     "proxyTable": {

@@ -26,13 +26,13 @@ class Toolbar extends Component {
     }
 
     render () {
-        const { onSearch, onCreateDb, onRefresh, onSQLQuery } = this.props;
+        const { onSearch, onCreateDB, onRefresh, onSQLQuery } = this.props;
         const { visibleSearch } = this.state;
         return (
             <div className="toolbar txt-right">
                 <Tooltip title="创建数据库">
                     <Icon type="plus-circle-o" 
-                        onClick={onCreateDb}
+                        onClick={onCreateDB}
                     />
                 </Tooltip>
                 <Tooltip title="SQL查询">
