@@ -93,6 +93,9 @@ class AdminUser extends Component {
             name: this.props.user.userName
         }
         Api.queryUser(app, queryParams).then((res) => {
+            if(res.code!=1){
+                return ;
+            }
             const roles = res.data && res.data.data[0].roles;
             let isVisitor = false,
                 isProjectAdmin = false,
@@ -136,14 +139,21 @@ class AdminUser extends Component {
         const queryParams = { ...params }//复制一份
         queryParams.name = searchName
         Api.queryUser(app, queryParams).then((res) => {
-            ctx.setState({ users: res.data, loading: false })
+            ctx.setState({
+                loading: false
+            })
+            if (res.code == 1) {
+                ctx.setState({ users: res.data })
+            }
         })
     }
 
     loadRoles = (app, params) => {
         const ctx = this;
         Api.queryRole(app, params).then((res) => {
-            ctx.setState({ roles: res.data && res.data.data })
+            if (res.code == 1) {
+                ctx.setState({ roles: res.data && res.data.data })
+            }
         })
     }
 

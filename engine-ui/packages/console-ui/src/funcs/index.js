@@ -113,7 +113,7 @@ export function openNewWindow(url, target) {
  * @param {s} app 
  */
 export function hasProject(app) {
-    return app === 'rdos'
+    return app === 'rdos' || app === 'stream'
 }
 
 
@@ -157,7 +157,7 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
 export function filterComments(sql) {
     let tmpArr = [];
     const comments = [];
-    if(!sql){
+    if (!sql) {
         return '';
     }
     for (let i = 0; i < sql.length; i++) {
@@ -280,8 +280,8 @@ export function scrollToView(id) {
  * @param {*} ms 
  */
 export function timeout(promise, ms) {
-    return new Promise(function(resolve, reject) {
-        setTimeout(function() {
+    return new Promise(function (resolve, reject) {
+        setTimeout(function () {
             reject(new Error("timeout"))
         }, ms)
         promise.then(resolve, reject);
