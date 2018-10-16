@@ -508,7 +508,7 @@ class TaskDetail extends Component {
                 render(text, record) {
                     return record.jobName;
                 },
-                width: "250px"
+                width: "350px"
             },
             {
                 title: "状态",

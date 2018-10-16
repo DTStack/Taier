@@ -369,6 +369,7 @@ class Workbench extends React.Component {
                     title = (<div>
                         <TabIcon tabData={tab} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                            {/* {<Tooltip title={tab.flowName}>{tab.flowName}</Tooltip>} */}
                             {tab.flowName}
                         </a><span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
