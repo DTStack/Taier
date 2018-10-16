@@ -151,9 +151,9 @@ class Index extends Component {
         const deleteImg = <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
         const setTopImg = <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
         // 生产项目图标
-        const produceImg = <img className="produce-test-img" src="/public/rdos/img/icon/produce.svg" />;
+        const produceImg = <img className="produce-test-img" src="/public/rdos/img/icon/produceProject.svg" />;
         // 测试项目图标
-        const developImg = <img className="produce-test-img" src="/public/rdos/img/icon/develop.svg" />;
+        const developImg = <img className="produce-test-img" src="/public/rdos/img/icon/developProject.svg" />;
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
