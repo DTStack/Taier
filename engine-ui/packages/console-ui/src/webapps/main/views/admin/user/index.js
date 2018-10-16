@@ -115,7 +115,8 @@ class AdminUser extends Component {
             for (let role of roles) {
                 const roleValue = role.roleValue;
                 switch (app) {
-                    case MY_APPS.RDOS: {
+                    case MY_APPS.RDOS:
+                    case MY_APPS.STREAM: {
                         if (roleValue == RDOS_ROLE.VISITOR) {
                             isVisitor = true
                         } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
@@ -200,12 +201,16 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = (userName) => {
-        const { active, selectedProject } = this.state;
+        const { active, selectedProject, streamSelectedProject } = this.state;
         const params = {
             userName,
         }
         if (hasProject(active)) {
-            params.projectId = selectedProject
+            if (MY_APPS.RDOS == active) {
+                params.projectId = selectedProject;
+            } else if (MY_APPS.STREAM == active) {
+                params.projectId = streamSelectedProject;
+            }
         }
         Api.loadUsersNotInProject(active, params).then((res) => {
             this.setState({ notProjectUsers: res.data })

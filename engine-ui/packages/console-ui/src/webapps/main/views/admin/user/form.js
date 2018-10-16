@@ -22,7 +22,8 @@ const CheckboxGroup = Checkbox.Group;
 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
 export const isDisabledRole = (app, value, loginUser, myRoles={}) => {
     switch(app) {
-        case MY_APPS.RDOS: {
+        case MY_APPS.RDOS:
+        case MY_APPS.STREAM: {
             if (loginUser.isTenantAdmin||myRoles.isProjectOwner) {//租户管理员和项目拥有者
                 return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER)
@@ -76,9 +77,10 @@ class UserRoleForm extends Component {
         if (roles) {
             roles.forEach(role => {
                 const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
-                if(role.roleValue==APP_ROLE.VISITOR&&MY_APPS.RDOS!=app){
+                let isRdosOrStream=MY_APPS.RDOS==app||MY_APPS.STREAM==app
+                if(role.roleValue==APP_ROLE.VISITOR&&!isRdosOrStream){
                     initialValue.push(role.id)
-                }else if(role.roleValue==RDOS_ROLE.VISITOR&&MY_APPS.RDOS==app){
+                }else if(role.roleValue==RDOS_ROLE.VISITOR&&isRdosOrStream){
                     initialValue.push(role.id)
                 }
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })

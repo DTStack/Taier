@@ -73,7 +73,7 @@ export default {
     STREAM_MASSAGE_DELETE: `${STREAM_BASE_URL}/notify/delete`,
 
     //** 用户角色 *//
-    STREAM_QUERY_USER:`${STREAM_BASE_URL}/user/pageQuery`,//查询系统用户信息
+    STREAM_QUERY_USER:`${STREAM_BASE_URL}/project/getProjectUsers`,//查询系统用户信息
     STREAM_REMOVE_USER:`${STREAM_BASE_URL}/roleUser/remove`,//删除用户
     STREAM_UPDATE_USER_ROLE:`${STREAM_BASE_URL}/roleUser/updateUserRole`,//更改用户角色
     STREAM_ADD_USER: `${STREAM_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
@@ -82,6 +82,6 @@ export default {
     STREAM_ROLE_PERMISSION:`${STREAM_BASE_URL}/permission/getPermissionIdsByRoleId`,//获取角色的权限
     STREAM_ROLE_PERMISSION_ADD_OR_EDIT:`${STREAM_BASE_URL}/role/addOrUpdateRole`,//更新或添加角色权限
     STREAM_REMOVE_ROLE:`${STREAM_BASE_URL}/role/deleteRole`,//删除角色
-    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/user/getUicUsersNotInProject`, // 获取UIC用户列表
+    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject`, // 获取UIC用户列表
 }
 
