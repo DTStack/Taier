@@ -11,6 +11,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
 import org.apache.flink.client.deployment.StandaloneClusterId;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.StandaloneClusterClient;
 import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.HighAvailabilityOptions;
@@ -174,30 +175,20 @@ public class FlinkClientBuilder {
         if (clusterId != null) {//不设置默认值"/default"
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
         }
-
-        StandaloneClusterDescriptor descriptor = new StandaloneClusterDescriptor(config);
-        RestClusterClient<StandaloneClusterId> clusterClient = null;
-        try {
-            clusterClient = descriptor.retrieve(null);
-        } catch (ClusterRetrieveException e) {
-            throw new RdosException("Couldn't retrieve standalone cluster");
-        }
-        clusterClient.setDetached(isDetached);
-
         //初始化的时候需要设置,否则提交job会出错,update config of jobMgrhost, jobMgrprt
-        InetSocketAddress address = null;
+        StandaloneClusterClient clusterClient = null;
         try {
+            clusterClient = new StandaloneClusterClient(config);
+            clusterClient.setDetached(isDetached);
             LeaderConnectionInfo connectionInfo = clusterClient.getClusterConnectionInfo();
-            address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
+            InetSocketAddress address = AkkaUtils.getInetSocketAddressFromAkkaURL(connectionInfo.getAddress());
+            config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
+            config.setInteger(JobManagerOptions.PORT, address.getPort());
         } catch (LeaderRetrievalException e) {
             throw new RdosException("Could not retrieve the leader address and leader session ID.");
         } catch (Exception e1) {
             throw new RdosException("Failed to retrieve JobManager address");
         }
-
-        config.setString(JobManagerOptions.ADDRESS, address.getAddress().getHostName());
-        config.setInteger(JobManagerOptions.PORT, address.getPort());
-
         return clusterClient;
     }
 
