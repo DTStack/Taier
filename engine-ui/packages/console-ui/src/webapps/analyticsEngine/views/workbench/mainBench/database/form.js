@@ -52,7 +52,7 @@ class DatabaseForm extends Component {
                             },
                             {
                                 max: 20,
-                                message: "数据库名称不得超过128个字符！"
+                                message: "数据库名称不得超过20个字符！"
                             },
                             {
                                 pattern: /^[A-Za-z0-9_]+$/,

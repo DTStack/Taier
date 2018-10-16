@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import workbenchAction from '../../../consts/workbenchActionType';
 
 import CreateTable from './createTable';
-import CreateDataMap from './createDataMap';
+import CreateDataMap from './datamap/create';
+import UpdateDataMap from './datamap/update';
 import TableDetail from './tableDetail';
 import DatabaseDetail from './database/detail';
 import SQLEditor from './sqlEditor';
@@ -27,6 +28,9 @@ class BenchContent extends Component {
             }
             case workbenchAction.OPEN_DATABASE: {
                 return <DatabaseDetail data={tabData} />
+            }
+            case workbenchAction.OPEN_DATA_MAP: {
+                return <UpdateDataMap data={tabData} />
             }
             case workbenchAction.CREATE_DATA_MAP: {
                 return <CreateDataMap data={tabData} />
