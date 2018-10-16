@@ -164,11 +164,6 @@
         .ant-tree-icon__docu {
             background-image: url(/public/rdos/img/icon/file.svg);
         }
-        .s-mlicon {
-            .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/computerStudy.svg);
-            }
-        }
         .s-sqlicon {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/sql.svg);
@@ -588,14 +583,9 @@
 
         .tab-ellipsis {
             display: inline-block;
-            // max-width: 200px;
-            width: 120px;
+            max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        .normal-tab {
-            color: rgba(0, 0, 0, 0.65);
         }
 
         .Resizer.vertical {

@@ -44,13 +44,6 @@ export default {
     getClusterSelect(params) {
         return http.post(req.GET_CLUSTER_SELECT,params);
     },
-    // 获取节点下拉
-    getNodeAddressSelect(params) {
-        return http.post(req.GET_NODEADDRESS_SELECT,params);
-    },
-    // 根据节点搜索
-
-    
     // 明细-根据任务名搜索任务
     searchTaskList(params) {
         return http.post(req.SEARCH_TASKNAME_LIST,params);

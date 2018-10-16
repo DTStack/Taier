@@ -57,7 +57,7 @@ export function LogInfo(props) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
     if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info}`
+        logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info}\n`
     }
 
     if (log['perf']) {

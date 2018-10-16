@@ -3,11 +3,13 @@
  */
 export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
+export const STREAM_BASE_URL = '/api/streamapp/service';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
 export const CONSOLE_BASE_UPLOAD_URL='/api/console';
+export const ANALYTICS_ENGINE_BASE_URL='/api/analytics';
 
 export const rdosApp = {
     id: 'rdos',
@@ -19,6 +21,18 @@ export const rdosApp = {
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
     apiBase: '/rdos',
+} 
+
+export const streamApp = {
+    id: 'stream',
+    name: '流计算',
+    filename: 'stream.html',
+    link: '/stream.html#',
+    target: '_blank',
+    enable: true,
+    hasProject: true, // 是否拥有项目选择
+    default: true, // 是否为默认应用选项
+    apiBase: '/streamapp',
 }
 
 export const dqApp = {
@@ -61,4 +75,16 @@ export const consoleApp = {
     apiBase: '/console',
     needRoot:true,
     disableExt:true
+}
+
+export const aeApp = {
+    id: 'analyticsEngine',
+    name: '分析引擎',
+    link: 'analytics.html#/',
+    filename: 'analytics.html',
+    target: '_blank',
+    enable: true,
+    apiBase: '/analytics',
+    needRoot: true,
+    disableExt: true
 }

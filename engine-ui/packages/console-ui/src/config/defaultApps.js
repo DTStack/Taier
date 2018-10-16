@@ -23,6 +23,18 @@ module.exports = [
         icon: '/public/main/img/icon_1.png',
         description: '一站式大数据开发平台，帮助企业快速完全数据中台搭建',
     },{
+        id: 'stream',
+        name: '流计算',
+        filename: 'stream.html',
+        link: '/stream.html#',
+        target: '_self',
+        enable: true,
+        hasProject: true, // 是否拥有项目选择
+        default: true, // 是否为默认应用选项
+        apiBase: '/streamapp',
+        icon: '/public/main/img/icon_stream.png',
+        description: '基于FlinkSQL的流计算开发平台，快速对接数据源，帮助企业向实时化、智能化大数据计算升级转型',
+    },{
         id: 'dataQuality',
         name: '数据质量',
         link: 'dataQuality.html#/',
@@ -52,7 +64,17 @@ module.exports = [
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
-    },{
+    }, {
+        id: 'analyticsEngine',
+        name: '分析引擎',
+        link: 'analytics.html#/',
+        filename: 'analytics.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/analytics',
+        icon: '/public/main/img/icon_5.png',
+        description: '计算资源分配、多集群管理',
+    }, {
         id: 'console',
         name: '控制台',
         link: 'console.html#/',
@@ -62,8 +84,8 @@ module.exports = [
         apiBase: '/console',
         icon: '/public/main/img/icon_5.png',
         description: '计算资源分配、多集群管理',
-        needRoot:true,
-        disableExt:true
+        needRoot: true,
+        disableExt: true // 是否禁用消息，橘色管理模块
     }, {
         id: 'map',
         name: '数据地图',

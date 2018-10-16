@@ -17,7 +17,7 @@ import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../.
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
-import ThemeSwitcher from '../../../components/theme-switcher';
+import ThemeSwitcher from 'main/components/theme-switcher';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -360,19 +360,16 @@ class Workbench extends React.Component {
             return tabs.map((tab) => {
                 let title = (<div>
                     <TabIcon tabData={tab} />
-                    <span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
+                    <span className="tab-ellipsis">{tab.name}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
                 if (tab.flowId) {
                     title = (<div>
                         <TabIcon tabData={tab} />
-                        <span className="tab-ellipsis">
-                            <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
-                                <Tooltip title={tab.flowName}>{tab.flowName}</Tooltip>
-                            </a>
-                            <span className="normal-tab">&nbsp;/ {<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
-                        </span>
+                        <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                            {tab.flowName}
+                        </a><span className="tab-ellipsis">&nbsp;/ {tab.name}</span>
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                     </div>);
                 }
