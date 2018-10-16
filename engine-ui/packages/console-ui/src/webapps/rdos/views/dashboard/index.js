@@ -22,6 +22,7 @@ class Index extends Component {
         sortTitleStatus: 1,
         totalSize: undefined,
         projectListParams: {
+            projectType: undefined,
             fuzzyName: undefined,
             page: 1,
             pageSize: 9,
@@ -104,9 +105,17 @@ class Index extends Component {
 
     // 选择测试或生产项目搜索
     changeProjectType(value) {
-        
+        const {projectListParams} = this.state;
+        this.setState({
+            projectListParams: {
+                projectType: value,
+                fuzzyName: undefined,
+                page: 1,
+                pageSize: 9,
+                orderBy: undefined,
+            }
+        },this.getProjectListInfo.bind(this));
     }
-
 
 
     createProject = (project) => {
@@ -261,10 +270,11 @@ class Index extends Component {
                                 className="project-select"
                                 allowClear={true}
                                 placeholder="请选择项目"
+                                // value={projectListParams.projectType}
                                 onChange={this.changeProjectType.bind(this)}
                             >
-                                <Option key="1">生产项目</Option>
-                                <Option key="2">测试项目</Option>
+                                <Option key="1" value="2">生产项目</Option>
+                                <Option key="2" value="1">测试项目</Option>
                             </Select>
                             <div className="project-search" >
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
