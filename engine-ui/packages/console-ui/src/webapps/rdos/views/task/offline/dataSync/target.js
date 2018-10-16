@@ -591,14 +591,15 @@ class TargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'NONCONFLICT'
+                            // initialValue: "NONCONFLICT"
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
-                                    追加新数据
+                                追加（Insert Into）
                             </Radio>
                                 <Radio value="NONCONFLICT" style={{ float: 'left' }}>
-                                    覆盖老数据
+                                覆盖（Insert Overwrite）
                             </Radio>
                             </RadioGroup>
                         )}
@@ -765,10 +766,10 @@ class TargetForm extends React.Component {
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
-                                    追加新数据
+                                追加（Insert Into）
                           </Radio>
                                 <Radio value="NONCONFLICT" style={{ float: 'left' }}>
-                                    覆盖老数据
+                                覆盖（Insert Overwrite）
                           </Radio>
                             </RadioGroup>
                         )}
