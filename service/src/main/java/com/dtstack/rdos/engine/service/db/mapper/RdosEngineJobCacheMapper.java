@@ -28,5 +28,5 @@ public interface RdosEngineJobCacheMapper {
 
     List<RdosEngineJobCache> getByJobIds(@Param("jobIds") List<String> jobIds);
 
-    List<String> listNames(@Param("computeType") String computeType,@Param("jobName") String jobName);
+    List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 }

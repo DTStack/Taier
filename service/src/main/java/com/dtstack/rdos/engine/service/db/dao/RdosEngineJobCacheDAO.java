@@ -96,7 +96,7 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
-    public List<String> listNames(String computeType, String jobName) {
+    public List<String> listNames(int computeType, String jobName) {
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
 
             @Override
