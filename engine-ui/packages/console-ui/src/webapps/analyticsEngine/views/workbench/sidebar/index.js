@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Popconfirm } from 'antd';
+
+import { Input } from 'antd';
+
+import { debounceEventHander } from 'funcs';
 
 import {
     ContextMenu,
@@ -15,6 +18,7 @@ import * as workbenchActions from '../../../actions/workbenchActions';
 const CTX_ACTION = {
     SHOW_DATA_MAP: 'SHOW_DATA_MAP',
 }
+const Search = Input.Search;
 
 @connect(
 state => {
@@ -67,10 +71,6 @@ class Sidebar extends Component {
         });
     }
 
-    onSelectCatalogeuItem = () => {
-
-    }
-
     onCxtMenuItem = (catelogueType) => {
 
     }
@@ -91,17 +91,24 @@ class Sidebar extends Component {
         const {
             folderTree,
             onCreateDB,
+            onCreateTable,
             onSQLQuery,
             loadCatalogue,
         } = this.props;
         return (
             <div className="sidebar">
-                <ToolBar 
-                    onSearch={this.searchTable}
+                <ToolBar
                     onRefresh={() => loadCatalogue()}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
+                    onCreateTable={() => onCreateTable()}
                 />
+                <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
+                    <Search
+                        placeholder="输入表名搜索"
+                        onSearch={debounceEventHander(this.searchTable, 500, { 'maxWait': 2000 })}
+                    />
+                </div>
                 <FolderTree
                     onRightClick={this.onRightClick}
                     loadData={this.asynLoadCatalogue}

@@ -32,7 +32,7 @@ class Main extends Component {
         const { children } = this.props
         return (
             <div className="main header-fixed">
-                <Header />
+                <Header/>
                 <div className="container">
                     { children || <Workbench /> }
                 </div>
