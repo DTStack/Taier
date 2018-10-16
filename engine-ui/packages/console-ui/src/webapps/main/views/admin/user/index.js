@@ -36,7 +36,9 @@ class AdminUser extends Component {
         },
 
         projects: [],
-        selectedProject: null,
+        streamProjects: [],
+        selectedProject: undefined,
+        streamSelectedProject: undefined,
         notProjectUsers: [],
         roles: [],
         editTarget: '',
@@ -64,20 +66,25 @@ class AdminUser extends Component {
     }
 
     loadData = () => {
-        const { active, selectedProject, currentPage, projects } = this.state;
+        const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects } = this.state;
         const params = {
             pageSize: 10,
             currentPage: currentPage,
         }
-        if (projects.length === 0 && hasProject(active)) {
+        let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length)
+        if (!projectsExsit && hasProject(active)) {
             this.getProjects(active);
-        } else if (projects.length === 0 && !hasProject(app)) {
+        } else if (!projectsExsit && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
             }));
         } else {
-            params.projectId = selectedProject;
+            if (MY_APPS.RDOS == active) {
+                params.projectId = selectedProject;
+            } else if (MY_APPS.STREAM == active) {
+                params.projectId = streamSelectedProject;
+            }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
@@ -93,8 +100,8 @@ class AdminUser extends Component {
             name: this.props.user.userName
         }
         Api.queryUser(app, queryParams).then((res) => {
-            if(res.code!=1){
-                return ;
+            if (res.code != 1) {
+                return;
             }
             const roles = res.data && res.data.data[0].roles;
             let isVisitor = false,
@@ -161,11 +168,23 @@ class AdminUser extends Component {
         const ctx = this
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ projects: res.data })
-                const selectedProject = utils.getCookie('project_id') || res.data[0].id
-                this.setState({
-                    selectedProject
-                }, this.loadData)
+                let cookiesProject;
+                /**
+                 * 不同应用设置不同的state
+                 */
+                if (app == MY_APPS.STREAM) {
+                    cookiesProject = utils.getCookie('stream_project_id')
+                    ctx.setState({
+                        streamProjects: res.data,
+                        streamSelectedProject: cookiesProject || res.data[0].id
+                    }, this.loadData)
+                } else if (app == MY_APPS.RDOS) {
+                    cookiesProject = utils.getCookie('project_id')
+                    ctx.setState({
+                        projects: res.data,
+                        selectedProject: cookiesProject || res.data[0].id
+                    }, this.loadData)
+                }
             }
         })
     }
@@ -185,7 +204,7 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject, notProjectUsers } = this.state
+        const { active, selectedProject, streamSelectedProject, notProjectUsers } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -203,7 +222,11 @@ class AdminUser extends Component {
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
-                    projectRole.projectId = selectedProject
+                    if (active == MY_APPS.RDOS) {
+                        projectRole.projectId = selectedProject
+                    } else if (active == MY_APPS.STREAM) {
+                        projectRole.projectId = streamSelectedProject
+                    }
                 }
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
@@ -220,12 +243,16 @@ class AdminUser extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active, selectedProject } = this.state
+        const { active, selectedProject, streamSelectedProject } = this.state
         const params = {
             targetUserId: member.userId,
         }
         if (hasProject(active)) {
-            params.projectId = selectedProject
+            if (active == MY_APPS.RDOS) {
+                params.projectId = selectedProject
+            } else if (active == MY_APPS.STREAM) {
+                params.projectId = streamSelectedProject
+            }
         }
         Api.removeProjectUser(active, params).then((res) => {
             if (res.code === 1) {
@@ -237,7 +264,7 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject } = this.state;
+        const { editTarget, active, selectedProject, streamSelectedProject } = this.state;
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
@@ -252,7 +279,11 @@ class AdminUser extends Component {
         }
 
         if (hasProject(active)) {
-            params.projectId = selectedProject
+            if (active == MY_APPS.RDOS) {
+                params.projectId = selectedProject
+            } else if (active == MY_APPS.STREAM) {
+                params.projectId = streamSelectedProject
+            }
         }
 
         Api.updateUserRole(active, params).then((res) => {
@@ -305,6 +336,12 @@ class AdminUser extends Component {
     onProjectSelect = (value) => {
         this.setState({
             selectedProject: value,
+            currentPage: 1,
+        }, this.loadData)
+    }
+    onStreamProjectSelect = (value) => {
+        this.setState({
+            streamSelectedProject: value,
             currentPage: 1,
         }, this.loadData)
     }
@@ -398,14 +435,27 @@ class AdminUser extends Component {
 
     renderTitle = () => {
 
-        const { projects, active, selectedProject, searchName } = this.state;
+        const { projects,streamProjects, active, selectedProject, searchName, streamSelectedProject } = this.state;
 
-        const projectOpts = projects && projects.map(project =>
+        let selectValue;
+        let onSelectChange;
+        let projectsOptions=[];
+        if (active == MY_APPS.RDOS) {
+            selectValue = selectedProject;
+            projectsOptions=projects;
+            onSelectChange=this.onProjectSelect
+        } else if (active == MY_APPS.STREAM) {
+            selectValue = streamSelectedProject;
+            projectsOptions=streamProjects;
+            onSelectChange=this.onStreamProjectSelect
+        }
+
+        const projectOpts = projectsOptions && projectsOptions.map(project =>
             <Option value={`${project.id}`} key={`${project.id}`}>
                 {project.projectAlias}
             </Option>
         )
-
+        
         const title = (
             <span>
                 {
@@ -414,11 +464,11 @@ class AdminUser extends Component {
                             选择项目：
                             <Select
                                 showSearch
-                                value={`${selectedProject}`}
+                                value={selectValue?`${selectValue}`:selectValue}
                                 style={{ width: 200, marginRight: 10 }}
                                 placeholder="按项目名称搜索"
                                 optionFilterProp="name"
-                                onSelect={this.onProjectSelect}
+                                onSelect={onSelectChange}
                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {projectOpts}
