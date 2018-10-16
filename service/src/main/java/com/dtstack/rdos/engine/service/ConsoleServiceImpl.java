@@ -144,11 +144,12 @@ public class ConsoleServiceImpl {
             Preconditions.checkNotNull(computeType, "parameters of computeType is required");
             ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
             Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
-            if (ComputeType.STREAM == type) {
-                return engineStreamTaskDAO.listNames(jobName);
-            } else {
-                return engineBatchJobDAO.listNames(jobName);
-            }
+            return engineJobCacheDao.listNames(computeType,jobName);
+//            if (ComputeType.STREAM == type) {
+//                return engineStreamTaskDAO.listNames(jobName);
+//            } else {
+//                return engineBatchJobDAO.listNames(jobName);
+//            }
         } catch (Exception e) {
             logger.error("{}", e);
         }

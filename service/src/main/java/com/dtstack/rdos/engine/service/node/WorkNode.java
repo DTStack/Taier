@@ -135,7 +135,7 @@ public class WorkNode {
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
-        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString(), jobClient.getJobName());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -151,7 +151,7 @@ public class WorkNode {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), jobClient.getJobName());
         //检查分片
         zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
@@ -203,12 +203,12 @@ public class WorkNode {
      * 2. 添加到优先级队列之后保存
      * 3. cache的移除在任务发送完毕之后
      */
-    public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+    public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo, String jobName){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(engineJobCacheDao.getJobById(jobId) != null){
             engineJobCacheDao.updateJobStage(jobId, stage, nodeAddress);
         }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
+            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress, jobName);
         }
     }
 
