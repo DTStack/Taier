@@ -35,7 +35,7 @@ class Container extends Component {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname
         if (pathname !== '/') {
-            const pid = parseInt(utils.getCookie('project_id'), 10)
+            const pid = parseInt(utils.getCookie('stream_project_id'), 10)
             if (pid) {
                 dispatch(ProjectAction.getProject(pid))
             }
