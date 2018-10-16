@@ -72,6 +72,11 @@ class AdminUser extends Component {
             currentPage: currentPage,
         }
         let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length)
+        this.setState({ 
+            users: {
+                data: [],
+            },
+         })
         if (!projectsExsit && hasProject(active)) {
             this.getProjects(active);
         } else if (!projectsExsit && !hasProject(app)) {
@@ -142,9 +147,14 @@ class AdminUser extends Component {
     loadUsers = (app, params) => {
         const { searchName } = this.state;
         const ctx = this
-        this.setState({ loading: true })
+        this.setState({ 
+            loading: true,
+            users: {
+                data: [],
+            },
+        })
         const queryParams = { ...params }//复制一份
-        queryParams.name = searchName
+        queryParams.name = searchName;
         Api.queryUser(app, queryParams).then((res) => {
             ctx.setState({
                 loading: false
