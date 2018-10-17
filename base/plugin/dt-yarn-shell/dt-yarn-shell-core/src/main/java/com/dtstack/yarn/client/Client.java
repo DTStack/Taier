@@ -94,9 +94,9 @@ public class Client {
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
 
-        if (clientArguments.queue != null && !clientArguments.queue.equals("")) {
-            conf.set(DtYarnConfiguration.DT_APP_QUEUE, clientArguments.queue);
-        }
+//        if (clientArguments.queue != null && !clientArguments.queue.equals("")) {
+//            conf.set(DtYarnConfiguration.DT_APP_QUEUE, clientArguments.queue);
+//        }
 
         if (clientArguments.confs != null) {
             setConf();
