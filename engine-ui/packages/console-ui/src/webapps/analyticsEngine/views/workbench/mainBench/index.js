@@ -44,7 +44,6 @@ class MainBench extends Component {
 
                 return (
                     <TabPane
-                        style={{ height: '0px' }}
                         tab={title} 
                         key={tab.id}
                     >

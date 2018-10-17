@@ -116,10 +116,10 @@ class Sidebar extends Component {
                 <p style={{
                     padding: '86px 36px', 
                     fontSize: '14px', 
-                    color: '#666666'
+                    color: '#666666',
+                    letterSpacing: 0,
                 }}>
-                    点击上方<MyIcon type="btn_database" />新建数据库
-                    或联系管理员获取访问权限
+                    &nbsp;点击上方<MyIcon type="btn_database" />新建数据库或联系管理员获取访问权限
                 </p>
             )
         }
