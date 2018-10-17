@@ -97,54 +97,51 @@
     // }
     .applink {
         display: flex;
-        // text-align: center;
-        margin-top: 60px;
+        margin-top: 40px;
         flex-wrap: wrap;
-        // border: 1px solid red;
         padding-bottom: 100px;
         .app-tag {
             // flex: 1;
             position: relative;
             width: 290px;
             height: 139px;
-            margin: 15px 20px 20px 15px;
-            // padding: 0 30px;
+            margin: 20px 0px 0 20px;
             background: #ffffff;
             box-shadow: 0 2px 6px 0 rgba(0,0,0,0.12);
-            // border: 1px solid yellow;
             &:hover, &:active, &:visited, &:focus {
                 text-decoration: none;
                 -webkit-appearance: none;
             }
+            &:hover {
+                background: rgba(158, 158, 158, 0.02);
+            }
             .app-logo {
                 position: absolute;
-                width: 80px;
-                height: 80px;
+                width: 70px;
+                height: 70px;
                 left: 20px;
-                top: 15px;
+                top: 34px;
             }
             
             h1 {
                 position: absolute;
-                left: 110px;
-                top: 25px;
+                left: 100px;
+                top: 38px;
                 font-size: 16px;
                 color: #333333;
                 letter-spacing: 1.11px;
-                // margin-top: 30px;
                 font-weight: initial;
             }
             p {
                 position: absolute;
-                left: 110px;
-                top: 53px;
-                width: 160px;
-                padding-right: 3px;
+                left: 100px;
+                top: 63px;
+                width: 163px;
                 font-size: 12px;
                 color: #999999;
                 letter-spacing: 0.97px;
-                // border: 1px solid pink;
-                line-height: 1.5;
+                line-height: 14px;
+                font-family: PingFangSC-Regular;
             }
         }
     }
