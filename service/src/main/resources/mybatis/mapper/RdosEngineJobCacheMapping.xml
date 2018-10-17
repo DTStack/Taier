@@ -52,7 +52,9 @@
     </select>
 
     <select id="listNames" resultType="java.lang.String">
-        select job_name from rdos_engine_job_cache where job_name like '%${jobName}%' and compute_type = #{computeType} and is_deleted=0;
+        select job_name from rdos_engine_job_cache
+        where job_name like '%${jobName}%' and compute_type = #{computeType}
+        and stage = 1 and is_deleted=0;
     </select>
 
 </mapper>
