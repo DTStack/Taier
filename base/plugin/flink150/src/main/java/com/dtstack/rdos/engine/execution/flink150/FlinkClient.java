@@ -535,13 +535,19 @@ public class FlinkClient extends AbsClient {
             String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
 
             String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
-            String addr = hadoopConf.get(key);
+            String addr = yarnConf.get(key);
 
             if(addr == null) {
                 addr = yarnConf.get("yarn.resourcemanager.webapp.address");
             }
 
             String appId = client.getClusterId().toString();
+            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) client.getClusterId()).getYarnApplicationState();
+            if (YarnApplicationState.RUNNING != yarnApplicationState){
+                this.initClient();
+                appId = client.getClusterId().toString();
+            }
+
             url = String.format(FLINK_URL_FORMAT, addr, appId);
         }catch (Exception e){
             logger.error("Getting URL failed" + e);

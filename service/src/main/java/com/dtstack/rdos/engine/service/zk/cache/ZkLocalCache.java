@@ -102,7 +102,9 @@ public class ZkLocalCache implements Closeable {
         if (addr==null){
             String jobId = TaskIdUtil.getTaskId(zkTaskId);
             RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
-            addr = jobCache.getNodeAddress();
+            if (jobCache!=null){
+                addr = jobCache.getNodeAddress();
+            }
         }
         return addr;
     }

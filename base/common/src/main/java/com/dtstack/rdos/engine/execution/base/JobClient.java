@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.queue.OrderObject;
@@ -130,7 +131,9 @@ public class JobClient extends OrderObject{
             priority = paramAction.getPriority();
         }
         this.groupName = paramAction.getGroupName();
-
+        if (StringUtils.isBlank(groupName)){
+            groupName = ConfigConstant.DEFAULT_GROUP_NAME;
+        }
         //将任务id 标识为对象id
         this.id = taskId;
 

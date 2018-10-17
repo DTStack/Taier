@@ -1,9 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -23,8 +21,7 @@ public class GroupPriorityQueue {
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        String groupName = StringUtils.isEmpty(jobClient.getGroupName()) ? ConfigConstant.DEFAULT_GROUP_NAME : jobClient.getGroupName();
-        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
+        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(jobClient.getGroupName(),
                 k -> new OrderLinkedBlockingQueue<>());
 
         if(queue.contains(jobClient)){
@@ -39,7 +36,6 @@ public class GroupPriorityQueue {
     }
 
     public boolean remove(String groupName, String jobId){
-        groupName = StringUtils.isEmpty(groupName) ? ConfigConstant.DEFAULT_GROUP_NAME : groupName;
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
         return queue.remove(jobId);
     }

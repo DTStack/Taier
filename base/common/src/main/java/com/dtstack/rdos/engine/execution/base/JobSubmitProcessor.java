@@ -62,6 +62,8 @@ public class JobSubmitProcessor implements Runnable {
                     logger.info("--------submit job:{} to engine end----", jobClient.getTaskId());
                 }
             } else {
+                logger.info(" jobId:{} engineType:{} judgeSlots result is false", jobClient.getTaskId(), jobClient.getEngineType());
+                jobClient.doStatusCallBack(RdosTaskStatus.WAITENGINE.getStatus());
                 handler.handle();
             }
         } catch (Throwable e) {
