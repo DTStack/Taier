@@ -66,11 +66,11 @@ export default {
 
      //===== stream ====//
     //**消息**//
-    STREAM_MASSAGE_QUERY: `${STREAM_BASE_URL}/notify/pageQuery`,
-    STREAM_GET_MASSAGE_BY_ID: `${STREAM_BASE_URL}/notify/getOne`,
-    STREAM_MASSAGE_MARK_AS_READ: `${STREAM_BASE_URL}/notify/tabRead`,
-    STREAM_MASSAGE_MARK_AS_ALL_READ: `${STREAM_BASE_URL}/notify/allRead`,
-    STREAM_MASSAGE_DELETE: `${STREAM_BASE_URL}/notify/delete`,
+    STREAM_MASSAGE_QUERY: `${STREAM_BASE_URL}/notifyRecord/pageQuery`,
+    STREAM_GET_MASSAGE_BY_ID: `${STREAM_BASE_URL}/notifyRecord/getOne`,
+    STREAM_MASSAGE_MARK_AS_READ: `${STREAM_BASE_URL}/notifyRecord/tabRead`,
+    STREAM_MASSAGE_MARK_AS_ALL_READ: `${STREAM_BASE_URL}/notifyRecord/allRead`,
+    STREAM_MASSAGE_DELETE: `${STREAM_BASE_URL}/notifyRecord/delete`,
 
     //** 用户角色 *//
     STREAM_QUERY_USER:`${STREAM_BASE_URL}/project/getProjectUsers`,//查询系统用户信息

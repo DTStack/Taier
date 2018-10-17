@@ -9,15 +9,17 @@ export default class TabIcon extends Component {
 
         let iconName = "";
         switch (type) {
-            case workbenchAction.OPEN_TABLE: {
-                iconName = "table.svg";
-                break;
-            }
             case workbenchAction.OPEN_SQL_QUERY: {
                 iconName = "sql.svg";
                 break;
             }
+            case workbenchAction.OPEN_TABLE:
             case workbenchAction.CREATE_TABLE: {
+                iconName = "table.svg";
+                break;
+            }
+            case workbenchAction.OPEN_DATA_MAP:
+            case workbenchAction.CREATE_DATA_MAP: {
                 iconName = "datamap.svg";
                 break;
             }
