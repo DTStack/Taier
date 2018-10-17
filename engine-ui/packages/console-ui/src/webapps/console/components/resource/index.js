@@ -125,7 +125,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.slotsNumber;
                 },
-                width: "170px"
+                width: "175px"
             },
             {
                 title: "freeMemory",
