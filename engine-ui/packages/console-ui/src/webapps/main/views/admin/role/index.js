@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { 
+import {
     Select, Table, Card, message,
-    Button, Tabs, Popconfirm 
+    Button, Tabs, Popconfirm
 } from 'antd'
 import { Link } from 'react-router'
 
@@ -11,6 +11,7 @@ import { hasProject } from 'funcs'
 
 import Api from '../../../api'
 import AppTabs from '../../../components/app-tabs'
+import { MY_APPS } from '../../../consts'
 
 const Option = Select.Option
 const TabPane = Tabs.TabPane
@@ -21,14 +22,16 @@ class AdminRole extends Component {
         active: '',
         data: '',
         projects: [],
+        streamProjects: [],
         selectedProject: '',
+        streamSelectedProject: '',
         currentPage: 1,
         loading: 'success',
     }
 
     componentDidMount() {
         const { apps } = this.props
-        if (apps && apps.length > 0 ) {
+        if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
 
             const defaultApp = apps.find(app => app.default);
@@ -41,30 +44,34 @@ class AdminRole extends Component {
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject, currentPage } = this.state
+        const { active, selectedProject,streamSelectedProject, currentPage } = this.state
         const app = active;
-
+        let haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
         const params = {
             pageSize: 10,
             currentPage: currentPage,
         }
 
-        if (!selectedProject && hasProject(app)) {
+        if (!haveSelected && hasProject(app)) {
             this.getProjects(app)
-        } else if (!selectedProject && !hasProject(app)) {
+        } else if (!haveSelected && !hasProject(app)) {
             this.loadRoles(app, params)
         } else {
-            params.projectId = selectedProject
+            if (MY_APPS.RDOS == active) {
+                params.projectId = selectedProject
+            } else if (MY_APPS.STREAM == active) {
+                params.projectId = streamSelectedProject;
+            }
             this.loadRoles(app, params)
         }
     }
- 
+
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({
                 data: res.data,
             })
-    
+
             this.setState({
                 loading: 'success'
             })
@@ -75,18 +82,25 @@ class AdminRole extends Component {
         const ctx = this
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ projects: res.data })
                 const selectedProject = res.data[0].id
-                this.setState({
-                    selectedProject 
-                }, this.loadData)
+                if (MY_APPS.RDOS == app) {
+                    ctx.setState({
+                        projects: res.data,
+                        selectedProject: selectedProject
+                    }, this.loadData)
+                } else if (MY_APPS.STREAM == app) {
+                    ctx.setState({
+                        streamProjects: res.data,
+                        streamSelectedProject: selectedProject
+                    }, this.loadData)
+                }
             }
         })
     }
 
     removeRole = (role) => {
         const appKey = this.state.active;
-        Api.deleteRole(appKey, {roleId: role.id }).then((res) => {
+        Api.deleteRole(appKey, { roleId: role.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
                 this.loadData()
@@ -98,14 +112,14 @@ class AdminRole extends Component {
         this.setState({
             active: key,
             currentPage: 1,
-        }, ()=>{
-            this.props.router.replace("/admin/role?app="+key)
+        }, () => {
+            this.props.router.replace("/admin/role?app=" + key)
             this.loadData();
         })
     }
 
     handleTableChange = (pagination, filters) => {
-        this.setState({ 
+        this.setState({
             currentPage: pagination.current,
         }, this.loadData)
     }
@@ -113,6 +127,13 @@ class AdminRole extends Component {
     onProjectSelect = (value) => {
         this.setState({
             selectedProject: value,
+            currentPage: 1,
+        }, this.loadData)
+    }
+
+    onStreamProjectSelect = (value) => {
+        this.setState({
+            streamSelectedProject: value,
             currentPage: 1,
         }, this.loadData)
     }
@@ -127,7 +148,7 @@ class AdminRole extends Component {
             render(text, record) {
                 return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
-            width:"150px"
+            width: "150px"
         }, {
             title: '角色描述',
             dataIndex: 'roleDesc',
@@ -170,17 +191,27 @@ class AdminRole extends Component {
 
     renderPane = () => {
 
-        const { 
-            data, loading, projects, 
-            active, selectedProject 
+        const {
+            data, loading, projects,streamProjects,
+            active, selectedProject,streamSelectedProject
         } = this.state;
-
-        const projectOpts = projects && projects.map(project => 
+        let projectsOptions=[];
+        let selectValue;
+        let onSelectChange;
+        if (active == MY_APPS.RDOS) {
+            selectValue = selectedProject;
+            projectsOptions = projects;
+            onSelectChange = this.onProjectSelect
+        } else if (active == MY_APPS.STREAM) {
+            selectValue = streamSelectedProject;
+            projectsOptions = streamProjects;
+            onSelectChange = this.onStreamProjectSelect
+        }
+        const projectOpts = projectsOptions && projectsOptions.map(project =>
             <Option value={project.id} key={project.id}>
-                { project.projectAlias }
+                {project.projectAlias}
             </Option>
         )
-
         const title = hasProject(active) && (
             <span
                 style={{ marginTop: '10px' }}
@@ -188,19 +219,19 @@ class AdminRole extends Component {
                 选择项目：
                 <Select
                     showSearch
-                    value={ selectedProject }
+                    value={selectValue}
                     style={{ width: 200 }}
                     placeholder="按项目名称搜索"
                     optionFilterProp="name"
-                    onSelect={ this.onProjectSelect }
-                >  
-                  { projectOpts }
+                    onSelect={onSelectChange}
+                >
+                    {projectOpts}
                 </Select>
             </span>
         )
 
         const extra = (
-            <Button style={{marginTop: '10px'}} type="primary">
+            <Button style={{ marginTop: '10px' }} type="primary">
                 <Link to={`/admin/role/add?app=${active}`}>新建角色</Link>
             </Button>
         )
@@ -212,18 +243,18 @@ class AdminRole extends Component {
         };
 
         return (
-            <Card 
+            <Card
                 bordered={false}
                 noHovering
                 title={title}
                 extra={''}
             >
-                <Table 
+                <Table
                     rowKey="id"
                     className="m-table"
                     columns={this.initColums()}
                     loading={loading === 'loading'}
-                    dataSource={ data ? data.data : [] }
+                    dataSource={data ? data.data : []}
                     pagination={pagination}
                     onChange={this.handleTableChange}
                 />
@@ -238,12 +269,12 @@ class AdminRole extends Component {
         return (
             <div className="user-admin">
                 <h1 className="box-title">角色管理</h1>
-                <div className="box-2 m-card" style={{height: '785px'}}>
-                    <AppTabs 
-                        apps={apps} 
+                <div className="box-2 m-card" style={{ height: '785px' }}>
+                    <AppTabs
+                        apps={apps}
                         activeKey={this.state.active}
                         content={content}
-                        onPaneChange={this.onPaneChange} 
+                        onPaneChange={this.onPaneChange}
                     />
                 </div>
             </div>

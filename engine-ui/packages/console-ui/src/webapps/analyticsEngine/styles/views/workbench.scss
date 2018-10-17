@@ -1,0 +1,124 @@
+
+.sidebar {
+
+   .toolbar {
+       height: 35px;
+       padding: 10px 5px;
+       line-height: 35px;
+       border-bottom: 1px solid #E8E8E8;
+
+       .anticon {
+           font-size: 15px;
+           margin-right: 10px;
+           cursor: pointer;
+       }
+   }
+
+   .s-catalogue {
+        padding: 5px 15px;
+        padding-bottom: 35px;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        .ant-tree li span.ant-tree-iconEle {
+            margin-top: -3px;
+            margin-right: 3px;
+            background-size: cover;
+            background-position: center center;
+            width: 16px;
+            height: 16px;
+            line-height: 16px;
+        }
+   }
+}
+
+.m-mainbench {
+    height: 100%;
+    padding-top: 20px;
+    background: #ffffff;
+
+    .ant-tabs-content {
+        height: 100%;
+    }
+
+    &>.ant-tabs {
+        .ant-tabs-bar {
+
+            margin-bottom: 1px;
+            border-radius: 0px;
+            margin-left: -1px;
+            border-left: none;
+
+            .ant-tabs-tab {
+                margin-right: 0px;
+                line-height: 19px;
+                padding-left: 28px;
+                border-left: none;
+                text-align: left;
+                min-width: 150px;
+                border-radius: 0;
+                border-bottom: 1px solid #dddddd;
+                background: #FAFAFA;
+
+                .anticon-close {
+                    margin-top: -5px;
+                    line-height: 10px;
+                    opacity: 1;
+                    font-size: 11px;
+                }
+            }
+
+            .ant-tabs-tab-active {
+                background: #fff;
+                border-color: #dddddd;
+                color: #2491F7;
+                border-bottom: 1px solid #ffffff;
+            }
+
+            .ant-tabs-tab-active:after {
+                content: "";
+                position: absolute;
+                top: 0px;
+                left: -1px;
+                right: -1px;
+                height: 3px;
+                z-index: 3;
+                opacity: 0.8;
+                background: #2491F7;
+            }
+        }
+    }
+
+
+}
+
+.s-tree-folder {
+    &>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/folder.svg);
+    }
+}
+
+.s-tree-item {
+    &>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/file.svg);
+    }
+}
+
+.s-database {
+    .ant-tree-node-content-wrapper>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/database.svg);
+    }
+}
+
+.s-table {
+    .ant-tree-node-content-wrapper >.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/table.svg);
+    }
+}
+
+.s-datamap {
+   .ant-tree-node-content-wrapper>.ant-tree-icon__docu {
+        background-image: url(/public/analyticsEngine/img/datamap.svg);
+    }
+}

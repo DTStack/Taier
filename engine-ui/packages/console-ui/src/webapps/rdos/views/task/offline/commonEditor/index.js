@@ -9,7 +9,7 @@ import pureRender from 'utils/pureRender';
 import { commonFileEditDelegator } from "widgets/editor/utils";
 
 import API from '../../../../api';
-import IDEEditor from "../../../../components/editor";
+import IDEEditor from "main/components/ide";
 
 import {PROJECT_TYPE} from "../../../../comm/const";
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';

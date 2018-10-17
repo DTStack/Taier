@@ -9,15 +9,9 @@ import { user, projectUsers, notProjectUsers } from './modules/user'
 import { project, projects, allProjects } from './modules/project'
 // 实时任务
 import { realtimeTask } from './modules/realtimeTask'
-// 离线任务
-import { offlineTask } from './modules/offlineTask';
 import { editor } from './modules/editor';
 // 数据源
 import { dataSource } from './modules/dataSource';
-// 数据管理
-import { dataManageReducer } from './modules/dataManage';
-// 数据模型
-import { dataModel } from './modules/dataModel';
 // 运维中心
 import { operation } from './modules/operation';
 
@@ -34,13 +28,10 @@ const rootReducer = combineReducers({
     projects, // 用户有权限的项目
     allProjects, // 全局所有项目
     realtimeTask, // 实时任务
-    offlineTask, // 离线任务
     editor, // 编辑器
     operation, // 运维中心
-    dataManage: dataManageReducer,
     dataSource,
     visibleSearchTask,
-    dataModel,
 })
 
 export default rootReducer

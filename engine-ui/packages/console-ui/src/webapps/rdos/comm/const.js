@@ -529,15 +529,7 @@ export const jsonEditorOptions = { // json编辑器选项
     matchBrackets: true
 }
 
-export const defaultEditorOptions = { // 编辑器选项
-    mode: 'text/x-sql',
-    lint: true,
-    indentWithTabs: true,
-    smartIndent: true,
-    lineNumbers: true,
-    autofocus: false,
-    // extraKeys: { 'Ctrl-Space': 'autocomplete' },
-}
+
 
 export const transformRuleType = { // 整库迁移高级设置转换类型
     1: 'nameRule',

@@ -298,3 +298,48 @@
         } 
     }
 }
+.checkpoint-overview{
+    float:right;
+    color:#666;
+    line-height:30px;
+    span:not(:last-child){
+        margin-right: 20px;
+    }
+}
+.pane-alarm-configList{
+    header{
+        padding:16px 0px 11px 0px;
+        line-height: 28px;
+        font-size:14px;
+        font-weight: bold;
+        button{
+            float: right;
+        }
+    }
+}
+.alarm-basegraph-box{
+    border:1px solid #dddddd;
+    header{
+        padding: 7.5px 0px 8.5px 21px;
+        font-size: 14px;
+        color: rgba(0,0,0,0.85);
+        line-height: 24px;
+        border-bottom: 1px solid #dddddd;
+    }
+}
+.alarm-graph-row{
+    padding-left: 2px;
+    display: flex;
+    &~.alarm-graph-row{
+        margin-top: 11px;
+    }
+    section{
+        &~section{
+            margin-left:10px;
+        }
+        width:50%;
+        flex-basis: 50%;
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+}

@@ -31,13 +31,15 @@ class SlidePane extends Component {
             top: 0, 
             transform: visible ? 'translate3d(0%, 0, 0)' : 'translate3d(150%, 0, 0)',
         }
-        
+        if(!visible){
+            myStyle["pointerEvents"]="none"
+        }
         if (className) myClass = `${myClass} ${className}`;
         if (style) myStyle = assign(myStyle, style);
 
         return (
             <div className={ myClass } style={myStyle} >
-                <div className="slide-pane-conent">
+                <div className="slide-pane-conent" style={{display:visible?"block":"none"}}>
                     { children }
                 </div>
                 <span className="slide-pane-toggle" onClick={onClose}>

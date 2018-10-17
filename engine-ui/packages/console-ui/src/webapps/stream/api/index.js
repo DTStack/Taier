@@ -3,9 +3,7 @@ import utils from 'utils'
 
 import req from './req'
 import http from './http'
-import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
-import dataManageReq from './reqDataManage';
 import {publishType} from "../comm/const";
 
 /* eslint-disable */
@@ -14,16 +12,12 @@ const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || ''
 
 export default {
 
-    sqlFormat(params) { // SQL格式化
-        return http.post(offlineReq.SQL_FORMAT, params)
-    },
-
     streamSqlFormat(params) {
         return http.post(req.SQL_FORMAT, params)
     },
 
     unlockFile(params) {// 解锁文件
-        return http.post(offlineReq.UNLOCK_FILE, params)
+        return http.post(req.UNLOCK_FILE, params)
     },
 
     // ========== User ========== //
@@ -44,7 +38,7 @@ export default {
         utils.deleteCookie('dt_username', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
+        utils.deleteCookie('stream_project_id', UIC_DOMAIN_URL, '/')
         window.location.href = `${UIC_URL_TARGET}/#/login`
     },
 
@@ -189,12 +183,6 @@ export default {
     publishRealtimeTask(params) {
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },
-    taskVersionScheduleConf(params) {
-        return http.post(offlineReq.TASK_VERSION_SCHEDULE_CONF, params)
-    },
-    updateTaskOwner(params) {
-        return http.post(offlineReq.UPDATE_TASK_OWNER, params)
-    },
     getTypeOriginData(params) {
         return http.post(req.GET_TYPE_ORIGIN_DATA, params)
     },
@@ -285,220 +273,8 @@ export default {
     getAlarmStatistics(params) {
         return http.post(req.ALARM_STATISTICS, params)
     },
-
-    // =========== 以下为离线模块 ==================//
-    saveOfflineTask(task) {
-        return http.post(offlineReq.SAVE_TASK, task)
-    },
-
-    forceUpdateOfflineTask(task) {
-        return http.post(offlineReq.FORCE_UPDATE_TASK, task)
-    },
-
-    getOfflineTaskByID(params) {
-        return http.post(offlineReq.GET_TASK, params)
-    },
-    deleteOfflineTask(params) {
-        return http.post(offlineReq.DELETE_TASK, params)
-    },
-    queryOfflineCataTask(params) {
-        return http.post(offlineReq.QUERY_CATA_TASK, params)
-    },
-    getOfflineTasksByProject(params) {
-        return http.post(offlineReq.GET_TASKS_BY_PROJECT_ID, params)
-    },
-    getOfflineTasksByName(params) {
-        return http.post(offlineReq.GET_TASKS_BY_NAME, params)
-    },
-    queryOfflineTasks(params) {
-        return http.post(offlineReq.QUERY_TASKS, params)
-    },
-    getOfflineTaskLog(params) {// 获取离线任务日志
-        return http.post(offlineReq.GET_TASK_LOG, params)
-    },
-    searchOfflineTask(params) {
-        return http.post(offlineReq.GLOBAL_SEARCH_TASK, params)
-    },
-    getCustomParams(params) {
-        return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
-    },
-    getSyncTemplate(params) {
-        return http.post(offlineReq.GET_SYNC_SCRIPT_TEMPLATE, params)
-    },
     getCreateTargetTable(params) {
         return http.post(req.GET_CREATE_TARGET_TABLE, params)
-    },
-    // =========== 脚本模块 ==================//
-    saveScript(params) {
-        return http.post(offlineReq.SAVE_SCRIPT, params)
-    },
-    forceUpdateOfflineScript(task) {
-        return http.post(offlineReq.FORCE_UPDATE_SCRIPT, task)
-    },
-    getScriptById(params) {
-        return http.post(offlineReq.GET_SCRIPT_BY_ID, params)
-    },
-    execScript(params) {
-        return http.post(offlineReq.EXEC_SCRIPT, params)
-    },
-    stopScript(params) {// 获取离线任务日志
-        return http.post(offlineReq.STOP_SCRIPT, params)
-    },
-    deleteScript(params) {
-        return http.post(offlineReq.DELETE_SCRIPT, params)
-    },
-    getScriptTypes(params) {
-        return http.post(offlineReq.GET_SCRIPT_TYPES, params)
-    },
-
-    // =========== 离线Job模块 ==================//
-    queryJobs(params) {
-        return http.post(offlineReq.QUERY_JOBS, params)
-    },
-    publishOfflineTask(params) {
-        return http.post(offlineReq.PUBLISH_TASK, params)
-    },
-    getTaskTypes(params) {
-        return http.post(offlineReq.GET_TASK_TYPES, params)
-    },
-    getJobById(params) {
-        return http.post(offlineReq.GET_JOB_BY_ID, params)
-    },
-    getJobGraph(params) {
-        return http.post(offlineReq.GET_JOB_GRAPH, params)
-    },
-    getJobStatistics(params) {
-        return http.post(offlineReq.GET_JOB_STATISTICS, params)
-    },
-    getJobTopTime(params) {
-        return http.post(offlineReq.GET_JOB_TOP_TIME, params)
-    },
-    getJobTopError(params) {
-        return http.post(offlineReq.GET_JOB_TOP_ERROR, params)
-    },
-    patchTaskData(params) { // 补数据
-        return http.post(offlineReq.PATCH_TASK_DATA, params)
-    },
-    getTaskChildren(params) { // 获取任务子节点
-        return http.post(offlineReq.GET_TASK_CHILDREN, params)
-    },
-    getTaskParents(params) { // 获取任务父节点
-        return http.post(offlineReq.GET_TASK_PARENTS, params)
-    },
-    getFillData(params) { // 补数据搜索
-        return http.post(offlineReq.GET_FILL_DATA, params)
-    },
-    getFillDate(params) { // 补数据日期列表
-        return http.post(offlineReq.GET_FILL_DATE, params)
-    },
-    getFillDataDetail(params) { // 补数据详情
-        return http.post(offlineReq.GET_FILL_DATA_DETAIL, params)
-    },
-    startJob(params) {// 启动任务
-        return http.post(offlineReq.START_JOB, params)
-    },
-    stopJob(params) {// 停止任务
-        return http.post(offlineReq.STOP_JOB, params)
-    },
-    restartAndResume(params) {// 重启并恢复任务
-        return http.post(offlineReq.RESTART_AND_RESUME_JOB, params)
-    },
-    batchStopJob(params) {// 批量停止任务
-        return http.post(offlineReq.BATCH_STOP_JOBS, params)
-    },
-    batchRestartAndResume(params) {// 重启并恢复任务
-        return http.post(offlineReq.BATCH_RESTART_AND_RESUME_JOB, params)
-    },
-    batchRestartJob(params) {// 批量重启Job
-        return http.post(offlineReq.BATCH_RESTART_JOB, params)
-    },
-    getJobChildren(params) { // 获取任务子Job
-        return http.post(offlineReq.GET_JOB_CHILDREN, params)
-    },
-    getJobParents(params) { // 获取任务父Job
-        return http.post(offlineReq.GET_JOB_PARENT, params)
-    },
-    execSQLImmediately(params) { // 立即执行SQL
-        return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params)
-    },
-    stopSQLImmediately(params) { // 停止执行SQL
-        return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
-    },
-    selectSQLResultData(params) { // 定时轮询获取sql结果
-        return http.post(offlineReq.SELECT_SQL_RESULT_DATA, params)
-    },
-    checkIsLoop(prams) {
-        return http.post(offlineReq.CHECK_IS_LOOP, prams)
-    },
-    getJobRuntimeInfo(prams) {
-        return http.post(offlineReq.GET_JOB_RUNTIME_INFO, prams)
-    },
-    queryJobStatics(params) {
-        return http.post(offlineReq.QUERY_JOB_STATISTICS, params)
-    },
-    queryJobSubNodes(params) {
-        return http.post(offlineReq.QUERY_JOB_SUB_NODES, params)
-    },
-    forzenTask(params) {
-        return http.post(offlineReq.FROZEN_TASK, params)
-    },
-    statisticsTaskRunTime(params) {
-        return http.post(offlineReq.STATISTICS_TASK_RUNTIME, params)
-    },
-    stopFillDataJobs(params) {
-        return http.post(offlineReq.STOP_FILL_DATA_JOBS, params)
-    },
-    getRestartJobs(params) {
-        return http.post(offlineReq.GET_RESTART_JOBS, params);
-    },
-
-    // =========== 离线catalogue目录模块 ==================//
-    getOfflineCatalogue(params) {
-        return http.post(offlineReq.GET_OFFLINE_CATALOGUE, params)
-    },
-    addOfflineCatalogue(params) {
-        return http.post(offlineReq.ADD_OFFLINE_CATALOGUE, params)
-    },
-    editOfflineCatalogue(params) {
-        return http.post(offlineReq.EDIT_OFFLINE_CATALOGUE, params)
-    },
-    locateCataPosition(params) {
-        return http.post(offlineReq.GET_OFFLINE_CATALOGUE_BY_LOCATION, params)
-    },
-
-
-    addOfflineResource(params) {
-        return http.postAsFormData(offlineReq.ADD_OFFLINE_RESOURCE, params)
-    },
-    addOfflineTask(params) {
-        return http.post(offlineReq.ADD_OFFLINE_TASK, params)
-    },
-    getOfflineTaskDetail(params) {
-        return http.post(offlineReq.GET_OFFLINE_TASK, params)
-    },
-    getOfflineTaskByName(params) {
-        return http.post(offlineReq.GET_OFFLINE_TASK_BY_NAME, params)
-    },
-    getOfflineDataSource(params) {
-        return http.post(offlineReq.GET_OFFLINE_DATASOURCE, params)
-    },
-    getOfflineTableList(params) {
-        return http.post(offlineReq.GET_OFFLINE_TABLELIST, params)
-    },
-    getOfflineTableColumn(params) {
-        return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
-    },
-    getOfflineColumnForSyncopate(params) {
-        return http.post(offlineReq.GET_OFFLINE_COLUMNFORSYNCOPATE, params)
-    },
-    getOfflineJobData(params) {
-        return http.post(offlineReq.GET_OFFLINE_JOBDATA, params)
-    },
-    saveOfflineJobData(params) {
-        return http.post(offlineReq.SAVE_OFFLINE_JOBDATA, params)
-    },
-    addOfflineFunction(params) {
-        return http.post(offlineReq.ADD_OFFLINE_FUNCTION, params)
     },
     getTableListByName(params) {
         return http.post(req.GET_TABLE_LIST_BY_NAME, params)
@@ -513,214 +289,11 @@ export default {
         return http.post(req.GET_ALL_FUNCTION_NAME, params)
     },
 
-
-    // =========== 离线文件操作 ==================//
-    delOfflineTask(params) {
-        return http.post(offlineReq.DEL_OFFLINE_TASK, params)
-    },
-    delOfflineFolder(params) {
-        return http.post(offlineReq.DEL_OFFLINE_FOLDER, params)
-    },
-    delOfflineRes(params) {
-        return http.post(offlineReq.DEL_OFFLINE_RES, params)
-    },
-    delOfflineFn(params) {
-        return http.post(offlineReq.DEL_OFFLINE_FN, params)
-    },
-    moveOfflineFn(params) {
-        return http.post(offlineReq.MOVE_OFFLINE_FN, params)
-    },
-    getOfflineFn(params) {
-        return http.post(offlineReq.GET_FN_DETAIL, params)
-    },
-    getOfflineRes(params) {
-        return http.post(offlineReq.GET_RES_DETAIL, params)
-    },
-    getDataPreview(params) {
-        return http.post(offlineReq.DATA_PREVIEW, params)
-    },
-    getHBaseColumnFamily(params) {
-        return http.post(offlineReq.GET_HBASE_COLUMN_FAMILY, params)
-    },
-
-    // =========== 离线alarm告警模块 ==================//
-    getOfflineAlarmList(params) {
-        return http.post(offlineReq.GET_ALARM_LIST, params)
-    },
-    addOfflineAlarm(params) {
-        return http.post(offlineReq.ADD_ALARM, params)
-    },
-    updateOfflineAlarm(params) {
-        return http.post(offlineReq.UPDATE_ALARM, params)
-    },
-    closeOfflineAlarm(params) {
-        return http.post(offlineReq.CLOSE_ALARM, params)
-    },
-    openOfflineAlarm(params) {
-        return http.post(offlineReq.OEPN_ALARM, params)
-    },
-    deleteOfflineAlarm(params) {
-        return http.post(offlineReq.DELETE_ALARM, params)
-    },
-    getOfflineAlarmRecords(params) {
-        return http.post(offlineReq.GET_ALARM_RECORDS, params)
-    },
-    getOfflineAlarmStatistics(params) {
-        return http.post(offlineReq.ALARM_STATISTICS, params)
-    },
-
-    // =========== datasource数据源模块 ==================//
-    addOrUpdateSource(source) {
-        return http.post(offlineReq.SAVE_DATA_SOURCE, source)
-    },
-    deleteDataSource(params) {
-        return http.post(offlineReq.DELETE_DATA_SOURCE, params)
-    },
-    queryDataSource(params) {
-        return http.post(offlineReq.QUERY_DATA_SOURCE, params)
-    },
-    getDataSourceById(params) {
-        return http.post(offlineReq.GET_DATA_SOURCE_BY_ID, params)
-    },
-    testDSConnection(params) {
-        return http.post(offlineReq.TEST_DATA_SOURCE_CONNECTION, params)
-    },
-    getDataSourceTypes(params) {
-        return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
-    },
-
-    // ============== dataSource 整库同步 ==================
-    saveSyncConfig(params) {
-        return http.post(offlineReq.SAVE_SYNC_CONFIG, params)
-    },
-    getSyncHistoryList(params) {
-        return http.post(offlineReq.GET_SYNC_HISTORY, params)
-    },
-    getSyncDetail(params) {
-        return http.post(offlineReq.GET_SYNC_DETAIL, params)
-    },
-    publishSyncTask(params) {
-        return http.post(offlineReq.PUBLISH_SYNC_TASK, params)
-    },
-    checkSyncConfig(params) {
-        return http.post(offlineReq.CHECK_SYNC_CONFIG, params)
-    },
-    getTaskOfOfflineSource(params) {
-        return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
-    },
     getTaskOfStreamSource(params) {
         return http.post(stremReq.GET_TASK_LIST_OF_STREAM_SOURCE, params)
     },
-
-    // ============== dataManage 数据管理 ==================
-    createTable(params) {
-        return http.post(dataManageReq.CREATE_TABLE, params)
-    },
-    searchTable(params) {
-        return http.post(dataManageReq.SEARCH_TABLE, params)
-    },
-    getTable(params) {
-        return http.post(dataManageReq.GET_TABLE, params)
-    },
-    getTablesByName(params) {
-        return http.post(dataManageReq.GET_TABLES_BY_NAME, params)
-    },
-    previewTable(params) {
-        return http.post(dataManageReq.PREVIEW_TABLE, params)
-    },
-    saveTable(params) {
-        return http.post(dataManageReq.SAVE_TABLE, params)
-    },
-    searchLog(params) {
-        return http.post(dataManageReq.SEARCH_LOG, params)
-    },
     getProjectUsersData(params) {
         return http.post(req.GET_PROJECT_USERS, params)
-    },
-    getCreateTableCode(params) {
-        return http.post(dataManageReq.GET_CREATE_CODE, params)
-    },
-    dropTable(params) {
-        return http.post(dataManageReq.DROP_TABLE, params)
-    },
-    createDdlTable(params) {
-        return http.post(dataManageReq.DDL_CREATE_TABLE, params)
-    },
-    uploadTableData(params) {
-        return http.post(dataManageReq.UPLOAD_TABLE_DATA, params)
-    },
-    checkTableExist(params) {
-        return http.post(dataManageReq.CHECK_TABLE_EXIST, params)
-    },
-    checkHdfsLocExist(params) {
-        return http.post(dataManageReq.CHECK_HDFSLOC_EXIST, params)
-    },
-    getTablePartition(params) {
-        return http.post(dataManageReq.GET_TABLE_PARTITION, params)
-    },
-    checkTablePartition(params) {
-        return http.post(dataManageReq.CHECK_TABLE_PARTITION, params)
-    },
-    importLocalData(params) {// 导入本地数据
-        return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
-    },
-    getTableRelTree(params) {
-        return http.post(dataManageReq.GET_REL_TABLE_TREE, params)
-    },
-    getRelTableInfo(params) {
-        return http.post(dataManageReq.GET_REL_TABLE_INFO, params)
-    },
-    getParentRelTable(params) {
-        return http.post(dataManageReq.GET_PARENT_REL_TABLES, params)
-    },
-    getChildRelTables(params) {
-        return http.post(dataManageReq.GET_CHILD_REL_TABLES, params)
-    },
-    getRelTableTasks(params) {
-        return http.post(dataManageReq.GET_REL_TABLE_TASKS, params)
-    },
-
-    // =========== 脏数据 ==================//
-    getDirtyDataTrend(params) {
-        return http.post(dataManageReq.GET_DIRTY_DATA_TREND, params)
-    },
-    top30DirtyData(params) {
-        return http.post(dataManageReq.TOP30_DIRTY_DATA, params)
-    },
-    getDirtyDataTables(params) {
-        return http.post(dataManageReq.GET_DIRTY_DATA_TABLES, params)
-    },
-    getPubSyncTask(params) {// 导入本地数据
-        return http.post(dataManageReq.GET_PUB_SYNC_TASK, params)
-    },
-    getDirtyDataTableInfo(params) {
-        return http.post(dataManageReq.GET_DIRTY_DATA_TABLE_INFO, params)
-    },
-    getDirtyDataTableOverview(params) {
-        return http.post(dataManageReq.GET_DIRTY_TABLE_OVERVIEW, params)
-    },
-    countDirtyData(params) {
-        return http.post(dataManageReq.COUNT_DIRTY_DATA, params)
-    },
-    getDirtyDataAnalytics(params) {
-        return http.post(dataManageReq.GET_DIRTY_DATA_ANALYTICS, params)
-    },
-
-    // =========== 项目统计 ==================//
-    countProjectTable(params) {
-        return http.post(offlineReq.PROJECT_TABLE_COUNT, params)
-    },
-    countProjectStore(params) {
-        return http.post(offlineReq.PROJECT_STORE_COUNT, params)
-    },
-    getProjectStoreTop(params) {
-        return http.post(offlineReq.PROJECT_STORE_TOP, params)
-    },
-    getProjectTableStoreTop(params) {
-        return http.post(offlineReq.PROJECT_TABLE_STORE_TOP, params)
-    },
-    getProjectDataOverview(params) {
-        return http.post(offlineReq.PROJECT_DATA_OVERVIEW, params)
     },
     //================实时数据源 ===============/
     streamSaveDataSource(params) {
@@ -760,64 +333,6 @@ export default {
             return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
         }else{
             return http.post(req.GET_REALTIME_LINK_SOURCE, params)
-        }
-    },
-    getRePublishList(params,type="offline",listType=publishType.TASK) {
-        const urlMap={
-            offline:{
-                [publishType.TASK]:req.GET_OFFLINE_TASKS,
-                [publishType.FUNCTION]:req.GET_OFFLINE_FUNCTION,
-                [publishType.RESOURCE]:req.GET_OFFLINE_RESOURCE,
-                [publishType.TABLE]:req.GET_TABLES,
-            },
-            realtime:{
-                [publishType.TASK]:req.GET_REALTIME_TASKS,
-                [publishType.FUNCTION]:req.GET_REALTIME_FUNCTION,
-                [publishType.RESOURCE]:req.GET_REALTIME_RESOURCE
-            }
-        }
-        return http.post(urlMap[type][listType], params)
-    },
-    getPackageName(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.GET_OFFLINE_PACKAGE_NAME, params)
-        }else{
-            return http.post(req.GET_REALTIME_PACKAGE_NAME, params)
-        }
-    },
-    createPackage(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.OFFLINE_CREATE_PACKAGE, params)
-        }else{
-            return http.post(req.REALTIME_CREATE_PACKAGE, params)
-        }
-    },
-    publishPackage(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.PUBLISH_OFFLINE_PACKAGE, params)
-        }else{
-            return http.post(req.PUBLISH_REALTIME_PACKAGE, params)
-        }
-    },
-    getPackageList(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.GET_OFFLINE_PACKAGE_LIST, params)
-        }else{
-            return http.post(req.GET_REALTIME_PACKAGE_LIST, params)
-        }
-    },
-    deletePackage(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.OFFLINE_DELETE_PACKAGE, params)
-        }else{
-            return http.post(req.REALTIME_DELETE_PACKAGE, params)
-        }
-    },
-    getTaskLinkItems(params,type="offline") {
-        if(type=="offline"){
-            return http.post(req.GET_OFFLINE_TASK_LINK_ITEMS, params)
-        }else{
-            return http.post(req.GET_REALTIME_TASK_LINK_ITEMS, params)
         }
     },
 }

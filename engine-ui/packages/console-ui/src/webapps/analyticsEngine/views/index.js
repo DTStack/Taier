@@ -10,7 +10,7 @@ import Workbench from '../views/workbench'
 
 import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
-import { commonActions } from '../actions/common'
+import { commonActions } from '../actions'
 import { updateApp } from 'main/actions/app'
 
 const propType = {
@@ -24,11 +24,8 @@ const defaultPro = {
 class Main extends Component {
 
     componentDidMount() {
-        const { dispatch } = this.props
-        dispatch(UserAction.getUser());
+        const { dispatch } = this.props;
         dispatch(updateApp(dqApp));
-        dispatch(commonActions.getUserList());
-        dispatch(commonActions.getAllDict());
     }
 
     render() {

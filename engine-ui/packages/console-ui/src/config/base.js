@@ -3,12 +3,13 @@
  */
 export const UIC_BASE_URL = '/uic/api';
 export const RDOS_BASE_URL = '/api/rdos';
-export const STREAM_BASE_URL = '/api/streamapp';
+export const STREAM_BASE_URL = '/api/streamapp/service';
 export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
 export const CONSOLE_BASE_UPLOAD_URL='/api/console';
+export const ANALYTICS_ENGINE_BASE_URL='/api/analytics';
 
 export const rdosApp = {
     id: 'rdos',

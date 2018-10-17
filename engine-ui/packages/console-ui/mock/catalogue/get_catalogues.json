@@ -6,39 +6,39 @@
         "id": 1,
         "name": "taskList",
         "level": 0,
-        "type": "folder",
+        "type": "root",
         "children": [
             {
                 "id": 3,
-                "name": "任务管理一级目录",
+                "name": "Database1",
                 "level": 1,
-                "type": "folder",
+                "type": "database",
                 "children": [
                     {
                         "id": 2,
                         "name": "mynewtask",
                         "level": 2,
-                        "type": "file",
+                        "type": "table",
                         "children": null
                     },
                     {
                         "id": 26,
                         "name": "任务管理二级目录2",
                         "level": 2,
-                        "type": "folder",
+                        "type": "table",
                         "children": [
                             {
                                 "id": 3,
                                 "name": "xctest",
                                 "level": 3,
-                                "type": "file",
+                                "type": "datamap",
                                 "children": null
                             },
                             {
                                 "id": 12,
                                 "name": "xctestFlink",
                                 "level": 3,
-                                "type": "file",
+                                "type": "datamap",
                                 "children": null
                             }
                         ]
@@ -47,16 +47,159 @@
                         "id": 4,
                         "name": "任务管理二级目录1",
                         "level": 2,
-                        "type": "folder",
+                        "type": "table",
                         "children": [
                             {
                                 "id": 1,
                                 "name": "eee",
                                 "level": 3,
-                                "type": "file",
+                                "type": "datamap",
                                 "children": null
                             }
                         ]
+                    }
+                ]
+            }, {
+                "id": 6,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 7,
+                        "name": "1-6-7",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 8,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 9,
+                        "name": "1-8-9",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 10,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 11,
+                        "name": "1-10-11",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 12,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 13,
+                        "name": "1-12-13",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 14,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 15,
+                        "name": "1-14-15",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 16,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 17,
+                        "name": "1-16-17",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 18,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 19,
+                        "name": "1-18-19",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 20,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 21,
+                        "name": "1-20-21",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 22,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 23,
+                        "name": "1-22-23",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 24,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 25,
+                        "name": "1-24-25",
+                        "level": 2,
+                        "type": "table"
+                    }
+                ]
+            }, {
+                "id": 26,
+                "name": "Database2",
+                "level": 1,
+                "type": "database",
+                "children": [
+                    {
+                        "id": 27,
+                        "name": "1-26-27",
+                        "level": 2,
+                        "type": "table"
                     }
                 ]
             }

@@ -21,7 +21,7 @@ const render = (Component) => {
 render(Root)
 
 if (module.hot) {
-    module.hot.accept(['./root'], () => {
+    module.hot.accept(['./root', './reducers'], () => {
         const newRoot = require('./root').default;
         render(newRoot)
     })

@@ -90,6 +90,12 @@ export const PROJECT_TYPE = {
     TEST: 1,//测试
     PRO: 2,//生产
 }
+export const PROJECT_STATUS = {
+    INITIALIZE: 0,//创建中
+    NORMAL: 1,//正常
+    DISABLE: 2,//禁用
+    FAIL:3,//创建失败
+}
 
 //发布的item类别
 export const publishType = {
@@ -442,6 +448,13 @@ export const AlarmStatusFilter = [{ // 告警状态过滤选项
     value: 1,
 }]
 
+export const alarmTriggerType={
+    TASK_FAIL:0,
+    TASK_STOP:3,
+    DELAY_COST:4,
+    DELAY_COST_P:5,
+}
+
 export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
     text: '全部',
     value: '',
@@ -529,15 +542,6 @@ export const jsonEditorOptions = { // json编辑器选项
     matchBrackets: true
 }
 
-export const defaultEditorOptions = { // 编辑器选项
-    mode: 'text/x-sql',
-    lint: true,
-    indentWithTabs: true,
-    smartIndent: true,
-    lineNumbers: true,
-    autofocus: false,
-    // extraKeys: { 'Ctrl-Space': 'autocomplete' },
-}
 
 export const transformRuleType = { // 整库迁移高级设置转换类型
     1: 'nameRule',
@@ -577,6 +581,14 @@ export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换
     'BOOLEAN'
 ]
 
+export const TIME_TYPE={
+    M10:'10m',
+    H1:'1h',
+    H6:'6h',
+    D1:'1d',
+    D7:'7d',
+    W1:"1w"
+}
 
 export const formItemLayout = { // 表单正常布局
     labelCol: {

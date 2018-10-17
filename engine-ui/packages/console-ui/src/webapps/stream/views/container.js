@@ -11,7 +11,6 @@ import Header from './layout/header'
 import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
-import  DataManageAction from '../store/modules/dataManage/actionCreator';
 
 const propType = {
     children: PropTypes.node,
@@ -27,7 +26,6 @@ class Container extends Component {
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
-        dispatch(DataManageAction.getCatalogues({isGetFile:false}))
 
         dispatch(updateApp(streamApp))
         this.initProject()
@@ -37,7 +35,7 @@ class Container extends Component {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname
         if (pathname !== '/') {
-            const pid = parseInt(utils.getCookie('project_id'), 10)
+            const pid = parseInt(utils.getCookie('stream_project_id'), 10)
             if (pid) {
                 dispatch(ProjectAction.getProject(pid))
             }

@@ -5,7 +5,7 @@ import { debounce } from 'lodash';
 
 import { commonFileEditDelegator } from "widgets/editor/utils";
 
-import IDEEditor from "../../../../components/editor";
+import IDEEditor from "main/components/ide";
 
 import API from "../../../../api";
 import * as editorActions from '../../../../store/modules/editor/editorAction';

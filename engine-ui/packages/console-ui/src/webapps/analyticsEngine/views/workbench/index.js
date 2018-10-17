@@ -1,13 +1,87 @@
 import React, { Component } from 'react';
-import { Row } from 'antd';
+import { Layout } from "antd";
+import SplitPane from "react-split-pane";
+import { connect } from "react-redux";
+import { bindActionCreators } from 'redux';
 
-export default class DashBoard extends Component {
+
+import Sidebar from './sidebar';
+import Default from './default';
+import MainBench from "./mainBench";
+
+import * as workbenchActions from '../../actions/workbenchActions';
+
+const { Content } = Layout;
+
+@connect(
+    state => {
+        const { workbench } = state;
+        return {
+            mainBench: workbench.mainBench,
+        };
+    },
+    dispatch => {
+        const actions = bindActionCreators(workbenchActions, dispatch);
+        return actions;
+    }
+)
+class Workbench extends Component {
+
+    componentDidMount() {
+        if (process.env.NODE_ENV === 'production') {
+            window.addEventListener('beforeunload', this.beforeunload, false);
+        }
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("beforeunload", this.beforeunload, false);
+    }
 
     render() {
+
+        const {
+            mainBench,
+            onSQLQuery,
+            onCreateTable,
+        } = this.props;
+
         return (
-            <Row style={{ margin: 20 }}>
-                DashBoard
-            </Row>
-        )
+            <Layout>
+                <SplitPane
+                    split="vertical"
+                    minSize={240}
+                    maxSize="80%"
+                    defaultSize={240}
+                    primary="first"
+                >
+                    <div
+                        className="ant-layout-sider bd-right"
+                        style={{ width: "inherit", height: '100%' }}
+                    >
+                        <Sidebar />
+                    </div>
+                    <Content style={{height: '100%'}}>
+                        {
+                            mainBench.tabs.length ? <MainBench /> :
+                            <Default 
+                                onSQLQuery={onSQLQuery}
+                                onCreateTable={onCreateTable}
+                            />
+                        }
+                    </Content>
+                </SplitPane>
+            </Layout>
+        );
     }
+
+    beforeunload = e => {
+        /* eslint-disable */
+        const confirmationMessage = "\o/";
+        (e || window.event).returnValue = confirmationMessage; // Gecko + IE
+        return confirmationMessage; // Webkit, Safari, Chrome
+        /* eslint-disable */
+    };
+
 }
+
+export default Workbench;
