@@ -13,8 +13,8 @@ module.exports = [
     }, {
         id: 'rdos',
         name: '离线计算',
-        filename: 'ide.html',
-        link: '/ide.html#',
+        filename: 'batch.html',
+        link: '/batch.html#',
         target: '_self',
         enable: true,
         hasProject: true, // 是否拥有项目选择
