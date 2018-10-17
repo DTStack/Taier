@@ -12,16 +12,20 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import {
+    workbenchActions
+} from '../../../../store/modules/offlineTask/offlineAction';
+
+import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
-import Editor from 'widgets/editor'
+import Editor from 'widgets/editor';
 
 import { matchTaskParams } from '../../../../comm';
-import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
+import { DDL_ide_placeholder } from "../../../../comm/DDLCommon";
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -137,39 +141,19 @@ class TargetForm extends React.Component {
 
     submitForm() {
         const {
-            taskCustomParams, updateTaskFields,
-            form, handleTargetMapChange, currentTab,
+            taskCustomParams, sourceMap,
+            form, handleTargetMapChange,
+            updateDataSyncVariables,
         } = this.props;
 
         setTimeout(() => {
             let values = form.getFieldsValue();
-
-            const sqlText = `${values.preSql} ${values.postSql}`
-            // 获取任务自定义参数
-            if (sqlText) {
-                const taskVariables = matchTaskParams(taskCustomParams, sqlText)
-                if (taskVariables.length > 0) {
-                    updateTaskFields({
-                        id: currentTab,
-                        taskVariables
-                    })
-                }
-            }
-
-            // 分区，获取任务自定义参数
-            if (values.partition) {
-                const taskVariables = matchTaskParams(taskCustomParams, values.partition)
-                if (taskVariables.length > 0) {
-                    updateTaskFields({
-                        id: currentTab,
-                        taskVariables
-                    })
-                }
-            }
-
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
+            
+            // 处理数据同步变量
+            updateDataSyncVariables(sourceMap.type, values, taskCustomParams);
             handleTargetMapChange(srcmap);
         }, 0);
     }
@@ -813,7 +797,8 @@ const mapState = state => {
     };
 };
 
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch, ownProps) => {
+    const wbActions = new workbenchActions(dispatch, ownProps);
     return {
         handleSourceChange(src) {
             dispatch({
@@ -857,7 +842,11 @@ const mapDispatch = dispatch => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
-        }
+        },
+
+        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
+        },
     };
 }
 

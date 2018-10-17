@@ -18,6 +18,9 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { matchTaskParams } from '../../../../comm';
+import {
+    workbenchActions
+} from '../../../../store/modules/offlineTask/offlineAction';
 
 import {
     formItemLayout,
@@ -162,10 +165,12 @@ class SourceForm extends React.Component {
         handleSourceChange(this.getDataObjById(value));
         this.resetTable();
     }
+
     addDataSource() {
         const key = "key" + ~~(Math.random() * 10000000);
         this.props.addDataSource(key);
     }
+
     deleteExtSource(key) {
         this.props.deleteDataSource(key);
     }
@@ -224,9 +229,9 @@ class SourceForm extends React.Component {
 
     submitForm(event, sourceKey) {
         const {
-            updateTaskFields, form,
-            handleSourceMapChange, currentTab,
-            sourceMap, taskCustomParams,
+            form,handleSourceMapChange, 
+            targetMap, taskCustomParams,
+            updateDataSyncVariables,
         } = this.props;
 
         this.timerID = setTimeout(() => {
@@ -239,31 +244,11 @@ class SourceForm extends React.Component {
                 }
             }
 
-            // where, 获取任务自定义参数
-            if (values.where) {
-                const taskVariables = matchTaskParams(taskCustomParams, values.where)
-                if (taskVariables.length > 0) {
-                    updateTaskFields({
-                        id: currentTab,
-                        taskVariables
-                    })
-                }
-            }
-
-            // 分区，获取任务自定义参数
-            if (values.partition) {
-                const taskVariables = matchTaskParams(taskCustomParams, values.partition)
-                if (taskVariables.length > 0) {
-                    updateTaskFields({
-                        id: currentTab,
-                        taskVariables
-                    })
-                }
-            }
-
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
+            // 更新数据同步中的变量
+            updateDataSyncVariables(values, targetMap.type, taskCustomParams);
             handleSourceMapChange(srcmap, sourceKey);
         }, 0);
     }
@@ -964,11 +949,14 @@ const mapState = state => {
         isCurrentTabNew,
         currentTab,
         sourceMap: dataSync.sourceMap,
+        targetMap: dataSync.targetMap,
         dataSourceList: dataSync.dataSourceList,
         taskCustomParams: workbench.taskCustomParams,
     };
 };
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch, ownProps) => {
+    const wbActions = new workbenchActions(dispatch, ownProps);
+
     return {
         addDataSource(key) {
             dispatch({
@@ -1041,7 +1029,11 @@ const mapDispatch = dispatch => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
-        }
+        },
+
+        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
+        },
     }
 };
 
