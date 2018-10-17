@@ -22,14 +22,43 @@
         overflow-y: auto;
         overflow-x: hidden;
 
-        .ant-tree li span.ant-tree-iconEle {
-            margin-top: -3px;
-            margin-right: 3px;
-            background-size: cover;
-            background-position: center center;
-            width: 16px;
-            height: 16px;
-            line-height: 16px;
+        .ant-tree {
+
+            .ant-tree-node-content-wrapper {
+                width: 100%;
+
+                .tree-node-hover-items {
+                    display: none;
+                    position: absolute;
+                    right: 20px;
+                    top: 5px;
+                }
+
+                .tree-node-hover-item {
+                    font-size: 10px;
+                    width: 14px;
+                    height: 14px;
+                    color: #333333;
+                    cursor: pointer;
+                    line-height: 14px;
+                    margin-right: 1px;
+                    vertical-align: middle;
+                }
+
+                &:hover .tree-node-hover-items  {
+                    display: inline-block;
+                }
+            }
+
+            li span.ant-tree-iconEle {
+                margin-top: -3px;
+                margin-right: 3px;
+                background-size: cover;
+                background-position: center center;
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+            }
         }
    }
 }
@@ -91,8 +120,6 @@
             }
         }
     }
-
-
 }
 
 .s-tree-folder {
