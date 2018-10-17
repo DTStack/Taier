@@ -15,17 +15,29 @@ export default class StepTwo extends Component{
     }
   }
 
-  componentWillMount(){
-    const { formData } = this.props;
-    this.state.field_list = formData.field_list || [];
-    this.state.area_list = formData.area_list || [];
+  componentDidMount(){
+    const { field_list, area_list } = this.props.formData;
+    this.setState({
+      field_list: field_list || [],
+      area_list: area_list || []
+    })
+    console.log(field_list)
+    console.log(area_list)
   }
   componentWillReceiveProps(nextProps){
-    const { formData } = this.props;
+    const { formData } = nextProps;
+
     this.setState({
       field_list: formData.field_list || [],
       area_list: formData.area_list || []
+    },()=>{
+      console.log(this.state.field_list)
+      console.log(this.state.area_list)
     })
+  }
+  componentWillUpdate(){
+    console.log(this.state.field_list)
+    console.log(this.state.area_list)
   }
 
   next = ()=>{
@@ -192,7 +204,9 @@ export default class StepTwo extends Component{
   }
 
   render(){
-    let {field_list,area_list} = this.state;
+    const {field_list,area_list} = this.state;
+    console.log(field_list)
+    console.log(area_list)
     return (
       <div className="step-two-container step-container">
         <div className="table-panel">

@@ -38,6 +38,7 @@ export default class StepOne extends Component{
   render(){
     const { getFieldDecorator, getFieldsValue } = this.props.form;
     const { formData } = this.props;
+    console.log(formData)
     return (
       <div className="step-one-container step-container">
         <Form>
@@ -49,7 +50,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '数据库不可为空'},
                 ],
-                initialValue: formData.database
+                initialValue: formData.database || undefined
               })(
                   <Select>
                   <Option value="ss">ss</Option>
@@ -71,7 +72,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message:'表明不可为空'}
                 ],
-                initialValue: formData.table_name
+                initialValue: formData.table_name || undefined
               })(
                 <Input placeholder="请输入表名"/>
               )
@@ -83,7 +84,7 @@ export default class StepOne extends Component{
             {
               getFieldDecorator('desc',{
                 rules: [],
-                initialValue: formData.desc
+                initialValue: formData.desc || undefined
               })(
                 <Input placeholder="请输入描述信息"/>
               )
@@ -112,7 +113,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Sort Scope不可为空'}
                 ],
-                initialValue: formData.sort_scope
+                initialValue: formData.sort_scope || undefined
               })(
                 <Select>
                   <Option value="ss">ss</Option>
@@ -133,7 +134,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Block不可为空'}
                 ],
-                initialValue: formData.block_size
+                initialValue: formData.block_size || undefined
               })(
                 <Input/>
               )
@@ -146,7 +147,7 @@ export default class StepOne extends Component{
               label="MAJOR_COMPACTION_SIZE">
               {
                 getFieldDecorator('MAJOR_COMPACTION_SIZE',{
-                  initialValue: formData.MAJOR_COMPACTION_SIZE
+                  initialValue: formData.MAJOR_COMPACTION_SIZE || undefined
                 })(
                   <Input/>
                 )
@@ -171,7 +172,7 @@ export default class StepOne extends Component{
               label="COMPACTION_LEVEL_THRESHOLD">
               {
                 getFieldDecorator('COMPACTION_LEVEL_THRESHOLD',{
-                  initialValue:formData.COMPACTION_LEVEL_THRESHOLD
+                  initialValue:formData.COMPACTION_LEVEL_THRESHOLD || undefined
                 })(
                   <Input/>
                 )
@@ -182,7 +183,7 @@ export default class StepOne extends Component{
               label="COMPACTION_PRESERVE_SEGMENTS">
               {
                 getFieldDecorator('COMPACTION_PRESERVE_SEGMENTS',{
-                  initialValue:formData.COMPACTION_PRESERVE_SEGMENTS
+                  initialValue:formData.COMPACTION_PRESERVE_SEGMENTS || undefined
                 })(
                   <Input/>
                 )
@@ -193,7 +194,7 @@ export default class StepOne extends Component{
               label="ALLOWED_COMPACTION_DAYS">
               {
                 getFieldDecorator('ALLOWED_COMPACTION_DAYS',{
-                  initialValue:formData.ALLOWED_COMPACTION_DAYS
+                  initialValue:formData.ALLOWED_COMPACTION_DAYS || undefined
                 })(
                   <Input/>
                 )

@@ -26,6 +26,7 @@ const workbenchActionType = mc([
     'NEXT_STEP',//下一步
     'LAST_STEP',//上一步
     'OPEN_DATA_MAP', // 查看DataMap
+    'NEW_TABLE_SAVED',//保存新表
 ], { prefix: 'workbench/' })
 
 export default workbenchActionType;

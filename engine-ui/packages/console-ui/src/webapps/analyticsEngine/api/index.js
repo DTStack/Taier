@@ -17,4 +17,8 @@ export default {
     createOrUpdateDB(params) {
         return http.post(req.CREATE_OR_UPDATE_DB, params);
     },
+
+    saveNewTable(params){
+        return http.post(req.CREATE_NEW_TABLE, params)
+    }
 }

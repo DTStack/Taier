@@ -162,3 +162,18 @@ export function handleLastStep(){
         })
     }
 }
+
+export function handleSave(){
+    return (dispatch,getStore) => {
+
+        const { workbench } = getStore();
+        const { newanalyEngineTableData } = workbench.mainBench;
+
+        const res = API.saveNewTable(newanalyEngineTableData)
+        if(res.code === 1){
+            return dispatch({
+                type: workbenchAction.NEW_TABLE_SAVED
+            })
+        }
+    }
+}

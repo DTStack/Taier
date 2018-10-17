@@ -247,12 +247,24 @@
         }
         table{
             background-color: #F5F5F5;
+            padding: 0;
+        }
+
+        .ant-table-small {
+            .ant-table-tbody {
+                tr{
+                    td{
+                        background: white;
+                        padding: 7px 20px;
+                    }
+                }
+            }
         }
         .ant-table-thead{
             // background-color: #F5F5F5;
             th{
                 background-color: #F5F5F5;
-                padding: 6.5px 8px;
+                padding: 6.5px 21px;
                 span{
                     font-size: 12px;
                     font-weight: normal;
