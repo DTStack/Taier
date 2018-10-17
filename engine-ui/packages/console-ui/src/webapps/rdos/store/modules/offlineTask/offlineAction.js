@@ -265,28 +265,32 @@ export const workbenchActions = (dispatch) => {
             let taskVariables = [];
 
             // SourceMap
-            if (sourceMap.where) {
-                const vbs = matchTaskParams(taskCustomParams, sourceMap.where)
-                taskVariables = taskVariables.concat(vbs);
+            if (sourceMap) {
+                if (sourceMap.where) {
+                    const vbs = matchTaskParams(taskCustomParams, sourceMap.where)
+                    taskVariables = taskVariables.concat(vbs);
+                }
+    
+                // 分区，获取任务自定义参数
+                if (sourceMap.partition) {
+                    const vbs = matchTaskParams(taskCustomParams, sourceMap.partition)
+                    taskVariables = taskVariables.concat(vbs);
+                }
             }
 
-            // 分区，获取任务自定义参数
-            if (sourceMap.partition) {
-                const vbs = matchTaskParams(taskCustomParams, sourceMap.partition)
-                taskVariables = taskVariables.concat(vbs);
-            }
-            
             // TagetMap
             // where, 获取任务自定义参数
-            const sqlText = `${targetMap.preSql} ${targetMap.postSql}`
-            if (sqlText) {
-                const vbs = matchTaskParams(taskCustomParams, sqlText)
-                taskVariables = taskVariables.concat(vbs);
-            }
-
-            if (targetMap.partition) {
-                const vbs = matchTaskParams(taskCustomParams, targetMap.partition)
-                taskVariables = taskVariables.concat(vbs);
+            if (targetMap) {
+                const sqlText = `${targetMap.preSql} ${targetMap.postSql}`
+                if (sqlText) {
+                    const vbs = matchTaskParams(taskCustomParams, sqlText)
+                    taskVariables = taskVariables.concat(vbs);
+                }
+    
+                if (targetMap.partition) {
+                    const vbs = matchTaskParams(taskCustomParams, targetMap.partition)
+                    taskVariables = taskVariables.concat(vbs);
+                }
             }
 
             dispatch({
