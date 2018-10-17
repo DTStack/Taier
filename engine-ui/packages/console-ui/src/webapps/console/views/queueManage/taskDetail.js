@@ -285,7 +285,14 @@ class TaskDetail extends Component {
             })
         } else {
             this.setState({
-                node: value
+                node: value,
+                dataSource: [],
+                groupName: undefined,
+                table: {
+                    ...table,
+                    loading: false,
+                    total: 0
+                }
             },this.getGroupList.bind(this))
         }
     }
