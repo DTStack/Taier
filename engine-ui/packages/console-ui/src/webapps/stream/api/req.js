@@ -96,6 +96,7 @@
      // ==== 实时运维模块 ===== //
      GET_CHECK_POINT_RANGE: `${STREAM_BASE_URL}/streamTaskCheckpoint/getCheckpointTimeRange`, // 获取指定任务的保存点可选时间范围
      GET_CHECK_POINTS: `${STREAM_BASE_URL}/streamTaskCheckpoint/getCheckpointList`, // 获取指定任务时间范围内的保存点
+     GET_TASK_METRICS:`${STREAM_BASE_URL}/streamJobMetric/getTaskMetrics`,//获取指标
 
 
  }
