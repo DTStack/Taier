@@ -35,6 +35,16 @@ module.exports = [
         icon: '/public/main/img/icon_stream.png',
         description: '基于FlinkSQL的流计算开发平台，快速对接数据源，帮助企业向实时化、智能化大数据计算升级转型',
     },{
+        id: 'analyticsEngine',
+        name: '分析引擎',
+        link: 'analytics.html#/',
+        filename: 'analytics.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/analytics',
+        icon: '/public/main/img/icon_5.png',
+        description: '计算资源分配、多集群管理',
+    },{
         id: 'dataQuality',
         name: '数据质量',
         link: 'dataQuality.html#/',
@@ -64,16 +74,6 @@ module.exports = [
         apiBase: '/dataLabel',
         icon: '/public/main/img/icon_4.png',
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
-    }, {
-        id: 'analyticsEngine',
-        name: '分析引擎',
-        link: 'analytics.html#/',
-        filename: 'analytics.html',
-        target: '_self',
-        enable: true,
-        apiBase: '/analytics',
-        icon: '/public/main/img/icon_5.png',
-        description: '计算资源分配、多集群管理',
     }, {
         id: 'console',
         name: '控制台',
