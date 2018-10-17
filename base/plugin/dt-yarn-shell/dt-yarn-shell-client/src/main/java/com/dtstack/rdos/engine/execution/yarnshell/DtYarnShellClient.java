@@ -76,6 +76,10 @@ public class DtYarnShellClient extends AbsClient {
                 conf.set(key, value.toString());
             }
         }
+        String queue = prop.getProperty("queue");
+        if (StringUtils.isNotBlank(queue)){
+            conf.get(DtYarnConfiguration.DT_APP_QUEUE, queue);
+        }
         client = new Client(conf);
     }
 

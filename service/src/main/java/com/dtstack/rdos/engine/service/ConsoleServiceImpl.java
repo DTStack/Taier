@@ -145,11 +145,6 @@ public class ConsoleServiceImpl {
             ComputeType type = ComputeType.valueOf(computeType.toUpperCase());
             Preconditions.checkNotNull(type, "parameters of computeType is STREAM/BATCH");
             return engineJobCacheDao.listNames(type.getType(),jobName);
-//            if (ComputeType.STREAM == type) {
-//                return engineStreamTaskDAO.listNames(jobName);
-//            } else {
-//                return engineBatchJobDAO.listNames(jobName);
-//            }
         } catch (Exception e) {
             logger.error("{}", e);
         }
@@ -198,6 +193,9 @@ public class ConsoleServiceImpl {
         try {
             GroupPriorityQueue queue = workNode.getEngineTypeQueue(engineType);
             OrderLinkedBlockingQueue<JobClient> jobQueue = queue.getGroupPriorityQueueMap().get(groupName);
+            if (jobQueue == null){
+                return null;
+            }
             int queueSize = jobQueue.size();
             List<Map<String, Object>> topN = new ArrayList<>();
             Map<String, Object> result = new HashMap<>();
