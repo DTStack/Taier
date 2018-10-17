@@ -21,7 +21,6 @@ import "../../../../styles/pages/dataManage.scss";
 import utils from "utils";
 import GoBack from "main/components/go-back";
 
-import Editor from "../../../../components/code-editor";
 import ajax from "../../../../api/dataManage";
 import TableOverview from "./overview";
 import TableAnalytics from "./analytics";

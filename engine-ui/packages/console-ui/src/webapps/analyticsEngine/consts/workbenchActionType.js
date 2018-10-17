@@ -16,12 +16,16 @@ const workbenchActionType = mc([
     // MainBench
     'OPEN_SQL_QUERY', // 打开SQL查询
     'CREATE_TABLE', // 创建表
+    'CREATE_TABLE', // 创建表
     'OPEN_TABLE', // 查看表
     'OPEN_DATABASE', // 查看数据库
+    'OPEN_CREATE_DATABASE', // 创建数据库
+    'CREATE_DATABASE', // 创建数据库
     'CREATE_DATA_MAP', // 创建DataMap
     'NEW_TABLE_INFO_CHANGE',//新建表表单值更改
     'NEXT_STEP',//下一步
     'LAST_STEP',//上一步
+    'OPEN_DATA_MAP', // 查看DataMap
 ], { prefix: 'workbench/' })
 
 export default workbenchActionType;

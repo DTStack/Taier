@@ -43,10 +43,12 @@ export default function mainBench(state = getInitialCachedData(), action) {
             if (payload) {
                 const tabs = [...state.tabs];
                 tabs.push(payload);
-                return assign({}, state, {
+                const newStore = assign({}, state, {
                     currentTab: payload.id,
                     tabs,
                 })
+                localDb.set('engine_workbench', newStore);
+                return newStore;
             }
         }
 

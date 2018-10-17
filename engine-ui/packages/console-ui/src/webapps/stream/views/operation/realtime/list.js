@@ -84,7 +84,6 @@ class RealTimeTaskList extends Component {
         }
         let haveRun=false;
         let haveRunList=[
-            TASK_STATUS.WAIT_SUBMIT,
             TASK_STATUS.RUNNING,
             TASK_STATUS.STOPING,
             TASK_STATUS.SUBMITTING,

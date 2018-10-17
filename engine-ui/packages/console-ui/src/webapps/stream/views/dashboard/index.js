@@ -10,6 +10,7 @@ import ProjectForm from '../project/form'
 import Api from '../../api'
 import * as ProjectAction from "../../store/modules/project";
 import NoData from '../../components/no-data';
+import {PROJECT_STATUS} from "../../comm/const";
 
 const Search = Input.Search;
 
@@ -32,20 +33,20 @@ class Index extends Component {
     componentDidMount() {
         this.getProjectListInfo();
     }
-    componentWillUnmount(){
-        this._isUnmounted=true;
+    componentWillUnmount() {
+        this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
-    debounceGetProList(){
-        if(this._isUnmounted){
-            return ;
+    debounceGetProList() {
+        if (this._isUnmounted) {
+            return;
         }
-       this._timeClock=setTimeout(() => {
-            this.getProjectListInfo(null,true);
+        this._timeClock = setTimeout(() => {
+            this.getProjectListInfo(null, true);
         }, 3000);
     }
     setCard = (data) => {
-        if (data.status == 2 || data.status == 3) {//"删除项目" 
+        if (data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL) {//"删除项目" 
             Api.deleteProject({ projectId: data.id }).then(v => {
                 if (v.code == 1) {
                     message.success('删除项目成功！');
@@ -69,10 +70,10 @@ class Index extends Component {
         }
     }
 
-    getProjectListInfo = (params,isSilent) => {
+    getProjectListInfo = (params, isSilent) => {
         const { projectListParams } = this.state;
         const queryParsms = { ...projectListParams, ...params };
-        if(!isSilent){
+        if (!isSilent) {
             this.setState({
                 loading: true,
             })
@@ -80,9 +81,9 @@ class Index extends Component {
         clearTimeout(this._timeClock);
         Api.getProjectListInfo(queryParsms).then((res) => {
             if (res.code === 1) {
-                if(res.data&&res.data.data){
-                    for(let project of res.data.data){
-                        if(project.status==0){
+                if (res.data && res.data.data) {
+                    for (let project of res.data.data) {
+                        if (project.status == 0) {
                             this.debounceGetProList();
                             break;
                         }
@@ -124,8 +125,6 @@ class Index extends Component {
         const { dispatch } = this.props;
         if (type === "operation") {
             src = "/operation"
-        } else if (type === "offline") {
-            src = "/offline/task"
         } else {//realtime
             src = "/realtime"
         }
@@ -139,16 +138,16 @@ class Index extends Component {
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
-                data.status == 2 || data.status == 3 ? "删除项目" : "置顶"
+                data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL ? "删除项目" : "置顶"
             }
         </div>
         const tooltipImg = <div onClick={() => { this.setCard(data) }}>
             {
-                (data.status != 2 || data.status != 3) && data.stickStatus == 1 ? //取消置顶非图标,不需要Tooltip提示,过滤掉
+                (data.status != PROJECT_STATUS.DISABLE || data.status != PROJECT_STATUS.FAIL) && data.stickStatus == 1 ? //取消置顶非图标,不需要Tooltip提示,过滤掉
                     cancelTop :
                     <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
                         {
-                            data.status == 2 || data.status == 3 ? deleteImg : setTopImg
+                            data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL ? deleteImg : setTopImg
                         }
                     </Tooltip>
             }
@@ -156,8 +155,8 @@ class Index extends Component {
         const title = <div>
             <Row>
                 <Col span="20" >
-                    {data.status == 1 ? (
-                        <Link to={`/offline/task?projectId=${data.id}`}>
+                    {data.status == PROJECT_STATUS.NORMAL ? (
+                        <Link to={`/realtime/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
                                 {data.projectAlias}&nbsp;&nbsp;
                         </span>
@@ -176,7 +175,7 @@ class Index extends Component {
     }
     renderTitleText(data) {
         switch (data.status) {
-            case 0: {
+            case PROJECT_STATUS.INITIALIZE: {
                 return (
                     <span>
                         <Icon type="loading" style={{ fontSize: 14, color: "#2491F7", paddingLeft: 16 }} />
@@ -184,15 +183,15 @@ class Index extends Component {
                     </span>
                 )
             }
-            case 1: {
+            case PROJECT_STATUS.NORMAL: {
                 return (
                     <span style={{ color: '#999' }}>
                         {`(${data.projectName})`}
                     </span>
                 )
             }
-            case 2:
-            case 3: {
+            case PROJECT_STATUS.DISABLE:
+            case PROJECT_STATUS.FAIL: {
                 return (
                     <span>
                         <Icon type="close-circle" style={{ fontSize: 14, color: "#f00", paddingLeft: 16 }} />
@@ -231,24 +230,16 @@ class Index extends Component {
     }
 
     handleMouseOver = (type, e) => {
-        if (type === "realtime") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.svg"
-        } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.svg"
-        }
+        e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.svg"
     }
 
     handleMouseOut = (type, e) => {
-        if (type === "realtime") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.svg"
-        } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.svg"
-        }
+        e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.svg"
     }
 
 
     render() {
-        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, offlineSrc, realtimeSrc } = this.state;
+        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
@@ -276,7 +267,7 @@ class Index extends Component {
                         <Col span="24" >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
-                                    projectListInfo && projectListInfo.length === 0 && !loading ? <NoData/> : ''
+                                    projectListInfo && projectListInfo.length === 0 && !loading ? <NoData /> : ''
                                 }
                                 {
                                     projectListInfo && projectListInfo.map(v => {
@@ -291,7 +282,7 @@ class Index extends Component {
                                                     </Col>
                                                     <Col span="8">
                                                         <div style={{ fontSize: 14 }}>今日任务失败数</div>
-                                                        {v.status != 1 ? (
+                                                        {v.status != PROJECT_STATUS.NORMAL ? (
                                                             <div className="number no-hover">
                                                                 {
                                                                     v.jobSum ? <span>{v.jobSum}</span> :
@@ -309,7 +300,7 @@ class Index extends Component {
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {
-                                                            v.status != 1 ? "" : <Row >
+                                                            v.status != PROJECT_STATUS.NORMAL ? "" : <Row >
                                                                 <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('realtime', v) }}

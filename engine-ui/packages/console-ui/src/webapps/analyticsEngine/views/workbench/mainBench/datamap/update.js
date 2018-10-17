@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 
-class DatabaseDetail extends Component {
+class UpdateDataMap extends Component {
     render () {
         return (
             <div>
-                DatabaseDetail
+                CreateDataMap
             </div>
         )
     }
 }
 
-export default DatabaseDetail
+export default UpdateDataMap

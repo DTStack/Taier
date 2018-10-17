@@ -3,9 +3,6 @@ import mc from 'mirror-creator';
 import utils from 'utils'
 import Api from '../../api'
 
-import {
-    workbenchAction,
-} from '../../store/modules/offlineTask/actionType';
 import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 
@@ -26,7 +23,7 @@ export function getProject(id) {
 
     return (dispatch) => {
 
-        const projectKey = 'project_id';
+        const projectKey = 'stream_project_id';
         const oldProjectID = utils.getCookie(projectKey);
 
         // 如果为不同的项目
@@ -34,9 +31,6 @@ export function getProject(id) {
             utils.setCookie(projectKey, id)
             // 当切换项目时，应当清理任务开发导航中的缓存数据
             dispatch(clearPages());
-            dispatch({ 
-                type: workbenchAction.CLOSE_ALL_TABS
-            });
         } 
         Api.getProjectByID({
             projectId: id,
@@ -51,7 +45,7 @@ export function getProject(id) {
 
 export function setProject(data) {
     if (data && data.id) {
-        utils.setCookie('project_id', data.id);
+        utils.setCookie('stream_project_id', data.id);
     }
     return {
         type: projectAction.SET_PROJECT,

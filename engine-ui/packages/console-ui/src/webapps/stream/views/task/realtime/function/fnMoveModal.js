@@ -5,10 +5,6 @@ import { Modal, Button, Form, Input } from 'antd';
 import { getContainer } from 'funcs';
 import { MENU_TYPE, formItemLayout } from '../../../../comm/const';
 
-import {
-    modalAction,
-    fnTreeAction
-} from '../../../../store/modules/offlineTask/actionType';
 
 import FolderPicker from '../folderTree';
 

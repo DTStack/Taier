@@ -8,14 +8,11 @@ import { getContainer } from 'funcs';
 
 import ajax from '../../api';
 
-import { 
-    workbenchActions
-} from '../../store/modules//offlineTask/offlineAction';
 import { showSeach } from '../../store/modules/comm';
 
 import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
-import { inOffline, inRealtime } from '../../comm';
+import { inRealtime } from '../../comm';
 
 const Option = Select.Option;
 
@@ -58,7 +55,7 @@ class SearchTaskModal extends React.Component {
                 return;
             }
 
-            if (inRealtime() || inOffline()) {
+            if (inRealtime()) {
 
                 if (keyMap[ctrlKey] && keyMap[keyP]) {
                     target.preventDefault();
@@ -87,12 +84,7 @@ class SearchTaskModal extends React.Component {
             }
         }
 
-        if (inOffline()) {
-            ajax.searchOfflineTask({
-                taskName: value,
-            }).then(succCall)
-
-        } else if (inRealtime()) {
+       if (inRealtime()) {
             ajax.searchRealtimeTask({
                 taskName: value,
             }).then(succCall)
@@ -104,18 +96,9 @@ class SearchTaskModal extends React.Component {
     onSelect = (value, option) => {
         this.close();
         const taskId = option.props.data.id
-        if (inOffline()) {
-            const { tabs, currentTab, openOfflineTaskTab } = this.props
-            openOfflineTaskTab({
-                tabs,
-                currentTab,
-                id: taskId,
-                treeType: MENU_TYPE.TASK_DEV,
-            })
-        } else if(inRealtime()) {
-            const { openRealtimeTaskTab } = this.props
-            openRealtimeTaskTab({id: taskId })
-        }
+        const { openRealtimeTaskTab } = this.props
+        openRealtimeTaskTab({ id: taskId })
+
     }
 
     onfocus = () => {
@@ -130,7 +113,7 @@ class SearchTaskModal extends React.Component {
     render() {
         const { data } = this.state;
         const { visibleSearchTask, editor } = this.props;
-        const options = data && data.map(item => 
+        const options = data && data.map(item =>
             <Option key={item.id} data={item} value={item.name}>
                 {item.name}
             </Option>
@@ -148,7 +131,7 @@ class SearchTaskModal extends React.Component {
                     id="My_Search_Select"
                     mode="combobox"
                     showSearch
-                    style={{width: '100%'}}
+                    style={{ width: '100%' }}
                     placeholder="按任务名称搜索"
                     notFoundContent="没有发现相关任务"
                     defaultActiveFirstOption={true}
@@ -167,22 +150,16 @@ class SearchTaskModal extends React.Component {
 }
 
 export default connect(state => {
-    const { workbench } = state.offlineTask;
-    const { tabs, currentTab } = workbench;
-    return { 
-        tabs, 
-        currentTab, 
+    return {
         visibleSearchTask: state.visibleSearchTask,
         editor: state.editor
     }
 }, dispatch => {
-    const actions = workbenchActions(dispatch)
     return {
-        openOfflineTaskTab: actions.openTab,
-        openRealtimeTaskTab: function(params) {
+        openRealtimeTaskTab: function (params) {
             dispatch(openPage(params))
         },
-        showSeach: function(boolFlag) {
+        showSeach: function (boolFlag) {
             dispatch(showSeach(boolFlag))
         }
     }

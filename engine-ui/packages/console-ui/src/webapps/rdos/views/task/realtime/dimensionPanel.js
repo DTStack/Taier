@@ -18,7 +18,7 @@ import {
 
 import Api from "../../../api";
 import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
-import Editor from "../../../components/code-editor";
+import Editor from "main/components/code-editor";
 import { switchPartition } from "../../../views/helpDoc/docs";
 
 const Option = Select.Option;

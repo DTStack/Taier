@@ -6,7 +6,7 @@ import {
 import SlidePane from 'widgets/slidePane'
 import { TaskStatus } from "../../../../components/status"
 import AlarmMsg from "./tabs/alarmMsg"
-import BaseInfo from "./tabs/BaseInfo"
+import BaseInfo from "./tabs/baseInfo"
 import CheckPoint from "./tabs/checkPoint"
 import DataDelay from "./tabs/dataDelay"
 import RunCode from "./tabs/runCode"

@@ -4,7 +4,7 @@ import { Row, Table, Pagination, Modal } from 'antd'
 
 
 import CommApi from '../../../api';
-import Editor from '../../../components/code-editor'
+import Editor from 'main/components/code-editor'
 import { TaskType, ScriptType } from '../../../components/status'
 import { TASK_TYPE } from '../../../comm/const'
 

@@ -3,6 +3,7 @@ import mc from 'mirror-creator';
 import {
      UIC_BASE_URL, 
      DATA_API_BASE_URL,
+     STREAM_BASE_URL,
      RDOS_BASE_URL,
      DQ_BASE_URL,
      DL_BASE_URL,
@@ -62,5 +63,25 @@ export default {
     DL_ROLE_PERMISSION_ADD_OR_EDIT:`${DL_BASE_URL}/role/addOrUpdateRole`,//更新或添加角色权限
     DL_REMOVE_ROLE:`${DL_BASE_URL}/role/deleteRole`,//删除角色
     DL_SEARCH_UIC_USERS: `${DL_BASE_URL}/user/getUicUsersNotInProject`, // 获取UIC
+
+     //===== stream ====//
+    //**消息**//
+    STREAM_MASSAGE_QUERY: `${STREAM_BASE_URL}/notifyRecord/pageQuery`,
+    STREAM_GET_MASSAGE_BY_ID: `${STREAM_BASE_URL}/notifyRecord/getOne`,
+    STREAM_MASSAGE_MARK_AS_READ: `${STREAM_BASE_URL}/notifyRecord/tabRead`,
+    STREAM_MASSAGE_MARK_AS_ALL_READ: `${STREAM_BASE_URL}/notifyRecord/allRead`,
+    STREAM_MASSAGE_DELETE: `${STREAM_BASE_URL}/notifyRecord/delete`,
+
+    //** 用户角色 *//
+    STREAM_QUERY_USER:`${STREAM_BASE_URL}/project/getProjectUsers`,//查询系统用户信息
+    STREAM_REMOVE_USER:`${STREAM_BASE_URL}/roleUser/remove`,//删除用户
+    STREAM_UPDATE_USER_ROLE:`${STREAM_BASE_URL}/roleUser/updateUserRole`,//更改用户角色
+    STREAM_ADD_USER: `${STREAM_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
+    STREAM_ROLE_QUERY:`${STREAM_BASE_URL}/role/pageQuery`,//角色列表
+    STREAM_GET_ROLE_TREE:`${STREAM_BASE_URL}/permission/tree`,//获取权限树
+    STREAM_ROLE_PERMISSION:`${STREAM_BASE_URL}/permission/getPermissionIdsByRoleId`,//获取角色的权限
+    STREAM_ROLE_PERMISSION_ADD_OR_EDIT:`${STREAM_BASE_URL}/role/addOrUpdateRole`,//更新或添加角色权限
+    STREAM_REMOVE_ROLE:`${STREAM_BASE_URL}/role/deleteRole`,//删除角色
+    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject`, // 获取UIC用户列表
 }
 
