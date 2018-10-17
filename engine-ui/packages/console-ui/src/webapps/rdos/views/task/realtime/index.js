@@ -80,11 +80,6 @@ class TaskIndex extends Component {
                 }
             }
         }
-<<<<<<< HEAD
-=======
-
-        console.log('inputData, outputData',inputData,outputData,currentPage);
->>>>>>> bugfix_v2.8.0
         const resList = currentPage.resourceList;
         currentPage.preSave = true;
         if (resList && resList.length > 0) {
