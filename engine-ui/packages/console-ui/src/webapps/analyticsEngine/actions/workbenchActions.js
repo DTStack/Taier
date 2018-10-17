@@ -2,6 +2,7 @@ import API from '../api';
 import moment from 'moment';
 import workbenchAction from '../consts/workbenchActionType';
 import modalAction from '../consts/modalActionType';
+import { notification } from 'antd';
 
 // import { CATALOGUE_} from '../consts';
 
@@ -9,7 +10,7 @@ export const updateModal = (value) => {
     return { type: modalAction.UPDATE_MODAL, data: value }
 }
 
-export const resetModal = (value) => {
+export const resetModal = () => {
     return { type: modalAction.RESET_MODAL }
 }
 
@@ -101,5 +102,33 @@ export function loadCatalogue(params) {
                 payload: res.data,
             })
         }
+    }
+}
+
+/**
+ * 生成建表语句
+ */
+export function onGenerateCreateSQL(tableId) {
+    console.log('onCreate:', tableId)
+
+    return async dispatch => {
+
+        const res = await API.getCreateSQL({
+            tableId,
+        });
+    
+        if (res.code === 1) {
+            const modalValue = {
+                visibleModal: workbenchAction.GENERATE_CREATE_SQL,
+                modalData: res.data,
+            }
+            return dispatch(updateModal(modalValue))
+        } else {
+            notification.error({
+                message: '提示',
+                description: '生成建表语句失败！'
+            });
+        }
+        return dispatch(resetModal());
     }
 }

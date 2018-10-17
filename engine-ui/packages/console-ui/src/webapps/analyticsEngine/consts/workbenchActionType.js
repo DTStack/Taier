@@ -23,6 +23,7 @@ const workbenchActionType = mc([
     'CREATE_DATABASE', // 创建数据库
     'CREATE_DATA_MAP', // 创建DataMap
     'OPEN_DATA_MAP', // 查看DataMap
+    'GENERATE_CREATE_SQL', // 生成建表语句
 ], { prefix: 'workbench/' })
 
 export default workbenchActionType;

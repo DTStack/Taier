@@ -17,6 +17,10 @@ const getInitialCachedData = () => {
             }, {
                 id: 3,
                 name: 'testData2',
+                table: {
+                    id: 1,
+                    name: 'testTable'
+                },
                 actionType: 'workbench/CREATE_DATA_MAP',
             }
         ],

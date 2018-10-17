@@ -30,10 +30,16 @@ class BenchContent extends Component {
                 return <DatabaseDetail data={tabData} />
             }
             case workbenchAction.OPEN_DATA_MAP: {
-                return <UpdateDataMap data={tabData} />
+                return <UpdateDataMap 
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData} 
+                />
             }
             case workbenchAction.CREATE_DATA_MAP: {
-                return <CreateDataMap data={tabData} />
+                return <CreateDataMap 
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData} 
+                />
             }
             default: <p>
                 未知类型
