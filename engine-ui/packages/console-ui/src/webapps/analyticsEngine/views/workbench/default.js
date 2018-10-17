@@ -23,7 +23,7 @@ class Default extends Component {
                         className="operation-content"
                     >
                         <img
-                            src={`${iconBaseUrl}/upload_res.png`}
+                            src={`${iconBaseUrl}/new_query.png`}
                             className="anticon"
                         />
                         <p className="txt-center operation-title">
@@ -37,7 +37,7 @@ class Default extends Component {
                         className="operation-content"
                     >
                         <img
-                            src={`${iconBaseUrl}/create_script.png`}
+                            src={`${iconBaseUrl}/add_table.png`}
                             className="anticon"
                         />
                         <p className="txt-center operation-title">

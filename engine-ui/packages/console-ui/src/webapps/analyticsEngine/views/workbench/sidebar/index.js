@@ -14,6 +14,7 @@ import {
 import ToolBar from './toolbar';
 import FolderTree from './folderTree';
 import * as workbenchActions from '../../../actions/workbenchActions';
+import MyIcon from '../../../components/icon';
 
 const CTX_ACTION = {
     SHOW_DATA_MAP: 'SHOW_DATA_MAP',
@@ -87,14 +88,51 @@ class Sidebar extends Component {
         });
     }
 
-    render() {
+    renderFolderContent = () => {
+
         const {
             folderTree,
+        } = this.props;
+
+        if (folderTree && folderTree.children && folderTree.children.length > 0) {
+            return (
+                <div>
+                    <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
+                        <Search
+                            placeholder="输入表名搜索"
+                            onSearch={debounceEventHander(this.searchTable, 500, { 'maxWait': 2000 })}
+                        />
+                    </div>
+                    <FolderTree
+                        onRightClick={this.onRightClick}
+                        loadData={this.asynLoadCatalogue}
+                        onSelect={this.onSelectCatalogeuItem}
+                        treeData={folderTree.children}
+                    />
+                </div>
+            )
+        } else {
+            return (
+                <p style={{
+                    padding: '86px 36px', 
+                    fontSize: '14px', 
+                    color: '#666666'
+                }}>
+                    点击上方<MyIcon type="btn_database" />新建数据库
+                    或联系管理员获取访问权限
+                </p>
+            )
+        }
+    }
+
+    render() {
+        const {
             onCreateDB,
             onCreateTable,
             onSQLQuery,
             loadCatalogue,
         } = this.props;
+
         return (
             <div className="sidebar">
                 <ToolBar
@@ -103,18 +141,9 @@ class Sidebar extends Component {
                     onSQLQuery={() => onSQLQuery()}
                     onCreateTable={() => onCreateTable()}
                 />
-                <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
-                    <Search
-                        placeholder="输入表名搜索"
-                        onSearch={debounceEventHander(this.searchTable, 500, { 'maxWait': 2000 })}
-                    />
-                </div>
-                <FolderTree
-                    onRightClick={this.onRightClick}
-                    loadData={this.asynLoadCatalogue}
-                    onSelect={this.onSelectCatalogeuItem}
-                    treeData={folderTree.children}
-                />
+                {
+                    this.renderFolderContent()
+                }
                 <ContextMenu targetClassName="anchor-database">
                     <MenuItem onClick={this.initEditTask}>新建表</MenuItem>
                     <MenuItem onClick={

@@ -24,7 +24,7 @@ class DDLModal extends Component {
             <div>
                  <Modal className="m-codemodal"
                     title="建表语句"
-                    width="750"
+                    width="750px"
                     visible={visible}
                     maskClosable={false}
                     closable

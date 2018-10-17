@@ -109,7 +109,6 @@ export function loadCatalogue(params) {
  * 生成建表语句
  */
 export function onGenerateCreateSQL(tableId) {
-    console.log('onCreate:', tableId)
 
     return async dispatch => {
 
