@@ -42,7 +42,7 @@ class MainBench extends Component {
                 return (
                     <TabPane
                         style={{ height: '0px' }}
-                        tab={title} 
+                        tab={title}
                         key={tab.id}
                     >
                         <BenchContent tabData={tab}/>
@@ -55,7 +55,7 @@ class MainBench extends Component {
 
     render() {
         const { closeTab, switchTab, workbench } = this.props;
-        const { tabs, currentTab } = workbench.mainBench;
+        const { tabs, currentTab, currentStep } = workbench.mainBench;
         return (
             <div className="m-mainbench">
                  <Tabs

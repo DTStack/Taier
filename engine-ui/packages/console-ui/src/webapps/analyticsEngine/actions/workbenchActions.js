@@ -37,12 +37,31 @@ export function onCreateDataMap() {
 
 }
 
-export function onCreateTable() {
+export function onCreateTable(params) {
+    return (dispatch, getStore) => {
+        const {workbench} = getStore();
+        const { tabs } = workbench.mainBench;
 
+        let createTableTabIndex = 0;
+        for(let i = 0;i<tabs.length;i++){
+            if(tabs[i].actionType === workbenchAction.CREATE_TABLE){
+                createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
+            }
+        }
+
+        const newCreateTableTabData = {
+            id: moment().unix(),
+            name: '新建表',
+            createTableTabIndex: createTableTabIndex + 1,
+            actionType: workbenchAction.CREATE_TABLE,
+        }
+        console.log(newCreateTableTabData)
+
+        dispatch(openTab(newCreateTableTabData))
+    }
 }
 
 export function onSQLQuery() {
-    
     return (dispatch, getStore) => {
         const { workbench } = getStore();
         console.log('onSqlQuery:', workbench);
@@ -63,6 +82,7 @@ export function onSQLQuery() {
             actionType: workbenchAction.OPEN_SQL_QUERY,
         }
 
+        console.log(defaultSQLQueryTabData)
         dispatch(openTab(defaultSQLQueryTabData));
     }
 }
@@ -87,5 +107,44 @@ export function loadCatalogue(params) {
                 payload: res.data,
             })
         }
+    }
+}
+
+/**
+ * 保存新建表数据
+ */
+export function saveNewTableData(params) {
+    console.log(params)
+    return (dispatch)=>{
+        dispatch({
+            type: workbenchAction.NEW_TABLE_INFO_CHANGE,
+            payload: params
+        })
+    }
+}
+
+export function handleNextStep() {
+    console.log('sdsdadsaNEXT')
+    return (dispatch,getStore) => {
+        const { workbench } = getStore();
+        const { currentStep } = workbench.mainBench;
+        if(currentStep === 3){
+            //提交表单
+        }else{
+            return dispatch({
+                type: workbenchAction.NEXT_STEP
+            })
+        }
+    }
+}
+
+export function handleLastStep(){
+    return (dispatch,getStore) => {
+        const { workbench } = getStore();
+        const { currentStep } = workbench.mainBench;
+
+        return dispatch({
+            type: workbenchAction.LAST_STEP
+        })
     }
 }

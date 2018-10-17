@@ -21,7 +21,7 @@ const initState = {
         topic:undefined
     },
 }
-
+ 
 function getCurrentPage() {
     const state = store.getState();
     const { realtimeTask } = state;

@@ -19,6 +19,9 @@ const workbenchActionType = mc([
     'OPEN_TABLE', // 查看表
     'OPEN_DATABASE', // 查看数据库
     'CREATE_DATA_MAP', // 创建DataMap
+    'NEW_TABLE_INFO_CHANGE',//新建表表单值更改
+    'NEXT_STEP',//下一步
+    'LAST_STEP',//上一步
 ], { prefix: 'workbench/' })
 
 export default workbenchActionType;
