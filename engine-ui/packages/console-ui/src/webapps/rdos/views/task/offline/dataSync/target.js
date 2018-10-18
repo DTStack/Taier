@@ -139,7 +139,7 @@ class TargetForm extends React.Component {
         this.submitForm();
     }
 
-    submitForm() {
+    submitForm = () => {
         const {
             taskCustomParams, sourceMap,
             form, handleTargetMapChange,
@@ -426,7 +426,6 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
-                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {this.state.tableList.map(table => {
@@ -499,8 +498,10 @@ class TargetForm extends React.Component {
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
                         })(
                             <Input
-                                placeholder="例如: /rdos/batch"
-                                onChange={this.submitForm.bind(this)} />
+                                placeholder="例如: /app/batch"
+                                onChange={
+                                    debounce(this.submitForm, 600, { 'maxWait': 2000 })
+                                }/>
                         )}
                     </FormItem>,
                     <FormItem

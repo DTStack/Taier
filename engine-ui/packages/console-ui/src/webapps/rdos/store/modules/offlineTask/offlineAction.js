@@ -162,6 +162,13 @@ export const keyMapActions = (dispatch) => {
                 payload: { target },
             });
         },
+
+        removeKeyMap({source, target}) {
+            dispatch({
+                type: keyMapAction.REMOVE_KEYMAP,
+                payload: { source, target },
+            });
+        },
     }
 };
 
@@ -261,7 +268,6 @@ export const workbenchActions = (dispatch) => {
          * @param {Object} dataSync 
          */
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
-            console.log('update:', sourceMap, targetMap);
             let taskVariables = [];
 
             // SourceMap

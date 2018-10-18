@@ -355,7 +355,7 @@ class Keymap extends React.Component{
             .attr('x2', -10)
             .attr('y2', -10);
     }
-    
+
     initData = () => {
         const { sourceMap, sourceSrcType, addSourceKeyRow } = this.props;
         if (sourceSrcType === DATA_SOURCE.HBASE) {
@@ -1341,6 +1341,7 @@ class Keymap extends React.Component{
             editSourceKeyRow,
             editTargetKeyRow,
             editKeyMapTarget,
+            removeKeyMap,
         } = this.props;
         const { keyModal } = this.state;
         const { isReader, position, source, editField } = keyModal;
@@ -1357,6 +1358,10 @@ class Keymap extends React.Component{
                 editKeyMapTarget({
                     old: editField,
                     replace: formData,
+                })
+                console.log('editKeyMapTarget:', source, editField);
+                removeKeyMap({
+                    target: editField,
                 })
             }
             this.hideKeyModal();
