@@ -177,6 +177,7 @@ public class ConsoleServiceImpl {
                 element.put("groupName", groupName);
                 element.put("groupSize", groupSize);
                 element.put("generateTime", generateTime);
+                element.put("waitTime", System.currentTimeMillis() - generateTime);
                 groups.add(element);
             }
             return groups;
@@ -221,7 +222,10 @@ public class ConsoleServiceImpl {
                     break;
                 }
             }
-
+            if (topN.size() > queueSize){
+                queueSize = topN.size();
+                result.put("queueSize", queueSize);
+            }
             return result;
         } catch (Exception e) {
             logger.error("{}", e);
