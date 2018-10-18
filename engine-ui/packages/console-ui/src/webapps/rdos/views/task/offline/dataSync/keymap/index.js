@@ -1355,13 +1355,12 @@ class Keymap extends React.Component{
                     index: position,
                     value: formData,
                 });
-                // editKeyMapTarget({
-                //     old: editField,
-                //     replace: formData,
-                // })
-                console.log('remove:', source, editField);
+                editKeyMapTarget({
+                    old: editField,
+                    replace: formData,
+                })
+                console.log('editKeyMapTarget:', source, editField);
                 removeKeyMap({
-                    source,
                     target: editField,
                 })
             }

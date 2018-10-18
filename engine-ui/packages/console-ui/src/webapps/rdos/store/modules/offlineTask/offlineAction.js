@@ -162,6 +162,13 @@ export const keyMapActions = (dispatch) => {
                 payload: { target },
             });
         },
+
+        removeKeyMap({source, target}) {
+            dispatch({
+                type: keyMapAction.REMOVE_KEYMAP,
+                payload: { source, target },
+            });
+        },
     }
 };
 
