@@ -63,7 +63,7 @@ $fontColor1: #2491F7;
     .ant-pagination-jump-next:after,
     .CodeMirror-scroll,
     .ant-confirm-title,
-    .normal-tab,
+    .task-browser .normal-tab,
     .ant-confirm-content,
     .ant-dropdown-menu-item,
     .ant-dropdown-menu-item a,
@@ -554,6 +554,7 @@ $fontColor1: #2491F7;
                 border-bottom: 1px solid #5A5A5A;
             }
 
+            .ant-collapse-header:hover,
             .ant-collapse-header {
                 color: $fontColor;
                 background-color: $color2;

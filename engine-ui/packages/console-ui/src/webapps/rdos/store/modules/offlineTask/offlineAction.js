@@ -261,7 +261,6 @@ export const workbenchActions = (dispatch) => {
          * @param {Object} dataSync 
          */
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
-            console.log('update:', sourceMap, targetMap);
             let taskVariables = [];
 
             // SourceMap

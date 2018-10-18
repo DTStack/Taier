@@ -368,7 +368,7 @@ class Workbench extends React.Component {
                     title = (<div>
                         <TabIcon tabData={tab} />
                         <span className="tab-ellipsis">
-                            <a onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                            <a className="workflow-name" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                                 <Tooltip title={tab.flowName}>{tab.flowName}</Tooltip>
                             </a>
                             <span className="normal-tab">&nbsp;/ {<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>

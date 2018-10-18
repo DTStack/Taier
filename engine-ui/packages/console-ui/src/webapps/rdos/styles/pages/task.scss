@@ -586,14 +586,22 @@
             background-color: rgba(255, 87, 34, 0.7);
         }
 
-        .tab-ellipsis {
+        .tab-ellipsis,
+        .normal-tab,
+        .workflow-name {
             display: inline-block;
-            // max-width: 200px;
-            width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        .tab-ellipsis {
+            width: 120px;
+        }
+
+        .workflow-name {
+            max-width: 60px;
+        }
+        
         .normal-tab {
             color: rgba(0, 0, 0, 0.65);
         }
@@ -623,7 +631,7 @@
             z-index: 902;
             top: 30px;
             height: 100%;
-            padding-bottom: 40px;
+            padding-bottom: 35px;
             overflow: auto;
             right: -1px;
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar {
