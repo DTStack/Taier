@@ -20,6 +20,7 @@ import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +29,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -218,18 +220,18 @@ public class DtContainer {
 
     }
 
-    private void printContainerInfo() {
+    private void printContainerInfo() throws IOException {
         FSDataOutputStream out = null;
         try {
             ContainerId cId = containerId.getContainerId();
-            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containes/" + cId.toString());
+            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
             if (!dfs.exists(cIdPath)) {
                 dfs.delete(cIdPath);
             }
             out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-            out.writeUTF(NetUtils.getHostname().toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+            Map<String,Object> info = new HashMap<>(1);
+            info.put("host",NetUtils.getHostname());
+            out.writeUTF(new ObjectMapper().writeValueAsString(info));
         } finally {
             IOUtils.closeStream(out);
         }

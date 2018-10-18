@@ -10,7 +10,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
@@ -32,7 +34,10 @@ import org.apache.hadoop.yarn.client.api.YarnClientApplication;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -333,7 +338,27 @@ public class Client {
         return yarnClient.getNodeReports(NodeState.RUNNING);
     }
 
-
+    public List<String> getContainerInfos(String jobId) throws IOException {
+        ApplicationId appId = ConverterUtils.toApplicationId(jobId);
+        Path cIdPath = Utilities.getRemotePath(conf, appId,"containers");
+        FileStatus[] status = dfs.listStatus(cIdPath);
+        List<String> infos = new ArrayList<>(status.length);
+        for (FileStatus file : status) {
+            if (!file.getPath().getName().startsWith("container")) {
+                continue;
+            }
+            FSDataInputStream inputStream = dfs.open(file.getPath());
+            InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder lineString = new StringBuilder();
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                lineString.append(line);
+            }
+            infos.add(lineString.toString());
+        }
+        return infos;
+    }
 
     public static void main(String[] args) {
         try {

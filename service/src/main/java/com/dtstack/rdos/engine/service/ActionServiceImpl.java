@@ -4,6 +4,8 @@ import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
@@ -14,6 +16,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -433,6 +436,19 @@ public class ActionServiceImpl {
             }
         }
         return result;
+    }
+
+
+    /**
+     * 根据jobid 和 计算类型，查询container 信息
+     */
+    public List<String> container(Map<String, Object> param) throws Exception {
+        ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
+        checkParam(paramAction);
+        fillJobClientEngineId(paramAction);
+        JobClient jobClient = new JobClient(paramAction);
+        List<String> infos = JobSubmitExecutor.getInstance().containerInfos(jobClient);
+        return infos;
     }
 
     public String generateUniqueSign(){
