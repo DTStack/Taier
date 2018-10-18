@@ -580,12 +580,12 @@ class TargetForm extends React.Component {
                             // initialValue: "NONCONFLICT"
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
-                                <Radio value="APPEND" style={{ float: 'left' }}>
-                                追加（Insert Into）
-                            </Radio>
                                 <Radio value="NONCONFLICT" style={{ float: 'left' }}>
-                                覆盖（Insert Overwrite）
-                            </Radio>
+                                    覆盖（Insert Overwrite）
+                                </Radio>
+                                <Radio value="APPEND" style={{ float: 'left' }}>
+                                    追加（Insert Into）
+                                </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
