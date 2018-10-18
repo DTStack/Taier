@@ -2,7 +2,6 @@ import React from 'react';
 import { Tree, Tooltip, Icon } from 'antd';
 
 import { CATALOGUE_TYPE } from '../../../consts';
-import MyIcon from '../../../components/icon';
 
 const TreeNode = Tree.TreeNode;
 
@@ -49,7 +48,7 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.TABLE:
                 return (
                     <span className="tree-node-hover-items">
-                        <MyIcon className="tree-node-hover-item" title="SQL查询" type="btn_search"/>
+                        <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="查看详情" type="search" />
                         <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" />
                     </span>
                 )
