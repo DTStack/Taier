@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -31,5 +32,7 @@ public interface IClient {
 	String getJobLog(String jobId);
 
 	EngineResourceInfo getAvailSlots();
+
+	List<String> getContainerInfos(String jobId);
 
 }

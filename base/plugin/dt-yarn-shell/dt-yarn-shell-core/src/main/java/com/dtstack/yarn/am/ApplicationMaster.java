@@ -182,7 +182,7 @@ public class ApplicationMaster extends CompositeService {
             LOG.info("containerAddress: " + container.getNodeHttpAddress());
             launchContainer(containerLocalResource, workerContainerEnv,
                     workerContainerLaunchCommands, container, i);
-            containerListener.registerContainer(-1, new DtContainerId(container.getId()));
+            containerListener.registerContainer(true, i, new DtContainerId(container.getId()), container.getNodeHttpAddress());
         }
 
         while(!containerListener.isFinished()) {
@@ -201,7 +201,7 @@ public class ApplicationMaster extends CompositeService {
                 Container container = rmCallbackHandler.take();
                 launchContainer(containerLocalResource, workerContainerEnv,
                         workerContainerLaunchCommands, container, entities.get(i).getLane());
-                containerListener.registerContainer(entities.get(i).getLane(), new DtContainerId(container.getId()));
+                containerListener.registerContainer(false, entities.get(i).getLane(), new DtContainerId(container.getId()), container.getNodeHttpAddress());
             }
 
         }

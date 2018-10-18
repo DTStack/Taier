@@ -215,4 +215,14 @@ public class DtYarnShellClient extends AbsClient {
             return e.getMessage();
         }
     }
+
+    @Override
+    public List<String> getContainerInfos(String jobId) {
+        try {
+            return client.getContainerInfos(jobId);
+        } catch (Exception e) {
+            LOG.error("", e);
+            return null;
+        }
+    }
 }

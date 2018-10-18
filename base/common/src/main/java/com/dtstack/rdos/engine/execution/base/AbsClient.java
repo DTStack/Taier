@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * Reason:
  * Date: 2017/2/21
@@ -61,5 +63,10 @@ public abstract class AbsClient implements IClient{
     }
 
     protected void afterSubmitFunc(JobClient jobClient){
+    }
+
+    @Override
+    public List<String> getContainerInfos(String jobId) {
+        return null;
     }
 }

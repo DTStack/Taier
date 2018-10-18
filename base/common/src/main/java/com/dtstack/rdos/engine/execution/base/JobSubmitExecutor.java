@@ -10,6 +10,7 @@ import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -88,6 +89,11 @@ public class JobSubmitExecutor {
 
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
         return client.cancelJob(jobClient.getEngineTaskId());
+    }
+
+    public List<String> containerInfos(JobClient jobClient) throws Exception {
+        IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
+        return client.getContainerInfos(jobClient.getEngineTaskId());
     }
 
     public LinkedBlockingQueue<JobClient> getQueueForTaskListener(){
