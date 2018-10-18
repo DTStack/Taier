@@ -19,7 +19,7 @@ class AlarmConfigList extends React.Component {
     state = {
         pagination: {
             total: 0,
-            pageSize: 8,
+            pageSize: 5,
             current:1
         },
         alarmStatus:undefined,

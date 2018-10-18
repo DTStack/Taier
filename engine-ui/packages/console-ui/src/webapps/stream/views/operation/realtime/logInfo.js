@@ -19,14 +19,14 @@ function wrappTitle(title) {
 }
 
 export default function LogInfo(props) {
-    const log = props.log;
+    const log= props.log||{};
     let engineLog={};
     try{
         engineLog= log.engineLog ? JSON.parse(log.engineLog):{}
     }catch(e){
-        engineLog={
-            "all-exceptions":[{exception:log.engineLog}]
-        }
+            engineLog={
+                "all-exceptions":[{exception:log.engineLog}]
+            }
         console.log("engineLog is not a json\n",e)
     }
     const logStyle = Object.assign(editorStyle, {

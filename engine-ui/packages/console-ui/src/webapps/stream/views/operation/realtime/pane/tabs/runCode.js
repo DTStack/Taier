@@ -2,7 +2,7 @@ import React from "react"
 import { connect } from "react-redux"
 import { bindActionCreators } from 'redux'
 
-import { Collapse, Form, Input, Radio } from "antd";
+import { Collapse, Form, Input, Radio, Tabs } from "antd";
 import Editor from "widgets/editor"
 
 import { TASK_TYPE } from "../../../../../comm/const";
@@ -13,6 +13,7 @@ const { TextArea } = Input;
 const Panel = Collapse.Panel;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group
+const TabPane = Tabs.TabPane;
 
 @connect(state => {
     return {
@@ -41,7 +42,7 @@ class RunCode extends React.Component {
                 return (
                     <Editor
                         sync={true}
-                        style={{ height: "400px" }}
+                        style={{ height: "100%" }}
                         options={{ readOnly: false }}
                         language={this.getEditorLanguage(taskType)}
                         options={{ readOnly: true, minimap: { enabled: false } }}
@@ -73,7 +74,7 @@ class RunCode extends React.Component {
                             {...formItemLayout}
                             label="资源"
                         >
-                            <Input disabled value={resourceList&&resourceList.length ? resourceList[0].resourceName : ""} />
+                            <Input disabled value={resourceList && resourceList.length ? resourceList[0].resourceName : ""} />
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -114,23 +115,39 @@ class RunCode extends React.Component {
     }
     render() {
         const { data } = this.props;
+        const editorBoxStyle={
+            position: "absolute",
+             top: "0px", 
+             bottom: "0px", 
+             left:"0px",
+             right:"0px",
+             width: "100%"
+        }
         return (
-            <div>
-                <Collapse className="middle-collapse" defaultActiveKey={['code', 'env']}>
-                    <Panel header="运行代码" key="code">
-                        {this.getRunCode()}
-                    </Panel>
-                    <Panel header="环境参数" key="env">
-                        <Editor
-                            sync={true}
-                            style={{ height: "400px" }}
-                            options={{ readOnly: false }}
-                            language="ini"
-                            options={{ readOnly: true, minimap: { enabled: false } }}
-                            value={data.taskParams}
-                        />
-                    </Panel>
-                </Collapse>
+            <div className="m-tabs">
+                <Tabs
+                    className="nav-border content-border"
+                    animated={false}
+                    tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
+                >
+                    <TabPane  className="m-panel2" tab="运行代码" key="code">
+                        <div style={editorBoxStyle}>
+                            {this.getRunCode()}
+                        </div>
+                    </TabPane>
+                    <TabPane  className="m-panel2" tab="环境参数" key="env">
+                        <div style={editorBoxStyle}>
+                            <Editor
+                                sync={true}
+                                style={{ height: "100%" }}
+                                options={{ readOnly: false }}
+                                language="ini"
+                                options={{ readOnly: true, minimap: { enabled: false } }}
+                                value={data.taskParams}
+                            />
+                        </div>
+                    </TabPane>
+                </Tabs>
             </div>
         )
     }

@@ -23,9 +23,9 @@ module.exports = {
                 secure: false,
             },
             "/api/streamapp": {
-                target: "http://172.16.1.191:9021", // formal test ser
+                // target: "http://172.16.1.191:9021", // formal test ser
                 // target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.8.105:9021", // formal test ser
+                target: "http://172.16.8.105:9021", // formal test ser
                 // target: "http://172.16.8.162:9020", // tmp test server
                 // ignorePath: true,  
                 // Mock

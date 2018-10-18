@@ -8,8 +8,8 @@ class CheckPoint extends React.Component {
 
     state = {
         pagination: {
-            total: 50,
-            defaultPageSize: 15,
+            total: 0,
+            defaultPageSize: 10,
         }
     }
 
