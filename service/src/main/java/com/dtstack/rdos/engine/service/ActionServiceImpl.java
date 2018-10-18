@@ -442,7 +442,7 @@ public class ActionServiceImpl {
     /**
      * 根据jobid 和 计算类型，查询container 信息
      */
-    public List<String> container(Map<String, Object> param) throws Exception {
+    public List<String> containerInfos(Map<String, Object> param) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
         fillJobClientEngineId(paramAction);

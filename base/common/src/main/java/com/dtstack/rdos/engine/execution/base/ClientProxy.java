@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -144,6 +145,22 @@ public class ClientProxy implements IClient{
                 @Override
                 public EngineResourceInfo execute() throws Exception {
                     return targetClient.getAvailSlots();
+                }
+            }, targetClient.getClass().getClassLoader(),true);
+        } catch (Exception e) {
+            logger.error("", e);
+            throw new RdosException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<String> getContainerInfos(String jobId) {
+        try {
+            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<List<String>>(){
+
+                @Override
+                public List<String> execute() throws Exception {
+                    return targetClient.getContainerInfos(jobId);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
