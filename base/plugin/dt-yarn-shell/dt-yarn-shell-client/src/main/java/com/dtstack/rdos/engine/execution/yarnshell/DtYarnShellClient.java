@@ -72,6 +72,11 @@ public class DtYarnShellClient extends AbsClient {
                 conf.setFloat(key, (Float)value);
             } else if(value instanceof Double) {
                 conf.setDouble(key, (Double)value);
+            } else if(value instanceof Map) {
+                Map<String,String> map = (Map<String, String>) value;
+                for(Map.Entry<String,String> entry : map.entrySet()) {
+                    conf.set(entry.getKey(), entry.getValue());
+                }
             } else {
                 conf.set(key, value.toString());
             }
