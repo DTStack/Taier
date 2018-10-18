@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import { isEmpty } from "lodash"
 import {
-    Table, message, Modal,Button,
+    Table, message, Modal, Button,
     Input, Card, Popconfirm,
     DatePicker, TimePicker,
     Select, Form, Tooltip, Icon
@@ -54,8 +54,8 @@ class RealTimeTaskList extends Component {
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
             this.setState({
-                visibleSlidePane:false,
-                selectTask:null
+                visibleSlidePane: false,
+                selectTask: null
             })
             this.loadTaskList()
         }
@@ -74,16 +74,16 @@ class RealTimeTaskList extends Component {
      * 这里判断是否需要自动刷新，
      * 当有等待提交之类的状态，则自动刷新
      */
-    debounceLoadtask(resData={}) {
+    debounceLoadtask(resData = {}) {
         if (this._isUnmounted) {
             return;
         }
-        const {data} = resData;
-        if(!data){
-            return ;
+        const { data } = resData;
+        if (!data) {
+            return;
         }
-        let haveRun=false;
-        let haveRunList=[
+        let haveRun = false;
+        let haveRunList = [
             TASK_STATUS.RUNNING,
             TASK_STATUS.STOPING,
             TASK_STATUS.SUBMITTING,
@@ -91,15 +91,15 @@ class RealTimeTaskList extends Component {
             TASK_STATUS.WAIT_RUN,
             TASK_STATUS.WAIT_COMPUTE,
         ];
-        for(let i=0;i<data.length;i++){
-            let status=data[i].status;
-            if(haveRunList.indexOf(status)>-1){
-                haveRun=true;
+        for (let i = 0; i < data.length; i++) {
+            let status = data[i].status;
+            if (haveRunList.indexOf(status) > -1) {
+                haveRun = true;
                 break;
             }
         }
-        if(!haveRun){
-            return ;
+        if (!haveRun) {
+            return;
         }
         this._timeClock = setTimeout(() => {
             this.loadTaskList(null, true);
@@ -307,13 +307,13 @@ class RealTimeTaskList extends Component {
             width: 150,
             key: 'operation',
             render: (text, record) => {
-               return this.getDealButton(record)
+                return this.getDealButton(record)
             },
         }]
     }
 
     getDealButton(record, isPane) {
-        if(!record){
+        if (!record) {
             return null;
         }
         let normal = ''
@@ -362,31 +362,42 @@ class RealTimeTaskList extends Component {
                 <span className="buttonMargin">
                     {goOn ? <Button type="primary" onClick={() => { this.updateTaskStatus(record) }}>{goOn}</Button> : null}
                     {normal ? <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button> : null}
-                    {recover?<Popconfirm
+                    {recover ? <Popconfirm
                         okText="确定"
                         cancelText="取消"
                         onConfirm={() => { this.recoverTask(record) }}
                         title={popTxt}
                     >
                         <Button type="primary">{recover}</Button>
-                    </Popconfirm>:null}
+                    </Popconfirm> : null}
                 </span>
             )
         } else {
+            let arr = [];
+
+            goOn && arr.push(<a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
+            normal && arr.push(<a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+            recover && arr.push(<Popconfirm
+                okText="确定"
+                cancelText="取消"
+                onConfirm={() => { this.recoverTask(record) }}
+                title={popTxt}
+            >
+                {recover}
+            </Popconfirm>)
+            /**
+             * 在每个按钮之间插入间隔符
+             */
+            arr=arr.reduce((one,two)=>{
+                if(one.length){
+                    return one.concat(<span className="ant-divider" />,two);
+                }
+                return one.concat(two);
+            },[])
+
             return (
                 <div key={record.id}>
-                    <a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>
-                    {normal && goOn ? <span className="ant-divider" /> : ''}
-                    {normal ? <a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a> : null}
-                    {recover ? <span className="ant-divider" /> : ''}
-                    <Popconfirm
-                        okText="确定"
-                        cancelText="取消"
-                        onConfirm={() => { this.recoverTask(record) }}
-                        title={popTxt}
-                    >
-                        {recover}
-                    </Popconfirm>
+                   {arr}
                 </div>
             )
         }
@@ -437,7 +448,7 @@ class RealTimeTaskList extends Component {
                         className="m-table full-screen-table-90"
                         rowClassName={
                             (record, index) => {
-                                if (selectTask ==index) {
+                                if (selectTask == index) {
                                     return "row-select"
                                 } else {
                                     return "";

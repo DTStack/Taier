@@ -1,9 +1,11 @@
 import React from "react"
+import { Spin, Icon } from "antd";
 import moment from "moment";
 import utils from "utils";
 import { cloneDeep } from "lodash";
 
 import Resize from 'widgets/resize';
+import FullScreen from "widgets/fullscreen"
 
 import { lineAreaChartOptions, TIME_TYPE } from "../../../../../../comm/const"
 
@@ -15,6 +17,40 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
+class AlarmBaseGraphBox extends React.Component {
+    state = {
+        key: '' + Math.random()
+    }
+    render() {
+        const { key } = this.state;
+        const { title, lineData } = this.props;
+        const { loading } = lineData;
+        return (
+            <div className="basegraph-size">
+                <div id={key} className="alarm-basegraph-box">
+                    <header>
+                        {title}
+                        <FullScreen
+                            target={key}
+                            fullIcon={<Icon className="alt" type="arrows-alt" />}
+                            exitFullIcon={<Icon className="alt" type="shrink" />}
+                            isShowTitle={false} />
+                    </header>
+                    {loading ?
+                        <div className="loading-box">
+                            <Spin className="loading" />
+                        </div>
+                        :
+                        <div className="graph-content">
+                            <AlarmBaseGraph   {...this.props} />
+                        </div>
+                    }
+                </div>
+            </div>
+        )
+    }
+}
+
 class AlarmBaseGraph extends React.Component {
 
     state = {
@@ -25,30 +61,40 @@ class AlarmBaseGraph extends React.Component {
         this.initGraph();
     }
     componentWillReceiveProps(nextProps) {
-        if (this.props.lineData != nextProps.lineData||this.props.time != nextProps.time) {
-            this.initGraph(nextProps.lineData,nextProps.time)
+        if (this.props.lineData != nextProps.lineData
+            || this.props.time != nextProps.time
+        ) {
+            this.initGraph(nextProps.lineData, nextProps.time)
         }
     }
-    exchangeDate(date,time){
-        switch(time){
+    exchangeDate(date, time,joinLine) {
+        switch (time) {
             case TIME_TYPE.M10:
             case TIME_TYPE.H1:
-            case TIME_TYPE.H6:{
-                return utils.formatHours(date);
+            case TIME_TYPE.H6: {
+                return utils.formatHours(parseInt(date));
             }
             case TIME_TYPE.D1:
-            case TIME_TYPE.W1:{
-                return utils.formatDateHours(date)
+            case TIME_TYPE.W1: {
+                if(joinLine){
+                    return utils.formatDateHours(parseInt(date)).split(" ").join("\n")
+                }
+                return utils.formatDateHours(parseInt(date));
             }
-            default:{
-                return utils.formatHours(date);
+            default: {
+                return utils.formatHours(parseInt(date));
             }
         }
     }
-    initGraph(lineData,time) {
-        lineData = lineData||this.props.lineData;
-        time= time||this.props.time;
+    initGraph(lineData, time) {
+
+        lineData = lineData || this.props.lineData;
+        time = time || this.props.time;
         if (!lineData) {
+            return;
+        }
+        let loading = lineData.loading
+        if (loading) {
             return;
         }
         const { x, y, legend, color, unit } = lineData;
@@ -65,13 +111,24 @@ class AlarmBaseGraph extends React.Component {
         /**
          * 设置横坐标数值
          */
-        options.xAxis[0].data = x.map((date)=>{
-            return this.exchangeDate(date, time)
-        });
+        options.xAxis[0].data = x
+        options.xAxis[0].axisLabel={
+            ...options.xAxis[0].axisLabel,
+            formatter:(value)=>{
+                return this.exchangeDate(value, time, true)
+            }
+        }
+        options.xAxis[0].axisPointer={
+            label:{
+                formatter:(params)=>{
+                    return utils.formatDateTime(parseInt(params.value))
+                }
+            }
+        }
         /**
          * 设置小图标
          */
-        options.legend.type="scroll";
+        options.legend.type = "scroll";
         options.legend.data = legend.map((item) => {
             return {
                 name: item,
@@ -88,8 +145,9 @@ class AlarmBaseGraph extends React.Component {
          */
         options.grid.bottom = "45px";
         options.grid.left = "20px";
-        options.grid.right = "30px";
+        options.grid.right = "40px";
         options.grid.top = "50px";
+        options.grid.containLabel=true
         /**
          * 设置具体的数据
          */
@@ -99,20 +157,21 @@ class AlarmBaseGraph extends React.Component {
                 data: item,
                 type: "line",
                 smooth: true,
-                showSymbol:false
+                showSymbol: false
             }
-            if(color[index]){
-                line.lineStyle={
-                    normal:{
-                        color:color[index]
+            if (color[index]) {
+                line.lineStyle = {
+                    normal: {
+                        color: color[index]
                     }
                 }
-                line.itemStyle={
-                    normal:{
-                        color:color[index]
+                line.itemStyle = {
+                    normal: {
+                        color: color[index]
                     }
                 }
             }
+            console.log(line)
             return line;
         })
         /**
@@ -127,18 +186,12 @@ class AlarmBaseGraph extends React.Component {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
     render() {
-        const { title } = this.props;
         return (
-            <div className="alarm-basegraph-box">
-                <header>
-                    {title}
-                </header>
-                <Resize onResize={this.resize.bind(this)}>
-                    <article ref={(ref) => { this._dom = ref }} style={{ width: '100%', height: '260px' }} />
-                </Resize>
-            </div>
+            <Resize onResize={this.resize.bind(this)}>
+                <article ref={(ref) => { this._dom = ref }} style={{ width: '100%', height: '100%' }} />
+            </Resize>
         )
     }
 }
 
-export default AlarmBaseGraph;
+export default AlarmBaseGraphBox;
