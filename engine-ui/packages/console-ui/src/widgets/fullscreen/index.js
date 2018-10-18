@@ -74,7 +74,8 @@ export default class FullScreenButton extends Component {
                 document.msExitFullscreen();
             }
         } else {
-            const domEle = document.getElementById(target) || document.body;
+            const propsDom=document.getElementById(target)
+            const domEle = propsDom || document.body;
             if (domEle.requestFullscreen) {
                 domEle.requestFullscreen();
             } else if (domEle.msRequestFullscreen) { // IE
@@ -89,23 +90,26 @@ export default class FullScreenButton extends Component {
     }
 
     render() {
+        const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
-        
+        const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
         return (
             <KeyCombiner onTrigger={this.keyPressFullScreen} keyMap={{
                 70: true,
                 91: true,
                 16: true,
             }}>
-                <Button {...this.props} onClick={this.fullScreen}>
-                    <MyIcon 
-                        className="my-icon" 
-                        type={iconType} 
-                        themeDark={this.props.themeDark}
+                {customIcon ?<span onClick={this.fullScreen}>{customIcon}</span> 
+                 : 
+                <Button {...other} onClick={this.fullScreen}>
+                    <MyIcon
+                        className="my-icon"
+                        type={iconType}
+                        themeDark={themeDark}
                     />
                     {title}
-                </Button>
+                </Button>}
             </KeyCombiner>
         )
     }

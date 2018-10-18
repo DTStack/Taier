@@ -340,7 +340,7 @@ class OfflineConfig extends Component {
                 </Card>
                 <AlarmForm
                   {...this.props}
-                  title="修改离线任务告警规则"
+                  title="修改告警规则"
                   alarmInfo={alarmInfo}
                   taskList={taskList}
                   wrapClassName="vertical-center-modal"
@@ -350,7 +350,7 @@ class OfflineConfig extends Component {
                 />
                 <AlarmForm
                   {...this.props}
-                  title="创建离线任务告警规则"
+                  title="创建告警规则"
                   alarmInfo={{}}
                   taskList={taskList}
                   wrapClassName="vertical-center-modal"

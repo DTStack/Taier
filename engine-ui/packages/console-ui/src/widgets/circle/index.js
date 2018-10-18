@@ -1,19 +1,14 @@
 import React from 'react'
+import "./style.scss"
 
-const defaultStyle = {
-    width: '8px',
-    height: '8px',
-    display: 'inline-block',
-    borderRadius: '50% 50%',
-    background: '#43576a',
-}
 
 export function Circle(props) {
-    const style = Object.assign(defaultStyle, props.style)
+    const defaultClass="circle_default";
+    const {className,...other} = props;
     return (
         <div
-          {...props}
-          style={style}
+        className={`${defaultClass} ${className} `}
+          {...other}
         >
             {props.children || ''}
         </div>
