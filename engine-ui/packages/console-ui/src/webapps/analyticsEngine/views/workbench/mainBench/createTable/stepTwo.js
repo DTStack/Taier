@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Select, Icon, Button } from 'antd'
+import { Input, Table, Select, Icon, Button, Row } from 'antd'
 
 const Option = Select.Option;
 
@@ -208,7 +208,7 @@ export default class StepTwo extends Component{
     console.log(field_list)
     console.log(area_list)
     return (
-      <div className="step-two-container step-container">
+      <Row className="step-two-container step-container">
         <div className="table-panel">
           <span className="title">权限管理</span>
           <Table 
@@ -239,7 +239,7 @@ export default class StepTwo extends Component{
               <Button onClick={this.props.handleLastStep}>上一步</Button>
               <Button type="primary" onClick={this.next}>下一步</Button>
         </div>
-      </div>
+      </Row>
     )
   }
 }

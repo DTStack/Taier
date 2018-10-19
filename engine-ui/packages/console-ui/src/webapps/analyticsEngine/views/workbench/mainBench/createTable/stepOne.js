@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Form, Radio, Input, Select, Button, Collapse, Icon } from "antd";
+import { Form, Radio, Input, Select, Button, Row, Collapse, Icon } from "antd";
 import { formItemLayout} from "../../../../consts/index"
 
 
@@ -40,7 +40,7 @@ export default class StepOne extends Component{
     const { formData } = this.props;
     console.log(formData)
     return (
-      <div className="step-one-container step-container">
+      <Row className="step-one-container step-container">
         <Form>
           <FormItem
           {...formItemLayout}
@@ -207,7 +207,7 @@ export default class StepOne extends Component{
               <Button onClick={this.handleCancel}>取消</Button>
               <Button type="primary" onClick={this.next}>下一步</Button>
         </div>
-      </div>
+      </Row>
     )
   }
 }

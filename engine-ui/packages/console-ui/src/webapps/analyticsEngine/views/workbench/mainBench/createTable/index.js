@@ -36,14 +36,8 @@ class CreateTable extends Component {
     }
     render () {
         const { currentStep, currentTab, newanalyEngineTableDataList} = this.props.workbench.mainBench;
-        // console.log(this.props)
-        console.log(currentTab)
-        console.log(newanalyEngineTableDataList)
-        console.log(newanalyEngineTableDataList.tableItem2)
-        console.log(newanalyEngineTableDataList[`tableItem${currentTab}`])
         const newanalyEngineTableData = newanalyEngineTableDataList[`tableItem${currentTab}`] || {};
 
-        console.log(newanalyEngineTableData)
         const steps = [
             {
                 title: '基本信息',
