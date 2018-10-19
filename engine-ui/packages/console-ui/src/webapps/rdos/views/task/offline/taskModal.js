@@ -590,7 +590,7 @@ class TaskModal extends React.Component {
         return (
             <div id="JS_task_modal">
                 <Modal
-                    title={isCreate ? `新建离线${labelPrefix}` : `编辑离线${labelPrefix}`}
+                    title={isCreate ? `新建${labelPrefix}` : `编辑${labelPrefix}`}
                     key={this.dtcount}
                     visible={isModalShow}
                     maskClosable={false}

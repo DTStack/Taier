@@ -11,6 +11,7 @@ import * as workbenchActions from '../../../actions/workbenchActions';
 
 import BenchContent from './benchContent';
 import CreateDBModal from './database/create';
+import CreateTableDDLModal from './tableDetail/ddlModal';
 
 const TabPane = Tabs.TabPane;
 
@@ -43,11 +44,10 @@ class MainBench extends Component {
 
                 return (
                     <TabPane
-                        style={{ height: '0px' }}
-                        tab={title}
+                        tab={title} 
                         key={tab.id}
                     >
-                        <BenchContent tabData={tab}/>
+                        <BenchContent tabData={tab} {...this.props}/>
                     </TabPane>
                 );
             });
@@ -102,6 +102,7 @@ class MainBench extends Component {
                     {this.renderTabs(tabs)}
                 </Tabs>
                 <CreateDBModal {...this.props} />
+                <CreateTableDDLModal {...this.props} />
             </div>
         )
     }

@@ -360,7 +360,8 @@ class Workbench extends React.Component {
             return tabs.map((tab) => {
                 let title = (<div>
                     <TabIcon tabData={tab} />
-                    <span className="tab-ellipsis">{tab.name}</span>
+                    {/* <span className="tab-ellipsis">{tab.name}</span> */}
+                    <span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
@@ -369,7 +370,7 @@ class Workbench extends React.Component {
                         <TabIcon tabData={tab} />
                         <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
                             {tab.flowName}
-                        </a><span className="tab-ellipsis">&nbsp;/ {tab.name}</span>
+                        </a><span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                     </div>);
                 }
@@ -409,7 +410,6 @@ class Workbench extends React.Component {
         }
         // 修改task配置时接口要求的标记位
         result.preSave = true;
-        result.submitStatus = 0;
         saveTab(result, isSave, type);
         setTimeout(() => {
             this.setState({
@@ -436,7 +436,6 @@ class Workbench extends React.Component {
         }
         // 修改task配置时接口要求的标记位
         result.preSave = true;
-        result.submitStatus = 1; // 1-提交，0-保存
         result.publishDesc = publishDesc;//发布信息
         ajax.publishOfflineTask(result).then(res => {
             if (res.code === 1) {

@@ -38,7 +38,7 @@ class BaseInfo extends React.Component {
                 )
             }
             case TASK_STATUS.RUNNING:
-            case TASK_STATUS.SET_SUCCESS:{
+            case TASK_STATUS.FINISHED:{
                 return (
                    <StreamDetailGraph data={data} />
                 )

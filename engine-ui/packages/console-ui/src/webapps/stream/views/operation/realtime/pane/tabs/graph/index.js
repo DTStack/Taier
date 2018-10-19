@@ -5,7 +5,7 @@ import utils from "utils";
 import { Radio, Collapse, Row, Col } from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
-import { TIME_TYPE } from "../../../../../../comm/const";
+import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
 import Api from "../../../../../../api"
 
 const RadioButton = Radio.Button;
@@ -13,35 +13,36 @@ const RadioGroup = Radio.Group;
 const Panel = Collapse.Panel;
 
 const defaultTimeValue = '10m';
-const metricsType={
-    IN_OUT_RPS:"input_output_rps",
-    IN_OUT_BPS:"input_output_bps",
-    SOURCE_TPS:"source_tps",
-    SOURCE_RPS:"source_rps",
-    FAILOVER_RATE:"fail_over_rate",
-    DELAY:"delay",
-    SOURCE_DIRTY:"source_dirty_data"
+const metricsType = {
+    IN_OUT_RPS: "input_output_rps",
+    IN_OUT_BPS: "input_output_bps",
+    SOURCE_TPS: "source_tps",
+    SOURCE_RPS: "source_rps",
+    FAILOVER_RATE: "fail_over_rate",
+    DELAY: "delay",
+    SOURCE_DIRTY: "source_dirty_data"
 
+}
+const defaultLineData = {
+    x: [],
+    y: [[]],
+    loading: true
 }
 class StreamDetailGraph extends React.Component {
 
     state = {
         time: defaultTimeValue,
         data: [],
-        loading: false
-    }
-    componentWillMount() {
-        let data = {
-            x: [],
-            y: [[], []]
+        loading: false,
+        lineDatas: {
+            [metricsType.IN_OUT_BPS]: defaultLineData,
+            [metricsType.IN_OUT_RPS]: defaultLineData,
+            [metricsType.SOURCE_RPS]: defaultLineData,
+            [metricsType.SOURCE_TPS]: defaultLineData,
+            [metricsType.FAILOVER_RATE]: defaultLineData,
+            [metricsType.DELAY]: defaultLineData,
+            [metricsType.SOURCE_DIRTY]: defaultLineData,
         }
-        const date = new moment();
-        for (let i = 0; i < 20; i++) {
-            data.x.push(date.add(10, 's').valueOf());
-            data.y[0].push((~~(Math.random() * 90)))
-            data.y[1].push((~~(Math.random() * 80)))
-        }
-        this._data = data;
     }
     componentDidMount() {
         this.initData();
@@ -53,8 +54,76 @@ class StreamDetailGraph extends React.Component {
             this.initData(data)
         }
     }
+    setLineData(data = []) {
+        const { lineDatas } = this.state;
+        let stateLineData = { ...lineDatas };
+        for (let i = 0; i < data.length; i++) {
+            let item = data[i];
+            let lineData = item.data;
+            let type = item.chartName;
+            let x = [], y = [], ext = {};
+            x = lineData.map((data) => { return data.time });
+            switch (type) {
+                case metricsType.IN_OUT_BPS: {
+                    y[0] = lineData.map((data) => { return data.input_bps });
+                    y[1] = lineData.map((data) => { return data.output_bps });
+                    break;
+                }
+                case metricsType.IN_OUT_RPS: {
+                    y[0] = lineData.map((data) => { return data.input_rps });
+                    y[1] = lineData.map((data) => { return data.output_rps });
+                    break;
+                }
+                case metricsType.SOURCE_TPS:
+                case metricsType.SOURCE_RPS:
+                case metricsType.SOURCE_DIRTY: {
+                    let tmp_map = {};
+                    let legend=[];
+                    for (let i = 0; i < lineData.length; i++) {
+                        let chartData=lineData[i];
+                        for (let key in chartData) {
+                            if (key == "time") {
+                                continue;
+                            }
+                            if (tmp_map[key]) {
+                                tmp_map[key].push(chartData[key])
+                            }else{
+                                tmp_map[key]=[chartData[key]];
+                            }
+                        }
+                    }
+                    for(let key in tmp_map){
+                        let datas=tmp_map[key];
+                        y.push(datas);
+                        legend.push(key);
+                    }
+                    ext.legend=legend;
+                    break;
+                }
+                case metricsType.FAILOVER_RATE: {
+                    y[0] = lineData.map((data) => { return data.fail_over_rate });
+                    break;
+                }
+                case metricsType.DELAY: {
+                    y[0] = lineData.map((data) => { return data.biz_time });
+                    y[1] = lineData.map((data) => { return data.data_interval_time });
+                    y[2] = lineData.map((data) => { return data.data_delay_time });
+                    break;
+                }
+            }
+            stateLineData[type] = {
+                x,
+                y,
+                loading: false,
+                ...ext
+            }
+        }
+        this.setState({
+            lineDatas: stateLineData
+        })
+    }
     initData(data) {
-        data=data||this.props.data;
+        data = data || this.props.data;
         const { time } = this.state;
         this.setState({
             loading: true
@@ -62,11 +131,18 @@ class StreamDetailGraph extends React.Component {
         Api.getTaskMetrics({
             taskId: data.id,
             timeStr: time,
-            metricNames: []
+            metricNames: [
+                metricsType.IN_OUT_BPS,
+                metricsType.IN_OUT_RPS,
+                metricsType.SOURCE_TPS,
+                metricsType.SOURCE_RPS,
+                metricsType.FAILOVER_RATE,
+                metricsType.DELAY,
+                metricsType.SOURCE_DIRTY]
         }).then(
             (res) => {
                 if (res.code == 1) {
-                    console.log(res);
+                    this.setLineData(res.data)
                 }
                 this.setState({
                     loading: false
@@ -77,10 +153,10 @@ class StreamDetailGraph extends React.Component {
     changeTime(e) {
         this.setState({
             time: e.target.value
-        })
+        },this.initData.bind(this))
     }
     render() {
-        const { time } = this.state;
+        const { time, lineDatas } = this.state;
         return (
             <div>
                 <header style={{ padding: "10px 20px 10px 0px", overflow: "hidden" }}>
@@ -105,9 +181,9 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        color: ["#00a6e7", "#1abb9c"],
-                                        legend: ["输入RPS", "输出RPS"]
+                                        color: CHARTS_COLOR,
+                                        legend: ["输入RPS", "输出RPS"],
+                                        ...lineDatas[metricsType.IN_OUT_RPS],
                                     }}
                                     title="输入/输出RPS" />
                             </section>
@@ -115,9 +191,9 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        color: ["#00a6e7", "#1abb9c"],
-                                        legend: ["输入BPS", "输出BPS"]
+                                        color: CHARTS_COLOR,
+                                        legend: ["输入BPS", "输出BPS"],
+                                        ...lineDatas[metricsType.IN_OUT_BPS],
                                     }}
                                     title="输入/输出BPS" />
                             </section>
@@ -127,10 +203,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
-                                        legend: ["SourceT"],
+                                        color:CHARTS_COLOR,
+                                        ...lineDatas[metricsType.SOURCE_TPS],
                                         unit: "bps"
                                     }}
                                     title="各Source的TPS数据输入" />
@@ -139,10 +213,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
-                                        legend: ["SourceR"],
+                                        ...lineDatas[metricsType.SOURCE_RPS],
+                                        color:CHARTS_COLOR,
                                         unit: "rps"
                                     }}
                                     title="各Source的RPS数据输入" />
@@ -153,9 +225,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
+                                        ...lineDatas[metricsType.FAILOVER_RATE],
+                                        color:CHARTS_COLOR,
                                         legend: ["Rate"]
                                     }}
                                     title="FailOver Rate" />
@@ -164,9 +235,9 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        color: ["#00a6e7", "#87e0ff"],
-                                        legend: ["业务延时", "数据间隔时间"],
+                                        ...lineDatas[metricsType.DELAY],
+                                        color:CHARTS_COLOR,
+                                        legend: ["业务延时", "数据间隔时间", "数据滞留时间"],
                                         unit: "s"
                                     }}
                                     title="Delay" />
@@ -177,10 +248,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
-                                        legend: ["脏数据"]
+                                        ...lineDatas[metricsType.SOURCE_DIRTY],
+                                        color:CHARTS_COLOR,
                                     }}
                                     title="各Source的脏数据" />
                             </section>
@@ -192,9 +261,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
+                                        ...lineDatas[metricsType.DELAY],
+                                        color:CHARTS_COLOR,
                                         legend: ["丢弃TPS"]
                                     }}
                                     title="数据迟到丢弃TPS" />
@@ -203,9 +271,8 @@ class StreamDetailGraph extends React.Component {
                                 <AlarmBaseGraph
                                     time={time}
                                     lineData={{
-                                        ...this._data,
-                                        y: [this._data.y[0]],
-                                        color: ["#00a6e7"],
+                                        ...lineDatas[metricsType.DELAY],
+                                        color:CHARTS_COLOR,
                                         legend: ["丢弃数"]
                                     }}
                                     title="数据迟到累计丢弃数" />

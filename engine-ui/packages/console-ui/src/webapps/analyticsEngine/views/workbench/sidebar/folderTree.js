@@ -1,7 +1,8 @@
 import React from 'react';
-import { Tree, Tooltip } from 'antd';
+import { Tree, Tooltip, Icon } from 'antd';
 
 import { CATALOGUE_TYPE } from '../../../consts';
+import MyIcon from '../../../components/icon';
 
 const TreeNode = Tree.TreeNode;
 
@@ -37,6 +38,26 @@ class FolderTree extends React.PureComponent {
         super(props)
     }
 
+    renderNodeHoverButton = (type) => {
+        switch(type) {
+            case CATALOGUE_TYPE.DATA_MAP:
+                return (
+                    <span className="tree-node-hover-items">
+                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" />
+                    </span>
+                )
+            case CATALOGUE_TYPE.TABLE:
+                return (
+                    <span className="tree-node-hover-items">
+                        <MyIcon className="tree-node-hover-item" title="SQL查询" type="btn_search"/>
+                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" />
+                    </span>
+                )
+            case CATALOGUE_TYPE.FOLDER:
+            default: return '';
+        }
+    }
+
     renderNodes = () => {
         const { treeData } = this.props;
         const loop = (data) => {
@@ -58,6 +79,7 @@ class FolderTree extends React.PureComponent {
                             style={{padding:"8px 0px"}}
                         >
                             {name}
+                            { this.renderNodeHoverButton(item.type) }
                         </span>
                     </Tooltip>
                 )

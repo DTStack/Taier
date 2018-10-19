@@ -412,7 +412,7 @@ class ResModal extends React.Component {
         return (
             <div id="JS_upload_modal">
                 <Modal
-                    title={ isCoverUpload ? '替换离线资源' : isEditExist ? '编辑资源' : '上传离线计算资源' }
+                    title={ isCoverUpload ? '替换资源' : isEditExist ? '编辑资源' : '上传资源' }
                     visible={ isModalShow }
                     footer={[
                         <Button key="back" size="large" onClick={ this.handleCancel }>取消</Button>,

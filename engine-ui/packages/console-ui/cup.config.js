@@ -17,6 +17,7 @@ module.exports = {
         // "/api/task/add": `${base}/add.json`
         "/api/analytics/getCatalogue": `${base}/catalogue/get_catalogues.json`, 
         "/api/analytics/createOrUpdateDB": `${base}/is_ok.json`, 
+        "/api/analytics/createSql": `${base}/table/createSQL.json`,
         // "/api/rdos/batch/batchJobJob/displayOffSpring": `${base}/task/get_task_instances.json`, 
     },
     "proxyTable": {

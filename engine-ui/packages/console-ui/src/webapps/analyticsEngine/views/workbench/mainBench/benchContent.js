@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import workbenchAction from '../../../consts/workbenchActionType';
 
 import CreateTable from './createTable';
-import CreateDataMap from './datamap/create';
-import UpdateDataMap from './datamap/update';
+import DataMap from './datamap';
 import TableDetail from './tableDetail';
 import DatabaseDetail from './database/detail';
 import SQLEditor from './sqlEditor';
@@ -30,10 +29,17 @@ class BenchContent extends Component {
                 return <DatabaseDetail data={tabData} />
             }
             case workbenchAction.OPEN_DATA_MAP: {
-                return <UpdateDataMap data={tabData} />
+                return <DataMap 
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData} 
+                />
             }
             case workbenchAction.CREATE_DATA_MAP: {
-                return <CreateDataMap data={tabData} />
+                return <DataMap
+                    isCreate={true}
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData} 
+                />
             }
             default: <p>
                 未知类型

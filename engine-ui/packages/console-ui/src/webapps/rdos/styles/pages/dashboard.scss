@@ -59,6 +59,12 @@
             left: 85px;
         }
     }
+    .project-select{
+        float: left;
+        width: 100px;
+        margin-top: 10px;
+        margin-left: 5px;
+    }
     .project-search {
         float: left;
         width: 220px;
@@ -71,6 +77,20 @@
             width: 14px;
             float: right;
             margin-top: 17;
+        }
+        // 生产测试项目图标
+        .produce-img{
+            width: 18px;
+            margin-left: 14px;
+            margin-bottom: -6px;
+            // margin-top: 17;
+        }
+
+        .test-img{
+            width: 18px;
+            margin-left: 14px;
+            margin-bottom: -4px;
+            // margin-top: 17;
         }
         .cancel-top{
             color: #94A8C6;

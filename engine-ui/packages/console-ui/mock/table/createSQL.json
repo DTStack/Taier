@@ -1,0 +1,6 @@
+{
+    "code": 1,
+    "message": null,
+    "data": "CREATE TABLE `mysql_all`(`tinyint1` tinyint, `smallint1` smallint, `mediumint1` int, `int1` int, `interger1` int, `bigint1` bigint, `bit1` tinyint, `real1` double, `double1` double, `float1` float, `decimal1` decimal(10,0), `numeric1` decimal(10,0), `char1` string, `varchar1` string, `date1` date, `time1` string, `year1` int, `timestamp1` string, `datetime1` string, `smalldatetime1` string, `text1` string)\nPARTITIONED BY (`pt` string)\nROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.orc.OrcSerde'\nWITH SERDEPROPERTIES (\n  'serialization.format' = '1'\n)\nSTORED AS\n  INPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcInputFormat'\n  OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.orc.OrcOutputFormat'\nTBLPROPERTIES (\n  'transient_lastDdlTime' = '1534311277'\n) lifecycle 9999 ;",
+    "space": 158
+}

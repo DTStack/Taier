@@ -202,7 +202,7 @@ class OfflinePanel extends Component {
             defaultPageSize: 10,
         };
         return (
-            <div className="m-card">
+            <div className="m-card" style={{paddingTop: "5px"}}>
                 <Row className="m-count box-1">
                     <Col span={6}>
                         <section className="m-count-section">
