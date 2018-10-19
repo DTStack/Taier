@@ -286,7 +286,7 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
-    private ApplicationId acquireApplicationId(FlinkConfig flinkConfig) {
+    public ApplicationId acquireApplicationId(FlinkConfig flinkConfig) {
         try (YarnClient yarnClient = YarnClient.createYarnClient()){
             yarnClient.init(yarnConf);
             yarnClient.start();

@@ -4,8 +4,8 @@ import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.SystemPropertyUtil;
 import com.dtstack.rdos.engine.entrance.configs.YamlConfig;
 import com.dtstack.rdos.engine.entrance.log.LogbackComponent;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
+import com.dtstack.rdos.engine.service.zk.ZkDistributed;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.web.VertxHttpServer;
 import org.slf4j.Logger;
@@ -28,11 +28,9 @@ public class EngineMain {
 
 	private static ZkDistributed zkDistributed;
 
-	private static JobSubmitExecutor jobSubmitExecutor;
-
 	private static ZkLocalCache zkLocalCache;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		try {
 			SystemPropertyUtil.setSystemUserDir();
 			LogbackComponent.setupLogger();
@@ -44,6 +42,7 @@ public class EngineMain {
 			// add hook
 			addShutDownHook();
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("node start error:{}", e);
 			System.exit(-1);
 		}
@@ -52,7 +51,7 @@ public class EngineMain {
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 
-		jobSubmitExecutor = JobSubmitExecutor.getInstance();
+		JobSubmitExecutor.getInstance();
 
 		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
 
@@ -67,6 +66,6 @@ public class EngineMain {
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor,zkLocalCache).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed,zkLocalCache).addShutDownHook();
 	}
 }

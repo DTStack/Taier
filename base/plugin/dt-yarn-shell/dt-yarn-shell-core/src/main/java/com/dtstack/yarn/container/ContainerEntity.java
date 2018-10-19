@@ -4,14 +4,18 @@ package com.dtstack.yarn.container;
 import com.dtstack.yarn.common.DtContainerStatus;
 
 public class ContainerEntity {
-    private int lane;
+    private int  lane;
     private DtContainerId containerId;
     private DtContainerStatus dtContainerStatus;
     private int attempts;
+    private String nodeHttpAddress;
 
-    public ContainerEntity(DtContainerId containerId, DtContainerStatus dtContainerStatus, int attempts) {
+
+    public ContainerEntity(int lane, DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHttpAddress, int attempts) {
+        this.lane = lane;
         this.containerId = containerId;
         this.dtContainerStatus = dtContainerStatus;
+        this.nodeHttpAddress = nodeHttpAddress;
         this.attempts = attempts;
     }
 
@@ -45,5 +49,13 @@ public class ContainerEntity {
 
     public void setAttempts(int attempts) {
         this.attempts = attempts;
+    }
+
+    public String getNodeHttpAddress() {
+        return nodeHttpAddress;
+    }
+
+    public void setNodeHttpAddress(String nodeHttpAddress) {
+        this.nodeHttpAddress = nodeHttpAddress;
     }
 }

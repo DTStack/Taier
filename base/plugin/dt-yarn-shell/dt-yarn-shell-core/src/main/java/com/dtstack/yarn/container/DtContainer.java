@@ -10,11 +10,17 @@ import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
+import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -48,9 +54,13 @@ public class DtContainer {
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    private final FileSystem dfs;
 
-    private DtContainer() {
+    private DtContainer() throws IOException {
         this.conf = new DtYarnConfiguration();
+
+        this.dfs = FileSystem.get(conf);
+
         conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
@@ -122,6 +132,8 @@ public class DtContainer {
                 }
             }
         }, 1000, 3000, TimeUnit.MILLISECONDS);
+
+        printContainerInfo();
 
         process.waitFor();
 
@@ -206,11 +218,27 @@ public class DtContainer {
 
     }
 
-
+    private void printContainerInfo() {
+        FSDataOutputStream out = null;
+        try {
+            ContainerId cId = containerId.getContainerId();
+            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containes/" + cId.toString());
+            if (!dfs.exists(cIdPath)) {
+                dfs.delete(cIdPath);
+            }
+            out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
+            out.writeUTF(NetUtils.getHostname().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeStream(out);
+        }
+    }
 
     public static void main(String[] args) {
-        DtContainer container = new DtContainer();
+        DtContainer container = null;
         try {
+            container = new DtContainer();
             container.init();
             if (container.run()) {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
@@ -221,7 +249,9 @@ public class DtContainer {
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
-            container.reportFailedAndExit(DebugUtil.stackTrace(e));
+            if (container!=null){
+                container.reportFailedAndExit(DebugUtil.stackTrace(e));
+            }
         }
         Utilities.sleep(3000);
     }

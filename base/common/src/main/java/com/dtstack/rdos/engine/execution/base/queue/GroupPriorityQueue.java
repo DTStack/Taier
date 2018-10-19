@@ -1,10 +1,8 @@
-package com.dtstack.rdos.engine.service.node;
+package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.google.common.collect.Maps;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -16,19 +14,14 @@ import java.util.Map;
 
 public class GroupPriorityQueue {
 
-    private static final String DEFAULT_GROUP_NAME = "default";
-
     /**key: groupName*/
     private Map<String, OrderLinkedBlockingQueue<JobClient>> groupPriorityQueueMap = Maps.newHashMap();
 
     public GroupPriorityQueue(){
-        groupPriorityQueueMap.put(DEFAULT_GROUP_NAME, new OrderLinkedBlockingQueue<>());
     }
 
     public void add(JobClient jobClient) throws InterruptedException {
-        String groupName = jobClient.getGroupName();
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
-        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(groupName,
+        OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.computeIfAbsent(jobClient.getGroupName(),
                 k -> new OrderLinkedBlockingQueue<>());
 
         if(queue.contains(jobClient)){
@@ -42,18 +35,7 @@ public class GroupPriorityQueue {
         return groupPriorityQueueMap;
     }
 
-    public Map<String,Integer> getGroupSizeInfo(){
-        Map<String,Integer> groupSizeInfo = Maps.newHashMap();
-        groupPriorityQueueMap.forEach((group, queue)->groupSizeInfo.computeIfAbsent(group,k->queue.size()));
-        return groupSizeInfo;
-    }
-
-    public Collection<OrderLinkedBlockingQueue<JobClient>> getOrderList(){
-        return groupPriorityQueueMap.values();
-    }
-
     public boolean remove(String groupName, String jobId){
-        groupName = groupName == null ? DEFAULT_GROUP_NAME : groupName;
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
         return queue.remove(jobId);
     }

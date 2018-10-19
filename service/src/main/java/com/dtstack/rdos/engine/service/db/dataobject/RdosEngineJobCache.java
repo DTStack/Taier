@@ -17,7 +17,7 @@ public class RdosEngineJobCache extends DataObject{
 
     private Integer computeType;
     private String nodeAddress;
-
+    private String jobName;
     private Integer stage;
 
     public String getJobId() {
@@ -66,5 +66,13 @@ public class RdosEngineJobCache extends DataObject{
 
     public void setStage(Integer stage) {
         this.stage = stage;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
     }
 }

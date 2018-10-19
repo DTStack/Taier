@@ -7,6 +7,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -73,6 +74,16 @@ public class HadoopClient extends AbsClient {
         resourceInfo = new HadoopResourceInfo();
         yarnDelegate.init(conf);
         yarnDelegate.start();
+    }
+
+    @Override
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.MR.equals(jobType)){
+            jobResult = submitJobWithJar(jobClient);
+        }
+        return jobResult;
     }
 
     @Override
@@ -145,8 +156,7 @@ public class HadoopClient extends AbsClient {
         throw new RdosException("hadoop client not support method 'getJobMaster'");
     }
 
-    @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
+    private JobResult submitJobWithJar(JobClient jobClient) {
         try {
             JarFileInfo jarFileInfo = null;
             String sql = jobClient.getSql();

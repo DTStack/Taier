@@ -18,14 +18,14 @@ import java.util.List;
 public class RdosEngineJobCacheDAO {
 
     public void insertJob(String jobId, String engineType, Integer computeType,
-                          int stage, String jobInfo, String nodeAddress){
+                          int stage, String jobInfo, String nodeAddress, String jobName){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.insert(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
+                mapper.insert(jobId, engineType, computeType, stage, jobInfo, nodeAddress, jobName);
                 return null;
             }
         });
@@ -92,6 +92,17 @@ public class RdosEngineJobCacheDAO {
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
                 return mapper.getByJobIds(jobIds);
+            }
+        });
+    }
+
+    public List<String> listNames(int computeType, String jobName) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<String>>(){
+
+            @Override
+            public List<String> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.listNames(computeType, jobName);
             }
         });
     }

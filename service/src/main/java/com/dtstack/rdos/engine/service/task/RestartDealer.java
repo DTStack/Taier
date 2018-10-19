@@ -161,7 +161,7 @@ public class RestartDealer {
 
     private void resetStatus(String jobId, Integer computeType, String engineType){
         //重试的时候，更改cache状态
-        WorkNode.getInstance().saveCache(jobId,engineType,computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),null);
+        WorkNode.getInstance().saveCache(jobId,engineType,computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),null, null);
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         //重试任务更改在zk的状态，统一做状态清楚
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());

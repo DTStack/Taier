@@ -5,6 +5,7 @@ import com.aliyun.odps.task.SQLTask;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -54,7 +55,16 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException {
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.SQL.equals(jobType)){
+            jobResult = submitSqlJob(jobClient);
+        }
+        return jobResult;
+    }
+
+    private JobResult submitSqlJob(JobClient jobClient) {
         try {
             String[] sqls = jobClient.getSql().split(SPLIT);
             Job job = new Job();
@@ -75,12 +85,6 @@ public class OdpsClient extends AbsClient {
         } catch (OdpsException e) {
             return JobResult.createErrorResult(e);
         }
-    }
-
-    @Override
-    public JobResult submitJobWithJar(JobClient jobClient) {
-
-        throw new RdosException("odps client not support MR job?");
     }
 
     @Override

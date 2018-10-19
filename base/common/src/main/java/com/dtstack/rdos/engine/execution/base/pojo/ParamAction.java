@@ -53,6 +53,10 @@ public class ParamAction {
 
 	private long restartTime;
 
+	private long priority;
+
+	private long generateTime = System.currentTimeMillis();
+
 	public Integer getRequestStart() {
 		return requestStart;
 	}
@@ -173,6 +177,22 @@ public class ParamAction {
 
 	public void setRestartTime(long restartTime) {
 		this.restartTime = restartTime;
+	}
+
+	public long getGenerateTime() {
+		return generateTime;
+	}
+
+	public void setGenerateTime(long generateTime) {
+		this.generateTime = generateTime;
+	}
+
+	public long getPriority() {
+		return priority;
+	}
+
+	public void setPriority(long priority) {
+		this.priority = priority;
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -67,11 +68,26 @@ public class LearningClient extends AbsClient {
                 conf.setFloat(key, (Float)value);
             } else if(value instanceof Double) {
                 conf.setDouble(key, (Double)value);
+            } else if(value instanceof Map) {
+                Map<String,String> map = (Map<String, String>) value;
+                for(Map.Entry<String,String> entry : map.entrySet()) {
+                    conf.set(entry.getKey(), entry.getValue());
+                }
             } else {
                 conf.set(key, value.toString());
             }
         }
         client = new Client(conf);
+    }
+
+    @Override
+    protected JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.PYTHON.equals(jobType)){
+            jobResult = submitPythonJob(jobClient);
+        }
+        return jobResult;
     }
 
     @Override
@@ -140,8 +156,7 @@ public class LearningClient extends AbsClient {
         return null;
     }
 
-    @Override
-    public JobResult submitPythonJob(JobClient jobClient){
+    private JobResult submitPythonJob(JobClient jobClient){
         LOG.info("LearningClient.submitPythonJob");
         try {
             String[] args = LearningUtil.buildPythonArgs(jobClient);

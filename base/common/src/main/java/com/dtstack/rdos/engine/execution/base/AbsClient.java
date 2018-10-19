@@ -1,10 +1,9 @@
 package com.dtstack.rdos.engine.execution.base;
 
-import java.io.IOException;
-
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +24,10 @@ public abstract class AbsClient implements IClient{
         JobResult jobResult;
         try{
             beforeSubmitFunc(jobClient);
-            EJobType jobType = jobClient.getJobType();
-
-            if(EJobType.MR.equals(jobType)){
-                jobResult = submitJobWithJar(jobClient);
-            }else if(EJobType.SQL.equals(jobType)){
-                jobResult = submitSqlJob(jobClient);
-            }else if(EJobType.SYNC.equals(jobType)){
-                jobResult = submitSyncJob(jobClient);
-            }else if(EJobType.PYTHON.equals(jobType)){
-                jobResult = submitPythonJob(jobClient);
-            }else{
-                jobResult = JobResult.createErrorResult("not support job type of " + jobType + "," +
-                        " you need to set it in(MR, SQL, SYNC, PYTHON)");
+            jobResult = processSubmitJobWithType(jobClient);
+            if (jobResult == null){
+                jobResult = JobResult.createErrorResult("not support job type of " + jobClient.getJobType() + "," +
+                        " you need to set it in(" + StringUtils.join(EJobType.values(),",") + ")");
             }
         }catch (Exception e){
             logger.error("", e);
@@ -49,21 +39,13 @@ public abstract class AbsClient implements IClient{
         return jobResult;
     }
 
-    public JobResult submitJobWithJar(JobClient jobClient){
-    	return null;
-    }
-
-    public JobResult submitSqlJob(JobClient jobClient) throws IOException, ClassNotFoundException{
-    	return null;
-    }
-
-    public JobResult submitSyncJob(JobClient jobClient){
-    	return null;
-    }
-
-    public JobResult submitPythonJob(JobClient jobClient){
-        return null;
-    }
+    /**
+     * job 处理具体实现的抽象
+     *
+     * @param jobClient 对象参数
+     * @return 处理结果
+     */
+    protected abstract JobResult processSubmitJobWithType(JobClient jobClient);
 
     @Override
     public String getJobLog(String jobId) {
@@ -75,11 +57,9 @@ public abstract class AbsClient implements IClient{
         return null;
     }
 
-    public void beforeSubmitFunc(JobClient jobClient){
-
+    protected void beforeSubmitFunc(JobClient jobClient){
     }
 
-    public void afterSubmitFunc(JobClient jobClient){
-
+    protected void afterSubmitFunc(JobClient jobClient){
     }
 }

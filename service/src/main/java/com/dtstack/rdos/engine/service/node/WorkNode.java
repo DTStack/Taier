@@ -4,12 +4,14 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.EPluginType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
+import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
+import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -29,13 +31,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -50,12 +49,6 @@ import java.util.concurrent.TimeUnit;
 public class WorkNode {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkNode.class);
-
-    /**经过每轮的判断之后剩下的job优先级数值增量*/
-    private static final int PRIORITY_ADD_VAL = 1;
-
-    /***循环间隔时间3s*/
-    private static final int WAIT_INTERVAL = 3 * 1000;
 
     /**任务分发到执行engine上最多重试3次*/
     private static final int DISPATCH_RETRY_LIMIT = 3;
@@ -84,13 +77,6 @@ public class WorkNode {
     }
 
     private WorkNode(){
-        ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("submitDealer"));
-        scheduledService.scheduleWithFixedDelay(
-                new SubmitDealer(priorityQueueMap),
-                0,
-                WAIT_INTERVAL,
-                TimeUnit.MILLISECONDS);
-
         ExecutorService recoverExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<>(), new CustomThreadFactory("recoverDealer"));
         recoverExecutor.submit(new RecoverDealer());
@@ -99,6 +85,7 @@ public class WorkNode {
         jobStopQueue.start();
 
         zkLocalCache.setWorkNode(this);
+        JobSubmitExecutor.getInstance().startSubmitDealer(priorityQueueMap, zkDistributed.getLocalAddress());
     }
 
     public GroupPriorityQueue getEngineTypeQueue(String engineType) {
@@ -108,9 +95,19 @@ public class WorkNode {
     /**
      * 获取当前节点的队列大小信息
      */
-    public Map<String, Map<String, Integer>> getEngineTypeQueueSizeInfo(){
-        Map<String, Map<String, Integer>> engineTypeQueueSizeInfo = Maps.newHashMap();
-        priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->queue.getGroupSizeInfo()));
+    public Map<String, Map<String, GroupInfo>> getEngineTypeQueueInfo(){
+        Map<String, Map<String, GroupInfo>> engineTypeQueueSizeInfo = Maps.newHashMap();
+        priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->{
+            Map<String,GroupInfo> groupInfos = Maps.newHashMap();
+            queue.getGroupPriorityQueueMap().forEach((group, groupQueue)->groupInfos.computeIfAbsent(group,sk-> {
+                GroupInfo groupInfo = new GroupInfo();
+                groupInfo.setSize(groupQueue.size());
+                JobClient topJob = groupQueue.getTop();
+                groupInfo.setPriority(topJob==null ? 0 : topJob.getPriority());
+                return groupInfo;
+            }));
+            return groupInfos;
+        }));
         return engineTypeQueueSizeInfo;
     }
 
@@ -138,8 +135,7 @@ public class WorkNode {
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
-        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString());
-//        zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.WAITENGINE.getStatus());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), jobClient.getParamAction().toString(), jobClient.getJobName());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -155,7 +151,7 @@ public class WorkNode {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString());
+        saveCache(jobClient.getTaskId(), jobClient.getEngineType(), computeType, EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), jobClient.getJobName());
         //检查分片
         zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
@@ -207,12 +203,12 @@ public class WorkNode {
      * 2. 添加到优先级队列之后保存
      * 3. cache的移除在任务发送完毕之后
      */
-    public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo){
+    public void saveCache(String jobId, String engineType, Integer computeType, int stage, String jobInfo, String jobName){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(engineJobCacheDao.getJobById(jobId) != null){
             engineJobCacheDao.updateJobStage(jobId, stage, nodeAddress);
         }else{
-            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress);
+            engineJobCacheDao.insertJob(jobId, engineType, computeType, stage, jobInfo, nodeAddress, jobName);
         }
     }
 
@@ -283,8 +279,8 @@ public class WorkNode {
                     LOG.error("任务 taskId:{} 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId());
                     return false;
                 }
-
                 retryNum++;
+                excludeNodes.add(address);
                 return distributeTask(jobClient, retryNum, excludeNodes);
             }
 
@@ -312,68 +308,6 @@ public class WorkNode {
 
     private String generateErrorMsg(String msgInfo){
         return String.format("{\"msg_info\":\"%s\"}", msgInfo);
-    }
-
-    class SubmitDealer implements Runnable{
-
-        private Map<String, GroupPriorityQueue> groupPriorityQueueMap;
-
-        public SubmitDealer(Map<String, GroupPriorityQueue> groupPriorityQueueMap){
-            this.groupPriorityQueueMap = groupPriorityQueueMap;
-        }
-
-        @Override
-        public void run() {
-            try{
-                for(GroupPriorityQueue priorityQueue : groupPriorityQueueMap.values()){
-                    for(OrderLinkedBlockingQueue queue : priorityQueue.getOrderList()) {
-                        submitJobClient(queue);
-                    }
-                }
-            }catch (Exception e){
-                LOG.error("", e);
-            }
-        }
-
-        /**
-         * 循环group优先级队列，提交任务到生产消费者队列
-         * @param priorityQueue
-         */
-        private void submitJobClient(OrderLinkedBlockingQueue<JobClient> priorityQueue){
-
-            Iterator<JobClient> it = priorityQueue.iterator();
-            while (it.hasNext()){
-                JobClient jobClient = it.next();
-                boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
-                //重试任务时间未满足条件，出队后进行优先级计算完后重新入队
-                if (!isRestartJobCanSubmit){
-                    jobClient.setPriority(jobClient.getPriority()-1);
-                    continue;
-                }
-                //提交到生产者消费者队列
-                if (jobClient.submitJob()) {
-                    it.remove();
-                } else {
-                    //更新剩余任务的优先级数据
-                    updateQueuePriority(priorityQueue);
-                    break;
-                }
-            }
-        }
-
-        /**
-         * 每次判断过后对剩下的任务的priority值加上一个固定值
-         */
-        private void updateQueuePriority(OrderLinkedBlockingQueue<JobClient> priorityQueue){
-
-            for(JobClient jobClient: priorityQueue){
-                int currPriority = jobClient.getPriority();
-                currPriority = currPriority + PRIORITY_ADD_VAL;
-                jobClient.setPriority(currPriority);
-            }
-
-        }
-
     }
 
     class RecoverDealer implements Runnable{

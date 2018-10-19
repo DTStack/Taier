@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.node.GroupPriorityQueue;
+import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.ZkDistributed;
@@ -102,7 +102,9 @@ public class ZkLocalCache implements Closeable {
         if (addr==null){
             String jobId = TaskIdUtil.getTaskId(zkTaskId);
             RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
-            addr = jobCache.getNodeAddress();
+            if (jobCache!=null){
+                addr = jobCache.getNodeAddress();
+            }
         }
         return addr;
     }

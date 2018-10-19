@@ -391,12 +391,12 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     private void order(Node<E> s,Node<E> t){
         OrderObject to = (OrderObject)t.item;
         OrderObject so = (OrderObject)s.item;
-        if((so.getPriority() > to.getPriority())||(so.getPriority() == to.getPriority()&&so.getGenerateTime()<to.getGenerateTime())){
+        if((so.getPriority() < to.getPriority())){
             s.pre = t.pre;
             s.pre.next = s;
             t.pre = s;
             s.next = t;
-        }else if(so.getPriority()<to.getPriority()||(so.getPriority() == to.getPriority()&&so.getGenerateTime()>=to.getGenerateTime())){
+        }else if(so.getPriority() >= to.getPriority()){
             if(t.next == null){
                 t.next = s;
                 s.pre = t;
