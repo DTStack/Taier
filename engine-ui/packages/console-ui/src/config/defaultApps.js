@@ -16,9 +16,9 @@ module.exports = [
         filename: 'ide.html',
         link: '/ide.html#',
         target: '_self',
-        enable: true,
+        enable: false,
         hasProject: true, // 是否拥有项目选择
-        default: true, // 是否为默认应用选项
+        default: false, // 是否为默认应用选项
         apiBase: '/rdos',
         icon: '/public/main/img/icon_1.png',
         description: '一站式大数据开发平台，帮助企业快速完全数据中台搭建',
@@ -28,7 +28,7 @@ module.exports = [
         link: 'dataQuality.html#/',
         filename: 'dataQuality.html',
         target: '_self',
-        enable: true,
+        enable: false,
         apiBase: '/dq',
         icon: '/public/main/img/icon_2.png',
         description: '对过程数据和结果数据进行质量校验，帮助企业及时发现数据质量问题',
@@ -39,6 +39,7 @@ module.exports = [
         filename: 'dataApi.html',
         target: '_self',
         enable: true,
+        default: true, // 是否为默认应用选项
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_3.png',
         description: '快速生成数据API、统一管理API服务，帮助企业提高数据开放效率',
@@ -58,7 +59,7 @@ module.exports = [
         link: 'console.html#/',
         filename: 'console.html',
         target: '_self',
-        enable: true,
+        enable: false,
         apiBase: '/console',
         icon: '/public/main/img/icon_5.png',
         description: '计算资源分配、多集群管理',
