@@ -101,10 +101,10 @@ public class ApplicationContainerListener
 
     public void registerContainer(boolean isNew, int lane, DtContainerId containerId, String nodeHttpAddress) {
         if(isNew) {
-            entities.add(new ContainerEntity(containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, 1));
+            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, 1));
         } else {
             int attempt =  entities.get(lane).getAttempts();
-            entities.set(lane, new ContainerEntity(containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, attempt + 1));
+            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, attempt + 1));
         }
     }
 
