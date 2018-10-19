@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Icon } from 'antd';
+import { Modal, Icon, Row } from 'antd';
 
 import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
@@ -13,7 +13,7 @@ class UpdateDatabaseModal extends Component {
         submitted: false,
     }
 
-    onSubmit = async () => {
+    onSubmit = () => {
         
         if (this.state.submitted) {
             this.resetModal();
@@ -21,7 +21,7 @@ class UpdateDatabaseModal extends Component {
         }
 
         const form = this.dbForm.props.form;
-        form.validateFields((err, values) => {
+        form.validateFields( async (err, values) => {
             if (!err) {
                 const result = await API.createOrUpdateDB(values);
                 if (result.code === 1) {
@@ -65,7 +65,7 @@ class UpdateDatabaseModal extends Component {
                         wrappedComponentRef={(e) => { this.dbForm = e }}
                     />
                 }
-                <Row className="update-warning">
+                <Row className="update-warning" style={{ padding: '0 0 26px 60px' }}>
                     <Icon type="exclamation-circle-o" />&nbsp;
                     <span>重置数据库密码后，您需要手动修改已有连接才能正常访问数据</span>
                 </Row>

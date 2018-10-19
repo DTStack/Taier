@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import { 
-    Row, Table, Card, Input, 
+    Row, Table, Card, Input, Modal,
     Button, Dropdown, Menu, Icon
 } from 'antd';
 
-const Search = Input.Search;
 
 import AddUserModal from './addUser';
-import UpdateDBModal from './addUser';
+import UpdateDBModal from './update';
+import Api from '../../../../api';
+
+const Search = Input.Search;
+const confirm = Modal.confirm;
 
 class DatabaseDetail extends Component {
 
@@ -34,15 +37,26 @@ class DatabaseDetail extends Component {
 
     }
 
-    onSelectMenu = (key) => {
+    onSelectMenu = ({ key }) => {
         console.log('onClick:', key)
         if (key === 'RESET') {
             this.setState({
-                
+                visibleResetPwd: true,
             })
-
         } else if (key === 'DELETE') {
-
+            confirm({
+                title: '警告',
+                content: '删除数据库后无法恢复，数据库内的所有数据无法找回，确认删除？',
+                okText: '确定',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk() {
+                  this.remove();
+                },
+                onCancel() {
+                  console.log('Cancel');
+                },
+            });
         }
     }
 
