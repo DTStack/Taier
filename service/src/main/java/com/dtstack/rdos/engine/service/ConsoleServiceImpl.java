@@ -169,15 +169,17 @@ public class ConsoleServiceImpl {
                 String groupName = entry.getKey();
                 int groupSize = entry.getValue().size();
                 long generateTime = 0L;
+                long waitTime = 0L;
                 if (groupSize > 0) {
                     JobClient jobClient = entry.getValue().getTop();
                     generateTime = jobClient.getGenerateTime();
+                    waitTime = System.currentTimeMillis() - jobClient.getGenerateTime();
                 }
                 Map<String, Object> element = new HashMap<>(3);
                 element.put("groupName", groupName);
                 element.put("groupSize", groupSize);
                 element.put("generateTime", generateTime);
-                element.put("waitTime", System.currentTimeMillis() - generateTime);
+                element.put("waitTime", waitTime);
                 groups.add(element);
             }
             return groups;
