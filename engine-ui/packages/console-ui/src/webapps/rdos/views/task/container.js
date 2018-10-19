@@ -73,13 +73,13 @@ class Container extends Component {
     };
 
     loadIDETheme = (theme) => {
-        console.log("componentDidMount 开发套件：", this.props.editor)
+        console.log("componentDidMount 离线计算：", this.props.editor)
         const claName = getEditorThemeClassName(theme); 
         document.body.className = claName;
     }
 
     unloadIDETheme = () => {
-        console.log("componentWillUnmount 开发套件：", this.props.editor);
+        console.log("componentWillUnmount 离线计算：", this.props.editor);
         document.body.className = "";
     }
 

@@ -72,11 +72,6 @@ export default class Sidebar extends Component {
                             </Link>
                         </Menu.Item>
                     </SubMenu>
-                    <Menu.Item key="realtime">
-                        <Link to={`${base}/realtime`}><Icon type="link" />
-                            <span className="nav-text">实时任务</span>
-                        </Link>
-                    </Menu.Item>
                     <SubMenu key="alarm" title={<span><Icon type="exclamation-circle-o" /><span className="nav-text">监控告警</span></span>}>
                         <Menu.Item key="alarm-record">
                             <Link to={`${base}/alarm-record`}>

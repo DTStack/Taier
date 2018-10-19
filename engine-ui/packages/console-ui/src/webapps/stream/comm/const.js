@@ -192,25 +192,34 @@ export const HELP_DOC_URL = {
 
 export const TASK_STATUS = { // 任务状态
     ALL: null,
-    WAIT_SUBMIT: 0,
-    CREATED: 1,
+    WAIT_SUBMIT: 0,//等待提交
+    CREATED: 1,//已创建
     INVOKED: 2,
     DEPLOYING: 3,
-    RUNNING: 4,
-    FINISHED: 5,
-    STOPING: 6,
-    STOPED: 7,
-    RUN_FAILED: 8,
-    SUBMIT_FAILED: 9,
-    SUBMITTING: 10,
-    RESTARTING: 11,
+    RUNNING: 4,//运行中
+    FINISHED: 5,//已完成
+    STOPING: 6,//停止中
+    STOPED: 7,//已取消
+    RUN_FAILED: 8,//运行失败
+    SUBMIT_FAILED: 9,//提交失败
+    SUBMITTING: 10,//提交中
+    RESTARTING: 11,//重试中
     SET_SUCCESS: 12,
-    KILLED:13,
-    WAIT_RUN: 16,
+    KILLED:13,//已停止
+    WAIT_RUN: 16,//等待运行
     WAIT_COMPUTE: 17,
-    FROZEN: 18,
+    FROZEN: 18,//冻结
     PARENT_FAILD: 21, // 上游失败
 }
+
+export const CHARTS_COLOR=[
+    "#339CFF",
+    "#15D275",
+    "#5579ED",
+    "#00C3E5",
+    "#16DFB4",
+    "#86E159"
+]
 
 // 表模型规则
 // "1":"层级",
@@ -363,74 +372,6 @@ export const offlineTaskStatusFilter = [{
 }]
 
 
-export const offlineTaskTypeFilter = [
-    {
-        id: 0,
-        text: '虚节点',
-        value: TASK_TYPE.VIRTUAL_NODE,
-    }, {
-        id: 1,
-        text: 'SparkSQL',
-        value: TASK_TYPE.SQL,
-    }, {
-        id: 2,
-        text: 'Spark',
-        value: TASK_TYPE.MR,
-    }, {
-        id: 3,
-        text: '数据同步',
-        value: TASK_TYPE.SYNC,
-    }, {
-        id: 11,
-        text: '工作流',
-        value: TASK_TYPE.WORKFLOW,
-    }, {
-        id: 5,
-        text: 'PySpark',
-        value: TASK_TYPE.PYTHON,
-    }, {
-        id: 6,
-        text: '深度学习',
-        value: TASK_TYPE.DEEP_LEARNING,
-    }, {
-        id: 7,
-        text: 'Python',
-        value: TASK_TYPE.PYTHON_23,
-    }, {
-        id: 8,
-        text: 'Shell',
-        value: TASK_TYPE.SHELL,
-    }, {
-        id: 9,
-        text: '机器学习',
-        value: TASK_TYPE.ML,
-    }, {
-        id: 10,
-        text: 'HadoopMR',
-        value: TASK_TYPE.HAHDOOPMR,
-    }]
-
-export const offlineTaskPeriodFilter = [{
-    id: 1,
-    text: '分钟任务',
-    value: 0,
-}, {
-    id: 2,
-    text: '小时任务',
-    value: 1,
-}, {
-    id: 3,
-    text: '天任务',
-    value: 2,
-}, {
-    id: 4,
-    text: '周任务',
-    value: 3,
-}, {
-    id: 5,
-    text: '月任务',
-    value: 4,
-}]
 
 export const ScheduleTypeFilter = [{ // 调度过滤
     text: '周期调度',

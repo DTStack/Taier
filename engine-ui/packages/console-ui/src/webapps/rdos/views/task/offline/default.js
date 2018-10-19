@@ -49,7 +49,7 @@ class Default extends Component {
                                 className="anticon"
                             />
                             <p className="txt-center operation-title">
-                                创建离线任务
+                                创建任务
                             </p>
                         </div>
                     </Col>
@@ -63,7 +63,7 @@ class Default extends Component {
                                 className="anticon"
                             />
                             <p className="txt-center operation-title">
-                                上传离线计算资源
+                                上传资源
                             </p>
                         </div>
                     </Col>

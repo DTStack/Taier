@@ -214,3 +214,46 @@ body:-webkit-full-screen {
     line-height: 32px;
     right: -18px;
 }
+
+.status_wait_submit{
+    background: #F5A623;
+}
+.status_created{
+    background: #F5A623;
+}
+.status_running{
+    background: #2491F7;
+}
+.status_finished{
+    background: #00A755;
+}
+.status_stoping{
+    background: #F5A623;
+}
+.status_stoped{
+    background: #EF5350;
+}
+.status_run_fail{
+    background: #EF5350;
+}
+.status_submit_failed{
+    background: #EF5350;
+}
+.status_submitting{
+    background: #F5A623;
+}
+.status_restarting{
+    background: #F5A623;
+}
+.status_killed{
+    background: #94A8C6;
+}
+.status_wait_run{
+    background: #F5A623;
+}
+.status_frozen{
+    background: #94A8C6;
+}
+.status_parent_failed{
+    background: #EF5350;
+}
