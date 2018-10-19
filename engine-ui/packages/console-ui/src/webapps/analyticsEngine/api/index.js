@@ -22,4 +22,7 @@ export default {
     getCreateSQL(params) {
         return http.post(req.GET_CREATE_SQL, params);
     },
+    saveNewTable(params){
+        return http.post(req.CREATE_NEW_TABLE, params)
+    }
 }

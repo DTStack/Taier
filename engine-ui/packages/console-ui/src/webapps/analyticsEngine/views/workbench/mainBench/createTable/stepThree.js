@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Select, Icon, Button } from 'antd'
+import { Input, Table, Select, Icon, Button, Row } from 'antd'
 
 const Option = Select.Option;
 
@@ -181,11 +181,11 @@ export default class StepThree extends Component{
   
 
   render(){
-    let {index_list,area_list} = this.state;
+    let {index_list} = this.state;
     
 
     return (
-      <div className="step-two-container step-container">
+      <Row className="step-three-container step-container">
         <div className="table-panel">
           <Table 
           columns={this.getTableCol(1)}
@@ -199,9 +199,9 @@ export default class StepThree extends Component{
 
         <div className="nav-btn-box">
               <Button onClick={this.props.handleLastStep}>上一步</Button>
-              <Button type="primary" onClick={this.next}>下一步</Button>
+              <Button type="primary" onClick={this.props.handleSave}>下一步</Button>
         </div>
-      </div>
+      </Row>
     )
   }
 }

@@ -27,6 +27,7 @@ const workbenchActionType = mc([
     'LAST_STEP',//上一步
     'OPEN_DATA_MAP', // 查看DataMap
     'GENERATE_CREATE_SQL', // 生成建表语句
+    'NEW_TABLE_SAVED',//保存新表
 ], { prefix: 'workbench/' })
 
 export default workbenchActionType;

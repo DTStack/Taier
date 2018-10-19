@@ -35,21 +35,19 @@ class CreateTable extends Component {
         console.log(nextProps)
     }
     render () {
-        const { currentStep } = this.props.workbench.mainBench;
-        // console.log(this.props)
-        console.log(currentStep)
-        const {newanalyEngineTableData} = this.props.workbench.mainBench;
+        const { currentStep, currentTab, newanalyEngineTableDataList} = this.props.workbench.mainBench;
+        const newanalyEngineTableData = newanalyEngineTableDataList[`tableItem${currentTab}`] || {};
 
         const steps = [
             {
                 title: '基本信息',
-                content: <StepOne formData={newanalyEngineTableData} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepOne formData={newanalyEngineTableData || {}} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '字段与分区',
-                content: <StepTwo formData={newanalyEngineTableData} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepTwo formData={newanalyEngineTableData || {}} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '索引',
-                content: <StepThree formData={newanalyEngineTableData} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepThree formData={newanalyEngineTableData || {}} handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '新建完成',
                 content: <StepFour/>
