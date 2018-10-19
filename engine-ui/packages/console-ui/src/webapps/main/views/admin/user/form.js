@@ -40,8 +40,8 @@ export const isDisabledRole = (app, value, loginUser, myRoles={}) => {
         case MY_APPS.DATA_QUALITY: {
             if (loginUser.isTenantAdmin) {//租户管理员
                 return value === APP_ROLE.TENANT_OWVER 
-            }else if(myRoles.isProjectAdmin){//产品管理员
-                return (value === APP_ROLE.TENANT_OWVER ||value === APP_ROLE.ADMIN)
+            } else if (myRoles.isProjectAdmin){//产品管理员
+                return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
             } else {
                 return true;
             }
