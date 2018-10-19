@@ -10,6 +10,7 @@ import BaseInfo from "./tabs/baseInfo"
 import CheckPoint from "./tabs/checkPoint"
 import DataDelay from "./tabs/dataDelay"
 import RunCode from "./tabs/runCode"
+import HelpDoc from "../../../helpDoc"
 
 
 import { TASK_TYPE } from "../../../../../stream/comm/const";
@@ -74,7 +75,19 @@ class TaskDetailPane extends React.Component {
                     <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
                         <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
                     </TabPane>,
-                    <TabPane style={scrollStyleNoPt} tab="数据延迟" key="dataDelay">
+                    <TabPane 
+                    style={scrollStyleNoPt} 
+                    tab={(
+                        <span>数据延迟<HelpDoc style={{
+                            position:"relative",
+                            marginLeft:"5px",
+                            right:"initial",
+                            top:"initial",
+                            marginRight:"0px"
+                        }}  doc="delayTabWarning" /></span>
+                    )
+                    } 
+                    key="dataDelay">
                         <DataDelay data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">

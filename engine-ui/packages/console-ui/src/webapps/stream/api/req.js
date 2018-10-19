@@ -97,7 +97,9 @@
      GET_CHECK_POINT_RANGE: `${STREAM_BASE_URL}/streamTaskCheckpoint/getCheckpointTimeRange`, // 获取指定任务的保存点可选时间范围
      GET_CHECK_POINTS: `${STREAM_BASE_URL}/streamTaskCheckpoint/getCheckpointList`, // 获取指定任务时间范围内的保存点
      GET_TASK_METRICS:`${STREAM_BASE_URL}/streamJobMetric/getTaskMetrics`,//获取指标
-
-
+     GET_DATA_DELAY:`${STREAM_BASE_URL}/streamJobMetric/getDataDelay`,//获取数据延迟
+     GET_DATA_DELAY_DETAIL:`${STREAM_BASE_URL}/streamJobMetric/getDataDelayDetail`,//数据延迟详情
+     GET_CHECKPOINT_LIST:`${STREAM_BASE_URL}/streamTaskCheckpoint/pageQuery`,//获取checkpoint列表
+     GET_CHECKPOINT_OVERVIEW:`${STREAM_BASE_URL}/streamTaskCheckpoint/getDataCount`,//获取checkpoint统计信息
  }
  

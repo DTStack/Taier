@@ -195,3 +195,7 @@ export const alarmWarning= (
         <p>后台统计周期：延迟消费数、延迟消费比例，2个值都是每隔10秒钟统计一次；</p>
     </div>
 )
+
+export const delayTabWarning=(
+    <p>kafka中堆积的未被消费的数据量（条数）</p>
+)

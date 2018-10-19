@@ -116,7 +116,7 @@ class GoOnTask extends Component {
             min.subtract('day', 1)
             max.add('day', 1)
 
-            return current.valueOf() > min.valueOf() && current.valueOf() < max.valueOf()
+            return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
         return false;
     }
