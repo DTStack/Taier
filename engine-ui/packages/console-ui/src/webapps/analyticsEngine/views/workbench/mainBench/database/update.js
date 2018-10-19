@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal } from 'antd';
+import { Modal, Icon } from 'antd';
 
 import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
@@ -14,25 +14,28 @@ class UpdateDatabaseModal extends Component {
     }
 
     onSubmit = async () => {
+        
         if (this.state.submitted) {
             this.resetModal();
             return false;
         }
 
         const form = this.dbForm.props.form;
-        const formData = form.getFieldsValue();
-
-        const result = await API.createOrUpdateDB(formData);
-        if (result.code === 1) {
-            this.setState({
-                databaseData: result.data,
-                submitted: true,
-            })
-        }
+        form.validateFields((err, values) => {
+            if (!err) {
+                const result = await API.createOrUpdateDB(values);
+                if (result.code === 1) {
+                    this.setState({
+                        databaseData: result.data,
+                        submitted: true,
+                    })
+                }
+            }
+        });
     }
 
     resetModal = () => {
-        this.props.resetModal();
+        this.props.onCancel();
         setTimeout(() => {
             this.setState({
                 databaseData: null,
@@ -43,13 +46,10 @@ class UpdateDatabaseModal extends Component {
 
     render () {
         const { databaseData } = this.state;
-        const { modal } = this.props;
-        const visible =  modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE 
-        ? true : false;
-
+        const { visible, defaultData } = this.props;
         return (
             <Modal
-                title="创建数据库"
+                title="重置密码"
                 visible={visible}
                 onOk={this.onSubmit}
                 onCancel={this.resetModal}
@@ -57,13 +57,18 @@ class UpdateDatabaseModal extends Component {
             >   
                 {
                     databaseData ? 
-                    <UpdateSucc data={databaseData} message="创建成功" /> 
+                    <UpdateSucc data={databaseData} message="重置成功" /> 
                     : 
                     <DBForm
-                        isCreate={true}
+                        databaseData={defaultData}
+                        isCreate={false}
                         wrappedComponentRef={(e) => { this.dbForm = e }}
                     />
                 }
+                <Row className="update-warning">
+                    <Icon type="exclamation-circle-o" />&nbsp;
+                    <span>重置数据库密码后，您需要手动修改已有连接才能正常访问数据</span>
+                </Row>
             </Modal>
         )
     }
