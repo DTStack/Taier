@@ -18,6 +18,20 @@ export const onCreateDB = function() {
 }
 
 /**
+ * 移除数据库
+ * @param {Object} params Database参数
+ */
+export function onRemoveDB(params) {
+    return async dispatch => {
+        const res = await API.createOrUpdateDB(params);
+        if (res.code === 1) {
+            message.success('删除数据库成功！');
+            dispatch(closeTab(params.id));
+        }
+    }
+}
+
+/**
  * 加载左侧树形目录数据
  */
 export const loadCatalogue = function(params) {
