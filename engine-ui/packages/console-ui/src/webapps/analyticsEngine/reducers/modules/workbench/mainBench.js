@@ -23,11 +23,17 @@ const defaultTabBarData = {
                 name: 'testTable'
             },
             actionType: 'workbench/CREATE_DATA_MAP',
+        },{
+            id: 4,
+            name: 'testData4',
+            actionType: 'workbench/OPEN_TABLE_EDITOR',
         }
     ],
     currentTab: 1,
     currentStep: 0,
-    newanalyEngineTableDataList: {},
+    newanalyEngineTableDataList: {},//新建的多个表数据
+    editTableInfoList: {},//正在编辑的多个表数据
+    tableDetail: {},//表详情
 }
 const getInitialCachedData = () => {
     let initialState = localDb.get(workbenchStoreKey);
@@ -78,6 +84,7 @@ export default function mainBench(state = getInitialCachedData(), action) {
         }
 
         case workbenchAction.NEW_TABLE_INFO_CHANGE: {
+
             let newanalyEngineTableDataList = state.newanalyEngineTableDataList || {};
             newanalyEngineTableDataList[`tableItem${state.currentTab}`] = newanalyEngineTableDataList[`tableItem${state.currentTab}`] || {}
             for(let item in payload){
@@ -102,6 +109,10 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 currentStep: currentStep,
             })
         }
+
+
+
+
         case workbenchAction.LAST_STEP: {
             let currentStep = state.currentStep - 1;
             return assign({},state,{
@@ -109,10 +120,29 @@ export default function mainBench(state = getInitialCachedData(), action) {
             })
         }
         case workbenchAction.NEW_TABLE_SAVED: {
-            let currentStep = state.currentStep + 1;
-            return assign({},state,{
-                currentStep: currentStep
+            // let currentStep = state.currentStep + 1;
+            // return assign({},state,{
+            //     currentStep: currentStep
+            // })
+            console.log('表已保存')
+            //保存完成
+        }
+        case workbenchAction.SAVE_EDITTABLE_INFO: {
+            let editTableInfoList = state.editTableInfoList || {};
+            editTableInfoList[`tableInfo${state.currentTab}`] = editTableInfoList[`tableInfo${state.currentTab}`] || {};
+            for(let item in payload){
+                editTableInfoList[`tableInfo${state.currentTab}`][payload[item].key] = payload[item].value
+            }
+            const newState = assign({},state,{
+                editTableInfoList: editTableInfoList
             })
+            localDb.set('engine_workbench', newState);
+
+            return newState;
+        }
+        case workbenchAction.TABLE_INFO_MOTIFIED: {
+            //保存完成
+            console.log('新的表信息已保存')
         }
         case workbenchAction.CLOSE_OTHERS: {
             const newStore = assign({}, state);

@@ -3,26 +3,26 @@ import { Input, Table, Select, Icon, Button, Row } from 'antd'
 
 const Option = Select.Option;
 
-// const index_list = [];
+// const indexes = [];
 // const area_list = [];
 
 export default class StepThree extends Component{
   constructor(props){
     super();
     this.state = {
-      index_list: [],
+      indexes: [],
     }
   }
 
 
   componentWillMount(){
     const { formData } = this.props;
-    this.state.index_list = formData.index_list || [];
+    this.state.indexes = formData.indexes || [];
   }
   componentWillReceiveProps(nextProps){
     const { formData } = nextProps;
     this.setState({
-      index_list: formData.index_list || []
+      indexes: formData.indexes || []
     })
   }
 
@@ -34,30 +34,30 @@ export default class StepThree extends Component{
   }
 
   addNewLine = ()=>{
-    let {index_list,area_list} = this.state;
+    let {indexes,area_list} = this.state;
     let _fid = 0;
-    index_list.map(o=>{
+    indexes.map(o=>{
       if(o._fid>_fid)
         _fid = o._fid
     })
-    index_list[index_list.length] = {
+    indexes[indexes.length] = {
       _fid: _fid + 1,
-      name: '',
-      field_type: 'STRING',
-      index_type: 'STRING',
+      columnName: '',
+      columnType: '',
+      index_type: '',
       comment: ''
     }
     this.setState({
-      index_list: index_list
+      indexes: indexes
     })
   }
 
   handleNameChange = (e,record)=>{
-    record.name = e.target.value;
+    record.columnName = e.target.value;
     this.saveDataToStorage();
   }
   handleSelectChange = (e,record)=>{
-    record.field_type = e;
+    record.columnType = e;
     this.saveDataToStorage();
   }
   handleIndexTypeChange = (e,record)=>{
@@ -70,12 +70,12 @@ export default class StepThree extends Component{
   }
 
   remove = (record,flag)=>{
-    let {index_list} = this.state;
+    let {indexes} = this.state;
 
-    index_list.splice(index_list.indexOf(record),1)
+    indexes.splice(indexes.indexOf(record),1)
 
     this.setState({
-      index_list: index_list,
+      indexes: indexes,
     })
     this.saveDataToStorage();
   }
@@ -83,8 +83,8 @@ export default class StepThree extends Component{
   move = (record,type)=>{
     //type 1上移 2下移
     // let mid = {};
-    let {index_list} = this.state;
-    let list = index_list;
+    let {indexes} = this.state;
+    let list = indexes;
     console.log(type)
     console.log( list.indexOf(record) )
     console.log(list.length)
@@ -107,7 +107,7 @@ export default class StepThree extends Component{
     console.log(list)
 
       this.setState({
-        index_list: list
+        indexes: list
       })
     
       this.saveDataToStorage();
@@ -117,10 +117,10 @@ export default class StepThree extends Component{
    * 保存输入的值
    */
   saveDataToStorage = ()=>{
-    const {index_list} = this.state;
+    const {indexes} = this.state;
     this.props.saveNewTableData([{
-      key: 'index_list',
-      value: index_list
+      key: 'indexes',
+      value: indexes
     }])
   }
 
@@ -128,15 +128,15 @@ export default class StepThree extends Component{
     let tableCol = [
       {
         title: '索引名称',
-        dataIndex: 'name',
+        dataIndex: 'columnName',
         render: (text,record)=>(
           <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
-        dataIndex: 'field_type',
+        dataIndex: 'columnType',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:STRING} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             <Option value="STRING">STRING</Option>
             <Option value="INT">INT</Option>
             <Option value="LONG">LONG</Option>
@@ -147,7 +147,7 @@ export default class StepThree extends Component{
         title: '索引类型',
         dataIndex: 'index_type',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:STRING} onChange={(e)=>this.handleIndexTypeChange(e,record)}>
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleIndexTypeChange(e,record)}>
             <Option value="STRING">STRING</Option>
             <Option value="INT">INT</Option>
             <Option value="LONG">LONG</Option>
@@ -181,7 +181,7 @@ export default class StepThree extends Component{
   
 
   render(){
-    let {index_list} = this.state;
+    let {indexes} = this.state;
     
 
     return (
@@ -189,7 +189,7 @@ export default class StepThree extends Component{
         <div className="table-panel">
           <Table 
           columns={this.getTableCol(1)}
-          dataSource={index_list}
+          dataSource={indexes}
           rowKey="_fid"
           pagination={false}
           size="small"
