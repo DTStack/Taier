@@ -118,7 +118,8 @@ class Resource extends Component {
                 dataIndex: "slotsNumber",
                 render(text, record) {
                     return record.slotsNumber;
-                }
+                },
+                width: "175px"
             },
             {
                 title: "freeMemory",

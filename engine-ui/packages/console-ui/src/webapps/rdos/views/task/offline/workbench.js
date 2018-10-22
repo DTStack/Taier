@@ -368,9 +368,12 @@ class Workbench extends React.Component {
                 if (tab.flowId) {
                     title = (<div>
                         <TabIcon tabData={tab} />
-                        <a className="tab-ellipsis" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
-                            {tab.flowName}
-                        </a><span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
+                        <span className="tab-ellipsis">
+                            <a className="workflow-name" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                                <Tooltip title={tab.flowName}>{tab.flowName}</Tooltip>
+                            </a>
+                            <span className="normal-tab">&nbsp;/ {<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
+                        </span>
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                     </div>);
                 }

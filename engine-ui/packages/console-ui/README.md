@@ -1,18 +1,12 @@
 # DATA-STACK 
 
-
 # 更新日志 | [部署文档](./Deploy.md)
- > 版本：DTinsight v2.10.0 <br>
- > 日期：2018-09-29
+ > 版本：DTinsight v2.11.0 <br>
+ > 日期：2018-10-19
 
-- 【开发套件】`新增`开发套件`深色`主题切换功能
-- 【开发套件】`新增`工具栏`搜索并打开`任务功能
-- 【开发套件】`新增`Tab导航栏隐藏tab列表
-- 【开发套件】`支持`维表全量缓存
-- 【开发套件】`优化`补数据随机填充名称
-- 【数据API 】`新增`ES、DB2、RDS数据源类型
-- 【 控制台 】`新增`Engin资源队列管理
-- 【 其他 】`优化`UI细节，Bug修复 [更多](http://redmine.prod.dtstack.cn/projects/dtinsight-v2-9-0)
+- 【控制台】`新增`多集群管理功能
+- 【 其他 】`优化`UI细节，Bug修复 [更多](http://redmine.prod.dtstack.cn/projects/dtinsight-v2-11-0/issues)
+
 
 
 
