@@ -2,7 +2,6 @@ import React from 'react';
 import { Tree, Tooltip, Icon } from 'antd';
 
 import { CATALOGUE_TYPE } from '../../../consts';
-import MyIcon from '../../../components/icon';
 
 const TreeNode = Tree.TreeNode;
 
@@ -38,19 +37,27 @@ class FolderTree extends React.PureComponent {
         super(props)
     }
 
-    renderNodeHoverButton = (type) => {
-        switch(type) {
+    renderNodeHoverButton = (item) => {
+        const { onGetTable, onGetDataMap, onSQLQuery } = this.props;
+        switch(item.type) {
             case CATALOGUE_TYPE.DATA_MAP:
                 return (
                     <span className="tree-node-hover-items">
-                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" />
+                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
+                            onClick={() => onGetDataMap({ id: item.id }) }
+                        />
                     </span>
                 )
             case CATALOGUE_TYPE.TABLE:
                 return (
                     <span className="tree-node-hover-items">
-                        <MyIcon className="tree-node-hover-item" title="SQL查询" type="btn_search"/>
-                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" />
+                        <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
+                           onClick={() => onSQLQuery({ database: item.database }) }
+                        />
+                        <Icon 
+                            className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                            onClick={() => onGetTable({ id: item.id }) }
+                        />
                     </span>
                 )
             case CATALOGUE_TYPE.FOLDER:
@@ -79,7 +86,7 @@ class FolderTree extends React.PureComponent {
                             style={{padding:"8px 0px"}}
                         >
                             {name}
-                            { this.renderNodeHoverButton(item.type) }
+                            { this.renderNodeHoverButton(item) }
                         </span>
                     </Tooltip>
                 )

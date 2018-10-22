@@ -44,4 +44,4 @@ class DDLModal extends Component {
     }
 }
 
-export default DDLModal
+export default DDLModal;

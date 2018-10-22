@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 // 继承主应用
 import 'main/styles/comm.css'
-import 'main/styles/reset.css'
+// import 'main/styles/reset.css'
 import 'main/styles/layout.scss'
 import 'main/styles/myantd.scss'
 

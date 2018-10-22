@@ -1,16 +1,24 @@
 import React, { Component } from 'react';
-
+import { debounce } from 'lodash';
 import { 
-    Row, Table, Card, Input, 
+    Row, Table, Card, Input, Modal,
     Button, Dropdown, Menu, Icon
 } from 'antd';
 
+
+import AddUserModal from './addUser';
+import UpdateDBModal from './update';
+import API from '../../../../api';
+
 const Search = Input.Search;
+const confirm = Modal.confirm;
 
 class DatabaseDetail extends Component {
 
     state = {
         userList: [],
+        visibleAddUser: false,
+        visibleResetPwd: false,
     }
 
     componentDidMount () {
@@ -25,13 +33,46 @@ class DatabaseDetail extends Component {
         
     }
 
-    remove = () => {
+    onSearchUsers = (value) => {
 
     }
 
-    onSelectMenu = (key) => {
-
+    remove = async () => {
+        const { data } = this.props;
+        const res = await API.deleteDB({
+            id: data.id
+        });
+        if (res.code === 1) {
+            message.success('删除成功！');
+        }
     }
+
+    onSelectMenu = ({ key }) => {
+        console.log('onClick:', key)
+        const { onRemoveDataBase } = this.props;
+        
+        if (key === 'RESET') {
+            this.setState({
+                visibleResetPwd: true,
+            })
+        } else if (key === 'DELETE') {
+            confirm({
+                title: '警告',
+                content: '删除数据库后无法恢复，数据库内的所有数据无法找回，确认删除？',
+                okText: '确定',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk() {
+                  this.remove();
+                },
+                onCancel() {
+                  console.log('Cancel');
+                },
+            });
+        }
+    }
+
+    debounceSearch = debounce(this.onSearchUsers, 300, { 'maxWait': 2000 })
 
     initColumns = () => {
         return [{
@@ -84,7 +125,7 @@ class DatabaseDetail extends Component {
     renderDropMenu = () => {
         return (
             <Dropdown overlay={
-                <Menu onSelect={this.onSelectMenu}>
+                <Menu onClick={this.onSelectMenu}>
                     <Menu.Item key="RESET">
                         重置密码
                     </Menu.Item>
@@ -153,7 +194,16 @@ class DatabaseDetail extends Component {
                             />
                         }
                         extra={
-                            <Button type="primary">添加用户</Button>
+                            <Button 
+                                type="primary"
+                                onClick={() => {
+                                    this.setState({
+                                        visibleAddUser: true,
+                                    })
+                                }}
+                            >
+                                添加用户
+                            </Button>
                         }
                     >
                         <Table
@@ -164,9 +214,24 @@ class DatabaseDetail extends Component {
                         />
                     </Card>
                 </Row>
+                <AddUserModal 
+                    onSearch={this.debounceSearch}
+                    onSubmit={this.addUser}
+                    onCancel={() => {this.setState({
+                        visibleAddUser: false,
+                    })}}
+                    visible={this.state.visibleAddUser} 
+                />
+                <UpdateDBModal 
+                    defaultData={data}
+                    visible={this.state.visibleResetPwd}
+                    onCancel={() => {this.setState({
+                        visibleResetPwd: false,
+                    })}}
+                />
             </div>
         )
     }
 }
 
-export default DatabaseDetail
+export default DatabaseDetail;

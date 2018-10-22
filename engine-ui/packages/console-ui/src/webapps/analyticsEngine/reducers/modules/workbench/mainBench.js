@@ -2,37 +2,36 @@ import { cloneDeep, assign } from 'lodash';
 import localDb from 'utils/localDb';
 import workbenchAction from '../../../consts/workbenchActionType';
 
-const getInitialCachedData = () => {
-    let initialState = localDb.get('engine_workbench');
-    if(!initialState) initialState = {
-        tabs: [
-            {
+const workbenchStoreKey = 'engine_workbench';
+// 默认Tab栏数据
+const defaultTabBarData = {
+
+    tabs: [
+        {
+            id: 1,
+            name: 'testData',
+            actionType: 'workbench/OPEN_DATABASE',
+        },{
+            id: 2,
+            name: 'testData1',
+            actionType: 'workbench/CREATE_TABLE',
+        }, {
+            id: 3,
+            name: 'testData2',
+            table: {
                 id: 1,
-                name: 'testData',
-                actionType: 'workbench/OPEN_DATABASE',
-            },{
-                id: 2,
-                name: 'testData1',
-                actionType: 'workbench/CREATE_TABLE',
-            }, {
-                id: 3,
-                name: 'testData2',
-                table: {
-                    id: 1,
-                    name: 'testTable'
-                },
-                actionType: 'workbench/CREATE_DATA_MAP',
-            }, {
-                id: 4,
-                name: 'testData3',
-                actionType: 'workbench/OPEN_TABLE',
-            }
-        ],
-        currentTab: 1,
-        currentStep: 0,
-        newanalyEngineTableDataList: {},
-        
-    };
+                name: 'testTable'
+            },
+            actionType: 'workbench/CREATE_DATA_MAP',
+        }
+    ],
+    currentTab: 1,
+    currentStep: 0,
+    newanalyEngineTableDataList: {},
+}
+const getInitialCachedData = () => {
+    let initialState = localDb.get(workbenchStoreKey);
+    if(!initialState) initialState = defaultTabBarData;
     return initialState;
 }
 
@@ -55,7 +54,7 @@ export default function mainBench(state = getInitialCachedData(), action) {
                     currentTab: payload.id,
                     tabs,
                 })
-                localDb.set('engine_workbench', newStore);
+                localDb.set(workbenchStoreKey, newStore);
                 return newStore;
             }
         }
@@ -79,7 +78,6 @@ export default function mainBench(state = getInitialCachedData(), action) {
         }
 
         case workbenchAction.NEW_TABLE_INFO_CHANGE: {
-            
             let newanalyEngineTableDataList = state.newanalyEngineTableDataList || {};
             newanalyEngineTableDataList[`tableItem${state.currentTab}`] = newanalyEngineTableDataList[`tableItem${state.currentTab}`] || {}
             for(let item in payload){
@@ -115,6 +113,21 @@ export default function mainBench(state = getInitialCachedData(), action) {
             return assign({},state,{
                 currentStep: currentStep
             })
+        }
+        case workbenchAction.CLOSE_OTHERS: {
+            const newStore = assign({}, state);
+
+            newStore.tabs = newStore.tabs.filter(item => {
+                return item.id == newStore.currentTab;
+            })
+
+            localDb.set(workbenchStoreKey, newStore);
+            return newStore;
+        }
+
+        case workbenchAction.CLOSE_ALL: {
+            localDb.set(workbenchStoreKey, '');
+            return defaultTabBarData;
         }
         default:
             return state;
