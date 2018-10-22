@@ -7,7 +7,7 @@ import {
 } from 'antd';
 
 import TabIcon from '../../../components/tab-icon';
-import * as workbenchActions from '../../../actions/workbenchActions';
+import workbenchActions from '../../../actions/workbenchActions';
 
 import BenchContent from './benchContent';
 import CreateDBModal from './database/create';
@@ -90,19 +90,21 @@ class MainBench extends Component {
         const { closeTab, switchTab, workbench } = this.props;
         const { tabs, currentTab } = workbench.mainBench;
         return (
-            <div className="m-mainbench">
-                 <Tabs
-                    hideAdd
-                    onTabClick={switchTab.bind(currentTab)}
-                    activeKey={`${currentTab}`}
-                    type="editable-card"
-                    onEdit={(tabId) => closeTab(tabId)}
-                    tabBarExtraContent={this.renderTabBarExtraContent()}
-                >
-                    {this.renderTabs(tabs)}
-                </Tabs>
-                <CreateDBModal {...this.props} />
-                <CreateTableDDLModal {...this.props} />
+            <div style={{position: 'relative', width: '100%', height: '100%'}}>
+                <div className="m-mainbench">
+                    <Tabs
+                        hideAdd
+                        onTabClick={switchTab.bind(currentTab)}
+                        activeKey={`${currentTab}`}
+                        type="editable-card"
+                        onEdit={(tabId) => closeTab(tabId)}
+                        tabBarExtraContent={this.renderTabBarExtraContent()}
+                    >
+                        {this.renderTabs(tabs)}
+                    </Tabs>
+                    <CreateDBModal {...this.props} />
+                    <CreateTableDDLModal {...this.props} />
+                </div>
             </div>
         )
     }

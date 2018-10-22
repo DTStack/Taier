@@ -6,6 +6,8 @@ const workbenchActionType = mc([
     'SWITCH_TAB', // SwitchTab
     'CLOSE_TAB', // 关闭Tab
     'OPEN_TAB', // 打开Tab
+    'CLOSE_OTHERS', // 关闭其他
+    'CLOSE_ALL', // 关闭所有
 
     // Catalogue
     'LOAD_CATALOGUE_DATA', // 加载目录数据
@@ -15,7 +17,6 @@ const workbenchActionType = mc([
 
     // MainBench
     'OPEN_SQL_QUERY', // 打开SQL查询
-    'CREATE_TABLE', // 创建表
     'CREATE_TABLE', // 创建表
     'OPEN_TABLE', // 查看表
     'OPEN_DATABASE', // 查看数据库

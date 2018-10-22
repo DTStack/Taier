@@ -1,6 +1,7 @@
 @import './const.scss';
 
 .container {
+    min-width: $minWidth;
     position: absolute;
     top: 50px;
     left: 0;
@@ -14,6 +15,10 @@
         height: 100%;
         background: $bgColor;
     }
+}
+
+.header {
+    min-width: $minWidth;
 }
 
 .inner-container {

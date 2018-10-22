@@ -8,7 +8,7 @@ import {
 
 import AddUserModal from './addUser';
 import UpdateDBModal from './update';
-import Api from '../../../../api';
+import API from '../../../../api';
 
 const Search = Input.Search;
 const confirm = Modal.confirm;
@@ -33,12 +33,24 @@ class DatabaseDetail extends Component {
         
     }
 
-    remove = () => {
+    onSearchUsers = (value) => {
 
+    }
+
+    remove = async () => {
+        const { data } = this.props;
+        const res = await API.deleteDB({
+            id: data.id
+        });
+        if (res.code === 1) {
+            message.success('删除成功！');
+        }
     }
 
     onSelectMenu = ({ key }) => {
         console.log('onClick:', key)
+        const { onRemoveDataBase } = this.props;
+        
         if (key === 'RESET') {
             this.setState({
                 visibleResetPwd: true,
@@ -58,10 +70,6 @@ class DatabaseDetail extends Component {
                 },
             });
         }
-    }
-
-    onSearchUsers = (value) => {
-
     }
 
     debounceSearch = debounce(this.onSearchUsers, 300, { 'maxWait': 2000 })
