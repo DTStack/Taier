@@ -16,6 +16,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import "./languages/shell/shell.contribution.js";
 import * as dtsql from "./languages/dtsql/dtsql.contribution.js"
 import "./languages/dt-flink/dtflink.contribution.js"
+import "./languages/dtlog/dtlog.contribution.js"
 
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
@@ -65,8 +66,10 @@ class Editor extends React.Component {
         super(props);
         this.monacoDom = null;
         this.monacoInstance = null;
+        this._linkId=null;
     }
 
+    
     shouldComponentUpdate(nextProps, nextState) {
         // // 此处禁用render， 直接用editor实例更新编辑器
         return false;
@@ -100,7 +103,7 @@ class Editor extends React.Component {
         }
     }
     componentWillReceiveProps(nextProps) {
-        const { sync, value, theme, languageConfig, language } = nextProps;
+        const { sync, value, theme, languageConfig, language, download } = nextProps;
         if (this.props.value !== value && sync) {
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
@@ -115,11 +118,35 @@ class Editor extends React.Component {
         if (this.props.theme !== theme) {
             monaco.editor.setTheme(theme)
         }
+        // if(this.props.download!==download){
+        //     this.initLink(download);
+        // }
     }
 
     componentWillUnmount() {
         this.destroyMonaco();
         this.disposeProviderProxy();
+    }
+    initLink(link){
+        this.monacoInstance.changeViewZones(
+            (changeAccessor)=>{
+                if(this._linkId){
+                    changeAccessor.removeZone(this._linkId);
+                }
+                let boxNode=document.createElement("div");
+                let domNode=document.createElement("a");
+                domNode.innerHTML="完整下载链接";
+                domNode.className="dt-monaco-link";
+                domNode.setAttribute("href",link);
+                domNode.setAttribute("download",'');
+                boxNode.appendChild(domNode);
+                this._linkId=changeAccessor.addZone({
+                    afterLineNumber: 0,
+					heightInLines: 1,
+					domNode: boxNode
+                })
+            }   
+        )
     }
     updateMonarch(config, language) {
         if (config && language) {
@@ -173,6 +200,7 @@ class Editor extends React.Component {
         this.initTheme();
         this.initEditorEvent();
         this.initProviderProxy();
+        // this.initLink();
     }
     initTheme() {
         monaco.editor.defineTheme("white", whiteTheme);

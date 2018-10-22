@@ -117,7 +117,7 @@ class RunCode extends React.Component {
         const { data } = this.props;
         const editorBoxStyle={
             position: "absolute",
-             top: "0px", 
+             top: "20px", 
              bottom: "0px", 
              left:"0px",
              right:"0px",

@@ -25,7 +25,9 @@ class TaskDetailPane extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.data != nextProps.data) {
+        const {data={}} = this.props;
+        const {data:nextData={}} = nextProps;
+        if (data.id != nextData.id) {
             this.setState({
                 tabKey: "taskFlow"
             })
