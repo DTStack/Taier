@@ -6,6 +6,7 @@ import DataMap from './datamap';
 import TableDetail from './tableDetail';
 import DatabaseDetail from './database/detail';
 import SQLEditor from './sqlEditor';
+import EditTable from './editTable'
 
 class BenchContent extends Component {
 
@@ -13,6 +14,8 @@ class BenchContent extends Component {
 
         const props = this.props;
         const { tabData } = props;
+        console.log(props)
+        const { editTableInfoList={}, currentTab } = props.workbench.mainBench
 
         switch (tabData.actionType) {
 
@@ -21,6 +24,13 @@ class BenchContent extends Component {
             }
             case workbenchAction.CREATE_TABLE: {
                 return <CreateTable data={tabData} />
+            }
+            case workbenchAction.OPEN_TABLE_EDITOR: {
+                return <EditTable data={tabData}
+                 tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
+                 saveEditTableInfo={props.saveEditTableInfo}
+                 saveTableInfo={props.saveTableInfo}
+                 />
             }
             case workbenchAction.OPEN_TABLE: {
                 return <TableDetail data={tabData} />

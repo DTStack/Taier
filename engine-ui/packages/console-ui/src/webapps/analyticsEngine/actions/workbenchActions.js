@@ -126,7 +126,7 @@ export function loadCatalogue(params) {
 }
 
 /**
- * 保存新建表数据
+ * 保存新建表数据到storage
  */
 export function saveNewTableData(params) {
     console.log(params)
@@ -161,8 +161,30 @@ export function handleLastStep(){
         return dispatch({
             type: workbenchAction.LAST_STEP
         })
+    }
+}
 
-/** 
+/**
+ * 获取表详情
+ */
+export function getTableDetail(){
+    return async (dispatch,getStore)=>{
+        const { workbench } = getStore();
+        const res = await API.getTableDetail({
+            tableId,
+        })
+        if (res.code === 1){
+            return dispatch({
+                type: workbenchAction.GET_TABLE_DETAIL,
+                payload: res.data
+            })
+        }
+    }
+}
+
+
+
+/**
  * 生成建表语句
  */
 export function onGenerateCreateSQL(tableId) {
@@ -189,16 +211,50 @@ export function onGenerateCreateSQL(tableId) {
     }
 }
 
+/**
+ * 存储新建表数据至服务端
+ */
 export function handleSave(){
     return (dispatch,getStore) => {
 
         const { workbench } = getStore();
-        const { newanalyEngineTableData } = workbench.mainBench;
+        const { newanalyEngineTableDataList, currentTab } = workbench.mainBench;
 
-        const res = API.saveNewTable(newanalyEngineTableData)
+        const res = API.saveNewTable(newanalyEngineTableDataList[`tableItem${currentTab}`])
         if(res.code === 1){
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED
+            })
+        }
+    }
+}
+/**
+ * 编辑表页-保存编辑状态
+ * @param {更改的参数对象} params 
+ */
+export function saveEditTableInfo(params){
+    return dispatch => {
+        return dispatch({
+            type: workbenchAction.SAVE_EDITTABLE_INFO,
+            payload: params
+        })
+    }
+}
+/**
+ * 保存表信息
+ * @param {预留} param 
+ */
+export function saveTableInfo(param){
+    return (dispatch,getStore)=>{
+        const { workbench } = getStore();
+        const { editTableInfoList, currentTab } = workbench.mainBench;
+    
+        const params = editTableInfoList[`tableInfo${currentTab}`]
+        const res = API.saveTableInfo(params);
+        
+        if(res.code === 1){
+            return dispatch({
+                type: workbenchAction.TABLE_INFO_MOTIFIED
             })
         }
     }
