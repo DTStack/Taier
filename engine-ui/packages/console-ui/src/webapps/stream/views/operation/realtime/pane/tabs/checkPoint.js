@@ -33,7 +33,9 @@ class CheckPoint extends React.Component {
                 total: 0,
                 pageSize: 10,
                 current: 1
-            }
+            },
+            dates:[],
+            overview:{}
         })
     }
     componentWillReceiveProps(nextProps) {
