@@ -501,14 +501,15 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const clone = cloneDeep(state);
             if (source) {
                 const index = clone.source.findIndex((item) => isEqual(item, source))
-                if (index > 0) {
+                if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
                     return clone;
                 }
             } else if (target) {
                 const index = clone.target.findIndex((item) => isEqual(item, target))
-                if (index > 0) {
+                console.log('removeKeyMap:', target, index)
+                if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
                     return clone;

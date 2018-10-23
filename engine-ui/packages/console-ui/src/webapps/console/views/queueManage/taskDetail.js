@@ -220,6 +220,43 @@ class TaskDetail extends Component {
             groupName: undefined
         }, this.getGroupList.bind(this))
     }
+
+    
+    // 获取节点下拉
+    getNodeAddressOptionView() {
+        const { nodeList } = this.props;
+        return nodeList.map((item, index) => {
+            return <Option key={item} value={item}>{item}</Option>
+        })
+    }
+    // 改变节点值
+    changeNodeAddressValue(value) {
+        const {table} = this.state;
+        if(!value) {
+            this.setState({
+                dataSource: [],
+                node: value,
+                groupList: [],
+                groupName:undefined,
+                table: {
+                    ...table,
+                    total: 0
+                }
+            })
+        } else {
+            this.setState({
+                node: value,
+                dataSource: [],
+                groupName: undefined,
+                table: {
+                    ...table,
+                    loading: false,
+                    total: 0
+                }
+            },this.getGroupList.bind(this))
+        }
+    }
+
     // 获取引擎下拉数据
     getEngineList() {
         return Api.getEngineList().then((res) => {

@@ -1,9 +1,4 @@
-import React, { PropTypes, Component } from 'react';
-
-import { 
-    Icon, 
-    Tooltip
-} from 'antd';
+import React, { Component } from 'react';
 
 import MyIcon from '../../../components/icon';
 

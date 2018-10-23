@@ -379,3 +379,16 @@
         flex-shrink: 1;
     }
 }
+.not-run-box{
+    margin-top:100px;
+    margin-left:400px;
+    color:#666666;
+    .icon{
+        width:100px;
+        height: 100px;
+    }
+    .text{
+        line-height: 40px;
+        font-size: 14px;
+    }
+}

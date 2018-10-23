@@ -27,15 +27,18 @@ class CreateDatabaseModal extends Component {
         }
 
         const form = this.dbForm.props.form;
-        const formData = form.getFieldsValue();
 
-        const result = await API.createOrUpdateDB(formData);
-        if (result.code === 1) {
-            this.setState({
-                databaseData: result.data,
-                submitted: true,
-            })
-        }
+        form.validateFields( async (err, values) => {
+            if (!err) {
+                const result = await API.createOrUpdateDB(values);
+                if (result.code === 1) {
+                    this.setState({
+                        databaseData: result.data,
+                        submitted: true,
+                    })
+                }
+            }
+        });
     }
 
     resetModal = () => {

@@ -1,10 +1,10 @@
 {
   "name": "data-stack-web",
-  "version": "2.10.0",
-  "description": "data-stack-web DTinsight version 2.10.0.",
+  "version": "2.11.0",
+  "description": "data-stack-web DTinsight 2.11.0 version.",
   "main": "src/app.js",
   "dependencies": {
-    "antd": "2.13.11",
+    "antd": "2.13.14",
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",

@@ -36,57 +36,6 @@
         }
     }
 
-    // .task-dev-switcher {
-    //     bottom: 0;
-    //     height: 100%;
-    //     & >.ant-tabs-bar {
-    //         margin-bottom: 0;
-    //         border-bottom: 0;
-    //         position: absolute;
-    //         left: 62px;
-    //         z-index: 5;
-
-    //         .ant-tabs-nav-container {
-    //             height: 30px;
-    //             padding-top: 6px;
-    //         }
-
-    //         .ant-tabs-tab {
-    //             background: #DDDDDD;
-    //             color: #ffffff;
-    //             border-radius: 50% 50%;
-    //             height: 22px;
-    //             border: 0;
-    //             line-height: 22px;
-    //             width: 22px;
-    //             display: inline-block;
-    //             padding: 0;
-    //             margin-right: 6px;
-
-    //             .anticon {
-    //                 margin: auto;
-    //                 line-height: 22px;
-    //                 height: 22px;
-    //                 display: block;
-    //             }
-    //             .tabs-icon{
-    //                 height:16px;
-    //                 margin-top: 50%;
-    //                 margin-left: 50%;
-    //                 transform: translate(-50%,-50%);
-    //             }
-    //         }
-
-    //         .ant-tabs-tab-active {
-    //             background: #2491F7 !important;
-    //             color: #fff !important;
-    //         }
-    //     }
-    //     .ant-menu-inline, .ant-menu-vertical {
-    //         border-right: 0;
-    //     }
-    // }
-
     .task-tab-menu {
 
         &>.ant-tabs-bar {
@@ -254,7 +203,7 @@
 
         .menu-content {
 
-            // margin-top: 35px;
+            margin-top: 20px;
             height: 100%;
             overflow-y: auto;
             padding-bottom: 35px;
@@ -272,7 +221,7 @@
                 position: absolute;
                 right: 10px;
                 z-index: 999;
-                top: 0;
+                top: 20px;
                 background: #ffffff;
                 
                 .anticon {
@@ -581,12 +530,24 @@
             background-color: rgba(255, 87, 34, 0.7);
         }
 
-        .tab-ellipsis {
+        .tab-ellipsis,
+        .normal-tab,
+        .workflow-name {
             display: inline-block;
-            // max-width: 200px;
-            width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .tab-ellipsis {
+            width: 120px;
+        }
+
+        .workflow-name {
+            max-width: 60px;
+        }
+        
+        .normal-tab {
+            color: rgba(0, 0, 0, 0.65);
         }
         .Resizer.vertical {
             border-top: 1px solid #e9e9e9;
@@ -613,7 +574,7 @@
             z-index: 902;
             top: 30px;
             height: 100%;
-            padding-bottom: 40px;
+            padding-bottom: 35px;
             overflow: auto;
             right: -1px;
             .ant-tabs-vertical.ant-tabs-card>.ant-tabs-bar {

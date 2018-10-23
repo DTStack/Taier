@@ -5,7 +5,7 @@
 * @Last Modified time: 2018-09-30 16:36:23
 */
 import React, { Component } from 'react';
-import { Table, Tabs, Select, Card, Tooltip, Icon } from 'antd';
+import { Table, Tabs, Select, Card, Tooltip, Icon, Button } from 'antd';
 import moment from "moment";
 import utils from "utils"
 
@@ -199,6 +199,7 @@ class QueueManage extends Component {
             }
         });
     }
+
     render() {
         const columns = this.initTableColumns();
         const { dataSource, table, clusterList } = this.state;
@@ -217,20 +218,20 @@ class QueueManage extends Component {
                         animated={false}
                         onChange={this.handleClick.bind(this)}
                         activeKey={nowView}
-                        tabBarExtraContent={
-                            (nowView == "overview") ? (
-                                <Tooltip title="刷新数据">
-                                    <Icon type="sync" onClick={this.getClusterDetail.bind(this)}
-                                        style={{
-                                            cursor: 'pointer',
-                                            marginTop: '12px',
-                                            marginRight: '15px',
-                                            color: '#94A8C6'
-                                        }}
-                                    />
-                                </Tooltip>
-                            ) : null
-                        }
+                        // tabBarExtraContent={
+                        //     (nowView == "overview") ? (
+                        //         <Tooltip title="刷新数据">
+                        //             <Icon type="sync" onClick={this.getClusterDetail.bind(this)}
+                        //                 style={{
+                        //                     cursor: 'pointer',
+                        //                     marginTop: '12px',
+                        //                     marginRight: '15px',
+                        //                     color: '#94A8C6'
+                        //                 }}
+                        //             />
+                        //         </Tooltip>
+                        //     ) : null
+                        // }
                     >
                         <Tabs.TabPane tab="概览" key="overview">
                             <div style={{ margin: "20px" }}>
@@ -245,6 +246,22 @@ class QueueManage extends Component {
                                         this.getClusterOptionView()
                                     }
                                 </Select>
+
+                                 节点：
+		                   		<Select style={{ width: 150 }}
+                                    placeholder="选择节点"
+                                    allowClear={true}
+                                    // defaultValue="1"
+                                    onChange={this.nodeAddressrOptionChange.bind(this)}
+                                    value={this.state.node}
+                                >
+                                    {
+                                        this.getNodeAddressOptionView()
+                                    }
+                                </Select>
+                                <div style={{ float: "right" }}>
+                                    <Button onClick={this.getClusterDetail.bind(this)}>刷新</Button>
+                                </div>
                             </div>
                             <Table
                                 rowKey={(record) => {

@@ -26,17 +26,19 @@ class BenchContent extends Component {
                 return <TableDetail data={tabData} />
             }
             case workbenchAction.OPEN_DATABASE: {
-                return <DatabaseDetail data={tabData} />
+                return <DatabaseDetail data={tabData} {...props} />
             }
             case workbenchAction.OPEN_DATA_MAP: {
-                return <DataMap 
+                return <DataMap
+                    onRemoveDataMap={props.onRemoveDataMap}
                     onGenerateCreateSQL={props.onGenerateCreateSQL}
-                    data={tabData} 
+                    data={tabData}
                 />
             }
             case workbenchAction.CREATE_DATA_MAP: {
                 return <DataMap
                     isCreate={true}
+                    onCreateDataMap={props.onCreateDataMap}
                     onGenerateCreateSQL={props.onGenerateCreateSQL}
                     data={tabData} 
                 />

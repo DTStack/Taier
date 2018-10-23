@@ -5,6 +5,7 @@ import pureRender from 'utils/pureRender'
 // Codemirror
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/lint/lint.css'
+import 'codemirror/addon/scroll/simplescrollbars.css'
 import "./style.css"
 
 const codemirror = require('codemirror')
@@ -20,6 +21,7 @@ require('codemirror/mode/javascript/javascript')
 require('codemirror/mode/properties/properties')
 require('codemirror/addon/display/placeholder')
 require("codemirror/addon/edit/matchbrackets")
+require("codemirror/addon/scroll/simplescrollbars")
 
 // require('codemirror/addon/lint/lint')
 // require('../../assets/js/sql-lint')

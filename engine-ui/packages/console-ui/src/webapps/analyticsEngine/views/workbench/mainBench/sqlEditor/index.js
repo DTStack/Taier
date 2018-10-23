@@ -13,7 +13,7 @@ import IDEEditor from "main/components/ide";
 import API from "../../../../api";
 import reqUrls from '../../../../consts/reqUrls';
 
-import * as workbenchActions from "../../../../actions/workbenchActions";
+import workbenchActions from "../../../../actions/workbenchActions";
 import * as editorActions from "../../../../actions/editorActions";
 
 @connect(

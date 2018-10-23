@@ -13,7 +13,7 @@ import {
 
 import ToolBar from './toolbar';
 import FolderTree from './folderTree';
-import * as workbenchActions from '../../../actions/workbenchActions';
+import workbenchActions from '../../../actions/workbenchActions';
 import MyIcon from '../../../components/icon';
 
 const CTX_ACTION = {
@@ -92,6 +92,9 @@ class Sidebar extends Component {
 
         const {
             folderTree,
+            onGetTable,
+            onGetDataMap,
+            onSQLQuery
         } = this.props;
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
@@ -108,6 +111,9 @@ class Sidebar extends Component {
                         loadData={this.asynLoadCatalogue}
                         onSelect={this.onSelectCatalogeuItem}
                         treeData={folderTree.children}
+                        onGetTable={onGetTable}
+                        onGetDataMap={onGetDataMap}
+                        onSQLQuery={onSQLQuery}
                     />
                 </div>
             )

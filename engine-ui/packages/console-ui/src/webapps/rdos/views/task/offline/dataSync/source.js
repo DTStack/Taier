@@ -376,7 +376,8 @@ class SourceForm extends React.Component {
                             return {
                                 title: s,
                                 dataIndex: s,
-                                key: s
+                                key: s,
+                                width: '10%',
                             }
                         });
                         let dataSource = dataList.map((arr, i) => {
