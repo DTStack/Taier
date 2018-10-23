@@ -7,6 +7,7 @@ import {
 
 import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
+import HelpDoc from "../../helpDoc";
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
@@ -162,6 +163,8 @@ class TaskFormModal extends Component {
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
+        const isFlinkSql=taskType==TASK_TYPE.SQL;
+        const isShowResource=!isDataCollection&&!isFlinkSql;
         
         return (
             <div id="JS_task_modal_realtime">
@@ -205,6 +208,7 @@ class TaskFormModal extends Component {
                                     {taskRadios}
                                 </RadioGroup>,
                             )}
+                            <HelpDoc doc="newStreamTask" />
                         </FormItem>
                         {isDataCollection && (
                             <FormItem
@@ -226,7 +230,7 @@ class TaskFormModal extends Component {
                                 )}
                             </FormItem>
                         )}
-                        {!isDataCollection && (
+                        {isShowResource && (
                             <FormItem
                                 {...formItemLayout}
                                 label="资源"

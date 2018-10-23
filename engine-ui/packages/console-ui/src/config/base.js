@@ -14,8 +14,8 @@ export const ANALYTICS_ENGINE_BASE_URL='/api/analysis';
 export const rdosApp = {
     id: 'rdos',
     name: '离线计算',
-    filename: 'ide.html',
-    link: '/ide.html#',
+    filename: 'batch.html',
+    link: '/batch.html#',
     target: '_blank',
     enable: true,
     hasProject: true, // 是否拥有项目选择

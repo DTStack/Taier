@@ -287,7 +287,7 @@ class Header extends Component {
                             top: 0
                         }}
                     >
-                        DTinsight.IDE
+                        DTinsight.Batch
                     </span>
                 </div>
                 <div className="menu left" style={{ position: "relative" }}>

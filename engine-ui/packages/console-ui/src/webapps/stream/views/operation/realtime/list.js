@@ -13,7 +13,7 @@ import utils from 'utils'
 
 import Api from '../../../api'
 import { taskStatusFilter, TASK_STATUS, TASK_TYPE } from '../../../comm/const'
-import { TaskStatus } from '../../../components/status'
+import { TaskStatus, TaskStatusOverview } from '../../../components/status'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
 import DetailPane from "./pane"
@@ -41,11 +41,13 @@ class RealTimeTaskList extends Component {
         taskName: utils.getParameterByName('tname') || '',
         goOnTask: '',
         logInfo: '',
+        overview:{}
     }
 
     componentDidMount() {
         if (this.props.project.id !== 0) {
             this.loadTaskList()
+            this.loadCount()
         }
     }
 
@@ -58,6 +60,7 @@ class RealTimeTaskList extends Component {
                 selectTask: null
             })
             this.loadTaskList()
+            this.loadCount();
         }
     }
 
@@ -65,6 +68,19 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         this._isUnmounted = true;
     }
+    
+    loadCount(){
+        Api.taskStatistics().then(
+            (res)=>{
+                if(res.code==1){
+                    this.setState({
+                        overview:res.data
+                    })
+                }
+            }
+        )
+    }
+
     searchTask = (query) => {
         this.setState({
             taskName: query,
@@ -126,7 +142,7 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                this.debounceLoadtask(res.data);
+                // this.debounceLoadtask(res.data);
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({ loading: false })
@@ -388,16 +404,16 @@ class RealTimeTaskList extends Component {
             /**
              * 在每个按钮之间插入间隔符
              */
-            arr=arr.reduce((one,two)=>{
-                if(one.length){
-                    return one.concat(<span className="ant-divider" />,two);
+            arr = arr.reduce((one, two) => {
+                if (one.length) {
+                    return one.concat(<span className="ant-divider" />, two);
                 }
                 return one.concat(two);
-            },[])
+            }, [])
 
             return (
                 <div key={record.id}>
-                   {arr}
+                    {arr}
                 </div>
             )
         }
@@ -410,7 +426,7 @@ class RealTimeTaskList extends Component {
     }
 
     render() {
-        const { tasks, logInfo, selectTask } = this.state
+        const { tasks, logInfo, selectTask, overview } = this.state
         const dataSource = tasks.data || [];
         const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
         const pagination = {
@@ -424,12 +440,15 @@ class RealTimeTaskList extends Component {
                     bordered={false}
                     loading={false}
                     title={
-                        <Search
-                            placeholder="按任务名称搜索"
-                            style={{ width: 200, marginTop: '10px' }}
-                            defaultValue={utils.getParameterByName('tname') || ''}
-                            onSearch={this.searchTask}
-                        />
+                        <div>
+                            <Search
+                                placeholder="按任务名称搜索"
+                                style={{ width: 200, marginTop: '10px' }}
+                                defaultValue={utils.getParameterByName('tname') || ''}
+                                onSearch={this.searchTask}
+                            />
+                            <TaskStatusOverview data={overview} />
+                        </div>
                     }
                     extra={
                         <Tooltip title="刷新数据">

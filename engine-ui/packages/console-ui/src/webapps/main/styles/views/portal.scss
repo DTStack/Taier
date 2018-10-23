@@ -45,51 +45,103 @@
         }
     }
 
+    // .applink {
+    //     display: flex;
+    //     margin-top: 60px;
+    //     flex-wrap: wrap;
+    //     justify-content: center;
+    //     .app-tag {
+    //         flex: 1;
+    //         border: 1px solid #DDDDDD;
+    //         width: 290px;
+    //         height: 139px;
+    //         background: #ffffff;
+    //         box-shadow: 0 2px 6px 0 rgba(0,0,0,0.12);
+    //         padding: 0 30px;
+    //         padding-bottom:40px;
+    //         text-align: center;
+    //         margin: 0 8px;
+    //         margin-bottom:120px;
+
+    //         &:hover, &:active, &:visited, &:focus {
+    //             text-decoration: none;
+    //             -webkit-appearance: none;
+    //         }
+
+    //         &:hover {
+    //             background: rgba(158, 158, 158, 0.02);
+    //         }
+
+    //         img {
+    //             width: 80px;
+    //             height: 80px;
+    //             // margin-top: 50px;
+    //         }
+
+    //         h1 {
+    //             font-size: 16px;
+    //             color: #333333;
+    //             letter-spacing: 1.11px;
+    //             // margin-top: 30px;
+    //             font-weight: initial;
+    //         }
+
+    //         p {
+    //             // margin-top: 15px;
+    //             font-size: 12px;
+    //             color: #999999;
+    //             letter-spacing: 0.97px;
+    //             line-height: 1.5;
+    //         }
+    //     }
+    // }
     .applink {
         display: flex;
-        margin-top: 60px;
-        
-
+        margin-top: 40px;
+        flex-wrap: wrap;
+        padding-bottom: 100px;
         .app-tag {
-            flex: 1;
-            border: 1px solid #DDDDDD;
-            width: 230px;
-        
-            padding: 0 30px;
-            padding-bottom:40px;
-            text-align: center;
-            margin: 0 8px;
-            margin-bottom:120px;
-
+            // flex: 1;
+            position: relative;
+            width: 290px;
+            height: 139px;
+            margin: 20px 0px 0 20px;
+            background: #ffffff;
+            box-shadow: 0 2px 6px 0 rgba(0,0,0,0.12);
             &:hover, &:active, &:visited, &:focus {
                 text-decoration: none;
                 -webkit-appearance: none;
             }
-
             &:hover {
                 background: rgba(158, 158, 158, 0.02);
             }
-
-            img {
-                width: 80px;
-                height: 80px;
-                margin-top: 50px;
+            .app-logo {
+                position: absolute;
+                width: 70px;
+                height: 70px;
+                left: 20px;
+                top: 34px;
             }
-
+            
             h1 {
+                position: absolute;
+                left: 100px;
+                top: 38px;
                 font-size: 16px;
                 color: #333333;
                 letter-spacing: 1.11px;
-                margin-top: 30px;
                 font-weight: initial;
             }
-
             p {
-                margin-top: 15px;
+                position: absolute;
+                left: 100px;
+                top: 63px;
+                width: 163px;
                 font-size: 12px;
                 color: #999999;
-                letter-spacing: initial;
-                line-height: 1.5;
+                letter-spacing: 0.97px;
+                line-height: 14px;
+                font-family: PingFangSC-Regular;
             }
         }
     }
