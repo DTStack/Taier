@@ -171,7 +171,7 @@ export default class StepOne extends Component{
               {...formItemLayout}
               label="levelThreshold">
               {
-                getFieldDecorator('levelThreshold',{
+                getFieldDecorator('compactionSize',{
                   initialValue:formData.COMPACTION_LEVEL_THRESHOLD || undefined
                 })(
                   <Input/>

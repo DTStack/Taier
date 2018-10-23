@@ -146,7 +146,7 @@ export function handleSave(){
         const { workbench } = getStore();
         const { newanalyEngineTableDataList, currentTab } = workbench.mainBench;
 
-        const res = API.saveNewTable(newanalyEngineTableDataList[`tableItem${currentTab}`])
+        const res = API.createTable(newanalyEngineTableDataList[`tableItem${currentTab}`])
         if(res.code === 1){
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED

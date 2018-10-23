@@ -5,7 +5,6 @@ import {
     Button, Dropdown, Menu, Icon
 } from 'antd';
 
-
 import AddUserModal from './addUser';
 import UpdateDBModal from './update';
 import API from '../../../../api';
@@ -37,19 +36,9 @@ class DatabaseDetail extends Component {
 
     }
 
-    remove = async () => {
-        const { data } = this.props;
-        const res = await API.deleteDB({
-            id: data.id
-        });
-        if (res.code === 1) {
-            message.success('删除成功！');
-        }
-    }
-
     onSelectMenu = ({ key }) => {
         console.log('onClick:', key)
-        const { onRemoveDataBase } = this.props;
+        const { data, onRemoveDB } = this.props;
         
         if (key === 'RESET') {
             this.setState({
@@ -63,7 +52,9 @@ class DatabaseDetail extends Component {
                 okType: 'danger',
                 cancelText: '取消',
                 onOk() {
-                  this.remove();
+                    onRemoveDB({
+                        id: data.id,
+                    });
                 },
                 onCancel() {
                   console.log('Cancel');

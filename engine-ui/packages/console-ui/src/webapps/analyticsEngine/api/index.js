@@ -6,6 +6,7 @@ import table from '../api/table';
 const Apis = Object.assign(
     user,
     datamap,
+    table,
     database,
     table,
 )
