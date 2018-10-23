@@ -7,7 +7,7 @@ import StepThree from './StepThree'
 import StepFour from './StepFour'
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
-import * as workbenchActions from '../../../../actions/workbenchActions';
+import * as tableActions from '../../../../actions/workbenchActions/table';
 
 
 const Step = Steps.Step;
@@ -20,7 +20,7 @@ const Step = Steps.Step;
         };
     },
     dispatch => {
-        const actions = bindActionCreators(workbenchActions, dispatch);
+        const actions = bindActionCreators(tableActions, dispatch);
         return actions;
     }
 )
