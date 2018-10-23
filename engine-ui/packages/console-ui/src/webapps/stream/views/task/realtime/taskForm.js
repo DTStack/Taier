@@ -7,6 +7,7 @@ import {
 
 import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
+import HelpDoc from "../../helpDoc";
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
@@ -207,6 +208,7 @@ class TaskFormModal extends Component {
                                     {taskRadios}
                                 </RadioGroup>,
                             )}
+                            <HelpDoc doc="newStreamTask" />
                         </FormItem>
                         {isDataCollection && (
                             <FormItem

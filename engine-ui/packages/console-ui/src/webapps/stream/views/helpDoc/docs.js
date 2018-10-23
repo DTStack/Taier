@@ -4,7 +4,7 @@ import { HELP_DOC_URL } from '../../comm/const'
 
 export const dataFilterDoc = (
     <div>
-        where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：<br/>
+        where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：<br />
         <ul>
             <li>1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。</li>
             <li>2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写create_time > 您需要的日期，如果需要日期动态变化，请参考帮助文档。</li>
@@ -27,7 +27,7 @@ export const selectKey = (
 
 export const hdfsPath = (
     <div>
-        user/hive/warehouse/projectName.db/<br/>tableName
+        user/hive/warehouse/projectName.db/<br />tableName
         是RD-OS默认的HDFS文件组织方式，projectName为项目名，
         其中每个tableName是HDFS内的一个目录，储存着一张表的数据。
         如果此表的数据存储在当前项目空间内，只需修改tableName即可，
@@ -64,20 +64,20 @@ export const hdfsConfig = ( // hdfs config
                 1、分别要填写：nameservice名称、
                 namenode名称（多个以逗号分隔）、proxy.provider参数；</li>
             <li>2、所有参数以JSON格式填写；</li>
-            <li>3、格式为：<br/>
+            <li>3、格式为：<br />
                 "dfs.nameservices": "nameservice名称",
                 "dfs.ha.namenodes.nameservice名称": "namenode名称，以逗号分隔",
                 "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
                 "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.client.failover.proxy.provider.<br/>
-                nameservice名称": "org.apache.hadoop.<br/>
-                hdfs.server.namenode.ha.<br/>
+                "dfs.client.failover.proxy.provider.<br />
+                nameservice名称": "org.apache.hadoop.<br />
+                hdfs.server.namenode.ha.<br />
                 ConfiguredFailoverProxyProvider"
             </li>
             <li>
                 4、详细参数含义请参考《帮助文档》或
                 <a href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                target="blank">Hadoop官方文档</a>
+                    target="blank">Hadoop官方文档</a>
             </li>
         </ul>
     </div>
@@ -123,9 +123,9 @@ export const customSystemParams = (
             常用系统变量:
         </p>
         <p>
-            <span>${`{bdp.system.premonth}`}</span><br/>
-            <span>${`{bdp.system.cyctime}`}</span><br/>
-            <span>${`{bdp.system.bizdate}`}</span><br/>
+            <span>${`{bdp.system.premonth}`}</span><br />
+            <span>${`{bdp.system.cyctime}`}</span><br />
+            <span>${`{bdp.system.bizdate}`}</span><br />
             <span>${`{bdp.system.currmonth}`}</span>
         </p>
     </div>
@@ -136,9 +136,9 @@ export const partitionDesc = (
         <p>功能释义</p>
         <p>分区配置支持调度参数，比如常用系统变量:</p>
         <p>
-            <span>${`{bdp.system.premonth}`}</span><br/>
-            <span>${`{bdp.system.cyctime}`}</span><br/>
-            <span>${`{bdp.system.bizdate}`}</span><br/>
+            <span>${`{bdp.system.premonth}`}</span><br />
+            <span>${`{bdp.system.cyctime}`}</span><br />
+            <span>${`{bdp.system.bizdate}`}</span><br />
             <span>${`{bdp.system.currmonth}`}</span>
         </p>
     </div>
@@ -163,20 +163,20 @@ export const taskDependentTypeDesc = (
     </div>
 )
 
-export const inputTaskHelp=(
+export const inputTaskHelp = (
     <div>
         利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
     </div>
 )
 
 
-export const outputTaskHelp=(
+export const outputTaskHelp = (
     <div>
         利用python、TensorFlow或shell进行模型训练时，可将训练完成的模型参数保存在此位置，无需更新任务代码，方便您通过修改路径来频繁训练
     </div>
 )
 
-export const optionsTaskHelp=(
+export const optionsTaskHelp = (
     <div>
         任务执行时的命令行参数
     </div>
@@ -188,7 +188,7 @@ export const switchPartition = (
     </span>
 );
 
-export const alarmWarning= (
+export const alarmWarning = (
     <div>
         <p>延迟消费数：Kafka延迟消费的消息条数，多个分区时，任一分区超过阈值时都会触发告警；</p>
         <p>延迟消费比例：Kafka延迟消费消息条数/总条数，多个分区时，每个分区的延迟消费比例=此分区延迟消费消息条数/此分区的总消息条数，任一分区延迟消费占比超过阈值时都会触发告警。</p>
@@ -196,6 +196,14 @@ export const alarmWarning= (
     </div>
 )
 
-export const delayTabWarning=(
+export const delayTabWarning = (
     <p>kafka中堆积的未被消费的数据量（条数）</p>
+)
+
+export const newStreamTask = (
+    <div>
+        <p>FlinkSQL：WEB上编辑SQL代码实现流数据处理，简单高效</p>
+        <p>Flink：基于Flink API的Java、Scala处理程序，灵活定制</p>
+        <p>实时采集：关系型数据库、filebeat等各类数据源的实时采集，方便快捷</p>
+    </div>
 )
