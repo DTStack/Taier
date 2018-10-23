@@ -22,7 +22,7 @@ class GoOnTask extends Component {
         checkPoints: [],
         dateRange: null,
         externalPath: '',
-        rangeValue: [],
+        rangeValue: []
     }
 
     componentWillReceiveProps(nextProps, nextState) {
@@ -69,7 +69,8 @@ class GoOnTask extends Component {
         this.setState({
             externalPath: '',
             dateRange: {},
-            checkPoints: []
+            checkPoints: [],
+            rangeValue:[]
         }, () => {
             this.props.onCancel();
         })
@@ -88,6 +89,9 @@ class GoOnTask extends Component {
     }
 
     taskReadRangeChange = (value) => {
+        this.setState({
+            rangeValue:value
+        })
         if (!value || value.length === 0) return;
 
         const start = value[0].hour(0).minute(0).second(0)
@@ -116,14 +120,14 @@ class GoOnTask extends Component {
             min.subtract('day', 1)
             max.add('day', 1)
 
-            return current.valueOf() > min.valueOf() && current.valueOf() < max.valueOf()
+            return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
         return false;
     }
 
     render() {
         const { visible } = this.props
-        const { dateRange, checkPoints } = this.state;
+        const { dateRange, checkPoints, rangeValue } = this.state;
 
         const options = checkPoints && checkPoints.map(item => {
             const time = utils.formatDateTime(item.time)
@@ -155,6 +159,7 @@ class GoOnTask extends Component {
                             format="YYYY-MM-DD HH:mm:ss"
                             disabledDate={this.disabledDate}
                             onChange={this.taskReadRangeChange}
+                            value={rangeValue}
                             disabled={!dateRange}
                         />
                     </span>

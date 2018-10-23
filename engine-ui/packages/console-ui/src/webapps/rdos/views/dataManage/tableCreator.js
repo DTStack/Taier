@@ -161,7 +161,7 @@ class BaseForm extends React.Component {
                     rules: [{
                         required: true, message: '存储格式不可为空！',
                     }],
-                    initialValue: 'textfile',
+                    initialValue: 'orc',
                 })(
                     <Select>
                         <Option value="textfile">textfile</Option>
@@ -543,7 +543,7 @@ class TableCreator extends React.Component {
                 lifeDay: 90,
                 location: undefined, // 存在则为外部表
                 columns: [],
-                storedType: 'textfile',
+                storedType: 'orc',
                 partition_keys: []
             }
         };

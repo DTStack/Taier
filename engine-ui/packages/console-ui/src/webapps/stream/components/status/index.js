@@ -81,26 +81,27 @@ export function TaskStatus(props) {
     }
 }
 export function TaskStatusOverview(props) {
+    const {data} = props;
     return <span>
         <span className="status_overview_item status_overview_fail_font">
             <Circle className="status_overview_fail" />&nbsp;
-            失败：{props.fail}
+            失败：{data.FAILED}
         </span>
         <span className="status_overview_item status_overview_running_font">
             <Circle className="status_overview_running" />&nbsp;
-            运行中：{props.runnning}
+            运行中：{data.runnning}
         </span>
         <span className="status_overview_item status_overview_stoped_font">
             <Circle className="status_overview_stoped" />&nbsp;
-            停止/取消：{props.stoped}
+            停止/取消：{data.CANCELED}
         </span>
         <span className="status_overview_item status_overview_submmitting_font">
             <Circle className="status_overview_submmitting" />&nbsp;
-            提交中：{props.submitting}
+            提交中：{data.submitting}
         </span>
         <span className="status_overview_item status_overview_count_font">
             <Circle className="status_overview_count" />&nbsp;
-            任务实例总数：{props.count}
+            任务实例总数：{data.ALL}
         </span>
     </span>
 

@@ -41,11 +41,13 @@ class RealTimeTaskList extends Component {
         taskName: utils.getParameterByName('tname') || '',
         goOnTask: '',
         logInfo: '',
+        overview:{}
     }
 
     componentDidMount() {
         if (this.props.project.id !== 0) {
             this.loadTaskList()
+            this.loadCount()
         }
     }
 
@@ -58,6 +60,7 @@ class RealTimeTaskList extends Component {
                 selectTask: null
             })
             this.loadTaskList()
+            this.loadCount();
         }
     }
 
@@ -65,6 +68,19 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         this._isUnmounted = true;
     }
+    
+    loadCount(){
+        Api.taskStatistics().then(
+            (res)=>{
+                if(res.code==1){
+                    this.setState({
+                        overview:res.data
+                    })
+                }
+            }
+        )
+    }
+
     searchTask = (query) => {
         this.setState({
             taskName: query,
@@ -126,7 +142,7 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                this.debounceLoadtask(res.data);
+                // this.debounceLoadtask(res.data);
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({ loading: false })
@@ -410,7 +426,7 @@ class RealTimeTaskList extends Component {
     }
 
     render() {
-        const { tasks, logInfo, selectTask } = this.state
+        const { tasks, logInfo, selectTask, overview } = this.state
         const dataSource = tasks.data || [];
         const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
         const pagination = {
@@ -431,7 +447,7 @@ class RealTimeTaskList extends Component {
                                 defaultValue={utils.getParameterByName('tname') || ''}
                                 onSearch={this.searchTask}
                             />
-                            <TaskStatusOverview />
+                            <TaskStatusOverview data={overview} />
                         </div>
                     }
                     extra={

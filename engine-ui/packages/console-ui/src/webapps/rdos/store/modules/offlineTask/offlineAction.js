@@ -162,6 +162,13 @@ export const keyMapActions = (dispatch) => {
                 payload: { target },
             });
         },
+
+        removeKeyMap({source, target}) {
+            dispatch({
+                type: keyMapAction.REMOVE_KEYMAP,
+                payload: { source, target },
+            });
+        },
     }
 };
 
@@ -261,7 +268,6 @@ export const workbenchActions = (dispatch) => {
          * @param {Object} dataSync 
          */
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
-            console.log('update:', sourceMap, targetMap);
             let taskVariables = [];
 
             // SourceMap
@@ -276,12 +282,11 @@ export const workbenchActions = (dispatch) => {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.partition)
                     taskVariables = taskVariables.concat(vbs);
                 }
-
             }
-            
+
             // TagetMap
+            // where, 获取任务自定义参数
             if (targetMap) {
-                // where, 获取任务自定义参数
                 const sqlText = `${targetMap.preSql} ${targetMap.postSql}`
                 if (sqlText) {
                     const vbs = matchTaskParams(taskCustomParams, sqlText)

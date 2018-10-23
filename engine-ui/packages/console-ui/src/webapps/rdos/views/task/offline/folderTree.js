@@ -457,8 +457,8 @@ class FolderTree extends React.Component {
                 title={
                     ispicker?
                     <span className={claName}>
-                        { name }&nbsp;
-                        <i style={{color: 'rgb(217, 217, 217)', fontSize: '12px'}}>
+                        { name }
+                        <i className="item-tooltip">
                             {createUser}
                         </i>
                     </span> :

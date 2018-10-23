@@ -230,6 +230,22 @@ const utils = {
                 return result;
             }
         )
+    },
+    /**
+     * 转换排序字段
+     */
+    exchangeOrder(order){
+        switch(order){
+            case "ascend":{
+                return "asc"
+            }
+            case "descend":{
+                return "desc"
+            }
+            default:{
+                return undefined
+            }
+        }
     }
 };
 

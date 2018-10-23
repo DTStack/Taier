@@ -25,6 +25,9 @@ const TabPane = Tabs.TabPane;
     }, dispatch);
 })
 class RunCode extends React.Component {
+    state = {
+        tabKey: "env"
+    }
 
     componentDidMount() {
         console.log("RunCode")
@@ -113,41 +116,49 @@ class RunCode extends React.Component {
             }
         }
     }
+    changeTab(activeKey) {
+        this.setState({
+            tabKey: activeKey
+        })
+    }
     render() {
-        const { data } = this.props;
-        const editorBoxStyle={
+        const { tabKey } = this.state;
+        const { data, isShow } = this.props;
+        const editorBoxStyle = {
             position: "absolute",
-             top: "0px", 
-             bottom: "0px", 
-             left:"0px",
-             right:"0px",
-             width: "100%"
+            top: "20px",
+            bottom: "0px",
+            left: "0px",
+            right: "0px",
+            width: "100%"
         }
         return (
             <div className="m-tabs">
-                <Tabs
-                    className="nav-border content-border"
-                    animated={false}
-                    tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
-                >
-                    <TabPane  className="m-panel2" tab="运行代码" key="code">
-                        <div style={editorBoxStyle}>
-                            {this.getRunCode()}
-                        </div>
-                    </TabPane>
-                    <TabPane  className="m-panel2" tab="环境参数" key="env">
-                        <div style={editorBoxStyle}>
-                            <Editor
-                                sync={true}
-                                style={{ height: "100%" }}
-                                options={{ readOnly: false }}
-                                language="ini"
-                                options={{ readOnly: true, minimap: { enabled: false } }}
-                                value={data.taskParams}
-                            />
-                        </div>
-                    </TabPane>
-                </Tabs>
+                    <Tabs
+                        className="nav-border content-border"
+                        animated={false}
+                        tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
+                        onChange={this.changeTab.bind(this)}
+                        value={tabKey}
+                    >
+                        <TabPane className="m-panel2" tab="运行代码" key="code">
+                            <div style={editorBoxStyle}>
+                                {this.getRunCode()}
+                            </div>
+                        </TabPane>
+                        <TabPane className="m-panel2" tab="环境参数" key="env">
+                            <div style={editorBoxStyle}>
+                                <Editor
+                                    sync={true}
+                                    style={{ height: "100%" }}
+                                    options={{ readOnly: false }}
+                                    language="ini"
+                                    options={{ readOnly: true, minimap: { enabled: false } }}
+                                    value={data.taskParams}
+                                />
+                            </div>
+                        </TabPane>
+                    </Tabs>
             </div>
         )
     }
