@@ -51,21 +51,23 @@ class DataMapForm extends Component {
 
     dynamicRender = () => {
         const { datamapType } = this.state;
-        const { isCreate, form, data } = this.props;
+        const { form, data } = this.props;
         const { getFieldDecorator } = form;
+
+        const config = data.configJSON ? JSON.parse(data.configJSON) : undefined;
 
         switch(datamapType) {
             case DATAMAP_TYPE.TIME_SEQUENCE: {
                 return ([
                     <FormItem {...formItemLayout} label="时间字段" hasFeedback>
-                        {getFieldDecorator("time", {
+                        {getFieldDecorator("configJSON.time", {
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: data ? data.time : undefined,
+                            initialValue: config ? config.time : undefined,
                         })(
                             <Select>
                                 <Option value={0}>单选下拉列表</Option>
@@ -73,14 +75,14 @@ class DataMapForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="时间粒度" hasFeedback>
-                        {getFieldDecorator("timeAccuracy", { 
+                        {getFieldDecorator("configJSON.timeAccuracy", { 
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: data ? data.time : [],
+                            initialValue: config ? config.time : [],
                         })(
                             <Checkbox.Group>
                                 <Checkbox value="year">年</Checkbox>
@@ -92,17 +94,18 @@ class DataMapForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="主表查询" hasFeedback>
-                        {getFieldDecorator("query", {
+                        {getFieldDecorator("configJSON.query", {
                             rules: [
                                 {
                                     required: true,
                                     message: "主表查询不可为空！"
                                 }
                             ],
-                            initialValue: data ? data.query : undefined,
+                            initialValue: config ? config.query : undefined,
                         })(
-                            <Input placeholder="支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理" 
-                                type="textarea" 
+                            <Input 
+                                type="textarea"
+                                placeholder="支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理" 
                                 autosize={{ minRows: 10, maxRows: 400 }}
                             />
                         )}
@@ -112,14 +115,14 @@ class DataMapForm extends Component {
             case DATAMAP_TYPE.FILTER: {
                 return ([
                     <FormItem {...formItemLayout} label="时间字段" hasFeedback>
-                        {getFieldDecorator("time", {
+                        {getFieldDecorator("configJSON.time", {
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: data ? data.time : undefined,
+                            initialValue: config ? config.time : undefined,
                         })(
                             <Select>
                                 <Option value="0">单选下拉列表</Option>
@@ -127,19 +130,19 @@ class DataMapForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="Bloom Size" hasFeedback>
-                        {getFieldDecorator("bloomSize", {
+                        {getFieldDecorator("configJSON.bloomSize", {
                             rules: [{
                                 min: 32000,
                                 message: 'BloomSize应该是 32000 * #noOfPagesInBlocklet, 且必须填写整数'
                             }],
-                            initialValue: data ? data.bloomSize : undefined,
+                            initialValue: config ? config.bloomSize : undefined,
                         })(
                             <Input />
                         )}
                         <HelpDoc doc="bloomSizeSummary" />
                     </FormItem>,
                     <FormItem {...formItemLayout} label="Bloom FPP" hasFeedback>
-                        {getFieldDecorator("bloomFPP", {
+                        {getFieldDecorator("configJSON.bloomFPP", {
                             rules: [
                                 {
                                     min: 0,
@@ -147,16 +150,16 @@ class DataMapForm extends Component {
                                     message: 'bloomFPP值的范围应该在 (0, 100) 之间的整数'
                                 }
                             ],
-                            initialValue: data ? data.bloomFPP : undefined,
+                            initialValue: config ? config.bloomFPP : undefined,
                         })(
                             <Input />
                         )}
                         <HelpDoc doc="bloomFPPSummary" />
                     </FormItem>,
                     <FormItem {...formItemLayout} label="是否压缩索引文件">
-                        {getFieldDecorator("isCompressIndex", {
+                        {getFieldDecorator("configJSON.isCompressIndex", {
                             rules: [],
-                            initialValue: data ? data.isCompressIndex : 1,
+                            initialValue: config ? config.isCompressIndex : 1,
                         })(
                             <RadioGroup>
                                 <Radio value={1}>是</Radio>
@@ -171,17 +174,18 @@ class DataMapForm extends Component {
             default: {
                 return (
                     <FormItem {...formItemLayout} label="主表查询" hasFeedback>
-                        {getFieldDecorator("query", {
+                        {getFieldDecorator("configJSON.query", {
                             rules: [
                                 {
                                     required: true,
                                     message: "主表查询不可为空！"
                                 }
                             ],
-                            initialValue: data ? data.query : undefined,
+                            initialValue: config ? config.query : undefined,
                         })(
-                            <Input placeholder="支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理" 
+                            <Input 
                                 type="textarea" 
+                                placeholder="支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理" 
                                 autosize={{ minRows: 10, maxRows: 400 }}
                             />
                         )}
@@ -193,28 +197,20 @@ class DataMapForm extends Component {
 
     render() {
         const { datamapType } = this.state;
-        const { isCreate, form, data, onGenerateCreateSQL } = this.props;
+        const { form, data, onGenerateCreateSQL } = this.props;
         const { getFieldDecorator } = form;
-        console.log('form:', this.props)
         return (
             <Form>
+                <FormItem>
+                    {getFieldDecorator("databaseId", {
+                        initialValue: data && data.databaseId ? data.databaseId.id : undefined
+                    })(
+                        <Input type="hidden" />
+                    )}
+                </FormItem>
                 <FormItem {...formItemLayout} label="主表" hasFeedback>
-                    {getFieldDecorator("table", {
-                        rules: [
-                            {
-                                required: true,
-                                message: "数据库名称不可为空！"
-                            },
-                            {
-                                max: 20,
-                                message: "数据库名称不得超过20个字符！"
-                            },
-                            {
-                                pattern: /^[A-Za-z0-9_]+$/,
-                                message:
-                                    "数据库名称只能由字母与数字、下划线组成"
-                            }
-                        ],
+                    {getFieldDecorator("tableId", {
+                        rules: [],
                         initialValue: data && data.table ? data.table.id : undefined
                     })(
                         <Input type="hidden" />
@@ -227,23 +223,23 @@ class DataMapForm extends Component {
                     </span>
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap名称" hasFeedback>
-                    {getFieldDecorator("datamapName", {
+                    {getFieldDecorator("name", {
                         rules: [
                             {
                                 required: true,
-                                message: "数据库名称不可为空！"
+                                message: "DataMap名称不可为空！"
                             },
                             {
                                 max: 20,
-                                message: "数据库名称不得超过20个字符！"
+                                message: "DataMap名称不得超过20个字符！"
                             },
                             {
                                 pattern: /^[A-Za-z0-9_]+$/,
                                 message:
-                                    "数据库名称只能由字母与数字、下划线组成"
+                                    "DataMap名称只能由字母与数字、下划线组成"
                             }
                         ],
-                        initialValue: data ? data.datamapName : ""
+                        initialValue: data ? data.name : ""
                     })(<Input autoComplete="off" />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap类型">
@@ -254,7 +250,7 @@ class DataMapForm extends Component {
                                 message: "DataMap类型不可为空！"
                             }
                         ],
-                        initialValue: data ? data.datamapType : datamapType,
+                        initialValue: (data && data.datamapType) || datamapType,
                     })(
                         <RadioGroup onChange={this.onDataMapTypeChange}>
                             <Radio value={DATAMAP_TYPE.PRE_SUM}>预聚合</Radio>

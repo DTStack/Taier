@@ -1,10 +1,30 @@
-import moment from 'moment';
 import { notification, message } from 'antd';
 
-import API from '../../api';
+import API from '../../api/database';
 import workbenchAction from '../../consts/workbenchActionType';
 
 import { updateModal, closeTab } from './comm';
+
+/**
+ * 打开数据库
+ */
+export const onGetDB = function(params) {
+    return async dispatch => {
+        const res = await API.getDBDetail(params);
+        if (res.code === 1) {
+            const database = res.data;
+            // 添加Action标记
+            database.actionType = workbenchAction.OPEN_DATABASE,
+            dispatch(openTab(dataMapData));
+        } else {
+            notification.error({
+                message: '提示',
+                description: res.message,
+            });
+        }
+    }
+}
+
 
 /**
  * 创建数据库
@@ -23,7 +43,21 @@ export const onCreateDB = function() {
  */
 export function onRemoveDB(params) {
     return async dispatch => {
-        const res = await API.createOrUpdateDB(params);
+        const res = await API.deleteDB(params);
+        if (res.code === 1) {
+            message.success('删除数据库成功！');
+            dispatch(closeTab(params.id));
+        }
+    }
+}
+
+/**
+ * 移除数据库
+ * @param {Object} params Database参数
+ */
+export function createDB(params) {
+    return async dispatch => {
+        const res = await API.createDB(params);
         if (res.code === 1) {
             message.success('删除数据库成功！');
             dispatch(closeTab(params.id));
@@ -37,12 +71,8 @@ export function onRemoveDB(params) {
 export const loadCatalogue = function(params) {
     return async (dispatch) => {
 
-        const defaultParams = {
-            nodePid: 0,
-            level: 2,
-        }
-        const reqParams = params ? Object.assign(defaultParams, params) : defaultParams;
-        const res = await API.loadCatalogue(reqParams);
+        // const res = await API.getDatabases(params);
+        const res = await API.loadCatalogue(params);
 
         if (res.code === 1) {
             dispatch({

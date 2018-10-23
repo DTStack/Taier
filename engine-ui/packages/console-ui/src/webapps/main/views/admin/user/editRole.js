@@ -74,7 +74,6 @@ class EditRoleForm extends Component {
             </Form>
         )
     }
-
 }
 
 const FormWrapper = Form.create()(EditRoleForm)
