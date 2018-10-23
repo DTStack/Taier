@@ -15,6 +15,10 @@ $activeColor: #262e36; // 主色
     }
 }
 .dt-dev-tools {
+    
+    .container {
+        min-width: $minWidth;
+    }
 
     .header {
         min-width: $minWidth;

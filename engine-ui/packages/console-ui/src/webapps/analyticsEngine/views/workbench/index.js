@@ -4,12 +4,11 @@ import SplitPane from "react-split-pane";
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
 
-
 import Sidebar from './sidebar';
 import Default from './default';
 import MainBench from "./mainBench";
 
-import * as workbenchActions from '../../actions/workbenchActions';
+import workbenchActions from '../../actions/workbenchActions';
 
 const { Content } = Layout;
 
