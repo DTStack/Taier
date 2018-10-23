@@ -7,7 +7,6 @@ export const MY_APPS = {
     MAIN: 'main',
     RDOS: 'rdos',
     STREAM: 'stream',
-    ANALYENGINE: 'analyticsEngine',
     DATA_QUALITY: 'dataQuality',
     API: 'dataApi',
     LABEL: 'dataLabel',

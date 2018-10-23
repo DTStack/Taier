@@ -35,7 +35,7 @@ export default {
                 return DqSysApi.queryRole(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_ROLE_QUERY, params);
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_ROLE_QUERY, params);
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ROLE_QUERY, params);
@@ -53,7 +53,7 @@ export default {
                 return RdosApi.updateRole(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_ROLE_PERMISSION_ADD_OR_EDIT, params);
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_ROLE_PERMISSION_ADD_OR_EDIT, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.updateRole(params);
@@ -71,7 +71,7 @@ export default {
                 return RdosApi.deleteRole(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_REMOVE_ROLE, params);
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_REMOVE_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.deleteRole(params);
@@ -89,7 +89,7 @@ export default {
                 return RdosApi.getRoleInfo(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_ROLE_PERMISSION, params);
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_ROLE_PERMISSION, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerission(params);
@@ -108,7 +108,7 @@ export default {
                 return RdosApi.getRoleTree(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_GET_ROLE_TREE, params);
-            case MY_APPS.STREAM:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_GET_ROLE_TREE, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerissions(params);
@@ -127,7 +127,7 @@ export default {
                 return http.post(rdosUrls.MASSAGE_QUERY, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_MASSAGE_QUERY, params)
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_MASSAGE_QUERY, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.getMessage(params);
@@ -145,7 +145,7 @@ export default {
                 return http.post(rdosUrls.GET_MASSAGE_BY_ID, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_GET_MASSAGE_BY_ID, params)
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_GET_MASSAGE_BY_ID, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.getMsgById(params);
@@ -163,7 +163,7 @@ export default {
                 return http.post(rdosUrls.MASSAGE_MARK_AS_READ, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_MASSAGE_MARK_AS_READ, params)
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_MASSAGE_MARK_AS_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsRead(params);
@@ -181,7 +181,7 @@ export default {
                 return http.post(rdosUrls.MASSAGE_MARK_AS_ALL_READ, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_MASSAGE_MARK_AS_ALL_READ, params)
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_MASSAGE_MARK_AS_ALL_READ, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.markAsAllRead(params);
@@ -199,7 +199,7 @@ export default {
                 return http.post(rdosUrls.MASSAGE_DELETE, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_MASSAGE_DELETE, params)
-            case MY_APPS.ANALYENGINE: 
+            case MY_APPS.ANALYTICS_ENGINE: 
                 return http.post(analyEngineUrls.ANALYENGINE_MASSAGE_DELETE, params)
             case MY_APPS.DATA_QUALITY:
                 return DqApi.deleteMsgs(params);
@@ -218,7 +218,7 @@ export default {
                 return RdosApi.getProjectUsers(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_QUERY_USER, params);
-            case MY_APPS.ANALYENGINE:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_QUERY_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getUserPages(params);
@@ -239,7 +239,7 @@ export default {
                 return http.post(req.RDOS_SEARCH_UIC_USERS, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_SEARCH_UIC_USERS, params);
-            case MY_APPS.ANALYENGINE:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_SEARCH_UIC_USERS, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_SEARCH_UIC_USERS, params)
@@ -257,7 +257,7 @@ export default {
                 return http.post(req.RDOS_ADD_USER, params)
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_ADD_USER, params)
-            case MY_APPS.ANALYENGINE:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_ADD_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_ADD_USER, params)
@@ -275,7 +275,7 @@ export default {
                 return RdosApi.removeProjectUser(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_REMOVE_USER, params)
-            case MY_APPS.ANALYENGINE:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_REMOVE_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.delUser(params);
@@ -293,7 +293,7 @@ export default {
                 return RdosApi.updateUserRole(params);
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_UPDATE_USER_ROLE, params)
-            case MY_APPS.ANALYENGINE:
+            case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(req.ANALYENGINE_UPDATE_USER_ROLE, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.updateUser(params);
