@@ -129,7 +129,7 @@ class AdminUser extends Component {
                     }
                     case MY_APPS.API:
                     case MY_APPS.LABEL:
-                    case MY_APPS.ANALYENGINE:
+                    case MY_APPS.ANALYTICS_ENGINE:
                     case MY_APPS.DATA_QUALITY: {
                         if (roleValue == APP_ROLE.VISITOR) {
                             isVisitor = true
