@@ -65,20 +65,3 @@ export function createDB(params) {
     }
 }
 
-/**
- * 加载左侧树形目录数据
- */
-export const loadCatalogue = function(params) {
-    return async (dispatch) => {
-
-        // const res = await API.getDatabases(params);
-        const res = await API.loadCatalogue(params);
-
-        if (res.code === 1) {
-            dispatch({
-                type: workbenchAction.LOAD_CATALOGUE_DATA,
-                payload: res.data,
-            })
-        }
-    }
-}

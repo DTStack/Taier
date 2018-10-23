@@ -73,7 +73,7 @@ class MainBench extends Component {
                     {tabs.map((tab)=>{
                         return <Menu.Item key={tab.id} >
                         <a 
-                            onClick={switchTab.bind(currentTab)}
+                            onClick={() => switchTab(tab.id)}
                             style={tab.id == currentTab ? { color:"#2491F7" } : {} }
                         >
                             {tab.name}

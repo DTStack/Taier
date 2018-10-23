@@ -2,6 +2,8 @@ import moment from 'moment';
 
 import workbenchAction from '../../consts/workbenchActionType';
 import modalAction from '../../consts/modalActionType';
+import { CATALOGUE_TYPE } from '../../consts';
+import API from '../../api';
 
 /**
  * 更新Modal对象
@@ -100,5 +102,37 @@ export function onSQLQuery(params) {
         }
 
         dispatch(openTab(defaultSQLQueryTabData));
+    }
+}
+
+/**
+ * 加载左侧树形目录数据
+ */
+export const loadCatalogue = function(params, fileType) {
+    return async (dispatch) => {
+
+        let res = {};
+        // 获取表下的DataMap
+        if (fileType === CATALOGUE_TYPE.TABLE) {
+            res = await API.getDataMapsByTable({
+                tableId: params.tableId,
+                databaseId: params.databaseId,
+            });
+        // 获取数据库下的所有表
+        } else if (fileType === CATALOGUE_TYPE.DATA_BASE) {
+            res = await API.getTablesByDB({
+                databaseId: params.databaseId,
+            });
+        } else {
+            res = await API.getDatabases(params);
+        }
+
+        if (res.code === 1) {
+            params.children = res.data;
+            dispatch({
+                type: workbenchAction.LOAD_CATALOGUE_DATA,
+                payload: params,
+            })
+        }
     }
 }

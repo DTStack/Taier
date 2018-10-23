@@ -60,25 +60,13 @@ class Sidebar extends Component {
         this.setState({ activeNode: activeNode })
     }
 
-    onLoadData = (treeNode) => {
-        const { data } = treeNode.props;
-        return new Promise((resolve) => {
-            if (!data.children || data.children.length === 0) {
-                this.props.loadCatalogue({
-                    nodePid: data.id,
-                })
-            }
-            resolve();
-        });
-    }
-
     asynLoadCatalogue(treeNode) {
-        const { data } = treeNode.props;
+        const { data, fileType } = treeNode.props;
         return new Promise((resolve) => {
             if (!data.children || data.children.length === 0) {
                 this.props.loadCatalogue({
                     nodePid: data.id,
-                })
+                }, fileType)
             }
             resolve();
         });
@@ -92,7 +80,6 @@ class Sidebar extends Component {
             onGetDataMap,
             onSQLQuery
         } = this.props;
-
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
             return (

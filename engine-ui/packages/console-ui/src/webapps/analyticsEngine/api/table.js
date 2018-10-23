@@ -12,7 +12,7 @@ export default {
         return http.post(req.CREATE_TABLE, params);
     },
 
-    getTableByDB(params) {
-        return http.post(req.GET_TABLE_BY_DB, params);
+    getTablesByDB(params) {
+        return http.post(req.GET_TABLE_LIST_BY_DB, params);
     },
 }

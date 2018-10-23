@@ -70,7 +70,7 @@ class DataMapForm extends Component {
                             initialValue: config ? config.time : undefined,
                         })(
                             <Select>
-                                <Option value={0}>单选下拉列表</Option>
+                                <Option value={'0'}>单选下拉列表</Option>
                             </Select>
                         )}
                     </FormItem>,

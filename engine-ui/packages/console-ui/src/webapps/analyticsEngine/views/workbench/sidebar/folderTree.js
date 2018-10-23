@@ -98,6 +98,7 @@ class FolderTree extends React.PureComponent {
                         value={id}
                         isLeaf={isLeaf}
                         data={item}
+                        fileType={item.type}
                         className={className}
                     >
                         {item.children && loop(item.children)}
