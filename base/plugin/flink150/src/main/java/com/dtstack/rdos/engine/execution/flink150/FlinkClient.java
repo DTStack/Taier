@@ -55,14 +55,18 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.action.GetPropertyAction;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -73,6 +77,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.security.AccessController.doPrivileged;
 
 /**
  *
@@ -101,6 +107,9 @@ public class FlinkClient extends AbsClient {
     private static final String FLINK_URL_FORMAT = "http://%s/proxy/%s/";
 
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
+
+    private static final Path tmpdir =
+            Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private FlinkConfig flinkConfig;
 
@@ -276,6 +285,19 @@ public class FlinkClient extends AbsClient {
                 logger.info("Job Runtime: " + execResult.getNetRuntime() + " ms");
             } else {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
+            }
+            File[] jobGraphFile = tmpdir.toFile().listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.startsWith("flink-jobgraph");
+                }
+            });
+            if (jobGraphFile.length != 0)
+            {
+                for (int i=0; i < jobGraphFile.length; i++)
+                {
+                    jobGraphFile[i].delete();
+                }
             }
             return result.getJobID().toString();
         }
