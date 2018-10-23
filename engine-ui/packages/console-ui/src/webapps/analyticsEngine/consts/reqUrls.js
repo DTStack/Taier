@@ -12,7 +12,8 @@ export default {
     // ================== Table ================== //
     CREATE_TABLE: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createTable`, //创建表
     GET_CREATE_SQL: `${ANALYTICS_ENGINE_BASE_URL}/createSql`,
-    CREATE_NEW_TABLE: `${ANALYTICS_ENGINE_BASE_URL}/createTable`, //创建新表
+    GET_TABLE_DETAIL: `${ANALYTICS_ENGINE_BASE_URL}/getTableDetail`,//获取表详情
+    SAVE_TABLE_INFO: `${ANALYTICS_ENGINE_BASE_URL}/motifyTable`,//存储表详情
 
     // ================== DataMap ================== //
     CREATE_DATA_MAP: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createDataMap`, //创建表

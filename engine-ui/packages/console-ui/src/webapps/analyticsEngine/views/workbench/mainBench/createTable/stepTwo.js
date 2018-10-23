@@ -3,41 +3,41 @@ import { Input, Table, Select, Icon, Button, Row } from 'antd'
 
 const Option = Select.Option;
 
-// const field_list = [];
-// const area_list = [];
+// const columns = [];
+// const partitions = [];
 
 export default class StepTwo extends Component{
   constructor(props){
     super();
     this.state = {
-      field_list: [],
-      area_list: [],
+      columns: [],
+      partitions: [],
     }
   }
 
   componentDidMount(){
-    const { field_list, area_list } = this.props.formData;
+    const { columns, partitions } = this.props.formData;
     this.setState({
-      field_list: field_list || [],
-      area_list: area_list || []
+      columns: columns || [],
+      partitions: partitions || []
     })
-    console.log(field_list)
-    console.log(area_list)
+    console.log(columns)
+    console.log(partitions)
   }
   componentWillReceiveProps(nextProps){
     const { formData } = nextProps;
 
     this.setState({
-      field_list: formData.field_list || [],
-      area_list: formData.area_list || []
+      columns: formData.columns || [],
+      partitions: formData.partitions || []
     },()=>{
-      console.log(this.state.field_list)
-      console.log(this.state.area_list)
+      console.log(this.state.columns)
+      console.log(this.state.partitions)
     })
   }
   componentWillUpdate(){
-    console.log(this.state.field_list)
-    console.log(this.state.area_list)
+    console.log(this.state.columns)
+    console.log(this.state.partitions)
   }
 
   next = ()=>{
@@ -45,64 +45,64 @@ export default class StepTwo extends Component{
   }
 
   addNewLine = (flag)=>{
-    let {field_list,area_list} = this.state;
+    let {columns,partitions} = this.state;
     let _fid = 0;
     if(flag === 1){
-      field_list.map(o=>{
+      columns.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      field_list[field_list.length] = {
+      columns[columns.length] = {
         _fid: _fid + 1,
-        name: '',
-        type: 'STRING',
+        columnName: '',
+        columnType: '',
         comment: ''
       }
       this.setState({
-        field_list: field_list
+        columns: columns
       })
     }else if(flag === 2){
-      area_list.map(o=>{
+      partitions.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      area_list[area_list.length] = {
+      partitions[partitions.length] = {
         _fid: _fid + 1,
-        name: '',
-        type: 'STRING',
+        columnName: '',
+        columnType: '',
         comment: '',
       }
       this.setState({
-        area_list: area_list
+        partitions: partitions
       })
     }
   }
 
   handleNameChange = (e,record)=>{
-    let {field_list,area_list} = this.state;
-    record.name = e.target.value;
-    console.log(field_list)
+    let {columns,partitions} = this.state;
+    record.columnName = e.target.value;
+    console.log(columns)
     this.saveDataToStorage();
   }
   handleSelectChange = (e,record)=>{
-    let {field_list, area_list} = this.state;
-    record.type = e;
+    let {columns, partitions} = this.state;
+    record.columnType = e;
     this.saveDataToStorage();
   }
   handleCommentChange = (e,record)=>{
-    let {field_list,area_list} = this.state;
+    let {columns,partitions} = this.state;
     record.comment = e.target.value;
     this.saveDataToStorage();
   }
 
   remove = (record,flag)=>{
-    let {field_list,area_list} = this.state;
+    let {columns,partitions} = this.state;
 
-    flag === 1?field_list.splice(field_list.indexOf(record),1):area_list.splice(area_list.indexOf(record),1);
+    flag === 1?columns.splice(columns.indexOf(record),1):partitions.splice(partitions.indexOf(record),1);
 
     this.setState({
-      field_list: field_list,
-      area_list: area_list
+      columns: columns,
+      partitions: partitions
     })
     this.saveDataToStorage();
   }
@@ -110,8 +110,8 @@ export default class StepTwo extends Component{
   move = (record,flag,type)=>{
     //type 1上移 2下移
     // let mid = {};
-    let {field_list,area_list} = this.state;
-    let list = flag === 1?field_list:area_list;
+    let {columns,partitions} = this.state;
+    let list = flag === 1?columns:partitions;
     console.log(type)
     console.log( list.indexOf(record) )
     console.log(list.length)
@@ -135,11 +135,11 @@ export default class StepTwo extends Component{
 
     if(flag === 1)
       this.setState({
-        field_list: list
+        columns: list
       })
     else
       this.setState({
-        area_list: list
+        partitions: list
       })
 
     
@@ -150,13 +150,13 @@ export default class StepTwo extends Component{
    * 保存输入的值
    */
   saveDataToStorage = ()=>{
-    const {field_list, area_list} = this.state;
+    const {columns, partitions} = this.state;
     this.props.saveNewTableData([{
-      key: 'field_list',
-      value: field_list
+      key: 'columns',
+      value: columns
     },{
-      key: 'area_list',
-      value: area_list
+      key: 'partitions',
+      value: partitions
     }])
   }
 
@@ -164,15 +164,15 @@ export default class StepTwo extends Component{
     let tableCol = [
       {
         title: '字段名',
-        dataIndex: 'name',
+        dataIndex: 'columnName',
         render: (text,record)=>(
           <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
-        dataIndex: 'type',
+        dataIndex: 'columnType',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:STRING} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             <Option value="STRING">STRING</Option>
             <Option value="INT">INT</Option>
             <Option value="LONG">LONG</Option>
@@ -204,16 +204,16 @@ export default class StepTwo extends Component{
   }
 
   render(){
-    const {field_list,area_list} = this.state;
-    console.log(field_list)
-    console.log(area_list)
+    const {columns,partitions} = this.state;
+    console.log(columns)
+    console.log(partitions)
     return (
       <Row className="step-two-container step-container">
         <div className="table-panel">
           <span className="title">权限管理</span>
           <Table 
           columns={this.getTableCol(1)}
-          dataSource={field_list}
+          dataSource={columns}
           rowKey="_fid"
           pagination={false}
           size="small"
@@ -227,7 +227,7 @@ export default class StepTwo extends Component{
           </div>
           <Table 
           columns={this.getTableCol(2)}
-          dataSource={area_list}
+          dataSource={partitions}
           rowKey="_fid"
           pagination={false}
           size="small"

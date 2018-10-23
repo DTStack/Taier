@@ -46,7 +46,7 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="数据库">
             {
-              getFieldDecorator('database',{
+              getFieldDecorator('databaseId',{
                 rules: [
                   {required: true, message: '数据库不可为空'},
                 ],
@@ -68,7 +68,7 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="表名">
             {
-              getFieldDecorator('table_name',{
+              getFieldDecorator('tableName',{
                 rules: [
                   {required: true, message:'表明不可为空'}
                 ],
@@ -109,7 +109,7 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="Sort Scope">
             {
-              getFieldDecorator('sort_scope',{
+              getFieldDecorator('sortScope',{
                 rules: [
                   {required: true, message: 'Sort Scope不可为空'}
                 ],
@@ -130,7 +130,7 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="Block 大小">
             {
-              getFieldDecorator('block_size',{
+              getFieldDecorator('blockSize',{
                 rules: [
                   {required: true, message: 'Block不可为空'}
                 ],
@@ -157,7 +157,7 @@ export default class StepOne extends Component{
               {...formItemLayout}
               label="AUTO_LOAD_MERGE">
               {
-                getFieldDecorator('AUTO_LOAD_MERGE',{
+                getFieldDecorator('autoLoadMerge',{
                   initialValue: formData.AUTO_LOAD_MERGE || 0
                 })(
                   <RadioGroup>
@@ -169,9 +169,9 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="COMPACTION_LEVEL_THRESHOLD">
+              label="levelThreshold">
               {
-                getFieldDecorator('COMPACTION_LEVEL_THRESHOLD',{
+                getFieldDecorator('compactionSize',{
                   initialValue:formData.COMPACTION_LEVEL_THRESHOLD || undefined
                 })(
                   <Input/>
@@ -180,7 +180,7 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="COMPACTION_PRESERVE_SEGMENTS">
+              label="preserveSegments">
               {
                 getFieldDecorator('COMPACTION_PRESERVE_SEGMENTS',{
                   initialValue:formData.COMPACTION_PRESERVE_SEGMENTS || undefined
@@ -191,7 +191,7 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="ALLOWED_COMPACTION_DAYS">
+              label="allowCompactionDays">
               {
                 getFieldDecorator('ALLOWED_COMPACTION_DAYS',{
                   initialValue:formData.ALLOWED_COMPACTION_DAYS || undefined

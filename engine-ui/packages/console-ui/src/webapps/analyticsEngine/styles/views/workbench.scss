@@ -231,6 +231,32 @@
         }
     }
 }
+.step-two-container, .step-three-container, .edit-table-container{
+    .action-span{
+        a{
+            font-size: 12px;
+        }
+        span{
+            font-family: "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-size: 14px;
+            font-variant: tabular-nums;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, 0.65);
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            background: #e8e8e8;
+            margin: 0 8px;
+            display: inline-block;
+            height: 0.9em;
+            width: 1px;
+            vertical-align: middle;
+            position: relative;
+            top: -0.06em;
+        }
+    }
+}
 .step-two-container, .step-three-container{
     .table-panel:nth-child(1){
         margin-bottom: 40px;
@@ -245,35 +271,12 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            
+
             .title{
                 margin-bottom: 0;
             }
         }
-        .action-span{
-            a{
-                font-size: 12px;
-            }
-            span{
-                font-family: "Chinese Quote", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-                font-size: 14px;
-                font-variant: tabular-nums;
-                line-height: 1.5;
-                color: rgba(0, 0, 0, 0.65);
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-                list-style: none;
-                background: #e8e8e8;
-                margin: 0 8px;
-                display: inline-block;
-                height: 0.9em;
-                width: 1px;
-                vertical-align: middle;
-                position: relative;
-                top: -0.06em;
-            }
-        }
+
         .title{
             display: block;
             font-size: 14px;
@@ -363,7 +366,7 @@
                 background-color: #F5F5F5;
                 padding: 0;
             }
-    
+
             .ant-table-small {
                 .ant-table-tbody {
                     tr{
@@ -436,7 +439,34 @@
                 border-radius: 2px;
             }
         }
-        
+    }
+}
+.edit-table-container{
+    .panel{
+        padding-left: 20px;
+        margin-top: 21px;
+        margin-bottom: 30px;
+        .title{
+            padding-left: 5px;
+            font-size: 14px;
+            color: #333333;
+            margin-bottom: 11px;
+            font-weight: bold;
+        }
+    }
+    .ant-select-selection--single{
+        height: 36px;
+        .ant-select-selection__rendered{
+            line-height: 36px;
+        }
+    }
+    .table-box{
+        .ant-select-selection--single{
+            height: 26px;
+            .ant-select-selection__rendered{
+                line-height: 26px;
+            }
+        }
     }
 }
 
@@ -446,6 +476,37 @@
         justify-content: space-between;
         align-items: center;
         padding: 0 20px;
+    }
+}
+.table-small{
+
+    table{
+        background-color: #F5F5F5;
+        padding: 0 !important;
+    }
+
+    .ant-table-small {
+        .ant-table-tbody {
+            tr{
+                td{
+                    background: white;
+                    padding: 7px 20px;
+                }
+            }
+        }
+    }
+    .ant-table-thead{
+        // background-color: #F5F5F5;
+        tr{
+            th{
+                background-color: #F5F5F5;
+                padding: 6.5px 21px;
+                span{
+                    font-size: 12px;
+                    font-weight: normal;
+                }
+            }
+        }
     }
 }
 
