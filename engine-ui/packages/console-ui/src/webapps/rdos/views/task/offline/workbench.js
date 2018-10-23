@@ -501,19 +501,36 @@ class Workbench extends React.Component {
             console.log(item, index)
             indexMap[item.key] = index;
         })
-        source.sort(
-            (a, b) => {
-                return indexMap[a] - indexMap[b]
+        /**
+         * 保留两者的映射关系
+         */
+        let tmp_target=target.map(
+            (item,index)=>{
+                return {
+                    ...item,
+                    mapping:source[index]
+                }
             }
         )
-        target.sort(
+        /**
+         * 开始根据target的顺序排序
+         */
+        tmp_target.sort(
             (a, b) => {
                 return indexMap[a.key] - indexMap[b.key]
             }
         )
+        /**
+         * 还原source
+         */
+        source=tmp_target.map(
+            (item)=>{
+                return item.mapping;
+            }
+        )
         // 接口要求keymap中的连线映射数组放到sourceMap中
         clone.sourceMap.column = source;
-        clone.targetMap.column = target;
+        clone.targetMap.column = tmp_target;
 
         clone.settingMap = clone.setting;
         clone.name = currentTabData.name;
