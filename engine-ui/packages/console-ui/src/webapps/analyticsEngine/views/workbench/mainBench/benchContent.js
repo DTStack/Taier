@@ -26,7 +26,7 @@ class BenchContent extends Component {
                 return <TableDetail data={tabData} />
             }
             case workbenchAction.OPEN_DATABASE: {
-                return <DatabaseDetail data={tabData} />
+                return <DatabaseDetail data={tabData} {...props} />
             }
             case workbenchAction.OPEN_DATA_MAP: {
                 return <DataMap
