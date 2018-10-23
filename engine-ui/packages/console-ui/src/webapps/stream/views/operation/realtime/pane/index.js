@@ -25,8 +25,8 @@ class TaskDetailPane extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {data={}} = this.props;
-        const {data:nextData={}} = nextProps;
+        const { data = {} } = this.props;
+        const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id) {
             this.setState({
                 tabKey: "taskFlow"
@@ -57,50 +57,53 @@ class TaskDetailPane extends React.Component {
             overflow: "auto",
             paddingBottom: "1px"
         }
+        const runCodeView = (
+            <TabPane style={scrollStyle} tab="运行代码" key="runCode">
+                <RunCode isShow={tabKey == "runCode"} data={data} />
+            </TabPane>
+        )
+        const baseInfoView = (
+            <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
+                <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
+            </TabPane>
+        )
+        const alarmMsgView = (
+            <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
+                <AlarmMsg data={data} />
+            </TabPane>
+        )
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
                 return [
-                    <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
-                    </TabPane>,
-                    <TabPane style={scrollStyle} tab="运行代码" key="runCode">
-                        <RunCode data={data} />
-                    </TabPane>,
-                    <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
-                        <AlarmMsg data={data} />
-                    </TabPane>
+                    baseInfoView,
+                    runCodeView,
+                    alarmMsgView
                 ]
             }
             case TASK_TYPE.SQL:
             case TASK_TYPE.MR: {
                 return [
-                    <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
-                        <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
-                    </TabPane>,
-                    <TabPane 
-                    style={scrollStyleNoPt} 
-                    tab={(
-                        <span>数据延迟<HelpDoc style={{
-                            position:"relative",
-                            marginLeft:"5px",
-                            right:"initial",
-                            top:"initial",
-                            marginRight:"0px"
-                        }}  doc="delayTabWarning" /></span>
-                    )
-                    } 
-                    key="dataDelay">
+                    baseInfoView,
+                    <TabPane
+                        style={scrollStyleNoPt}
+                        tab={(
+                            <span>数据延迟<HelpDoc style={{
+                                position: "relative",
+                                marginLeft: "5px",
+                                right: "initial",
+                                top: "initial",
+                                marginRight: "0px"
+                            }} doc="delayTabWarning" /></span>
+                        )
+                        }
+                        key="dataDelay">
                         <DataDelay data={data} />
                     </TabPane>,
                     <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
                         <CheckPoint data={data} />
                     </TabPane>,
-                    <TabPane style={scrollStyle} tab="运行代码" key="runCode">
-                        <RunCode data={data} />
-                    </TabPane>,
-                    <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
-                        <AlarmMsg data={data} />
-                    </TabPane>
+                    runCodeView,
+                    alarmMsgView
                 ]
             }
             default: {

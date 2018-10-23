@@ -162,6 +162,8 @@ class TaskFormModal extends Component {
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
+        const isFlinkSql=taskType==TASK_TYPE.SQL;
+        const isShowResource=!isDataCollection&&!isFlinkSql;
         
         return (
             <div id="JS_task_modal_realtime">
@@ -226,7 +228,7 @@ class TaskFormModal extends Component {
                                 )}
                             </FormItem>
                         )}
-                        {!isDataCollection && (
+                        {isShowResource && (
                             <FormItem
                                 {...formItemLayout}
                                 label="资源"
