@@ -1077,8 +1077,8 @@ class Keymap extends React.Component{
                     const item = arr[i]
                     if (!item) continue;
                     const map = item.split(':')
-                    const key = map[0]
-                    const type = map[1].toUpperCase();
+                    const key = utils.trim(map[0])
+                    const type = utils.trim(map[1].toUpperCase());
                     if (hdfsFieldTypes.includes(type)) {
                         params.push({
                             key,
