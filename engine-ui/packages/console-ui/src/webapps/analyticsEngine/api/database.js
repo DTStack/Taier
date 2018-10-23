@@ -7,19 +7,44 @@ export default {
         return http.post(req.GET_CATALOGUES, params);
     },
 
-    createOrUpdateDB(params) {
-        return http.post(req.CREATE_OR_UPDATE_DB, params);
-    },
-
-    getCreateSQL(params) {
-        return http.post(req.GET_CREATE_SQL, params);
+    createDB(params) {
+        return http.post(req.CREATE_DB, params);
     },
 
     deleteDB(params) {
-        return http.post(req.CREATE_OR_UPDATE_DB, params);
+        return http.post(req.DROP_DB, params);
+    },
+    
+    resetDBPassword(params) {
+        return http.post(req.MODIFY_DB_PASSWORD, params);
     },
 
-    searchDBUsers(params) {
-        return http.post(req.CREATE_OR_UPDATE_DB, params);
+    getDatabases(params) {
+        return http.post(req.GET_DB_LIST, params);
     },
+
+    getDBDetail(params) {
+        return http.post(req.GET_DB_DETAIL, params);
+    },
+
+    getDBUsers(params) {
+        return http.post(req.GET_DB_USER_LIST, params);
+    },
+
+    getDBUserRoles(params) {
+        return http.post(req.GET_DB_USER_ROLE_LIST, params);
+    },
+
+    searchUsersNotInDB(params) {
+        return http.post(req.GET_USERS_NOT_IN_DB, params);
+    },
+
+    updateDBUserRole(params) {
+        return http.post(req.UPDATE_DB_USER_ROLE, params);
+    },
+
+    addDBUserRole(params) {
+        return http.post(req.ADD_DB_USER, params);
+    },
+
 }
