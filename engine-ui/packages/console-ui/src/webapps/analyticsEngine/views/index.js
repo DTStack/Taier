@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 import utils from 'utils'
-import { dqApp } from 'config/base'
+import { aeApp } from 'config/base'
 
 import Header from './layout/header'
 import Workbench from '../views/workbench'
@@ -25,7 +25,7 @@ class Main extends Component {
 
     componentDidMount() {
         const { dispatch } = this.props;
-        dispatch(updateApp(dqApp));
+        dispatch(updateApp(aeApp));
     }
 
     render() {

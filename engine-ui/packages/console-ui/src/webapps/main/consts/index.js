@@ -13,6 +13,7 @@ export const MY_APPS = {
     LABEL: 'dataLabel',
     DATA_MAP: 'map',
     META_DATA: 'metaData',
+    ANALYTICS_ENGINE: 'analyticsEngine',
 }
 
 export const mainApp = {

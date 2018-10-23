@@ -43,7 +43,11 @@ export default {
         return http.post(req.UPDATE_DB_USER_ROLE, params);
     },
 
-    addDBUserRole(params) {
+    addDBUser(params) {
+        return http.post(req.ADD_DB_USER, params);
+    },
+
+    removeDBUser(params) {
         return http.post(req.ADD_DB_USER, params);
     },
 

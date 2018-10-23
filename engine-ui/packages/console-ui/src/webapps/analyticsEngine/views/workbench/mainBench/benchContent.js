@@ -38,7 +38,6 @@ class BenchContent extends Component {
             case workbenchAction.CREATE_DATA_MAP: {
                 return <DataMap
                     isCreate={true}
-                    onCreateDataMap={props.onCreateDataMap}
                     onGenerateCreateSQL={props.onGenerateCreateSQL}
                     data={tabData} 
                 />
