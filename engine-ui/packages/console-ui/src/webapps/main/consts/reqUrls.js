@@ -77,6 +77,7 @@ export default {
     STREAM_REMOVE_USER:`${STREAM_BASE_URL}/roleUser/remove`,//删除用户
     STREAM_UPDATE_USER_ROLE:`${STREAM_BASE_URL}/roleUser/updateUserRole`,//更改用户角色
     STREAM_ADD_USER: `${STREAM_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
+    
     STREAM_ROLE_QUERY:`${STREAM_BASE_URL}/role/pageQuery`,//角色列表
     STREAM_GET_ROLE_TREE:`${STREAM_BASE_URL}/permission/tree`,//获取权限树
     STREAM_ROLE_PERMISSION:`${STREAM_BASE_URL}/permission/getPermissionIdsByRoleId`,//获取角色的权限
