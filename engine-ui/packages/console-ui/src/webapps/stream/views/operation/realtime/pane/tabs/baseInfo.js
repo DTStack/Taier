@@ -75,7 +75,10 @@ class BaseInfo extends React.Component {
                 )
             }
             default:{
-                return "该任务暂未运行"
+                return <div className="not-run-box">
+                    <img src="/public/stream/img/not_run.svg" className="icon" />
+                    <p className="text">该任务暂未运行</p>
+                </div>
             }
             
         }
