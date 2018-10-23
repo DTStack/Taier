@@ -28,6 +28,15 @@ export default {
         }
     },
 
+    // 获取数据库列表
+    getDatabase(app, params) {
+        switch(app) {
+            case MY_APPS.ANALYTICS_ENGINE: 
+                return http.post(analyEngineUrls.ANALYENGINE_GET_DBLIST, params);
+            default: return;
+        }
+    },
+
     // ================== 角色相关 ==================//
     queryRole(app, params) {
         switch (app) {
