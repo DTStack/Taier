@@ -85,6 +85,4 @@ export const aeApp = {
     target: '_blank',
     enable: true,
     apiBase: '/analytics',
-    needRoot: true,
-    disableExt: true
 }

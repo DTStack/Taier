@@ -15,7 +15,7 @@ class FormAddUser extends Component {
 
     render() {
 
-        const {  form, roles, onSearch, userList, initialData } = this.props;
+        const { form, roles, onSearch, userList, initialData } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = userList && userList
@@ -45,14 +45,15 @@ class FormAddUser extends Component {
                     label="数据库"
                     hasFeedback
                 >
-                    {getFieldDecorator('targetUserIds', {
+                    {getFieldDecorator('databaseId', {
                         rules: [{
-                            required: true, message: '用户不可为空！',
+                            required: true, message: '数据库为必填项！',
                         }],
+                        initialValue: initialData && initialData.id,
                     })(
                         <Input type="hidden" />,
                     )}
-                    <span>{initialData && initialData.databaseName}</span>
+                    <span>{initialData && initialData.name}</span>
                 </FormItem>
                 <FormItem
                     {...formItemLayout}

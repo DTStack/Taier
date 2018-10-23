@@ -72,10 +72,6 @@ class Sidebar extends Component {
         });
     }
 
-    onCxtMenuItem = (catelogueType) => {
-
-    }
-
     asynLoadCatalogue(treeNode) {
         const { data } = treeNode.props;
         return new Promise((resolve) => {
@@ -96,6 +92,7 @@ class Sidebar extends Component {
             onGetDataMap,
             onSQLQuery
         } = this.props;
+
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
             return (
@@ -132,7 +129,12 @@ class Sidebar extends Component {
     }
 
     render() {
+
+        const { activeNode } = this.props;
+
         const {
+            onGetDB,
+            onGetDataMap,
             onCreateDB,
             onCreateTable,
             onSQLQuery,
@@ -152,29 +154,21 @@ class Sidebar extends Component {
                 }
                 <ContextMenu targetClassName="anchor-database">
                     <MenuItem onClick={this.initEditTask}>新建表</MenuItem>
-                    <MenuItem onClick={
-                        this.onCxtMenuItem.bind(CTX_ACTION.SHOW_DATA_MAP)}
-                    >
+                    <MenuItem onClick={() => onGetDB(activeNode)}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem>查询</MenuItem>
                     <MenuItem>编辑表</MenuItem>
-                    <MenuItem onClick={
-                        this.onCxtMenuItem.bind(CTX_ACTION.SHOW_DATA_MAP)}
-                    >
-                        表详情
-                    </MenuItem>
+                    <MenuItem>表详情</MenuItem>
                     <MenuItem>编辑表</MenuItem>
                     <MenuItem>显示建表DDL</MenuItem>
                     <MenuItem>复制表名</MenuItem>
                     <MenuItem>新建DataMap</MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-datamap">
-                    <MenuItem onClick={
-                        this.onCxtMenuItem.bind(CTX_ACTION.SHOW_DATA_MAP)}
-                    >
+                    <MenuItem onClick={() => onGetDataMap(activeNode)}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>

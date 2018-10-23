@@ -64,7 +64,7 @@ class DatabaseForm extends Component {
                     })(<Input autoComplete="off" disabled={!isCreate} />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="用户名" hasFeedback>
-                    {getFieldDecorator("username", {
+                    {getFieldDecorator("dbUserName", {
                         rules: [
                             {
                                 required: true,
@@ -79,11 +79,11 @@ class DatabaseForm extends Component {
                                 message: "名称只能由字母与数字、@, 下划线组成"
                             }
                         ],
-                        initialValue: databaseData ? databaseData.username : ""
+                        initialValue: databaseData ? databaseData.dbUserName : ""
                     })(<Input />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="密码" hasFeedback>
-                    {getFieldDecorator("password", {
+                    {getFieldDecorator("dbPwd", {
                         rules: [
                             {
                                 required: true,
@@ -97,7 +97,7 @@ class DatabaseForm extends Component {
                                 validator: this.checkConfirm
                             }
                         ],
-                        initialValue: databaseData ? databaseData.password : "",
+                        initialValue: databaseData ? databaseData.dbPwd : "",
                     })(<Input type="password" />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="确认密码" hasFeedback>

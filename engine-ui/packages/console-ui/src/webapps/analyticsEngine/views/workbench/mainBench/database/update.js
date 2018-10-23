@@ -4,7 +4,7 @@ import { Modal, Icon, Row } from 'antd';
 import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
 import API from '../../../../api';
-import UpdateSucc from './updateSucc';
+import Response from './response';
 
 class UpdateDatabaseModal extends Component {
 
@@ -23,7 +23,7 @@ class UpdateDatabaseModal extends Component {
         const form = this.dbForm.props.form;
         form.validateFields( async (err, values) => {
             if (!err) {
-                const result = await API.createOrUpdateDB(values);
+                const result = await API.resetDBPassword(values);
                 if (result.code === 1) {
                     this.setState({
                         databaseData: result.data,
@@ -57,7 +57,7 @@ class UpdateDatabaseModal extends Component {
             >   
                 {
                     databaseData ? 
-                    <UpdateSucc data={databaseData} message="重置成功" /> 
+                    <Response data={databaseData} message="重置成功" /> 
                     : 
                     <DBForm
                         databaseData={defaultData}
