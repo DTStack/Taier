@@ -506,7 +506,7 @@ class Workbench extends React.Component {
         /**
          * 获取targetMap的顺序
          */
-        const { targetColumn = [] } = targetMap;
+        const { column:targetColumn = [] } = targetMap;
         let indexMap = {};//顺序记录表
         let tmp_target = [];//含有映射关系的target数组
         for (let i = 0; i < target.length; i++) {
@@ -523,7 +523,9 @@ class Workbench extends React.Component {
 
         tmp_target.sort(
             (a, b) => {
-                return indexMap[getKey(a.target)] - indexMap[getKey(b.target)];
+                const index_a=indexMap[getKey(a.target)];
+                const index_b=indexMap[getKey(b.target)];
+                return index_a - index_b;
             }
         )
         serverSource=tmp_target.map(

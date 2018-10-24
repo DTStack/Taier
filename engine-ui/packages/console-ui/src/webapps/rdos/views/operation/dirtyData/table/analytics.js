@@ -160,7 +160,13 @@ export default class TableAnalytics extends Component {
                 bordered={false}
                 noHovering
                 title={
-                    <span> 总计：共{tableCountInfo.totalNum||0}条 脏数据</span>
+                    <span> 
+                        总计：共{tableCountInfo.totalNum||0}条 脏数据，
+                        空指针：{tableCountInfo.npe || 0}条，
+                        主键冲突：{tableCountInfo.duplicate || 0}条，
+                        类型转换：{tableCountInfo.conversion || 0}条，
+                        其他：{tableCountInfo.other || 0}条
+                    </span>
                 }
                 extra={
                     <Select 
@@ -176,16 +182,16 @@ export default class TableAnalytics extends Component {
             >
                 <Row style={{ marginTop: '1px' }}>
                     <Tabs onChange={ this.onTabChange.bind(this) } animated={false}>
-                        <TabPane tab={`空指针 (${tableCountInfo.npe || 0}条)`} key="npe">
+                        <TabPane tab={`空指针`} key="npe">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`主键冲突 (${tableCountInfo.duplicate || 0}条)`} key="duplicate">
+                        <TabPane tab={`主键冲突`} key="duplicate">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`类型转换 (${tableCountInfo.conversion || 0}条)`} key="conversion" >
+                        <TabPane tab={`类型转换`} key="conversion" >
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`其他 (${tableCountInfo.other || 0}条)`} key="other">
+                        <TabPane tab={`其他`} key="other">
                             {tablePane}
                         </TabPane>
                     </Tabs>
