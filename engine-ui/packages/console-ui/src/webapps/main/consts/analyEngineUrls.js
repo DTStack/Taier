@@ -29,7 +29,7 @@ export default {
     ANALYENGINE_ADD_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
     ANALYENGINE_SEARCH_UIC_USERS: `${ANALYTICS_ENGINE_BASE_URL}/service/user/getUicUsersNotInProject`, // 获取UIC用户列表 获取未添加到项目的用户
     // 角色
-    ANALYENGINE_ROLE_QUERY:`${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/pageQuery`,//角色列表
+    ANALYENGINE_ROLE_QUERY:`${ANALYTICS_ENGINE_BASE_URL}/service/role/pageQuery`,//角色列表
     ANALYENGINE_GET_ROLE_TREE:`${ANALYTICS_ENGINE_BASE_URL}/permission/tree`,//获取权限树
     ANALYENGINE_ROLE_PERMISSION:`${ANALYTICS_ENGINE_BASE_URL}/permission/getPermissionIdsByRoleId`,//获取角色的权限
     ANALYENGINE_ROLE_PERMISSION_ADD_OR_EDIT:`${ANALYTICS_ENGINE_BASE_URL}/role/addOrUpdateRole`,//更新或添加角色权限
