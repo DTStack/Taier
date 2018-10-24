@@ -4,6 +4,7 @@ import workbenchAction from '../../consts/workbenchActionType';
 import modalAction from '../../consts/modalActionType';
 import { CATALOGUE_TYPE } from '../../consts';
 import API from '../../api';
+import { folderTreeRoot } from '../../reducers/modules/workbench/folderTree';
 
 /**
  * 更新Modal对象
@@ -108,30 +109,32 @@ export function onSQLQuery(params) {
 /**
  * 加载左侧树形目录数据
  */
-export const loadCatalogue = function(params, fileType) {
+export const loadCatalogue = function(data, fileType) {
     return async (dispatch) => {
 
         let res = {};
         // 获取表下的DataMap
         if (fileType === CATALOGUE_TYPE.TABLE) {
             res = await API.getDataMapsByTable({
-                tableId: params.tableId,
-                databaseId: params.databaseId,
+                tableId: data.tableId,
+                databaseId: data.databaseId,
             });
         // 获取数据库下的所有表
         } else if (fileType === CATALOGUE_TYPE.DATA_BASE) {
             res = await API.getTablesByDB({
-                databaseId: params.databaseId,
+                databaseId: data.databaseId,
             });
         } else {
-            res = await API.getDatabases(params);
+            res = await API.getDatabases();
+            // 如果为获取数据库列表，初始化data为树的根节点
+            data = folderTreeRoot;
         }
 
         if (res.code === 1) {
-            params.children = res.data;
+            data.children = res.data;
             dispatch({
                 type: workbenchAction.LOAD_CATALOGUE_DATA,
-                payload: params,
+                payload: data,
             })
         }
     }

@@ -78,6 +78,7 @@ class Sidebar extends Component {
             folderTree,
             onGetTable,
             onGetDataMap,
+            onCreateDB,
             onSQLQuery
         } = this.props;
 
@@ -109,7 +110,14 @@ class Sidebar extends Component {
                     color: '#666666',
                     letterSpacing: 0,
                 }}>
-                    &nbsp;点击上方<MyIcon type="btn_database" />新建数据库或联系管理员获取访问权限
+                    &nbsp;点击上方&nbsp;
+                        <MyIcon
+                            title="创建数据库"
+                            onClick={onCreateDB}
+                            type="btn_add_database"
+                            style={{cursor: 'pointer'}}
+                        />&nbsp;
+                        新建数据库或联系管理员获取访问权限
                 </p>
             )
         }
