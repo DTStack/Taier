@@ -39,6 +39,8 @@ class AdminUser extends Component {
         streamProjects: [],
         selectedProject: undefined,
         streamSelectedProject: undefined,
+        dataBase: [],
+        selecteDatabase: undefined,
         notProjectUsers: [],
         roles: [],
         editTarget: '',
@@ -64,16 +66,20 @@ class AdminUser extends Component {
             })
         }
     }
+    hasDatabase(app) {
+        return app === 'analyticsEngine';
+    }
     /**
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
-    loadData = (isGetProjectsBack) => {
-        const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects } = this.state;
+    loadData = (isGetProjectsBack,isGetDatabaseBack) => {
+        const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects, dataBase, selecteDatabase } = this.state;
         const params = {
             pageSize: 10,
             currentPage: currentPage,
         }
-        let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length)
+        let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length);
+        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && dataBase.length);
         this.setState({ 
             users: {
                 data: [],
@@ -81,7 +87,17 @@ class AdminUser extends Component {
          })
         if (!projectsExsit && hasProject(active)&&!isGetProjectsBack) {
             this.getProjects(active);
-        } else if (!projectsExsit && !hasProject(app)) {
+        }
+        else if(!databaseExsit && this.hasDatabase(active)&&!isGetDatabaseBack) {
+            this.getDatabase(active);
+        }
+        else if (!databaseExsit && !this.hasDatabase(app)) {
+            this.loadUsers(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
+        }
+        else if (!projectsExsit && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
@@ -91,6 +107,9 @@ class AdminUser extends Component {
                 params.projectId = selectedProject;
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
+            } 
+            else if (MY_APPS.ANALYTICS_ENGINE == active) {
+                params.databaseId = selecteDatabase;
             }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
@@ -129,7 +148,7 @@ class AdminUser extends Component {
                     }
                     case MY_APPS.API:
                     case MY_APPS.LABEL:
-                    case MY_APPS.ANALYENGINE:
+                    case MY_APPS.ANALYTICS_ENGINE:
                     case MY_APPS.DATA_QUALITY: {
                         if (roleValue == APP_ROLE.VISITOR) {
                             isVisitor = true
@@ -178,6 +197,22 @@ class AdminUser extends Component {
         })
     }
 
+
+    // 获取数据库
+    getDatabase = (app) => {
+        const ctx = this
+        Api.getDatabase(app).then((res) => {
+            if (res.code === 1) {
+                if (app == MY_APPS.ANALYTICS_ENGINE) {
+                    ctx.setState({
+                        dataBase: res.data,
+                        selecteDatabase: res.data[0].id
+                    }, this.loadData.bind(true))
+                }
+            }
+        })
+    }
+
     getProjects = (app) => {
         const ctx = this
         Api.getProjects(app).then((res) => {
@@ -204,7 +239,7 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = (userName) => {
-        const { active, selectedProject, streamSelectedProject } = this.state;
+        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
         const params = {
             userName,
         }
@@ -215,6 +250,11 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject;
             }
         }
+        if(this.hasDatabase(active)) {
+            if(MY_APPS.ANALYTICS_ENGINE == active) {
+                params.databaseId = selecteDatabase;
+            }
+        }
         Api.loadUsersNotInProject(active, params).then((res) => {
             this.setState({ notProjectUsers: res.data })
         })
@@ -222,7 +262,7 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject, notProjectUsers } = this.state
+        const { active, selectedProject, streamSelectedProject, notProjectUsers, selecteDatabase } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -246,6 +286,11 @@ class AdminUser extends Component {
                         projectRole.projectId = streamSelectedProject
                     }
                 }
+                if(this.hasDatabase(active)) {
+                    if(active == MY_APPS.ANALYTICS_ENGINE) {
+                        projectRole.databaseId = selecteDatabase
+                    }
+                }
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
@@ -261,7 +306,7 @@ class AdminUser extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject } = this.state
+        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state
         const params = {
             targetUserId: member.userId,
         }
@@ -270,6 +315,11 @@ class AdminUser extends Component {
                 params.projectId = selectedProject
             } else if (active == MY_APPS.STREAM) {
                 params.projectId = streamSelectedProject
+            }
+        }
+        if (this.hasDatabase(active)) {
+            if (active == MY_APPS.ANALYTICS_ENGINE) {
+                params.databaseId = selecteDatabase
             }
         }
         Api.removeProjectUser(active, params).then((res) => {
@@ -282,7 +332,7 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject, streamSelectedProject } = this.state;
+        const { editTarget, active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
@@ -303,7 +353,11 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject
             }
         }
-
+        if (this.hasDatabase(active)) {
+            if (active == MY_APPS.ANALYTICS_ENGINE) {
+                params.databaseId = selecteDatabase
+            }
+        }
         Api.updateUserRole(active, params).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
@@ -349,6 +403,14 @@ class AdminUser extends Component {
             notProjectUsers: [],
             searchName: undefined,
         }, this.loadData)
+    }
+
+    // 数据库改变
+    onDatabaseSelect = (value) => {
+        this.setState({
+            selecteDatabase: value,
+            currentPage: 1
+        },this.loadData)
     }
 
     onProjectSelect = (value) => {
@@ -453,11 +515,14 @@ class AdminUser extends Component {
 
     renderTitle = () => {
 
-        const { projects,streamProjects, active, selectedProject, searchName, streamSelectedProject } = this.state;
+        const { projects,streamProjects, active, selectedProject, searchName, streamSelectedProject, dataBase, selecteDatabase } = this.state;
 
         let selectValue;
         let onSelectChange;
         let projectsOptions=[];
+
+        let databaseOptions = [];
+
         if (active == MY_APPS.RDOS) {
             selectValue = selectedProject;
             projectsOptions=projects;
@@ -466,6 +531,9 @@ class AdminUser extends Component {
             selectValue = streamSelectedProject;
             projectsOptions=streamProjects;
             onSelectChange=this.onStreamProjectSelect
+        } else if(active == MY_APPS.ANALYTICS_ENGINE) {
+            databaseOptions = dataBase;
+            onSelectChange=this.onDatabaseSelect;
         }
 
         const projectOpts = projectsOptions && projectsOptions.map(project =>
@@ -473,7 +541,13 @@ class AdminUser extends Component {
                 {project.projectAlias}
             </Option>
         )
-        
+        const databaseOpts = databaseOptions && databaseOptions.map(item => 
+            <Option value={`${item.id}`} key={`${item.id}`}>
+                {item.name}
+            </Option> 
+        )
+
+
         const title = (
             <span>
                 {
@@ -490,6 +564,24 @@ class AdminUser extends Component {
                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {projectOpts}
+                            </Select>
+                        </span>
+                    )
+                }
+                {
+                    this.hasDatabase(active) && (
+                        <span>
+                            选择数据库：
+                            <Select
+                                showSearch
+                                value={selecteDatabase?`${selecteDatabase}`:selecteDatabase}
+                                style={{ width: 200, marginRight: 10 }}
+                                placeholder="按数据库名称搜索"
+                                optionFilterProp="name"
+                                onSelect={onSelectChange}
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {databaseOpts}
                             </Select>
                         </span>
                     )
