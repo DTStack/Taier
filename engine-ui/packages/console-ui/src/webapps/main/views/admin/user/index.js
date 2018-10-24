@@ -72,7 +72,7 @@ class AdminUser extends Component {
     /**
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
-    loadData = (isGetProjectsBack,isGetDatabase) => {
+    loadData = (isGetProjectsBack,isGetDatabaseBack) => {
         const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects, dataBase, selecteDatabase } = this.state;
         const params = {
             pageSize: 10,
@@ -87,14 +87,17 @@ class AdminUser extends Component {
          })
         if (!projectsExsit && hasProject(active)&&!isGetProjectsBack) {
             this.getProjects(active);
-        } else if (!databaseExsit && this.hasDatabase(active) && !isGetDatabase) {
+        }
+        else if(!databaseExsit && this.hasDatabase(active)&&!isGetDatabaseBack) {
             this.getDatabase(active);
-        } else if(!databaseExsit && !this.hasDatabase(active)) {
+        }
+        else if (!databaseExsit && !this.hasDatabase(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
             }));
-        } else if (!projectsExsit && !hasProject(app)) {
+        }
+        else if (!projectsExsit && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
@@ -104,8 +107,9 @@ class AdminUser extends Component {
                 params.projectId = selectedProject;
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
-            } else if(MY_APPS.ANALYTICS_ENGINE == active) {
-                params.databaseId = 2;
+            } 
+            else if (MY_APPS.ANALYTICS_ENGINE == active) {
+                params.databaseId = selecteDatabase;
             }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
@@ -197,11 +201,7 @@ class AdminUser extends Component {
     // 获取数据库
     getDatabase = (app) => {
         const ctx = this
-        const params = {
-            tenantId: 1,
-            userId: 1
-        };
-        Api.getDatabase(app,params).then((res) => {
+        Api.getDatabase(app).then((res) => {
             if (res.code === 1) {
                 if (app == MY_APPS.ANALYTICS_ENGINE) {
                     ctx.setState({
@@ -239,7 +239,7 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = (userName) => {
-        const { active, selectedProject, streamSelectedProject } = this.state;
+        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
         const params = {
             userName,
         }
@@ -250,6 +250,11 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject;
             }
         }
+        if(this.hasDatabase(active)) {
+            if(MY_APPS.ANALYTICS_ENGINE == active) {
+                params.databaseId = selecteDatabase;
+            }
+        }
         Api.loadUsersNotInProject(active, params).then((res) => {
             this.setState({ notProjectUsers: res.data })
         })
@@ -257,7 +262,7 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject, notProjectUsers } = this.state
+        const { active, selectedProject, streamSelectedProject, notProjectUsers, selecteDatabase } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -281,6 +286,11 @@ class AdminUser extends Component {
                         projectRole.projectId = streamSelectedProject
                     }
                 }
+                if(this.hasDatabase(active)) {
+                    if(active == MY_APPS.ANALYTICS_ENGINE) {
+                        projectRole.databaseId = selecteDatabase
+                    }
+                }
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
@@ -296,7 +306,7 @@ class AdminUser extends Component {
 
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject } = this.state
+        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state
         const params = {
             targetUserId: member.userId,
         }
@@ -305,6 +315,11 @@ class AdminUser extends Component {
                 params.projectId = selectedProject
             } else if (active == MY_APPS.STREAM) {
                 params.projectId = streamSelectedProject
+            }
+        }
+        if (this.hasDatabase(active)) {
+            if (active == MY_APPS.ANALYTICS_ENGINE) {
+                params.databaseId = selecteDatabase
             }
         }
         Api.removeProjectUser(active, params).then((res) => {
@@ -317,7 +332,7 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject, streamSelectedProject } = this.state;
+        const { editTarget, active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
@@ -338,7 +353,11 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject
             }
         }
-
+        if (this.hasDatabase(active)) {
+            if (active == MY_APPS.ANALYTICS_ENGINE) {
+                params.databaseId = selecteDatabase
+            }
+        }
         Api.updateUserRole(active, params).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')

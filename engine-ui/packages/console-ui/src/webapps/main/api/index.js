@@ -118,7 +118,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_GET_ROLE_TREE, params);
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_GET_ROLE_TREE, params);
+                return http.post(analyEngineUrls.ANALYENGINE_GET_ROLE_TREE, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getRolePerissions(params);
             case MY_APPS.API:
@@ -228,7 +228,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_QUERY_USER, params);
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_QUERY_USER, params);
+                return http.post(analyEngineUrls.ANALYENGINE_QUERY_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.getUserPages(params);
             case MY_APPS.API:
@@ -249,7 +249,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_SEARCH_UIC_USERS, params);
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_SEARCH_UIC_USERS, params);
+                return http.post(analyEngineUrls.ANALYENGINE_SEARCH_UIC_USERS, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_SEARCH_UIC_USERS, params)
             case MY_APPS.LABEL:
@@ -267,7 +267,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_ADD_USER, params)
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_ADD_USER, params);
+                return http.post(analyEngineUrls.ANALYENGINE_ADD_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return http.post(req.DQ_ADD_USER, params)
             case MY_APPS.LABEL:
@@ -285,7 +285,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_REMOVE_USER, params)
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_REMOVE_USER, params);
+                return http.post(analyEngineUrls.ANALYENGINE_REMOVE_USER, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.delUser(params);
             case MY_APPS.API:
@@ -303,7 +303,7 @@ export default {
             case MY_APPS.STREAM:
                 return http.post(req.STREAM_UPDATE_USER_ROLE, params)
             case MY_APPS.ANALYTICS_ENGINE:
-                return http.post(req.ANALYENGINE_UPDATE_USER_ROLE, params);
+                return http.post(analyEngineUrls.ANALYENGINE_UPDATE_USER_ROLE, params);
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.updateUser(params);
             case MY_APPS.API:

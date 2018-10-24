@@ -20,7 +20,7 @@ export default {
     // UPDATE_DB_USER_ROLE: `${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/updateUserRole`, // 修改用户数据库角色
     // ADD_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/addRoleUserNew`, // 添加数据库用户
 
-    ANALYENGINE_GET_DBLIST: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/listDatabases`, // 获取数据库列表
+    ANALYENGINE_GET_DBLIST: `${ANALYTICS_ENGINE_BASE_URL}/service/dataBaseManagement/listAllDatabases`, // 获取数据库列表
 
 
     ANALYENGINE_QUERY_USER:`${ANALYTICS_ENGINE_BASE_URL}/service/user/pageQuery`,//查询系统用户信息
