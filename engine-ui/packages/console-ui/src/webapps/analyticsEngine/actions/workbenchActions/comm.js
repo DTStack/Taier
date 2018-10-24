@@ -115,35 +115,52 @@ export const loadCatalogue = function(data, fileType) {
     return async (dispatch) => {
         console.log('loadCatalogue:', data, fileType);
         let res = {};
-        // 获取表下的DataMap
-        if (fileType === CATALOGUE_TYPE.TABLE) {
-            res = await API.getDataMapsByTable({
-                tableId: data.id,
-                databaseId: data.databaseId,
-            });
-            res.data = res.data && res.data.map(item => {
-                item.type = CATALOGUE_TYPE.DATA_MAP;
-                return item;
-            })
-        // 获取数据库下的所有表
-        } else if (fileType === CATALOGUE_TYPE.DATA_BASE) {
-            res = await API.getTablesByDB({
-                databaseId: data.id,
-            });
-            res.data = res.data && res.data.map(item => {
-                item.type = CATALOGUE_TYPE.TABLE;
-                item.children = [];
-                return item;
-            })
-        } else {
-            res = await API.getDatabases();
-            res.data = res.data && res.data.map(item => {
-                item.type = CATALOGUE_TYPE.DATA_BASE;
-                item.children = [];
-                return item;
-            })
-            // 如果为获取数据库列表，初始化data为树的根节点
-            data = folderTreeRoot;
+        switch (fileType) {
+            case CATALOGUE_TYPE.TABLE: { // 获取表下的DataMap
+                res = await API.getDataMapsByTable({
+                    tableId: data.id,
+                    databaseId: data.databaseId,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.DATA_MAP;
+                    return item;
+                });
+                break;
+            }
+            case CATALOGUE_TYPE.DATA_BASE: {
+                res = await API.getTablesByDB({
+                    databaseId: data.id,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.TABLE;
+                    item.children = [];
+                    return item;
+                });
+                break;
+            }
+            case CATALOGUE_TYPE.SEARCH_TABLE: { // 搜索表
+                res = await API.searchTable({
+                    tableName: data.tableName,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.TABLE;
+                    item.children = [];
+                    return item;
+                });
+                // 如果为获取数据库列表，初始化data为树的根节点
+                data = folderTreeRoot;
+                break;
+            }
+            default: {
+                res = await API.getDatabases();
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.DATA_BASE;
+                    item.children = [];
+                    return item;
+                })
+                // 如果为获取数据库列表，初始化data为树的根节点
+                data = folderTreeRoot;
+            }
         }
 
         if (res.code === 1) {

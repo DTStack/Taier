@@ -14,7 +14,7 @@ class DataMap extends Component {
 
     componentDidMount() {
         this.loadTable({
-            id: data.tableId,
+            id: this.props.data.tableId,
         })
     }
 
@@ -49,7 +49,10 @@ class DataMap extends Component {
             okType: 'danger',
             cancelText: '取消',
             onOk() {
-                onRemoveDataMap(data);
+                onRemoveDataMap({
+                    databaseId: data.databaseId,
+                    id: data.id,
+                });
             },
             onCancel() {
               console.log('Cancel');

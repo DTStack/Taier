@@ -15,4 +15,12 @@ export default {
     getTablesByDB(params) {
         return http.post(req.GET_TABLE_LIST_BY_DB, params);
     },
+
+    getTableById(params) { // 暂缺
+        return http.post(req.GET_TABLE_LIST_BY_DB, params);
+    },
+
+    searchTable(params) { // 暂缺
+        return http.post(req.GET_TABLE_LIST_BY_DB, params);
+    }
 }

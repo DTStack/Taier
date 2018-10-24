@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
 import { Input } from 'antd';
 
-import { debounceEventHander } from 'funcs';
+import utils from 'utils';
 
 import {
     ContextMenu,
@@ -49,9 +49,12 @@ class Sidebar extends Component {
 
     searchTable = (value) => {
         console.log('search:', value);
+        const query = utils.trim(value);
+        if (!query) return;
+        
         this.props.loadCatalogue({
             tableName: value,
-        })
+        }, CATALOGUE_TYPE.SEARCH_TABLE);
     }
 
     onRightClick = ({ node }) => {
@@ -116,7 +119,7 @@ class Sidebar extends Component {
                     <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
                         <Search
                             placeholder="输入表名搜索"
-                            onSearch={debounceEventHander(this.searchTable, 500, { 'maxWait': 2000 })}
+                            onSearch={this.searchTable}
                         />
                     </div>
                     <FolderTree

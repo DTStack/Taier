@@ -130,23 +130,17 @@ class EditorContainer extends Component {
 
     execSQL = () => {
         const {
-            user,
             editor,
-            project,
             currentTab,
             data
         } = this.props;
 
         const params = {
-            projectId: project.id,
-            isCheckDDL: user.isCheckDDL,
-            taskVariables: data.taskVariables
         };
 
         const code =
             editor.selection ||
-            data.sqlText ||
-            data.scriptText;
+            data.sqlText;
 
         const sqls = this.filterSql(code);
 
