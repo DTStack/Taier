@@ -180,7 +180,7 @@ class Workbench extends React.Component {
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
-        const isTest= project.projectType == PROJECT_TYPE.TEST;
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
 
@@ -218,7 +218,7 @@ class Workbench extends React.Component {
                         <span>
                             <Dropdown overlay={this.createMenu()} trigger={['click']}>
                                 <Button title="创建">
-                                    <MyIcon className="my-icon" type="focus" themeDark={themeDark}/>
+                                    <MyIcon className="my-icon" type="focus" themeDark={themeDark} />
                                     新建<Icon type="down" />
                                 </Button>
                             </Dropdown>
@@ -227,13 +227,13 @@ class Workbench extends React.Component {
                                 title="保存任务"
                                 disabled={!isSaveAvaliable}
                             >
-                                <MyIcon className="my-icon" type="save" themeDark={themeDark}/>保存
+                                <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
                             </Button>
                         </span>
                     )}
                     <Dropdown overlay={this.importMenu()} trigger={['click']}>
                         <Button>
-                            <MyIcon className="my-icon" type="import" themeDark={themeDark}/>
+                            <MyIcon className="my-icon" type="import" themeDark={themeDark} />
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
@@ -241,14 +241,14 @@ class Workbench extends React.Component {
                         onClick={this.searchTask}
                         title="打开任务"
                     >
-                        <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
+                        <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                         搜索
                     </Button>
-                    <FullScreenButton themeDark={themeDark}/>
-                    <ThemeSwitcher 
+                    <FullScreenButton themeDark={themeDark} />
+                    <ThemeSwitcher
                         editorTheme={editor.options.theme}
                         onThemeChange={(theme) => {
-                           dispatch(updateEditorOptions({ theme }))
+                            dispatch(updateEditorOptions({ theme }))
                         }}
                     />
                 </Col>
@@ -265,7 +265,7 @@ class Workbench extends React.Component {
                                 disabled={disablePublish}
                                 onClick={this.showPublish.bind(this)}
                             >
-                                <Icon type="upload" themeDark={themeDark}/>提交
+                                <Icon type="upload" themeDark={themeDark} />提交
                             </Button>
                         </Tooltip>
                         {isTest && <Tooltip
@@ -277,14 +277,14 @@ class Workbench extends React.Component {
                                 disabled={disablePublish}
                                 onClick={this.toPublishView.bind(this)}
                             >
-                                <MyIcon className="my-icon" type="fly" themeDark={themeDark}/>发布
+                                <MyIcon className="my-icon" type="fly" themeDark={themeDark} />发布
                             </Button>
                         </Tooltip>}
                     </span>)}
 
                     <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
-                            <MyIcon className="my-icon" type="goin" themeDark={themeDark}/> 运维
+                            <MyIcon className="my-icon" type="goin" themeDark={themeDark} /> 运维
                         </Button>
                     </a>
                 </Col>) : null}
@@ -299,23 +299,23 @@ class Workbench extends React.Component {
                         className="browser-tabs"
                         onEdit={(tabId) => closeTab(tabId, tabs)}
                         tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2,maxHeight:"500px",overflowY:"auto" }}
+                            <Menu style={{ marginRight: 2, maxHeight: "500px", overflowY: "auto" }}
                             >
-                                <Menu.Item  key="OHTERS">
-                                <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
+                                <Menu.Item key="OHTERS">
+                                    <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
                                 </Menu.Item>
                                 <Menu.Item key="ALL">
-                                <a onClick={() => closeAllorOthers("ALL", tabs, currentTab)} >关闭所有</a>
+                                    <a onClick={() => closeAllorOthers("ALL", tabs, currentTab)} >关闭所有</a>
                                 </Menu.Item>
                                 <Menu.Divider />
-                                {tabs.map((tab)=>{
+                                {tabs.map((tab) => {
                                     return <Menu.Item key={tab.id} >
-                                    <a 
-                                    onClick={this.switchTab.bind(this,currentTab,tab.id)}
-                                    style={tab.id==currentTab?{color:"#2491F7"}:{}}
-                                    >
-                                    {tab.name}
-                                    </a>
+                                        <a
+                                            onClick={this.switchTab.bind(this, currentTab, tab.id)}
+                                            style={tab.id == currentTab ? { color: "#2491F7" } : {}}
+                                        >
+                                            {tab.name}
+                                        </a>
                                     </Menu.Item>
                                 })}
                             </Menu>
@@ -491,11 +491,46 @@ class Workbench extends React.Component {
 
         const { tabs, currentTab, currentTabData } = this.props;
         const { keymap, sourceMap, targetMap } = clone;
-        const { source, target } = keymap;
-
+        let { source = [], target = [] } = keymap;
+        /**
+         * targetMap排序
+         */
+        const { column = [] } = targetMap;
+        let indexMap = {};
+        column.map((item, index) => {
+            console.log(item, index)
+            indexMap[item.key] = index;
+        })
+        /**
+         * 保留两者的映射关系
+         */
+        let tmp_target=target.map(
+            (item,index)=>{
+                return {
+                    ...item,
+                    mapping:source[index]
+                }
+            }
+        )
+        /**
+         * 开始根据target的顺序排序
+         */
+        tmp_target.sort(
+            (a, b) => {
+                return indexMap[a.key] - indexMap[b.key]
+            }
+        )
+        /**
+         * 还原source
+         */
+        source=tmp_target.map(
+            (item)=>{
+                return item.mapping;
+            }
+        )
         // 接口要求keymap中的连线映射数组放到sourceMap中
         clone.sourceMap.column = source;
-        clone.targetMap.column = target;
+        clone.targetMap.column = tmp_target;
 
         clone.settingMap = clone.setting;
         clone.name = currentTabData.name;
