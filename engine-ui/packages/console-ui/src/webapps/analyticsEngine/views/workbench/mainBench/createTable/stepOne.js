@@ -169,9 +169,9 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="levelThreshold">
+              label="COMPACTION_LEVEL_THRESHOLD：">
               {
-                getFieldDecorator('compactionSize',{
+                getFieldDecorator('levelThreshold',{
                   initialValue:formData.COMPACTION_LEVEL_THRESHOLD || undefined
                 })(
                   <Input/>
@@ -180,7 +180,7 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="preserveSegments">
+              label="COMPACTION_PRESERVE_SEGMENTS：">
               {
                 getFieldDecorator('preserveSegments',{
                   initialValue:formData.COMPACTION_PRESERVE_SEGMENTS || undefined
@@ -191,7 +191,7 @@ export default class StepOne extends Component{
               </FormItem>
               <FormItem
               {...formItemLayout}
-              label="allowCompactionDays">
+              label="ALLOWED_COMPACTION_DAYS：">
               {
                 getFieldDecorator('allowCompactionDays',{
                   initialValue:formData.ALLOWED_COMPACTION_DAYS || undefined
