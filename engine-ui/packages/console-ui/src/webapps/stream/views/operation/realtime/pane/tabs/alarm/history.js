@@ -17,7 +17,7 @@ class AlarmHistory extends React.Component {
     state = {
         pagination: {
             total: 0,
-            pageSize: 8,
+            pageSize: 10,
             current: 1
         },
         alarmRecords: [],

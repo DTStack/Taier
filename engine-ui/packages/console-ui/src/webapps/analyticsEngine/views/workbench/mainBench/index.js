@@ -17,10 +17,11 @@ const TabPane = Tabs.TabPane;
 
 @connect(
     state => {
-        const { workbench, modal } = state;
+        const { workbench, modal, user } = state;
         return {
-            workbench,
+            user,
             modal,
+            workbench,
         };
     }, 
     dispatch => {

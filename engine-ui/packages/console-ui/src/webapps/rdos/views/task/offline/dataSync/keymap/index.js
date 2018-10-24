@@ -355,7 +355,7 @@ class Keymap extends React.Component{
             .attr('x2', -10)
             .attr('y2', -10);
     }
-    
+
     initData = () => {
         const { sourceMap, sourceSrcType, addSourceKeyRow } = this.props;
         if (sourceSrcType === DATA_SOURCE.HBASE) {
@@ -1077,8 +1077,8 @@ class Keymap extends React.Component{
                     const item = arr[i]
                     if (!item) continue;
                     const map = item.split(':')
-                    const key = map[0]
-                    const type = map[1]
+                    const key = utils.trim(map[0])
+                    const type = utils.trim(map[1].toUpperCase());
                     if (hdfsFieldTypes.includes(type)) {
                         params.push({
                             key,
@@ -1170,7 +1170,7 @@ class Keymap extends React.Component{
                     if (!item) continue;
                     const map = item.split(':')
                     const index = parseInt(utils.trim(map[0]), 10)
-                    const type = utils.trim(map[1])
+                    const type = utils.trim(map[1]);
                     if (!isNaN(index) && isNumber(index)) {
                         if (hdfsFieldTypes.includes(type) ) {
                             if (!params.find(pa => pa.index === index )) {
@@ -1341,6 +1341,7 @@ class Keymap extends React.Component{
             editSourceKeyRow,
             editTargetKeyRow,
             editKeyMapTarget,
+            removeKeyMap,
         } = this.props;
         const { keyModal } = this.state;
         const { isReader, position, source, editField } = keyModal;
@@ -1357,6 +1358,9 @@ class Keymap extends React.Component{
                 editKeyMapTarget({
                     old: editField,
                     replace: formData,
+                })
+                removeKeyMap({
+                    target: editField,
                 })
             }
             this.hideKeyModal();

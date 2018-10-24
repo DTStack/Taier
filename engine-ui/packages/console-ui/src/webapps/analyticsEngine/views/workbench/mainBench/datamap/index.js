@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
-import { Row, Button, Modal } from 'antd';
+import { Row, Button, Modal, message } from 'antd';
 
 import DataMapForm from './form';
+import API from '../../../../api/datamap';
 
 const confirm = Modal.confirm;
 
 class DataMap extends Component {
 
     onCreate = () => {
-        const { onCreateDataMap } = this.props;
         const form = this.formInstance.props.form;
-
         form.validateFields( async (err, values) => {
             if (!err) {
-                onCreateDataMap(values);
+                const res = await API.createDataMap(values);
+                if (res.code === 1) {
+                    message.success('创建DataMap成功！');
+                }
             }
         });
     }

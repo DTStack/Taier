@@ -29,7 +29,7 @@ class SlidePane extends Component {
         let myClass = 'slide-pane';
         let myStyle = { 
             top: 0, 
-            transform: visible ? 'translate3d(0%, 0, 0)' : 'translate3d(150%, 0, 0)',
+            transform: visible ? undefined : 'translate3d(150%, 0, 0)',
         }
         if(!visible){
             myStyle["pointerEvents"]="none"

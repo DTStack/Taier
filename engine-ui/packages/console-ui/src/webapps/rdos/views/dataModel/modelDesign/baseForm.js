@@ -123,7 +123,7 @@ export default class BaseForm extends React.Component {
             incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
         const { tableNameArr } = this.state;
-        const inlineStyle = { width: 126, display: 'inline-block' }
+        const inlineStyle = { width: 100, display: 'inline-block' }
         const renderRules = (rule, index) => {
             let data = [];
             switch(rule.value) {

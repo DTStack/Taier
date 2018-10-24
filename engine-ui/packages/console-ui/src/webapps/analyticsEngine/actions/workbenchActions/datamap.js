@@ -1,6 +1,6 @@
 import { notification, message } from 'antd';
 
-import API from '../../api';
+import API from '../../api/datamap';
 import workbenchAction from '../../consts/workbenchActionType';
 
 import { closeTab, openTab } from './comm';
@@ -11,15 +11,12 @@ import { closeTab, openTab } from './comm';
  */
 export function onRemoveDataMap(params) {
     return async dispatch => {
-        const res = await API.createOrUpdateDB(params);
+        const res = await API.deleteDataMap(params);
         if (res.code === 1) {
             message.success('删除DataMap成功！');
             dispatch(closeTab(params.id));
         }
     }
-}
-
-export function onCreateDataMap() {
 }
 
 /**
@@ -29,7 +26,7 @@ export function onGetDataMap(params) {
 
     return async dispatch => {
 
-        const res = await API.createOrUpdateDB(params);
+        const res = await API.getDataMapDetail(params);
     
         if (res.code === 1) {
             const dataMapData = res.data;

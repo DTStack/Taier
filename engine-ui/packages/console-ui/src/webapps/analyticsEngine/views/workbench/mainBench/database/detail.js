@@ -5,9 +5,14 @@ import {
     Button, Dropdown, Menu, Icon
 } from 'antd';
 
+import utils from 'utils';
+import { MY_APPS, } from 'main/consts'
+import EditUserRole from 'main/views/admin/user/editRole';
+
 import AddUserModal from './addUser';
 import UpdateDBModal from './update';
-import API from '../../../../api';
+
+import API from '../../../../api/database';
 
 const Search = Input.Search;
 const confirm = Modal.confirm;
@@ -15,24 +20,73 @@ const confirm = Modal.confirm;
 class DatabaseDetail extends Component {
 
     state = {
-        userList: [],
+        selectedItem: undefined,
         visibleAddUser: false,
         visibleResetPwd: false,
+        visibleEditRole: false,
+
+        userList: [],
+        userRoles: [],
+        usersNotInDB: [],
+
+        queryParams: {
+            pageSize: 10,
+            currentPage: 1,
+            databaseId: (this.props.data && this.props.data.id) || undefined,
+        },
     }
 
     componentDidMount () {
-        
-    }
-    
-    initEdit = () => {
-
+        this.loadDBUserRoles();
     }
 
-    onSearch = (value) => {
-        
+    loadDBUsers = async (params) => {
+        const reqParams = Object.assign(this.state.queryParams, params);
+        const res = await API.getDBUsers(reqParams);
+        if (res.code === 1) {
+            this.setState({
+                userList: res.data || [],
+            })
+        }
     }
 
-    onSearchUsers = (value) => {
+    loadDBUserRoles = async () => {
+        const res = await API.getDBUserRoles();
+        if (res.code === 1) {
+            this.setState({
+                userRoles: res.data || [],
+            })
+        }
+    }
+
+    initEdit = (selectedItem) => {
+        this.setState({
+            selectedItem,
+        })
+    }
+
+    removeUser = async (removeTarget) => {
+        const res = await API.removeDBUser({
+            userId: removeTarget.id,
+        });
+        if (res.code === 1) {
+            message.success('删除成功！');
+            this.loadDBUsers();
+        }
+    }
+
+    onSearchUsers = async (value) => {
+        const res = await API.searchUsersNotInDB({
+            userName: value,
+        });
+        if (res.code === 1) {
+            this.setState({
+                usersNotInDB: res.data || [],
+            })
+        }
+    }
+
+    onEditUserRole = async () => {
 
     }
 
@@ -93,17 +147,17 @@ class DatabaseDetail extends Component {
             width: 100,
             key: 'operation',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
+                 // active '0：未启用，1：使用中'。 只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        <a onClick={() => {this.initEdit(record)}}>
+                        <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
                         <span className="ant-divider" />
                         <Popconfirm
                             title="确定移除此用户？"
                             okText="确定" cancelText="取消"
-                            onConfirm={() => { this.remove(record) }}
+                            onConfirm={() => { this.removeUser(record) }}
                         >
                             <a>移除</a>
                         </Popconfirm>
@@ -134,8 +188,8 @@ class DatabaseDetail extends Component {
     }
 
     render () {
-        const { data } = this.props;
-        const { userList } = this.state;
+        const { data, user } = this.props;
+        const { userList, userRoles, usersNotInDB, selectedItem } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '0px 20px' }}>
                 <Row className="row-content">
@@ -149,19 +203,19 @@ class DatabaseDetail extends Component {
                                 <td>JDBC信息</td>
                                 <td>{data.jdbcUrl}</td>
                                 <td>创建时间</td>
-                                <td>{data.createTime}</td>
+                                <td>{utils.formatDateTime(data.gmtCreate)}</td>
                             </tr>
                             <tr>
                                 <td>用户名</td>
-                                <td>{data.username}</td>
+                                <td>{data.dbUserName}</td>
                                 <td>表数量</td>
-                                <td>{data.tableCount}</td>
+                                <td>{data.tableNum}</td>
                             </tr>
                             <tr>
                                 <td>创建者</td>
-                                <td>{data.creator}</td>
+                                <td>{data.createUserName}</td>
                                 <td>物理存储量</td>
-                                <td>{data.storeSize}</td>
+                                <td>{data.size}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -181,11 +235,11 @@ class DatabaseDetail extends Component {
                             <Search
                                 placeholder="输入用户名搜索"
                                 style={{ width: 160 }}
-                                onSearch={this.onSearch} 
+                                onSearch={(value) => this.loadDBUsers({ name: value })} 
                             />
                         }
                         extra={
-                            <Button 
+                            <Button
                                 type="primary"
                                 onClick={() => {
                                     this.setState({
@@ -205,13 +259,16 @@ class DatabaseDetail extends Component {
                         />
                     </Card>
                 </Row>
-                <AddUserModal 
-                    onSearch={this.debounceSearch}
+                <AddUserModal
+                    roles={userRoles}
+                    userList={usersNotInDB}
+                    initialData={data}
                     onSubmit={this.addUser}
+                    onSearch={this.debounceSearch}
                     onCancel={() => {this.setState({
                         visibleAddUser: false,
                     })}}
-                    visible={this.state.visibleAddUser} 
+                    visible={this.state.visibleAddUser}
                 />
                 <UpdateDBModal 
                     defaultData={data}
@@ -220,6 +277,21 @@ class DatabaseDetail extends Component {
                         visibleResetPwd: false,
                     })}}
                 />
+                <Modal
+                    visible={this.state.visibleEditRole}
+                    onOk={this.onEditUserRole}
+                    onCancel={() => {this.setState({
+                        visibleEditRole: false,
+                    })}}
+                >
+                    <EditUserRole
+                        user={selectedItem}
+                        roles={userRoles}
+                        myRoles={user.roles}
+                        loginUser={user}
+                        app={MY_APPS.ANALYTICS_ENGINE}
+                    />
+                </Modal>
             </div>
         )
     }

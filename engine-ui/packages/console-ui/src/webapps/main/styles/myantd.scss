@@ -5,6 +5,14 @@
 */
 
 .m-tabs {
+    .content-border{
+        &.ant-tabs{
+            .ant-tabs-content{
+                border-top: 1px solid #cdcdcd; 
+                margin-top: -1px; 
+            }
+        }
+    }
     .nav-border{
         &.no-bottom-border{
             &.ant-tabs{

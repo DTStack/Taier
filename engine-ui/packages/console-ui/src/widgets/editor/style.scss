@@ -35,3 +35,11 @@
 .dt-monaco-whole-line-error{
     background:rgba(255, 0, 0, 0.2);
 }
+.dt-monaco-link{
+    cursor: pointer;
+    color:#1474f1;
+    text-decoration:underline;
+}
+.dt-monaco-link:hover{
+    color:#04b4fa;
+}

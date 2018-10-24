@@ -23,9 +23,9 @@ module.exports = {
                 secure: false,
             },
             "/api/streamapp": {
-                target: "http://172.16.1.191:9021", // formal test ser
+                // target: "http://172.16.1.191:9021", // formal test ser
                 // target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.8.105:9021", // formal test ser
+                target: "http://172.16.8.105:9021", // formal test ser
                 // target: "http://172.16.8.162:9020", // tmp test server
                 // ignorePath: true,  
                 // Mock
@@ -61,8 +61,11 @@ module.exports = {
                 secure: false,
             },
             "/api/analysis": { // 分析引擎
-                target: "http://127.0.0.1:3001",//测试环境
+                // target: "http://127.0.0.1:3001",//测试环境
                 // target: "http://172.16.1.195:8084",   
+                // target: "http://172.16.8.107:8084",//测试环境
+                target: "http://172.16.10.34:8084",
+                // target: "http://172.16.0.225:8084",
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,

@@ -298,6 +298,18 @@ export default {
     getProjectUsersData(params) {
         return http.post(req.GET_PROJECT_USERS, params)
     },
+    getCheckPointList(params){
+        return http.post(req.GET_CHECKPOINT_LIST, params)
+    },
+    getCheckPointOverview(params){
+        return http.post(req.GET_CHECKPOINT_OVERVIEW, params)
+    },
+    getDelayList(params){
+        return http.post(req.GET_DATA_DELAY, params)
+    },
+    getDelayDetail(params){
+        return http.post(req.GET_DATA_DELAY_DETAIL, params)
+    },
     //================实时数据源 ===============/
     streamSaveDataSource(params) {
         return http.post(stremReq.STREAM_SAVE_DATA_SOURCE, params)

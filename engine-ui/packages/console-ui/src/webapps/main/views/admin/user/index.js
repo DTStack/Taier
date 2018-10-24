@@ -64,8 +64,10 @@ class AdminUser extends Component {
             })
         }
     }
-
-    loadData = () => {
+    /**
+     * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
+     */
+    loadData = (isGetProjectsBack) => {
         const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects } = this.state;
         const params = {
             pageSize: 10,
@@ -77,7 +79,7 @@ class AdminUser extends Component {
                 data: [],
             },
          })
-        if (!projectsExsit && hasProject(active)) {
+        if (!projectsExsit && hasProject(active)&&!isGetProjectsBack) {
             this.getProjects(active);
         } else if (!projectsExsit && !hasProject(app)) {
             this.loadUsers(active, params);
@@ -127,6 +129,7 @@ class AdminUser extends Component {
                     }
                     case MY_APPS.API:
                     case MY_APPS.LABEL:
+                    case MY_APPS.ANALYENGINE:
                     case MY_APPS.DATA_QUALITY: {
                         if (roleValue == APP_ROLE.VISITOR) {
                             isVisitor = true
@@ -188,13 +191,13 @@ class AdminUser extends Component {
                     ctx.setState({
                         streamProjects: res.data,
                         streamSelectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData)
+                    }, this.loadData.bind(true))
                 } else if (app == MY_APPS.RDOS) {
                     cookiesProject = utils.getCookie('project_id')
                     ctx.setState({
                         projects: res.data,
                         selectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData)
+                    }, this.loadData.bind(true))
                 }
             }
         })

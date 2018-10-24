@@ -360,8 +360,8 @@ export default class ImportTarget extends Component {
                                 value={formState.overwriteFlag}
                                 onChange={this.changeImportMode}
                             >
-                                <Radio value={0}>追加</Radio>
                                 <Radio value={1}>覆盖</Radio>
+                                <Radio value={0}>追加</Radio>
                             </RadioGroup>
                         </FormItem>
                     </Form>

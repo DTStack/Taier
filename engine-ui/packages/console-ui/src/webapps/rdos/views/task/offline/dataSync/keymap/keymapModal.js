@@ -268,7 +268,6 @@ class KeyMapModal extends React.Component {
         this.Form.validateFields((err, values) => {
             if (!err) {
                 setTimeout(() => {this.Form.resetFields()}, 200)
-                console.log('KeyMapModal: ', values)
                 onOk(values)
             } else (
                 onOk(null, err)

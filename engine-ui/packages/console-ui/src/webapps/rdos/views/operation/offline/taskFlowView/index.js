@@ -681,6 +681,7 @@ class TaskFlowView extends Component {
                     visible={this.state.logVisible}
                     onCancel={() => { this.setState({ logVisible: false }) }}
                     footer={null}
+                    maskClosable={false}
                 >
                     <LogInfo
                         log={taskLog.logInfo}

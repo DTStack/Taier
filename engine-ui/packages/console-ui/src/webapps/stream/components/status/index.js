@@ -28,7 +28,7 @@ export function TaskStatus(props) {
                     运行中
                 </span>
         case TASK_STATUS.FINISHED:
-            return <span color="green">
+            return <span>
                 <Circle className="status_finished" />&nbsp;
                 已完成
             </span>
@@ -38,22 +38,22 @@ export function TaskStatus(props) {
                     取消
             </span>
         case TASK_STATUS.RUN_FAILED:
-            return <span color="red">
+            return <span>
                 <Circle className="status_run_fail" />&nbsp;
                 运行失败
             </span>
         case TASK_STATUS.SUBMITTING:
-            return <span color="green">
+            return <span>
                 <Circle className="status_submitting" />&nbsp;
                 提交中
             </span>
         case TASK_STATUS.SUBMIT_FAILED:
-            return <span color="green">
+            return <span>
                 <Circle className="status_submit_failed" />&nbsp;
                 提交失败
             </span>
         case TASK_STATUS.WAIT_RUN:
-            return <span color="green" >
+            return <span>
                 <Circle className="status_wait_run" />&nbsp;
                 等待运行
         </span>
@@ -79,6 +79,32 @@ export function TaskStatus(props) {
                 等待提交
             </span>
     }
+}
+export function TaskStatusOverview(props) {
+    const {data} = props;
+    return <span>
+        <span className="status_overview_item status_overview_fail_font">
+            <Circle className="status_overview_fail" />&nbsp;
+            失败：{data.FAILED}
+        </span>
+        <span className="status_overview_item status_overview_running_font">
+            <Circle className="status_overview_running" />&nbsp;
+            运行中：{data.runnning}
+        </span>
+        <span className="status_overview_item status_overview_stoped_font">
+            <Circle className="status_overview_stoped" />&nbsp;
+            停止/取消：{data.CANCELED}
+        </span>
+        <span className="status_overview_item status_overview_submmitting_font">
+            <Circle className="status_overview_submmitting" />&nbsp;
+            提交中：{data.submitting}
+        </span>
+        <span className="status_overview_item status_overview_count_font">
+            <Circle className="status_overview_count" />&nbsp;
+            任务实例总数：{data.ALL}
+        </span>
+    </span>
+
 }
 
 // 0--->未提交

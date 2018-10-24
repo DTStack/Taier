@@ -4,14 +4,7 @@ import { Modal } from 'antd';
 import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
 import API from '../../../../api';
-import UpdateSucc from './updateSucc';
-
-// const testData = {
-//     name: 'databaseName1',
-//     jdbc: 'jdbc://kdsssssssssssssssss',
-//     username: 'admin@dtstack.com',
-//     password: 'admin123',
-// }
+import Response from './response';
 
 class CreateDatabaseModal extends Component {
 
@@ -30,7 +23,7 @@ class CreateDatabaseModal extends Component {
 
         form.validateFields( async (err, values) => {
             if (!err) {
-                const result = await API.createOrUpdateDB(values);
+                const result = await API.createDB(values);
                 if (result.code === 1) {
                     this.setState({
                         databaseData: result.data,
@@ -67,7 +60,7 @@ class CreateDatabaseModal extends Component {
             >   
                 {
                     databaseData ? 
-                    <UpdateSucc data={databaseData} message="创建成功" /> 
+                    <Response data={databaseData} message="创建成功" /> 
                     : 
                     <DBForm
                         isCreate={true}
