@@ -47,5 +47,10 @@ module.exports = {
             changeOrigin: true,
             secure: false,
         },
+        "/api/analysis": {
+            target: "http://172.16.2.157 9021",//马丁ip
+            changeOrigin: true,
+            secure: false
+        }
     }
 }
