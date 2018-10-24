@@ -486,51 +486,61 @@ class Workbench extends React.Component {
      * @memberof DataSync
      */
     generateRqtBody(data) {
-        // 深刻龙避免直接mutate store
+        // deepClone避免直接mutate store
         let clone = cloneDeep(data);
 
         const { tabs, currentTab, currentTabData } = this.props;
         const { keymap, sourceMap, targetMap } = clone;
         let { source = [], target = [] } = keymap;
+        let serverSource = [], serverTarget = [];
         /**
-         * targetMap排序
+         * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
          */
-        const { column = [] } = targetMap;
-        let indexMap = {};
-        column.map((item, index) => {
-            console.log(item, index)
-            indexMap[item.key] = index;
-        })
-        /**
-         * 保留两者的映射关系
-         */
-        let tmp_target=target.map(
-            (item,index)=>{
-                return {
-                    ...item,
-                    mapping:source[index]
-                }
+        function getKey(item) {
+            if (typeof item == "string") {
+                return item
+            } else {
+                return item.key;
             }
-        )
+        }
         /**
-         * 开始根据target的顺序排序
+         * 获取targetMap的顺序
          */
+        const { column:targetColumn = [] } = targetMap;
+        let indexMap = {};//顺序记录表
+        let tmp_target = [];//含有映射关系的target数组
+        for (let i = 0; i < target.length; i++) {
+            const targetItem=target[i];
+            const sourceItem=source[i];
+            tmp_target[i]={
+                target:targetItem,
+                source:sourceItem,
+            }
+        }
+        targetColumn.map((item, index) => {
+            indexMap[getKey(item)] = index;
+        })
+
         tmp_target.sort(
             (a, b) => {
-                return indexMap[a.key] - indexMap[b.key]
+                const index_a=indexMap[getKey(a.target)];
+                const index_b=indexMap[getKey(b.target)];
+                return index_a - index_b;
             }
         )
-        /**
-         * 还原source
-         */
-        source=tmp_target.map(
+        serverSource=tmp_target.map(
             (item)=>{
-                return item.mapping;
+                return item.source;
+            }
+        )
+        serverTarget = tmp_target.map(
+            (item)=>{
+                return item.target
             }
         )
         // 接口要求keymap中的连线映射数组放到sourceMap中
-        clone.sourceMap.column = source;
-        clone.targetMap.column = tmp_target;
+        clone.sourceMap.column = serverSource;
+        clone.targetMap.column = serverTarget;
 
         clone.settingMap = clone.setting;
         clone.name = currentTabData.name;

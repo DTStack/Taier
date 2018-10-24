@@ -25,6 +25,8 @@ class AdminRole extends Component {
         streamProjects: [],
         selectedProject: '',
         streamSelectedProject: '',
+        dataBase: [],
+        selecteDatabase: undefined,
         currentPage: 1,
         loading: 'success',
     }
@@ -41,12 +43,17 @@ class AdminRole extends Component {
         }
     }
 
+    hasDatabase(app) {
+        return app === 'analyticsEngine';
+    }
+
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject,streamSelectedProject, currentPage } = this.state
+        const { active, selectedProject,streamSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
         let haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
+        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase); 
         const params = {
             pageSize: 10,
             currentPage: currentPage,
@@ -54,13 +61,22 @@ class AdminRole extends Component {
 
         if (!haveSelected && hasProject(app)) {
             this.getProjects(app)
-        } else if (!haveSelected && !hasProject(app)) {
+        } 
+        else if (!databaseExsit && this.hasDatabase(app)) {
+            this.getDatabase(app)
+        }
+        else if (!databaseExsit && !this.hasDatabase(app)) {
+            this.loadRoles(app, params)
+        }
+        else if (!haveSelected && !hasProject(app)) {
             this.loadRoles(app, params)
         } else {
             if (MY_APPS.RDOS == active) {
                 params.projectId = selectedProject
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
+            } else if(MY_APPS.ANALYTICS_ENGINE == active) {
+                params.databaseId = selecteDatabase;
             }
             this.loadRoles(app, params)
         }
@@ -75,6 +91,21 @@ class AdminRole extends Component {
             this.setState({
                 loading: 'success'
             })
+        })
+    }
+
+    // 获取数据库
+    getDatabase = (app) => {
+        const ctx = this
+        Api.getDatabase(app).then((res) => {
+            if (res.code === 1) {
+                if (app == MY_APPS.ANALYTICS_ENGINE) {
+                    ctx.setState({
+                        dataBase: res.data,
+                        selecteDatabase: res.data[0].id
+                    }, this.loadData.bind(true))
+                }
+            }
         })
     }
 
@@ -122,6 +153,14 @@ class AdminRole extends Component {
         this.setState({
             currentPage: pagination.current,
         }, this.loadData)
+    }
+
+    // 数据库改变
+    onDatabaseSelect = (value) => {
+        this.setState({
+            selecteDatabase: value,
+            currentPage: 1
+        },this.loadData)
     }
 
     onProjectSelect = (value) => {
@@ -193,9 +232,11 @@ class AdminRole extends Component {
 
         const {
             data, loading, projects,streamProjects,
-            active, selectedProject,streamSelectedProject
+            active, selectedProject,streamSelectedProject, dataBase, selecteDatabase
         } = this.state;
         let projectsOptions=[];
+
+        let databaseOptions = [];
         let selectValue;
         let onSelectChange;
         if (active == MY_APPS.RDOS) {
@@ -206,29 +247,68 @@ class AdminRole extends Component {
             selectValue = streamSelectedProject;
             projectsOptions = streamProjects;
             onSelectChange = this.onStreamProjectSelect
+        } else if( active == MY_APPS.ANALYTICS_ENGINE) {
+            databaseOptions = dataBase;
+            onSelectChange=this.onDatabaseSelect;
         }
         const projectOpts = projectsOptions && projectsOptions.map(project =>
             <Option value={project.id} key={project.id}>
                 {project.projectAlias}
             </Option>
         )
-        const title = hasProject(active) && (
-            <span
-                style={{ marginTop: '10px' }}
-            >
-                选择项目：
-                <Select
-                    showSearch
-                    value={selectValue}
-                    style={{ width: 200 }}
-                    placeholder="按项目名称搜索"
-                    optionFilterProp="name"
-                    onSelect={onSelectChange}
-                >
-                    {projectOpts}
-                </Select>
+
+        const databaseOpts = databaseOptions && databaseOptions.map(item => 
+            <Option value={`${item.id}`} key={`${item.id}`}>
+                {item.name}
+            </Option> 
+        )
+
+        const title = (
+            <span>
+                {
+                    hasProject(active) && (
+                        <span
+                            style={{ marginTop: '10px' }}
+                        >
+                            选择项目：
+                            <Select
+                                showSearch
+                                value={selectValue}
+                                style={{ width: 200 }}
+                                placeholder="按项目名称搜索"
+                                optionFilterProp="name"
+                                onSelect={onSelectChange}
+                            >
+                                {projectOpts}
+                            </Select>
+                        </span>
+                    )
+                }
+
+                {
+                    this.hasDatabase(active) && (
+                        <span
+                            style={{ marginTop: '10px' }}
+                        >
+                            选择数据库：
+                            <Select
+                                showSearch
+                                value={selecteDatabase?`${selecteDatabase}`:selecteDatabase}
+                                style={{ width: 200, marginRight: 10 }}
+                                placeholder="按数据库名称搜索"
+                                optionFilterProp="name"
+                                onSelect={onSelectChange}
+                            >
+                                {databaseOpts}
+                            </Select>
+                        </span>
+                    )
+                }
+
             </span>
         )
+        
+        
 
         const extra = (
             <Button style={{ marginTop: '10px' }} type="primary">
