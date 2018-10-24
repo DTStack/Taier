@@ -2,16 +2,36 @@ import React, { Component } from 'react';
 import { Row, Button, Modal, message } from 'antd';
 
 import DataMapForm from './form';
-import API from '../../../../api/datamap';
+import API from '../../../../api';
 
 const confirm = Modal.confirm;
 
 class DataMap extends Component {
 
+    state = {
+        tableData: undefined,
+    }
+
+    componentDidMount() {
+        this.loadTable({
+            id: data.tableId,
+        })
+    }
+
+    loadTable = async (params) => {
+        const result = API.getTableById(params);
+        if (result.code === 1) {
+            this.setState({
+                tableData: result.data,
+            })
+        }
+    }
+
     onCreate = () => {
         const form = this.formInstance.props.form;
         form.validateFields( async (err, values) => {
             if (!err) {
+                values.configJSON = JSON.stringify(values.configJSON);
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');

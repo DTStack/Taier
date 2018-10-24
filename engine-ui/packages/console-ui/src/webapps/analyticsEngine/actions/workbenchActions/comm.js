@@ -95,10 +95,11 @@ export function onSQLQuery(params) {
                 }
             }
         }
+        const name = params ? params.name || params.tableName + ' - ' : '';
         const defaultSQLQueryTabData = {
             id: moment().valueOf(),
-            name: `Query ${sqlQueryTabIndex + 1}`,
-            sqlQueryTabIndex: sqlQueryTabIndex + 1,
+            tabName: `${name} Query ${sqlQueryTabIndex + 1}`,
+            tabIndex: sqlQueryTabIndex + 1,
             actionType: workbenchAction.OPEN_SQL_QUERY,
         }
 
@@ -110,22 +111,37 @@ export function onSQLQuery(params) {
  * 加载左侧树形目录数据
  */
 export const loadCatalogue = function(data, fileType) {
-    return async (dispatch) => {
 
+    return async (dispatch) => {
+        console.log('loadCatalogue:', data, fileType);
         let res = {};
         // 获取表下的DataMap
         if (fileType === CATALOGUE_TYPE.TABLE) {
             res = await API.getDataMapsByTable({
-                tableId: data.tableId,
+                tableId: data.id,
                 databaseId: data.databaseId,
             });
+            res.data = res.data && res.data.map(item => {
+                item.type = CATALOGUE_TYPE.DATA_MAP;
+                return item;
+            })
         // 获取数据库下的所有表
         } else if (fileType === CATALOGUE_TYPE.DATA_BASE) {
             res = await API.getTablesByDB({
-                databaseId: data.databaseId,
+                databaseId: data.id,
             });
+            res.data = res.data && res.data.map(item => {
+                item.type = CATALOGUE_TYPE.TABLE;
+                item.children = [];
+                return item;
+            })
         } else {
             res = await API.getDatabases();
+            res.data = res.data && res.data.map(item => {
+                item.type = CATALOGUE_TYPE.DATA_BASE;
+                item.children = [];
+                return item;
+            })
             // 如果为获取数据库列表，初始化data为树的根节点
             data = folderTreeRoot;
         }
