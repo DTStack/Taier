@@ -6,6 +6,41 @@ const Option = Select.Option;
 // const indexes = [];
 // const area_list = [];
 
+const field_type = [
+  {
+    name: 'SMALLINT',
+    value: 'SMALLINT',
+  },{
+    name: 'INT/INTEGER',
+    value: 'INT/INTEGER',
+  },{
+    name: 'BIGINT',
+    value: 'BIGINT',
+  },{
+    name: 'DOUBLE',
+    value: 'DOUBLE',
+  },{
+    name: 'TIMESTAMP',
+    value: 'TIMESTAMP',
+  },{
+    name: 'DATE',
+    value: 'DATE',
+  },{
+    name: 'STRING',
+    value: 'STRING',
+  },{
+    name: 'CHAR',
+    value: 'CHAR',
+  },{
+    name: 'VARCHAR',
+    value: 'VARCHAR',
+  },{
+    name: 'BOOLEAN',
+    value: 'BOOLEAN',
+  },
+]
+
+
 export default class StepThree extends Component{
   constructor(props){
     super();
@@ -42,7 +77,6 @@ export default class StepThree extends Component{
     })
     indexes[indexes.length] = {
       _fid: _fid + 1,
-      columnName: '',
       columnType: '',
       index_type: '',
       comment: ''
@@ -52,10 +86,6 @@ export default class StepThree extends Component{
     })
   }
 
-  handleNameChange = (e,record)=>{
-    record.columnName = e.target.value;
-    this.saveDataToStorage();
-  }
   handleSelectChange = (e,record)=>{
     record.columnType = e;
     this.saveDataToStorage();
@@ -127,13 +157,7 @@ export default class StepThree extends Component{
   getTableCol = ()=>{
     let tableCol = [
       {
-        title: '索引名称',
-        dataIndex: 'columnName',
-        render: (text,record)=>(
-          <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
-        )
-      },{
-        title: '字段类型',
+        title: '字段',
         dataIndex: 'columnType',
         render: (text,record)=>(
           <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
