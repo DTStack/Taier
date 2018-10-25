@@ -221,7 +221,7 @@ class DataMapForm extends Component {
 
     render() {
         const { datamapType } = this.state;
-        const { form, data, onGenerateCreateSQL, tableData } = this.props;
+        const { form, data, onGenerateCreateSQL, tableData, isCreate } = this.props;
         const { getFieldDecorator } = form;
 
         const tableColumns = tableData ? tableData.columns : [];
@@ -284,7 +284,7 @@ class DataMapForm extends Component {
                         ],
                         initialValue: (data && data.datamapType) || datamapType,
                     })(
-                        <RadioGroup onChange={this.onDataMapTypeChange}>
+                        <RadioGroup onChange={this.onDataMapTypeChange} disabled={!isCreate}>
                             <Radio value={DATAMAP_TYPE.PRE_SUM}>预聚合</Radio>
                             <Radio value={DATAMAP_TYPE.TIME_SEQUENCE} disabled={isDisable}>时间序列</Radio>
                             <Radio value={DATAMAP_TYPE.FILTER}>布隆过滤器</Radio>

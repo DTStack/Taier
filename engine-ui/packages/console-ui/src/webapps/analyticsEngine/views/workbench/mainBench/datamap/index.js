@@ -70,6 +70,7 @@ class DataMap extends Component {
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <DataMapForm 
                     data={data}
+                    isCreate={isCreate}
                     tableData={tableData}
                     onGenerateCreateSQL={onGenerateCreateSQL}
                     wrappedComponentRef={(e) => { this.formInstance = e }}
