@@ -6,6 +6,7 @@ import {
     Radio,
     Select,
     Checkbox,
+    InputNumber,
 } from "antd";
 
 import Editor from 'widgets/editor';
@@ -63,9 +64,9 @@ class DataMapForm extends Component {
         });
     }
 
-    dynamicRender = () => {
+    dynamicRender = (timestampColumns) => {
         const { datamapType } = this.state;
-        const { form, data } = this.props;
+        const { form, data, tableData } = this.props;
         const { getFieldDecorator } = form;
 
         const config = data.config ? JSON.parse(data.config) : undefined;
@@ -82,41 +83,52 @@ class DataMapForm extends Component {
             onChange={this.onQueryTextChange}
             value={config ? config.selectSql : defaultQueryText}
         />
+    
+        const tableColumns = tableData ? tableData.columns : [];
+
+        const timeColumnsOptions = tableColumns && tableColumns.map(opt => (
+            <Option key={`${opt.name}`} value={`${opt.name}`}>{opt.name}</Option>
+        ))
+
+        const timeColumnsOptionsForSeq = timestampColumns && timestampColumns.map(opt => 
+            <Option key={`${opt.name}`} value={`${opt.name}`}>{opt.name}</Option>
+        )
 
         switch(datamapType) {
             case DATAMAP_TYPE.TIME_SEQUENCE: {
+
                 return ([
                     <FormItem {...formItemLayout} label="时间字段" hasFeedback>
-                        {getFieldDecorator("configJSON.time", {
+                        {getFieldDecorator("configJSON.timeColumn", {
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.time : undefined,
+                            initialValue: config ? config.timeColumn : '',
                         })(
-                            <Select>
-                                <Option value={'0'}>单选下拉列表</Option>
+                            <Select placeholder="请选择时间字段">
+                                {timeColumnsOptionsForSeq}
                             </Select>
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="时间粒度" hasFeedback>
-                        {getFieldDecorator("configJSON.timeAccuracy", { 
+                        {getFieldDecorator("configJSON.timeType", { 
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.time : [],
+                            initialValue: config ? config.time : 1,
                         })(
                             <Checkbox.Group>
-                                <Checkbox value="year">年</Checkbox>
-                                <Checkbox value="month">月</Checkbox>
-                                <Checkbox value="day">日</Checkbox>
-                                <Checkbox value="hour">小时</Checkbox>
-                                <Checkbox value="minute">分钟</Checkbox>
+                                <Checkbox value="1">年</Checkbox>
+                                <Checkbox value="2">月</Checkbox>
+                                <Checkbox value="3">日</Checkbox>
+                                <Checkbox value="4">小时</Checkbox>
+                                <Checkbox value="5">分钟</Checkbox>
                             </Checkbox.Group>
                         )}
                     </FormItem>,
@@ -138,56 +150,47 @@ class DataMapForm extends Component {
             }
             case DATAMAP_TYPE.FILTER: {
                 return ([
-                    <FormItem {...formItemLayout} label="时间字段" hasFeedback>
-                        {getFieldDecorator("configJSON.time", {
+                    <FormItem key="timeColumn" {...formItemLayout} label="时间字段" hasFeedback>
+                        {getFieldDecorator("configJSON.timeColumn", {
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.time : undefined,
+                            initialValue: config ? config.timeColumn : tableColumns.length > 0 ? tableColumns[0].name : '',
                         })(
-                            <Select>
-                                <Option value="0">单选下拉列表</Option>
+                            <Select placeholder="请选择时间字段"> 
+                                {timeColumnsOptions} 
                             </Select>
                         )}
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="Bloom Size" hasFeedback>
+                    <FormItem key="bloomSize" {...formItemLayout} label="Bloom Size" hasFeedback>
                         {getFieldDecorator("configJSON.bloomSize", {
-                            rules: [{
-                                min: 32000,
-                                message: 'BloomSize应该是 32000 * #noOfPagesInBlocklet, 且必须填写整数'
-                            }],
-                            initialValue: config ? config.bloomSize : undefined,
+                            rules: [],
+                            initialValue: config ? config.bloomSize : 32000,
                         })(
-                            <Input />
+                            <InputNumber min={32000} style={{width: '100%'}}/>
                         )}
                         <HelpDoc doc="bloomSizeSummary" />
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="Bloom FPP" hasFeedback>
-                        {getFieldDecorator("configJSON.bloomFPP", {
-                            rules: [
-                                {
-                                    min: 0,
-                                    max: 100,
-                                    message: 'bloomFPP值的范围应该在 (0, 100) 之间的整数'
-                                }
-                            ],
-                            initialValue: config ? config.bloomFPP : undefined,
+                    <FormItem key="bloomFPP" {...formItemLayout} label="Bloom FPP" hasFeedback>
+                        {getFieldDecorator("configJSON.bloomFP", {
+                            rules: [],
+                            initialValue: config ? config.bloomFP : 1,
                         })(
-                            <Input />
+                            <InputNumber min={0} max={100} style={{width: '100%'}}/>
                         )}
                         <HelpDoc doc="bloomFPPSummary" />
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="是否压缩索引文件">
-                        {getFieldDecorator("configJSON.isCompressIndex", {
+                    <FormItem key="bloomConpress" {...formItemLayout} label="是否压缩索引文件">
+                        {getFieldDecorator("configJSON.bloomConpress", {
                             rules: [],
-                            initialValue: config ? config.isCompressIndex : 1,
+                            initialValue: config ? config.bloomConpress : true,
                         })(
                             <RadioGroup>
-                                <Radio value={1}>是</Radio>
-                                <Radio value={0}>否</Radio>
+                                <Radio value={true}>是</Radio>
+                                <Radio value={false}>否</Radio>
                             </RadioGroup>
                         )}
                         <HelpDoc style={relativeStyle} doc="isCompressIndex" />
@@ -218,28 +221,34 @@ class DataMapForm extends Component {
 
     render() {
         const { datamapType } = this.state;
-        const { form, data, onGenerateCreateSQL } = this.props;
+        const { form, data, onGenerateCreateSQL, tableData } = this.props;
         const { getFieldDecorator } = form;
+
+        const tableColumns = tableData ? tableData.columns : [];
+        const timestampColumns = tableColumns.filter(item => item.timestamp);
+        const isDisable = timestampColumns && timestampColumns.length > 0 
+        ? false : true;
+
         return (
             <Form>
                 <FormItem style={{ margin: 0 }}>
                     {getFieldDecorator("databaseId", {
-                        initialValue: data ? data.databaseId : undefined
+                        initialValue: tableData ? tableData.databaseId : undefined
                     })(
                         <Input type="hidden" />
                     )}
                 </FormItem>
-                <FormItem {...formItemLayout} label="主表" hasFeedback>
+                <FormItem {...formItemLayout} label="主表">
                     {getFieldDecorator("tableId", {
                         rules: [],
-                        initialValue: data ? data.tableId : undefined
+                        initialValue: tableData ? tableData.id : undefined
                     })(
                         <Input type="hidden" />
                     )}
                     <span>
-                        <span style={{ marginRight: 10 }}>{data ? data.tableName : ""}</span>
+                        <span style={{ marginRight: 10 }}>{tableData ? tableData.tableName : ""}</span>
                         <a onClick={() => {
-                            onGenerateCreateSQL(data ? data.tableId : null)
+                            onGenerateCreateSQL(tableData ? tableData.id : null)
                         }}>生成建表语句</a>
                     </span>
                 </FormItem>
@@ -262,7 +271,7 @@ class DataMapForm extends Component {
                         ],
                         initialValue: data ? data.name : ""
                     })(
-                        <Input autoComplete="off" placeholder="DataMap名称只能由字母与数字、下划线组成"/>
+                        <Input autoComplete="off" placeholder="请输入DataMap名称"/>
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap类型">
@@ -277,13 +286,13 @@ class DataMapForm extends Component {
                     })(
                         <RadioGroup onChange={this.onDataMapTypeChange}>
                             <Radio value={DATAMAP_TYPE.PRE_SUM}>预聚合</Radio>
-                            <Radio value={DATAMAP_TYPE.TIME_SEQUENCE}>时间序列</Radio>
+                            <Radio value={DATAMAP_TYPE.TIME_SEQUENCE} disabled={isDisable}>时间序列</Radio>
                             <Radio value={DATAMAP_TYPE.FILTER}>布隆过滤器</Radio>
                         </RadioGroup>
                     )}
                     <HelpDoc style={relativeStyle} doc="dataMapTypeSummary" />
                 </FormItem>
-                {this.dynamicRender()}
+                {this.dynamicRender(timestampColumns)}
             </Form>
         );
     }

@@ -140,7 +140,7 @@ export const loadCatalogue = function(data, fileType) {
             }
             case CATALOGUE_TYPE.SEARCH_TABLE: { // 搜索表
                 res = await API.searchTable({
-                    tableName: data.tableName,
+                    name: data.tableName,
                 });
                 res.data = res.data && res.data.map(item => {
                     item.type = CATALOGUE_TYPE.TABLE;

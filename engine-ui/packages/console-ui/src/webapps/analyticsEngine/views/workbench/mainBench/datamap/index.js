@@ -13,13 +13,15 @@ class DataMap extends Component {
     }
 
     componentDidMount() {
+        const data = this.props.data;
         this.loadTable({
-            id: this.props.data.tableId,
+            id: data.tableId,
+            databaseId: data.databaseId,
         })
     }
 
     loadTable = async (params) => {
-        const result = API.getTableById(params);
+        const result = await API.getTableById(params);
         if (result.code === 1) {
             this.setState({
                 tableData: result.data,
@@ -32,6 +34,7 @@ class DataMap extends Component {
         form.validateFields( async (err, values) => {
             if (!err) {
                 values.configJSON = JSON.stringify(values.configJSON);
+                values.datamapType = undefined;
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
@@ -61,12 +64,14 @@ class DataMap extends Component {
     }
 
     render () {
-        const { isCreate } = this.props;
-      
+        const { isCreate, data, onGenerateCreateSQL } = this.props;
+        const { tableData } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <DataMapForm 
-                    {...this.props} 
+                    data={data}
+                    tableData={tableData}
+                    onGenerateCreateSQL={onGenerateCreateSQL}
                     wrappedComponentRef={(e) => { this.formInstance = e }}
                 />
                 <Row style={{paddingLeft: 130}}>
