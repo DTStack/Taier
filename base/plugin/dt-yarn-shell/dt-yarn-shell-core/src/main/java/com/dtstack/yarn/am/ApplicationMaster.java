@@ -189,8 +189,8 @@ public class ApplicationMaster extends CompositeService {
             LOG.info("Launching worker container " + container.getId()
                     + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
             launchContainer(containerLocalResource, workerContainerEnv,
-                    workerContainerLaunchCommands, container, i++);
-            containerListener.registerContainer(true, i, new DtContainerId(container.getId()), container.getNodeId().getHost());
+                    workerContainerLaunchCommands, container, i);
+            containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId().getHost());
         }
 
         while(!containerListener.isFinished()) {
@@ -214,12 +214,11 @@ public class ApplicationMaster extends CompositeService {
 
             acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
 
-            int j = 0;
             for (ContainerEntity containerEntity : entities) {
                 Container container = acquiredWorkerContainers.remove(0);
                 launchContainer(containerLocalResource, workerContainerEnv,
-                        workerContainerLaunchCommands, container, entities.get(i).getLane());
-                containerListener.registerContainer(false, entities.get(i).getLane(), new DtContainerId(container.getId()), container.getNodeId().getHost());
+                        workerContainerLaunchCommands, container, containerEntity.getLane());
+                containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId().getHost());
             }
         }
 
