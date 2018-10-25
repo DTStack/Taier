@@ -8,13 +8,13 @@ const TreeNode = Tree.TreeNode;
 const getItemClassName = function(type) {
     switch(type) {
         case CATALOGUE_TYPE.DATA_BASE:
-            return 's-database';
+            return 's-database anchor-database';
         case CATALOGUE_TYPE.DATA_MAP:
-            return 's-datamap';
+            return 's-datamap anchor-datamap';
         case CATALOGUE_TYPE.TABLE:
-            return 's-table';
+            return 's-table anchor-table';
         case CATALOGUE_TYPE.FOLDER:
-        default: return 's-tree-item';
+        default: return 's-tree-item anchor-tree-item';
     }
 }
 
@@ -38,8 +38,16 @@ class FolderTree extends React.PureComponent {
     }
 
     renderNodeHoverButton = (item) => {
-        const { onGetTable, onGetDataMap, onSQLQuery } = this.props;
+        const { onGetTable, onGetDataMap, onSQLQuery, onGetDB } = this.props;
         switch(item.type) {
+            case CATALOGUE_TYPE.DATA_BASE:
+            return (
+                <span className="tree-node-hover-items">
+                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
+                        onClick={() => onGetDB({ databaseId: item.id }) }
+                    />
+                </span>
+            )
             case CATALOGUE_TYPE.DATA_MAP:
                 return (
                     <span className="tree-node-hover-items">
@@ -74,14 +82,13 @@ class FolderTree extends React.PureComponent {
                 const id = `${item.id || item.tableId}`
                 const name = item.name || item.tableName
                 const isLeaf = !item.children;
-    
-                const itemAnchorName = getContextMenuAnchorName(item.type);
+                // 用作展示上下文的锚点， 暂时取消
+                // const itemAnchorName = getContextMenuAnchorName(item.type);
                 const className = getItemClassName(item.type);
 
                 const nodeTitle = (
                     <Tooltip placement="bottomLeft" mouseEnterDelay={0.5}>
                         <span
-                            className={itemAnchorName}
                             title={name}
                             style={{padding:"8px 0px"}}
                         >
@@ -98,6 +105,7 @@ class FolderTree extends React.PureComponent {
                         value={id}
                         isLeaf={isLeaf}
                         data={item}
+                        fileType={item.type}
                         className={className}
                     >
                         {item.children && loop(item.children)}
@@ -116,6 +124,7 @@ class FolderTree extends React.PureComponent {
                 <Tree
                     showIcon={true}
                     autoExpandParent={false}
+                    expandedKeys={this.props.expandedKeys}
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}

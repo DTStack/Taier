@@ -15,9 +15,9 @@ module.exports = {
     "location": {
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
-        "/api/analysis/getCatalogue": `${base}/catalogue/get_catalogues.json`, 
-        "/api/analysis/createOrUpdateDB": `${base}/is_ok.json`, 
-        "/api/analysis/createSql": `${base}/table/createSQL.json`,
+        // "/api/analysis/getCatalogue": `${base}/catalogue/get_catalogues.json`, 
+        // "/api/analysis/createOrUpdateDB": `${base}/is_ok.json`, 
+        // "/api/analysis/createSql": `${base}/table/createSQL.json`,
         // "/api/rdos/batch/batchJobJob/displayOffSpring": `${base}/task/get_task_instances.json`, 
     },
     "proxyTable": {
@@ -47,10 +47,10 @@ module.exports = {
             changeOrigin: true,
             secure: false,
         },
-        "/api/analysis": {
-            target: "http://172.16.2.157 9021",//马丁ip
+        "/api/analysis": { // 数据标签
+            target: "http://172.16.2.157:9021",//测试环境
             changeOrigin: true,
-            secure: false
-        }
+            secure: false,
+        },
     }
 }

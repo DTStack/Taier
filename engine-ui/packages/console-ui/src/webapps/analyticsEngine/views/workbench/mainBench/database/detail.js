@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import { 
     Row, Table, Card, Input, Modal,
-    Button, Dropdown, Menu, Icon
+    Button, Dropdown, Menu, Icon, message,
 } from 'antd';
+
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 import utils from 'utils';
 import { MY_APPS, } from 'main/consts'
@@ -167,6 +169,10 @@ class DatabaseDetail extends Component {
         }]
     }
 
+    copyOk = () => {
+        message.success('复制成功！');
+    }
+
     renderDropMenu = () => {
         return (
             <Dropdown overlay={
@@ -201,13 +207,25 @@ class DatabaseDetail extends Component {
                         <tbody>
                             <tr>
                                 <td>JDBC信息</td>
-                                <td>{data.jdbcUrl}</td>
+                                <td>
+                                    {data.jdbcUrl}&nbsp;
+                                    <CopyToClipboard key="copy" text={data.jdbcUrl}
+                                        onCopy={this.copyOk}>
+                                        <a>复制</a>
+                                    </CopyToClipboard>
+                                </td>
                                 <td>创建时间</td>
                                 <td>{utils.formatDateTime(data.gmtCreate)}</td>
                             </tr>
                             <tr>
                                 <td>用户名</td>
-                                <td>{data.dbUserName}</td>
+                                <td>
+                                    {data.dbUserName}&nbsp;
+                                    <CopyToClipboard key="copy" text={data.dbUserName}
+                                            onCopy={this.copyOk}>
+                                            <a>复制</a>
+                                        </CopyToClipboard>
+                                    </td>
                                 <td>表数量</td>
                                 <td>{data.tableNum}</td>
                             </tr>

@@ -22,6 +22,7 @@ export default {
     GET_TABLE_DETAIL: `${ANALYTICS_ENGINE_BASE_URL}/getTableDetail`,//获取表详情
     SAVE_TABLE_INFO: `${ANALYTICS_ENGINE_BASE_URL}/motifyTable`,//存储表详情
     GET_TABLE_BY_DB: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getTablesByDatabaseId`, //创建表
+    GET_TABLE_LIST_BY_DB: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getTablesByDatabaseId`, //创建表
     GET_CREATE_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createSql`, // 获取创建语句
 
     // ================== DataMap ================== //

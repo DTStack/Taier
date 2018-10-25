@@ -5,30 +5,7 @@ import workbenchAction from '../../../consts/workbenchActionType';
 const workbenchStoreKey = 'engine_workbench';
 // 默认Tab栏数据
 const defaultTabBarData = {
-
-    tabs: [
-        {
-            id: 1,
-            name: 'testData',
-            actionType: 'workbench/OPEN_DATABASE',
-        },{
-            id: 2,
-            name: 'testData1',
-            actionType: 'workbench/CREATE_TABLE',
-        }, {
-            id: 3,
-            name: 'testData2',
-            table: {
-                id: 1,
-                name: 'testTable'
-            },
-            actionType: 'workbench/CREATE_DATA_MAP',
-        },{
-            id: 4,
-            name: 'testData4',
-            actionType: 'workbench/OPEN_TABLE_EDITOR',
-        }
-    ],
+    tabs: [],
     currentTab: 1,
     currentStep: 0,
     newanalyEngineTableDataList: {},//新建的多个表数据
@@ -55,7 +32,11 @@ export default function mainBench(state = getInitialCachedData(), action) {
         case workbenchAction.OPEN_TAB: {
             if (payload) {
                 const tabs = [...state.tabs];
-                tabs.push(payload);
+                const isExist = tabs.find(item => item.id === payload.id);
+                if (!isExist) {
+                    tabs.push(payload);
+                }
+                // TODO 若tabs已存在新传入的payload, 则tabs拷贝多余
                 const newStore = assign({}, state, {
                     currentTab: payload.id,
                     tabs,

@@ -4,7 +4,7 @@ import req from '../consts/reqUrls'
 export default {
 
     getDataMapsByTable(params) {
-        return http.post(req.GET_DB_LIST, params);
+        return http.post(req.GET_DATAMAP_BY_TABLE, params);
     },
 
     getDataMapDetail(params) {

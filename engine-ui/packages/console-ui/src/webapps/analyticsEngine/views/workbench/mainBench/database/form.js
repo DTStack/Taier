@@ -22,7 +22,7 @@ class DatabaseForm extends Component {
 
     checkPassword = (rule, value, callback) => {
         const form = this.props.form;
-        if (value && value !== form.getFieldValue("password")) {
+        if (value && value !== form.getFieldValue("dbPwd")) {
             callback("两次输入的密码不一致!");
         } else {
             callback();
