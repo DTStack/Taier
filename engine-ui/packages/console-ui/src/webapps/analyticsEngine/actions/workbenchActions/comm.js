@@ -90,8 +90,8 @@ export function onSQLQuery(params) {
         let sqlQueryTabIndex = 0;
         for (let i = 0; i < tabs.length; i++) {
             if (tabs[i].actionType === workbenchAction.OPEN_SQL_QUERY) {
-                if (tabs[i].sqlQueryTabIndex > sqlQueryTabIndex) {
-                    sqlQueryTabIndex = tabs[i].sqlQueryTabIndex;
+                if (tabs[i].tabIndex > sqlQueryTabIndex) {
+                    sqlQueryTabIndex = tabs[i].tabIndex;
                 }
             }
         }

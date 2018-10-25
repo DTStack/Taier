@@ -3,7 +3,7 @@ import { notification, message } from 'antd';
 import API from '../../api/database';
 import workbenchAction from '../../consts/workbenchActionType';
 
-import { updateModal, closeTab, openTab } from './comm';
+import { updateModal, closeTab, openTab, loadCatalogue } from './comm';
 
 /**
  * 打开数据库
@@ -14,7 +14,8 @@ export const onGetDB = function(params) {
         if (res.code === 1) {
             const database = res.data;
             // 添加Action标记
-            database.actionType = workbenchAction.OPEN_DATABASE,
+            database.actionType = workbenchAction.OPEN_DATABASE;
+            database.tabName = `详情${database.name}`;
             dispatch(openTab(database));
         } else {
             notification.error({
@@ -47,6 +48,7 @@ export function onRemoveDB(params) {
         if (res.code === 1) {
             message.success('删除数据库成功！');
             dispatch(closeTab(params.id));
+            dispatch(loadCatalogue());
         }
     }
 }

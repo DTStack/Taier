@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, Icon, Row } from 'antd';
 
-import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
 import API from '../../../../api';
 import Response from './response';
@@ -21,9 +20,14 @@ class UpdateDatabaseModal extends Component {
         }
 
         const form = this.dbForm.props.form;
+        const { defaultData } = this.props;
         form.validateFields( async (err, values) => {
             if (!err) {
-                const result = await API.resetDBPassword(values);
+                const result = await API.resetDBPassword({
+                    databaseId: defaultData.id,
+                    oldPwd: defaultData.dbPwd,
+                    newPwd: values.dbPwd,
+                });
                 if (result.code === 1) {
                     this.setState({
                         databaseData: result.data,

@@ -59,7 +59,7 @@ class DataMapForm extends Component {
 
     onQueryTextChange = (value) => {
         this.props.form.setFieldsValue({
-            'configJSON.query': value,
+            'configJSON.selectSql': value,
         });
     }
 
@@ -121,14 +121,14 @@ class DataMapForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="主表查询">
-                        {getFieldDecorator("configJSON.query", {
+                        {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
                                     required: true,
                                     message: "主表查询不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.query : undefined,
+                            initialValue: config ? config.selectSql : undefined,
                         })(
                             <Input type="hidden" />
                         )}
@@ -198,14 +198,14 @@ class DataMapForm extends Component {
             default: {
                 return (
                     <FormItem {...formItemLayout} label="主表查询">
-                        {getFieldDecorator("configJSON.query", {
+                        {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
                                     required: true,
                                     message: "主表查询不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.query : undefined,
+                            initialValue: config ? config.selectSql : undefined,
                         })(
                             <Input type="hidden" />
                         )}
@@ -222,7 +222,7 @@ class DataMapForm extends Component {
         const { getFieldDecorator } = form;
         return (
             <Form>
-                <FormItem>
+                <FormItem style={{ margin: 0 }}>
                     {getFieldDecorator("databaseId", {
                         initialValue: data ? data.databaseId : undefined
                     })(
