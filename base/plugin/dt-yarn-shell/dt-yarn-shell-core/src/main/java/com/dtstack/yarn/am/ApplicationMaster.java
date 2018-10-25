@@ -17,6 +17,7 @@ import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
@@ -194,6 +195,10 @@ public class ApplicationMaster extends CompositeService {
             }
 
             for(int i = 0; i < entities.size(); ++i) {
+                ContainerEntity containerEntity = entities.get(i);
+                ContainerId containerId = containerEntity.getContainerId().getContainerId();
+                LOG.info("Canceling container: " + containerId.toString());
+                amrmAsync.releaseAssignedContainer(containerId);
                 amrmAsync.addContainerRequest(workerContainerRequest);
             }
 
@@ -203,7 +208,6 @@ public class ApplicationMaster extends CompositeService {
                         workerContainerLaunchCommands, container, entities.get(i).getLane());
                 containerListener.registerContainer(false, entities.get(i).getLane(), new DtContainerId(container.getId()), container.getNodeHttpAddress());
             }
-
         }
 
         if(containerListener.isFailed()) {
