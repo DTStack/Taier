@@ -71,10 +71,10 @@ class DataDelay extends React.Component {
             (res) => {
                 if (res.code == 1) {
                     this.setState({
-                        delayList: res.data.data,
+                        delayList: res.data,
                         pagination:{
                             ...pagination,
-                            total:res.data.totalCount
+                            total:res.data.length
                         }
                     })
                 }
@@ -116,15 +116,15 @@ class DataDelay extends React.Component {
             detailVisible:false
         })
     }
-    onTableChange(page, filters,sorter){
-        const {pagination} =this.state;
+    onTableChange(page, filters,tableSorter){
+        const {pagination,sorter} =this.state;
         this.setState({
             pagination: {
                 ...pagination,
                 current: page.current
             },
-            sorter:sorter
-        },this.getDelayList.bind(this))
+            sorter:tableSorter
+        })
     }
     render() {
         const { pagination, loading, delayList, detailVisible,detailRecord } = this.state;

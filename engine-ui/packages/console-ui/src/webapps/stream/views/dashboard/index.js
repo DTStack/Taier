@@ -7,10 +7,11 @@ import moment from 'moment'
 import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from "antd"
 
 import ProjectForm from '../project/form'
+import { Circle } from "widgets/circle"
 import Api from '../../api'
 import * as ProjectAction from "../../store/modules/project";
 import NoData from '../../components/no-data';
-import {PROJECT_STATUS} from "../../comm/const";
+import { PROJECT_STATUS } from "../../comm/const";
 
 const Search = Input.Search;
 
@@ -133,8 +134,8 @@ class Index extends Component {
     }
 
     generalTitle = (data) => {
-        const deleteImg = <img className="tooltip-img" src="/public/rdos/img/delete.svg" />;
-        const setTopImg = <img className="tooltip-img setTopImg" src="/public/rdos/img/cancel-top.svg" />;
+        const deleteImg = <img className="tooltip-img" src="/public/stream/img/delete.svg" />;
+        const setTopImg = <img className="tooltip-img setTopImg" src="/public/stream/img/cancel-top.svg" />;
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
@@ -230,11 +231,19 @@ class Index extends Component {
     }
 
     handleMouseOver = (type, e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime3.svg"
+        if(type=="operation"){
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation2.svg"
+        }else{
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime2.svg"
+        }
     }
 
     handleMouseOut = (type, e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/realtime2.svg"
+        if(type=="operation"){
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation.svg"
+        }else{
+            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime.svg"
+        }
     }
 
 
@@ -243,64 +252,69 @@ class Index extends Component {
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
-                    <Row gutter={10}>
-                        <Col span="10" >
+                    <div className="project-header" >
+                        <div className="project-search-box">
                             <div className="project-search" >
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
                             <Button
-                                style={{ float: "left", margin: "10 0 0 15" }}
                                 type="primary"
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
                             </Button>
-                        </Col>
-                        <Col span="14" >
-                            <div className="sortTitle">
-                                <span className="faileSort" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
-                                <span className="faileSort">|</span>
-                                <span className="defaultSort" style={sortTitleStatus == 1 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row gutter={10}>
+                        </div>
+                        <div className="sortTitle">
+                            <span className="sort-item" style={sortTitleStatus == 1 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
+                            <span className="sort-item">|</span>
+                            <span className="sort-item" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
+
+                        </div>
+                    </div>
+                    <Row >
                         <Col span="24" >
-                            <Row gutter={10} style={{ margin: 0 }}>
+                            <Row>
                                 {
                                     projectListInfo && projectListInfo.length === 0 && !loading ? <NoData /> : ''
                                 }
                                 {
                                     projectListInfo && projectListInfo.map(v => {
+                                        const {taskCountMap} = v;
                                         return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
-                                                    <Col span="16">
-                                                        <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
-                                                        <div className="statistics" >表数量： <span className="statistics-info">{v.tableCount}</span></div>
-                                                        <div className="statistics" >项目占用存储： <span className="statistics-info">{v.totalSize}</span></div>
-                                                        <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
+                                                    <Col span="17">
+                                                        <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${taskCountMap.submitCount} / ${taskCountMap.allCount}`}</span></div>
+                                                        <div className="statistics" >项目创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
+                                                        <div className="statistics" >
+                                                            <Circle style={{ background: "#00A755", marginRight: "5px" }} />运行中任务：
+                                                            <span className="statistics-info">{taskCountMap.runningCount}</span>
+                                                        </div>
+                                                        <div className="statistics" >
+                                                            <Circle style={{ background: "#F5A623", marginRight: "5px" }} />停止/取消：
+                                                            <span className="statistics-info">{taskCountMap.cancelCount}</span>
+                                                        </div>
                                                     </Col>
-                                                    <Col span="8">
-                                                        <div style={{ fontSize: 14 }}>今日任务失败数</div>
+                                                    <Col span="7">
+                                                        <div style={{ fontSize: 12, lineHeight: "26px" }}>任务失败数</div>
                                                         {v.status != PROJECT_STATUS.NORMAL ? (
                                                             <div className="number no-hover">
                                                                 {
-                                                                    v.jobSum ? <span>{v.jobSum}</span> :
-                                                                        <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
+                                                                    taskCountMap.failCount ? <span>{taskCountMap.failCount}</span> :
+                                                                        <span style={{ color: "#999" }}>{taskCountMap.failCount || 0}</span>
                                                                 }
                                                             </div>
                                                         ) : (
                                                                 <div className="number" onClick={() => { this.setRouter('operation', v) }}>
                                                                     {
-                                                                        v.jobSum ? <span>{v.jobSum}</span> :
-                                                                            <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
+                                                                        taskCountMap.failCount ? <span>{taskCountMap.failCount}</span> :
+                                                                            <span style={{ color: "#999" }}>{taskCountMap.failCount || 0}</span>
                                                                     }
                                                                 </div>
                                                             )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {
-                                                            v.status != PROJECT_STATUS.NORMAL ? "" : <Row >
+                                                            v.status != PROJECT_STATUS.NORMAL ? "" : <Row gutter={10} >
                                                                 <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('realtime', v) }}
@@ -309,7 +323,7 @@ class Index extends Component {
                                                                         noHovering
                                                                     >
                                                                         <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/realtime2.svg" />
+                                                                            <img className="task-img" src="/public/stream/img/icon/realtime.svg" />
                                                                         </span>
                                                                         数据开发
                                                                             </Card>
@@ -317,8 +331,13 @@ class Index extends Component {
                                                                 <Col span="12">
                                                                     <Card className="card-task" style={{ padding: "1.5 0" }}
                                                                         onClick={() => { this.setRouter('operation', v) }}
+                                                                        onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
+                                                                        onMouseOut={(e) => { this.handleMouseOut('operation', e) }}
                                                                         noHovering
                                                                     >
+                                                                        <span className="img-container">
+                                                                            <img className="task-img" src="/public/stream/img/icon/operation.svg" />
+                                                                        </span>
                                                                         运维中心
                                                                             </Card>
                                                                 </Col>

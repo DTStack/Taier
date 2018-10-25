@@ -98,12 +98,16 @@ class DelayDetailModal extends React.Component {
             title: '延迟消息数（条）',
             dataIndex: 'delayCount',
             width: 130,
-            sorter: true,
+            sorter: (a,b)=>{
+                return a-b
+            },
         }, {
             title: '总消息数',
             dataIndex: 'totalDelayCount',
             width: 110,
-            sorter: true,
+            sorter: (a,b)=>{
+                return a-b
+            },
         }, {
             title: '当前消费位置',
             dataIndex: 'currentLocation',
@@ -142,7 +146,7 @@ class DelayDetailModal extends React.Component {
             },
             sorter: sorter,
             expandedRowKeys:[]
-        }, this.getDelayList.bind(this))
+        })
     }
     expandedRowRender(record) {
         const { taskId } = this.props;

@@ -17,7 +17,7 @@ class Default extends Component {
     render() {
         const { dispatch, editor } = this.props;
         const themeDark = editor.options.theme !== "vs" ? true : undefined;
-        const iconBaseUrl = themeDark ? '/public/rdos/img/theme-dark' : '/public/rdos/img';
+        const iconBaseUrl = themeDark ? '/public/stream/img/theme-dark' : '/public/rdos/img';
 
         return (
             <Row className="box-card txt-left" style={{ paddingTop: '30px' }}>

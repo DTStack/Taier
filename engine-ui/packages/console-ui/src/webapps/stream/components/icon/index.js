@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import './style.scss'
 
-const imgBase = 'public/rdos/img/icon';
-const imgDarkBase = 'public/rdos/img/theme-dark'
+const imgBase = 'public/stream/img/icon';
+const imgDarkBase = 'public/stream/img/theme-dark'
 
 
 export default class Icon extends Component {
