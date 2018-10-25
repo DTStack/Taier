@@ -99,9 +99,7 @@ public class Client {
         conf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         conf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
 
-//        if (clientArguments.queue != null && !clientArguments.queue.equals("")) {
-//            conf.set(DtYarnConfiguration.DT_APP_QUEUE, clientArguments.queue);
-//        }
+        conf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
         if (clientArguments.confs != null) {
             setConf();
@@ -251,7 +249,7 @@ public class Client {
         applicationContext.setResource(capability);
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
                 localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
-//
+
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);

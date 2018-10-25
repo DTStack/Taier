@@ -59,6 +59,7 @@ public class ClientArguments {
     String inputs;
     String cacheFiles;
     String uploadFiles;
+    Boolean exclusive;
 
 
 
@@ -310,6 +311,14 @@ public class ClientArguments {
         this.uploadFiles = uploadFiles;
     }
 
+    public Boolean getExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(Boolean exclusive) {
+        this.exclusive = exclusive;
+    }
+
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
         this.init();
         this.cliParser(args);
@@ -336,6 +345,7 @@ public class ClientArguments {
         priority = DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
         queue = "default";
         userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
+        exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
 
 
         allOptions = new Options();
@@ -407,6 +417,8 @@ public class ClientArguments {
         allOptions.addOption("pythonVersion", "python-version", true, "python version");
 
         allOptions.addOption("remoteDfsConfig", "remote-dfs-config", true, "hdfs config for files waiting for uploading");
+
+        allOptions.addOption("exclusive", "exclusive", true, "app nodemanager exclusive");
 
 
         OptionBuilder.withArgName("property=value");
@@ -576,6 +588,11 @@ public class ClientArguments {
 
         if (commandLine.hasOption("uploadFile")) {
             uploadFiles = commandLine.getOptionValue("uploadFile");
+        }
+
+        if (commandLine.hasOption("exclusive")) {
+            String exclusiveStr = commandLine.getOptionValue("exclusive");
+            exclusive = Boolean.parseBoolean(exclusiveStr);
         }
 
         LOG.info("Application Master's jar is " + appMasterJar);
