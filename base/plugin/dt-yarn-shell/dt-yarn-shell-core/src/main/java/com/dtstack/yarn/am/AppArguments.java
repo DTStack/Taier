@@ -58,6 +58,8 @@ public class AppArguments {
 
     String cmd;
 
+    Boolean exclusive;
+
     /** output locations */
     final List<LocalRemotePath> outputInfos = new ArrayList<>();
 
@@ -92,6 +94,7 @@ public class AppArguments {
         workerVCores = conf.getInt(DtYarnConfiguration.LEARNING_WORKER_VCORES, DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES);
         workerNum = conf.getInt(DtYarnConfiguration.DT_WORKER_NUM, DtYarnConfiguration.DEFAULT_DT_WORKER_NUM);
         appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY);
+        exclusive = conf.getBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE);
 
         assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
         appJarRemoteLocation = new Path(envs.get(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));

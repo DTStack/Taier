@@ -116,7 +116,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS = 3 * 1000;
 
-    //am在向rm申请资源时，在同一个nm上不能申请2次以上。app独占nm
+    /**
+     * am在向rm申请资源时，在同一个nm上不能申请2次以上; app独占nm
+     */
     public static final String APP_NODEMANAGER_EXCLUSIVE = "exclusive";
 
     public static final boolean DEFAULT_APP_NODEMANAGER_EXCLUSIVE = false;
