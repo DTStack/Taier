@@ -8,6 +8,27 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const Panel = Collapse.Panel;
 
+
+const options = [{
+  name:'3天',
+  value: 3
+}, {
+  name: '7天',
+  value: 7
+}, {
+  name: '30天',
+  value: 30
+}, {
+  name: '90天',
+  value: 90
+}, {
+  name: '365天',
+  value: 365
+},{
+  name: '自定义',
+  value: -1,
+}]
+
 export default class StepOne extends Component{
   constructor(){
     super();
@@ -50,7 +71,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '数据库不可为空'},
                 ],
-                initialValue: formData.database || undefined
+                initialValue: formData.databaseId || undefined
               })(
                   <Select>
                   <Option value="ss">ss</Option>
@@ -72,7 +93,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message:'表明不可为空'}
                 ],
-                initialValue: formData.table_name || undefined
+                initialValue: formData.tableName || undefined
               })(
                 <Input placeholder="请输入表名"/>
               )
@@ -107,13 +128,37 @@ export default class StepOne extends Component{
           </FormItem>
           <FormItem
           {...formItemLayout}
+          label="生命周期">
+              <span >
+                {
+                  getFieldDecorator('lifeCycle',{
+                    rules: [
+                      {required: true, message: '生命周期不能为空'}
+                    ],
+                    initialValue: tableDetail.life_cycle || undefined
+                  })(
+                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().life_cycle === '-1'?78:430,height: 36}}>
+                    {options.map(o=>(
+                      <Option key={o.value}>{o.name}</Option>
+                    ))}
+                    </Select>
+                  )
+                }
+                {
+                getFieldsValue().life_cycle === '-1' &&
+                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
+                }
+              </span>
+          </FormItem>
+          <FormItem
+          {...formItemLayout}
           label="Sort Scope">
             {
               getFieldDecorator('sortScope',{
                 rules: [
                   {required: true, message: 'Sort Scope不可为空'}
                 ],
-                initialValue: formData.sort_scope || undefined
+                initialValue: formData.sortScope || undefined
               })(
                 <Select>
                   <Option value="ss">ss</Option>
@@ -134,7 +179,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Block不可为空'}
                 ],
-                initialValue: formData.block_size || undefined
+                initialValue: formData.blockSize || undefined
               })(
                 <Input/>
               )
@@ -147,7 +192,7 @@ export default class StepOne extends Component{
               label="MAJOR_COMPACTION_SIZE">
               {
                 getFieldDecorator('compactionSize',{
-                  initialValue: formData.MAJOR_COMPACTION_SIZE || undefined
+                  initialValue: formData.compactionSize || undefined
                 })(
                   <Input/>
                 )
@@ -158,7 +203,7 @@ export default class StepOne extends Component{
               label="AUTO_LOAD_MERGE">
               {
                 getFieldDecorator('autoLoadMerge',{
-                  initialValue: formData.AUTO_LOAD_MERGE || 0
+                  initialValue: formData.autoLoadMerge || 0
                 })(
                   <RadioGroup>
                     <Radio value={0}>关闭</Radio>
@@ -172,7 +217,7 @@ export default class StepOne extends Component{
               label="COMPACTION_LEVEL_THRESHOLD：">
               {
                 getFieldDecorator('levelThreshold',{
-                  initialValue:formData.COMPACTION_LEVEL_THRESHOLD || undefined
+                  initialValue:formData.levelThreshold || undefined
                 })(
                   <Input/>
                 )
@@ -183,7 +228,7 @@ export default class StepOne extends Component{
               label="COMPACTION_PRESERVE_SEGMENTS：">
               {
                 getFieldDecorator('preserveSegments',{
-                  initialValue:formData.COMPACTION_PRESERVE_SEGMENTS || undefined
+                  initialValue:formData.preserveSegments || undefined
                 })(
                   <Input/>
                 )
@@ -194,7 +239,7 @@ export default class StepOne extends Component{
               label="ALLOWED_COMPACTION_DAYS：">
               {
                 getFieldDecorator('allowCompactionDays',{
-                  initialValue:formData.ALLOWED_COMPACTION_DAYS || undefined
+                  initialValue:formData.allowCompactionDays || undefined
                 })(
                   <Input/>
                 )

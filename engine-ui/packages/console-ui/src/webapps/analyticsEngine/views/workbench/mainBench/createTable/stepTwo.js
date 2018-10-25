@@ -5,6 +5,39 @@ const Option = Select.Option;
 
 // const columns = [];
 // const partitions = [];
+const field_type = [
+  {
+    name: 'SMALLINT',
+    value: 'SMALLINT',
+  },{
+    name: 'INT/INTEGER',
+    value: 'INT/INTEGER',
+  },{
+    name: 'BIGINT',
+    value: 'BIGINT',
+  },{
+    name: 'DOUBLE',
+    value: 'DOUBLE',
+  },{
+    name: 'TIMESTAMP',
+    value: 'TIMESTAMP',
+  },{
+    name: 'DATE',
+    value: 'DATE',
+  },{
+    name: 'STRING',
+    value: 'STRING',
+  },{
+    name: 'CHAR',
+    value: 'CHAR',
+  },{
+    name: 'VARCHAR',
+    value: 'VARCHAR',
+  },{
+    name: 'BOOLEAN',
+    value: 'BOOLEAN',
+  },
+]
 
 export default class StepTwo extends Component{
   constructor(props){
@@ -173,10 +206,11 @@ export default class StepTwo extends Component{
         dataIndex: 'columnType',
         render: (text,record)=>(
           <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
-            <Option value="STRING">STRING</Option>
-            <Option value="INT">INT</Option>
-            <Option value="LONG">LONG</Option>
-            <Option value="BLOG">BLOG</Option>
+            {
+              field_type.map(o=>{
+                return <Option key={o.value} value={o.value}>{o.name}</Option>
+              })
+            }
           </Select>
         )
       },{
