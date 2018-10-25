@@ -156,99 +156,99 @@
             line-height: 16px;
         }
         .ant-tree-icon__open {
-            background-image: url(/public/rdos/img/icon/open-folder.svg)
+            background-image: url(/public/stream/img/icon/open-folder.svg)
         }
         .ant-tree-icon__close {
-            background-image: url(/public/rdos/img/icon/folder.svg)
+            background-image: url(/public/stream/img/icon/folder.svg)
         }
         .ant-tree-icon__docu {
-            background-image: url(/public/rdos/img/icon/file.svg);
+            background-image: url(/public/stream/img/icon/file.svg);
         }
         .s-sqlicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/sql.svg);
+                background-image: url(/public/stream/img/sql.svg);
             }
         }
         .s-jaricon-r {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/icon/ja.png);
+                background-image: url(/public/stream/img/icon/ja.png);
             }
         }
         .s-mricon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/mr.svg)
+                background-image: url(/public/stream/img/mr.svg)
             }
         }
         .s-datasyncicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/datasync.svg)
+                background-image: url(/public/stream/img/datasync.svg)
             }
         }
         .s-pythonicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/python.svg)
+                background-image: url(/public/stream/img/python.svg)
             }
         }
         .s-sparkpythonicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/spark_python.svg)
+                background-image: url(/public/stream/img/spark_python.svg)
             }
         }
         .s-python2icon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/python2.svg)
+                background-image: url(/public/stream/img/python2.svg)
             }
         }
         .s-python3icon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/python3.svg)
+                background-image: url(/public/stream/img/python3.svg)
             }
         }
         .s-pythonicon-r {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/icon/py.png)
+                background-image: url(/public/stream/img/icon/py.png)
             }
         }
         .s-virtualicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/virtual.svg)
+                background-image: url(/public/stream/img/virtual.svg)
             }
         }
         .s-deeplearning {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/deepLearning.svg)
+                background-image: url(/public/stream/img/deepLearning.svg)
             }
         }
         .s-mxnet {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/mxnet.svg)
+                background-image: url(/public/stream/img/mxnet.svg)
             }
         }
         .s-tensorflow {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/tensorflow.svg)
+                background-image: url(/public/stream/img/tensorflow.svg)
             }
         }
         .s-shell {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/shell.svg)
+                background-image: url(/public/stream/img/shell.svg)
             }
         }
         .s-collection {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/collection.svg)
+                background-image: url(/public/stream/img/collection.svg)
             }
         }
         .s-workflow {
             &>.ant-tree-node-content-wrapper {
                 .ant-tree-iconEle {
-                    background-image: url(/public/rdos/img/workflow.svg)
+                    background-image: url(/public/stream/img/workflow.svg)
                 }
             }
         }
         .s-table {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/table.svg)
+                background-image: url(/public/stream/img/table.svg)
             }
         }
 
@@ -944,7 +944,7 @@
             }
         }
         .mapline {
-            cursor: url(/public/rdos/img/del.png?t=3), auto;
+            cursor: url(/public/stream/img/del.png?t=3), auto;
         }
         .dl {
             .dag-circle {

@@ -1,122 +1,172 @@
 import React from "react"
-import { cloneDeep } from "lodash"
 import utils from "utils"
 
-import { Modal, Button } from "antd";
-import Resize from 'widgets/resize';
-
+import { Table, Modal, Button } from "antd"
 import Api from "../../../../../../api"
-import { lineAreaChartOptions } from "../../../../../../comm/const"
-
-const echarts = require('echarts/lib/echarts');
-require('echarts/lib/chart/line');
-require('echarts/lib/component/legend');
-require('echarts/lib/component/legendScroll');
-require('echarts/lib/component/tooltip');
+import DetailGraph from "./detailGraph";
 
 class DelayDetailModal extends React.Component {
 
     state = {
-        data: [],
-        lineChart: null
+        pagination: {
+            total: 0,
+            pageSize: 5,
+            current: 1
+        },
+        delayList: [],
+        loading: false,
+        detailVisible: false,
+        detailRecord: {},
+        sorter: {},
+        expandedRowKeys: []
     }
 
     componentDidMount() {
-        this.getDetail();
+        this.getDelayList();
     }
     componentWillReceiveProps(nextProps) {
-        const { taskId, partitionId } = this.props;
-        const { taskId: nextTaskId, partitionId: nextPartitionId } = nextProps;
-        if (taskId != nextTaskId || partitionId != nextPartitionId) {
-            this.getDetail(nextTaskId, nextPartitionId);
+        const { taskId, topicName } = this.props;
+        const { taskId: nextTaskId, topicName: nextTopicName } = nextProps;
+        if (taskId != nextTaskId || topicName != nextTopicName) {
+            this.initPage();
+            this.getDelayList(nextTaskId, nextTopicName);
         }
     }
-    getDetail(taskId, partitionId) {
+    initPage() {
+        this.setState({
+            pagination: {
+                ...this.state.pagination,
+                total: 0,
+                current: 1
+            }
+        })
+    }
+    getDelayList(taskId, topicName) {
         taskId = typeof taskId == "undefined" ? this.props.taskId : taskId;
-        partitionId = typeof partitionId == "undefined" ? this.props.partitionId : partitionId;
-        if (!taskId || !partitionId) {
+        topicName = typeof topicName == "undefined" ? this.props.topicName : topicName;
+        if (!taskId || !topicName) {
             return;
         }
+
+        const { pagination, sorter } = this.state;
+
         this.setState({
-            data: []
+            delayList: []
         })
-        Api.getDelayDetail({
-            taskId: taskId,
-            partitionId: partitionId
+
+
+        let extParams = {};
+        /**
+         * 排序字段
+         */
+        extParams.orderBy = sorter.columnKey;
+        extParams.sort = utils.exchangeOrder(sorter.order);
+
+        this.setState({
+            loading: true
         })
-            .then((res) => {
+
+        Api.getTopicDetail({
+            taskId,
+            topicName,
+            currentPage: pagination.current,
+            pageSize: pagination.pageSize,
+            ...extParams
+        }).then(
+            (res) => {
                 if (res.code == 1) {
                     this.setState({
-                        data: res.data
-                    }, this.initGraph.bind(this))
+                        delayList: res.data.data,
+                        pagination: {
+                            ...pagination,
+                            total: res.data.totalCount
+                        }
+                    })
                 }
-            })
+                this.setState({
+                    loading: false
+                })
+            }
+        )
     }
-    initGraph(lineData, time) {
-
-        lineData = lineData || this.state.data;
-        if (!lineData) {
-            return;
-        }
-        let myChart = echarts.init(document.getElementById("delayDetail"));
-        let options = cloneDeep(lineAreaChartOptions);
-        /**
-         * 隐藏标题
-         */
-        options.title.show = false;
-        /**
-         * 设置横坐标数值
-         */
-        options.xAxis[0].data = lineData.map((item) => {
-            return item.time;
-        })
-        options.xAxis[0].axisLabel = {
-            ...options.xAxis[0].axisLabel,
-            formatter: (value) => {
-                return utils.formatHours(parseInt(value))
-            }
-        }
-        options.xAxis[0].axisPointer = {
-            label: {
-                formatter: (params) => {
-                    return utils.formatDateTime(parseInt(params.value))
+    initDelayListColumns() {
+        return [{
+            title: '分区ID',
+            dataIndex: 'partitionId',
+            width: 130
+        }, {
+            title: '延迟消息数（条）',
+            dataIndex: 'delayCount',
+            width: 130,
+            sorter: (a,b)=>{
+                return a-b
+            },
+        }, {
+            title: '总消息数',
+            dataIndex: 'totalDelayCount',
+            width: 110,
+            sorter: (a,b)=>{
+                return a-b
+            },
+        }, {
+            title: '当前消费位置',
+            dataIndex: 'currentLocation',
+            width: 110
+        }, {
+            title: '操作',
+            dataIndex: 'deal',
+            width: "100px",
+            render: (text, record) => {
+                const {expandedRowKeys} = this.state;
+                if(expandedRowKeys[0]==record.partitionId){
+                    return <a onClick={this.onExpand.bind(this, false,record)}>关闭详情</a>
+                }else{
+                    return <a onClick={this.onExpand.bind(this, true,record)}>查看详情</a>
                 }
             }
-        }
-        /**
-         * 画图区域的定位
-         */
-        options.grid.bottom = "8px";
-        options.grid.left = "20px";
-        options.grid.right = "20px";
-        options.grid.top = "20px";
-        options.grid.containLabel = true
-        /**
-         * 设置具体的数据
-         */
-        options.series = {
-            name: "延迟数",
-            data: lineData.map(
-                (item) => {
-                    return item.data;
-                }
-            ),
-            type: "line",
-            smooth: true,
-            areaStyle:{}    
-        }
-        /**
-         * 执行绘图
-         */
-        myChart.setOption(options)
+        }]
+    }
+    showDetail(record) {
         this.setState({
-            lineChart: myChart
+            expandedRowKeys:[record.partitionId]
         })
     }
-    resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+    closeDetail() {
+        this.setState({
+            detailRecord: {},
+            detailVisible: false
+        })
+    }
+    onTableChange(page, filters, sorter) {
+        const { pagination } = this.state;
+        this.setState({
+            pagination: {
+                ...pagination,
+                current: page.current
+            },
+            sorter: sorter,
+            expandedRowKeys:[]
+        })
+    }
+    expandedRowRender(record) {
+        const { taskId } = this.props;
+        const { partitionId } = record;
+        return <DetailGraph taskId={taskId} partitionId={partitionId} />
+    }
+    onExpand(expanded, record) {
+        if (expanded) {
+            this.setState({
+                expandedRowKeys: [record.partitionId]
+            })
+        } else {
+            this.setState({
+                expandedRowKeys: []
+            })
+        }
+
     }
     render() {
+        const { delayList, pagination, loading, expandedRowKeys } = this.state;
         return (
             <Modal
                 title="数据延迟（最近24小时）"
@@ -127,9 +177,18 @@ class DelayDetailModal extends React.Component {
                     <Button onClick={this.props.closeDetail}>关闭</Button>
                 )}
             >
-                <Resize onResize={this.resize.bind(this)}>
-                    <article id="delayDetail" style={{ width: '100%', height: '300px' }} />
-                </Resize>
+                <Table
+                    rowKey="partitionId"
+                    className="m-table"
+                    columns={this.initDelayListColumns()}
+                    dataSource={delayList}
+                    pagination={pagination}
+                    loading={loading}
+                    expandedRowRender={this.expandedRowRender.bind(this)}
+                    onChange={this.onTableChange.bind(this)}
+                    expandedRowKeys={expandedRowKeys}
+                    onExpand={this.onExpand.bind(this)}
+                />
             </Modal>
         )
     }
