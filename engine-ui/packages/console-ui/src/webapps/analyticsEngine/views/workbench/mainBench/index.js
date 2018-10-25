@@ -39,13 +39,13 @@ class MainBench extends Component {
                 let title = (<span>
                     <TabIcon type={tab.actionType} />
                     <span className="tab-ellipsis" title={tabs}>
-                        {tab.name}
+                        {tab.tabName}
                     </span>
                 </span>);
 
                 return (
                     <TabPane
-                        tab={title} 
+                        tab={title}
                         key={tab.id}
                     >
                         <BenchContent tabData={tab} {...this.props}/>
@@ -73,10 +73,10 @@ class MainBench extends Component {
                     {tabs.map((tab)=>{
                         return <Menu.Item key={tab.id} >
                         <a 
-                            onClick={switchTab.bind(currentTab)}
+                            onClick={() => switchTab(tab.id)}
                             style={tab.id == currentTab ? { color:"#2491F7" } : {} }
                         >
-                            {tab.name}
+                            {tab.tabName || tab.name}
                         </a>
                         </Menu.Item>
                     })}

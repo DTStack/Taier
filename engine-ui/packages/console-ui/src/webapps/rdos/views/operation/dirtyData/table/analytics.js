@@ -160,7 +160,7 @@ export default class TableAnalytics extends Component {
                 bordered={false}
                 noHovering
                 title={
-                    <span> 
+                    <span style={{fontSize:"12px",fontWeight:"normal"}}> 
                         总计：共{tableCountInfo.totalNum||0}条 脏数据，
                         空指针：{tableCountInfo.npe || 0}条，
                         主键冲突：{tableCountInfo.duplicate || 0}条，

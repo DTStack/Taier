@@ -7,6 +7,7 @@ export const CATALOGUE_TYPE = {
     DATA_MAP: 'datamap',
     TABLE: 'table',
     FOLDER: 'folder',
+    SEARCH_TABLE: 'searchTable',
 }
 
 /**

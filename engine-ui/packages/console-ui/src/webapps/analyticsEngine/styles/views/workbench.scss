@@ -161,6 +161,39 @@
     }
 }
 
+
+.response-succ {
+    padding: 30px 60px;
+    text-align: justify;
+    font-family: PingFangSC-Regular;
+
+    .status-icon {
+        font-size: 50px;
+        color: #00A755;
+    }
+
+    .status-desc {
+        color: #333333;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .response-info {
+        font-size: 12px;
+        color: #333333;
+        margin-top: 20px;
+        line-height: 30px;
+        padding-left: 100px;
+    }
+
+    .response-warning {
+        font-size: 12px;
+        color: #EF5350;
+        margin-top: 5px;
+        text-align: center;
+    }
+}
+
 .row-content {
     margin-top: 15px;
 

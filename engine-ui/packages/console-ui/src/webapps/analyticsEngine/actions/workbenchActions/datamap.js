@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { notification, message } from 'antd';
 
 import API from '../../api/datamap';
@@ -22,6 +23,37 @@ export function onRemoveDataMap(params) {
 /**
  * 获取DataMap详情
  */
+export function onCreateDataMap(params) {
+    console.log('onCreateDataMap:', params);
+    return (dispatch, getStore) => {
+        const { workbench } = getStore();
+        const { tabs } = workbench.mainBench;
+
+        let createTabIndex = 0;
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].actionType === workbenchAction.CREATE_DATA_MAP) {
+                if (tabs[i].sqlQueryTabIndex > createTabIndex) {
+                    createTabIndex = tabs[i].sqlQueryTabIndex;
+                }
+            }
+        }
+        const defaultCreateDataMapData = {
+            id: moment().valueOf(),
+            tabName: `${params.tableName} - 创建DataMap ${createTabIndex + 1}`,
+            tabIndex: createTabIndex + 1,
+            actionType: workbenchAction.CREATE_DATA_MAP,
+            tableId: params.id,
+            databaseId: params.databaseId,
+            tableName: params.tableName,
+        }
+
+        dispatch(openTab(defaultCreateDataMapData));
+    }
+}
+
+/**
+ * 获取DataMap详情
+ */
 export function onGetDataMap(params) {
 
     return async dispatch => {
@@ -31,7 +63,8 @@ export function onGetDataMap(params) {
         if (res.code === 1) {
             const dataMapData = res.data;
             // 添加Action标记
-            dataMapData.actionType = workbenchAction.OPEN_DATA_MAP,
+            dataMapData.actionType = workbenchAction.OPEN_DATA_MAP;
+            dataMapData.tabName = `查看${dataMapData.name}`;
             dispatch(openTab(dataMapData));
         } else {
             notification.error({

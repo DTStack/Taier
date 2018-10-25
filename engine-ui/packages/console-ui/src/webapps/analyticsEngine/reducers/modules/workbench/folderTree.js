@@ -2,7 +2,15 @@ import { cloneDeep } from 'lodash';
 import workbenchAction from '../../../consts/workbenchActionType';
 import { replaceTreeNode, removeTreeNode, mergeTreeNodes } from 'funcs'
 
-export default function folderTree(state = {}, action) {
+export const folderTreeRoot = {
+    id: 0,
+    name: "treeRoot",
+    level: 0,
+    type: "folder",
+    children: [],
+};
+
+export default function folderTree(state = folderTreeRoot, action) {
     const { type, payload } = action;
     switch (type) {
         case workbenchAction.LOAD_CATALOGUE_DATA: {

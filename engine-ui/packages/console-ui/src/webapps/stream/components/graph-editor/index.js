@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 
 import './style.scss'
 
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
+const Mx = require('public/stream/mxgraph')({
+    mxBasePath: 'public/stream/mxgraph',
+    mxImageBasePath: 'public/stream/mxgraph/images',
     mxLoadResources: false,
     mxLanguage: 'none',
     mxLoadStylesheets: false,

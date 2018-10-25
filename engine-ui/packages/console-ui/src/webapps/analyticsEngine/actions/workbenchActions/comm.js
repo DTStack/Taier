@@ -2,6 +2,9 @@ import moment from 'moment';
 
 import workbenchAction from '../../consts/workbenchActionType';
 import modalAction from '../../consts/modalActionType';
+import { CATALOGUE_TYPE } from '../../consts';
+import API from '../../api';
+import { folderTreeRoot } from '../../reducers/modules/workbench/folderTree';
 
 /**
  * 更新Modal对象
@@ -92,13 +95,80 @@ export function onSQLQuery(params) {
                 }
             }
         }
+        const name = params ? params.name || params.tableName + ' - ' : '';
         const defaultSQLQueryTabData = {
             id: moment().valueOf(),
-            name: `Query ${sqlQueryTabIndex + 1}`,
-            sqlQueryTabIndex: sqlQueryTabIndex + 1,
+            tabName: `${name} Query ${sqlQueryTabIndex + 1}`,
+            tabIndex: sqlQueryTabIndex + 1,
             actionType: workbenchAction.OPEN_SQL_QUERY,
         }
 
         dispatch(openTab(defaultSQLQueryTabData));
+    }
+}
+
+/**
+ * 加载左侧树形目录数据
+ */
+export const loadCatalogue = function(data, fileType) {
+
+    return async (dispatch) => {
+        console.log('loadCatalogue:', data, fileType);
+        let res = {};
+        switch (fileType) {
+            case CATALOGUE_TYPE.TABLE: { // 获取表下的DataMap
+                res = await API.getDataMapsByTable({
+                    tableId: data.id,
+                    databaseId: data.databaseId,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.DATA_MAP;
+                    return item;
+                });
+                break;
+            }
+            case CATALOGUE_TYPE.DATA_BASE: {
+                res = await API.getTablesByDB({
+                    databaseId: data.id,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.TABLE;
+                    item.children = [];
+                    return item;
+                });
+                break;
+            }
+            case CATALOGUE_TYPE.SEARCH_TABLE: { // 搜索表
+                res = await API.searchTable({
+                    tableName: data.tableName,
+                });
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.TABLE;
+                    item.children = [];
+                    return item;
+                });
+                // 如果为获取数据库列表，初始化data为树的根节点
+                data = folderTreeRoot;
+                break;
+            }
+            default: {
+                res = await API.getDatabases();
+                res.data = res.data && res.data.map(item => {
+                    item.type = CATALOGUE_TYPE.DATA_BASE;
+                    item.children = [];
+                    return item;
+                })
+                // 如果为获取数据库列表，初始化data为树的根节点
+                data = folderTreeRoot;
+            }
+        }
+
+        if (res.code === 1) {
+            data.children = res.data;
+            dispatch({
+                type: workbenchAction.LOAD_CATALOGUE_DATA,
+                payload: data,
+            })
+        }
     }
 }

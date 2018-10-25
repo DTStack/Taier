@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
+import CopyUtils from 'utils/copy';
 import workbenchAction from '../../../../consts/workbenchActionType';
 import DBForm from './form';
 import API from '../../../../api';
@@ -14,8 +16,13 @@ class CreateDatabaseModal extends Component {
     }
 
     onSubmit = async () => {
+        const { loadCatalogue } = this.props;
         if (this.state.submitted) {
-            this.resetModal();
+            const copyInstance = new CopyUtils();
+            const copyContent = JSON.stringify(this.state.databaseData);
+            copyInstance.copy(copyContent, (flag) => {
+                if (flag) message.success('复制成功！')
+            })
             return false;
         }
 
@@ -26,9 +33,10 @@ class CreateDatabaseModal extends Component {
                 const result = await API.createDB(values);
                 if (result.code === 1) {
                     this.setState({
-                        databaseData: result.data,
+                        databaseData: values,//result.data,
                         submitted: true,
-                    })
+                    });
+                    loadCatalogue();
                 }
             }
         });
@@ -54,10 +62,11 @@ class CreateDatabaseModal extends Component {
             <Modal
                 title="创建数据库"
                 visible={visible}
+                okText={databaseData ? '确认复制' : '确认'}
                 onOk={this.onSubmit}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
-            >   
+            >
                 {
                     databaseData ? 
                     <Response data={databaseData} message="创建成功" /> 

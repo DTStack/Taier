@@ -102,6 +102,6 @@ export default class TabIcon extends Component {
                 top: '8px',
                 left: '10px',
             }} 
-        src={`/public/rdos/img/${iconName}`} />;
+        src={`/public/stream/img/${iconName}`} />;
     }
 }
