@@ -255,7 +255,7 @@ class Header extends Component {
                     <img
                         style={{ height: "20px", marginTop: "10px" }}
                         alt="logo"
-                        src="/public/rdos/img/logo.svg"
+                        src="/public/stream/img/logo.svg"
                     />
                     <span
                         style={{

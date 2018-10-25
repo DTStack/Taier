@@ -307,6 +307,9 @@ export default {
     getDelayList(params){
         return http.post(req.GET_DATA_DELAY, params)
     },
+    getTopicDetail(params){
+        return http.post(req.GET_TOPIC_DETAIL,params)
+    },
     getDelayDetail(params){
         return http.post(req.GET_DATA_DELAY_DETAIL, params)
     },

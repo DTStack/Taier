@@ -19,7 +19,6 @@ class DataDelay extends React.Component {
         sorter:{}
     }
     componentDidMount() {
-        console.log("DataDelay")
         this.getDelayList();
     }
     initPage() {
@@ -53,8 +52,12 @@ class DataDelay extends React.Component {
         }
 
         let extParams={};
+        /**
+         * 排序字段
+         */
         extParams.orderBy=sorter.columnKey;
         extParams.sort=utils.exchangeOrder(sorter.order);
+
         this.setState({
             loading: true
         })
@@ -83,22 +86,16 @@ class DataDelay extends React.Component {
     }
     initDelayListColumns() {
         return [{
-            title: '分区ID',
-            dataIndex: 'partitionId',
+            title: 'Topic名称',
+            dataIndex: 'topicName',
+            width:200
+        },{
+            title: '总延迟消息数',
+            dataIndex: 'totalDelayCount',
             width:180
         }, {
-            title: '延迟消息数',
-            dataIndex: 'delayCount',
-            sorter:true,
-            width:180
-        }, {
-            title: '总消息数',
-            dataIndex: 'totalCount',
-            sorter:true,
-            width:180
-        }, {
-            title: '当前消费位置',
-            dataIndex: 'currentLocal',
+            title: '分区总数',
+            dataIndex: 'partCount',
         }, {
             title: '操作',
             dataIndex: 'deal',
@@ -121,7 +118,6 @@ class DataDelay extends React.Component {
     }
     onTableChange(page, filters,sorter){
         const {pagination} =this.state;
-        console.log(sorter);
         this.setState({
             pagination: {
                 ...pagination,
@@ -136,7 +132,7 @@ class DataDelay extends React.Component {
         return (
             <div style={{ padding: "21px 20px 20px 25px" }}>
                 <Table
-                    rowKey="partitionId"
+                    rowKey="topicName"
                     className="m-table"
                     columns={this.initDelayListColumns()}
                     dataSource={delayList}
@@ -148,7 +144,7 @@ class DataDelay extends React.Component {
                     visible={detailVisible}
                     closeDetail={this.closeDetail.bind(this)}
                     taskId={data.id}
-                    partitionId={detailRecord.partitionId}
+                    topicName={detailRecord.topicName}
                 />
             </div>
         )
