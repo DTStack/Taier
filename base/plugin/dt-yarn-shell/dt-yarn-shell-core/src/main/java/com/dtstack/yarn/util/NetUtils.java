@@ -1,7 +1,11 @@
 package com.dtstack.yarn.util;
 
+import com.dtstack.yarn.container.DtContainer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
-import java.net.Socket;
+import java.net.ServerSocket;
 
 /**
  * company: www.dtstack.com
@@ -10,19 +14,23 @@ import java.net.Socket;
  */
 public class NetUtils {
 
-    public static boolean checkRemotePortUsed(String host, int port) {
+    private static final Log LOG = LogFactory.getLog(DtContainer.class);
+
+    public static boolean checkPortUsed(int port) {
         try {
-            Socket socket = new Socket(host, port);
+            ServerSocket socket = new ServerSocket(port);
             socket.close();
-            return true;
-        } catch (IOException e) {
             return false;
+        } catch (IOException e) {
+            LOG.warn("Invalid port:" + port + " configuration");
+            return true;
         }
     }
 
-    public static int getAvailablePortRange(String host, int port) {
+    public static int getAvailablePortRange(int port) {
         while (true) {
-            if (!checkRemotePortUsed(host, port)) {
+            if (!checkPortUsed(port)) {
+                LOG.warn("Container availablePort port:" + port);
                 return port;
             }
             port++;
@@ -34,6 +42,6 @@ public class NetUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getAvailablePortRange("0.0.0.0",6767));
+        System.out.println(getAvailablePortRange(6767));
     }
 }

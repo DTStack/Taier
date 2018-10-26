@@ -62,7 +62,12 @@ public class DtContainer {
 
     private final AppType appType;
 
+    private final Map<String,Object> containerInfo;
+
+
     private DtContainer() throws IOException {
+        containerInfo = new HashMap<>();
+
         this.conf = new DtYarnConfiguration();
 
         this.dfs = FileSystem.get(conf);
@@ -96,6 +101,8 @@ public class DtContainer {
             System.exit(1);
         }
 
+        containerInfo.put("host", NetUtils.getHostname());
+
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
         containerStatusNotifier.start();
@@ -128,7 +135,7 @@ public class DtContainer {
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
 
-        command = appType.setCmdExtra(command);
+        command = appType.cmdContainerExtra(command, containerInfo);
 
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();
@@ -241,9 +248,7 @@ public class DtContainer {
                 dfs.delete(cIdPath);
             }
             out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-            Map<String,Object> info = new HashMap<>(1);
-            info.put("host",NetUtils.getHostname());
-            out.writeUTF(new ObjectMapper().writeValueAsString(info));
+            out.writeUTF(new ObjectMapper().writeValueAsString(containerInfo));
         } finally {
             IOUtils.closeStream(out);
         }

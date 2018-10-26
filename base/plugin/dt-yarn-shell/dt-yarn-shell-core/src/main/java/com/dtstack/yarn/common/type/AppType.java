@@ -4,10 +4,13 @@ package com.dtstack.yarn.common.type;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
-import java.net.URLEncoder;
+import java.util.Map;
 
 public abstract class AppType {
+
+    protected static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static AppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
@@ -43,7 +46,7 @@ public abstract class AppType {
     /**
      * 每个类型，可能对执行时的命令有额外的参数处理
      */
-    public String setCmdExtra(String cmd) {
+    public String cmdContainerExtra(String cmd, Map<String, Object> containerInfo) {
         return cmd;
     }
 
