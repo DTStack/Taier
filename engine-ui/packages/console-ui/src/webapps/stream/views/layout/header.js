@@ -214,7 +214,7 @@ class Header extends Component {
                     >
                         <span className="content">
 
-                            <img src="/public/rdos/img/icon/develop.svg" />测试
+                            <img src="/public/stream/img/icon/develop.svg" />测试
                     </span>
                     </div>
                 )
@@ -226,7 +226,7 @@ class Header extends Component {
                     >
                         <span className="content">
 
-                            <img src="/public/rdos/img/icon/produce.svg" />生产
+                            <img src="/public/stream/img/icon/produce.svg" />生产
                         </span>
                     </div>
                 )
@@ -255,7 +255,7 @@ class Header extends Component {
                     <img
                         style={{ height: "20px", marginTop: "10px" }}
                         alt="logo"
-                        src="/public/rdos/img/logo.svg"
+                        src="/public/stream/img/logo.svg"
                     />
                     <span
                         style={{
@@ -317,7 +317,7 @@ class Header extends Component {
                     apps={apps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/rdos/helpSite/index.html"
+                    helpUrl="/public/stream/helpSite/index.html"
                 />
             </div>
         );

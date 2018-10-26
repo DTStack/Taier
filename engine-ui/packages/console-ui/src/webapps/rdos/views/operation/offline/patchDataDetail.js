@@ -42,6 +42,7 @@ class PatchDataDetail extends Component {
         loading: false,
         current: 1,
         selectedRowKeys: [],
+        selectedRows: [],
         checkAll: false,
 
         dutyUserId: '',
@@ -65,8 +66,8 @@ class PatchDataDetail extends Component {
             fillJobName: this.props.params.fillJobName
         }, this.search)
     }
-    componentWillUnmount(){
-        this._isUnmounted=true;
+    componentWillUnmount() {
+        this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
     componentWillReceiveProps(nextProps) {
@@ -78,14 +79,14 @@ class PatchDataDetail extends Component {
             })
         }
     }
-    debounceSearch(){
-        if(this._isUnmounted){
-            return ;
+    debounceSearch() {
+        if (this._isUnmounted) {
+            return;
         }
-        this._timeClock=setTimeout(() => {
-             this.search(true);
-         }, 5000);
-     }
+        this._timeClock = setTimeout(() => {
+            this.search(true);
+        }, 5000);
+    }
     search = (isSilent) => {
         const {
             fillJobName, dutyUserId, jobStatuses,
@@ -122,12 +123,12 @@ class PatchDataDetail extends Component {
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
         clearTimeout(this._timeClock);
-        this.loadPatchRecords(reqParams,isSilent)
+        this.loadPatchRecords(reqParams, isSilent)
     }
 
-    loadPatchRecords(params,isSilent) {
+    loadPatchRecords(params, isSilent) {
         const ctx = this
-        if(!(isSilent&&typeof isSilent=="boolean")){
+        if (!(isSilent && typeof isSilent == "boolean")) {
             this.setState({ loading: true })
         }
         Api.getFillDataDetail(params).then((res) => {
@@ -182,7 +183,7 @@ class PatchDataDetail extends Component {
                 onOk() {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
-                            ctx.setState({ selectedRowKeys: [], checkAll: false })
+                            ctx.setState({ selectedRowKeys: [],selectedRows:[], checkAll: false })
                             message.success('已经成功杀死所选任务！')
                             ctx.search()
                         }
@@ -218,7 +219,7 @@ class PatchDataDetail extends Component {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
-                            ctx.setState({ selectedRowKeys: [], checkAll: false })
+                            ctx.setState({ selectedRowKeys: [],selectedRows:[], checkAll: false })
                             ctx.search()
                         }
                     })
@@ -278,6 +279,7 @@ class PatchDataDetail extends Component {
             jobStatuses: filters.status,
             taskType: filters.taskType,
             selectedRowKeys: [],
+            selectedRows:[],
             execTimeSort: '',//运行时长
             execStartSort: '',//执行开始
             cycSort: '',//计划时间
@@ -321,8 +323,8 @@ class PatchDataDetail extends Component {
         })
     }
 
-    onSelectChange = (selectedRowKeys) => {
-        this.setState({ selectedRowKeys });
+    onSelectChange = (selectedRowKeys, selectedRows) => {
+        this.setState({ selectedRowKeys, selectedRows });
     }
 
     changeBussinessDate = (value) => {
@@ -348,15 +350,18 @@ class PatchDataDetail extends Component {
 
     onCheckAllChange = (e) => {
         let selectedRowKeys = []
+        let selectedRows = []
 
         if (e.target.checked) {
             const tasks = this.state.table.data && this.state.table.data.recordList
             selectedRowKeys = tasks && tasks.map(item => { if (item.batchTask.isDeleted !== 1) { return item.id } })
+            selectedRows = tasks && tasks.filter(item => { if (item.batchTask.isDeleted !== 1) { return true } });
         }
 
         this.setState({
             checkAll: e.target.checked,
-            selectedRowKeys
+            selectedRowKeys,
+            selectedRows
         })
     }
 
@@ -424,6 +429,9 @@ class PatchDataDetail extends Component {
     }
 
     tableFooter = (currentPageData) => {
+        const selectStatus=this.getSelectRowsStatus();
+        const couldKill=selectStatus.haveRunning&&!selectStatus.haveFail&&!selectStatus.haveNotRun&&!selectStatus.haveFail;
+        const couldReRun=!selectStatus.haveRunning&&(selectStatus.haveFail||selectStatus.haveNotRun||selectStatus.haveFail);
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 22px' }}>
@@ -434,14 +442,41 @@ class PatchDataDetail extends Component {
                     </Checkbox>
                 </td>
                 <td>
-                    <Button type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
+                    <Button disabled={!couldKill} type="primary" size="small" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
+                    <Button disabled={!couldReRun} type="primary" size="small" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.killAllJobs}>杀死所有实例</Button>&nbsp;
                 </td>
             </tr>
         )
     }
-
+    getSelectRowsStatus(){
+        let haveFail,haveNotRun,haveSuccess,haveRunning; 
+        const {selectedRows} = this.state;
+        for(let i =0;i<selectedRows.length;i++){
+            let row=selectedRows[i];
+            switch(row.status){
+                case TASK_STATUS.RUN_FAILED:{
+                    haveFail=true;
+                    break;
+                }
+                case TASK_STATUS.RUNNING:{
+                    haveRunning=true;
+                    break;
+                }
+                case TASK_STATUS.FINISHED:{
+                    haveSuccess=true;
+                    break;
+                }
+                default:{
+                    haveNotRun=true;
+                    break;
+                }
+            }
+        }
+        return {
+            haveFail,haveNotRun,haveSuccess,haveRunning
+        }
+    }
     render() {
         const {
             table, selectedRowKeys, fillJobName,
@@ -631,7 +666,7 @@ class PatchDataDetail extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed', paddingTop: '50px'  }}
+                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', position: 'fixed', paddingTop: '50px' }}
                         >
                             <TaskFlowView
                                 visibleSlidePane={visibleSlidePane}

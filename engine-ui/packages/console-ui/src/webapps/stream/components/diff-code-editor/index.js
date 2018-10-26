@@ -7,7 +7,7 @@ import "./style.css";
 const codemirror = require('codemirror')
 
 require('codemirror/mode/sql/sql')
-require('public/rdos/js/merge')
+require('public/stream/js/merge')
 
 class DiffEditor extends Component {
 

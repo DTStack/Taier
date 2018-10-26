@@ -15,7 +15,7 @@ const Response = props => {
             </Row>
             <Row className="response-info">
                 <Row>数据库标识：{data.name}</Row>
-                <Row>JDBC信息：{data.jdbc}</Row>
+                <Row>JDBC信息：{data.jdbcUrl}</Row>
                 <Row>用户名：{data.dbUserName}</Row>
                 <Row>密码：{data.dbPwd}</Row>
             </Row>

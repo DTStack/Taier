@@ -101,5 +101,6 @@
      GET_DATA_DELAY_DETAIL:`${STREAM_BASE_URL}/streamJobMetric/getDataDelayDetail`,//数据延迟详情
      GET_CHECKPOINT_LIST:`${STREAM_BASE_URL}/streamTaskCheckpoint/pageQuery`,//获取checkpoint列表
      GET_CHECKPOINT_OVERVIEW:`${STREAM_BASE_URL}/streamTaskCheckpoint/getDataCount`,//获取checkpoint统计信息
+     GET_TOPIC_DETAIL:`${STREAM_BASE_URL}/streamJobMetric/getTopicDetail`,//获取topic详情
  }
  

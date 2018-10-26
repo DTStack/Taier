@@ -68,6 +68,10 @@ class AdminRole extends Component {
         else if (!databaseExsit && !this.hasDatabase(app)) {
             this.loadRoles(app, params)
         }
+        else if(MY_APPS.ANALYTICS_ENGINE == active) {
+            params.databaseId = selecteDatabase;
+            this.loadRoles(app, params)
+        }
         else if (!haveSelected && !hasProject(app)) {
             this.loadRoles(app, params)
         } else {
@@ -75,9 +79,10 @@ class AdminRole extends Component {
                 params.projectId = selectedProject
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
-            } else if(MY_APPS.ANALYTICS_ENGINE == active) {
-                params.databaseId = selecteDatabase;
-            }
+            } 
+            // else if(MY_APPS.ANALYTICS_ENGINE == active) {
+            //     params.databaseId = selecteDatabase;
+            // }
             this.loadRoles(app, params)
         }
     }

@@ -90,8 +90,8 @@ export function onSQLQuery(params) {
         let sqlQueryTabIndex = 0;
         for (let i = 0; i < tabs.length; i++) {
             if (tabs[i].actionType === workbenchAction.OPEN_SQL_QUERY) {
-                if (tabs[i].sqlQueryTabIndex > sqlQueryTabIndex) {
-                    sqlQueryTabIndex = tabs[i].sqlQueryTabIndex;
+                if (tabs[i].tabIndex > sqlQueryTabIndex) {
+                    sqlQueryTabIndex = tabs[i].tabIndex;
                 }
             }
         }
@@ -140,7 +140,7 @@ export const loadCatalogue = function(data, fileType) {
             }
             case CATALOGUE_TYPE.SEARCH_TABLE: { // 搜索表
                 res = await API.searchTable({
-                    tableName: data.tableName,
+                    name: data.tableName,
                 });
                 res.data = res.data && res.data.map(item => {
                     item.type = CATALOGUE_TYPE.TABLE;

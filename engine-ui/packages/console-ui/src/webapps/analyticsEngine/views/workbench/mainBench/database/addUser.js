@@ -1,21 +1,23 @@
 import React, { Component } from 'react';
 
 import {
-    Input, Button, Card, Radio,
-    Select, Form, Checkbox, Modal,
+    Input, Select, Form, Checkbox, Modal,
 } from 'antd'
+
+import { MY_APPS, APP_ROLE } from 'main/consts';
+import { isDisabledRole } from 'main/views/admin/user/form';
+import { formItemLayout } from '../../../../consts';
 
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
-import { formItemLayout } from '../../../../consts';
 
 class FormAddUser extends Component {
 
     render() {
 
-        const { form, roles, onSearch, userList, initialData } = this.props;
+        const { form, roles, onSearch, userList, initialData, user, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = userList && userList
@@ -31,10 +33,15 @@ class FormAddUser extends Component {
             )
         
         let roleOptions = [];
-        let initialValue=[];
+        let initialValue = [];
         if (roles) {
             roles.forEach(role => {
-                roleOptions.push({ label: role.roleName, value: role.id })
+                // 判断哪些角色禁用
+                const disabled = isDisabledRole(MY_APPS.ANALYTICS_ENGINE, role.roleValue, user, myRoles);
+                if( role.roleValue === APP_ROLE.VISITOR) {
+                    initialValue.push(role.id)
+                }
+                roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
 
@@ -43,7 +50,6 @@ class FormAddUser extends Component {
                 <FormItem
                     {...formItemLayout}
                     label="数据库"
-                    hasFeedback
                 >
                     {getFieldDecorator('databaseId', {
                         rules: [{

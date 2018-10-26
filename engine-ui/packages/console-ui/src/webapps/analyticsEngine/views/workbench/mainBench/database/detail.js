@@ -22,6 +22,7 @@ const confirm = Modal.confirm;
 class DatabaseDetail extends Component {
 
     state = {
+        loading: 'success',
         selectedItem: undefined,
         visibleAddUser: false,
         visibleResetPwd: false,
@@ -30,6 +31,7 @@ class DatabaseDetail extends Component {
         userList: [],
         userRoles: [],
         usersNotInDB: [],
+        myRoles: {},
 
         queryParams: {
             pageSize: 10,
@@ -39,15 +41,19 @@ class DatabaseDetail extends Component {
     }
 
     componentDidMount () {
+        this.loadDBUsers();
         this.loadDBUserRoles();
+        this.getOwnRoles(this.props.user);
     }
 
     loadDBUsers = async (params) => {
+        this.setState({ loading: 'loading', });
         const reqParams = Object.assign(this.state.queryParams, params);
         const res = await API.getDBUsers(reqParams);
         if (res.code === 1) {
             this.setState({
-                userList: res.data || [],
+                userList: res.data || {},
+                loading: 'success',
             })
         }
     }
@@ -56,7 +62,7 @@ class DatabaseDetail extends Component {
         const res = await API.getDBUserRoles();
         if (res.code === 1) {
             this.setState({
-                userRoles: res.data || [],
+                userRoles: res.data.data || [],
             })
         }
     }
@@ -89,7 +95,42 @@ class DatabaseDetail extends Component {
     }
 
     onEditUserRole = async () => {
+    }
 
+    /**
+     * 获取我当前的角色
+     */
+    getOwnRoles = async (user) => {
+
+        let isVisitor = false,
+            isProjectAdmin = false,
+            isProjectOwner = false;
+        
+        const reqParams = Object.assign(this.state.queryParams, {
+            name: user.userName,
+        });
+
+        const res = await API.getDBUsers(reqParams);
+        if (res.code === 1) {
+            const roles = res.data.data && res.data.data.length > 0 ?
+            res.data.data[0].roles : [];
+
+            for (let role of roles) {
+                const roleValue = role.roleValue;
+                if (roleValue == APP_ROLE.VISITOR) {
+                    isVisitor = true
+                } else if (roleValue == APP_ROLE.ADMIN) {
+                    isProjectAdmin = true;
+                }
+            }
+        }
+        this.setState({
+            myRoles: {
+                isVisitor,
+                isProjectAdmin,
+                isProjectOwner
+            }
+        })
     }
 
     onSelectMenu = ({ key }) => {
@@ -109,7 +150,7 @@ class DatabaseDetail extends Component {
                 cancelText: '取消',
                 onOk() {
                     onRemoveDB({
-                        id: data.id,
+                        databaseId: data.id,
                     });
                 },
                 onCancel() {
@@ -124,34 +165,42 @@ class DatabaseDetail extends Component {
     initColumns = () => {
         return [{
             title: '账号',
-            dataIndex: 'account',
+            dataIndex: 'user.userName',
             key: 'account',
         },
         {
             title: '邮箱',
-            dataIndex: 'email',
+            dataIndex: 'user.email',
             key: 'email',
         }, {
             title: '手机号',
-            dataIndex: 'phoneNumber',
+            dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
         }, {
             title: '角色',
-            dataIndex: 'roleName',
-            key: 'roleName',
+            dataIndex: 'roles',
+            key: 'roles',
+            width: 120,
+            render(roles) {
+                const roleNames = roles.map(role => role && role.roleName)
+                return roleNames.join(',')
+            }
         }, {
             title: '加入时间',
-            dataIndex: 'joinTime',
-            key: 'joinTime',
-            width: 100,
+            dataIndex: 'gmtCreate',
+            key: 'gmtCreate',
+            render(time) {
+                return utils.formatDateTime(time);
+            }
         }, {
             title: '操作',
+            dataIndex: 'id',
             width: 100,
-            key: 'operation',
-            render: (text, record) => {
+            key: 'id',
+            render: (id, record) => {
                  // active '0：未启用，1：使用中'。 只有为0时，可以修改
                 return (
-                    <span key={record.id}>
+                    <span key={id}>
                         <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
@@ -195,7 +244,19 @@ class DatabaseDetail extends Component {
 
     render () {
         const { data, user } = this.props;
-        const { userList, userRoles, usersNotInDB, selectedItem } = this.state;
+
+        const { 
+            loading, userList, userRoles, 
+            usersNotInDB, selectedItem, myRoles 
+        } = this.state;
+
+        const pagination = {
+            total: userList.totalCount,
+            defaultPageSize: 10,
+            current: userList.currentPage,
+        };
+
+        console.log('render data:', userList, userRoles, usersNotInDB,)
         return (
             <div className="pane-wrapper" style={{ padding: '0px 20px' }}>
                 <Row className="row-content">
@@ -273,12 +334,19 @@ class DatabaseDetail extends Component {
                             className="m-table bd"
                             rowKey="id"
                             columns={this.initColumns()}
-                            dataSource={ userList }
+                            dataSource={ userList.data }
+                            onChange={(pagination) => this.loadDBUsers({
+                                currentPage: pagination.current,
+                            })}
+                            loading={loading === 'loading'}
+                            pagination={pagination}
                         />
                     </Card>
                 </Row>
                 <AddUserModal
+                    user={user}
                     roles={userRoles}
+                    myRoles={myRoles}
                     userList={usersNotInDB}
                     initialData={data}
                     onSubmit={this.addUser}
@@ -287,13 +355,6 @@ class DatabaseDetail extends Component {
                         visibleAddUser: false,
                     })}}
                     visible={this.state.visibleAddUser}
-                />
-                <UpdateDBModal 
-                    defaultData={data}
-                    visible={this.state.visibleResetPwd}
-                    onCancel={() => {this.setState({
-                        visibleResetPwd: false,
-                    })}}
                 />
                 <Modal
                     visible={this.state.visibleEditRole}
@@ -305,11 +366,18 @@ class DatabaseDetail extends Component {
                     <EditUserRole
                         user={selectedItem}
                         roles={userRoles}
-                        myRoles={user.roles}
+                        myRoles={myRoles}
                         loginUser={user}
                         app={MY_APPS.ANALYTICS_ENGINE}
                     />
                 </Modal>
+                <UpdateDBModal 
+                    defaultData={data}
+                    visible={this.state.visibleResetPwd}
+                    onCancel={() => {this.setState({
+                        visibleResetPwd: false,
+                    })}}
+                />
             </div>
         )
     }

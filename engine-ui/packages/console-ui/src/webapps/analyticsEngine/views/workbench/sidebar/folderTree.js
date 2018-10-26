@@ -44,7 +44,11 @@ class FolderTree extends React.PureComponent {
             return (
                 <span className="tree-node-hover-items">
                     <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
-                        onClick={() => onGetDB({ databaseId: item.id }) }
+                        onClick={(e) => {
+                            e.preventDefault();
+                            onGetDB({ databaseId: item.id });
+                        }
+                    }
                     />
                 </span>
             )
@@ -52,7 +56,10 @@ class FolderTree extends React.PureComponent {
                 return (
                     <span className="tree-node-hover-items">
                         <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
-                            onClick={() => onGetDataMap({ id: item.id }) }
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onGetDataMap({ id: item.id });
+                            }}
                         />
                     </span>
                 )
@@ -60,11 +67,17 @@ class FolderTree extends React.PureComponent {
                 return (
                     <span className="tree-node-hover-items">
                         <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
-                           onClick={() => onSQLQuery({ database: item.database }) }
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onSQLQuery({ database: item.database });
+                            }}
                         />
                         <Icon 
                             className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                            onClick={() => onGetTable({ id: item.id }) }
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onGetTable({ id: item.id });
+                            }}
                         />
                     </span>
                 )

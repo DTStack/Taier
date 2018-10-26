@@ -1,12 +1,14 @@
 .project-dashboard {
     padding-bottom: 20px;
-
-    .ant-row {
-        >div {
-            padding: 0 8px;
-        }
+    .project-header{
+        display: flex;
+        justify-content:space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        margin-top: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
     }
-
     .indicator-col {
 
         height: 65px;
@@ -59,12 +61,14 @@
             left: 85px;
         }
     }
-    .project-search {
-        float: left;
-        width: 220px;
-        margin-top: 10px;
-        margin-left: 5px;
-    }
+    .project-search-box{
+        display: flex;
+        align-items: center;
+        .project-search {
+            width: 220px;
+            margin-right: 30px;
+        }
+    }  
     .card-width{
         min-width: 375px;
         .tooltip-img{
@@ -100,16 +104,17 @@
             color:#333;
         }
         .general-card{
-            margin: 0 5 10;
+            margin: 0 10 20;
             height: 220px;
             .card-content{
                 position: relative;
                 .statistics{
+                    color: #333333;
                     line-height: 26px;
                     min-width: 190px;
                 }
                 .statistics-info{
-                    color: #151515;
+                    color: #333333;
                 }
                 .ant-card-body{
                     padding: 4px;
@@ -118,8 +123,9 @@
                     padding: 0;
                 }
                 .number{
-                    font-size: 32px;
-                    color: #f00;
+                    font-size: 36px;
+                    line-height: 50px;
+                    color: #EF5350;
                     cursor: pointer;
                 }
                 .no-hover{
@@ -129,6 +135,7 @@
                     min-width: 115px;
                     text-align: center;
                     margin-top: 10px;
+                    border-color: #dddddd;
                 }
                 .img-container{
                     padding-right: 5px;
@@ -163,26 +170,11 @@
         }
     }
     .sortTitle{
-        line-height:45px;
-        margin-right: 5px;
-        .faileSort{
-            float: right;
-            padding-left: 10px;
-            padding-right: 2px;
-            font-size: 14px;
+        .sort-item{
+            font-size: 12px;
             cursor: pointer;
+            padding: 0px 5px;
         }
-        // .faileSort:hover{
-        //     color: #2491F7;
-        // }
-        .defaultSort{
-            float: right;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        // .defaultSort:hover{
-        //     color: #2491F7;
-        // }
     }
     .title-help{
         padding-bottom: 10px;
@@ -205,6 +197,12 @@
 // .tooltip-tittle-text:hover{
 //     color: #2491F7;
 // }
-.project-dashboard .ant-card-body {
-    padding: 10px 10;
+.project-dashboard  {
+    .ant-card-body{
+        padding: 14.5px 20px  20px 12px;
+    }
+    .ant-card-head{
+        height:40px;
+        line-height: 40px;
+    }
 }
