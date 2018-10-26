@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Modal, message } from 'antd';
-import CopyToClipboard from 'react-copy-to-clipboard';
 
 import CopyUtils from 'utils/copy';
 import workbenchAction from '../../../../consts/workbenchActionType';
@@ -19,9 +18,15 @@ class CreateDatabaseModal extends Component {
         const { loadCatalogue } = this.props;
         if (this.state.submitted) {
             const copyInstance = new CopyUtils();
-            const copyContent = JSON.stringify(this.state.databaseData);
-            copyInstance.copy(copyContent, (flag) => {
-                if (flag) message.success('复制成功！')
+            const { databaseData } = this.state;
+            const copyContent = `
+                数据库标识：${databaseData.name}\m
+                JDBC信息：${databaseData.jdbcUrl}\m
+                用户名：${databaseData.dbUserName}\m
+                密码：${databaseData.dbPwd}
+            `;
+            copyInstance.copy(copyContent, (success) => {
+                if (success) message.success('复制成功！')
             })
             return false;
         }
@@ -33,7 +38,7 @@ class CreateDatabaseModal extends Component {
                 const result = await API.createDB(values);
                 if (result.code === 1) {
                     this.setState({
-                        databaseData: values,//result.data,
+                        databaseData: result.data,
                         submitted: true,
                     });
                     loadCatalogue();

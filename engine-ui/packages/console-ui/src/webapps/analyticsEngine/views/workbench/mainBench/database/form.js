@@ -80,7 +80,7 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: databaseData ? databaseData.dbUserName : ""
-                    })(<Input />)}
+                    })(<Input disabled={!isCreate}/>)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="密码" hasFeedback>
                     {getFieldDecorator("dbPwd", {
@@ -97,7 +97,7 @@ class DatabaseForm extends Component {
                                 validator: this.checkConfirm
                             }
                         ],
-                        initialValue: databaseData ? databaseData.dbPwd : "",
+                        initialValue: '',
                     })(<Input type="password" />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="确认密码" hasFeedback>
@@ -115,7 +115,7 @@ class DatabaseForm extends Component {
                                 validator: this.checkPassword
                             }
                         ],
-                        initialValue: databaseData ? databaseData.confirmPassword : '',
+                        initialValue: '',
                     })(<Input type="password" onBlur={this.handleConfirmBlur}/>)}
                 </FormItem>
             </Form>

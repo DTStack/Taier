@@ -32,8 +32,8 @@ export function onCreateDataMap(params) {
         let createTabIndex = 0;
         for (let i = 0; i < tabs.length; i++) {
             if (tabs[i].actionType === workbenchAction.CREATE_DATA_MAP) {
-                if (tabs[i].sqlQueryTabIndex > createTabIndex) {
-                    createTabIndex = tabs[i].sqlQueryTabIndex;
+                if (tabs[i].tabIndex > createTabIndex) {
+                    createTabIndex = tabs[i].tabIndex;
                 }
             }
         }

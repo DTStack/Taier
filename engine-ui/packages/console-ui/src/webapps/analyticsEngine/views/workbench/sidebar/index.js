@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
-import { Input } from 'antd';
+import { Input, message } from 'antd';
 
 import utils from 'utils';
+import CopyUtils from 'utils/copy';
 
 import {
     ContextMenu,
@@ -48,18 +49,31 @@ class Sidebar extends Component {
     }
 
     searchTable = (value) => {
-        console.log('search:', value);
         const query = utils.trim(value);
-        if (!query) return;
-        
+        if (!query) {
+            this.props.loadCatalogue();
+        };
+
         this.props.loadCatalogue({
             tableName: value,
         }, CATALOGUE_TYPE.SEARCH_TABLE);
     }
 
+    copyName = () => {
+        const activeNode = this.state.activeNode;
+        if (activeNode) {
+            const copyValue = activeNode.name || activeNode.tableName;
+            const copyUtil = new CopyUtils();
+            copyUtil.copy(copyValue, (success) => {
+                if (success) {
+                    message.success('复制成功！');
+                }
+            })
+        }
+    }
+
     onRightClick = ({ node }) => {
         const activeNode = node.props.data;
-        console.log('rightClick-activeNode', activeNode);
         this.setState({ activeNode: activeNode })
     }
 
@@ -169,6 +183,7 @@ class Sidebar extends Component {
             onSQLQuery,
             loadCatalogue,
             onCreateDataMap,
+            onGenerateCreateSQL,
         } = this.props;
 
         return (
@@ -193,8 +208,10 @@ class Sidebar extends Component {
                     <MenuItem>编辑表</MenuItem>
                     <MenuItem>表详情</MenuItem>
                     <MenuItem>编辑表</MenuItem>
-                    <MenuItem>显示建表DDL</MenuItem>
-                    <MenuItem>复制表名</MenuItem>
+                    <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>
+                        显示建表DDL
+                    </MenuItem>
+                    <MenuItem onClick={this.copyName}>复制表名</MenuItem>
                     <MenuItem onClick={() => onCreateDataMap(activeNode) }>新建DataMap</MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-datamap">
