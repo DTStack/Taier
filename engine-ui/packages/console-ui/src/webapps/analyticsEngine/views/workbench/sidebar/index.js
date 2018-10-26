@@ -48,6 +48,14 @@ class Sidebar extends Component {
         this.props.loadCatalogue();
     }
 
+    refresh = () => {
+        this.setState({
+            activeNode: null,
+            expandedKeys: [],
+        })
+        this.props.loadCatalogue();
+    }
+
     searchTable = (value) => {
         const query = utils.trim(value);
         if (!query) {
@@ -181,7 +189,6 @@ class Sidebar extends Component {
             onCreateDB,
             onCreateTable,
             onSQLQuery,
-            loadCatalogue,
             onCreateDataMap,
             onGenerateCreateSQL,
         } = this.props;
@@ -189,7 +196,7 @@ class Sidebar extends Component {
         return (
             <div className="sidebar">
                 <ToolBar
-                    onRefresh={() => loadCatalogue()}
+                    onRefresh={this.refresh}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
                     onCreateTable={() => onCreateTable()}
