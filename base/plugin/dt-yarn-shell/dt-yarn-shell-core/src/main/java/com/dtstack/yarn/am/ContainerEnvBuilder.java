@@ -47,6 +47,7 @@ public class ContainerEnvBuilder {
         containerEnv.put(DtYarnConstants.Environment.APPMASTER_PORT.toString(),
                 String.valueOf(containerListener.getServerPort()));
         containerEnv.put("PATH", System.getenv("PATH") + ":" + System.getenv(DtYarnConstants.Environment.USER_PATH.toString()));
+        containerEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(),learningAppType);
 
         LOG.info("container env:" + containerEnv.toString());
         Set<String> envStr = containerEnv.keySet();

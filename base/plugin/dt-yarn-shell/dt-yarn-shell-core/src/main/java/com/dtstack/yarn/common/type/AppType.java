@@ -13,7 +13,7 @@ public abstract class AppType {
         if (StringUtils.isBlank(type)) {
             return new DummyType();
         } else if (type.equalsIgnoreCase("shell")) {
-           return new ShellType();
+            return new ShellType();
         } else if (type.equalsIgnoreCase("python") || type.equalsIgnoreCase("python2")) {
             return new Python2Type();
         } else if (type.equalsIgnoreCase("python3")) {
@@ -36,8 +36,15 @@ public abstract class AppType {
             String[] parts = fullPath.split("/");
             String encodedOpts = "";
 
-            return cmdPrefix(conf) + " " + parts[parts.length - 1] + " " +  encodedOpts;
+            return cmdPrefix(conf) + " " + parts[parts.length - 1] + " " + encodedOpts;
         }
+    }
+
+    /**
+     * 每个类型，可能对执行时的命令有额外的参数处理
+     */
+    public String setCmdExtra(String cmd) {
+        return cmd;
     }
 
     abstract public String name();

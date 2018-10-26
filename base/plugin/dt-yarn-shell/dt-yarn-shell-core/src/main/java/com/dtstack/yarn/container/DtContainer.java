@@ -5,6 +5,8 @@ import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.common.type.AppType;
+import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
@@ -58,6 +60,8 @@ public class DtContainer {
 
     private final FileSystem dfs;
 
+    private final AppType appType;
+
     private DtContainer() throws IOException {
         this.conf = new DtYarnConfiguration();
 
@@ -70,6 +74,12 @@ public class DtContainer {
         LOG.info("sub container id: " + containerId);
         this.envs = System.getenv();
         this.role = envs.get(DtYarnConstants.Environment.XLEARNING_TF_ROLE.toString());
+        if (envs.containsKey(DtYarnConstants.Environment.APP_TYPE.toString())) {
+            String applicationType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString()).toUpperCase();
+            appType = AppType.fromString(applicationType);
+        } else {
+            appType = new DummyType();
+        }
     }
 
     private void init() {
@@ -117,6 +127,8 @@ public class DtContainer {
         envList.add("LANG=zh_CN.UTF-8");
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
+
+        command = appType.setCmdExtra(command);
 
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();

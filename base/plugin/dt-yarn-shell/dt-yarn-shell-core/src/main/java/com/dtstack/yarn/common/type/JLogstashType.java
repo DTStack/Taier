@@ -42,6 +42,18 @@ public class JLogstashType extends AppType {
 
     }
 
+    /**
+     * logstash 需要对inputs中存在beats的情况，为port进行模式处理
+     * 如果端口存在，则使用端口；
+     * 不存在，则使用默认端口6767。
+     *
+     * 端口被占用会进行检测，并递增进行重新设置端口，如6767被占用，则使用6768
+     */
+    @Override
+    public String setCmdExtra(String cmd) {
+        return super.setCmdExtra(cmd);
+    }
+
     @Override
     public String name() {
         return "JLOGSTASH";
