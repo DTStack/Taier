@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import { 
-    Row, Table, Card, Input, Modal,
+    Row, Table, Card, Input, Modal, Popconfirm,
     Button, Dropdown, Menu, Icon, message,
 } from 'antd';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
 
 import utils from 'utils';
-import { MY_APPS, } from 'main/consts'
+import { MY_APPS, APP_ROLE } from 'main/consts'
 import EditUserRole from 'main/views/admin/user/editRole';
 
 import AddUserModal from './addUser';
@@ -36,6 +36,7 @@ class DatabaseDetail extends Component {
         queryParams: {
             pageSize: 10,
             currentPage: 1,
+            name: undefined,
             databaseId: (this.props.data && this.props.data.id) || undefined,
         },
     }
@@ -44,6 +45,7 @@ class DatabaseDetail extends Component {
         this.loadDBUsers();
         this.loadDBUserRoles();
         this.getOwnRoles(this.props.user);
+        this.onSearchUsers();
     }
 
     loadDBUsers = async (params) => {
@@ -70,16 +72,41 @@ class DatabaseDetail extends Component {
     initEdit = (selectedItem) => {
         this.setState({
             selectedItem,
+            visibleEditRole: true,
         })
     }
 
+    addUser = async (data) => {
+        const { usersNotInDB } = this.state;
+
+        data.targetUsers = [];
+        const uids = data.targetUserIds;
+        uids.forEach(uid => {
+            const user = usersNotInDB.find(user => user.userId == uid);
+            if (user) {
+                data.targetUsers.push(user);
+            }
+        })
+        
+        const res = await API.addDBUser(data);
+        if (res.code === 1) {
+            message.success('添加成功！');
+            this.setState({
+                visibleAddUser: false,
+            })
+            this.loadDBUsers({ name: undefined });
+        }
+    }
+
     removeUser = async (removeTarget) => {
+        const { data } = this.props;
         const res = await API.removeDBUser({
-            userId: removeTarget.id,
+            targetUserId: removeTarget.id,
+            databaseId: data.id,
         });
         if (res.code === 1) {
             message.success('删除成功！');
-            this.loadDBUsers();
+            this.loadDBUsers({ name: undefined });
         }
     }
 
@@ -95,6 +122,28 @@ class DatabaseDetail extends Component {
     }
 
     onEditUserRole = async () => {
+
+        const { data } = this.props;
+        const ctx = this;
+        const { selectedItem } = this.state;
+        const editForm = this._eidtRoleForm.props.form;
+
+        editForm.validateFields( async (err, values) => {
+            if (!err) {
+                values.targetUserId = selectedItem.userId;
+                values.databaseId = data.id;
+
+                const res = await API.updateDBUserRole(values);
+                if (res.code === 1) {
+                    message.success('更新成功！');
+                    ctx.setState({
+                        visibleEditRole: false,
+                        selectedItem: '',
+                    });
+                    ctx.loadDBUsers({ name: undefined })
+                }
+            }
+        });
     }
 
     /**
@@ -256,7 +305,6 @@ class DatabaseDetail extends Component {
             current: userList.currentPage,
         };
 
-        console.log('render data:', userList, userRoles, usersNotInDB,)
         return (
             <div className="pane-wrapper" style={{ padding: '0px 20px' }}>
                 <Row className="row-content">
@@ -357,6 +405,7 @@ class DatabaseDetail extends Component {
                     visible={this.state.visibleAddUser}
                 />
                 <Modal
+                    title="编辑角色"
                     visible={this.state.visibleEditRole}
                     onOk={this.onEditUserRole}
                     onCancel={() => {this.setState({
@@ -368,6 +417,7 @@ class DatabaseDetail extends Component {
                         roles={userRoles}
                         myRoles={myRoles}
                         loginUser={user}
+                        wrappedComponentRef={(e) => { this._eidtRoleForm = e }}
                         app={MY_APPS.ANALYTICS_ENGINE}
                     />
                 </Modal>
