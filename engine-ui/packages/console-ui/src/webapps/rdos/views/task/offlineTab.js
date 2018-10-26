@@ -335,7 +335,7 @@ class OfflineTabPane extends Component {
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         const menus = []
         if (subMenus && subMenus.length > 0) {
             for (let i = 0; i < subMenus.length; i++) {
@@ -371,18 +371,20 @@ class OfflineTabPane extends Component {
                                     <Icon type="bars" />
                                 </Dropdown>
                             </header>
-                            <div>
-                                {
-                                    !isEmpty(taskTreeData) &&
-                                    <FolderTree
-                                        isPro={isPro}
-                                        couldEdit={couldEdit}
-                                        type={MENU_TYPE.TASK_DEV}
-                                        onExpand={this.onExpand}
-                                        treeData={taskTreeData}
-                                        expandedKeys={expandedKeys}
-                                    />
-                                }
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    {
+                                        !isEmpty(taskTreeData) &&
+                                        <FolderTree
+                                            isPro={isPro}
+                                            couldEdit={couldEdit}
+                                            type={MENU_TYPE.TASK_DEV}
+                                            onExpand={this.onExpand}
+                                            treeData={taskTreeData}
+                                            expandedKeys={expandedKeys}
+                                        />
+                                    }
+                                </div>
                             </div>
                         </div>
                         break;
@@ -418,18 +420,20 @@ class OfflineTabPane extends Component {
                                     </Dropdown>
                                 )}
                             </header>
-                            <div>
-                                {
-                                    !isEmpty(scriptTreeData) &&
-                                    <FolderTree
-                                        isPro={isPro}
-                                        couldEdit={couldEdit}
-                                        type={menuItem.catalogueType}
-                                        expandedKeys={expandedKeys}
-                                        onExpand={this.onExpand}
-                                        treeData={scriptTreeData}
-                                    />
-                                }
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    {
+                                        !isEmpty(scriptTreeData) &&
+                                        <FolderTree
+                                            isPro={isPro}
+                                            couldEdit={couldEdit}
+                                            type={menuItem.catalogueType}
+                                            expandedKeys={expandedKeys}
+                                            onExpand={this.onExpand}
+                                            treeData={scriptTreeData}
+                                        />
+                                    }
+                                </div>
                             </div>
                         </div>
                         break;
@@ -462,18 +466,20 @@ class OfflineTabPane extends Component {
                                     </Dropdown>
                                 )}
                             </header>
-                            <div>
-                                {
-                                    !isEmpty(resourceTreeData) &&
-                                    <FolderTree
-                                        isPro={isPro}
-                                        couldEdit={couldEdit}
-                                        type={menuItem.catalogueType}
-                                        expandedKeys={expandedKeys}
-                                        onExpand={this.onExpand}
-                                        treeData={resourceTreeData}
-                                    />
-                                }
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    {
+                                        !isEmpty(resourceTreeData) &&
+                                        <FolderTree
+                                            isPro={isPro}
+                                            couldEdit={couldEdit}
+                                            type={menuItem.catalogueType}
+                                            expandedKeys={expandedKeys}
+                                            onExpand={this.onExpand}
+                                            treeData={resourceTreeData}
+                                        />
+                                    }
+                                </div>
                             </div>
                         </div>
                         break;
@@ -488,43 +494,45 @@ class OfflineTabPane extends Component {
                                         onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
                                     />
                                 </Tooltip>
-                                {couldEdit&&(
+                                {couldEdit && (
                                     <Dropdown overlay={
-                                    <Menu onClick={this.onMenuClick}>
-                                        <Menu.Item key="function:newFunc">
-                                            新建函数
+                                        <Menu onClick={this.onMenuClick}>
+                                            <Menu.Item key="function:newFunc">
+                                                新建函数
                                         </Menu.Item>
-                                        <Menu.Item key="function:newFolder">
-                                            新建文件夹
+                                            <Menu.Item key="function:newFolder">
+                                                新建文件夹
                                         </Menu.Item>
-                                    </Menu>
-                                } trigger={['click']}>
-                                    <Icon type="bars" />
-                                </Dropdown>
+                                        </Menu>
+                                    } trigger={['click']}>
+                                        <Icon type="bars" />
+                                    </Dropdown>
                                 )}
                             </header>
-                            <div>
-                                {
-                                    !isEmpty(functionTreeData) &&
-                                    <FolderTree
-                                        isPro={isPro}
-                                        couldEdit={couldEdit}
-                                        type={MENU_TYPE.COSTOMFUC}
-                                        expandedKeys={expandedKeys}
-                                        onExpand={this.onExpand}
-                                        treeData={functionTreeData} />
-                                }
-                                {
-                                    !isEmpty(sysFunctionTreeData) &&
-                                    <FolderTree
-                                        isPro={isPro}
-                                        couldEdit={couldEdit}
-                                        type={MENU_TYPE.SYSFUC}
-                                        expandedKeys={expandedKeys2}
-                                        onExpand={this.onExpand2}
-                                        treeData={sysFunctionTreeData}
-                                    />
-                                }
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    {
+                                        !isEmpty(functionTreeData) &&
+                                        <FolderTree
+                                            isPro={isPro}
+                                            couldEdit={couldEdit}
+                                            type={MENU_TYPE.COSTOMFUC}
+                                            expandedKeys={expandedKeys}
+                                            onExpand={this.onExpand}
+                                            treeData={functionTreeData} />
+                                    }
+                                    {
+                                        !isEmpty(sysFunctionTreeData) &&
+                                        <FolderTree
+                                            isPro={isPro}
+                                            couldEdit={couldEdit}
+                                            type={MENU_TYPE.SYSFUC}
+                                            expandedKeys={expandedKeys2}
+                                            onExpand={this.onExpand2}
+                                            treeData={sysFunctionTreeData}
+                                        />
+                                    }
+                                </div>
                             </div>
                         </div>
                         break;

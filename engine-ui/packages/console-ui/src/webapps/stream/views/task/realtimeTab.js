@@ -139,12 +139,12 @@ class RealTimeTabPane extends Component {
         const { dispatch, pages } = this.props
         const { data } = info.node.props
         if (data.type === 'file') {
-            const page=pages.find((item)=>{
-                return item.id==data.id
+            const page = pages.find((item) => {
+                return item.id == data.id
             })
-            if(page){
+            if (page) {
                 dispatch(BrowserAction.setCurrentPage(page))
-            }else{
+            } else {
                 dispatch(BrowserAction.openPage({ id: data.id }))
             }
         } else {
@@ -552,7 +552,6 @@ class RealTimeTabPane extends Component {
                                 <Tooltip title="刷新" placement="bottom">
                                     <Icon
                                         type="sync"
-                                        style={{ fontSize: '12px' }}
                                         onClick={() => this.reloadTreeNodes(menuItem.children[0].id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>
@@ -569,16 +568,20 @@ class RealTimeTabPane extends Component {
                                     <Icon type="bars" />
                                 </Dropdown>
                             </header>
-                            <FolderTree
-                                onRightClick={this.rightClick}
-                                onSelect={this.chooseTask}
-                                loadData={this.loadTreeData}
-                                treeData={menuItem.children}
-                                treeType={menuItem.catalogueType}
-                                expandedKeys={expandedKeys}
-                                onExpand={this.onExpand}
-                                selectedKeys={[`${currentPage.id}`]}
-                            />
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    <FolderTree
+                                        onRightClick={this.rightClick}
+                                        onSelect={this.chooseTask}
+                                        loadData={this.loadTreeData}
+                                        treeData={menuItem.children}
+                                        treeType={menuItem.catalogueType}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
+                                        selectedKeys={[`${currentPage.id}`]}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         break;
                     }
@@ -598,15 +601,19 @@ class RealTimeTabPane extends Component {
                                     <Icon type="bars" />
                                 </Dropdown>
                             </header>
-                            <FolderTree
-                                onRightClick={this.rightClick}
-                                onSelect={this.chooseRes}
-                                loadData={this.loadTreeData}
-                                treeData={menuItem.children}
-                                treeType={menuItem.catalogueType}
-                                expandedKeys={expandedKeys}
-                                onExpand={this.onExpand}
-                            />
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    <FolderTree
+                                        onRightClick={this.rightClick}
+                                        onSelect={this.chooseRes}
+                                        loadData={this.loadTreeData}
+                                        treeData={menuItem.children}
+                                        treeType={menuItem.catalogueType}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         break;
                     }
@@ -633,24 +640,28 @@ class RealTimeTabPane extends Component {
                                     <Icon type="bars" />
                                 </Dropdown>
                             </header>
-                            <FolderTree
-                                onRightClick={this.rightClick}
-                                loadData={this.loadTreeData}
-                                onSelect={this.chooseFn}
-                                treeData={customTreeData ? [customTreeData] : []}
-                                treeType={MENU_TYPE.COSTOMFUC}
-                                expandedKeys={expandedKeys}
-                                onExpand={this.onExpand}
-                            />
-                            <FolderTree
-                                onRightClick={this.rightClick}
-                                loadData={this.loadTreeData}
-                                onSelect={(selected, e) => { this.chooseFn(selected, e, "expandedKeys2") }}
-                                treeData={systemTreeData ? [systemTreeData] : []}
-                                treeType={MENU_TYPE.SYSFUC}
-                                expandedKeys={expandedKeys2}
-                                onExpand={this.onExpand2}
-                            />
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    <FolderTree
+                                        onRightClick={this.rightClick}
+                                        loadData={this.loadTreeData}
+                                        onSelect={this.chooseFn}
+                                        treeData={customTreeData ? [customTreeData] : []}
+                                        treeType={MENU_TYPE.COSTOMFUC}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
+                                    />
+                                    <FolderTree
+                                        onRightClick={this.rightClick}
+                                        loadData={this.loadTreeData}
+                                        onSelect={(selected, e) => { this.chooseFn(selected, e, "expandedKeys2") }}
+                                        treeData={systemTreeData ? [systemTreeData] : []}
+                                        treeType={MENU_TYPE.SYSFUC}
+                                        expandedKeys={expandedKeys2}
+                                        onExpand={this.onExpand2}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         break;
                     }
@@ -667,13 +678,17 @@ class RealTimeTabPane extends Component {
                                         type="folder-add" />
                                 </Tooltip>
                             </header>
-                            <FolderTree
-                                loadData={this.loadTreeData}
-                                treeData={menuItem.children}
-                                treeType={menuItem.catalogueType}
-                                expandedKeys={expandedKeys}
-                                onExpand={this.onExpand}
-                            />
+                            <div className="contentBox">
+                                <div className="folder-box">
+                                    <FolderTree
+                                        loadData={this.loadTreeData}
+                                        treeData={menuItem.children}
+                                        treeType={menuItem.catalogueType}
+                                        expandedKeys={expandedKeys}
+                                        onExpand={this.onExpand}
+                                    />
+                                </div>
+                            </div>
                         </div>;
                         break;
                     }

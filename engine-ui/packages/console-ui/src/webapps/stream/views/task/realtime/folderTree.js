@@ -15,7 +15,7 @@ class FolderTree extends Component {
             (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT)
             && file.type === 'file'
         ) {
-            const lockInfo = file.readWriteLockVO;
+            const lockInfo = file.readWriteLockVO||{};
             return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
         }
         return file.createUser;
@@ -163,7 +163,7 @@ class FolderTree extends Component {
             </Tree>
         )
 
-        return <div style={{ position: 'relative', display: 'block' }}>
+        return <div style={{ position: 'relative', display: 'block' }} >
             {treeContent}
         </div>
     }
