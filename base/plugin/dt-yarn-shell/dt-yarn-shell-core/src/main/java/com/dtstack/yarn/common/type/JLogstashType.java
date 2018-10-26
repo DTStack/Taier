@@ -61,9 +61,11 @@ public class JLogstashType extends AppType {
         try {
             String[] args = cmd.split("\\s+");
             String fStr = null;
+            int idx = -1;
             for (int i = 0; i < args.length - 1; ++i) {
                 if (args[i].equals("-f")) {
                     fStr = URLDecoder.decode(args[i + 1], "UTF-8");
+                    idx = i + 1;
                     break;
                 }
             }
@@ -77,10 +79,12 @@ public class JLogstashType extends AppType {
                         while (inputIT.hasNext()) {
                             Map.Entry<String, Map> inputEntry = inputIT.next();
                             String inputType = inputEntry.getKey();
-                            Map inputConfig = inputEntry.getValue();
+                            Map<String, Object> inputConfig = inputEntry.getValue();
                             if ("Beats".equalsIgnoreCase(inputType)) {
                                 int configPort = MapUtils.getInteger(inputConfig, "port", 6767);
                                 int port = NetUtils.getAvailablePortRange(configPort);
+                                inputConfig.put("port",port);
+
                                 Map<String, Object> beats = new HashMap<>(1);
                                 beats.put("port", port);
                                 containerInfo.put("beats" + i++, beats);
@@ -88,6 +92,11 @@ public class JLogstashType extends AppType {
                         }
                     }
                 }
+                fStr = objectMapper.writeValueAsString(configs);
+            }
+            if (idx!=-1){
+                args[idx] =  URLEncoder.encode(fStr, "UTF-8");
+                cmd = StringUtils.join(args," ");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,4 +109,20 @@ public class JLogstashType extends AppType {
         return "JLOGSTASH";
     }
 
+    public static void main(String[] args) throws Exception {
+        String cmd = "/opt/dtstack/java/bin/java -cp " +
+                "/opt/dtstack/jlogstash/jlogstash.jar " +
+                "com.dtstack.jlogstash.JlogstashMain " +
+                "-l stdout " +
+                "-vvv " +
+                "-f " +
+                "%7B%22outputs%22%3A%5B%7B%22Stdout%22%3A%7B%22codec%22%3A%22line%22%7D%7D%5D%2C%22inputs%22%3A%5B%7B%22Beats%22%3A%7B%22port%22%3A6767%2C%22host%22%3A%220.0.0.0%22%7D%7D%5D%7D " +
+                "-p " +
+                "/opt/dtstack/jlogstash";
+
+        AppType appType = new JLogstashType();
+        Map m = new HashMap<String,Object>();
+        System.out.println(appType.cmdContainerExtra(cmd, m));
+        System.out.println(m);
+    }
 }
