@@ -60,6 +60,10 @@ export default class TabIcon extends Component {
                     iconName = "shell.svg";
                     break;
                 }
+                case TASK_TYPE.ML: {
+                    iconName = "computerStudy.svg";
+                    break;
+                }
                 case TASK_TYPE.DATA_COLLECTION: {
                     iconName = "collection.svg";
                     break;
@@ -94,14 +98,14 @@ export default class TabIcon extends Component {
             }
         }
 
-        return <img className="s-icon" 
+        return <img className="s-icon"
             style={{
                 width: '14px',
                 height: '14px',
-                position: 'absolute', 
+                position: 'absolute',
                 top: '8px',
                 left: '10px',
-            }} 
-        src={`/public/rdos/img/${iconName}`} />;
+            }}
+            src={`/public/rdos/img/${iconName}`} />;
     }
 }
