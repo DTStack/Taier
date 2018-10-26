@@ -46,6 +46,7 @@ export default class StepThree extends Component{
     super();
     this.state = {
       indexes: [],
+
     }
   }
 
@@ -161,10 +162,11 @@ export default class StepThree extends Component{
         dataIndex: 'columnType',
         render: (text,record)=>(
           <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
-            <Option value="STRING">STRING</Option>
-            <Option value="INT">INT</Option>
-            <Option value="LONG">LONG</Option>
-            <Option value="BLOG">BLOG</Option>
+            {
+              this.props.formData.columns.map(o=>(
+                <Option key={o._fid} value={o.columnName}>{o.columnName}</Option>
+              ))
+            }
           </Select>
         )
       },{
