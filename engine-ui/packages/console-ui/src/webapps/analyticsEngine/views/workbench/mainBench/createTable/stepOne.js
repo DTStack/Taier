@@ -37,6 +37,8 @@ export default class StepOne extends Component{
       databaseList: [],
       sortScopeList: [],
       downIcon: true,
+      short: false,
+      customLifeCycle: '',
     }
   }
 
@@ -48,12 +50,29 @@ export default class StepOne extends Component{
     const {form} = this.props;
     form.validateFields((err,values)=>{
       console.log(values)
+      // if(values.life_cycle === -1){
+      //   values.life_cycle = this.state.customLifeCycle;
+      // }
       if(!err){
         this.props.handleNextStep();
       }
     })
   }
 
+
+  handleSelectChange = (e)=>{
+    if(e === -1){
+      this.setState({
+        short: true
+      })
+    }
+  }
+
+  handleShortLiftCycleChange = (e)=>{
+    console.log(e)
+    this.state.customLifeCycle = e.target.value;
+    this.props.saveNewTableData([{key:"shortLisyCycle", value:e.target.value}])
+  }
 
 
   render(){
@@ -74,8 +93,6 @@ export default class StepOne extends Component{
                 initialValue: formData.databaseId || undefined
               })(
                   <Select>
-                  <Option value="ss">ss</Option>
-
                   {
                     this.state.databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
@@ -135,9 +152,9 @@ export default class StepOne extends Component{
                     rules: [
                       {required: true, message: '生命周期不能为空'}
                     ],
-                    initialValue: tableDetail.life_cycle || undefined
+                    initialValue: formData.lifeCycle || undefined
                   })(
-                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().life_cycle === '-1'?78:430,height: 36}}>
+                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:430,height: 36}}>
                     {options.map(o=>(
                       <Option key={o.value}>{o.name}</Option>
                     ))}
@@ -145,8 +162,8 @@ export default class StepOne extends Component{
                   )
                 }
                 {
-                getFieldsValue().life_cycle === '-1' &&
-                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
+                getFieldsValue().lifeCycle === '-1' &&
+                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.handleShortLiftCycleChange(e)}}/>
                 }
               </span>
           </FormItem>

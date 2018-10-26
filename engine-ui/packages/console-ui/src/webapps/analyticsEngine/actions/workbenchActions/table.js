@@ -145,6 +145,11 @@ export function handleSave(){
 
         const { workbench } = getStore();
         const { newanalyEngineTableDataList, currentTab } = workbench.mainBench;
+        let params = newanalyEngineTableDataList[`tableItem${currentTab}`];
+        if(params.lifeCycle === -1){
+            params.lifeCycle = params.shortLisyCycle;
+            delete params.lifeCycle;
+        }
 
         const res = API.createTable(newanalyEngineTableDataList[`tableItem${currentTab}`])
         if(res.code === 1){
