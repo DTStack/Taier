@@ -15,12 +15,12 @@ import {
     dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
-import {PROJECT_TYPE} from "../../../../comm/const"
-import {isProjectCouldEdit} from "../../../../comm"
+import { PROJECT_TYPE } from "../../../../comm/const"
+import { isProjectCouldEdit } from "../../../../comm"
 
 const Step = Steps.Step;
 
-class DataSync extends React.Component{
+class DataSync extends React.Component {
 
     constructor(props) {
         super(props);
@@ -44,16 +44,16 @@ class DataSync extends React.Component{
 
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {
-                if(res.data){
-                    const {sourceMap} = res.data
-                    sourceMap.sourceList?(sourceMap.sourceList=sourceMap.sourceList.map(
-                        (source,index)=>{
+                if (res.data) {
+                    const { sourceMap } = res.data
+                    sourceMap.sourceList ? (sourceMap.sourceList = sourceMap.sourceList.map(
+                        (source, index) => {
                             return {
                                 ...source,
-                                key:index==0?"main":("key"+~~Math.random()*10000000)
+                                key: index == 0 ? "main" : ("key" + ~~Math.random() * 10000000)
                             }
                         }
-                    )):null;
+                    )) : null;
                 }
                 this.props.initJobData(res.data);
             } else {
@@ -67,7 +67,7 @@ class DataSync extends React.Component{
                 this.navtoStep(0)
             } else {
                 this.props.setTabSaved();
-                if(!dataSyncSaved){
+                if (!dataSyncSaved) {
                     this.navtoStep(4)
                 }
             }
@@ -79,8 +79,8 @@ class DataSync extends React.Component{
     // 组件离开保存数据到tabs中
     componentWillUnmount() {
         const { id, dataSync } = this.props;
-        if(this.state.loading){
-            return ;
+        if (this.state.loading) {
+            return;
         }
         this.props.saveDataSyncToTab({
             id: id,
@@ -137,13 +137,13 @@ class DataSync extends React.Component{
         const targetTypeObj = targetMap.type;
         const sourceTypeObj = sourceMap.type;
 
-        for(let key in sourceTypeObj) {
+        for (let key in sourceTypeObj) {
             if (sourceTypeObj.hasOwnProperty(key)) {
                 sourceMap[key] = sourceTypeObj[key]
             }
         }
-        for(let k2 in targetTypeObj) {
-            if(targetTypeObj.hasOwnProperty(k2)) {
+        for (let k2 in targetTypeObj) {
+            if (targetTypeObj.hasOwnProperty(k2)) {
                 targetMap[k2] = targetTypeObj[k2]
             }
         }
@@ -158,8 +158,8 @@ class DataSync extends React.Component{
         let result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
 
         // 将以上步骤生成的数据同步配置拼装到task对象中
-        for(let key in clone) {
-            if(clone.hasOwnProperty(key)) {
+        for (let key in clone) {
+            if (clone.hasOwnProperty(key)) {
                 result[key] = clone[key];
             }
         }
@@ -168,7 +168,7 @@ class DataSync extends React.Component{
         result.preSave = true;
 
         // 接口要求上游任务字段名修改为dependencyTasks
-        if(result.taskVOS) {
+        if (result.taskVOS) {
             result.dependencyTasks = result.taskVOS.map(o => o);
             result.taskVOS = null;
         }
@@ -176,52 +176,62 @@ class DataSync extends React.Component{
         // 数据拼装结果
         return result;
     }
-
+    getPopupContainer = () => {
+        return this._datasyncDom;
+    }
     render() {
         const { currentStep, loading } = this.state;
-        const { readWriteLockVO, notSynced, user, project } =this.props;
+        const { readWriteLockVO, notSynced, user, project } = this.props;
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
 
         const steps = [
-            {title: '数据来源', content: <DataSyncSource
+            {
+                title: '数据来源', content: <DataSyncSource
+                    getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
-                    navtoStep={ this.navtoStep.bind(this) }
+                    navtoStep={this.navtoStep.bind(this)}
                 />
             },
-            {title: '选择目标', content: <DataSyncTarget
+            {
+                title: '选择目标', content: <DataSyncTarget
+                    getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
-                    navtoStep={ this.navtoStep.bind(this) }
+                    navtoStep={this.navtoStep.bind(this)}
                 />
             },
-            {title: '字段映射', content: <DataSyncKeymap
+            {
+                title: '字段映射', content: <DataSyncKeymap
                     currentStep={currentStep}
-                    navtoStep={ this.navtoStep.bind(this) }
+                    navtoStep={this.navtoStep.bind(this)}
                 />
             },
-            {title: '通道控制', content: <DataSyncChannel
+            {
+                title: '通道控制', content: <DataSyncChannel
+                    getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
-                    navtoStep={ this.navtoStep.bind(this) }
+                    navtoStep={this.navtoStep.bind(this)}
                 />
             },
-            {title: '预览保存', content: <DataSyncSave
+            {
+                title: '预览保存', content: <DataSyncSave
                     currentStep={currentStep}
                     notSynced={notSynced}
-                    navtoStep={ this.navtoStep.bind(this) }
-                    saveJob={ this.save.bind(this) }
+                    navtoStep={this.navtoStep.bind(this)}
+                    saveJob={this.save.bind(this)}
                 />
             },
         ];
 
-        return loading ? null: <div className="m-datasync">
+        return loading ? null : <div className="m-datasync">
             <Steps current={currentStep}>
-                { steps.map(item => <Step key={item.title} title={item.title} />) }
+                {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>
-            <div className="steps-content" style={{position:"relative"}}>
-                {isLocked||!couldEdit?<div className="steps-mask"></div>:null}
-                { steps[currentStep].content }
+            <div ref={(ref) => { this._datasyncDom = ref; }} className="steps-content" style={{ position: "relative" }}>
+                {isLocked || !couldEdit ? <div className="steps-mask"></div> : null}
+                {steps[currentStep].content}
             </div>
-      </div>
+        </div>
     }
 }
 
@@ -231,8 +241,8 @@ const mapState = (state) => {
         dataSync: state.offlineTask.dataSync,
         tabs: state.offlineTask.workbench.tabs,
         currentTab: currentTab,
-        user:state.user,
-        project:state.project
+        user: state.user,
+        project: state.project
     }
 };
 
@@ -242,7 +252,7 @@ const mapDispatch = dispatch => {
             ajax.getOfflineDataSource()
                 .then(res => {
                     let data = []
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         data = res.data
                     }
                     dispatch({
@@ -297,7 +307,7 @@ const mapDispatch = dispatch => {
         saveJobData(params) {
             ajax.saveOfflineJobData(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         message.success('保存成功！');
                         dispatch({
                             type: workbenchAction.SET_CURRENT_TAB_SAVED
