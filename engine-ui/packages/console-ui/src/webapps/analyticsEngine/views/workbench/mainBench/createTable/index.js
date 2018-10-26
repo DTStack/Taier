@@ -35,19 +35,17 @@ class CreateTable extends Component {
         console.log(nextProps)
     }
     render () {
-        const { currentStep, currentTab, newanalyEngineTableDataList} = this.props.workbench.mainBench;
-        const newanalyEngineTableData = newanalyEngineTableDataList[`tableItem${currentTab}`] || {};
+        const {currentStep} = this.props.data;
+
+        console.log(this.props.data)
 
         const steps = [
             {
                 title: '基本信息',
-                content: <StepOne formData={newanalyEngineTableData || {}} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepOne tabData={this.props.data}  handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '字段与分区',
-                content: <StepTwo formData={newanalyEngineTableData || {}} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
-            },{
-                title: '索引',
-                content: <StepThree formData={newanalyEngineTableData || {}} handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepTwo tabData={this.props.data}   handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '新建完成',
                 content: <StepFour/>

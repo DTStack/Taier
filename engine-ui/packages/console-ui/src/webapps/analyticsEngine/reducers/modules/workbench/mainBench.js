@@ -7,7 +7,8 @@ const workbenchStoreKey = 'engine_workbench';
 const defaultTabBarData = {
     tabs: [],
     currentTab: 1,
-    currentStep: 0,
+    // currentStep: 0,
+    
     newanalyEngineTableDataList: {},//新建的多个表数据
     editTableInfoList: {},//正在编辑的多个表数据
     tableDetail: {},//表详情
@@ -66,39 +67,51 @@ export default function mainBench(state = getInitialCachedData(), action) {
 
         case workbenchAction.NEW_TABLE_INFO_CHANGE: {
 
-            let newanalyEngineTableDataList = state.newanalyEngineTableDataList || {};
-            newanalyEngineTableDataList[`tableItem${state.currentTab}`] = newanalyEngineTableDataList[`tableItem${state.currentTab}`] || {}
-            for(let item in payload){
-                newanalyEngineTableDataList[`tableItem${state.currentTab}`][payload[item].key] = payload[item].value
-            }
-            const newState = assign({},state,{
-                newanalyEngineTableDataList: newanalyEngineTableDataList
-            })
-            localDb.set('engine_workbench', newState);
+            // let newanalyEngineTableDataList = state.newanalyEngineTableDataList || {};
+            // newanalyEngineTableDataList[`tableItem${state.currentTab}`] = newanalyEngineTableDataList[`tableItem${state.currentTab}`] || {}
+            // for(let item in payload){
+            //     newanalyEngineTableDataList[`tableItem${state.currentTab}`][payload[item].key] = payload[item].value
+            // }
+            // const newState = assign({},state,{
+            //     newanalyEngineTableDataList: newanalyEngineTableDataList
+            // })
+            // localDb.set('engine_workbench', newState);
 
+            // console.log(newState)
+            // return newState;
+            console.log(payload)
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            for(let item in payload){
+                tabData.tableItem[payload[item].key] = payload[item].value
+            }
+            const newState = assign({},state)
             console.log(newState)
             return newState;
         }
         case workbenchAction.NEXT_STEP: {
-            console.log('NEXT')
-            // let clone = cloneDeep(state);
-            console.log(state)
-
-            let currentStep = state.currentStep + 1;
-            console.log(state)
-            return assign({}, state, {
-                currentStep: currentStep,
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
             })
+            tabData.currentStep = tabData.currentStep+1;
+            return assign({}, state)
         }
-
-
-
-
         case workbenchAction.LAST_STEP: {
-            let currentStep = state.currentStep - 1;
-            return assign({},state,{
-                currentStep: currentStep
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
             })
+            tabData.currentStep = tabData.currentStep-1;
+            return assign({}, state)
         }
         case workbenchAction.NEW_TABLE_SAVED: {
             // let currentStep = state.currentStep + 1;

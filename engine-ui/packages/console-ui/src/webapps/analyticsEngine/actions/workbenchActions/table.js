@@ -1,4 +1,5 @@
 import { notification, message } from 'antd';
+import moment from 'moment';
 
 import API from '../../api';
 import workbenchAction from '../../consts/workbenchActionType';
@@ -14,7 +15,6 @@ export function onGetTable(params) {
     return async dispatch => {
 
         const res = await API.createOrUpdateDB(params);
-    
         if (res.code === 1) {
             const tableData = res.data;
             // 添加Action标记
@@ -38,7 +38,6 @@ export function onGenerateCreateSQL(tableId) {
         const res = await API.getCreateSQL({
             tableId,
         });
-    
         if (res.code === 1) {
             const modalValue = {
                 visibleModal: workbenchAction.GENERATE_CREATE_SQL,
@@ -55,10 +54,17 @@ export function onGenerateCreateSQL(tableId) {
     }
 };
 
+
+/**
+ * 点击“新建表”
+ * @param {导航数据} params 
+ */
 export function onCreateTable(params) {
+    console.log(params)
     return (dispatch, getStore) => {
         const {workbench} = getStore();
         const { tabs } = workbench.mainBench;
+        console.log(tabs)
 
         let createTableTabIndex = 0;
         for(let i = 0;i<tabs.length;i++){
@@ -69,15 +75,42 @@ export function onCreateTable(params) {
 
         const newCreateTableTabData = {
             id: moment().unix(),
-            name: '新建表',
+            tabName: '新建表',
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
+            databaseId: params.id,
+            tableItem: {},
+            currentStep: 0,
         }
         console.log(newCreateTableTabData)
 
         dispatch(openTab(newCreateTableTabData))
     }
 };
+
+export function onEditTable(params){
+    return (dispatch, getStore) => {
+        const {workbench} = getStore();
+        const { tabs } = workbench.mainBench;
+
+        let createTableTabIndex = 0;
+        for(let i = 0;i<tabs.length;i++){
+            if(tabs[i].actionType === workbenchAction.OPEN_TABLE_EDITOR){
+                createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
+            }
+        }
+
+        const newCreateTableTabData = {
+            id: moment().unix(),
+            tabName: `编辑${params.tableName}`,
+            createTableTabIndex: createTableTabIndex + 1,
+            actionType: workbenchAction.OPEN_TABLE_EDITOR,
+        }
+        console.log(newCreateTableTabData)
+
+        dispatch(openTab(newCreateTableTabData))
+    }
+}
 
 /*
 * 保存新建表数据到storage
@@ -95,9 +128,16 @@ export function saveNewTableData(params) {
 export function handleNextStep() {
     console.log('sdsdadsaNEXT')
     return (dispatch,getStore) => {
+        let currentStep = 0;
         const { workbench } = getStore();
-        const { currentStep } = workbench.mainBench;
-        if(currentStep === 3){
+        const { tabs,currentTab } = workbench.mainBench;
+        tabs.map(o=>{
+            if(o.id === currentTab){
+                currentStep = o.currentStep;
+            }
+        })
+
+        if(currentStep === 2){
             //提交表单
         }else{
             return dispatch({
@@ -144,14 +184,19 @@ export function handleSave(){
     return (dispatch,getStore) => {
 
         const { workbench } = getStore();
-        const { newanalyEngineTableDataList, currentTab } = workbench.mainBench;
-        let params = newanalyEngineTableDataList[`tableItem${currentTab}`];
+        const { tabs, currentTab } = workbench.mainBench;
+        let params = {};
+        tabs.map(o=>{
+            if(o.id === currentTab){
+                params = o.tableItem;
+            }
+        })
         if(params.lifeCycle === -1){
             params.lifeCycle = params.shortLisyCycle;
             delete params.lifeCycle;
         }
 
-        const res = API.createTable(newanalyEngineTableDataList[`tableItem${currentTab}`])
+        const res = API.createTable(params)
         if(res.code === 1){
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED
