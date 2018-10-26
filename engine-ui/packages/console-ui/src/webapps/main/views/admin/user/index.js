@@ -443,7 +443,7 @@ class AdminUser extends Component {
 
     initColums = () => {
         const ctx = this;
-        const hideDel = this.state.active !== MY_APPS.RDOS;
+        const hideDel = this.state.active !== MY_APPS.RDOS&&this.state.active!==MY_APPS.STREAM;
         return [{
             title: '账号',
             dataIndex: 'user.userName',

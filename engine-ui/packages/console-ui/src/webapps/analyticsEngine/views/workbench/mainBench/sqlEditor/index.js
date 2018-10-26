@@ -21,7 +21,8 @@ import * as editorActions from "../../../../actions/editorActions";
         const { workbench, editor } = state;
         return {
             workbench,
-            editor
+            editor,
+            currentTab: workbench.mainBench.currentTab,
         };
     },
     dispatch => {
@@ -49,8 +50,7 @@ class EditorContainer extends Component {
         if (currentNode) {
             this.props.getTab(currentNode.id); //初始化console所需的数据结构
         }
-        // this.initTableList();
-        // this.initFuncList();
+        this.initTableList();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -61,13 +61,8 @@ class EditorContainer extends Component {
         }
     }
 
-    initTableList(id) {
-        if (!id) {
-            return;
-        }
-        API.getTableListByName({
-            appointProjectId: id
-        }).then(res => {
+    initTableList() {
+        API.searchTable().then(res => {
             if (res.code == 1) {
                 let { data } = res;
                 this.setState({
@@ -99,12 +94,14 @@ class EditorContainer extends Component {
     }
 
     handleEditorTxtChange = (newVal, editorInstance) => {
+        const data = this.props.data;
         const newData = {
             merged: false,
+            id: data.id,
             sqlText: newVal,
             cursorPosition: editorInstance.getPosition()
         };
-        this.props.updateCurrentTab(newData);
+        this.props.updateTab(newData);
     };
 
     filterSql = sql => {
@@ -135,8 +132,7 @@ class EditorContainer extends Component {
             data
         } = this.props;
 
-        const params = {
-        };
+        const params = {};
 
         const code =
             editor.selection ||
@@ -178,7 +174,7 @@ class EditorContainer extends Component {
         const params = {
             sql: data.sqlText,
         };
-        API.sqlFormat(params).then(res => {
+        API.formatSQL(params).then(res => {
             if (res.data) {
                 const data = {
                     merged: true,
@@ -211,92 +207,16 @@ class EditorContainer extends Component {
             context = {},
             word = {}
         } = status;
+
         const { tableCompleteItems, funcCompleteItems } = this.state;
+
         console.log(status);
+
         //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
-        //假如触发上下文为点，则去除初始点几个完成项
-        if (context.completionContext.triggerCharacter == ".") {
-            defaultItems = [];
-        }
-        //开始解析具体语境
-        if (autoComplete && autoComplete.locations) {
-            let promiseList = [];
-            //根据代码中出现的表来获取所有的字段
-            for (let location of autoComplete.locations) {
-                if (location.type == "table") {
-                    for (let identifierChain of location.identifierChain) {
-                        let columns = this.getTableColumns(
-                            identifierChain.name
-                        );
-                        promiseList.push(columns);
-                    }
-                }
-            }
-            Promise.all(promiseList)
-                .then(values => {
-                    let _tmpCache = {};
-                    //value:[tableName,data]
-                    for (let value of values) {
-                        //去除未存在的表
-                        if (!value || !value[1] || !value[1].length) {
-                            continue;
-                        }
-                        //防止添加重复的表
-                        if (_tmpCache[value[0]]) {
-                            continue;
-                        }
-                        _tmpCache[value[0]] = true;
-                        //在当前语境为column的情况下，提升该表所有column的优先级
-                        if (
-                            context.columnContext &&
-                            context.columnContext.indexOf(value[0]) > -1
-                        ) {
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(
-                                    value[1].map(columnName => {
-                                        return [
-                                            columnName,
-                                            value[0],
-                                            "100",
-                                            "Variable"
-                                        ];
-                                    })
-                                )
-                            );
-                        } else {
-                            //当触发上下文是点，则不显示其余补全项
-                            if (
-                                context.completionContext.triggerCharacter ==
-                                "."
-                            ) {
-                                continue;
-                            }
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(
-                                    value[1].map(columnName => {
-                                        return [
-                                            columnName,
-                                            value[0],
-                                            "1100",
-                                            "Variable"
-                                        ];
-                                    })
-                                )
-                            );
-                        }
-                    }
-                    resolve(defaultItems);
-                })
-                .catch(e => {
-                    console.log(e);
-                    resolve(defaultItems);
-                });
-        } else {
-            resolve(defaultItems);
-        }
+        resolve(defaultItems);
     }
 
     /**
@@ -340,25 +260,11 @@ class EditorContainer extends Component {
                     }
                     tmp_tables[identifierChain.name] = true;
                     tables.push(identifierChain.name);
-                    let columns = this.getTableColumns(identifierChain.name);
-                    promiseList.push(columns);
                 }
             }
         }
         this.setState({
             tables: tables
-        });
-        Promise.all(promiseList).then(values => {
-            for (let value of values) {
-                //去除未存在的表
-                if (!value || !value[1] || !value[1].length) {
-                    continue;
-                }
-                columns[value[0]] = value[1];
-            }
-            this.setState({
-                columns: columns
-            });
         });
     }
 
@@ -373,7 +279,7 @@ class EditorContainer extends Component {
     });
 
     render() {
-        const { editor, data, value } = this.props;
+        const { editor, data } = this.props;
 
         const currentTab = data.id;
 
@@ -388,7 +294,7 @@ class EditorContainer extends Component {
         const cursorPosition = data.cursorPosition || undefined;
 
         const editorOpts = {
-            value: value,
+            value: data.sqlText,
             language: "dtsql",
 
             customCompleteProvider: this.completeProvider.bind(this),

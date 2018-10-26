@@ -83,7 +83,8 @@
     }
 
     &>.ant-tabs {
-        .ant-tabs-bar {
+        
+        &>.ant-tabs-bar {
 
             margin-bottom: 1px;
             border-radius: 0px;

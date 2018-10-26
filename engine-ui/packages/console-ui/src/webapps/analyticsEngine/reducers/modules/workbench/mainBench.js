@@ -140,6 +140,23 @@ export default function mainBench(state = getInitialCachedData(), action) {
             localDb.set(workbenchStoreKey, '');
             return defaultTabBarData;
         }
+
+        case workbenchAction.UPDATE_TAB: {
+            if (payload) {
+                const tabs = [...state.tabs];
+                const index = tabs.findIndex(item => item.id === payload.id);
+                if (index > -1) {
+                    tabs[index] = assign(tabs[index], payload);
+                }
+                
+                const newStore = assign({}, state, {
+                    tabs,
+                })
+                console.log('UPDATE_TAB:', newStore);
+                localDb.set(workbenchStoreKey, newStore);
+                return newStore;
+            }
+        }
         default:
             return state;
     }

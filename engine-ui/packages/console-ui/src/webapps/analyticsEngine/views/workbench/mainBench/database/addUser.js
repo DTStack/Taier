@@ -4,7 +4,7 @@ import {
     Input, Select, Form, Checkbox, Modal,
 } from 'antd'
 
-import { MY_APPS, APP_ROLE } from 'main/consts';
+import { MY_APPS, ANALYTICS_ENGINE_ROLE } from 'main/consts';
 import { isDisabledRole } from 'main/views/admin/user/form';
 import { formItemLayout } from '../../../../consts';
 
@@ -35,10 +35,11 @@ class FormAddUser extends Component {
         let roleOptions = [];
         let initialValue = [];
         if (roles) {
+            console.log('roles:', roles)
             roles.forEach(role => {
                 // 判断哪些角色禁用
                 const disabled = isDisabledRole(MY_APPS.ANALYTICS_ENGINE, role.roleValue, user, myRoles);
-                if( role.roleValue === APP_ROLE.VISITOR) {
+                if( role.roleValue === ANALYTICS_ENGINE_ROLE.VISITOR) {
                     initialValue.push(role.id)
                 }
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })

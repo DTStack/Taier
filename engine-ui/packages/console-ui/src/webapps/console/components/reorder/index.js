@@ -11,13 +11,11 @@ import { Modal, Input, Form, message } from "antd";
 import { formItemLayout } from "../../consts";
 import Api from "../../api/console";
 class Reorder extends Component {
-    state = {
-        jobIndex: undefined
-    }
     // 请求顺序调整接口
     changeJobPriority() {
         const { priorityResource } = this.props;
-        const { jobIndex } = this.state;
+        const jobIndex = this.props.form.getFieldValue("jobIndex");
+        const { form } = this.props;
         // 获取集群
         var groupName, clusterName, computeTypeInt;
         const arr = (priorityResource.groupName || "").split("_");
@@ -29,10 +27,10 @@ class Reorder extends Component {
                 groupName = arr[1];
             }
         }
-
         Api.changeJobPriority({
             engineType: priorityResource.engineType,
             groupName: priorityResource.groupName,
+            node: this.props.node,
             jobId: priorityResource.taskId,
             jobIndex: jobIndex
         }).then((res) => {
@@ -40,19 +38,27 @@ class Reorder extends Component {
                 message.success("修改成功");
                 this.props.autoRefresh();
                 this.props.onCancel();
+                this.props.form.resetFields();
             }
         })
     }
-    changeJobIndex(e) {
-        this.setState({
-            jobIndex: e.target.value
+    validatejobIndex(rule,value,callback) {
+        const {total} = this.props;
+        if(value > total) {
+            callback("不超过当前列表中的任务数");
+        }
+        callback();
+    }
+
+    confirmChangeJobPriority() {
+        this.props.form.validateFields((err) => {
+            if(!err) {
+                this.changeJobPriority();
+            }
         })
     }
-    confirmChangeJobPriority() {
-        this.changeJobPriority();
-
-    }
     render() {
+        const { getFieldDecorator } = this.props.form;
         return (
             <Modal
                 title="执行顺序"
@@ -64,15 +70,25 @@ class Reorder extends Component {
                     label="执行顺序"
                     {...formItemLayout}
                 >
-                    <Input
-                        style={{ width: "100%" }}
-                        placeholder="不超过当前列表中的任务数"
-                        onChange={this.changeJobIndex.bind(this)}
-                        value={this.state.jobIndex}
-                    />
+                    {
+                        getFieldDecorator("jobIndex", {
+                            rules: [{
+                            },{
+                                pattern: /^[0-9]*$/,
+                                message: "请输入正确的数字"
+                            },{
+                                validator: this.validatejobIndex.bind(this),
+                            }]
+                        })(
+                            <Input
+                                style={{ width: "100%" }}
+                                placeholder="不超过当前列表中的任务数"
+                            />
+                        )
+                    }
                 </Form.Item>
             </Modal>
         )
     }
 }
-export default Reorder;
+export default Form.create()(Reorder);

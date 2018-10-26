@@ -105,7 +105,7 @@ class SourceForm extends React.Component {
             //form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
             form.setFields({
                 splitPK: {
-                  value: '',
+                    value: '',
                 }
             })
             return;
@@ -119,7 +119,7 @@ class SourceForm extends React.Component {
         }
 
         const sourceId = form.getFieldValue('sourceId');
-        if(type){
+        if (type) {
             ajax.getOfflineColumnForSyncopate({
                 sourceId,
                 tableName
@@ -229,7 +229,7 @@ class SourceForm extends React.Component {
 
     submitForm(event, sourceKey) {
         const {
-            form,handleSourceMapChange, 
+            form, handleSourceMapChange,
             targetMap, taskCustomParams,
             updateDataSyncVariables,
         } = this.props;
@@ -269,7 +269,9 @@ class SourceForm extends React.Component {
             }
         })
     }
-
+    getPopupContainer() {
+        return this.props.dataSyncRef;
+    }
     render() {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -281,6 +283,8 @@ class SourceForm extends React.Component {
             sourceMap.type.type === DATA_SOURCE.HDFS ||
             sourceMap.type.type === DATA_SOURCE.HBASE ||
             sourceMap.type.type === DATA_SOURCE.FTP;
+
+        const getPopupContainer = this.props.getPopupContainer;
 
         return <div className="g-step1">
             <Form>
@@ -296,6 +300,7 @@ class SourceForm extends React.Component {
                         initialValue: isEmpty(sourceMap) ? '' : `${sourceMap.sourceId}`
                     })(
                         <Select
+                            getPopupContainer={getPopupContainer}
                             showSearch
                             onSelect={this.changeSource.bind(this)}
                             optionFilterProp="name"
@@ -325,7 +330,8 @@ class SourceForm extends React.Component {
             <div className="m-datapreview" style={{
                 width: '90%',
                 margin: '0 auto',
-                overflow: 'auto'
+                overflow: 'auto',
+                textAlign: "center"
             }}>
                 <p style={{ cursor: 'pointer', marginBottom: 10 }} >
                     <a
@@ -361,8 +367,8 @@ class SourceForm extends React.Component {
             message.error('数据源或表名缺失');
             return;
         }
-        if(tableName instanceof Array){
-            tableName=tableName[0];
+        if (tableName instanceof Array) {
+            tableName = tableName[0];
         }
         if (!showPreview) {
             ajax.getDataPreview({
@@ -507,6 +513,8 @@ class SourceForm extends React.Component {
         const { sourceMap, isCurrentTabNew } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap && sourceMap.sourceList && sourceMap.sourceList[0].type) > -1;
+        const getPopupContainer = this.props.getPopupContainer
+        const haveChineseQuote=sourceMap&&sourceMap.type&&/(‘|’|”|“)/.test(sourceMap.type.where)?true:false
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
@@ -526,9 +534,10 @@ class SourceForm extends React.Component {
                                 required: true,
                                 message: '数据源表为必选项！'
                             }],
-                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary?sourceMap.sourceList[0].tables:sourceMap.type.table
+                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary ? sourceMap.sourceList[0].tables : sourceMap.type.table
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
@@ -548,7 +557,7 @@ class SourceForm extends React.Component {
                         </Tooltip>}
                     </FormItem> : null,
                     ...this.renderExtDataSource(),
-                    supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
+                    supportSubLibrary && <Row className="form-item-follow-text">
                         <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
                     </Row>,
                     <FormItem
@@ -571,6 +580,11 @@ class SourceForm extends React.Component {
                         )}
                         <HelpDoc doc="dataFilterDoc" />
                     </FormItem>,
+                    haveChineseQuote&&<Row className="form-item-follow-text">
+                        <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}>
+                            <p className="warning-color">当前输入含有中文引号</p>
+                        </Col>
+                    </Row>,
                     <FormItem
                         {...formItemLayout}
                         label="切分键"
@@ -581,11 +595,12 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.splitPK
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 showArrow={true}
                                 onChange={this.submitForm.bind(this)}
                             >
-                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.key).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
+                                {(sourceMap.copate && sourceMap.copate.map(v => v.key).filter((v, index, self) => self.indexOf(v) === index) || []).map((copateValue, index) => {
                                     return <Option key={`copate-${index}`} value={copateValue}>
                                         {copateValue}
                                     </Option>
@@ -613,6 +628,7 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this, null)}
@@ -683,7 +699,7 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: sourceMap.type && sourceMap.type.fileType ? sourceMap.type.fileType : 'text',
                         })(
-                            <Select onChange={this.submitForm.bind(this)} >
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
                             </Select>
@@ -701,7 +717,7 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -739,6 +755,7 @@ class SourceForm extends React.Component {
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this, null)}
@@ -764,7 +781,7 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: sourceMap.type && sourceMap.type.encoding ? sourceMap.type.encoding : 'utf-8'
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -912,7 +929,7 @@ class SourceForm extends React.Component {
                             }],
                             initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>

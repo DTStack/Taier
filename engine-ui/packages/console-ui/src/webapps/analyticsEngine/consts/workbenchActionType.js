@@ -8,6 +8,7 @@ const workbenchActionType = mc([
     'OPEN_TAB', // 打开Tab
     'CLOSE_OTHERS', // 关闭其他
     'CLOSE_ALL', // 关闭所有
+    'UPDATE_TAB', // 更新Tab内容
 
     // Catalogue
     'LOAD_CATALOGUE_DATA', // 加载目录数据

@@ -3,12 +3,20 @@ import { ANALYTICS_ENGINE_BASE_URL } from 'config/base';
 
 export default {
 
+    // ================== Common ================== //
+    EXEC_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
+    STOP_EXEC_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
+    FORMAT_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/formatSql`, // 格式化SQL
+    DOWNLOAD_SQL_RESULT: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/download`, // 下载执行结果
+    GET_SQL_RESULT: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
+
     // ================== Database ================== //
     GET_DB_USER_LIST: `${ANALYTICS_ENGINE_BASE_URL}/user/pageQuery`, // 获取用户列表
     GET_DB_USER_ROLE_LIST: `${ANALYTICS_ENGINE_BASE_URL}/role/pageQuery`, // 获取用户角色列表
     GET_USERS_NOT_IN_DB: `${ANALYTICS_ENGINE_BASE_URL}/user/getUicUsersNotInProject`, // 获取未添加到项目的用户
     UPDATE_DB_USER_ROLE: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/updateUserRole`, // 修改用户数据库角色
     ADD_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/addRoleUserNew`, // 添加数据库用户
+    DELETE_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/remove`, // 删除数据库用户
 
     GET_CATALOGUES: `${ANALYTICS_ENGINE_BASE_URL}/getCatalogue`, // 获取目录
     CREATE_DB: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createDataBase`, //创建或者修改数据库

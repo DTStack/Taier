@@ -151,7 +151,7 @@ class TargetForm extends React.Component {
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
-            
+
             // 处理数据同步变量
             updateDataSyncVariables(sourceMap.type, values, taskCustomParams);
             handleTargetMapChange(srcmap);
@@ -179,18 +179,18 @@ class TargetForm extends React.Component {
     }
     createTable() {
         const { textSql } = this.state;
-        const {targetMap} =  this.props;
+        const { targetMap } = this.props;
         this.setState({
-            modalLoading:true
+            modalLoading: true
         })
         ajax.createDdlTable({ sql: textSql }).then((res) => {
             this.setState({
-                modalLoading:false
+                modalLoading: false
             })
             if (res.code === 1) {
                 this.getTableList(targetMap.sourceId)
                 this.changeTable(res.data.tableName);
-                this.props.form.setFieldsValue({table:res.data.tableName})
+                this.props.form.setFieldsValue({ table: res.data.tableName })
                 this.setState({
                     visible: false
                 })
@@ -203,7 +203,7 @@ class TargetForm extends React.Component {
         this.setState({
             loading: true
         })
-        const tableName=typeof sourceMap.type.table=="string"?sourceMap.type.table:sourceMap.type.table[0]
+        const tableName = typeof sourceMap.type.table == "string" ? sourceMap.type.table : sourceMap.type.table[0]
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName: tableName,
@@ -212,7 +212,7 @@ class TargetForm extends React.Component {
             .then(
                 (res) => {
                     this.setState({
-                        loading:false
+                        loading: false
                     })
                     if (res.code == 1) {
                         this.setState({
@@ -237,7 +237,7 @@ class TargetForm extends React.Component {
             targetMap, dataSourceList,
             navtoStep, isCurrentTabNew
         } = this.props;
-
+        const getPopupContainer = this.props.getPopupContainer;
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(
@@ -264,6 +264,7 @@ class TargetForm extends React.Component {
                         initialValue: isEmpty(targetMap) ? '' : `${targetMap.sourceId}`
                     })(
                         <Select
+                            getPopupContainer={getPopupContainer}
                             showSearch
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
@@ -305,7 +306,7 @@ class TargetForm extends React.Component {
         const { targetMap, dataSourceList, isCurrentTabNew, project, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         let formItem;
-
+        const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE
             || sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL
@@ -334,6 +335,7 @@ class TargetForm extends React.Component {
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
                                 // disabled={ !isCurrentTabNew }
@@ -423,6 +425,7 @@ class TargetForm extends React.Component {
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
@@ -501,7 +504,7 @@ class TargetForm extends React.Component {
                                 placeholder="例如: /app/batch"
                                 onChange={
                                     debounce(this.submitForm, 600, { 'maxWait': 2000 })
-                                }/>
+                                } />
                         )}
                     </FormItem>,
                     <FormItem
@@ -529,7 +532,7 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -560,7 +563,7 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc',
                         })(
-                            <Select onChange={this.submitForm.bind(this)} >
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
                             </Select>
@@ -605,6 +608,7 @@ class TargetForm extends React.Component {
                             initialValue: targetMap.type && targetMap.type.table ? targetMap.type.table : ''
                         })(
                             <Select
+                                getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
                                 onChange={this.debounceTableSearch.bind(this)}
@@ -630,7 +634,7 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: targetMap.type && targetMap.type.encoding ? targetMap.type.encoding : 'utf-8'
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -716,7 +720,7 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: !targetMap.type || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
                         })(
-                            <Select onChange={this.submitForm.bind(this)}>
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
@@ -749,8 +753,8 @@ class TargetForm extends React.Component {
                             initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="NONCONFLICT" style={{ float: 'left' }}>
-                                覆盖（Insert Overwrite）
+                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                                    覆盖（Insert Overwrite）
                           </Radio>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
                                     追加新数据

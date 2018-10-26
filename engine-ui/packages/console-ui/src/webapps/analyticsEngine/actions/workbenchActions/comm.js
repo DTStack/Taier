@@ -75,6 +75,10 @@ export const closeTabs = function(type) {
  * @param {Object} tabData tab对象数据
  */
 export const updateTab = function(tabData) {
+    return {
+        type: workbenchAction.UPDATE_TAB,
+        payload: tabData,
+    }
 }
 
 /**

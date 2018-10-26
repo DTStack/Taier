@@ -48,7 +48,7 @@ export default {
     },
 
     removeDBUser(params) {
-        return http.post(req.ADD_DB_USER, params);
+        return http.post(req.DELETE_DB_USER, params);
     },
 
 }

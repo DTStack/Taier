@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { union } from "lodash";
 import {
-    Tree, 
+    Tree,
     Input, Tooltip, Icon, Select
 } from 'antd';
 
@@ -64,7 +64,7 @@ class TableTree extends React.Component {
         const { expandedKeys } = this.state;
         if (table && table.type !== 'folder') {
             this.setState({ tableId: table.id })
-        } else if ( table && table.type === 'folder') {
+        } else if (table && table.type === 'folder') {
             const { eventKey } = node.props;
             const eventKeyIndex = expandedKeys.indexOf(eventKey);
             if (eventKeyIndex > -1) {
@@ -150,7 +150,7 @@ class TableTree extends React.Component {
         return (
             <div className="menu-content" style={{ position: "relative" }}>
                 <header style={{ left: "13px" }}>
-                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", marginTop: "6.5px", float: "left" }}>
+                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", float: "left", marginLeft: "8px" }}>
                         <Option value="all">全部项目</Option>
                         <Option value={project.id}>{project.projectAlias}</Option>
                     </Select>
@@ -180,23 +180,27 @@ class TableTree extends React.Component {
                         this.setState({ displaySearch: false })
                     }}></div>
                 </header>
-                <div className="tb-list" style={{ maxHeight: tableId ? '400px' : 'calc(100% - 30px)', minHeight: '200px', paddingTop: "30px" }}>
-                    <TreeContent
-                        showIcon={true}
-                        loadData={this.onLoadData}
-                        onSelect={this.handleSelect}
-                        expandedKeys={expandedKeys}
-                        autoExpandParent={false}
-                        onExpand={this.onExpand}
-                        treeData={this.props.treeData}
-                    />
+                <div className="contentBox">
+                    <div className="folder-box">
+                        <div className="tb-list">
+                            <TreeContent
+                                showIcon={true}
+                                loadData={this.onLoadData}
+                                onSelect={this.handleSelect}
+                                expandedKeys={expandedKeys}
+                                autoExpandParent={false}
+                                onExpand={this.onExpand}
+                                treeData={this.props.treeData}
+                            />
+                        </div>
+                    </div>
                 </div>
                 {
                     tableId && <div className="tb-info">
                         <TableInfoPane tableId={tableId} />
                     </div>
                 }
-            </div>
+            </div >
         )
     }
 }
@@ -233,16 +237,16 @@ class TreeContent extends React.PureComponent {
                         <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias || "-"}</span></p>
                         <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay ? `${data.lifeDay}天` : '-'}</span></p>
                         <p className="text-item"><span className="text-item-name">描述</span>
-                        <span className="text-item-value">
-                        {!data.tableDesc?'-':data.tableDesc.length>60?<Tooltip title={data.tableDesc}>{data.tableDesc.substr(0,60)}......</Tooltip>:data.tableDesc}
-                        </span>
+                            <span className="text-item-value">
+                                {!data.tableDesc ? '-' : data.tableDesc.length > 60 ? <Tooltip title={data.tableDesc}>{data.tableDesc.substr(0, 60)}......</Tooltip> : data.tableDesc}
+                            </span>
                         </p>
                         <a onClick={this.jumpToDataMap.bind(this, data.id)}>更多详情</a>
                     </div>
                 )}
                     placement="bottomLeft"
                     mouseEnterDelay={0.5}>
-                    <span style={{padding:"8px 0px"}}>{name}</span>
+                    <span style={{ padding: "8px 0px" }}>{name}</span>
                 </Tooltip>
             )
 

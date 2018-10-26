@@ -65,7 +65,10 @@ class EditRoleForm extends Component {
                     label="请选择用户角色"
                 >
                     {getFieldDecorator('roleIds', {
-                        rules: [],
+                        rules: [{
+                            required:  true,
+                            message: '用户角色不可为空！',
+                        }],
                         initialValue: [],
                     })(
                         <CheckboxGroup options={roleOptions} />,
