@@ -27,7 +27,7 @@ export function authBeforeFormate(response) {
         case 413:
             notification['error']({
                 message: '异常',
-                description: response.message,
+                description: "请求内容过大！",
                 style: maxHeightStyle
             });
         default:
