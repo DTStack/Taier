@@ -51,6 +51,12 @@ export const RDOS_ROLE = { // 项目角色
     CUSTOM: 7, // 自定义
 }
 
+export const ANALYTICS_ENGINE_ROLE = { // 项目角色
+    TENANT_OWVER: 1, // 租户所有者
+    PROJECT_ADMIN: 3, // 项目管理员
+    VISITOR: 4, // 访客
+    DEVELOPER: 6, // 开发者
+}
 /**
  * 应用角色
  */
