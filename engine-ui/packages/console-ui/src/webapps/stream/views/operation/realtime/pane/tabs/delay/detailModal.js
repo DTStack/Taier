@@ -76,10 +76,10 @@ class DelayDetailModal extends React.Component {
             (res) => {
                 if (res.code == 1) {
                     this.setState({
-                        delayList: res.data.data,
+                        delayList: res.data,
                         pagination: {
                             ...pagination,
-                            total: res.data.totalCount
+                            total: res.data.length
                         }
                     })
                 }
