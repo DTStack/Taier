@@ -331,7 +331,7 @@ class SourceForm extends React.Component {
                 width: '90%',
                 margin: '0 auto',
                 overflow: 'auto',
-                textAlign:"center"
+                textAlign: "center"
             }}>
                 <p style={{ cursor: 'pointer', marginBottom: 10 }} >
                     <a
@@ -514,6 +514,7 @@ class SourceForm extends React.Component {
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap && sourceMap.sourceList && sourceMap.sourceList[0].type) > -1;
         const getPopupContainer = this.props.getPopupContainer
+        const haveChineseQuote=sourceMap&&sourceMap.type&&/(‘|’|”|“)/.test(sourceMap.type.where)?true:false
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
@@ -556,7 +557,7 @@ class SourceForm extends React.Component {
                         </Tooltip>}
                     </FormItem> : null,
                     ...this.renderExtDataSource(),
-                    supportSubLibrary && <Row style={{ margin: "-14px 0px 14px 0px" }}>
+                    supportSubLibrary && <Row className="form-item-follow-text">
                         <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
                     </Row>,
                     <FormItem
@@ -579,6 +580,11 @@ class SourceForm extends React.Component {
                         )}
                         <HelpDoc doc="dataFilterDoc" />
                     </FormItem>,
+                    haveChineseQuote&&<Row className="form-item-follow-text">
+                        <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}>
+                            <p className="warning-color">当前输入含有中文引号</p>
+                        </Col>
+                    </Row>,
                     <FormItem
                         {...formItemLayout}
                         label="切分键"
