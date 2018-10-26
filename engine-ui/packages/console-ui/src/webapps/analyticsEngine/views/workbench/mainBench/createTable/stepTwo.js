@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Select, Icon, Button, Row } from 'antd'
+import { Input, Table, Select, Icon, Button, Row, Checkbox } from 'antd'
 
 const Option = Select.Option;
 
@@ -49,20 +49,20 @@ export default class StepTwo extends Component{
   }
 
   componentDidMount(){
-    const { columns, partitions } = this.props.formData;
+    const { columns=[], partitions=[] } = this.props.tabData.tableItem;
     this.setState({
-      columns: columns || [],
-      partitions: partitions || []
+      columns: columns ,
+      partitions: partitions 
     })
     console.log(columns)
     console.log(partitions)
   }
   componentWillReceiveProps(nextProps){
-    const { formData } = nextProps;
+    const { columns=[], partitions=[]  } = nextProps.tabData.tableItem;
 
     this.setState({
-      columns: formData.columns || [],
-      partitions: formData.partitions || []
+      columns: columns,
+      partitions: partitions
     },()=>{
       console.log(this.state.columns)
       console.log(this.state.partitions)
@@ -89,6 +89,9 @@ export default class StepTwo extends Component{
         _fid: _fid + 1,
         columnName: '',
         columnType: '',
+        invert: 0,
+        dictionary: 0,
+        sortColumn: 0,
         comment: ''
       }
       this.setState({
@@ -178,7 +181,6 @@ export default class StepTwo extends Component{
     
       this.saveDataToStorage();
   }
-
   /**
    * 保存输入的值
    */
@@ -193,8 +195,26 @@ export default class StepTwo extends Component{
     }])
   }
 
+  handleInvert = (e,record)=>{
+    record.invert = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
+  handleDictionary = (e,record)=>{
+    record.dictionary = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
+  handleSortColumn = (e,record)=>{
+    record.sortColumn = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
   getTableCol = (flag)=>{
-    let tableCol = [
+    let col = [
       {
         title: '字段名',
         dataIndex: 'columnName',
@@ -234,7 +254,65 @@ export default class StepTwo extends Component{
       }
     ]
 
-    return tableCol;
+    let col_field = [
+      {
+        title: '字段名',
+        dataIndex: 'columnName',
+        render: (text,record)=>(
+          <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
+        )
+      },{
+        title: '字段类型',
+        dataIndex: 'columnType',
+        render: (text,record)=>(
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+            {
+              field_type.map(o=>{
+                return <Option key={o.value} value={o.value}>{o.name}</Option>
+              })
+            }
+          </Select>
+        )
+      },{
+        title: '倒排索引',
+        dataIndex: 'invert',
+        render: (text,record)=>(
+          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+        )
+      },{
+        title: '字典编码',
+        dataIndex: 'dictionary',
+        render: (text,record)=>(
+          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+        )
+      },{
+        title: '多维索引',
+        dataIndex: 'sortColumn',
+        render: (text,record)=>(
+          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+        )
+      },{
+        title: '注释',
+        dataIndex: 'comment',
+        render: (text,record)=>(
+          <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+        )
+      },{
+        title: '操作',
+        dataIndex: 'action',
+        render: (text,record)=>(
+          <span className="action-span">
+            <a href="javascript:;" onClick={()=>this.move(record,flag,1)}>上移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.move(record,flag,2)}>下移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.remove(record,flag)}>删除</a>
+          </span>
+        )
+      }
+    ]
+    
+    return flag===1?col_field:col;
   }
 
   render(){
@@ -271,7 +349,7 @@ export default class StepTwo extends Component{
 
         <div className="nav-btn-box">
               <Button onClick={this.props.handleLastStep}>上一步</Button>
-              <Button type="primary" onClick={this.next}>下一步</Button>
+              <Button type="primary" onClick={this.props.handleSave}>下一步</Button>
         </div>
       </Row>
     )

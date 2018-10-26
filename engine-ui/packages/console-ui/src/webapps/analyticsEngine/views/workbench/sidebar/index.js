@@ -184,6 +184,7 @@ class Sidebar extends Component {
             loadCatalogue,
             onCreateDataMap,
             onGenerateCreateSQL,
+            onEditTable,
         } = this.props;
 
         return (
@@ -192,20 +193,21 @@ class Sidebar extends Component {
                     onRefresh={() => loadCatalogue()}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
+                    onEditTable = {()=>onEditTable()}
                     onCreateTable={() => onCreateTable()}
                 />
                 {
                     this.renderFolderContent()
                 }
                 <ContextMenu targetClassName="anchor-database">
-                    <MenuItem onClick={this.initEditTask}>新建表</MenuItem>
+                    <MenuItem onClick={()=>onCreateTable(activeNode)}>新建表</MenuItem>
                     <MenuItem onClick={() => onGetDB(activeNode)}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
-                    <MenuItem>编辑表</MenuItem>
+                    <MenuItem onClick={()=>onEditTable(activeNode)}>编辑表</MenuItem>
                     <MenuItem>表详情</MenuItem>
                     <MenuItem>编辑表</MenuItem>
                     <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>

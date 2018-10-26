@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Form, Radio, Input, Select, Button, Row, Collapse, Icon } from "antd";
 import { formItemLayout} from "../../../../consts/index"
+import API from '../../../../api';
+
 
 
 const FormItem = Form.Item;
@@ -29,6 +31,22 @@ const options = [{
   value: -1,
 }]
 
+const scortScopeList = [
+  {
+    title: 'LOCAL_SORT',
+    value: 'LOCAL_SORT'
+  },{
+    title: 'NO_SORT',
+    value: 'NO_SORT'
+  },{
+    title: 'BATCH_SORT',
+    value: 'BATCH_SORT'
+  },{
+    title: 'GLOBAL_SORT',
+    value: 'GLOBAL_SORT'
+  }
+]
+
 export default class StepOne extends Component{
   constructor(){
     super();
@@ -45,6 +63,20 @@ export default class StepOne extends Component{
   handleCancel = ()=>{
 
   }
+
+  componentDidMount(){
+    this.getDataBases();
+  }
+
+  getDataBases = async (params) => {
+    const result = await API.getDatabases();
+    if (result.code === 1) {
+        this.setState({
+            databaseList: result.data,
+        })
+    }
+}
+
 
   next = ()=>{
     const {form} = this.props;
@@ -77,7 +109,8 @@ export default class StepOne extends Component{
 
   render(){
     const { getFieldDecorator, getFieldsValue } = this.props.form;
-    const { formData } = this.props;
+    const { tabData } = this.props;
+    let formData = tabData.tableItem;
     console.log(formData)
     return (
       <Row className="step-one-container step-container">
@@ -90,7 +123,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '数据库不可为空'},
                 ],
-                initialValue: formData.databaseId || undefined
+                initialValue: formData.databaseId || this.props.tabData.databaseId || undefined
               })(
                   <Select>
                   {
@@ -178,10 +211,9 @@ export default class StepOne extends Component{
                 initialValue: formData.sortScope || undefined
               })(
                 <Select>
-                  <Option value="ss">ss</Option>
                   {
-                    this.state.sortScopeList.map(o=>(
-                      <Option key={o.id} value={o.id}/>
+                    scortScopeList.map(o=>(
+                      <Option key={o.value} value={o.value}>{o.title}</Option>
                     ))
                   }
                 </Select>
