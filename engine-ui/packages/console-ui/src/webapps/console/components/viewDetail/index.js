@@ -28,7 +28,7 @@ class ViewDetail extends Component {
                 <CodeEditor
                     style={{ height: "400px", marginTop: "1px" }}
                     // onChange={this.props.sqlOnChange}
-                    value={this.props.resource.taskParams}
+                    value={JSON.stringify(this.props.resource,null,2)}
                     language="ini"
                     options={
                         {

@@ -7,14 +7,14 @@
 
 // 剩余资源
 import React, { Component } from 'react';
-import { Modal, Select, Form, Table } from "antd";
+import { Modal, Select, Form, Table, Button } from "antd";
 import { formItemLayout } from "../../consts";
 import Api from "../../api/console";
 
 const Option = Select.Option;
 class Resource extends Component {
     state = {
-        selectHack: false,//select combobox自带bug
+        // selectHack: false,//select combobox自带bug
         clusterName: undefined,
         // yarn
         yarnListSource: undefined,
@@ -72,28 +72,32 @@ class Resource extends Component {
                 dataIndex: "virtualCores",
                 render(text, record) {
                     return record.virtualCores;
-                }
+                },
+                width: "150px"
             },
             {
                 title: "usedVirtualCores",
                 dataIndex: "usedVirtualCores",
                 render(text, record) {
                     return record.usedVirtualCores;
-                }
+                },
+                width: "170px"
             },
             {
                 title: "memory",
                 dataIndex: "memory",
                 render(text, record) {
                     return record.memory;
-                }
+                },
+                width: "150px"
             },
             {
                 title: "usedMemory",
                 dataIndex: "usedMemory",
                 render(text, record) {
                     return record.usedMemory;
-                }
+                },
+                width: "150px"
             }
         ]
     }
@@ -104,14 +108,16 @@ class Resource extends Component {
                 dataIndex: "freeSlots",
                 render(text, record) {
                     return record.freeSlots;
-                }
+                },
+                width: "140px"
             },
             {
                 title: "cpuCores",
                 dataIndex: "cpuCores",
                 render(text, record) {
                     return record.cpuCores;
-                }
+                },
+                width: "140px"
             },
             {
                 title: "slotsNumber",
@@ -126,14 +132,16 @@ class Resource extends Component {
                 dataIndex: "freeMemory",
                 render(text, record) {
                     return record.freeMemory;
-                }
+                },
+                width: "165px"
             },
             {
                 title: "physicalMemory",
                 dataIndex: "physicalMemory",
                 render(text, record) {
                     return record.physicalMemory;
-                }
+                },
+                width: "215px"
             }
         ]
     }
@@ -150,13 +158,17 @@ class Resource extends Component {
                     onCancel={this.props.onCancel}
                     onOk={this.props.onCancel}
                     className="m-card"
+                    footer={[
+                        <Button key="submit" type="primary" size="large"  onClick={this.props.onCancel}>
+                        关闭
+                        </Button>
+                    ]}
                 >
                     <Form.Item
                         label="集群"
                         {...formItemLayout}
                     >
-                        {!selectHack && <Select
-                            mode="combobox"
+                        <Select
                             style={{ width: "100%" }}
                             onChange={this.changeCluster.bind(this)}
                             placeholder="请选择集群"
@@ -167,7 +179,7 @@ class Resource extends Component {
                         // value={selectUser}
                         >
                             {this.getClusterListOptionView()}
-                        </Select>}
+                        </Select>
                     </Form.Item>
                     <Table
                         className="m-table"
