@@ -97,6 +97,13 @@ class AdminUser extends Component {
                 currentPage: 1,
             }));
         }
+        else if (MY_APPS.ANALYTICS_ENGINE == active) {
+            params.databaseId = selecteDatabase;
+            this.loadUsers(active, params);
+            this.loadRoles(active, assign(params, {
+                currentPage: 1,
+            }));
+        }
         else if (!projectsExsit && !hasProject(app)) {
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
@@ -108,9 +115,9 @@ class AdminUser extends Component {
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
             } 
-            else if (MY_APPS.ANALYTICS_ENGINE == active) {
-                params.databaseId = selecteDatabase;
-            }
+            // else if (MY_APPS.ANALYTICS_ENGINE == active) {
+            //     params.databaseId = selecteDatabase;
+            // }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1,
@@ -129,7 +136,8 @@ class AdminUser extends Component {
             if (res.code != 1) {
                 return;
             }
-            const roles = res.data && res.data.data[0].roles;
+            // const roles = res.data && res.data.data[0].roles;
+            const roles = res.data.data.length > 0 ? res.data.data[0].roles : [];
             let isVisitor = false,
                 isProjectAdmin = false,
                 isProjectOwner = false;
@@ -240,6 +248,7 @@ class AdminUser extends Component {
 
     loadUsersNotInProject = (userName) => {
         const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
+        // userName : utils.trimlr(userName)
         const params = {
             userName,
         }
