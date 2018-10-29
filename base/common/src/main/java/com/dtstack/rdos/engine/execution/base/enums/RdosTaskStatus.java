@@ -95,6 +95,16 @@ public enum RdosTaskStatus {
         return false;
     }
 
+    public static boolean canReset(Byte currStatus){
+        int sta = currStatus.intValue();
+        return RdosTaskStatus.FAILED.getStatus().equals(sta)
+                || RdosTaskStatus.CANCELED.getStatus().equals(sta)
+                || RdosTaskStatus.SUBMITFAILD.getStatus().equals(sta)
+                || RdosTaskStatus.KILLED.getStatus().equals(sta)
+                || RdosTaskStatus.FINISHED.getStatus().equals(sta);
+
+    }
+
     public static List<Integer> getCanStopStatus(){
         return canStopStatus;
     }

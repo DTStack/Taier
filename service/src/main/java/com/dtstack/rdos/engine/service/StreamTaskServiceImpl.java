@@ -44,4 +44,5 @@ public class StreamTaskServiceImpl {
     public List<String> getTaskIdsByStatus(@Param("status") Integer status){
         return rdosEngineStreamJobDAO.getTaskIdsByStatus(status);
     }
+
 }
