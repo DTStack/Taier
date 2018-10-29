@@ -334,7 +334,7 @@ class AdminUser extends Component {
         Api.removeProjectUser(active, params).then((res) => {
             if (res.code === 1) {
                 ctx.loadData()
-                message.success('移出项目成员成功!')
+                message.success('移出成员成功!')
             }
         })
     }
@@ -443,7 +443,9 @@ class AdminUser extends Component {
 
     initColums = () => {
         const ctx = this;
-        const hideDel = this.state.active !== MY_APPS.RDOS;
+        const {active} = this.state;
+        const hideDel = (active == MY_APPS.RDOS ||active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE );
+        const isProject = (active == MY_APPS.RDOS ||active == MY_APPS.STREAM);
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -483,7 +485,7 @@ class AdminUser extends Component {
         }, {
             title: '操作',
             dataIndex: 'id',
-            width: 135,
+            width: 140,
             key: 'id',
             render(id, record) {
                 return <span>
@@ -494,16 +496,16 @@ class AdminUser extends Component {
                         })
                     }}>编辑角色</a>
                     {
-                        hideDel ? '' : <span>
+                        hideDel ? <span>
                             <span className="ant-divider" />
                             <Popconfirm
-                                title="确认将该成员从项目中移除？"
+                                title={isProject ? "确认将该成员从项目中移除？" : "确认将该成员从数据库中移除？"}
                                 okText="确定" cancelText="取消"
                                 onConfirm={() => { ctx.removeUserFromProject(record) }}
                             >
-                                <a>移出项目</a>
+                                {isProject ? <a>移出项目</a> : <a>移出数据库</a>}
                             </Popconfirm>
-                        </span>
+                        </span> : ''
                     }
                 </span>
             }
