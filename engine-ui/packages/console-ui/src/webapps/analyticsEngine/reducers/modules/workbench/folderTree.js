@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import workbenchAction from '../../../consts/workbenchActionType';
-import { replaceTreeNode, removeTreeNode, mergeTreeNodes } from 'funcs'
+import { removeTreeNode, mergeTreeNodes } from 'funcs'
 
 export const folderTreeRoot = {
     id: 0,
@@ -9,6 +9,22 @@ export const folderTreeRoot = {
     type: "folder",
     children: [],
 };
+
+const replaceTreeNode = function(treeNode, replace) {
+    if (
+        treeNode.id === parseInt(replace.id, 10) &&
+        treeNode.type === replace.type
+    ) {
+        treeNode = Object.assign(treeNode, replace);
+        return;
+    }
+    if (treeNode.children) {
+        const children = treeNode.children
+        for (let i = 0; i < children.length; i += 1) {
+            replaceTreeNode(children[i], replace)
+        }
+    }
+}
 
 export default function folderTree(state = folderTreeRoot, action) {
     const { type, payload } = action;
@@ -19,6 +35,7 @@ export default function folderTree(state = folderTreeRoot, action) {
             }
             const updated = cloneDeep(state)
             if (payload) {
+                console.log('replace:', updated, payload)
                 replaceTreeNode(updated, payload)
             }
             return updated
