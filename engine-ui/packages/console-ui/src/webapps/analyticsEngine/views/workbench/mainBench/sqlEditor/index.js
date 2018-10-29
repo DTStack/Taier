@@ -18,10 +18,11 @@ import * as editorActions from "../../../../actions/editorActions";
 
 @connect(
     state => {
-        const { workbench, editor } = state;
+        const { workbench, editor, common } = state;
         return {
             workbench,
             editor,
+            tableList: common.tableList,
             currentTab: workbench.mainBench.currentTab,
         };
     },
@@ -62,19 +63,17 @@ class EditorContainer extends Component {
     }
 
     initTableList() {
-        API.searchTable().then(res => {
-            if (res.code == 1) {
-                let { data } = res;
-                this.setState({
-                    tableList: data.children || [],
-                    tableCompleteItems:
-                        data.children &&
-                        data.children.map(table => {
-                            return [table.name, "表名", "1200", "Field"];
-                        })
-                });
-            }
-        });
+        const { tableList } = this.props;
+        if (tableList && tableList.length > 0) {
+            const items = tableList.map(table => {
+                return [table.tableName, "表名", "1200", "Field"];
+            })
+            this.setState({
+                tableList: tableList,
+                tableCompleteItems: items,
+            });
+            console.log('initTableList:', tableList, items);
+        }
     }
 
     initFuncList() {
@@ -153,7 +152,6 @@ class EditorContainer extends Component {
         execSql(currentTab, task, params, sqls).then(complete => {
             if (complete) {
                 this._tableColumns = {};
-                this.initTableList();
             }
         });
     };

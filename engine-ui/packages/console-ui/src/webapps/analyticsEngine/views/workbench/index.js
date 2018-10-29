@@ -9,6 +9,7 @@ import Default from './default';
 import MainBench from "./mainBench";
 
 import workbenchActions from '../../actions/workbenchActions';
+import commActions from "../../actions";
 
 const { Content } = Layout;
 
@@ -20,8 +21,9 @@ const { Content } = Layout;
         };
     },
     dispatch => {
-        const actions = bindActionCreators(workbenchActions, dispatch);
-        return actions;
+        const actionsOne = bindActionCreators(workbenchActions, dispatch);
+        const actionsTow = bindActionCreators(commActions, dispatch);
+        return Object.assign(actionsOne, actionsTow);
     }
 )
 class Workbench extends Component {
@@ -30,6 +32,8 @@ class Workbench extends Component {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
         }
+        // 预加载所有表
+        this.props.getAllTable();
     }
 
     componentWillUnmount() {

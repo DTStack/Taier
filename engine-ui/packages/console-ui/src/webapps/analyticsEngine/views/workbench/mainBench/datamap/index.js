@@ -10,6 +10,7 @@ class DataMap extends Component {
 
     state = {
         tableData: undefined,
+        loading: false,
     }
 
     componentDidMount() {
@@ -31,6 +32,9 @@ class DataMap extends Component {
 
     onCreate = () => {
         const form = this.formInstance.props.form;
+        this.setState({
+            loading: true,
+        })
         form.validateFields( async (err, values) => {
             if (!err) {
                 values.configJSON = JSON.stringify(values.configJSON);
@@ -40,6 +44,7 @@ class DataMap extends Component {
                     message.success('创建DataMap成功！');
                 }
             }
+            this.setState({ loading: false, })
         });
     }
     
@@ -65,7 +70,7 @@ class DataMap extends Component {
 
     render () {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
-        const { tableData } = this.state;
+        const { tableData, loading } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <DataMapForm 
@@ -79,6 +84,7 @@ class DataMap extends Component {
                     {
                         isCreate ? 
                             <Button
+                                disabled={loading}
                                 style={{ width: 90, height: 30 }} type="primary"
                                 onClick={this.onCreate}
                             >

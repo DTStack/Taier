@@ -43,9 +43,15 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.DATA_BASE:
             return (
                 <span className="tree-node-hover-items">
+                    <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSQLQuery(item);
+                        }}
+                    />
                     <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
                         onClick={(e) => {
-                            e.preventDefault();
+                            e.stopPropagation();
                             onGetDB({ databaseId: item.id });
                         }
                     }
@@ -57,7 +63,7 @@ class FolderTree extends React.PureComponent {
                     <span className="tree-node-hover-items">
                         <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
                             onClick={(e) => {
-                                e.preventDefault();
+                                e.stopPropagation();
                                 onGetDataMap({ id: item.id });
                             }}
                         />
@@ -68,14 +74,14 @@ class FolderTree extends React.PureComponent {
                     <span className="tree-node-hover-items">
                         <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
                             onClick={(e) => {
-                                e.preventDefault();
-                                onSQLQuery({ database: item.database });
+                                e.stopPropagation();
+                                onSQLQuery(item);
                             }}
                         />
-                        <Icon 
+                        <Icon
                             className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
                             onClick={(e) => {
-                                e.preventDefault();
+                                e.stopPropagation();
                                 onGetTable({ id: item.id });
                             }}
                         />
