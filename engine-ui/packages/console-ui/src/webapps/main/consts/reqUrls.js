@@ -74,7 +74,7 @@ export default {
 
     //** 用户角色 *//
     STREAM_QUERY_USER:`${STREAM_BASE_URL}/project/getProjectUsers`,//查询系统用户信息
-    STREAM_REMOVE_USER:`${STREAM_BASE_URL}/roleUser/remove`,//删除用户
+    STREAM_REMOVE_USER:`${STREAM_BASE_URL}/roleUser/removeRoleUserFromProject`,//删除用户
     STREAM_UPDATE_USER_ROLE:`${STREAM_BASE_URL}/roleUser/updateUserRole`,//更改用户角色
     STREAM_ADD_USER: `${STREAM_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
     

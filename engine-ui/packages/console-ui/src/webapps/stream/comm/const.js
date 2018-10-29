@@ -312,7 +312,7 @@ export const taskStatusFilter = [{
     text: '取消',
     value: TASK_STATUS.STOPED,
 }, {
-    text: '失败',
+    text: '运行失败',
     value: TASK_STATUS.RUN_FAILED,
 }]
 

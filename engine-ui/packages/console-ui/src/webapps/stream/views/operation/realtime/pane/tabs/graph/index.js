@@ -205,27 +205,29 @@ class StreamDetailGraph extends React.Component {
                     </span>
                 </header>
                 {isDataCollection ? (
-                    <div className="alarm-graph-row">
-                        <section>
-                            <AlarmBaseGraph
-                                time={time}
-                                lineData={{
-                                    ...lineDatas[metricsType.DATA_COLLECTION_RPS],
-                                    color: CHARTS_COLOR,
-                                    legend: ["输入RPS", "输出RPS"]
-                                }}
-                                title="输入/输出RPS" />
-                        </section>
-                        <section>
-                            <AlarmBaseGraph
-                                time={time}
-                                lineData={{
-                                    ...lineDatas[metricsType.DATA_COLLECTION_BPS],
-                                    color: CHARTS_COLOR,
-                                    legend: ["输入BPS", "输出BPS"],
-                                }}
-                                title="输入/输出BPS" />
-                        </section>
+                    <div style={{padding:"0px 16px"}}>
+                        <div className="alarm-graph-row">
+                            <section>
+                                <AlarmBaseGraph
+                                    time={time}
+                                    lineData={{
+                                        ...lineDatas[metricsType.DATA_COLLECTION_RPS],
+                                        color: CHARTS_COLOR,
+                                        legend: ["输入RPS", "输出RPS"]
+                                    }}
+                                    title="输入/输出RPS" />
+                            </section>
+                            <section>
+                                <AlarmBaseGraph
+                                    time={time}
+                                    lineData={{
+                                        ...lineDatas[metricsType.DATA_COLLECTION_BPS],
+                                        color: CHARTS_COLOR,
+                                        legend: ["输入BPS", "输出BPS"],
+                                    }}
+                                    title="输入/输出BPS" />
+                            </section>
+                        </div>
                     </div>
                 ) : (
                         <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>

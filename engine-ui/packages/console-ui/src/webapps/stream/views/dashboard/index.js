@@ -11,7 +11,7 @@ import { Circle } from "widgets/circle"
 import Api from '../../api'
 import * as ProjectAction from "../../store/modules/project";
 import NoData from '../../components/no-data';
-import { PROJECT_STATUS } from "../../comm/const";
+import { PROJECT_STATUS, TASK_STATUS } from "../../comm/const";
 
 const Search = Input.Search;
 
@@ -121,7 +121,7 @@ class Index extends Component {
         this.getProjectListInfo(params)
     }
 
-    setRouter = (type, v) => {
+    setRouter = (type, v, filterError) => {
         let src;
         const { dispatch } = this.props;
         if (type === "operation") {
@@ -130,7 +130,12 @@ class Index extends Component {
             src = "/realtime"
         }
         dispatch(ProjectAction.getProject(v.id));
-        hashHistory.push(src)
+        hashHistory.push({
+            pathname:src,
+            state:{
+                statusList:filterError?[''+TASK_STATUS.RUN_FAILED,''+TASK_STATUS.SUBMIT_FAILED]:undefined
+            }
+        })
     }
 
     generalTitle = (data) => {
@@ -231,17 +236,17 @@ class Index extends Component {
     }
 
     handleMouseOver = (type, e) => {
-        if(type=="operation"){
+        if (type == "operation") {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation2.svg"
-        }else{
+        } else {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime2.svg"
         }
     }
 
     handleMouseOut = (type, e) => {
-        if(type=="operation"){
+        if (type == "operation") {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation.svg"
-        }else{
+        } else {
             e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime.svg"
         }
     }
@@ -267,7 +272,6 @@ class Index extends Component {
                             <span className="sort-item" style={sortTitleStatus == 1 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
                             <span className="sort-item">|</span>
                             <span className="sort-item" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
-
                         </div>
                     </div>
                     <Row >
@@ -278,7 +282,7 @@ class Index extends Component {
                                 }
                                 {
                                     projectListInfo && projectListInfo.map(v => {
-                                        const {taskCountMap} = v;
+                                        const { taskCountMap } = v;
                                         return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
@@ -304,7 +308,7 @@ class Index extends Component {
                                                                 }
                                                             </div>
                                                         ) : (
-                                                                <div className="number" onClick={() => { this.setRouter('operation', v) }}>
+                                                                <div className="number" onClick={() => { this.setRouter('operation', v, true) }}>
                                                                     {
                                                                         taskCountMap.failCount ? <span>{taskCountMap.failCount}</span> :
                                                                             <span style={{ color: "#999" }}>{taskCountMap.failCount || 0}</span>
