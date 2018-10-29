@@ -89,26 +89,39 @@ export function onCreateTable(params) {
 };
 
 export function onEditTable(params){
-    return (dispatch, getStore) => {
+    return async (dispatch, getStore) => {
         const {workbench} = getStore();
         const { tabs } = workbench.mainBench;
 
-        let createTableTabIndex = 0;
+        let editTableIndex = 0;
         for(let i = 0;i<tabs.length;i++){
             if(tabs[i].actionType === workbenchAction.OPEN_TABLE_EDITOR){
-                createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
+                editTableIndex = tabs[i].editTableIndex > editTableIndex?tabs[i].editTableIndex:editTableIndex
             }
         }
+        //获取表详情
+        const res = await API.getTableDetail({
+            databaseId: params.databaseId,
+            id: params.tableId
+        })
+        if(res.code === 1){
+            const newEditTableTabData = {
+                id: moment().unix(),
+                tabName: `编辑${params.tableName}`,
+                createTableTabIndex: createTableTabIndex + 1,
+                actionType: workbenchAction.OPEN_TABLE_EDITOR,
+                tableDetail: res.data
+            }
+            console.log(newCreateTableTabData)
 
-        const newCreateTableTabData = {
-            id: moment().unix(),
-            tabName: `编辑${params.tableName}`,
-            createTableTabIndex: createTableTabIndex + 1,
-            actionType: workbenchAction.OPEN_TABLE_EDITOR,
+            dispatch(openTab(newEditTableTabData))
+        }else{
+            notification.error({
+                message: '提示',
+                description: res.message,
+            });
         }
-        console.log(newCreateTableTabData)
 
-        dispatch(openTab(newCreateTableTabData))
     }
 }
 
@@ -161,17 +174,35 @@ export function handleLastStep(){
 /**
  * 获取表详情
  */
-export function getTableDetail(){
+export function onTableDetail(params){
     return async (dispatch,getStore)=>{
         const { workbench } = getStore();
+        const {tabs} = workbench.mainBench;
         const res = await API.getTableDetail({
-            tableId,
+            databaseId: params.databaseId,
+            id: params.tableId
         })
         if (res.code === 1){
-            return dispatch({
-                type: workbenchAction.GET_TABLE_DETAIL,
-                payload: res.data
-            })
+            let tableDetailIndex = 0;
+            for(let i = 0;i<tabs.length;i++){
+                if(tabs[i].actionType === workbenchAction.OPEN_TABLE){
+                    tableDetailIndex = tabs[i].tableDetailIndex > tableDetailIndex?tabs[i].tableDetailIndex:tableDetailIndex
+                }
+            }
+            const tableDetail = {
+                
+                id: moment().unix(),
+                tabName: `编辑${params.tableName}`,
+                createTableTabIndex: createTableTabIndex + 1,
+                actionType: workbenchAction.OPEN_TABLE_EDITOR,
+                tableDetail: res.data
+            }
+            dispatch(openTab(tableDetail))
+        }else{
+            notification.error({
+                message: '提示',
+                description: res.message,
+            });
         }
     }
 };

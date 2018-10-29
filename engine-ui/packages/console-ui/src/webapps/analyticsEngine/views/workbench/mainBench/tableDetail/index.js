@@ -13,7 +13,7 @@ class TableDetail extends Component {
 
     
     render () {
-        const tableDetail = this.props.tableDetail || 
+        const tableDetail = this.props.data.tableDetail || 
         {
             "code": 1,
             "message": null,
@@ -315,11 +315,10 @@ class TableDetail extends Component {
             },
             "space": 148
         };
-        const patitionsData = this.props.partitions || 
-        {"code":1,"message":null,"data":{"currentPage":1,"pageSize":10,"totalCount":118,"totalPage":12,"data":[{"name":"ds=20180605","lastDDLTime":1539844091281,"storeSize":"0","partId":1},{"name":"ds=20180606","lastDDLTime":1539844091392,"storeSize":"0","partId":2},{"name":"ds=20180607","lastDDLTime":1539844091503,"storeSize":"0","partId":3},{"name":"ds=20180608","lastDDLTime":1539844091625,"storeSize":"0","partId":4},{"name":"ds=20180609","lastDDLTime":1539844091732,"storeSize":"0","partId":5},{"name":"ds=20180610","lastDDLTime":1539844091841,"storeSize":"0","partId":6},{"name":"ds=20180611","lastDDLTime":1539844091957,"storeSize":"0","partId":7},{"name":"ds=20180612","lastDDLTime":1539844092073,"storeSize":"0","partId":8},{"name":"ds=20180614","lastDDLTime":1539844092183,"storeSize":"0","partId":9},{"name":"ds=20180615","lastDDLTime":1539844092304,"storeSize":"0","partId":10}],"attachment":null},"space":17049};
-        const indexList = this.props.indexList || [];
+        const patitionsData = tableDetail.partitions || {}
+        const indexList = tableDetail.indexes || [];
 
-        const previewData = this.props.previewData || {"code":1,"message":null,"data":[["id","name","age","price"],["1","xxx","30","1999"],["2","aaa","35","4.5"],["3","qqq","46","33.2"],["1","xxx","30","5.5"],["2","aaa","35","4.5"],["3","qqq","46","33.2"]],"space":1310};
+        const previewData = tableDetail.previewData || {}
 
         const tabsData = [
             {

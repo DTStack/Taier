@@ -5,13 +5,16 @@ import workbenchAction from '../../../consts/workbenchActionType';
 const workbenchStoreKey = 'engine_workbench';
 // 默认Tab栏数据
 const defaultTabBarData = {
-    tabs: [],
+    tabs: [
+        {
+            tabName: '编辑表',
+            actionType: workbenchAction.OPEN_TABLE_EDITOR,
+            createTableTabIndex: 1,
+            id: 20181010,
+            tableDetail:{},
+        }
+    ],
     currentTab: 1,
-    // currentStep: 0,
-    
-    newanalyEngineTableDataList: {},//新建的多个表数据
-    editTableInfoList: {},//正在编辑的多个表数据
-    tableDetail: {},//表详情
 }
 const getInitialCachedData = () => {
     let initialState = localDb.get(workbenchStoreKey);
@@ -119,19 +122,19 @@ export default function mainBench(state = getInitialCachedData(), action) {
             //     currentStep: currentStep
             // })
             console.log('表已保存')
-            //保存完成
+            //保存完成-执行跳转
         }
         case workbenchAction.SAVE_EDITTABLE_INFO: {
-            let editTableInfoList = state.editTableInfoList || {};
-            editTableInfoList[`tableInfo${state.currentTab}`] = editTableInfoList[`tableInfo${state.currentTab}`] || {};
-            for(let item in payload){
-                editTableInfoList[`tableInfo${state.currentTab}`][payload[item].key] = payload[item].value
-            }
-            const newState = assign({},state,{
-                editTableInfoList: editTableInfoList
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
             })
-            localDb.set('engine_workbench', newState);
-
+            for(let item in payload){
+                tabData.tableDetail[payload[item].key] = payload[item].value
+            }
+            const newState = assign({},state)
             return newState;
         }
         case workbenchAction.TABLE_INFO_MOTIFIED: {
@@ -161,7 +164,7 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 if (index > -1) {
                     tabs[index] = assign(tabs[index], payload);
                 }
-                
+
                 const newStore = assign({}, state, {
                     tabs,
                 })

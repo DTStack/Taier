@@ -89,7 +89,7 @@ export default class StepTwo extends Component{
         _fid: _fid + 1,
         columnName: '',
         columnType: '',
-        invert: 0,
+        invert: 1,
         dictionary: 0,
         sortColumn: 0,
         comment: ''
@@ -277,19 +277,19 @@ export default class StepTwo extends Component{
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',

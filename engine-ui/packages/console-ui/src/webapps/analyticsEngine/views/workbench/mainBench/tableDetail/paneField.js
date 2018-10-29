@@ -83,6 +83,24 @@ console.log(dataList)
         title: '字段名称',
         dataIndex: 'columnName',
       },{
+        title: '倒排索引',
+        dataIndex: 'invert',
+        render: (text,record)=>(
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+        )
+      },{
+        title: '字典编码',
+        dataIndex: 'dictionary',
+        render: (text,record)=>(
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+        )
+      },{
+        title: '多维索引',
+        dataIndex: 'sortColumn',
+        render: (text,record)=>(
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+        )
+      },{
         title: '类型',
         dataIndex: 'columnType',
       },{

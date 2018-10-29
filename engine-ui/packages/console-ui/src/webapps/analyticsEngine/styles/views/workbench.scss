@@ -568,3 +568,12 @@
         }
     }
 }
+
+.edit-table-container{
+    .ant-form-item{
+        display: flex;
+        &:nth-child(2n-1){
+            padding-left: 24px;
+        }
+    }
+}

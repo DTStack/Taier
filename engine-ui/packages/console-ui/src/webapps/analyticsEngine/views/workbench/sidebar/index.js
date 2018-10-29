@@ -17,6 +17,7 @@ import FolderTree from './folderTree';
 import workbenchActions from '../../../actions/workbenchActions';
 import MyIcon from '../../../components/icon';
 import { CATALOGUE_TYPE } from '../../../consts';
+import { onTableDetail } from '../../../actions/workbenchActions/table';
 
 
 const Search = Input.Search;
@@ -185,6 +186,7 @@ class Sidebar extends Component {
             onCreateDataMap,
             onGenerateCreateSQL,
             onEditTable,
+            onTableDetail,
         } = this.props;
 
         return (
@@ -195,6 +197,7 @@ class Sidebar extends Component {
                     onSQLQuery={() => onSQLQuery()}
                     onEditTable = {()=>onEditTable()}
                     onCreateTable={() => onCreateTable()}
+                    onTableDetail={()=>onTableDetail()}
                 />
                 {
                     this.renderFolderContent()
@@ -208,8 +211,7 @@ class Sidebar extends Component {
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
                     <MenuItem onClick={()=>onEditTable(activeNode)}>编辑表</MenuItem>
-                    <MenuItem>表详情</MenuItem>
-                    <MenuItem>编辑表</MenuItem>
+                    <MenuItem onClick={()=>onTableDetail(activeNode)}>表详情</MenuItem>
                     <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>
                         显示建表DDL
                     </MenuItem>

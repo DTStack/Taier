@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Row, Table, Button, Input, Form, Select, Icon} from 'antd';
+import {Row, Table, Button, Input, Form, Select, Icon,Checkbox} from 'antd';
 import { formItemLayout } from "../../../../consts/index"
 
 const FormItem = Form.Item;
@@ -37,6 +37,7 @@ const indexTypes = [
   }
 ]
 
+
 export default class EditTable extends Component{
   constructor(props){
     super(props)
@@ -47,7 +48,7 @@ export default class EditTable extends Component{
     }
   }
   componentDidMount(){
-    const { tableDetail } = this.props;
+    const { tableDetail } = this.props.data;
     tableDetail.fieldList = tableDetail.fieldList || [];
     tableDetail.indexList = tableDetail.indexList || [];
 
@@ -56,7 +57,7 @@ export default class EditTable extends Component{
     })
   }
   componentWillReceiveProps(nextProps){
-    const { tableDetail } = nextProps;
+    const { tableDetail } = nextProps.data;
 
     tableDetail.fieldList = tableDetail.fieldList || [];
     tableDetail.indexList = tableDetail.indexList || [];
@@ -97,6 +98,25 @@ export default class EditTable extends Component{
     this.saveDataToStorage();
   }
 
+  handleInvert = (e,record)=>{
+    record.invert = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
+  handleDictionary = (e,record)=>{
+    record.dictionary = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
+  handleSortColumn = (e,record)=>{
+    record.sortColumn = e.target.checked?1:0
+    this.saveDataToStorage();
+
+  }
+
+
   addNewLine = (flag)=>{
     console.log(this.state.tableDetail)
     let {tableDetail} = this.state;
@@ -110,9 +130,12 @@ export default class EditTable extends Component{
       })
       tableDetail.fieldList.push({
         _fid: _fid + 1,
-        name: '',
-        type: '',
+        columnName: '',
+        columnType: '',
         comment: '',
+        invert: 1,
+        dictionary: 0,
+        sortColumn: 0,
         isNew: true
       })
       this.setState({
@@ -236,12 +259,30 @@ export default class EditTable extends Component{
           if(record.isNew){
             return <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
                 {fieldTypes.map(o=>{
-                  return <Option value={o.value}>{o.title}</Option>
+                  return <Option key={o.value} value={o.value}>{o.title}</Option>
                 })}
               </Select>
           }else
             return text
         }
+      },{
+        title: '倒排索引',
+        dataIndex: 'invert',
+        render: (text,record)=>(
+          <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+        )
+      },{
+        title: '字典编码',
+        dataIndex: 'dictionary',
+        render: (text,record)=>(
+          <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+        )
+      },{
+        title: '多维索引',
+        dataIndex: 'sortColumn',
+        render: (text,record)=>(
+          <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+        )
       },{
         title: '注释内容',
         dataIndex: 'comment',
@@ -326,7 +367,7 @@ export default class EditTable extends Component{
           <div className="title">基本信息</div>
           <Form>
             <FormItem
-            {...formItemLayout}
+             
             label="表名">
               {
                 getFieldDecorator('table_name',{
@@ -340,7 +381,7 @@ export default class EditTable extends Component{
               }
             </FormItem>
             <FormItem
-            {...formItemLayout}
+             
             label="生命周期">
               <span >
                 {
@@ -364,7 +405,7 @@ export default class EditTable extends Component{
               </span>
             </FormItem>
             <FormItem
-            {...formItemLayout}
+             
             label="描述">
               {
                 getFieldDecorator('desc',{
@@ -391,18 +432,6 @@ export default class EditTable extends Component{
             pagination={false}>
             </Table>
           <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
-        </Row>
-        <Row className="panel table-box">
-            <div className="title">索引信息</div>
-            <Table
-            size="small"
-            className="table-small"
-            columns={tableCol_index}
-            rowKey="_fid"
-            dataSource={tableDetail.indexList}
-            pagination={false}>
-            </Table>
-          <a className="btn" style={{marginTop: 16,display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
         </Row>
         <Button type="primary" style={{marginLeft: 20, width: 90,height: 30}} onClick={this.props.saveTableInfo}>保存</Button>
       </div>
