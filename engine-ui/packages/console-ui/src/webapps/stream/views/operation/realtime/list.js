@@ -310,9 +310,12 @@ class RealTimeTaskList extends Component {
             filterMultiple: true,
         }, {
             title: '业务延时',
-            dataIndex: 'delay',
-            key: 'delay',
+            dataIndex: 'bizDelay',
+            key: 'bizDelay',
             width: 150,
+            render(text){
+                return `${text}s`
+            }
         }, {
             title: '任务类型',
             dataIndex: 'taskType',
