@@ -78,8 +78,8 @@ export function onCreateTable(params) {
             tabName: '新建表',
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
-            databaseId: params.id,
-            tableItem: {databaseId:params.id},
+            databaseId: params ? params.id : undefined,
+            tableItem: { databaseId: params ? params.id : undefined },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
