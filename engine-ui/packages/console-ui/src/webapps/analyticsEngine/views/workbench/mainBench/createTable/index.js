@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { Steps, message } from 'antd';
 
 import StepOne from './stepOne'
-import StepTwo from './StepTwo'
-import StepThree from './StepThree'
-import StepFour from './StepFour'
+import StepTwo from './stepTwo'
+import StepThree from './stepThree'
+import StepFour from './stepFour'
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
 import * as tableActions from '../../../../actions/workbenchActions/table';
