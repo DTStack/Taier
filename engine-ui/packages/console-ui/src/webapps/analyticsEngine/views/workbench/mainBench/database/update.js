@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Modal, Icon, Row } from 'antd';
+import { Modal, Icon, Row, message } from 'antd';
+
+import CopyUtils from 'utils/copy';
 
 import DBForm from './form';
 import API from '../../../../api';
@@ -13,9 +15,19 @@ class UpdateDatabaseModal extends Component {
     }
 
     onSubmit = () => {
-        
+
         if (this.state.submitted) {
-            this.resetModal();
+            const copyInstance = new CopyUtils();
+            const { databaseData } = this.state;
+            const copyContent = `
+                数据库标识：${databaseData.name}\m
+                JDBC信息：${databaseData.jdbcUrl}\m
+                用户名：${databaseData.dbUserName}\m
+                密码：${databaseData.dbPwd}
+            `;
+            copyInstance.copy(copyContent, (success) => {
+                if (success) message.success('复制成功！')
+            })
             return false;
         }
 
@@ -25,12 +37,13 @@ class UpdateDatabaseModal extends Component {
             if (!err) {
                 const result = await API.resetDBPassword({
                     databaseId: defaultData.id,
-                    oldPwd: defaultData.dbPwd,
+                    oldPwd: values.oldPwd,
                     newPwd: values.dbPwd,
                 });
                 if (result.code === 1) {
+                    defaultData.dbPwd = values.dbPwd;
                     this.setState({
-                        databaseData: result.data,
+                        databaseData: defaultData,
                         submitted: true,
                     })
                 }
@@ -56,6 +69,8 @@ class UpdateDatabaseModal extends Component {
                 title="重置密码"
                 visible={visible}
                 onOk={this.onSubmit}
+                cancelText={databaseData ? '关闭' : '取消'}
+                okText={databaseData ? '确认复制' : '确认'}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
             >   

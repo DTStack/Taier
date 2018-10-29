@@ -10,17 +10,14 @@ import TabIcon from '../../../components/tab-icon';
 import workbenchActions from '../../../actions/workbenchActions';
 
 import BenchContent from './benchContent';
-import CreateDBModal from './database/create';
-import CreateTableDDLModal from './tableDetail/ddlModal';
 
 const TabPane = Tabs.TabPane;
 
 @connect(
     state => {
-        const { workbench, modal, user } = state;
+        const { workbench, user } = state;
         return {
             user,
-            modal,
             workbench,
         };
     }, 
@@ -103,8 +100,6 @@ class MainBench extends Component {
                     >
                         {this.renderTabs(tabs)}
                     </Tabs>
-                    <CreateDBModal {...this.props} />
-                    <CreateTableDDLModal {...this.props} />
                 </div>
             </div>
         )

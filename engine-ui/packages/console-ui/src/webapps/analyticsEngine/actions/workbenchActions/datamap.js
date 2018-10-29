@@ -4,7 +4,8 @@ import { notification, message } from 'antd';
 import API from '../../api/datamap';
 import workbenchAction from '../../consts/workbenchActionType';
 
-import { closeTab, openTab } from './comm';
+import { closeTab, openTab, loadCatalogue } from './comm';
+import { CATALOGUE_TYPE } from '../../consts';
 
 /**
  * 移除数据地图
@@ -16,6 +17,10 @@ export function onRemoveDataMap(params) {
         if (res.code === 1) {
             message.success('删除DataMap成功！');
             dispatch(closeTab(params.id));
+            dispatch(loadCatalogue({
+                id: params.tableId,
+                databaseId: params.databaseId,
+            }, CATALOGUE_TYPE.TABLE));
         }
     }
 }

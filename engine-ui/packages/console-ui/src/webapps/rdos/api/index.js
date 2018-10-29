@@ -204,11 +204,8 @@ export default {
     getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
-    getRealtimeJobData(params) {
-        return http.post(stremReq.GET_REALTIME_JOBDATA, params)
-    },
-    getRealtimeCollectionTemplate(params) {
-        return http.post(stremReq.GET_SYNC_SCRIPT_TEMPLATE, params)
+    convertToHiveColumns(params){
+        return http.post(req.CONVERT_TO_HIVE_COLUMNS, params)
     },
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
@@ -608,9 +605,6 @@ export default {
     getTaskOfOfflineSource(params) {
         return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
     },
-    getTaskOfStreamSource(params) {
-        return http.post(stremReq.GET_TASK_LIST_OF_STREAM_SOURCE, params)
-    },
 
     // ============== dataManage 数据管理 ==================
     createTable(params) {
@@ -721,31 +715,6 @@ export default {
     },
     getProjectDataOverview(params) {
         return http.post(offlineReq.PROJECT_DATA_OVERVIEW, params)
-    },
-    //================实时数据源 ===============/
-    streamSaveDataSource(params) {
-        return http.post(stremReq.STREAM_SAVE_DATA_SOURCE, params)
-    },
-    streamTestDataSourceConnection(params) {
-        return http.post(stremReq.STREAM_TEST_DATA_SOURCE_CONNECTION, params)
-    },
-    streamDeleteDataSource(params) {
-        return http.post(stremReq.STREAM_DELETE_DATA_SOURCE, params)
-    },
-    getStreamTablelist(params) {
-        return http.post(stremReq.GET_STREAM_TABLELIST, params)
-    },
-    getStreamDataSourceList(params){
-        return http.post(stremReq.GET_STREAM_DATASOURCE_LIST,params)
-    },
-    streamQueryDataSource(params) {
-        return http.post(stremReq.STREAM_QUERY_DATA_SOURCE, params)
-    },
-    getStreamDataSource(params) {
-        return http.post(stremReq.GET_STREAM_DATA_SOURCE, params)
-    },
-    getStreamTableColumn(params) {
-        return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
     //================ 实时离线合并接口 ===============/
     linkSource(params,type="offline") {

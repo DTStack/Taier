@@ -24,7 +24,7 @@ export default {
 
 
     ANALYENGINE_QUERY_USER:`${ANALYTICS_ENGINE_BASE_URL}/service/user/pageQuery`,//查询系统用户信息
-    ANALYENGINE_REMOVE_USER:`${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/remove`,//删除用户
+    ANALYENGINE_REMOVE_USER:`${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/removeRoleUserFromProject`,//删除用户
     ANALYENGINE_UPDATE_USER_ROLE:`${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/updateUserRole`,//更改用户角色
     ANALYENGINE_ADD_USER: `${ANALYTICS_ENGINE_BASE_URL}/service/roleUser/addRoleUserNew`, // 添加用户
     ANALYENGINE_SEARCH_UIC_USERS: `${ANALYTICS_ENGINE_BASE_URL}/service/user/getUicUsersNotInProject`, // 获取UIC用户列表 获取未添加到项目的用户

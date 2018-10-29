@@ -63,11 +63,13 @@ class CreateDatabaseModal extends Component {
         const visible =  modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE 
         ? true : false;
 
+        console.log('modal:', modal, visible)
         return (
             <Modal
                 title="创建数据库"
                 visible={visible}
                 okText={databaseData ? '确认复制' : '确认'}
+                cancelText={databaseData ? '关闭' : '取消'}
                 onOk={this.onSubmit}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}

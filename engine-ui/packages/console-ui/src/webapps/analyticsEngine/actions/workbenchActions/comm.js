@@ -88,7 +88,7 @@ export function onSQLQuery(params) {
 
     return (dispatch, getStore) => {
         const { workbench } = getStore();
-        console.log('onSqlQuery:', workbench);
+        console.log('onSqlQuery:', params, workbench);
         const { tabs } = workbench.mainBench;
 
         let sqlQueryTabIndex = 0;
@@ -105,6 +105,8 @@ export function onSQLQuery(params) {
             tabName: `${name} Query ${sqlQueryTabIndex + 1}`,
             tabIndex: sqlQueryTabIndex + 1,
             actionType: workbenchAction.OPEN_SQL_QUERY,
+            databaseId: params && params.databaseId,
+            tableId: params && params.tableName ? params.id : undefined,
         }
 
         dispatch(openTab(defaultSQLQueryTabData));
@@ -117,7 +119,6 @@ export function onSQLQuery(params) {
 export const loadCatalogue = function(data, fileType) {
 
     return async (dispatch) => {
-        console.log('loadCatalogue:', data, fileType);
         let res = {};
         switch (fileType) {
             case CATALOGUE_TYPE.TABLE: { // 获取表下的DataMap
@@ -168,6 +169,7 @@ export const loadCatalogue = function(data, fileType) {
         }
 
         if (res.code === 1) {
+            data.type = fileType;
             data.children = res.data;
             dispatch({
                 type: workbenchAction.LOAD_CATALOGUE_DATA,

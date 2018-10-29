@@ -82,6 +82,24 @@ class DatabaseForm extends Component {
                         initialValue: databaseData ? databaseData.dbUserName : ""
                     })(<Input disabled={!isCreate}/>)}
                 </FormItem>
+                {
+                    !isCreate && 
+                    <FormItem {...formItemLayout} label="旧密码" hasFeedback>
+                    {getFieldDecorator("oldPwd", {
+                        rules: [
+                            {
+                                required: true,
+                                message: "旧密码不可为空！"
+                            },
+                            {
+                                min: 6,
+                                message: "旧密码长度应该不低于6个字符"
+                            },
+                        ],
+                        initialValue: '',
+                    })(<Input type="password" />)}
+                </FormItem>
+                }
                 <FormItem {...formItemLayout} label="密码" hasFeedback>
                     {getFieldDecorator("dbPwd", {
                         rules: [

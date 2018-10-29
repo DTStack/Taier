@@ -3,6 +3,7 @@ import { Row, Button, Modal, message } from 'antd';
 
 import DataMapForm from './form';
 import API from '../../../../api';
+import { CATALOGUE_TYPE } from '../../../../consts';
 
 const confirm = Modal.confirm;
 
@@ -10,6 +11,7 @@ class DataMap extends Component {
 
     state = {
         tableData: undefined,
+        loading: false,
     }
 
     componentDidMount() {
@@ -29,17 +31,32 @@ class DataMap extends Component {
         }
     }
 
+    reloadDataMapCatalogue = () => {
+        const { loadCatalogue, data } = this.props;
+        const params = {
+            id: data.tableId,
+            databaseId: data.databaseId,
+        };
+        // 重新加载DataMap
+        loadCatalogue(params, CATALOGUE_TYPE.TABLE);
+    }
+
     onCreate = () => {
         const form = this.formInstance.props.form;
+        this.setState({
+            loading: true,
+        })
         form.validateFields( async (err, values) => {
             if (!err) {
-                values.configJSON = JSON.stringify(values.configJSON);
+                values.configJSON = values.configJSON;//JSON.stringify(values.configJSON);
                 values.datamapType = undefined;
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
+                   this.reloadDataMapCatalogue();
                 }
             }
+            this.setState({ loading: false, })
         });
     }
     
@@ -47,13 +64,14 @@ class DataMap extends Component {
         const { onRemoveDataMap, data } = this.props;
         confirm({
             title: '警告',
-            content: '确认删除当前的DataMap吗？',
+            content: '删除DataMap后无法恢复，确认将其删除？',
             okText: '确定',
             okType: 'danger',
             cancelText: '取消',
             onOk() {
                 onRemoveDataMap({
                     databaseId: data.databaseId,
+                    tableId: data.tableId,
                     id: data.id,
                 });
             },
@@ -65,7 +83,7 @@ class DataMap extends Component {
 
     render () {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
-        const { tableData } = this.state;
+        const { tableData, loading } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <DataMapForm 
@@ -79,6 +97,7 @@ class DataMap extends Component {
                     {
                         isCreate ? 
                             <Button
+                                disabled={loading}
                                 style={{ width: 90, height: 30 }} type="primary"
                                 onClick={this.onCreate}
                             >

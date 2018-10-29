@@ -7,21 +7,27 @@ import { bindActionCreators } from 'redux';
 import Sidebar from './sidebar';
 import Default from './default';
 import MainBench from "./mainBench";
+import CreateDBModal from './mainBench/database/create';
+import CreateTableDDLModal from './mainBench/tableDetail/ddlModal';
+
 
 import workbenchActions from '../../actions/workbenchActions';
+import commActions from "../../actions";
 
 const { Content } = Layout;
 
 @connect(
     state => {
-        const { workbench } = state;
+        const { workbench, modal } = state;
         return {
+            modal,
             mainBench: workbench.mainBench,
         };
     },
     dispatch => {
-        const actions = bindActionCreators(workbenchActions, dispatch);
-        return actions;
+        const actionsOne = bindActionCreators(workbenchActions, dispatch);
+        const actionsTow = bindActionCreators(commActions, dispatch);
+        return Object.assign(actionsOne, actionsTow);
     }
 )
 class Workbench extends Component {
@@ -30,6 +36,8 @@ class Workbench extends Component {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
         }
+        // 预加载所有表
+        this.props.getAllTable();
     }
 
     componentWillUnmount() {
@@ -67,6 +75,8 @@ class Workbench extends Component {
                                 onCreateTable={onCreateTable}
                             />
                         }
+                        <CreateDBModal {...this.props} />
+                        <CreateTableDDLModal {...this.props} />
                     </Content>
                 </SplitPane>
             </Layout>

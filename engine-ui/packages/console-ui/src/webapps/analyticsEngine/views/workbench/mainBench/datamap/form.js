@@ -19,9 +19,9 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 const DATAMAP_TYPE = {
-    PRE_SUM: 1,
-    TIME_SEQUENCE: 2,
-    FILTER: 3,
+    PRE_SUM: 0,
+    TIME_SEQUENCE: 1,
+    FILTER: 2,
 }
 
 export const formItemLayout = { // 表单常用布局
@@ -52,7 +52,6 @@ class DataMapForm extends Component {
     };
 
     onDataMapTypeChange = (e) => {
-        console.log('radio checked', e.target.value);
         this.setState({
             datamapType: e.target.value,
         });
@@ -124,11 +123,11 @@ class DataMapForm extends Component {
                             initialValue: config ? config.time : 1,
                         })(
                             <Checkbox.Group>
-                                <Checkbox value="1">年</Checkbox>
-                                <Checkbox value="2">月</Checkbox>
-                                <Checkbox value="3">日</Checkbox>
-                                <Checkbox value="4">小时</Checkbox>
-                                <Checkbox value="5">分钟</Checkbox>
+                                <Checkbox value="4">年</Checkbox>
+                                <Checkbox value="3">月</Checkbox>
+                                <Checkbox value="2">日</Checkbox>
+                                <Checkbox value="1">小时</Checkbox>
+                                <Checkbox value="0">分钟</Checkbox>
                             </Checkbox.Group>
                         )}
                     </FormItem>,
@@ -246,7 +245,7 @@ class DataMapForm extends Component {
                         <Input type="hidden" />
                     )}
                     <span>
-                        <span style={{ marginRight: 10 }}>{tableData ? tableData.tableName : ""}</span>
+                        <span style={{ marginRight: 10, marginLeft: 6 }}>{tableData ? tableData.tableName : ""}</span>
                         <a onClick={() => {
                             onGenerateCreateSQL(tableData ? tableData.id : null)
                         }}>生成建表语句</a>
@@ -275,7 +274,7 @@ class DataMapForm extends Component {
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap类型">
-                    {getFieldDecorator("datamapType", {
+                    {getFieldDecorator("type", {
                         rules: [
                             {
                                 required: true,

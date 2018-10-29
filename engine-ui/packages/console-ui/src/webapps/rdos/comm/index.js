@@ -87,6 +87,9 @@ export function taskTypeIcon(type, task = {}) {
             case TASK_TYPE.DATA_COLLECTION: {
                 return "s-collection";
             }
+            case TASK_TYPE.ML: {
+                return "s-mlicon";
+            }
             default:
                 "";
         }
