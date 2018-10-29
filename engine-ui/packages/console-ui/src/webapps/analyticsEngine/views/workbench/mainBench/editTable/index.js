@@ -24,17 +24,39 @@ const options = [{
   name: '自定义',
   value: -1,
 }]
-const fieldTypes = [
+
+const field_types = [
   {
-    title: 'STRING',
-    value: 'STRING'
-  }
-]
-const indexTypes = [
-  {
-    title: 'STRING',
-    value: 'STRING'
-  }
+    name: 'SMALLINT',
+    value: 'SMALLINT',
+  },{
+    name: 'INT/INTEGER',
+    value: 'INT',
+  },{
+    name: 'BIGINT',
+    value: 'BIGINT',
+  },{
+    name: 'DOUBLE',
+    value: 'DOUBLE',
+  },{
+    name: 'TIMESTAMP',
+    value: 'TIMESTAMP',
+  },{
+    name: 'DATE',
+    value: 'DATE',
+  },{
+    name: 'STRING',
+    value: 'STRING',
+  },{
+    name: 'CHAR',
+    value: 'CHAR',
+  },{
+    name: 'VARCHAR',
+    value: 'VARCHAR',
+  },{
+    name: 'BOOLEAN',
+    value: 'BOOLEAN',
+  },
 ]
 
 
@@ -44,13 +66,17 @@ export default class EditTable extends Component{
     this.state = {
       customLifeCycle: 0,
       short: false,
-      tableDetail: {fieldList:[]},
+      tableDetail: {columns:[]},
     }
   }
   componentDidMount(){
     const { tableDetail } = this.props.data;
-    tableDetail.fieldList = tableDetail.fieldList || [];
-    tableDetail.indexList = tableDetail.indexList || [];
+    tableDetail.columns = tableDetail.columns || [];
+    tableDetail.partitions = tableDetail.partitions || [];
+    if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
+      tableDetail.lifeDay === -1;
+      this.state.customLifeCycle = tableDetail.lifeDay
+    }
 
     this.setState({
       tableDetail: tableDetail
@@ -59,8 +85,13 @@ export default class EditTable extends Component{
   componentWillReceiveProps(nextProps){
     const { tableDetail } = nextProps.data;
 
-    tableDetail.fieldList = tableDetail.fieldList || [];
-    tableDetail.indexList = tableDetail.indexList || [];
+    tableDetail.columns = tableDetail.columns || [];
+    tableDetail.partitions = tableDetail.partitions || [];
+
+    if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
+      tableDetail.lifeDay === -1;
+      this.state.customLifeCycle = tableDetail.lifeDay
+    }
 
     this.setState({
       tableDetail: tableDetail
@@ -71,8 +102,8 @@ export default class EditTable extends Component{
     form.validateFields((err,value)=>{
       console.log(value)
       if(!err){
-        if(value.life_cycle === -1){
-          value.life_cycle = this.state.customLifeCycle;
+        if(value.lifeDay === -1){
+          value.lifeDay = this.state.customLifeCycle;
         }
         console.log(value)
       }
@@ -124,14 +155,14 @@ export default class EditTable extends Component{
 
     if(flag === 1){
       //字段
-      tableDetail.fieldList.map(o=>{
+      tableDetail.columns.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      tableDetail.fieldList.push({
+      tableDetail.columns.push({
         _fid: _fid + 1,
-        columnName: '',
-        columnType: '',
+        name: '',
+        type: '',
         comment: '',
         invert: 1,
         dictionary: 0,
@@ -143,11 +174,11 @@ export default class EditTable extends Component{
       })
     }else if(flag === 2){
       //索引
-      tableDetail.indexList.map(o=>{
+      tableDetail.partitions.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      tableDetail.indexList.push({
+      tableDetail.partitions.push({
         _fid: _fid + 1,
         name: '',
         field_type: '',
@@ -166,13 +197,20 @@ export default class EditTable extends Component{
     //type 1上移 2下移
     // let mid = {};
     let {tableDetail} = this.state;
-    let list = flag === 1?tableDetail.fieldList:tableDetail.indexList;
+    let list = flag === 1?tableDetail.columns:tableDetail.partitions;
     console.log(type)
     console.log( list.indexOf(record) )
     console.log(list.length)
-    
+
+    //是否到顶
     if((type === 1 && list.indexOf(record) === 0) || (type === 2 && list.indexOf(record) === list.length-1))
       return
+
+
+    //只可以在新增行中上下移动
+    if((flag === 2 && (!list[list.indexOf(record)+1].isNew)) || (flag === 1 && (!list[list.indexOf(record)-1].isNew))){
+      return;
+    }
 
     let x = list.indexOf(record), y = type === 1?list.indexOf(record)-1:list.indexOf(record)+1;
 
@@ -180,7 +218,7 @@ export default class EditTable extends Component{
     let midItem = list[x]
 
     list[y]._fid = -1;
-    
+
     list[x] = list[y]; // fid=-1
     list[y] = midItem
 
@@ -192,16 +230,6 @@ export default class EditTable extends Component{
       tableDetail: tableDetail
     })
 
-    // if(flag === 1)
-    //   this.setState({
-    //     field_list: list
-    //   })
-    // else
-    //   this.setState({
-    //     area_list: list
-    //   })
-
-    
     this.saveDataToStorage();
   }
 
@@ -209,7 +237,7 @@ export default class EditTable extends Component{
   remove = (record,flag)=>{
     let {tableDetail} = this.state;
 
-    flag === 1?tableDetail.fieldList.splice(tableDetail.fieldList.indexOf(record),1):tableDetail.indexList.splice(tableDetail.indexList.indexOf(record),1);
+    flag === 1?tableDetail.columns.splice(tableDetail.columns.indexOf(record),1):tableDetail.partitions.splice(tableDetail.partitions.indexOf(record),1);
 
     console.log(tableDetail)
     this.setState({
@@ -230,11 +258,11 @@ export default class EditTable extends Component{
   saveDataToStorage = ()=>{
     const {tableDetail} = this.state;
     this.props.saveEditTableInfo([{
-      key: 'fieldList',
-      value: tableDetail.fieldList
+      key: 'columns',
+      value: tableDetail.columns
     },{
-      key: 'indexList',
-      value: tableDetail.indexList
+      key: 'partitions',
+      value: tableDetail.partitions
     }])
   }
 
@@ -258,8 +286,8 @@ export default class EditTable extends Component{
         render: (text,record)=>{
           if(record.isNew){
             return <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
-                {fieldTypes.map(o=>{
-                  return <Option key={o.value} value={o.value}>{o.title}</Option>
+                {field_types.map(o=>{
+                  return <Option key={o.value} value={o.value}>{o.name}</Option>
                 })}
               </Select>
           }else
@@ -308,58 +336,6 @@ export default class EditTable extends Component{
         }
       }
     ]
-    const tableCol_index = [
-      {
-        title: '索引名称',
-        dataIndex: 'name',
-        render: (text,record)=>{
-          if(record.isNew){
-            return <Input defaultValue={text} onChange={(e)=>this.handleFieldNameChange(e,record)}/>
-          }else
-            return text;
-        }
-      },{
-        title: '字段类型',
-        dataIndex: 'field_type',
-        render: (text,record)=>{
-          if(record.isNew){
-            return <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
-                {fieldTypes.map(o=>{
-                  return <Option value={o.value}>{o.title}</Option>
-                })}
-              </Select>
-          }else
-            return text
-        }
-      },{
-        title: '索引类型',
-        dataIndex: 'index_type',
-        render: (text,record)=>{
-          if(record.isNew){
-            return <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleIndexTypeChange(e,record)}>
-                {indexTypes.map(o=>{
-                  return <Option value={o.value}>{o.title}</Option>
-                })}
-              </Select>
-          }else
-            return text
-        }
-      },{
-        title: '备注',
-        dataIndex: 'comment',
-        render: (text,record)=>{
-          return <Input defaultValue={text} onChange={(e)=>this.handleFieldCommentChange(e,record)}/>
-        }
-      },{
-        title: '操作',
-        dataIndex: 'action',
-        render: (text,record)=>(
-          <span className="action-span">
-            <a onClick={()=>this.remove(record,2)}>删除</a>
-          </span>
-        )
-      }
-    ]
 
     return (
       <div className="edit-table-container" style={{marginBottom: 50}}>
@@ -370,11 +346,11 @@ export default class EditTable extends Component{
              
             label="表名">
               {
-                getFieldDecorator('table_name',{
+                getFieldDecorator('tableName',{
                   rules: [
                     {required: true, message: '表名不可为空'}
                   ],
-                  initialValue: tableDetail.table_name || undefined
+                  initialValue: tableDetail.tableName || undefined
                 })(
                   <Input style={{width: 430, height: 36}}/>
                 )
@@ -385,21 +361,21 @@ export default class EditTable extends Component{
             label="生命周期">
               <span >
                 {
-                  getFieldDecorator('life_cycle',{
+                  getFieldDecorator('lifeDay',{
                     rules: [
                       {required: true, message: '生命周期不能为空'}
                     ],
-                    initialValue: tableDetail.life_cycle || undefined
+                    initialValue: tableDetail.lifeDay || undefined
                   })(
-                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().life_cycle === '-1'?78:430,height: 36}}>
+                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === '-1'?78:430,height: 36}}>
                     {options.map(o=>(
-                      <Option key={o.value}>{o.name}</Option>
+                      <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
                     </Select>
                   )
                 }
                 {
-                getFieldsValue().life_cycle === '-1' &&
+                getFieldsValue().lifeDay === -1 &&
                   <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
                 }
               </span>
@@ -408,11 +384,11 @@ export default class EditTable extends Component{
              
             label="描述">
               {
-                getFieldDecorator('desc',{
+                getFieldDecorator('tableDesc',{
                   rules: [
                     {required: true, message:'描述不可为空'}
                   ],
-                  initialValue: tableDetail.desc || undefined
+                  initialValue: tableDetail.tableDesc || undefined
                 })(
                   <Input style={{width: 430, height: 36}}/>
                 )
@@ -428,7 +404,7 @@ export default class EditTable extends Component{
             className="table-small"
             columns={tableCol_field}
             rowKey="_fid"
-            dataSource={tableDetail.fieldList}
+            dataSource={tableDetail.columns}
             pagination={false}>
             </Table>
           <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>

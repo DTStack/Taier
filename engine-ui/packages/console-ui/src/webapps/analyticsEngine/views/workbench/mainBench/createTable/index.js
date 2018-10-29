@@ -48,7 +48,7 @@ class CreateTable extends Component {
                 content: <StepTwo tabData={this.props.data}   handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
             },{
                 title: '新建完成',
-                content: <StepFour/>
+                content: <StepFour tabData={this.props.data} toTableDetail={this.props.toTableDetail}/>
             },
         ]
         return (
