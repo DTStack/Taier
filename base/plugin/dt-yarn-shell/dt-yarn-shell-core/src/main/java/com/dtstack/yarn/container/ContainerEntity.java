@@ -9,6 +9,7 @@ public class ContainerEntity {
     private DtContainerStatus dtContainerStatus;
     private int attempts;
     private String nodeHost;
+    private Long lastBeatTime;
 
 
     public ContainerEntity(int lane, DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHost, int attempts) {
@@ -17,6 +18,7 @@ public class ContainerEntity {
         this.dtContainerStatus = dtContainerStatus;
         this.nodeHost = nodeHost;
         this.attempts = attempts;
+        this.lastBeatTime = System.currentTimeMillis();
     }
 
     public int getLane() {
@@ -58,4 +60,13 @@ public class ContainerEntity {
     public void setNodeHost(String nodeHost) {
         this.nodeHost = nodeHost;
     }
+
+    public Long getLastBeatTime() {
+        return lastBeatTime;
+    }
+
+    public void setLastBeatTime(Long lastBeatTime) {
+        this.lastBeatTime = lastBeatTime;
+    }
+
 }

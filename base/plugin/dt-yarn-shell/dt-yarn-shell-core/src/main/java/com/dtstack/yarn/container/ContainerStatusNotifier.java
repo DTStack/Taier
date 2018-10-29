@@ -100,7 +100,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(this, 0L, 10L, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, 0L, 3L, TimeUnit.SECONDS);
     }
 
     public void stop() {
