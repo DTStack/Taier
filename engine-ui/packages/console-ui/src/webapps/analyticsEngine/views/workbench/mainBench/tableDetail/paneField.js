@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Tabs, Table, Radio } from 'antd'
+import { Tabs, Table, Radio, Checkbox } from 'antd'
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
@@ -35,12 +35,13 @@ export default class PaneField extends Component{
   }
 
   initData = (props)=>{
+    console.log(props)
     this.state.columnData = props.data.columnData;
     this.state.partData = props.data.partData;
 
     let data = this.state.dataType === 'column'?this.state.columnData:this.state.partData;
     console.log(data)
-    if(data.length===0){
+    if(data && data.length===0){
       this.paginationParams.total = 0;
       this.setState({
         dataList: [],
@@ -49,7 +50,7 @@ export default class PaneField extends Component{
       return;
     }
 
-    this.state.paginationParams.total = data.length;
+    this.state.paginationParams.total = data.length || 0;
     this.state.paginationParams.current = 1;
 
     this.state.dataList = data.slice(0,this.state.paginationParams.pageSize)
@@ -75,16 +76,30 @@ console.log(dataList)
   }
   render(){
     const {paginationParams, dataList} = this.state;
-    const tableCOl = [
-      {
-        title: '序号',
-        dataIndex: 'id',
-      },{
+    const tableCOl = [{
         title: '字段名称',
-        dataIndex: 'columnName',
+        dataIndex: 'name',
+      },{
+        title: '倒排索引',
+        dataIndex: 'invert',
+        render: (text,record)=>(
+          <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+        )
+      },{
+        title: '字典编码',
+        dataIndex: 'dictionary',
+        render: (text,record)=>(
+          <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+        )
+      },{
+        title: '多维索引',
+        dataIndex: 'sortColumn',
+        render: (text,record)=>(
+          <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+        )
       },{
         title: '类型',
-        dataIndex: 'columnType',
+        dataIndex: 'type',
       },{
         title: '注释',
         dataIndex: 'comment'

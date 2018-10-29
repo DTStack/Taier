@@ -336,6 +336,12 @@
         font-size: 12px;
         color: #666666;
     }
+    .anticon-check-circle{
+        margin-bottom: 15px;
+        &::before{
+            font-size: 50px;
+        }
+    }
 }
 
 .response-succ {
@@ -570,5 +576,17 @@
             width: 190px;
             padding-left: 30px;
         }
+    }
+}
+
+.edit-table-container{
+    .ant-form-item{
+        display: flex;
+        &:nth-child(2n-1){
+            padding-left: 24px;
+        }
+    }
+    .ant-table-thead > tr > th, .ant-table-tbody > tr > td{
+        font-size: 12px;
     }
 }

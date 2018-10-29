@@ -11,7 +11,7 @@ const field_type = [
     value: 'SMALLINT',
   },{
     name: 'INT/INTEGER',
-    value: 'INT/INTEGER',
+    value: 'INT',
   },{
     name: 'BIGINT',
     value: 'BIGINT',
@@ -87,9 +87,9 @@ export default class StepTwo extends Component{
       })
       columns[columns.length] = {
         _fid: _fid + 1,
-        columnName: '',
-        columnType: '',
-        invert: 0,
+        name: '',
+        type: '',
+        invert: 1,
         dictionary: 0,
         sortColumn: 0,
         comment: ''
@@ -104,8 +104,8 @@ export default class StepTwo extends Component{
       })
       partitions[partitions.length] = {
         _fid: _fid + 1,
-        columnName: '',
-        columnType: '',
+        name: '',
+        type: '',
         comment: '',
       }
       this.setState({
@@ -116,13 +116,13 @@ export default class StepTwo extends Component{
 
   handleNameChange = (e,record)=>{
     let {columns,partitions} = this.state;
-    record.columnName = e.target.value;
+    record.name = e.target.value;
     console.log(columns)
     this.saveDataToStorage();
   }
   handleSelectChange = (e,record)=>{
     let {columns, partitions} = this.state;
-    record.columnType = e;
+    record.type = e;
     this.saveDataToStorage();
   }
   handleCommentChange = (e,record)=>{
@@ -217,13 +217,13 @@ export default class StepTwo extends Component{
     let col = [
       {
         title: '字段名',
-        dataIndex: 'columnName',
+        dataIndex: 'name',
         render: (text,record)=>(
           <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
-        dataIndex: 'columnType',
+        dataIndex: 'type',
         render: (text,record)=>(
           <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
@@ -257,13 +257,13 @@ export default class StepTwo extends Component{
     let col_field = [
       {
         title: '字段名',
-        dataIndex: 'columnName',
+        dataIndex: 'name',
         render: (text,record)=>(
           <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
-        dataIndex: 'columnType',
+        dataIndex: 'type',
         render: (text,record)=>(
           <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
@@ -277,19 +277,19 @@ export default class StepTwo extends Component{
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox defaultValue={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',

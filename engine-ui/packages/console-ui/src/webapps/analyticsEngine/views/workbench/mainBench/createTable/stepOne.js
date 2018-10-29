@@ -34,16 +34,16 @@ const options = [{
 const scortScopeList = [
   {
     title: 'LOCAL_SORT',
-    value: 'LOCAL_SORT'
+    value: 0
   },{
     title: 'NO_SORT',
-    value: 'NO_SORT'
+    value: 1
   },{
     title: 'BATCH_SORT',
-    value: 'BATCH_SORT'
+    value: 2
   },{
     title: 'GLOBAL_SORT',
-    value: 'GLOBAL_SORT'
+    value: 3
   }
 ]
 
@@ -123,7 +123,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '数据库不可为空'},
                 ],
-                initialValue: formData.databaseId || this.props.tabData.databaseId || undefined
+                initialValue: formData.databaseId || undefined
               })(
                   <Select>
                   {
