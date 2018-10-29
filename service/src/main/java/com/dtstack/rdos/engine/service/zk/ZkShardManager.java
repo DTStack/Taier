@@ -175,7 +175,6 @@ public class ZkShardManager implements Runnable {
         InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
         mutexs.put(shardName, mutex);
         cacheShardLocks.put(shardName, new ReentrantLock());
-
     }
 
     public void createShardNode(float nodeNum) {

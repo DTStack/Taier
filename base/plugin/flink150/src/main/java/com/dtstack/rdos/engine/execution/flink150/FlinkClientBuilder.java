@@ -228,8 +228,8 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
-
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration,yarnConf,".");
+        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration,yarnConf,".",
+                yarnClient, false);
 
         ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
 
@@ -293,7 +293,7 @@ public class FlinkClientBuilder {
                     false);
     }
 
-    private ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
+    public ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
