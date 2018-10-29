@@ -1031,13 +1031,27 @@ class Keymap extends React.Component{
 
     copySourceCols = (sourceKeyRow) => {
         const { addBatchTargetKeyRow } = this.props
-        const params = sourceKeyRow && sourceKeyRow.map(item => {
-            return {
-                key: item.key || item.index,
-                type: item.type,
-            }
+        const serverParams={}
+        sourceKeyRow.forEach((item)=>{
+            serverParams[item.key||item.index]=item.type
         })
-        addBatchTargetKeyRow(params)
+        Api.convertToHiveColumns({
+            columns:serverParams
+        }).then(
+            (res)=>{
+                if(res.code==1){
+                    const params=[];
+                    Object.getOwnPropertyNames(res.data).forEach((key)=>{
+                        params.push({
+                            key:key,
+                            type:res.data[key]
+                        })
+                    });
+                    addBatchTargetKeyRow(params)
+                }
+            }
+        )
+        
     }
 
     batchTextChange = (e) => {
