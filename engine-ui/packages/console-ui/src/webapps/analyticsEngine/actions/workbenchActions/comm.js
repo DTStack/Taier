@@ -169,6 +169,7 @@ export const loadCatalogue = function(data, fileType) {
         }
 
         if (res.code === 1) {
+            data.type = fileType;
             data.children = res.data;
             dispatch({
                 type: workbenchAction.LOAD_CATALOGUE_DATA,

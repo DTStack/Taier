@@ -52,7 +52,6 @@ class DataMapForm extends Component {
     };
 
     onDataMapTypeChange = (e) => {
-        console.log('radio checked', e.target.value);
         this.setState({
             datamapType: e.target.value,
         });
@@ -246,7 +245,7 @@ class DataMapForm extends Component {
                         <Input type="hidden" />
                     )}
                     <span>
-                        <span style={{ marginRight: 10 }}>{tableData ? tableData.tableName : ""}</span>
+                        <span style={{ marginRight: 10, marginLeft: 6 }}>{tableData ? tableData.tableName : ""}</span>
                         <a onClick={() => {
                             onGenerateCreateSQL(tableData ? tableData.id : null)
                         }}>生成建表语句</a>

@@ -147,7 +147,6 @@ class FolderTree extends React.PureComponent {
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}
-                    selectedKeys={this.props.selectedKeys}
                     onRightClick={this.props.onRightClick}
                 >
                     {this.renderNodes()}

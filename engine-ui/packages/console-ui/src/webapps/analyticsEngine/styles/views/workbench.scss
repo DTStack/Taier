@@ -24,49 +24,53 @@
 
         .ant-tree {
 
-            .ant-tree-node-content-wrapper {
-                width: 100%;
-                
-                .ant-tree-node-selected {
-                    background: #F1F5FF;
+            li {
+
+                .ant-tree-node-content-wrapper {
+                    width: 100%;
+                    
+                    &:hover, &.ant-tree-node-selected {
+                        background-color: #F1F5FF;
+                    }
+
+                    .tree-node-hover-items {
+                        display: none;
+                        position: absolute;
+                        right: 12px;
+                        top: 5px;
+                    }
+
+                    .tree-node-hover-item {
+                        font-size: 14px;
+                        width: 14px;
+                        height: 14px;
+                        color: #333333;
+                        cursor: pointer;
+                        line-height: 14px;
+                        margin-right: 5px;
+                        vertical-align: middle;
+                    }
+
+                    &:hover .tree-node-hover-items  {
+                        display: inline-block;
+                    }
                 }
 
-                .tree-node-hover-items {
-                    display: none;
-                    position: absolute;
-                    right: 12px;
-                    top: 5px;
+                span.ant-tree-iconEle,
+                span.ant-tree-switcher {
+                    width: 16px;
                 }
-
-                .tree-node-hover-item {
-                    font-size: 14px;
-                    width: 14px;
-                    height: 14px;
-                    color: #333333;
-                    cursor: pointer;
-                    line-height: 14px;
-                    margin-right: 5px;
-                    vertical-align: middle;
-                }
-
-                &:hover .tree-node-hover-items  {
-                    display: inline-block;
+    
+                span.ant-tree-iconEle {
+                    margin-top: -2px;
+                    margin-right: 3px;
+                    background-size: cover;
+                    background-position: center center;
+                    height: 16px;
+                    line-height: 16px;
                 }
             }
 
-            li span.ant-tree-iconEle,
-            li span.ant-tree-switcher {
-                width: 16px;
-            }
-
-            li span.ant-tree-iconEle {
-                margin-top: -3px;
-                margin-right: 3px;
-                background-size: cover;
-                background-position: center center;
-                height: 16px;
-                line-height: 16px;
-            }
         }
    }
 }
