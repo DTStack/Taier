@@ -293,7 +293,7 @@ public class FlinkClientBuilder {
                     false);
     }
 
-    private ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
+    public ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
