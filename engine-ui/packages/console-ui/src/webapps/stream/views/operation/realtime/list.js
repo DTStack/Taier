@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { hashHistory } from "react-router";
 import moment from 'moment'
 import { isEmpty } from "lodash"
 import {
@@ -31,7 +32,7 @@ class RealTimeTaskList extends Component {
         tasks: {
             data: [],
         },
-        filter: isEmpty(utils.getParameterByName("status")) ? [] : [utils.getParameterByName("status")],
+        filter: [],
         loading: false,
         continue: false,
         logVisible: false,
@@ -47,9 +48,18 @@ class RealTimeTaskList extends Component {
 
     componentDidMount() {
         if (this.props.project.id !== 0) {
-            this.loadTaskList()
-            this.loadCount()
+            const { location } = this.props.router || {};
+            const { state = {} } = location || {};
+
             this.loadTaskTypes();
+            this.loadCount();
+
+            this.setState({
+                filter: state && state.statusList ? state.statusList : []
+            }, () => {
+                this.loadTaskList()
+            })
+
         }
     }
 
@@ -149,7 +159,7 @@ class RealTimeTaskList extends Component {
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
-            statusList: this.state.filter[0]
+            statusList: this.state.filter
         }, params)
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
@@ -236,13 +246,16 @@ class RealTimeTaskList extends Component {
     }
 
     handleTableChange = (pagination, filters) => {
-        const params = {}
-        if (filters.status) {
-            params.statusList = filters.status;
+        const {location} = this.props.router;
+        if(location.state){
+            hashHistory.replace({
+                pathname:location.pathname
+            })
         }
-        params.currentPage = pagination.current
-        this.setState({ current: pagination.current, filter: filters.status })
-        this.loadTaskList(params)
+        this.setState({
+            current: pagination.current,
+            filter: filters.status
+        }, this.loadTaskList.bind(this))
     }
 
     logInfo = (task) => {
@@ -271,10 +284,10 @@ class RealTimeTaskList extends Component {
     }
 
     initTaskColumns = () => {
-        const { taskTypes } = this.state;
-        let taskTypesMap={};
-        taskTypes.forEach((type)=>{
-            taskTypesMap[type.key]=type.value;
+        const { taskTypes, filter } = this.state;
+        let taskTypesMap = {};
+        taskTypes.forEach((type) => {
+            taskTypesMap[type.key] = type.value;
         })
         return [{
             title: '任务名称',
@@ -293,7 +306,7 @@ class RealTimeTaskList extends Component {
                 return <TaskStatus value={text} />
             },
             filters: taskStatusFilter,
-            filteredValue: this.state.filter,
+            filteredValue: filter,
             filterMultiple: true,
         }, {
             title: '业务延时',
