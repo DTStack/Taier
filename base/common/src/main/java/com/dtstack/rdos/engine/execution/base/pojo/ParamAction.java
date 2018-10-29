@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.constrant.ConfigConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class ParamAction {
 
 	private String exeArgs;
 
-	private String groupName;
+	private String groupName = ConfigConstant.DEFAULT_GROUP_NAME;
 
 	//选填参数,如果请求指定集群信息的话需要填写
 	private Map<String, Object> pluginInfo;
