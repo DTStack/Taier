@@ -5,6 +5,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,4 +46,18 @@ public class StreamTaskServiceImpl {
         return rdosEngineStreamJobDAO.getTaskIdsByStatus(status);
     }
 
+    /**
+     * 获取任务的状态
+     */
+    public Byte getTaskStatus(@Param("taskId") String taskId){
+        Byte status = null;
+        if (StringUtils.isNotEmpty(taskId)){
+            RdosEngineStreamJob streamJob = rdosEngineStreamJobDAO.getRdosTaskByTaskId(taskId);
+            if (streamJob != null){
+                status = streamJob.getStatus();
+            }
+        }
+
+        return status;
+    }
 }
