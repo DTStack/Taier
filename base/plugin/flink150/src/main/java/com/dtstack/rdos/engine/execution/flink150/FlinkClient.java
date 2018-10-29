@@ -512,8 +512,20 @@ public class FlinkClient extends AbsClient {
             RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
             return status;
         }catch (Exception e){
-            logger.error("", e);
-            return RdosTaskStatus.FINISHED;
+            //flink-session被kill的情况下，如果找不到application或appid不对，则为失败
+            //其他情况置为not find
+            ApplicationId appId = ((YarnClusterClient) client).getApplicationId();
+            ApplicationId yarnAppId = null;
+            try {
+                yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor(), flinkConfig);
+            } catch (RdosException appIdNotFindEx) {
+            }
+            if (yarnAppId!=null&& appId.toString().equals(yarnAppId.toString())){
+                logger.error("", e);
+                return RdosTaskStatus.NOTFOUND;
+            } else {
+                return RdosTaskStatus.FAILED;
+            }
         }
 
     }
@@ -662,7 +674,11 @@ public class FlinkClient extends AbsClient {
             return FlinkStandaloneRestParseUtil.parseEngineLog(retMap);
         } catch (IOException e) {
             logger.error("", e);
-            return "get engine message error," + e.getMessage();
+            try {
+                return PublicUtil.objToString(retMap);
+            } catch (IOException e1) {
+                return "get engine message error," + e.getMessage();
+            }
         }
     }
 
