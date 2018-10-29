@@ -105,8 +105,8 @@ export function onSQLQuery(params) {
             tabName: `${name} Query ${sqlQueryTabIndex + 1}`,
             tabIndex: sqlQueryTabIndex + 1,
             actionType: workbenchAction.OPEN_SQL_QUERY,
-            databaseId: params.databaseId,
-            tableId: params.tableName ? params.id : undefined,
+            databaseId: params && params.databaseId,
+            tableId: params && params.tableName ? params.id : undefined,
         }
 
         dispatch(openTab(defaultSQLQueryTabData));
