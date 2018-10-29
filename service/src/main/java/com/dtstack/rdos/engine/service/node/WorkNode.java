@@ -347,7 +347,7 @@ public class WorkNode {
                         if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
                             this.addSubmitJob(jobClient);
                         } else {
-                            WorkNode.getInstance().afterSubmitJob(jobClient);
+                            this.afterSubmitJob(jobClient);
                         }
                         startId = jobCache.getId();
                     } catch (Exception e) {

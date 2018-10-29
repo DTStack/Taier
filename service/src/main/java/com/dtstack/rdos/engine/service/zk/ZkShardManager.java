@@ -9,6 +9,7 @@ import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataTreeMap;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class ZkShardManager implements Runnable {
 
     private ZkDistributed zkDistributed;
 
-    private final AtomicInteger shardSequence = new AtomicInteger(1);
+    private final AtomicInteger shardSequence = new AtomicInteger(0);
     private ShardConsistentHash consistentHash;
     private Map<String, BrokerDataShard> shards;
     private Map<String, AtomicInteger> shardIdles = Maps.newHashMap();
@@ -64,6 +65,10 @@ public class ZkShardManager implements Runnable {
             createShardNode(1);
         } else {
             for (String shardName : shards.keySet()) {
+                int shardSequenceNum = Integer.valueOf(StringUtils.substringAfter(shardName, "shard"));
+                if (shardSequence.get() < shardSequenceNum) {
+                    shardSequence.set(shardSequenceNum);
+                }
                 initShardNode(shardName);
             }
         }
@@ -175,14 +180,13 @@ public class ZkShardManager implements Runnable {
         InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
         mutexs.put(shardName, mutex);
         cacheShardLocks.put(shardName, new ReentrantLock());
-
     }
 
     public void createShardNode(float nodeNum) {
         acquireBrokerLock();
         try {
             for (int i = 0; i < nodeNum; i++) {
-                String shardName = SHARD_NODE + shardSequence.getAndIncrement();
+                String shardName = SHARD_NODE + shardSequence.incrementAndGet();
                 zkDistributed.createBrokerDataShard(shardName);
                 InterProcessMutex mutex = zkDistributed.createBrokerDataShardLock(shardName + SHARD_LOCK);
                 mutexs.put(shardName, mutex);
