@@ -86,7 +86,7 @@ class MainBench extends Component {
 
     render() {
         const { closeTab, switchTab, workbench } = this.props;
-        const { tabs, currentTab } = workbench.mainBench;
+        const { tabs, currentTab, currentStep } = workbench.mainBench;
         return (
             <div style={{position: 'relative', width: '100%', height: '100%'}}>
                 <div className="m-mainbench">

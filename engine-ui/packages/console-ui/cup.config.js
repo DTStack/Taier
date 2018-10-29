@@ -47,10 +47,10 @@ module.exports = {
             changeOrigin: true,
             secure: false,
         },
-        "/api/analysis": { // 数据标签
-            target: "http://172.16.2.157:9021",//测试环境
-            changeOrigin: true,
-            secure: false,
-        },
+        // "/api/analysis": { // 数据标签
+        //     target: "http://172.16.2.157:9021",//测试环境
+        //     changeOrigin: true,
+        //     secure: false,
+        // },
     }
 }

@@ -1,7 +1,7 @@
-import database from './database';
-import datamap from './datamap';
-import table from './table';
-import user from './user';
+import database from '../api/database';
+import datamap from '../api/database';
+import user from '../api/database';
+import table from '../api/table';
 import comm from './comm';
 
 const Apis = Object.assign(
@@ -10,6 +10,7 @@ const Apis = Object.assign(
     datamap,
     table,
     database,
+    table,
 )
 
 export default Apis;
