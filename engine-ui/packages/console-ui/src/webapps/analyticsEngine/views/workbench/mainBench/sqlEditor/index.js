@@ -15,13 +15,14 @@ import reqUrls from '../../../../consts/reqUrls';
 
 import workbenchActions from "../../../../actions/workbenchActions";
 import * as editorActions from "../../../../actions/editorActions";
+import commActions from "../../../../actions";
 
 @connect(
     state => {
         const { workbench, editor, common } = state;
         return {
-            workbench,
             editor,
+            workbench,
             tableList: common.tableList,
             currentTab: workbench.mainBench.currentTab,
         };
@@ -29,7 +30,8 @@ import * as editorActions from "../../../../actions/editorActions";
     dispatch => {
         const actionsOne = bindActionCreators(workbenchActions, dispatch);
         const actionsTwo = bindActionCreators(editorActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo);
+        const actionsThree = bindActionCreators(commActions, dispatch);
+        return Object.assign(actionsOne, actionsTwo, actionsThree);
     }
 )
 class EditorContainer extends Component {
@@ -40,7 +42,7 @@ class EditorContainer extends Component {
         tableCompleteItems: [],
         funcCompleteItems: [],
         tables: [],
-        columns: {}
+        columns: {}, // 暂时不支持字段AutoComplete
     };
 
     _tableColumns = {};

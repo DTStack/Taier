@@ -42,6 +42,7 @@ class Sidebar extends Component {
     state = {
         activeNode: null,
         expandedKeys: [],
+        selectedKeys: [],
     }
 
     componentDidMount() {
@@ -52,6 +53,7 @@ class Sidebar extends Component {
         this.setState({
             activeNode: null,
             expandedKeys: [],
+            selectedKeys: [],
         })
         this.props.loadCatalogue();
     }
@@ -102,6 +104,10 @@ class Sidebar extends Component {
         const { eventKey, fileType } = node.props;
         if (fileType === CATALOGUE_TYPE.DATA_MAP ) return false;
 
+        this.setState({
+            selectedKeys, 
+        });
+
         const eventKeyIndex = expandedKeys.indexOf(eventKey);
         this.asynLoadCatalogue(node);
 
@@ -150,6 +156,7 @@ class Sidebar extends Component {
                         onSelect={this.onNodeSelect}
                         onExpand={this.onExpand}
                         expandedKeys={this.state.expandedKeys}
+                        selectedKeys={this.state.selectedKeys}
                         treeData={folderTree.children}
                         onGetDB={onGetDB}
                         onGetTable={onGetTable}

@@ -120,7 +120,7 @@ class FolderTree extends React.PureComponent {
                 return (
                     <TreeNode
                         title={nodeTitle}
-                        key={`${id}`}
+                        key={`${item.type}-${id}`}
                         value={id}
                         isLeaf={isLeaf}
                         data={item}
@@ -147,6 +147,7 @@ class FolderTree extends React.PureComponent {
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}
+                    selectedKeys={this.props.selectedKeys}
                     onRightClick={this.props.onRightClick}
                 >
                     {this.renderNodes()}

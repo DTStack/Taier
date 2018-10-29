@@ -7,6 +7,9 @@ import { bindActionCreators } from 'redux';
 import Sidebar from './sidebar';
 import Default from './default';
 import MainBench from "./mainBench";
+import CreateDBModal from './mainBench/database/create';
+import CreateTableDDLModal from './mainBench/tableDetail/ddlModal';
+
 
 import workbenchActions from '../../actions/workbenchActions';
 import commActions from "../../actions";
@@ -15,8 +18,9 @@ const { Content } = Layout;
 
 @connect(
     state => {
-        const { workbench } = state;
+        const { workbench, modal } = state;
         return {
+            modal,
             mainBench: workbench.mainBench,
         };
     },
@@ -71,6 +75,8 @@ class Workbench extends Component {
                                 onCreateTable={onCreateTable}
                             />
                         }
+                        <CreateDBModal {...this.props} />
+                        <CreateTableDDLModal {...this.props} />
                     </Content>
                 </SplitPane>
             </Layout>

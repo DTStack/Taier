@@ -106,6 +106,7 @@ export function onSQLQuery(params) {
             tabIndex: sqlQueryTabIndex + 1,
             actionType: workbenchAction.OPEN_SQL_QUERY,
             databaseId: params.databaseId,
+            tableId: params.tableName ? params.id : undefined,
         }
 
         dispatch(openTab(defaultSQLQueryTabData));
@@ -118,7 +119,6 @@ export function onSQLQuery(params) {
 export const loadCatalogue = function(data, fileType) {
 
     return async (dispatch) => {
-        console.log('loadCatalogue:', data, fileType);
         let res = {};
         switch (fileType) {
             case CATALOGUE_TYPE.TABLE: { // 获取表下的DataMap
