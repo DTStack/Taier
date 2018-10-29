@@ -57,6 +57,7 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 }
                 // 删除
                 clone.tabs.splice(tabIndex, 1);
+                localDb.set(workbenchStoreKey, clone);
                 return clone;
             }
         }

@@ -88,7 +88,6 @@ export function onSQLQuery(params) {
 
     return (dispatch, getStore) => {
         const { workbench } = getStore();
-        console.log('onSqlQuery:', params, workbench);
         const { tabs } = workbench.mainBench;
 
         let sqlQueryTabIndex = 0;
