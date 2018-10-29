@@ -15,31 +15,27 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class BrokerDataTreeMap<K, V> extends ConcurrentSkipListMap<K, V> {
 
-    private final static String interval = "_";
-
     public BrokerDataTreeMap(Comparator<? super K> comparator) {
         super(comparator);
     }
+
     public BrokerDataTreeMap() {
-        super();
+        this(new Comparator<K>() {
+            @Override
+            public int compare(K o1, K o2) {
+                if (o1.equals(o2)) {
+                    return 0;
+                }
+                if (TaskIdUtil.getTaskId((String) o1).equals(TaskIdUtil.getTaskId((String) o2))) {
+                    return 0;
+                }
+
+                return ((String) o1).compareTo((String) o2);
+            }
+        });
     }
 
-
-    private static Comparator<String> stringComparator = new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            if (o1.equals(o2)) {
-                return 0;
-            }
-            if (TaskIdUtil.getTaskId(o1).equals(TaskIdUtil.getTaskId(o1))) {
-                return 0;
-            }
-
-            return o1.compareTo(o2);
-        }
-    };
-
     public static BrokerDataTreeMap<String, Byte> initBrokerDataTreeMap() {
-        return new BrokerDataTreeMap<String, Byte>(stringComparator);
+        return new BrokerDataTreeMap<String, Byte>();
     }
 }

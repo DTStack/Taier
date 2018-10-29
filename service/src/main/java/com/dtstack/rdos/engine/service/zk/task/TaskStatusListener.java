@@ -59,9 +59,6 @@ public class TaskStatusListener implements Runnable{
 
     private static final long LISTENER_INTERVAL = 2000;
 
-    /**初始启动的时候需要对获取的任务做重启操作*/
-    private boolean isFirst = true;
-
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
@@ -98,8 +95,6 @@ public class TaskStatusListener implements Runnable{
                 dealFailedJob();
 			}catch(Throwable e){
 				logger.error("TaskStatusTaskListener run error:{}",ExceptionUtil.getErrorMessage(e));
-			}finally {
-			    isFirst = false;
             }
         }
 	}
@@ -200,6 +195,9 @@ public class TaskStatusListener implements Runnable{
                     addFailedJob(failedTaskInfo);
                 }
             }
+        } else {
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
+            rdosEngineJobCacheDao.deleteJob(taskId);
         }
     }
 
@@ -236,6 +234,9 @@ public class TaskStatusListener implements Runnable{
                     addFailedJob(failedTaskInfo);
                 }
             }
+        } else {
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
+            rdosEngineJobCacheDao.deleteJob(taskId);
         }
     }
 
@@ -345,7 +346,6 @@ public class TaskStatusListener implements Runnable{
         if(RdosTaskStatus.needClean(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
-            return;
         }
     }
 

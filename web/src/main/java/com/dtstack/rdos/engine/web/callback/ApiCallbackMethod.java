@@ -60,8 +60,7 @@ public class ApiCallbackMethod {
 				logger.debug("ApiCallbackMethod error:", e);
 			}
 			try {
-                ResponseUtil.res200(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));
-			} catch (Throwable e1) {
+				ResponseUtil.res200(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));			} catch (Throwable e1) {
 				logger.error("ApiCallbackMethod error:", e1);
 			}
 		}
