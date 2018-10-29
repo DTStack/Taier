@@ -49,11 +49,11 @@ class Container extends Component {
         const { children } = this.props
         const collapsed = this.state.collapsed
         return (
-            <Layout className="dt-operation">
+            <div className="dt-operation">
                 <Content>
                     { children || "i'm container." }
                 </Content>
-            </Layout>
+            </div>
         )
     }
 }
