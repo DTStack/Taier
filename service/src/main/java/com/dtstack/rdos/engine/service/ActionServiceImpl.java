@@ -479,4 +479,43 @@ public class ActionServiceImpl {
         }
         return uniqueSign;
     }
+
+    /**
+     * 重置任务状态为未提交
+     * @return
+     */
+    public String resetTaskStatus(@Param("jobId") String jobId, @Param("computeType") Integer computeType){
+        //check jobstatus can reset
+        Byte currStatus;
+
+        if(ComputeType.STREAM.getType().equals(computeType)){
+            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            Preconditions.checkNotNull(rdosEngineStreamJob, "not exists job with id " + jobId);
+            currStatus = rdosEngineStreamJob.getStatus();
+        }else if(ComputeType.BATCH.getType().equals(computeType)){
+            RdosEngineBatchJob rdosEngineBatchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
+            Preconditions.checkNotNull(rdosEngineBatchJob, "not exists job with id " + jobId);
+            currStatus = rdosEngineBatchJob.getStatus();
+        }else{
+            throw new RdosException("not support computeType:" + computeType);
+        }
+
+        if(!RdosTaskStatus.canReset(currStatus)){
+            throw new RdosException(String.format("computeType(%d) taskId(%s) can't reset status, current status(%d)", computeType, jobId, currStatus.intValue()));
+        }
+
+        //do reset status
+
+        if(ComputeType.STREAM.getType().equals(computeType)){
+            engineStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus());
+            engineStreamTaskDAO.updateSubmitLog(jobId, "");
+            engineStreamTaskDAO.updateEngineLog(jobId, "");
+        }else if(ComputeType.BATCH.getType().equals(computeType)){
+            batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus());
+            batchJobDAO.updateSubmitLog(jobId, "");
+            batchJobDAO.updateEngineLog(jobId, "");
+        }
+
+        return jobId;
+    }
 }
