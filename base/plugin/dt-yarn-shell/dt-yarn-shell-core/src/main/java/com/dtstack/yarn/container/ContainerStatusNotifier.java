@@ -36,6 +36,7 @@ public class ContainerStatusNotifier implements Runnable {
     private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 
+
     public ContainerStatusNotifier(ApplicationContainerProtocol protocol, Configuration conf, DtContainerId xlearningContainerId) {
         this.protocol = protocol;
         this.conf = conf;
@@ -100,7 +101,7 @@ public class ContainerStatusNotifier implements Runnable {
     }
 
     public void start() {
-        scheduledExecutorService.scheduleAtFixedRate(this, 0L, 10L, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, 0L, 3L, TimeUnit.SECONDS);
     }
 
     public void stop() {
