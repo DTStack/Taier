@@ -41,14 +41,26 @@ class RealTimeTaskList extends Component {
         taskName: utils.getParameterByName('tname') || '',
         goOnTask: '',
         logInfo: '',
-        overview:{}
+        overview: {},
+        taskTypes: []
     }
 
     componentDidMount() {
         if (this.props.project.id !== 0) {
             this.loadTaskList()
             this.loadCount()
+            this.loadTaskTypes();
         }
+    }
+
+    loadTaskTypes = () => {
+        Api.getRealtimeTaskTypes().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    taskTypes: res.data || [],
+                })
+            }
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -68,13 +80,13 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         this._isUnmounted = true;
     }
-    
-    loadCount(){
+
+    loadCount() {
         Api.taskStatistics().then(
-            (res)=>{
-                if(res.code==1){
+            (res) => {
+                if (res.code == 1) {
                     this.setState({
-                        overview:res.data
+                        overview: res.data
                     })
                 }
             }
@@ -137,7 +149,7 @@ class RealTimeTaskList extends Component {
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
-            status: this.state.filter[0]
+            statusList: this.state.filter[0]
         }, params)
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
@@ -226,7 +238,7 @@ class RealTimeTaskList extends Component {
     handleTableChange = (pagination, filters) => {
         const params = {}
         if (filters.status) {
-            params.status = filters.status[0]
+            params.statusList = filters.status;
         }
         params.currentPage = pagination.current
         this.setState({ current: pagination.current, filter: filters.status })
@@ -259,6 +271,11 @@ class RealTimeTaskList extends Component {
     }
 
     initTaskColumns = () => {
+        const { taskTypes } = this.state;
+        let taskTypesMap={};
+        taskTypes.forEach((type)=>{
+            taskTypesMap[type.key]=type.value;
+        })
         return [{
             title: '任务名称',
             dataIndex: 'name',
@@ -277,7 +294,7 @@ class RealTimeTaskList extends Component {
             },
             filters: taskStatusFilter,
             filteredValue: this.state.filter,
-            filterMultiple: false,
+            filterMultiple: true,
         }, {
             title: '业务延时',
             dataIndex: 'delay',
@@ -289,17 +306,7 @@ class RealTimeTaskList extends Component {
             key: 'taskType',
             width: 150,
             render: (text) => {
-                switch (text) {
-                    case TASK_TYPE.SQL: {
-                        return 'FlinkSQL'
-                    }
-                    case TASK_TYPE.MR: {
-                        return 'FlinkMR'
-                    }
-                    case TASK_TYPE.DATA_COLLECTION: {
-                        return '实时采集'
-                    }
-                }
+                return taskTypesMap[text];
             },
         }, {
             title: '责任人',
