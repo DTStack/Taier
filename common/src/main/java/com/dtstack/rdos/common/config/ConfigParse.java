@@ -1,6 +1,7 @@
 package com.dtstack.rdos.common.config;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.google.common.collect.Lists;
 
 import java.util.Map;
 import java.util.List;
@@ -52,7 +53,9 @@ public class ConfigParse {
     }
 
     public static List<Map<String,Object>> getEngineTypeList(){
-        return (List<Map<String, Object>>) configs.get("engineTypes");
+
+        List<Map<String, Object>> engineList =  (List<Map<String, Object>>) configs.get("engineTypes");
+        return engineList == null ? Lists.newArrayList() : engineList;
     }
 
     public static int getExeQueueSize(){

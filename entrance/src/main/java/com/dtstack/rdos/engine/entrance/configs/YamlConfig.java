@@ -43,10 +43,7 @@ public class YamlConfig implements Config{
         if(StringUtils.isBlank(nodeZkAddress)){
             throw new EngineAgumentsException("nodeZkAddress");
         }
-        List clientType = (List) nodeConfig.get("engineTypes");
-        if(clientType.size() < 1){
-            throw new EngineAgumentsException("engineTypes size at least one");
-        }
+
     }
 
     @Override
