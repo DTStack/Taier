@@ -391,3 +391,12 @@
         font-size: 14px;
     }
 }
+.pane-height100-box{
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    .pane-tabs{
+        height:auto;
+        flex-grow: 1;
+    }
+}

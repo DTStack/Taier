@@ -45,7 +45,7 @@ class TaskDetailPane extends React.Component {
         const scrollStyle = {
             position: "absolute",
             top: "36px",
-            bottom: "50px",
+            bottom: "1px",
             overflow: "auto",
             paddingBottom: "1px",
             paddingTop: "20px"
@@ -53,7 +53,7 @@ class TaskDetailPane extends React.Component {
         const scrollStyleNoPt = {
             position: "absolute",
             top: "36px",
-            bottom: "50px",
+            bottom: "1px",
             overflow: "auto",
             paddingBottom: "1px"
         }
@@ -130,19 +130,22 @@ class TaskDetailPane extends React.Component {
                     visible={visibleSlidePane}
                     style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
                 >
-                    <header className="detailPane-header">
-                        <span style={{ fontSize: "14px" }}>{data.name}</span>
-                        <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
-                        <span style={extButtonStyle}>{extButton}</span>
-                    </header>
-                    <Tabs
-                        style={{ borderTop: "1px solid #DDDDDD", position: "relative" }}
-                        animated={false}
-                        onChange={this.onTabChange.bind(this)}
-                        activeKey={tabKey}
-                    >
-                        {this.getTabs()}
-                    </Tabs>
+                    <div className="pane-height100-box">
+                        <header className="detailPane-header">
+                            <span style={{ fontSize: "14px" }}>{data.name}</span>
+                            <span style={{ marginLeft: "25px" }}><TaskStatus value={data.status} /></span>
+                            <span style={extButtonStyle}>{extButton}</span>
+                        </header>
+                        <Tabs
+                            className="pane-tabs"
+                            style={{ borderTop: "1px solid #DDDDDD", position: "relative" }}
+                            animated={false}
+                            onChange={this.onTabChange.bind(this)}
+                            activeKey={tabKey}
+                        >
+                            {this.getTabs()}
+                        </Tabs>
+                    </div>
                 </SlidePane>
             </div>
 

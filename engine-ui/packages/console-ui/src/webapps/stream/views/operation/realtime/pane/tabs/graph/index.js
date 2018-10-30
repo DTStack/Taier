@@ -17,9 +17,9 @@ const defaultTimeValue = '10m';
 const metricsType = {
     FAILOVER_RATE: "fail_over_rate",
     DELAY: "data_delay",
-    SOURCE_TPS: "source_tps",
+    SOURCE_TPS: "source_input_tps",
     SINK_OUTPUT_RPS: "sink_output_rps",
-    SOURCE_RPS: "source_rps",
+    SOURCE_RPS: "source_input_rps",
     SOURCE_INPUT_BPS: "source_input_bps",
     SOURCE_DIRTY: "source_dirty_data",
     DATA_COLLECTION_RPS: "jlogstash_rps",

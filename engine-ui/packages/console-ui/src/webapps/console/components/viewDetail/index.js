@@ -21,6 +21,7 @@ class ViewDetail extends Component {
         return (
             <Modal
                 title="任务详情"
+                width={650}
                 onCancel={this.props.onCancel}
                 onOk={this.props.onCancel}
                 visible={this.props.visible}
@@ -28,11 +29,14 @@ class ViewDetail extends Component {
                 <CodeEditor
                     style={{ height: "400px", marginTop: "1px" }}
                     // onChange={this.props.sqlOnChange}
-                    value={JSON.stringify(this.props.resource,null,2)}
+                    value={JSON.stringify(this.props.resource, null, 2)}
                     language="ini"
                     options={
                         {
-                            readOnly: true
+                            readOnly: true,
+                            minimap: {
+                                enabled: false,
+                            },
                         }
                     }
                     // // cursor={this.props.editor.cursor}

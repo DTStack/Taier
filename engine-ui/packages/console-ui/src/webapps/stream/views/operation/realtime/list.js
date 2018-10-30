@@ -141,6 +141,7 @@ class RealTimeTaskList extends Component {
         }
         this._timeClock = setTimeout(() => {
             this.loadTaskList(null, true);
+            this.loadCount();
         }, 5000);
     }
     onChange = (e) => {
@@ -196,6 +197,7 @@ class RealTimeTaskList extends Component {
                             if (res.code === 1) {
                                 message.success('续跑操作成功！')
                                 ctx.loadTaskList({ pageIndex: current })
+                                ctx.loadCount();
                             }
                         })
                     } else {
@@ -209,6 +211,7 @@ class RealTimeTaskList extends Component {
                         if (res.code === 1) {
                             message.success('任务操作成功！')
                             ctx.loadTaskList({ pageIndex: current })
+                            ctx.loadCount();
                         }
                     })
                 }
@@ -225,6 +228,7 @@ class RealTimeTaskList extends Component {
                     if (res.code === 1) {
                         message.success('任务已执行停止！')
                         ctx.loadTaskList({ pageIndex: current })
+                        ctx.loadCount();
                     }
                 })
                 break;
@@ -241,6 +245,7 @@ class RealTimeTaskList extends Component {
             if (res.code === 1) {
                 message.success('任务操作成功！')
                 ctx.loadTaskList()
+                ctx.loadCount();
             }
         })
     }
@@ -274,6 +279,12 @@ class RealTimeTaskList extends Component {
             selectTask: index,
             visibleSlidePane: true
         })
+    }
+
+    openTask= (task) => {
+        this.props.dispatch(BrowserAction.openPage({
+            id: task.id,
+        }))
     }
 
     closeSlidePane() {
@@ -399,6 +410,7 @@ class RealTimeTaskList extends Component {
         if (isPane) {
             return (
                 <span className="buttonMargin">
+                    <Button type="primary" onClick={() => { this.openTask(record) }}>修改</Button>
                     {goOn ? <Button type="primary" onClick={() => { this.updateTaskStatus(record) }}>{goOn}</Button> : null}
                     {normal ? <Button type="primary" onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</Button> : null}
                     {recover ? <Popconfirm
@@ -414,6 +426,7 @@ class RealTimeTaskList extends Component {
         } else {
             let arr = [];
 
+            arr.push(<a onClick={() => { this.openTask(record) }}>修改</a>)
             goOn && arr.push(<a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
             normal && arr.push(<a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
             recover && arr.push(<Popconfirm
@@ -424,6 +437,7 @@ class RealTimeTaskList extends Component {
             >
                 {recover}
             </Popconfirm>)
+            
             /**
              * 在每个按钮之间插入间隔符
              */
@@ -475,7 +489,10 @@ class RealTimeTaskList extends Component {
                     }
                     extra={
                         <Tooltip title="刷新数据">
-                            <Icon type="sync" onClick={this.loadTaskList.bind(this, null)}
+                            <Icon type="sync" onClick={()=>{
+                                this.loadCount();
+                                this.loadTaskList()
+                            }}
                                 style={{
                                     cursor: 'pointer',
                                     marginTop: '16px',
