@@ -98,7 +98,7 @@ export function onSQLQuery(params) {
                 }
             }
         }
-        const name = params ? params.name || params.tableName + ' - ' : '';
+        const name = params ? (params.name || params.tableName) + ' - ' : '';
         const defaultSQLQueryTabData = {
             id: moment().valueOf(),
             tabName: `${name} Query ${sqlQueryTabIndex + 1}`,

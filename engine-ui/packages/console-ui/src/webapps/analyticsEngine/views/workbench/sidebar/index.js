@@ -226,7 +226,10 @@ class Sidebar extends Component {
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
                     <MenuItem onClick={()=> onEditTable(activeNode)}>编辑表</MenuItem>
                     <MenuItem onClick={()=> onTableDetail(activeNode)}>表详情</MenuItem>
-                    <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>
+                    <MenuItem onClick={() => onGenerateCreateSQL({
+                        tableId: activeNode.id,
+                        databaseId: activeNode.databaseId,
+                    })}>
                         显示建表DDL
                     </MenuItem>
                     <MenuItem onClick={this.copyName}>复制表名</MenuItem>

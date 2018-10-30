@@ -247,7 +247,10 @@ class DataMapForm extends Component {
                     <span>
                         <span style={{ marginRight: 10, marginLeft: 6 }}>{tableData ? tableData.tableName : ""}</span>
                         <a onClick={() => {
-                            onGenerateCreateSQL(tableData ? tableData.id : null)
+                            onGenerateCreateSQL({
+                                tableId: tableData ? tableData.id : undefined,
+                                databaseId: tableData ? tableData.databaseId : undefined
+                            })
                         }}>生成建表语句</a>
                     </span>
                 </FormItem>

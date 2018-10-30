@@ -24,9 +24,13 @@ class DataMap extends Component {
 
     loadTable = async (params) => {
         const result = await API.getTableById(params);
+        this.setState({
+            loading: true,
+        })
         if (result.code === 1) {
             this.setState({
                 tableData: result.data,
+                loading: false,
             })
         }
     }
@@ -84,6 +88,7 @@ class DataMap extends Component {
     render () {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
         const { tableData, loading } = this.state;
+        console.log('loading:', loading)
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <DataMapForm 
@@ -105,6 +110,7 @@ class DataMap extends Component {
                             </Button>
                         :
                             <Button 
+                                disabled={loading}
                                 style={{ width: 90, height: 30, color: 'red' }}
                                 onClick={this.onRemove}
                             >

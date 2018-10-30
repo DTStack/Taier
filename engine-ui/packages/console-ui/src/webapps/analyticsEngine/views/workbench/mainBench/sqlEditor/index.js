@@ -133,7 +133,9 @@ class EditorContainer extends Component {
             data
         } = this.props;
 
-        const params = {};
+        const params = {
+            databaseId: data.databaseId,
+        };
 
         const code =
             editor.selection ||
