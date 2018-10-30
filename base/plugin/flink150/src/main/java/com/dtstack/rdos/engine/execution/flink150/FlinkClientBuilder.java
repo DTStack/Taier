@@ -110,9 +110,9 @@ public class FlinkClientBuilder {
     private void initFLinkConf(FlinkConfig flinkConfig) {
         Configuration config = new Configuration();
         //FIXME 浙大环境测试修改,暂时写在这
-        config.setString("akka.client.timeout",akka_client_timeout);
-        config.setString("akka.ask.timeout",akka_ask_timeout);
-        config.setString("akka.tcp.timeout",akka_tcp_timeout);
+        config.setString("akka.client.timeout", akka_client_timeout);
+        config.setString("akka.ask.timeout", akka_ask_timeout);
+        config.setString("akka.tcp.timeout", akka_tcp_timeout);
 
         if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
@@ -252,9 +252,11 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, String taskId) throws MalformedURLException {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, String taskId) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
+        perJobMetricConfigConfig(newConf, metricConfig);
+
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
         String flinkJarPath = null;
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
@@ -335,6 +337,19 @@ public class FlinkClientBuilder {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+    }
+
+    private void perJobMetricConfigConfig(Configuration configuration, FlinkPrometheusGatewayConfig gatewayConfig){
+        if(StringUtils.isBlank(gatewayConfig.getReporterClass())){
+            return;
+        }
+
+        configuration.setString("metrics.reporter.promgateway.class", gatewayConfig.getReporterClass());
+        configuration.setString("metrics.reporter.promgateway.host", gatewayConfig.getGatewayHost());
+        configuration.setString("metrics.reporter.promgateway.port", gatewayConfig.getGatewayPort());
+        configuration.setString("metrics.reporter.promgateway.jobName", gatewayConfig.getGatewayJobName());
+        configuration.setString("metrics.reporter.promgateway.randomJobNameSuffix", gatewayConfig.getRandomJobNameSuffix());
+        configuration.setString("metrics.reporter.promgateway.deleteOnShutdown", gatewayConfig.getDeleteOnShutdown());
     }
 
     public AbstractYarnClusterDescriptor getYarnClusterDescriptor() {

@@ -113,6 +113,8 @@ public class FlinkClient extends AbsClient {
 
     private FlinkConfig flinkConfig;
 
+    private FlinkPrometheusGatewayConfig prometheusGatewayConfig;
+
     private org.apache.hadoop.conf.Configuration hadoopConf;
 
     private YarnConfiguration yarnConf;
@@ -143,6 +145,8 @@ public class FlinkClient extends AbsClient {
 
         String propStr = PublicUtil.objToString(prop);
         flinkConfig = PublicUtil.jsonStrToObject (propStr, FlinkConfig.class);
+        prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
+
         tmpFileDirPath = flinkConfig.getJarTmpDir();
         Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
@@ -261,22 +265,29 @@ public class FlinkClient extends AbsClient {
     }
 
     public String runJob(PackagedProgram program, int parallelism) throws Exception {
+
         JobClient jobClient = jobClientThreadLocal.get();
+
         if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
+
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority());
-            AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, jobClient.getTaskId());
+            AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, prometheusGatewayConfig, jobClient.getTaskId());
+
             final JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, flinkClientBuilder.getFlinkConfiguration(), parallelism);
             fillJobGraphClassPath(jobGraph);
             descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
+
             try {
                 clusterClient.shutdown();
             } catch (Exception e) {
                 logger.info("Could not properly shut down the client.", e);
                 throw new Exception("Could not properly shut down the cluster." + e.getMessage());
             }
+
             return clusterClient.getClusterId().toString();
         } else {
+
             JobSubmissionResult result = client.run(program, parallelism);
             if (result.isJobExecutionResult()) {
                 logger.info("Program execution finished");
@@ -286,19 +297,20 @@ public class FlinkClient extends AbsClient {
             } else {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
             }
+
             File[] jobGraphFile = tmpdir.toFile().listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
                     return name.startsWith("flink-jobgraph");
                 }
             });
-            if (jobGraphFile.length != 0)
-            {
-                for (int i=0; i < jobGraphFile.length; i++)
-                {
+
+            if (jobGraphFile.length != 0) {
+                for (int i=0; i < jobGraphFile.length; i++) {
                     jobGraphFile[i].delete();
                 }
             }
+
             return result.getJobID().toString();
         }
     }
