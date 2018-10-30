@@ -32,6 +32,10 @@ public class JLogstashType extends AppType {
         if (StringUtils.isBlank(cmdOpts)) {
             throw new IllegalArgumentException("Must specify cmdOpts");
         }
+        String appName = clientArguments.getAppName();
+        if (StringUtils.isBlank(appName)) {
+            appName = "jlogstashJob";
+        }
 
         String encodedOpts = "";
         try {
@@ -42,7 +46,7 @@ public class JLogstashType extends AppType {
 
         System.out.println("encodedOpts: " + encodedOpts);
 
-        String cmd = javaHome + "/java -cp " + root + "/jlogstash.jar com.dtstack.jlogstash.JlogstashMain -l stdout -vvv -f " + encodedOpts + " -p " + root;
+        String cmd = javaHome + "/java -cp " + root + "/jlogstash.jar com.dtstack.jlogstash.JlogstashMain -l stdout -vvv -f " + encodedOpts + " -p " + root + " -name " + appName;
 
         System.out.println("my cmd: " + cmd);
         return cmd;
