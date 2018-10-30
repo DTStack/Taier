@@ -31,4 +31,8 @@ export default {
     saveTableInfo(params){
         return http.post(req.SAVE_TABLE_INFO, params)
     },
+
+    createTableByDDL(params){
+        return http.post(req.CREATE_TABLE_BY_DDL,params)
+    }
 }

@@ -48,7 +48,7 @@ class TableDetail extends Component {
                             <td>数据库</td>
                             <td>{tableDetail.dbName}</td>
                             <td>物理存储量</td>
-                            <td>{tableDetail.size}</td>
+                            <td>{tableDetail.tableSize}</td>
                         </tr>
                         <tr>
                             <td>创建人</td>
@@ -60,19 +60,19 @@ class TableDetail extends Component {
                             <td>创建时间</td>
                             <td>{moment(tableDetail.gmtCreate).format('YYYY-MM-DD')}</td>
                             <td>是否分区</td>
-                            <td>{tableDetail.splitPart}</td>
+                            <td>{tableDetail.hasPartition?'是':'否'}</td>
                         </tr>
                         <tr>
                             <td>表类型</td>
                             <td>{tableDetail.tableType}</td>
                             <td>表结构最后变更时间</td>
-                            <td>{tableDetail.lastDdlTime}</td>
+                            <td>{moment(tableDetail.lastDdlTime).format('YYYY-MM-DD')}</td>
                         </tr>
                         <tr>
                             <td>描述</td>
                             <td>{tableDetail.tableDesc}</td>
                             <td>数据最后变更时间</td>
-                            <td>{tableDetail.lastDmlTime}</td>
+                            <td>{moment(tableDetail.lastDmlTime).format('YYYY-MM-DD')}</td>
                         </tr>
                         <tr>
                             <td>Sort Scope</td>

@@ -79,7 +79,14 @@ export function onCreateTable(params) {
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
             databaseId: params ? params.id : undefined,
-            tableItem: { databaseId: params ? params.id : undefined },
+            tableItem: { 
+                databaseId: params ? params.id : undefined,
+                compactionSize: '1024',
+                lifeCycle: 90,
+                autoLoadMerge: 0,
+                levelThreshold: '4,3',
+                preserveSegments: 0,
+                allowCompactionDays:0 },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
@@ -272,7 +279,7 @@ export function saveEditTableInfo(params){
  * @param {预留} param 
  */
 export function saveTableInfo(param){
-    return (dispatch,getStore)=>{
+    return async (dispatch,getStore)=>{
         const { workbench } = getStore();
         const { tabs, currentTab } = workbench.mainBench;
         let tableDetail = {};
@@ -282,13 +289,21 @@ export function saveTableInfo(param){
             }
         })
 
-        const {databaseId,tableName,tableDesc,lifeDay,columns,partitions} = tableDetail;
+        console.log(tableDetail)
+        const {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
         columns.map(o=>{
             delete o._fid
         })
+        let flag = [];
+        columns.map(o=>{
+            if(o.isNew){
+                delete o.isNew;
+                flag.push(o)
+            }
+        })
 
 
-        const res = API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns,partitions});
+        const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
         if(res.code === 1){
             return dispatch({
                 type: workbenchAction.TABLE_INFO_MOTIFIED
@@ -337,5 +352,13 @@ export function toTableDetail(params){
                 description: res.message,
             });
         }
+    }
+}
+
+export function handleCancel(){
+    return (dispatch,getStore)=>{
+        const {currentTab} = getStore().workbench.mainBench;
+        
+        dispatch(closeTab(currentTab))
     }
 }

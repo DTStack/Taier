@@ -1,7 +1,14 @@
 import React, { Component } from "react";
-import { Form, Radio, Input, Select, Button, Row, Collapse, Icon } from "antd";
-import { formItemLayout} from "../../../../consts/index"
+import { Form, Radio, Input, Select, Button, Row, Collapse, Icon, Modal, message } from "antd";
+// import { formItemLayout} from "../../../../consts/index"
 import API from '../../../../api';
+import CopyIcon from "main/components/copy-icon";
+
+import Editor from 'widgets/editor';
+
+import { DDL_placeholder } from "../../../../comm/DDLCommon"
+import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
+
 
 
 
@@ -46,6 +53,17 @@ const scortScopeList = [
     value: 3
   }
 ]
+const formItemLayout = {
+  
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+},
+wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 14 },
+},
+}
 
 export default class StepOne extends Component{
   constructor(){
@@ -106,6 +124,44 @@ export default class StepOne extends Component{
     this.props.saveNewTableData([{key:"shortLisyCycle", value:e.target.value}])
   }
 
+  handleDdlChange(value) {
+    this._DDL = value;
+  }
+  handleDDLCreateTable = ()=>{
+    
+    const { tabData } = this.props;
+    let formData = tabData.tableItem;
+    if(!formData.databaseId){
+      message.error('请选择数据库')
+      return;
+    }
+    console.log({sql:this._DDL,databaseId: formData.databaseId})
+    if(!this.DDL){
+      API.createTableByDDL({sql:this._DDL,databaseId: formData.databaseId}).then(res=>{
+        if(res.code === 1){
+          this._DDL = undefined;
+          // 设置值
+          this.DDLEditor.setValue('');
+          this.setState({
+              showDDL: false
+          });
+          message.success('创建成功');
+          this.props.toTableDetail({databaseId: res.data.databaseId, id:res.data.id});
+        }
+      })
+    }else{
+      message.error('请输入建表语句')
+    }
+  }
+
+  handleCancel = ()=>{
+    this._DDL = undefined;
+    this.DDLEditor.setValue('');
+    this.setState({
+        showDDL: false
+    })
+  }
+
 
   render(){
     const { getFieldDecorator, getFieldsValue } = this.props.form;
@@ -114,6 +170,9 @@ export default class StepOne extends Component{
     console.log(formData)
     return (
       <Row className="step-one-container step-container">
+        <div className="btn-box">
+          <Button className="ddl-btn" type="primary" onClick={()=>{this.setState({showDDL: true})}}>DDL建表</Button>
+        </div>
         <Form>
           <FormItem
           {...formItemLayout}
@@ -125,7 +184,7 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.databaseId || undefined
               })(
-                  <Select>
+                  <Select style={{width: 570,marginRight:10}}>
                   {
                     this.state.databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
@@ -145,7 +204,7 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.tableName || undefined
               })(
-                <Input placeholder="请输入表名"/>
+                <Input style={{width: 570,marginRight:10 }} placeholder="请输入表名"/>
               )
             }
           </FormItem>
@@ -157,7 +216,7 @@ export default class StepOne extends Component{
                 rules: [],
                 initialValue: formData.desc || undefined
               })(
-                <Input placeholder="请输入描述信息"/>
+                <Input.TextArea style={{width: 570,marginRight:10,height: 90 }} placeholder="请输入描述信息"/>
               )
             }
           </FormItem>
@@ -167,15 +226,29 @@ export default class StepOne extends Component{
             {
               getFieldDecorator('type',{
                 rules: [],
-                initialValue: formData.type || 1
+                initialValue: formData.type || 0
               })(
                 <RadioGroup>
-                  <Radio value={1}>内部表</Radio>
-                  <Radio value={2}>外部表</Radio>
+                  <Radio value={0}>内部表</Radio>
+                  <Radio value={1}>外部表</Radio>
                 </RadioGroup>
               )
             }
           </FormItem>
+          {getFieldsValue().type === 2 && <FormItem
+          {...formItemLayout}
+          label="表地址">
+            {
+              getFieldDecorator('location',{
+                rules: [
+                  {required: true, message: '外部表地址不能为空'}
+                ],
+                initialValue: formData.location || 1
+              })(
+                <Input style={{width: 570,marginRight:10 }}/>
+              )
+            }
+          </FormItem>}
           <FormItem
           {...formItemLayout}
           label="生命周期">
@@ -185,9 +258,9 @@ export default class StepOne extends Component{
                     rules: [
                       {required: true, message: '生命周期不能为空'}
                     ],
-                    initialValue: formData.lifeCycle || undefined
+                    initialValue: formData.lifeCycle || 90
                   })(
-                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:430,height: 36}}>
+                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
                       <Option key={o.value}>{o.name}</Option>
                     ))}
@@ -196,7 +269,7 @@ export default class StepOne extends Component{
                 }
                 {
                 getFieldsValue().lifeCycle === '-1' &&
-                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.handleShortLiftCycleChange(e)}}/>
+                  <Input style={{width: 570,marginRight:10 }} size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.handleShortLiftCycleChange(e)}}/>
                 }
               </span>
           </FormItem>
@@ -210,7 +283,7 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.sortScope || undefined
               })(
-                <Select>
+                <Select style={{width: 570,marginRight:10}}>
                   {
                     scortScopeList.map(o=>(
                       <Option key={o.value} value={o.value}>{o.title}</Option>
@@ -219,10 +292,11 @@ export default class StepOne extends Component{
                 </Select>
               )
             }
+            <HelpDoc style={relativeStyle} doc="sortScope" />
           </FormItem>
           <FormItem
           {...formItemLayout}
-          label="Block 大小">
+          label="Block Size">
             {
               getFieldDecorator('blockSize',{
                 rules: [
@@ -230,9 +304,10 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.blockSize || undefined
               })(
-                <Input/>
+                <Input style={{width: 570,marginRight:10 }}/>
               )
             }
+            <HelpDoc style={relativeStyle} doc="blockSize" />
           </FormItem>
           <Collapse defaultActiveKey="1" onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
             <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon fill="#999999" type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
@@ -241,11 +316,12 @@ export default class StepOne extends Component{
               label="MAJOR_COMPACTION_SIZE">
               {
                 getFieldDecorator('compactionSize',{
-                  initialValue: formData.compactionSize || undefined
+                  initialValue: formData.compactionSize || '1024'
                 })(
-                  <Input/>
+                  <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
+              <HelpDoc style={relativeStyle} doc="marjorCompactionSize" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -256,51 +332,74 @@ export default class StepOne extends Component{
                 })(
                   <RadioGroup>
                     <Radio value={0}>关闭</Radio>
-                    <Radio value={1}>外部表</Radio>
+                    <Radio value={1}>打开</Radio>
                   </RadioGroup>
                 )
               }
+              <HelpDoc style={relativeStyle} doc="autoLoadMerge" />
               </FormItem>
               <FormItem
               {...formItemLayout}
               label="COMPACTION_LEVEL_THRESHOLD：">
               {
                 getFieldDecorator('levelThreshold',{
-                  initialValue:formData.levelThreshold || undefined
+                  initialValue:formData.levelThreshold || '4,3'
                 })(
-                  <Input/>
+                  <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
+              <HelpDoc style={relativeStyle} doc="compactionLevelThreshold" />
               </FormItem>
               <FormItem
               {...formItemLayout}
               label="COMPACTION_PRESERVE_SEGMENTS：">
               {
                 getFieldDecorator('preserveSegments',{
-                  initialValue:formData.preserveSegments || undefined
+                  initialValue:formData.preserveSegments || '0'
                 })(
-                  <Input/>
+                  <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
+              <HelpDoc style={relativeStyle} doc="compactionPreserveSegments" />
               </FormItem>
               <FormItem
               {...formItemLayout}
               label="ALLOWED_COMPACTION_DAYS：">
               {
                 getFieldDecorator('allowCompactionDays',{
-                  initialValue:formData.allowCompactionDays || undefined
+                  initialValue:formData.allowCompactionDays || '0'
                 })(
-                  <Input/>
+                  <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
+              <HelpDoc style={relativeStyle} doc="allowedCompactionDays" />
               </FormItem>
             </Panel>
           </Collapse>
         </Form>
         <div className="nav-btn-box">
-              <Button onClick={this.handleCancel}>取消</Button>
+              <Button onClick={this.props.handleCancel}>取消</Button>
               <Button type="primary" onClick={this.next}>下一步</Button>
         </div>
+        <Modal
+        destroyOnClose={true}
+        visible={this.state.showDDL}
+        onOk={this.handleDDLCreateTable}
+        onCancel={this.handleCancel}
+        title={(
+          <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
+        )}
+        maskClosable={false}>
+            <Editor
+                style={{ height: "400px" }}
+                placeholder={DDL_placeholder}
+                options={{readOnly:false}}
+                language="dtsql"
+                options={{ readOnly: false } }
+                onChange={this.handleDdlChange.bind(this)}
+                value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
+            />
+        </Modal>
       </Row>
     )
   }
