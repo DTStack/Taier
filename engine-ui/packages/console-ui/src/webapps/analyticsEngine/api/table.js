@@ -26,5 +26,9 @@ export default {
 
     searchTable(params) { // 暂缺
         return http.post(req.SEARCH_TABLES_BY_NAME, params);
-    }
+    },
+
+    saveTableInfo(params){
+        return http.post(req.SAVE_TABLE_INFO, params)
+    },
 }

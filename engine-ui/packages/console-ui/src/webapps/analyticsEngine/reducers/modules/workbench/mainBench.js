@@ -6,9 +6,8 @@ const workbenchStoreKey = 'engine_workbench';
 // 默认Tab栏数据
 const defaultTabBarData = {
     tabs: [],
-    currentTab: 1,
+    currentTab: 0,
 }
-
 const getInitialCachedData = () => {
     let initialState = localDb.get(workbenchStoreKey);
     if(!initialState) initialState = defaultTabBarData;
@@ -57,10 +56,79 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 }
                 // 删除
                 clone.tabs.splice(tabIndex, 1);
+                localDb.set(workbenchStoreKey, clone);
                 return clone;
             }
         }
 
+        case workbenchAction.NEW_TABLE_INFO_CHANGE: {
+            console.log(payload)
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            for(let item in payload){
+                tabData.tableItem[payload[item].key] = payload[item].value
+            }
+            const newState = assign({},state)
+            console.log(newState)
+
+            localDb.set(workbenchStoreKey, newState);
+            return newState;
+        }
+        case workbenchAction.NEXT_STEP: {
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            tabData.currentStep = tabData.currentStep+1;
+            return assign({}, state)
+        }
+        case workbenchAction.LAST_STEP: {
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            tabData.currentStep = tabData.currentStep-1;
+            return assign({}, state)
+        }
+        case workbenchAction.NEW_TABLE_SAVED: {
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            tabData.tableItem.newTableId = payload.id;
+            tabData.currentStep = tabData.currentStep+1;
+
+            return assign({}, state)
+        }
+        case workbenchAction.SAVE_EDITTABLE_INFO: {
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            for(let item in payload){
+                tabData.tableDetail[payload[item].key] = payload[item].value
+            }
+            const newState = assign({},state)
+
+            localDb.set(workbenchStoreKey, newState);
+            return newState;
+        }
+        case workbenchAction.TABLE_INFO_MOTIFIED: {
+            //保存完成
+            console.log('新的表信息已保存')
+        }
         case workbenchAction.CLOSE_OTHERS: {
             const newStore = assign({}, state);
 
@@ -84,7 +152,7 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 if (index > -1) {
                     tabs[index] = assign(tabs[index], payload);
                 }
-                
+
                 const newStore = assign({}, state, {
                     tabs,
                 })
