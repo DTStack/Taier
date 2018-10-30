@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
-import {Table} from 'antd'
+import {Table,notification} from 'antd'
+import API from '../../../../api'
+import moment from 'moment'
 
 export default class PanePartition extends Component{
 
@@ -15,39 +17,62 @@ export default class PanePartition extends Component{
     }
   }
   componentDidMount(){
-    this.initData(this.props)
+    this.getData();
+    // this.initData(this.props)
   }
 
   componentWillReceiveProps(nextProps){
-    this.initData(nextProps)
+    // this.initData(nextProps)
+    this.getData();
   }
 
-  initData = (props) => {
-    console.log(props)
-    let { dataList, paginationParams } = this.state;
-    paginationParams.current = 1;
-    paginationParams.total = props.partitions.length;
+  // initData = (props) => {
+  //   console.log(props)
+  //   let { dataList, paginationParams } = this.state;
+  //   paginationParams.current = 1;
+  //   paginationParams.total = props.partitions.length;
 
-    dataList = props.partitions.slice(0,paginationParams.pageSize);
-    this.setState({
-      dataList: dataList,
-      paginationParams: paginationParams
+  //   dataList = props.partitions.slice(0,paginationParams.pageSize);
+  //   this.setState({
+  //     dataList: dataList,
+  //     paginationParams: paginationParams
+  //   })
+  // }
+
+  getData = ()=>{
+    API.getTablePartiton({
+      tableId: this.props.tableDateil.id,
+      pageIndex: this.state.paginationParams.current,
+      pageSize: this.state.paginationParams.pageSize
+    }).then(res=>{
+      if(res.code === 1){
+        this.setState({
+          dataList: res.data.data
+        })
+      }else{
+        notification.error({
+          title: '提示',
+          description: res.message
+        })
+      }
     })
   }
 
 
   handleTableChange = (pagination,sorter,filter)=>{
-    let {paginationParams, dataList} = this.state;
-    let data = this.props.partitions;
+//     let {paginationParams, dataList} = this.state;
+//     let data = this.props.partitions;
 
-    paginationParams.current = pagination.current;
-    console.log((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize)
-    dataList = data.slice((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize);
-console.log(dataList)
-    this.setState({
-      dataList: dataList,
-      paginationParams: paginationParams
-    })
+//     paginationParams.current = pagination.current;
+//     console.log((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize)
+//     dataList = data.slice((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize);
+// console.log(dataList)
+//     this.setState({
+//       dataList: dataList,
+//       paginationParams: paginationParams
+//     })
+    this.state.paginationParams.current = pagination.current;
+    this.getData();
   }
 
   render(){
@@ -61,8 +86,7 @@ console.log(dataList)
         title: '更新时间',
         dataIndex: 'lastDDLTime',
         render: (text,record)=>{
-          let d = new Date(text);
-          return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
+          return moment(text).format('YYYY-MM-DD')
         }
       },{
         title: '存储量',

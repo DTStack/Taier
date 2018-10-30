@@ -305,6 +305,7 @@ export function saveTableInfo(param){
 
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
         if(res.code === 1){
+            message.success('修改成功')
             return dispatch({
                 type: workbenchAction.TABLE_INFO_MOTIFIED
             })
