@@ -20,7 +20,8 @@ class CollectionSource extends React.Component {
         super(props);
         this.state = {
             tableList: [],
-            binLogList:[]
+            binLogList:[],
+            dataSourceTypes:[]
         }
     }
     componentDidMount() {
@@ -160,13 +161,34 @@ class CollectionSourceForm extends React.Component {
         }
     }
     render() {
-        let { collectionData, tableList } = this.props;
+        let { collectionData, tableList, dataSourceTypes=[] } = this.props;
         let { dataSourceList = [],sourceMap, isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const allTable=sourceMap.allTable;
         return (
             <div>
                 <Form>
+                <FormItem
+                        {...formItemLayout}
+                        label="数据源类型"
+                    >
+                        {getFieldDecorator('dataSourceType', {
+                            rules: [{ required: true, message: '请选择数据源类型' }],
+                        })(
+                            <Select
+                                disabled={isEdit}
+                                placeholder="请选择数据源类型"
+                                style={{ width: "100%" }}
+                            >
+                                {dataSourceTypes.map((item) => {
+                                    if (item.type != DATA_SOURCE.MYSQL) {
+                                        return null
+                                    }
+                                    return <Option key={item.id} value={item.id}>{item.dataName}({DATA_SOURCE_TEXT[item.type]})</Option>
+                                }).filter(Boolean)}
+                            </Select>
+                        )}
+                    </FormItem>
                     <FormItem
                         {...formItemLayout}
                         label="数据源"

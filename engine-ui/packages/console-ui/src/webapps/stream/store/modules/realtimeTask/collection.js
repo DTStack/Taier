@@ -11,6 +11,7 @@ export const dataKey = "ide_collection"
 const initState = {
     currentStep: null,
     sourceMap: {
+        dataSourceType:undefined,
         table: [],
         sourceId: undefined,
         collectType: collect_type.ALL,
