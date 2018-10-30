@@ -218,14 +218,14 @@ class Sidebar extends Component {
                 }
                 <ContextMenu targetClassName="anchor-database">
                     <MenuItem onClick={()=>onCreateTable(activeNode)}>新建表</MenuItem>
-                    <MenuItem onClick={() => onGetDB(activeNode)}>
+                    <MenuItem onClick={() => onGetDB({ databaseId: activeNode.id })}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
-                    <MenuItem onClick={()=>onEditTable(activeNode)}>编辑表</MenuItem>
-                    <MenuItem onClick={()=>onTableDetail(activeNode)}>表详情</MenuItem>
+                    <MenuItem onClick={()=> onEditTable(activeNode)}>编辑表</MenuItem>
+                    <MenuItem onClick={()=> onTableDetail(activeNode)}>表详情</MenuItem>
                     <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>
                         显示建表DDL
                     </MenuItem>
