@@ -19,7 +19,8 @@ class CollectionSource extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tableList: []
+            tableList: [],
+            binLogList:[]
         }
     }
     componentDidMount() {
@@ -27,6 +28,7 @@ class CollectionSource extends React.Component {
         const { sourceMap = {} } = collectionData;
         if (sourceMap.sourceId) {
             this.getTableList(sourceMap.sourceId)
+            this.getBinLogList(sourceMap.sourceId);
         }
     }
 
@@ -37,11 +39,20 @@ class CollectionSource extends React.Component {
         const { sourceMap: old_source } = old_col;
         if(collectionData.id!=old_col.id){
             this.setState({
-                tableList:[]
+                tableList:[],
+                binLogList:[]
             })
         }
         if (sourceMap.sourceId && old_source.sourceId != sourceMap.sourceId) {
             this.getTableList(sourceMap.sourceId)
+        }
+        /**
+         * 当collectType是File，并且此时collectType发生过改变或者tab的id发生了改变，则去请求binlog列表
+         */
+        if(
+            (sourceMap.collectType!=old_source.collectType||collectionData.id!=old_col.id)
+            &&sourceMap.collectType==collect_type.FILE){
+            this.getBinLogList(sourceMap.sourceId);
         }
     }
 
@@ -57,6 +68,21 @@ class CollectionSource extends React.Component {
             }
         });
     }
+    getBinLogList(sourceId){
+        ajax.getBinlogListBySource({sourceId})
+        .then((res)=>{
+            if(res.code==1){
+                this.setState({
+                    binLogList:res.data
+                })
+            }
+        })
+    }
+    clearBinLog(){
+        this.setState({
+            binLogList:[]
+        })
+    }
     next(){
         this._form.validateFields(null,{},(err,values)=>{
             if(!err){
@@ -65,10 +91,10 @@ class CollectionSource extends React.Component {
         })
     }
     render() {
-        const { tableList } = this.state;
+        const { tableList, binLogList } = this.state;
         return (
             <div>
-                <WrapCollectionSourceForm ref={(f)=>{this._form=f}} tableList={tableList} {...this.props} />
+                <WrapCollectionSourceForm ref={(f)=>{this._form=f}} binLogList={binLogList} tableList={tableList} {...this.props} />
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button type="primary" onClick={() => this.next()}>下一步</Button>
@@ -81,7 +107,7 @@ class CollectionSource extends React.Component {
 
 class CollectionSourceForm extends React.Component {
     renderByCatType() {
-        const { collectionData, form } = this.props;
+        const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
         const { sourceMap, isEdit } = collectionData;
         const collectType = sourceMap.collectType
@@ -119,7 +145,14 @@ class CollectionSourceForm extends React.Component {
                             required: true, message: "请填写起始文件"
                         }]
                     })(
-                        <Input disabled={isEdit} placeholder="请填写起始文件" />
+                        <Select
+                        placeholder="请填写起始文件"
+                        disabled={isEdit}
+                        >
+                            {binLogList.map((binlog)=>{
+                                return <Option key={binlog}>{binlog}</Option>
+                            })}
+                        </Select>
                     )}
                 </FormItem>
             }
