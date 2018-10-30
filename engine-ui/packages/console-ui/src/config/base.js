@@ -15,9 +15,9 @@ export const rdosApp = {
     filename: 'ide.html',
     link: '/ide.html#',
     target: '_blank',
-    enable: false,
+    enable: true,
     hasProject: true, // 是否拥有项目选择
-    default: false, // 是否为默认应用选项
+    default: true, // 是否为默认应用选项
     apiBase: '/rdos',
 }
 
@@ -27,7 +27,7 @@ export const dqApp = {
     link: 'dataQuality.html#/',
     filename: 'dataQuality.html',
     target: '_blank',
-    enable: false,
+    enable: true,
     apiBase: '/dq',
 }
 
@@ -38,7 +38,6 @@ export const daApp = {
     filename: 'dataApi.html',
     target: '_blank',
     enable: true,
-    default: true, // 是否为默认应用选项
     apiBase: '/dataApi',
 }
 
@@ -48,7 +47,7 @@ export const dlApp = {
     link: 'dataLabel.html#/',
     filename: 'dataLabel.html',
     target: '_blank',
-    enable: false,
+    enable: true,
     apiBase: '/tag',
 }
 
@@ -60,6 +59,6 @@ export const consoleApp = {
     target: '_blank',
     enable: false,
     apiBase: '/console',
-    needRoot: true,
+    needRoot:true,
     disableExt:true
 }
