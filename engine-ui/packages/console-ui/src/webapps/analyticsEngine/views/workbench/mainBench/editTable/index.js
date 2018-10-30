@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
-import {Row, Table, Button, Input, Form, Select, Icon,Checkbox} from 'antd';
-import { formItemLayout } from "../../../../consts/index"
+import {Row, Table, Button, Input, Form, Select, Icon,Checkbox, message, notification, Modal} from 'antd';
+import API from '../../../../api';
+
+const confirm = Modal.confirm;
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -74,8 +76,8 @@ export default class EditTable extends Component{
     tableDetail.columns = tableDetail.columns || [];
     tableDetail.partitions = tableDetail.partitions || [];
     if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      tableDetail.lifeDay === -1;
       this.state.customLifeCycle = tableDetail.lifeDay
+      tableDetail.lifeDay === -1;
     }
 
     this.setState({
@@ -190,6 +192,28 @@ export default class EditTable extends Component{
         tableDetail: tableDetail
       })
     }
+  }
+  handleDelTable = ()=>{
+    let self = this;
+    const {databaseId, id} = this.props.data.tableDetail;
+    confirm({
+      title: '删除表后无法恢复，确认将其删除？',
+      onOk(){
+        API.dropTable({databaseId, id}).then(res=>{
+          if(res.code === 1){
+            message.success('删除成功');
+            self.props.closeTab();
+            self.props.loadCatalogue();
+          }else{
+            notification.error({
+              message: '提示',
+              description: res.message
+            })
+          }
+        })
+      }
+    })
+    
   }
 
 
@@ -367,7 +391,7 @@ export default class EditTable extends Component{
                     ],
                     initialValue: tableDetail.lifeDay || undefined
                   })(
-                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === '-1'?78:430,height: 36}}>
+                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
@@ -409,6 +433,7 @@ export default class EditTable extends Component{
             </Table>
           <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
         </Row>
+        <Button type="danger"  style={{marginLeft: 20, width: 90,height: 30}} onClick={this.handleDelTable}>删除</Button>
         <Button type="primary" style={{marginLeft: 20, width: 90,height: 30}} onClick={this.props.saveTableInfo}>保存</Button>
       </div>
     )

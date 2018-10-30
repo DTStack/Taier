@@ -28,6 +28,8 @@ export default class PaneData extends Component{
     this.state.dataList = [];
     this.state.tableCol = [];
     let { dataList, paginationParams, tableCol } = this.state;
+    if(!props.previewList)
+      return;
 
     props.previewList[0].map(o=>{
       tableCol.push({
@@ -35,7 +37,7 @@ export default class PaneData extends Component{
         dataIndex: o
       })
     })
-    
+
     props.previewList.shift();
     for(let item in props.previewList){
       console.log(props.previewList[item])

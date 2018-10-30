@@ -30,6 +30,8 @@ class BenchContent extends Component {
                  tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
                  saveEditTableInfo={props.saveEditTableInfo}
                  saveTableInfo={props.saveTableInfo}
+                 closeTab={()=>this.props.closeTab(tabData.id)}
+                 loadCatalogue = {this.props.loadCatalogue}
                  />
             }
             case workbenchAction.OPEN_TABLE: {
