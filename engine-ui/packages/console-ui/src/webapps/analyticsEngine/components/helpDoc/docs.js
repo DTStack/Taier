@@ -36,3 +36,48 @@ export const isCompressIndex = (
     </div>
 )
 
+export const sortScope = (
+    <div>
+        <p>数据加载期间指定排序范围</p>
+        <p>LOCAL_SORT: 默认值，本地排序</p>
+        <p>NO_SORT: 这将会以未经排序的方式加载数据，会显着提高负载性能。</p>
+        <p>BATCH_SORT: 如果块个数 > 并行性，它将增加数据的加载性能，但会减少数据的查询性能。</p>
+        <p>GLOBAL_SORT: 这会增加数据的查询性能，特别是高并发查询。如果你特别关心加载资源的隔离时使用，因为系统使用 Spark 的 GroupBy 对数据进行排序，我们可以通过 Spark 来控制资源。</p>
+    </div>
+)
+
+export const blockSize = (
+    <div>
+        <p>设置表的块大小，默认值是 1024 MB，这个属性只能设置在 1MB ~ 2048MB 之间。</p>
+    </div>
+)
+export const marjorCompactionSize = (
+    <div>
+        <p>segments 大小总和低于此阈值的将会被合并，默认为512MB。</p>
+        <p>segment：每次将数据插入表时，会产生一个segment。</p>
+    </div>
+)
+export const autoLoadMerge = (
+    <div>
+        <p>数据加载的时候是否启用压缩，默认为关闭。</p>
+    </div>
+)
+export const compactionLevelThreshold = (
+    <div>
+        <p>该属性在 minor compaction 时使用，决定要合并多少个 segments。比如：如果将这个属性设置为 2, 3，那么每 2 个 segments 会触发一次 Level 1 的 minor compaction。每 3 个 Level 1 的 compacted segment 将会进一步压缩成新的 segment。
+默认值为4,3，2个数字中间用英文逗号隔开。</p>
+        <p>segment：每次将数据插入表时，会产生一个segment。</p>
+    </div>
+)
+export const compactionPreserveSegments = (
+    <div>
+        <p>如果需要避免一些 segments 被压缩，可以通过设置这个参数。比如设置为2，那么 2 个最新的 segments 总是被排除在压缩之外。默认为0，即没有 segments 被保留。</p>
+        <p>segment：每次将数据插入表时，会产生一个segment。</p>
+    </div>
+)
+export const allowedCompactionDays = (
+    <div>
+        <p>在指定的天数内加载的 segment 将被合并。如果配置为 2，仅在 2 天内加载的 segment 被合并，2 天之前的 segment 不会被合并。默认为0，即没有被启用。</p>
+        <p>segment：每次将数据插入表时，会产生一个segment。</p>
+    </div>
+)

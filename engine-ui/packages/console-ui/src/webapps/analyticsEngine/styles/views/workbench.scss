@@ -179,17 +179,42 @@
     .step-container{
         background: #FAFAFA;
         border: 1px solid #E9E9E9;
-        padding-top: 40px;
+        padding-top: 20px;
         padding-bottom: 46px;
         .nav-btn-box{
             display: flex;
             justify-content: center;
+            margin-top: 40px;
             button:nth-child(1){
                 margin-right: 10px;
             }
         }
     }
     .step-one-container{
+        .ant-collapse-content{
+            padding: 0;
+        }
+        .ant-input-lg{
+            height: 36px;
+        }
+        .btn-box{
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .ddl-btn{
+            width: 88px;
+            height: 30px;
+            margin-right: 30px;
+        }
+        .ant-select-selection--single{
+            height: 36px;
+
+        }
+        .ant-select-selection__rendered{
+            line-height: 36px;
+        }
         .ant-collapse{
             background-color: #FAFAFA;
             border-radius: 0px; 
@@ -209,6 +234,13 @@
                 color: #333333;
                 left: 50%;
                 margin-left: -31.5;
+                width: 64px;
+            }
+            .ant-collapse-content-box{
+                padding-bottom: 0;
+            }
+            .ant-form-item:nth-last-child(1){
+                margin-bottom: 0;
             }
         }
     }

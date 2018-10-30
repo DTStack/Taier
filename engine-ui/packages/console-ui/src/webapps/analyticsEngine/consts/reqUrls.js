@@ -35,6 +35,9 @@ export default {
     GET_CREATE_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createSql`, // 获取创建语句
     DROP_TABLE: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/dropTable`, // 删除表
     SEARCH_TABLES_BY_NAME: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getTableInfosByName`, // 按表名搜索表
+    CREATE_TABLE_BY_DDL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/ddlCreateTable`,//ddl建表
+    PARTITIONS_INFO: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getPartitions`,//获取分区信息
+    PREVIEW_DATA: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getData`,//数据预览
 
     // ================== DataMap ================== //
     CREATE_DATA_MAP: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createDataMap`, //创建Datamap

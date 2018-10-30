@@ -262,6 +262,16 @@ export default class TableViewer extends React.Component {
                                         <td>{ moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
                                     <tr>
+                                        <th>表类型</th>
+                                        <td>
+                                        {tableData.table.tableType=="EXTERNAL"?(
+                                            <span>外部表({tableData.table.location})</span>
+                                        ):(
+                                            <span>内部表</span>
+                                        )}
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th>所属类目</th>
                                         <td>{tableData.table.catalogue}</td>
                                     </tr>

@@ -192,6 +192,9 @@ export default {
     getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
+    getBinlogListBySource(params) {
+        return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params)
+    },
     getRealtimeJobData(params) {
         return http.post(stremReq.GET_REALTIME_JOBDATA, params)
     },

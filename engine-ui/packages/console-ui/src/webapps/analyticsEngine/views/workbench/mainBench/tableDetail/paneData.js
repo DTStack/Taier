@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {Table} from 'antd'
+import {Table,notification} from 'antd'
+import API from '../../../../api'
 
 export default class PaneData extends Component{
 
@@ -13,61 +14,118 @@ export default class PaneData extends Component{
       },
       dataList: [],
       tableCol: [],
+      previewList: [],
     }
   }
   componentDidMount(){
-    this.initData(this.props)
+    // this.initData(this.props)
+    this.getData();
   }
 
   componentWillReceiveProps(nextProps){
-    this.initData(nextProps)
+    // this.initData(nextProps)
   }
 
-  initData = (props) => {
-    console.log(props)
-    this.state.dataList = [];
-    this.state.tableCol = [];
+
+  getData = ()=>{
+    API.getPreviewData({
+      tableId: this.props.tableDateil.id,
+    }).then(res=>{
+      if(res.code === 1){
+        this.state.previewList = res.data;
+        this.processData(res.data);
+      }else{
+        notification.error({
+          title: '提示',
+          description: res.message
+        })
+      }
+    })
+  }
+
+  processData = (list)=>{
     let { dataList, paginationParams, tableCol } = this.state;
 
-    props.previewList[0].map(o=>{
+    
+    list[0].map(o=>{
       tableCol.push({
         title: o,
         dataIndex: o
       })
     })
-    
-    props.previewList.shift();
-    for(let item in props.previewList){
-      console.log(props.previewList[item])
+
+    list.shift();
+    for(let item in list){
       let j = {};
       let row = [];
-      props.previewList[item].map((o,i)=>{
+      list[item].map((o,i)=>{
         let key = tableCol[i].dataIndex;
-        console.log(key)
         j[key] = o;
-        console.log(j)
         row.push(j)
       })
       dataList.push(row.pop())
     }
 
-console.log(tableCol)
-console.log(dataList)
-    paginationParams.current = 1;
-    paginationParams.total = props.previewList.length;
 
-    // dataList = props.previewList.slice(0,paginationParams.pageSize);
+    paginationParams.current = 1;
+    paginationParams.total = list.length;
+
+
     this.setState({
+      tableCol: tableCol,
       dataList: dataList,
-      paginationParams: paginationParams,
-      tableCol: tableCol
+      paginationParams: paginationParams
     })
   }
 
 
+//   initData = (props) => {
+//     console.log(props)
+//     this.state.dataList = [];
+//     this.state.tableCol = [];
+//     let { dataList, paginationParams, tableCol } = this.state;
+//     if(!props.previewList)
+//       return;
+
+//     props.previewList[0].map(o=>{
+//       tableCol.push({
+//         title: o,
+//         dataIndex: o
+//       })
+//     })
+
+//     props.previewList.shift();
+//     for(let item in props.previewList){
+//       console.log(props.previewList[item])
+//       let j = {};
+//       let row = [];
+//       props.previewList[item].map((o,i)=>{
+//         let key = tableCol[i].dataIndex;
+//         console.log(key)
+//         j[key] = o;
+//         console.log(j)
+//         row.push(j)
+//       })
+//       dataList.push(row.pop())
+//     }
+
+// console.log(tableCol)
+// console.log(dataList)
+//     paginationParams.current = 1;
+//     paginationParams.total = props.previewList.length;
+
+//     // dataList = props.previewList.slice(0,paginationParams.pageSize);
+//     this.setState({
+//       dataList: dataList,
+//       paginationParams: paginationParams,
+//       tableCol: tableCol
+//     })
+//   }
+
+
   handleTableChange = (pagination,sorter,filter)=>{
-    let {paginationParams, dataList, tableCol} = this.state;
-    let data = this.props.previewList;
+    let {paginationParams, previewList, dataList, tableCol} = this.state;
+    let data = previewList;
     console.log(data)
 
     paginationParams.current = pagination.current;

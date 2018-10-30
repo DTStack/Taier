@@ -37,6 +37,7 @@ class PatchData extends Component {
         selected: [],
         expandedKeys: [],
         checkedKeys: ['0'],
+        confirmLoading:false
     }
 
     componentWillReceiveProps(nextProps) {
@@ -61,6 +62,9 @@ class PatchData extends Component {
         const taskJson = this.getSelectedTasks()
         const reqParams = form.getFieldsValue()
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
+        this.setState({
+            confirmLoading:true
+        })
         this.props.form.validateFields((err) => {
             if (!err) {
                 reqParams.fromDay = reqParams.rangeDate[0].set({
@@ -75,6 +79,9 @@ class PatchData extends Component {
                 }).unix()
                 delete reqParams.rangeDate;
                 Api.patchTaskData(reqParams).then((res) => {
+                    this.setState({
+                        confirmLoading:false
+                    })
                     if (res.code === 1) {
                         this.showAddResult(reqParams.fillName)
                         setTimeout(() => {
@@ -277,7 +284,7 @@ class PatchData extends Component {
 
         const { visible, handCancel, task } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const { treeData } = this.state;
+        const { treeData, confirmLoading } = this.state;
         const treeNodes = this.getTreeNodes(treeData);
         const randomNumber = Math.floor(Math.random()*(100 - 1) + 1);
         const pacthName = `P_${task&&task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
@@ -289,6 +296,7 @@ class PatchData extends Component {
               visible={visible}
               onOk={this.addData}
               onCancel={this.cancleModal}
+              confirmLoading={confirmLoading}
             >
                 <Row style={{ lineHeight: '30px'  }}>
                     <FormItem {...formItemLayout} label="补数据名">

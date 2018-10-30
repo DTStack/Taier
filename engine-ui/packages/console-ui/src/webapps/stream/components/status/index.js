@@ -89,7 +89,7 @@ export function TaskStatusOverview(props) {
         </span>
         <span className="status_overview_item status_overview_running_font">
             <Circle className="status_overview_running" />&nbsp;
-            运行中：{data.runnning}
+            运行中：{data.RUNNING}
         </span>
         <span className="status_overview_item status_overview_stoped_font">
             <Circle className="status_overview_stoped" />&nbsp;
@@ -97,7 +97,7 @@ export function TaskStatusOverview(props) {
         </span>
         <span className="status_overview_item status_overview_submmitting_font">
             <Circle className="status_overview_submmitting" />&nbsp;
-            提交中：{data.submitting}
+            提交中：{data.UNSUBMIT}
         </span>
         <span className="status_overview_item status_overview_count_font">
             <Circle className="status_overview_count" />&nbsp;
