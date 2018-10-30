@@ -34,5 +34,12 @@ export default {
 
     createTableByDDL(params){
         return http.post(req.CREATE_TABLE_BY_DDL,params)
+    },
+
+    getTablePartiton(params){
+        return http.post(req.PARTITIONS_INFO, params)
+    },
+    getPreviewData(params){
+        return http.post(req.PREVIEW_DATA,params)
     }
 }

@@ -28,11 +28,11 @@ class TableDetail extends Component {
             },{
                 title: '分区信息',
                 key: '2',
-                content: <PanePartition partitions={patitionsData}/>
+                content: <PanePartition tableDateil={tableDetail}/>
             },{
                 title: '数据预览',
                 key: '4',
-                content: <PaneData previewList={previewData}/>
+                content: <PaneData  tableDateil={tableDetail}/>
             }
         ]
         return (
