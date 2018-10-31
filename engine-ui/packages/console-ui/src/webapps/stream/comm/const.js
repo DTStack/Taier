@@ -13,7 +13,9 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14
+    KAFKA: 14,
+    ADS: 15,
+    BEATS: 16,
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -29,7 +31,9 @@ export const DATA_SOURCE_TEXT = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'Kafka'
+    14: 'Kafka',
+    15: "ADS",
+    16: 'BEATS',
 }
 
 // 锁类型
@@ -63,10 +67,10 @@ export const APPLY_RESOURCE_TYPE = {
 }
 
 //数据操作类型
-export const CAT_TYPE={
-    INSERT:1,
-    UPDATE:2,
-    DELETE:3
+export const CAT_TYPE = {
+    INSERT: 1,
+    UPDATE: 2,
+    DELETE: 3
 }
 export const collect_type = {
     ALL: 0,
@@ -94,7 +98,7 @@ export const PROJECT_STATUS = {
     INITIALIZE: 0,//创建中
     NORMAL: 1,//正常
     DISABLE: 2,//禁用
-    FAIL:3,//创建失败
+    FAIL: 3,//创建失败
 }
 
 //发布的item类别
@@ -205,14 +209,14 @@ export const TASK_STATUS = { // 任务状态
     SUBMITTING: 10,//提交中
     RESTARTING: 11,//重试中
     SET_SUCCESS: 12,
-    KILLED:13,//已停止
+    KILLED: 13,//已停止
     WAIT_RUN: 16,//等待运行
     WAIT_COMPUTE: 17,
     FROZEN: 18,//冻结
     PARENT_FAILD: 21, // 上游失败
 }
 
-export const CHARTS_COLOR=[
+export const CHARTS_COLOR = [
     "#339CFF",
     "#15D275",
     "#5579ED",
@@ -389,11 +393,11 @@ export const AlarmStatusFilter = [{ // 告警状态过滤选项
     value: 1,
 }]
 
-export const alarmTriggerType={
-    TASK_FAIL:0,
-    TASK_STOP:3,
-    DELAY_COST:4,
-    DELAY_COST_P:5,
+export const alarmTriggerType = {
+    TASK_FAIL: 0,
+    TASK_STOP: 3,
+    DELAY_COST: 4,
+    DELAY_COST_P: 5,
 }
 
 export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
@@ -522,13 +526,13 @@ export const targetTypeTransformRule = [ // 整库迁移高级设置字段转换
     'BOOLEAN'
 ]
 
-export const TIME_TYPE={
-    M10:'10m',
-    H1:'1h',
-    H6:'6h',
-    D1:'1d',
-    D7:'7d',
-    W1:"1w"
+export const TIME_TYPE = {
+    M10: '10m',
+    H1: '1h',
+    H6: '6h',
+    D1: '1d',
+    D7: '7d',
+    W1: "1w"
 }
 
 export const formItemLayout = { // 表单正常布局
