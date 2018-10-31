@@ -12,7 +12,6 @@ const TabPane = Tabs.TabPane;
 
 class TableDetail extends Component {
 
-    
     render () {
         const tableDetail = this.props.data.tableDetail || {}
         const patitionsData = tableDetail.partitions || {}

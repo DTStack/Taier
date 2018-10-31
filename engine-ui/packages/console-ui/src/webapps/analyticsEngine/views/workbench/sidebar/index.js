@@ -134,12 +134,12 @@ class Sidebar extends Component {
     renderFolderContent = () => {
 
         const {
+            onGetDB,
             folderTree,
-            onGetTable,
             onGetDataMap,
             onCreateDB,
             onSQLQuery,
-            onGetDB
+            onTableDetail
         } = this.props;
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
@@ -160,7 +160,7 @@ class Sidebar extends Component {
                         selectedKeys={this.state.selectedKeys}
                         treeData={folderTree.children}
                         onGetDB={onGetDB}
-                        onGetTable={onGetTable}
+                        onTableDetail={onTableDetail}
                         onGetDataMap={onGetDataMap}
                         onSQLQuery={onSQLQuery}
                     />
@@ -209,9 +209,9 @@ class Sidebar extends Component {
                     onRefresh={this.refresh}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
-                    onEditTable = {()=>onEditTable()}
+                    onEditTable = {()=> onEditTable()}
                     onCreateTable={() => onCreateTable()}
-                    onTableDetail={()=>onTableDetail()}
+                    onTableDetail={()=> onTableDetail()}
                 />
                 {
                     this.renderFolderContent()

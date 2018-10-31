@@ -8,27 +8,6 @@ import { resetModal, openTab, updateModal, closeTab } from './comm';
 
 
 /**
- * 获取DataMap详情
- */
-export function onGetTable(params) {
-
-    return async dispatch => {
-
-        const res = await API.createOrUpdateDB(params);
-        if (res.code === 1) {
-            const tableData = res.data;
-            // 添加Action标记
-            tableData.actionType = workbenchAction.OPEN_TABLE,
-            dispatch(openTab(tableData));
-        } else {
-            notification.error({
-                message: '提示',
-                description: res.message,
-            });
-        }
-    }
-};
-/**
  * 生成建表语句
  */
 export function onGenerateCreateSQL({ tableId, databaseId }) {
