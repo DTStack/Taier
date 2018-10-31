@@ -31,12 +31,13 @@ export function onGetTable(params) {
 /**
  * 生成建表语句
  */
-export function onGenerateCreateSQL(tableId) {
+export function onGenerateCreateSQL(tableId,databaseId) {
 
     return async dispatch => {
 
         const res = await API.getCreateSQL({
             tableId,
+            databaseId
         });
         if (res.code === 1) {
             const modalValue = {
