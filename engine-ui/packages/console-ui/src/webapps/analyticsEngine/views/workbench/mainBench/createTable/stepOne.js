@@ -243,7 +243,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '外部表地址不能为空'}
                 ],
-                initialValue: formData.location || 1
+                initialValue: formData.location || undefined
               })(
                 <Input style={{width: 570,marginRight:10 }}/>
               )
