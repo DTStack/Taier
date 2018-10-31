@@ -90,8 +90,8 @@ export default class StepTwo extends Component{
         name: '',
         type: '',
         invert: 1,
-        dictionary: 0,
-        sortColumn: 0,
+        dictionary: 1,
+        sortColumn: 1,
         comment: ''
       }
       this.setState({

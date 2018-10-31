@@ -235,7 +235,7 @@ export default class StepOne extends Component{
               )
             }
           </FormItem>
-          {getFieldsValue().type === 2 && <FormItem
+          {getFieldsValue().type === 1 && <FormItem
           {...formItemLayout}
           label="表地址">
             {
