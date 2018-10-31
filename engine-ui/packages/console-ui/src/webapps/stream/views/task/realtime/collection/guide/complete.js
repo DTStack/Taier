@@ -28,7 +28,7 @@ class CollectionComplete extends React.Component {
                 >
                     <Card bordered={false}
                         style={{ marginBottom: 10 }}
-                        title="选择来源"
+                        title={<div style={{textAlign:"center"}}>选择来源</div>}
                         extra={<a href="javascript:void(0)"
                             onClick={() => this.navtoStep(0)}>修改</a>
                         }
@@ -38,7 +38,7 @@ class CollectionComplete extends React.Component {
                     </Card>
                     <Card bordered={false}
                         style={{ marginBottom: 10 }}
-                        title="选择目标"
+                        title={<div style={{textAlign:"center"}}>选择目标</div>}
                         extra={<a href="javascript:void(0)"
                             onClick={() => this.navtoStep(1)}>修改</a>
                         }

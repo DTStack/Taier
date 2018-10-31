@@ -4,6 +4,7 @@ import moment from "moment";
 import { Form, Select, Radio, Checkbox, DatePicker, Input, Button } from "antd";
 
 import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE, CAT_TYPE, collect_type } from "../../../../../comm/const"
+import HelpDoc from "../../../../helpDoc";
 
 import ajax from "../../../../../api/index"
 
@@ -39,12 +40,12 @@ class CollectionSource extends React.Component {
         const { sourceMap } = collectionData;
         const { collectionData: old_col } = this.props;
         const { sourceMap: old_source } = old_col;
-        if (collectionData.id != old_col.id) {
-            this.setState({
-                tableList: [],
-                binLogList: []
-            })
-        }
+        // if (collectionData.id != old_col.id) {
+        //     this.setState({
+        //         tableList: [],
+        //         binLogList: []
+        //     })
+        // }
         if (sourceMap.sourceId && old_source.sourceId != sourceMap.sourceId) {
             this.getTableList(sourceMap.sourceId)
         }
@@ -203,11 +204,48 @@ class CollectionSourceForm extends React.Component {
                                 style={{ width: "100%" }}
                             >
                                 {dataSourceTypes.map((item) => {
-                                    return <Option key={item.value} >{item.key}</Option>
+                                    return <Option key={item.value} value={item.value} >{item.key}</Option>
                                 }).filter(Boolean)}
                             </Select>
                         )}
                     </FormItem>
+                    {isBeats && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="主机名/IP"
+                        >
+                            {getFieldDecorator('macAndIp', {})(
+                                <Input disabled />
+                            )}
+                        </FormItem>
+                    )}
+                    {isBeats && <FormItem
+                        {...formItemLayout}
+                        label="端口"
+                    >
+                        {getFieldDecorator('port', {
+                            rules: [{ 
+                                validator: (rule, value, callback)=>{
+                                    if(value){
+                                        if(parseInt(value)){
+                                            callback()
+                                        }else{
+                                            callback("请输入正确的端口")
+                                        }
+                                    }else{
+                                        callback()
+                                    }
+                                }
+                            }],
+                        })(
+                            <Input
+                                disabled={isEdit}
+                                placeholder="请输入端口"
+                                style={{ width: "100%" }}
+                            />
+                        )}
+                        <HelpDoc doc="binlogPortHelp" />
+                    </FormItem>}
                     {!isBeats && <FormItem
                         {...formItemLayout}
                         label="数据源"
@@ -224,7 +262,7 @@ class CollectionSourceForm extends React.Component {
                                     if (item.type != type) {
                                         return null
                                     }
-                                    return <Option key={item.id} value={item.id}>{item.dataName}({DATA_SOURCE_TEXT[item.type]})</Option>
+                                    return <Option key={item.id} value={item.id}>{item.dataName}</Option>
                                 }).filter(Boolean)}
                             </Select>
                         )}
@@ -345,8 +383,11 @@ const WrapCollectionSourceForm = Form.create({
         const { collectionData } = props;
         const sourceMap = collectionData.sourceMap;
         return {
-            type:{
-                value:sourceMap.type
+            type: {
+                value: sourceMap.type
+            },
+            port: {
+                value: sourceMap.port
             },
             sourceId: {
                 value: sourceMap.sourceId
@@ -365,6 +406,9 @@ const WrapCollectionSourceForm = Form.create({
             },
             journalName: {
                 value: sourceMap.journalName
+            },
+            macAndIp:{
+                value:"任务运行时自动分配，无需手动指定"
             }
         }
 

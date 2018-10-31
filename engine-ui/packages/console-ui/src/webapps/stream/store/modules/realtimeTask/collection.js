@@ -12,6 +12,7 @@ const initState = {
     currentStep: null,
     sourceMap: {
         type:undefined,
+        port:undefined,
         table: [],
         sourceId: undefined,
         collectType: collect_type.ALL,
