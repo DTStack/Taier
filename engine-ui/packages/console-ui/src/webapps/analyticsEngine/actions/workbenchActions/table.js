@@ -2,10 +2,11 @@ import { notification, message } from 'antd';
 import moment from 'moment';
 
 import API from '../../api';
+import { CATALOGUE_TYPE } from '../../consts';
 import workbenchAction from '../../consts/workbenchActionType';
 
-import { resetModal, openTab, updateModal, closeTab } from './comm';
-
+import gloablActions from '../index';
+import { resetModal, openTab, updateModal, closeTab, loadCatalogue } from './comm';
 
 /**
  * 生成建表语句
@@ -51,10 +52,11 @@ export function onCreateTable(params) {
                 createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
             }
         }
+        const name = params ? params.name + ' - ' : '';
 
         const newCreateTableTabData = {
             id: moment().unix(),
-            tabName: '新建表',
+            tabName: `${name} 新建表 ${createTableTabIndex + 1}`,
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
             databaseId: params ? params.id : undefined,
@@ -229,10 +231,17 @@ export function handleSave(){
 
         const res = await API.createTable(params)
         if(res.code === 1){
-            console.log('保存成功')
+            console.log('保存成功');
+            const data = res.data;
+            // 重新加载Table列表
+            dispatch(gloablActions.getAllTable());
+            // 重新Reload数据库下的表左侧目录
+            dispatch(loadCatalogue({
+                id: data.databaseId,
+            }, CATALOGUE_TYPE.DATA_BASE));
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED,
-                payload:res.data
+                payload: data
             })
         }else{
             notification.error({

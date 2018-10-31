@@ -62,6 +62,9 @@ class EditorContainer extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id);
         }
+        if (this.props.tableList !== nextProps.tableList) {
+            this.initTableList();
+        }
     }
 
     initTableList() {

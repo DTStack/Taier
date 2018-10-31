@@ -12,17 +12,18 @@ class UpdateDatabaseModal extends Component {
     state = {
         databaseData: null,
         submitted: false,
+        requesting: false,
     }
 
     onSubmit = () => {
-
+    
         if (this.state.submitted) {
             const copyInstance = new CopyUtils();
             const { databaseData } = this.state;
             const copyContent = `
-                数据库标识：${databaseData.name}\m
-                JDBC信息：${databaseData.jdbcUrl}\m
-                用户名：${databaseData.dbUserName}\m
+                数据库标识：${databaseData.name}\n
+                JDBC信息：${databaseData.jdbcUrl}\n
+                用户名：${databaseData.dbUserName}\n
                 密码：${databaseData.dbPwd}
             `;
             copyInstance.copy(copyContent, (success) => {

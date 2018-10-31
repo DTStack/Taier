@@ -12,17 +12,22 @@ class CreateDatabaseModal extends Component {
     state = {
         databaseData: null,
         submitted: false,
+        requesting: false,
     }
 
     onSubmit = async () => {
+        this.setState({
+            requesting: true,
+        })
         const { loadCatalogue } = this.props;
+
         if (this.state.submitted) {
             const copyInstance = new CopyUtils();
             const { databaseData } = this.state;
             const copyContent = `
-                数据库标识：${databaseData.name}\m
-                JDBC信息：${databaseData.jdbcUrl}\m
-                用户名：${databaseData.dbUserName}\m
+                数据库标识：${databaseData.name}\n
+                JDBC信息：${databaseData.jdbcUrl}\n
+                用户名：${databaseData.dbUserName}\n
                 密码：${databaseData.dbPwd}
             `;
             copyInstance.copy(copyContent, (success) => {
@@ -43,6 +48,9 @@ class CreateDatabaseModal extends Component {
                     });
                     loadCatalogue();
                 }
+                this.setState({
+                    requesting: false,
+                })
             }
         });
     }
@@ -53,12 +61,13 @@ class CreateDatabaseModal extends Component {
             this.setState({
                 databaseData: null,
                 submitted: false,
+                requesting: false,
             });
         }, 0)
     }
 
     render () {
-        const { databaseData } = this.state;
+        const { databaseData, requesting } = this.state;
         const { modal } = this.props;
         const visible =  modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE 
         ? true : false;
