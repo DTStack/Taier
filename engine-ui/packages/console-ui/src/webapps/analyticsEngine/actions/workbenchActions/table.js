@@ -52,7 +52,7 @@ export function onCreateTable(params) {
                 createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
             }
         }
-        const name = params ? params.name + ' - ' : '';
+        const name = params && params.name ? params.name + ' - ' : '';
 
         const newCreateTableTabData = {
             id: moment().unix(),
