@@ -322,7 +322,7 @@ export default class StepTwo extends Component{
     return (
       <Row className="step-two-container step-container">
         <div className="table-panel">
-          <span className="title">权限管理</span>
+          <span className="title">字段信息</span>
           <Table 
           columns={this.getTableCol(1)}
           dataSource={columns}
