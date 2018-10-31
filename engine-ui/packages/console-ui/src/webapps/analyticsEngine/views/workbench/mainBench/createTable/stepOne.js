@@ -262,7 +262,7 @@ export default class StepOne extends Component{
                   })(
                     <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
-                      <Option key={o.value}>{o.name}</Option>
+                      <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
                     </Select>
                   )
@@ -281,7 +281,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Sort Scope不可为空'}
                 ],
-                initialValue: formData.sortScope || undefined
+                initialValue: formData.sortScope || 0
               })(
                 <Select style={{width: 570,marginRight:10}}>
                   {
