@@ -35,7 +35,7 @@ class BenchContent extends Component {
                  />
             }
             case workbenchAction.OPEN_TABLE: {
-                return <TableDetail data={tabData} />
+                return <TableDetail onGenerateCreateSQL={this.props.onGenerateCreateSQL} data={tabData} />
             }
             case workbenchAction.OPEN_DATABASE: {
                 return <DatabaseDetail data={tabData} {...props} />
