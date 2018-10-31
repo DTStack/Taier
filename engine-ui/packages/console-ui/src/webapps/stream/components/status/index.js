@@ -81,7 +81,7 @@ export function TaskStatus(props) {
     }
 }
 export function TaskStatusOverview(props) {
-    const {data} = props;
+    const { data } = props;
     return <span>
         <span className="status_overview_item status_overview_fail_font">
             <Circle className="status_overview_fail" />&nbsp;
@@ -256,6 +256,8 @@ export function DatabaseType(props) {
             return <span>MongoDB</span>
         case DATA_SOURCE.KAFKA:
             return <span>Kafka</span>
+        case DATA_SOURCE.BEATS:
+            return <span>Beats</span>
         default:
             return <span>其他</span>
     }

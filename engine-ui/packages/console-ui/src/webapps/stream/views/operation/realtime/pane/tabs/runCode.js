@@ -123,7 +123,9 @@ class RunCode extends React.Component {
     }
     render() {
         const { tabKey } = this.state;
-        const { data, isShow } = this.props;
+        const { data={}, isShow } = this.props;
+        const {taskType} = data;
+
         const editorBoxStyle = {
             position: "absolute",
             top: "20px",
@@ -158,6 +160,7 @@ class RunCode extends React.Component {
                                 />
                             </div>
                         </TabPane>
+                        {}
                     </Tabs>
             </div>
         )

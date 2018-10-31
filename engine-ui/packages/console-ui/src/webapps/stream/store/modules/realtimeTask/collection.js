@@ -11,6 +11,8 @@ export const dataKey = "ide_collection"
 const initState = {
     currentStep: null,
     sourceMap: {
+        type:undefined,
+        port:undefined,
         table: [],
         sourceId: undefined,
         collectType: collect_type.ALL,
@@ -104,7 +106,10 @@ export const actions = {
             const page = getCurrentPage();
             let { sourceMap } = page;
             if (clear) {
-                sourceMap = initState.sourceMap;
+                sourceMap = {
+                    ...initState.sourceMap,
+                    type:sourceMap.type
+                };
             }
             setCurrentPageValue(dispatch, "sourceMap",
                 cloneDeep({
