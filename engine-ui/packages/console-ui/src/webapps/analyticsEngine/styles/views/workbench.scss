@@ -513,7 +513,8 @@
         .func-box{
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            align-items: center;
             line-height: 1;
             .title{
                 font-size: 14px;
