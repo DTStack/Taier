@@ -83,8 +83,14 @@
     padding-top: 20px;
     background: #ffffff;
 
+    .pane-wrapper,
     .ant-tabs-content {
         height: 100%;
+    }
+
+    .pane-wrapper {
+        overflow: auto;
+        padding-bottom: 80px;
     }
 
     &>.ant-tabs {
@@ -168,7 +174,7 @@
 }
 
 .ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content{
-    overflow: scroll;
+    // overflow: scroll;
 }
 .ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content > .ant-tabs-tabpane{
     // height: auto !important;

@@ -16,6 +16,7 @@ class TableDetail extends Component {
         const tableDetail = this.props.data.tableDetail || {}
         const patitionsData = tableDetail.partitions || {}
         const indexList = tableDetail.indexes || [];
+        const { onGenerateCreateSQL } = this.props;
 
         const previewData = tableDetail.previewData || {}
 
@@ -39,7 +40,12 @@ class TableDetail extends Component {
                 <Row className="table-detail-panel">
                     <div className="func-box">
                         <span className="title">数据库信息</span>
-                        <Button className="btn" type="primary">生成建表语句</Button>
+                        <Button className="btn" type="primary"
+                            onClick={() => onGenerateCreateSQL({
+                                tableId: tableDetail.id,
+                                databaseId: tableDetail.databaseId,
+                            })}
+                        >生成建表语句</Button>
                     </div>
                     <table className="table-info" width="100%" cellPadding="0" cellSpacing="0">
                         <tbody>
