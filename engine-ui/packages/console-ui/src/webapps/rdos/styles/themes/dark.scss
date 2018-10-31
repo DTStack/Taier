@@ -273,9 +273,12 @@ $fontColor1: #2491F7;
     }
 
     .task-sidebar .menu-content {
-        header,
         .tab-search {
             background: #2D2D2D;
+        }
+        header{
+            background: #2D2D2D;
+            border-color: #252525;
         }
     }
 

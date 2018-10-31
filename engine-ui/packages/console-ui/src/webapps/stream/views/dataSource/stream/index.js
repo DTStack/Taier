@@ -27,6 +27,7 @@ class DataSourceManaStream extends Component {
         title: '新增数据源',
         status: 'add',
         source: {},
+        sourceTypes:[]
     }
 
     componentDidMount() {
@@ -34,6 +35,7 @@ class DataSourceManaStream extends Component {
             pageSize: 10,
             currentPage: 1,
         })
+        this.getSourceTypes();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -41,7 +43,19 @@ class DataSourceManaStream extends Component {
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
             this.loadDataSources()
+            this.getSourceTypes();
         }
+    }
+
+    getSourceTypes(){
+        Api.getDataSourceTypes().then((res)=>{
+            if(res.code==1){
+                this.setState({
+                    sourceTypes:res.data
+                })
+            }
+        })
+       
     }
 
     loadDataSources = (params) => {
@@ -257,7 +271,7 @@ class DataSourceManaStream extends Component {
     }
 
     render() {
-        const {  source, dataSource } = this.state
+        const {  source, dataSource, sourceTypes } = this.state
         const pagination = {
             total: dataSource.totalCount,
             defaultPageSize: 10,
@@ -286,12 +300,7 @@ class DataSourceManaStream extends Component {
                 }}
             >新增数据源</Button>
         )
-        const sourceTypes = [
-            { name: "MySQL", value: 1 },
-            { name: "HBase", value: 8 },
-            { name: "ElasticSearch", value: 11 },
-            { name: "Kafka", value: 14 }
-        ];
+        
         console.log('dataSource.data', dataSource.data);
         return (
             <div>

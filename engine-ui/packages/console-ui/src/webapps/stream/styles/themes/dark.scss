@@ -272,9 +272,12 @@ $fontColor1: #2491F7;
     }
 
     .task-sidebar .menu-content {
-        header,
         .tab-search {
             background: #2D2D2D;
+        }
+        header{
+            background: #2D2D2D;
+            border-color: #252525;
         }
     }
 
@@ -552,7 +555,7 @@ $fontColor1: #2491F7;
                 border-color: #5A5A5A;
                 border-bottom: 1px solid #5A5A5A;
             }
-
+            .ant-collapse-header:hover,
             .ant-collapse-header {
                 color: $fontColor;
                 background-color: $color2;

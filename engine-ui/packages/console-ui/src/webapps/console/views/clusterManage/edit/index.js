@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card } from "antd";
+import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox } from "antd";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux"
 import {hashHistory} from "react-router"
@@ -52,7 +52,8 @@ class EditCluster extends React.Component {
         nodeNumber: null,
         memory: null,
         extDefaultValue: {},
-        fileHaveChange: false
+        fileHaveChange: false,
+        checked: false
     }
     componentDidMount() {
         const { location, form } = this.props;
@@ -112,7 +113,8 @@ class EditCluster extends React.Component {
             default: {}
         };
         let notExtKeys_flink = ["typeName", "flinkZkAddress",
-            "flinkHighAvailabilityStorageDir", "flinkZkNamespace",
+            "flinkHighAvailabilityStorageDir", "flinkZkNamespace", "flinkYarnMode","reporterClass",
+            "gatewayHost", "gatewayPort", "gatewayJobName", "deleteOnShutdown", "randomJobNameSuffix",
             "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
@@ -659,8 +661,16 @@ class EditCluster extends React.Component {
         }
         return params;
     }
+
+    changeCheckbox(e) {
+        const {checked} = this.state;
+        this.setState({
+            checked: e.target.checked
+        })
+    }
+
     render() {
-        const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange } = this.state;
+        const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == "view";
@@ -962,6 +972,23 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                         <FormItem
+                            label="flinkYarnMode"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkYarnMode', {
+                                rules: [{
+                                    required: true,
+                                    message: "flinkYarnMode"
+                                }],
+                                initialValue: "PER_JOB"
+                            })(
+                                <Select disabled={isView} style={{ width: "100px" }}>
+                                    <Option value="PER_JOB">PER_JOB</Option>
+                                    {/* <Option value="yarn">yarn</Option> */}
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
                             label="jarTmpDir"
                             {...formItemLayout}
                         >
@@ -991,6 +1018,102 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
+                        
+                        <div className="checkboxStyle">
+                            <Checkbox
+                                checked={checked}
+                                onChange={this.changeCheckbox.bind(this)}
+                            >
+                                配置Prometheus Metric地址
+                            </Checkbox>
+                        </div>
+                        { checked ? (<div>
+                                <FormItem
+                                    label="reporterClass"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.reporterClass', {
+                                        initialValue: "org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter"
+                                    })(
+                                        <Input disabled={true} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="gatewayHost"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.gatewayHost', {
+                                        rules: [{
+                                            required: true,
+                                            message: "请输入gatewayHost"
+                                        }],
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="gatewayPort"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.gatewayPort', {
+                                        rules: [{
+                                            required: true,
+                                            message: "请输入gatewayPort"
+                                        }],
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="gatewayJobName"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.gatewayJobName', {
+                                        rules: [{
+                                            required: true,
+                                            message: "请输入gatewayJobName"
+                                        }],
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="deleteOnShutdown"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.deleteOnShutdown', {
+                                        rules: [{
+                                            required: true,
+                                            message: "deleteOnShutdown"
+                                        }],
+                                        initialValue: "FALSE"
+                                    })(
+                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                            <Option value="FALSE">FALSE</Option>
+                                            <Option value="TRUE">TRUE</Option>
+                                        </Select>
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="randomJobNameSuffix"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('flinkConf.randomJobNameSuffix', {
+                                        rules: [{
+                                            required: true,
+                                            message: "randomJobNameSuffix"
+                                        }],
+                                        initialValue: "TRUE"
+                                    })(
+                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                            <Option value="FALSE">FALSE</Option>
+                                            <Option value="TRUE">TRUE</Option>
+                                        </Select>
+                                    )}
+                                </FormItem>
+                             </div>):null
+                        }
+
                         {this.renderExtraParam("flink")}
                         {isView ? null : (
                             <Row>
