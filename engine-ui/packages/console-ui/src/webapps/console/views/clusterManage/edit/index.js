@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox } from "antd";
+import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox, Collapse } from "antd";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux"
 import {hashHistory} from "react-router"
@@ -13,6 +13,7 @@ import utils from "utils";
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 const Option = Select.Option;
+const Panel = Collapse.Panel;
 const TEST_STATUS = {
     NOTHING: 0,
     SUCCESS: 1,
@@ -680,6 +681,7 @@ class EditCluster extends React.Component {
         },this.getDataList.bind(this))
     }
 
+
     flinkYarnModes(flinkVersion) {
         const flinkYarnMode14 = ["PER_JOB","LEGACY"];
         const flinkYarnMode15 = ["PER_JOB","LEGACY","NEW"];
@@ -1048,6 +1050,7 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
+                        
                         
                         <div className="checkboxStyle">
                             <Checkbox
