@@ -235,7 +235,7 @@ export default class StepOne extends Component{
               )
             }
           </FormItem>
-          {getFieldsValue().type === 2 && <FormItem
+          {getFieldsValue().type === 1 && <FormItem
           {...formItemLayout}
           label="表地址">
             {
@@ -243,7 +243,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: '外部表地址不能为空'}
                 ],
-                initialValue: formData.location || 1
+                initialValue: formData.location || undefined
               })(
                 <Input style={{width: 570,marginRight:10 }}/>
               )
@@ -262,7 +262,7 @@ export default class StepOne extends Component{
                   })(
                     <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
-                      <Option key={o.value}>{o.name}</Option>
+                      <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
                     </Select>
                   )

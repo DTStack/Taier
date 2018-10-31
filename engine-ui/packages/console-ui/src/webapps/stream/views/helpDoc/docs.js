@@ -207,3 +207,9 @@ export const newStreamTask = (
         <p>实时采集：关系型数据库、filebeat等各类数据源的实时采集，方便快捷</p>
     </div>
 )
+
+export const binlogPortHelp = (
+    <div>
+        端口号可手动指定，若不指定，任务运行时会自动分配
+    </div>
+)

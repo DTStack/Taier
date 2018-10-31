@@ -61,6 +61,7 @@ export function onCreateTable(params) {
             tableItem: { 
                 databaseId: params ? params.id : undefined,
                 compactionSize: '1024',
+                type: 0,
                 lifeCycle: 90,
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',

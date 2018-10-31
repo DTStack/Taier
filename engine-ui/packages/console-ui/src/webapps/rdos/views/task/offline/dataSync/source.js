@@ -345,7 +345,9 @@ class SourceForm extends React.Component {
                 {this.state.showPreview ?
                     <Table dataSource={this.state.dataSource}
                         columns={this.state.columns}
-                        scroll={{ x: 200 * this.state.columns.length }}
+                        scroll={{ x: this.state.columns.reduce((a,b)=>{
+                            return a+b.width;
+                        },0)}}
                         pagination={false}
                         bordered={false}
                     /> : null
@@ -383,7 +385,7 @@ class SourceForm extends React.Component {
                                 title: s,
                                 dataIndex: s,
                                 key: s,
-                                width: '10%',
+                                width: 20+s.length*10,
                             }
                         });
                         let dataSource = dataList.map((arr, i) => {

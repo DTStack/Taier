@@ -195,6 +195,12 @@ export default {
     getBinlogListBySource(params) {
         return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params)
     },
+    getDataSourceTypes(params) {
+        return http.post(stremReq.GET_DATASOURCE_TYPES, params)
+    },
+    getSupportDaTypes(params) {
+        return http.post(stremReq.GET_SUPPORT_BINLOG_DATA_TYPES, params)
+    },
     getRealtimeJobData(params) {
         return http.post(stremReq.GET_REALTIME_JOBDATA, params)
     },
