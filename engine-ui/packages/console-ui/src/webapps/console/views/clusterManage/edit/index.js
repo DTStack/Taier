@@ -56,9 +56,19 @@ class EditCluster extends React.Component {
         checked: false
     }
     componentDidMount() {
+        this.getDataList();
+        // this.props.getTenantList();
+    }
+
+    // 填充表单数据
+    getDataList() {
+        // const {checked} = this.state;
         const { location, form } = this.props;
         const params = location.state || {};
         if (params.mode == "edit" || params.mode == "view") {
+            // this.setState({
+            //     checked: true
+            // })
             Api.getClusterInfo({
                 clusterId: params.cluster.id
             })
@@ -98,8 +108,9 @@ class EditCluster extends React.Component {
                     }
                 )
         }
-        // this.props.getTenantList();
     }
+
+
     /**
      * 从服务端配置中抽取出自定义参数
      * @param {Map} config 服务端接收到的配置
@@ -597,7 +608,7 @@ class EditCluster extends React.Component {
     getServerParams(formValues, haveFile) {
         const { mode, cluster } = this.props.location.state || {};
         const clusterConf = this.getClusterConf(formValues);
-        console.log(clusterConf);
+        // console.log(clusterConf);
         const params = {
             clusterName: formValues.clusterName,
             clusterConf: JSON.stringify(clusterConf)
@@ -666,7 +677,26 @@ class EditCluster extends React.Component {
         const {checked} = this.state;
         this.setState({
             checked: e.target.checked
-        })
+        },this.getDataList.bind(this))
+    }
+
+    flinkYarnModes(flinkVersion) {
+        const flinkYarnMode14 = ["PER_JOB","LEGACY"];
+        const flinkYarnMode15 = ["PER_JOB","LEGACY","NEW"];
+        // console.log(flinkVersion)  // finlk140
+        if(flinkVersion == "flink140") {
+            return flinkYarnMode14.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        } else if(flinkVersion == "flink150") {
+            return flinkYarnMode15.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        } else {
+            return flinkYarnMode14.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        }
     }
 
     render() {
@@ -676,7 +706,8 @@ class EditCluster extends React.Component {
         const isView = mode == "view";
         const isNew= !(mode=="view"||mode=="edit");
         const columns = this.initColumns();
-
+        // 获取flink版本
+        const flinkVersion = getFieldValue("flinkConf.typeName");
         return (
             <div className="contentBox">
                 <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
@@ -983,8 +1014,7 @@ class EditCluster extends React.Component {
                                 initialValue: "PER_JOB"
                             })(
                                 <Select disabled={isView} style={{ width: "100px" }}>
-                                    <Option value="PER_JOB">PER_JOB</Option>
-                                    {/* <Option value="yarn">yarn</Option> */}
+                                    {this.flinkYarnModes(flinkVersion)}
                                 </Select>
                             )}
                         </FormItem>
@@ -1022,6 +1052,7 @@ class EditCluster extends React.Component {
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}
+                                // disabled={isView}
                                 onChange={this.changeCheckbox.bind(this)}
                             >
                                 配置Prometheus Metric地址
