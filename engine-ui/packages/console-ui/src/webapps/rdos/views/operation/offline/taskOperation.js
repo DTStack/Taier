@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { isEmpty } from 'lodash';
+import { isEmpty, cloneDeep } from 'lodash';
 
 import {
     Table, message, Modal,
@@ -21,6 +21,7 @@ import {
     offlineTaskPeriodFilter,
     PROJECT_TYPE,
     TASK_STATUS,
+    TASK_TYPE,
 } from '../../../comm/const'
 
 import {
@@ -145,6 +146,12 @@ class OfflineTaskList extends Component {
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
+                for(let i=0;i<res.data.data.length;i++){
+                    let job=res.data.data[i];
+                    if(job.batchTask&&job.batchTask.taskType==TASK_TYPE.WORKFLOW&&!job.children){
+                        job.children=[];
+                    }
+                }
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({
@@ -487,6 +494,30 @@ class OfflineTaskList extends Component {
         )
     }
 
+    onExpand=(expanded, record)=>{
+        if(expanded){
+            const {tasks} = this.state;
+            let newTasks=cloneDeep(tasks);
+            const {jobId} =record;
+            Api.getRelatedJobs({
+                jobId
+            }).then((res)=>{
+                if(res.code==1){
+                    newTasks.data.find((task)=>{
+                        if(task.jobId==jobId){
+                            task.children=res.data;
+                        }
+                    })
+                    this.setState({
+                        tasks:newTasks
+                    })
+                }
+            })
+        }else{
+            console.log("record")
+        }
+    }
+
     render() {
         const {
             tasks, selectedRowKeys, jobName,
@@ -655,6 +686,7 @@ class OfflineTaskList extends Component {
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
+                            onExpand={this.onExpand}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
