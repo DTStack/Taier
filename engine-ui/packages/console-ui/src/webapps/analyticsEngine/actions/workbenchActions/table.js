@@ -69,7 +69,16 @@ export function onCreateTable(params) {
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
                 preserveSegments: 0,
-                allowCompactionDays:0 },
+                allowCompactionDays:0,
+                partitionsData: {
+                    partitionMode:'stard',
+                    columns: [],
+                },
+                barrelData: {
+                    barrelNum: undefined,
+                    columns: []
+                }
+             },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
@@ -225,31 +234,39 @@ export function handleSave(){
             delete o._fid
         })
 
-        params.partitions.map(o=>{
+        // params.partitions.map(o=>{
+        //     delete o._fid
+        // })
+        // params.databaseId = o.databaseId;
+        params.partitionsData.columns.map(o=>{
             delete o._fid
         })
-        // params.databaseId = o.databaseId;
 
-        const res = await API.createTable(params)
-        if(res.code === 1){
-            console.log('保存成功');
-            const data = res.data;
-            // 重新加载Table列表
-            dispatch(gloablActions.getAllTable());
-            // 重新Reload数据库下的表左侧目录
-            dispatch(loadCatalogue({
-                id: data.databaseId,
-            }, CATALOGUE_TYPE.DATA_BASE));
-            return dispatch({
-                type: workbenchAction.NEW_TABLE_SAVED,
-                payload: data
-            })
-        }else{
-            notification.error({
-                message: '提示',
-                description: res.message,
-            });
-        }
+        params.barrelData.columns.map(o=>{
+            delete o._fid
+        })
+        console.log(params)
+
+        // const res = await API.createTable(params)
+        // if(res.code === 1){
+        //     console.log('保存成功');
+        //     const data = res.data;
+        //     // 重新加载Table列表
+        //     dispatch(gloablActions.getAllTable());
+        //     // 重新Reload数据库下的表左侧目录
+        //     dispatch(loadCatalogue({
+        //         id: data.databaseId,
+        //     }, CATALOGUE_TYPE.DATA_BASE));
+        //     return dispatch({
+        //         type: workbenchAction.NEW_TABLE_SAVED,
+        //         payload: data
+        //     })
+        // }else{
+        //     notification.error({
+        //         message: '提示',
+        //         description: res.message,
+        //     });
+        // }
     }
 };
 /**
