@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Modal, Button, } from 'antd';
+import { Modal, Button, message } from 'antd';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
 import Editor from 'widgets/editor';

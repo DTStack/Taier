@@ -62,7 +62,8 @@ class Sidebar extends Component {
     searchTable = (value) => {
         const query = utils.trim(value);
         if (!query) {
-            this.props.loadCatalogue();
+            this.refresh();
+            return;
         };
 
         this.props.loadCatalogue({
@@ -134,12 +135,12 @@ class Sidebar extends Component {
     renderFolderContent = () => {
 
         const {
+            onGetDB,
             folderTree,
-            onGetTable,
             onGetDataMap,
             onCreateDB,
             onSQLQuery,
-            onGetDB
+            onTableDetail
         } = this.props;
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
@@ -160,7 +161,7 @@ class Sidebar extends Component {
                         selectedKeys={this.state.selectedKeys}
                         treeData={folderTree.children}
                         onGetDB={onGetDB}
-                        onGetTable={onGetTable}
+                        onTableDetail={onTableDetail}
                         onGetDataMap={onGetDataMap}
                         onSQLQuery={onSQLQuery}
                     />
@@ -209,24 +210,27 @@ class Sidebar extends Component {
                     onRefresh={this.refresh}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
-                    onEditTable = {()=>onEditTable()}
+                    onEditTable = {()=> onEditTable()}
                     onCreateTable={() => onCreateTable()}
-                    onTableDetail={()=>onTableDetail()}
+                    onTableDetail={()=> onTableDetail()}
                 />
                 {
                     this.renderFolderContent()
                 }
                 <ContextMenu targetClassName="anchor-database">
                     <MenuItem onClick={()=>onCreateTable(activeNode)}>新建表</MenuItem>
-                    <MenuItem onClick={() => onGetDB(activeNode)}>
+                    <MenuItem onClick={() => onGetDB({ databaseId: activeNode.id })}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
-                    <MenuItem onClick={()=>onEditTable(activeNode)}>编辑表</MenuItem>
-                    <MenuItem onClick={()=>onTableDetail(activeNode)}>表详情</MenuItem>
-                    <MenuItem onClick={() => onGenerateCreateSQL(activeNode.id)}>
+                    <MenuItem onClick={()=> onEditTable(activeNode)}>编辑表</MenuItem>
+                    <MenuItem onClick={()=> onTableDetail(activeNode)}>表详情</MenuItem>
+                    <MenuItem onClick={() => onGenerateCreateSQL({
+                        tableId: activeNode.id,
+                        databaseId: activeNode.databaseId,
+                    })}>
                         显示建表DDL
                     </MenuItem>
                     <MenuItem onClick={this.copyName}>复制表名</MenuItem>

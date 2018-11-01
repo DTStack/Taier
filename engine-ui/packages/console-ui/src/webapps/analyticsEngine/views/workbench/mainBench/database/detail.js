@@ -212,6 +212,7 @@ class DatabaseDetail extends Component {
     debounceSearch = debounce(this.onSearchUsers, 300, { 'maxWait': 2000 })
 
     initColumns = () => {
+        const { myRoles } = this.state;
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -247,20 +248,28 @@ class DatabaseDetail extends Component {
             width: 100,
             key: 'id',
             render: (id, record) => {
-                 // active '0：未启用，1：使用中'。 只有为0时，可以修改
+                // active '0：未启用，1：使用中'。 只有为0时，可以修改
+                const canRemove = myRoles.isProjectAdmin || 
+                myRoles.isProjectOwner; // 项目管理员，所有者可移除
                 return (
                     <span key={id}>
                         <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
-                        <span className="ant-divider" />
-                        <Popconfirm
-                            title="确定移除此用户？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.removeUser(record) }}
-                        >
-                            <a>移除</a>
-                        </Popconfirm>
+                        {
+                            canRemove ? 
+                            <span>
+                                <span className="ant-divider" />
+                                <Popconfirm
+                                    title="确定移除此用户？"
+                                    okText="确定" cancelText="取消"
+                                    onConfirm={() => { this.removeUser(record) }}
+                                >
+                                    <a>移除</a>
+                                </Popconfirm>
+                            </span>
+                            : ''
+                        }
                     </span>
                 )
             },

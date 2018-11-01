@@ -52,7 +52,7 @@ class CreateTable extends Component {
             },
         ]
         return (
-            <div className="create-table-container">
+            <div className="create-table-container pane-wrapper">
                 <Steps current={currentStep}>
                     {
                         steps.map(o=>(

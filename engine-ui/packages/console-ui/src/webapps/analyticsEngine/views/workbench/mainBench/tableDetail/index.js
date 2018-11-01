@@ -12,11 +12,11 @@ const TabPane = Tabs.TabPane;
 
 class TableDetail extends Component {
 
-    
     render () {
         const tableDetail = this.props.data.tableDetail || {}
         const patitionsData = tableDetail.partitions || {}
         const indexList = tableDetail.indexes || [];
+        const { onGenerateCreateSQL } = this.props;
 
         const previewData = tableDetail.previewData || {}
 
@@ -40,7 +40,12 @@ class TableDetail extends Component {
                 <Row className="table-detail-panel">
                     <div className="func-box">
                         <span className="title">数据库信息</span>
-                        <Button className="btn" type="primary">生成建表语句</Button>
+                        <Button className="btn" type="primary"
+                            onClick={() => onGenerateCreateSQL({
+                                tableId: tableDetail.id,
+                                databaseId: tableDetail.databaseId,
+                            })}
+                        >生成建表语句</Button>
                     </div>
                     <table className="table-info" width="100%" cellPadding="0" cellSpacing="0">
                         <tbody>
@@ -77,7 +82,7 @@ class TableDetail extends Component {
                         <tr>
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope}</td>
-                            <td>Block大小</td>
+                            <td>Block Size</td>
                             <td>{tableDetail.blockSize}</td>
                         </tr>
                         </tbody>

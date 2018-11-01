@@ -16,7 +16,7 @@ export default {
     GET_USERS_NOT_IN_DB: `${ANALYTICS_ENGINE_BASE_URL}/user/getUicUsersNotInProject`, // 获取未添加到项目的用户
     UPDATE_DB_USER_ROLE: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/updateUserRole`, // 修改用户数据库角色
     ADD_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/addRoleUserNew`, // 添加数据库用户
-    DELETE_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/remove`, // 删除数据库用户
+    DELETE_DB_USER: `${ANALYTICS_ENGINE_BASE_URL}/roleUser/removeRoleUserFromProject`, // 删除数据库用户
 
     GET_CATALOGUES: `${ANALYTICS_ENGINE_BASE_URL}/getCatalogue`, // 获取目录
     CREATE_DB: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createDataBase`, //创建或者修改数据库

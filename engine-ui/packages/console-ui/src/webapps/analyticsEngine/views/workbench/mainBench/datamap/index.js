@@ -14,6 +14,9 @@ class DataMap extends Component {
         loading: false,
     }
 
+    // 查询语句
+    _selectSQL = undefined;
+    
     componentDidMount() {
         const data = this.props.data;
         this.loadTable({
@@ -24,9 +27,13 @@ class DataMap extends Component {
 
     loadTable = async (params) => {
         const result = await API.getTableById(params);
+        this.setState({
+            loading: true,
+        })
         if (result.code === 1) {
             this.setState({
                 tableData: result.data,
+                loading: false,
             })
         }
     }
@@ -45,11 +52,10 @@ class DataMap extends Component {
         const form = this.formInstance.props.form;
         this.setState({
             loading: true,
-        })
+        });
         form.validateFields( async (err, values) => {
             if (!err) {
-                values.configJSON = values.configJSON;//JSON.stringify(values.configJSON);
-                values.datamapType = undefined;
+                values.configJSON.selectSql = this._selectSQL;
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
@@ -59,7 +65,15 @@ class DataMap extends Component {
             this.setState({ loading: false, })
         });
     }
-    
+
+    onQueryTextChange = (value) => {
+        this._selectSQL = value;
+        const form = this.formInstance.props.form;
+        form.setFieldsValue({
+            'configJSON.selectSql': value,
+        });
+    }
+
     onRemove = () => {
         const { onRemoveDataMap, data } = this.props;
         confirm({
@@ -91,6 +105,7 @@ class DataMap extends Component {
                     isCreate={isCreate}
                     tableData={tableData}
                     onGenerateCreateSQL={onGenerateCreateSQL}
+                    onQueryTextChange={this.onQueryTextChange}
                     wrappedComponentRef={(e) => { this.formInstance = e }}
                 />
                 <Row style={{paddingLeft: 130}}>
@@ -105,6 +120,7 @@ class DataMap extends Component {
                             </Button>
                         :
                             <Button 
+                                disabled={loading}
                                 style={{ width: 90, height: 30, color: 'red' }}
                                 onClick={this.onRemove}
                             >

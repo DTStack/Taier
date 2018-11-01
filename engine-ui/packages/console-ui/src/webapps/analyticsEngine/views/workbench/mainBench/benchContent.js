@@ -27,15 +27,18 @@ class BenchContent extends Component {
             }
             case workbenchAction.OPEN_TABLE_EDITOR: {
                 return <EditTable data={tabData}
-                 tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
-                 saveEditTableInfo={props.saveEditTableInfo}
-                 saveTableInfo={props.saveTableInfo}
-                 closeTab={()=>this.props.closeTab(tabData.id)}
-                 loadCatalogue = {this.props.loadCatalogue}
+                    tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
+                    saveEditTableInfo={props.saveEditTableInfo}
+                    saveTableInfo={props.saveTableInfo}
+                    closeTab={()=>this.props.closeTab(tabData.id)}
+                    loadCatalogue = {this.props.loadCatalogue}
                  />
             }
             case workbenchAction.OPEN_TABLE: {
-                return <TableDetail data={tabData} />
+                return <TableDetail 
+                    data={tabData} 
+                    onGenerateCreateSQL={props.onGenerateCreateSQL} 
+                />
             }
             case workbenchAction.OPEN_DATABASE: {
                 return <DatabaseDetail data={tabData} {...props} />

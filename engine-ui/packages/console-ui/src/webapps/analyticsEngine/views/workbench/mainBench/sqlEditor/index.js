@@ -62,6 +62,9 @@ class EditorContainer extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id);
         }
+        if (this.props.tableList !== nextProps.tableList) {
+            this.initTableList();
+        }
     }
 
     initTableList() {
@@ -133,7 +136,9 @@ class EditorContainer extends Component {
             data
         } = this.props;
 
-        const params = {};
+        const params = {
+            databaseId: data.databaseId,
+        };
 
         const code =
             editor.selection ||

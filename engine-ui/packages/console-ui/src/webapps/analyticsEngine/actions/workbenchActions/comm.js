@@ -98,7 +98,7 @@ export function onSQLQuery(params) {
                 }
             }
         }
-        const name = params ? params.name || params.tableName + ' - ' : '';
+        const name = params ? (params.name || params.tableName) + ' - ' : '';
         const defaultSQLQueryTabData = {
             id: moment().valueOf(),
             tabName: `${name} Query ${sqlQueryTabIndex + 1}`,
@@ -129,6 +129,7 @@ export const loadCatalogue = function(data, fileType) {
                     item.type = CATALOGUE_TYPE.DATA_MAP;
                     return item;
                 });
+                data.type = fileType;
                 break;
             }
             case CATALOGUE_TYPE.DATA_BASE: {
@@ -140,6 +141,7 @@ export const loadCatalogue = function(data, fileType) {
                     item.children = [];
                     return item;
                 });
+                data.type = fileType;
                 break;
             }
             case CATALOGUE_TYPE.SEARCH_TABLE: { // 搜索表
@@ -168,7 +170,6 @@ export const loadCatalogue = function(data, fileType) {
         }
 
         if (res.code === 1) {
-            data.type = fileType;
             data.children = res.data;
             dispatch({
                 type: workbenchAction.LOAD_CATALOGUE_DATA,

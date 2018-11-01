@@ -38,7 +38,7 @@ class FolderTree extends React.PureComponent {
     }
 
     renderNodeHoverButton = (item) => {
-        const { onGetTable, onGetDataMap, onSQLQuery, onGetDB } = this.props;
+        const { onTableDetail, onGetDataMap, onSQLQuery, onGetDB } = this.props;
         switch(item.type) {
             case CATALOGUE_TYPE.DATA_BASE:
             return (
@@ -82,7 +82,7 @@ class FolderTree extends React.PureComponent {
                             className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onGetTable({ id: item.id });
+                                onTableDetail(item);
                             }}
                         />
                     </span>

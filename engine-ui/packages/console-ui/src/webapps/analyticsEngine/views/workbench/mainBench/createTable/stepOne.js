@@ -57,11 +57,11 @@ const formItemLayout = {
   
   labelCol: {
     xs: { span: 24 },
-    sm: { span: 8 },
+    sm: { span: 7 },
 },
 wrapperCol: {
     xs: { span: 24 },
-    sm: { span: 14 },
+    sm: { span: 16 },
 },
 }
 
@@ -281,7 +281,7 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Sort Scope不可为空'}
                 ],
-                initialValue: formData.sortScope || undefined
+                initialValue: formData.sortScope || 0
               })(
                 <Select style={{width: 570,marginRight:10}}>
                   {

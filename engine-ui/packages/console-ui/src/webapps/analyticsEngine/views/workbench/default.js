@@ -19,7 +19,7 @@ class Default extends Component {
             >
                 <Col className="operation-card">
                     <div
-                        onClick={onSQLQuery}
+                        onClick={() => onSQLQuery()}
                         className="operation-content"
                     >
                         <img

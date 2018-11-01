@@ -2,41 +2,21 @@ import { notification, message } from 'antd';
 import moment from 'moment';
 
 import API from '../../api';
+import { CATALOGUE_TYPE } from '../../consts';
 import workbenchAction from '../../consts/workbenchActionType';
 
-import { resetModal, openTab, updateModal, closeTab } from './comm';
+import gloablActions from '../index';
+import { resetModal, openTab, updateModal, closeTab, loadCatalogue } from './comm';
 
-
-/**
- * 获取DataMap详情
- */
-export function onGetTable(params) {
-
-    return async dispatch => {
-
-        const res = await API.createOrUpdateDB(params);
-        if (res.code === 1) {
-            const tableData = res.data;
-            // 添加Action标记
-            tableData.actionType = workbenchAction.OPEN_TABLE,
-            dispatch(openTab(tableData));
-        } else {
-            notification.error({
-                message: '提示',
-                description: res.message,
-            });
-        }
-    }
-};
 /**
  * 生成建表语句
  */
-export function onGenerateCreateSQL(tableId) {
+export function onGenerateCreateSQL({ tableId, databaseId }) {
 
     return async dispatch => {
-
         const res = await API.getCreateSQL({
             tableId,
+            databaseId,
         });
         if (res.code === 1) {
             const modalValue = {
@@ -72,10 +52,11 @@ export function onCreateTable(params) {
                 createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
             }
         }
+        const name = params && params.name ? params.name + ' - ' : '';
 
         const newCreateTableTabData = {
             id: moment().unix(),
-            tabName: '新建表',
+            tabName: `${name} 新建表 ${createTableTabIndex + 1}`,
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
             databaseId: params ? params.id : undefined,
@@ -83,6 +64,7 @@ export function onCreateTable(params) {
                 databaseId: params ? params.id : undefined,
                 compactionSize: '1024',
                 type: 0,
+                sortScope: 0,
                 lifeCycle: 90,
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
@@ -250,10 +232,17 @@ export function handleSave(){
 
         const res = await API.createTable(params)
         if(res.code === 1){
-            console.log('保存成功')
+            console.log('保存成功');
+            const data = res.data;
+            // 重新加载Table列表
+            dispatch(gloablActions.getAllTable());
+            // 重新Reload数据库下的表左侧目录
+            dispatch(loadCatalogue({
+                id: data.databaseId,
+            }, CATALOGUE_TYPE.DATA_BASE));
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED,
-                payload:res.data
+                payload: data
             })
         }else{
             notification.error({
@@ -298,10 +287,17 @@ export function saveTableInfo(param){
         let flag = [];
         columns.map(o=>{
             if(o.isNew){
-                delete o.isNew;
-                flag.push(o)
+                flag.push({
+                    comment: o.comment,
+                    dictionary: o.dictionary,
+                    invert: o.invert,
+                    name: o.name,
+                    sortColumn: o.sortColumn,
+                    type: o.type
+                })
             }
         })
+        console.log(tableDetail)
 
 
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
