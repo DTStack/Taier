@@ -105,7 +105,7 @@ class DataMapForm extends Component {
                             </Select>
                         )}
                     </FormItem>,
-                    <FormItem key="timeType" {...formItemLayout} label="时间粒度" hasFeedback>
+                    <FormItem key="timeType" {...formItemLayout} label="时间粒度">
                         {getFieldDecorator("configJSON.timeType", { 
                             rules: [
                                 {

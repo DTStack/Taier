@@ -62,7 +62,8 @@ class Sidebar extends Component {
     searchTable = (value) => {
         const query = utils.trim(value);
         if (!query) {
-            this.props.loadCatalogue();
+            this.refresh();
+            return;
         };
 
         this.props.loadCatalogue({
