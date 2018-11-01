@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox } from "antd";
+import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox, Collapse } from "antd";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux"
 import {hashHistory} from "react-router"
@@ -13,6 +13,7 @@ import utils from "utils";
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 const Option = Select.Option;
+const Panel = Collapse.Panel;
 const TEST_STATUS = {
     NOTHING: 0,
     SUCCESS: 1,
@@ -53,12 +54,28 @@ class EditCluster extends React.Component {
         memory: null,
         extDefaultValue: {},
         fileHaveChange: false,
-        checked: false
+        checked: false,
+        // 以下字段为填补关闭复选框数据无法获取输入数据情况
+        firstIptValue: undefined,
+        secondIptValue: undefined,
+        thirdIptValue: undefined,
+        firstOption: "FALSE",
+        secondOption: "TRUE"
     }
     componentDidMount() {
+        this.getDataList();
+        // this.props.getTenantList();
+    }
+
+    // 填充表单数据
+    getDataList() {
+        // const {checked} = this.state;
         const { location, form } = this.props;
         const params = location.state || {};
         if (params.mode == "edit" || params.mode == "view") {
+            // this.setState({
+            //     checked: true
+            // })
             Api.getClusterInfo({
                 clusterId: params.cluster.id
             })
@@ -98,8 +115,9 @@ class EditCluster extends React.Component {
                     }
                 )
         }
-        // this.props.getTenantList();
     }
+
+
     /**
      * 从服务端配置中抽取出自定义参数
      * @param {Map} config 服务端接收到的配置
@@ -597,7 +615,7 @@ class EditCluster extends React.Component {
     getServerParams(formValues, haveFile) {
         const { mode, cluster } = this.props.location.state || {};
         const clusterConf = this.getClusterConf(formValues);
-        console.log(clusterConf);
+        // console.log(clusterConf);
         const params = {
             clusterName: formValues.clusterName,
             clusterConf: JSON.stringify(clusterConf)
@@ -667,6 +685,56 @@ class EditCluster extends React.Component {
         this.setState({
             checked: e.target.checked
         })
+        this.getDataList();
+    }
+
+
+    flinkYarnModes(flinkVersion) {
+        const flinkYarnMode14 = ["PER_JOB","LEGACY"];
+        const flinkYarnMode15 = ["PER_JOB","LEGACY","NEW"];
+        // console.log(flinkVersion)  // finlk140
+        if(flinkVersion == "flink140") {
+            return flinkYarnMode14.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        } else if(flinkVersion == "flink150") {
+            return flinkYarnMode15.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        } else {
+            return flinkYarnMode14.map((item,index) => {
+                return <Option value={item}>{item}</Option>
+            })
+        }
+    }
+
+    // 获取每项Input的值
+    getFirstInputValue(e) {
+        this.setState({
+            firstIptValue: e.target.value
+        })
+    }
+    getSecondInputValue(e) {
+        this.setState({
+            secondIptValue: e.target.value
+        })
+    }
+    getThirdInputValue(e) {
+        this.setState({
+            thirdIptValue: e.target.value
+        })
+    }
+    changeFirstOption(value) {
+        // const { setFieldsValue } = this.props.form;
+        this.setState({
+            firstOption: value
+        })
+        // console.log(this.state.firstOption)
+    }
+    changeSecondOption(value) {
+        this.setState({
+            secondOption: value
+        })
     }
 
     render() {
@@ -676,7 +744,9 @@ class EditCluster extends React.Component {
         const isView = mode == "view";
         const isNew= !(mode=="view"||mode=="edit");
         const columns = this.initColumns();
-
+        // 获取flink版本
+        const flinkVersion = getFieldValue("flinkConf.typeName");
+        const {firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption} = this.state;
         return (
             <div className="contentBox">
                 <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
@@ -983,8 +1053,7 @@ class EditCluster extends React.Component {
                                 initialValue: "PER_JOB"
                             })(
                                 <Select disabled={isView} style={{ width: "100px" }}>
-                                    <Option value="PER_JOB">PER_JOB</Option>
-                                    {/* <Option value="yarn">yarn</Option> */}
+                                    {this.flinkYarnModes(flinkVersion)}
                                 </Select>
                             )}
                         </FormItem>
@@ -1019,9 +1088,11 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                         
+                        
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}
+                                // disabled={isView}
                                 onChange={this.changeCheckbox.bind(this)}
                             >
                                 配置Prometheus Metric地址
@@ -1047,8 +1118,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayHost"
                                         }],
+                                        initialValue: firstIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView}  onChange={(e) => {this.getFirstInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1060,8 +1132,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayPort"
                                         }],
+                                        initialValue: secondIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView} onChange={(e) => {this.getSecondInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1073,8 +1146,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayJobName"
                                         }],
+                                        initialValue: thirdIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView} onChange={(e) => {this.getThirdInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1086,9 +1160,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "deleteOnShutdown"
                                         }],
-                                        initialValue: "FALSE"
+                                        initialValue: firstOption
                                     })(
-                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                        <Select disabled={isView} style={{ width: "100px" }}  onChange={this.changeFirstOption.bind(this)} >
                                             <Option value="FALSE">FALSE</Option>
                                             <Option value="TRUE">TRUE</Option>
                                         </Select>
@@ -1103,9 +1177,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "randomJobNameSuffix"
                                         }],
-                                        initialValue: "TRUE"
+                                        initialValue: secondOption
                                     })(
-                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                        <Select disabled={isView} style={{ width: "100px" }} onChange={this.changeSecondOption.bind(this)}>
                                             <Option value="FALSE">FALSE</Option>
                                             <Option value="TRUE">TRUE</Option>
                                         </Select>
