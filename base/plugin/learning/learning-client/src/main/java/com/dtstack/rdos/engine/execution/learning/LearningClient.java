@@ -11,11 +11,13 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -42,11 +45,11 @@ public class LearningClient extends AbsClient {
 
     private Client client;
 
+    private LearningConfiguration conf = new LearningConfiguration();
 
     @Override
     public void init(Properties prop) throws Exception {
         LOG.info("LearningClien.init ...");
-        LearningConfiguration conf = new LearningConfiguration();
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
@@ -76,6 +79,10 @@ public class LearningClient extends AbsClient {
             } else {
                 conf.set(key, value.toString());
             }
+        }
+        String queue = prop.getProperty(LearningConfiguration.LEARNING_APP_QUEUE);
+        if (StringUtils.isNotBlank(queue)){
+            conf.set(LearningConfiguration.LEARNING_APP_QUEUE, queue);
         }
         client = new Client(conf);
     }
@@ -173,7 +180,19 @@ public class LearningClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
         LearningResourceInfo resourceInfo = new LearningResourceInfo();
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet);
+            if (acceptedApps.size() > conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
+                LOG.warn("yarn 资源不足，任务等待提交");
+                return resourceInfo;
+            }
             List<NodeReport> nodeReports = client.getNodeReports();
+            float capacity = 1;
+            if (!conf.getBoolean(LearningConfiguration.DT_APP_ELASTIC_CAPACITY, true)){
+                capacity = getQueueRemainCapacity(1,client.getYarnClient().getRootQueueInfos());
+            }
+            resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
                 Resource used = report.getUsed();
@@ -199,6 +218,23 @@ public class LearningClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+        float capacity = 0;
+        for (QueueInfo queueInfo : queueInfos){
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+            }
+            if (queueInfo.getQueueName().equals(conf.get(LearningConfiguration.LEARNING_APP_QUEUE))){
+                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity>0){
+                return capacity;
+            }
+        }
+        return capacity;
     }
 
     @Override
