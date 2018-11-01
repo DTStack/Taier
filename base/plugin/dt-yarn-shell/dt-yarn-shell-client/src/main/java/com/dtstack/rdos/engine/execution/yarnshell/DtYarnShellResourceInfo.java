@@ -29,15 +29,17 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
 
     public final static String MEMORY_FREE_KEY = "memory.free";
 
+    private float capacity = 1;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        System.out.println("learning judgeslots start");
         int totalFreeCore = 0;
         int totalFreeMem = 0;
         int totalCore = 0;
         int totalMem = 0;
 
+        int[] nmFree = new int[nodeResourceMap.size()];
+        int index = 0;
         for (EngineResourceInfo.NodeResourceInfo tmpMap : nodeResourceMap.values()) {
             int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
             int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
@@ -48,6 +50,8 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
             totalFreeCore += nodeFreeCores;
             totalCore += nodeCores;
             totalMem += nodeMem;
+
+            nmFree[index++] = nodeFreeMem;
         }
 
         System.out.println("totalFreeCore=" + totalFreeCore + " totalFreeMem=" + totalFreeMem);
@@ -78,11 +82,37 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
         int neededCores = workerTotalCores + psTotalCores;
         int neededMem = workerTotalMem + psTotalMem;
 
-        System.out.println("neededCores=" + neededCores
-                + " totalFreeCore=" + totalFreeCore
-                + " neededMem=" + neededMem
-                + " totalFreeMem=" + totalFreeMem);
+        if(neededCores > (totalCore * capacity)){
+            throw new RdosException("任务设置的core 大于 分配的最大的core");
+        }
 
-        return neededCores <= totalFreeCore && neededMem <= totalFreeMem;
+        if (neededCores > (totalFreeCore * capacity)){
+            return false;
+        }
+
+        if(neededMem > (totalMem * capacity)){
+            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
+        }
+        if (neededMem > (totalFreeMem * capacity)){
+            return false;
+        }
+
+        for (int i = 1; i <= workerNum; i++) {
+            if (!allocateResource(nmFree, workerMem)) {
+                return false;
+            }
+        }
+
+        for (int i = 1; i <= psNum; i++) {
+            if (!allocateResource(nmFree, psMem)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void setCapacity(float capacity) {
+        this.capacity = capacity;
     }
 }

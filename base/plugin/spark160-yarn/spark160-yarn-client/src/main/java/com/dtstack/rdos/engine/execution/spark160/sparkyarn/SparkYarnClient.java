@@ -478,8 +478,18 @@ public class SparkYarnClient extends AbsClient {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
+                logger.warn("yarn 资源不足，任务等待提交");
+                return resourceInfo;
+            }
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
-            float capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            float capacity = 1;
+            if (!sparkYarnConfig.getElasticCapacity()){
+                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+            }
             resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();

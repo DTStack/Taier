@@ -333,7 +333,9 @@ public class Client {
         return yarnClient.getNodeReports(NodeState.RUNNING);
     }
 
-
+    public YarnClient getYarnClient() {
+        return yarnClient;
+    }
 
     public static void main(String[] args) {
         try {

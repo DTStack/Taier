@@ -12,11 +12,15 @@ import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
+import org.apache.hadoop.yarn.api.records.NodeState;
+import org.apache.hadoop.yarn.api.records.QueueI
+nfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.exceptions.YarnException;
@@ -25,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -46,11 +51,11 @@ public class DtYarnShellClient extends AbsClient {
 
     private Client client;
 
+    private DtYarnConfiguration conf = new DtYarnConfiguration();
 
     @Override
     public void init(Properties prop) throws Exception {
         LOG.info("DtYarnShellClient init ...");
-        DtYarnConfiguration conf = new DtYarnConfiguration();
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
@@ -81,9 +86,9 @@ public class DtYarnShellClient extends AbsClient {
                 conf.set(key, value.toString());
             }
         }
-        String queue = prop.getProperty("queue");
+        String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
-            conf.get(DtYarnConfiguration.DT_APP_QUEUE, queue);
+            conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
         client = new Client(conf);
     }
@@ -181,7 +186,19 @@ public class DtYarnShellClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
         DtYarnShellResourceInfo resourceInfo = new DtYarnShellResourceInfo();
         try {
+            EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
+            enumSet.add(YarnApplicationState.ACCEPTED);
+            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet);
+            if (acceptedApps.size() > conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
+                LOG.warn("yarn 资源不足，任务等待提交");
+                return resourceInfo;
+            }
             List<NodeReport> nodeReports = client.getNodeReports();
+            float capacity = 1;
+            if (!conf.getBoolean(DtYarnConfiguration.DT_APP_ELASTIC_CAPACITY, true)){
+                capacity = getQueueRemainCapacity(1,client.getYarnClient().getRootQueueInfos());
+            }
+            resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
                 Resource used = report.getUsed();
@@ -207,6 +224,23 @@ public class DtYarnShellClient extends AbsClient {
         }
 
         return resourceInfo;
+    }
+
+    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+        float capacity = 0;
+        for (QueueInfo queueInfo : queueInfos){
+            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
+                float subCoefficient = queueInfo.getCapacity() * coefficient;
+                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+            }
+            if (queueInfo.getQueueName().equals(conf.get(DtYarnConfiguration.DT_APP_QUEUE))){
+                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+            }
+            if (capacity>0){
+                return capacity;
+            }
+        }
+        return capacity;
     }
 
     @Override
