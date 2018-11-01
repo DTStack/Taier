@@ -54,7 +54,13 @@ class EditCluster extends React.Component {
         memory: null,
         extDefaultValue: {},
         fileHaveChange: false,
-        checked: false
+        checked: false,
+        // 以下字段为填补关闭复选框数据无法获取输入数据情况
+        firstIptValue: undefined,
+        secondIptValue: undefined,
+        thirdIptValue: undefined,
+        firstOption: "FALSE",
+        secondOption: "TRUE"
     }
     componentDidMount() {
         this.getDataList();
@@ -678,7 +684,8 @@ class EditCluster extends React.Component {
         const {checked} = this.state;
         this.setState({
             checked: e.target.checked
-        },this.getDataList.bind(this))
+        })
+        this.getDataList();
     }
 
 
@@ -701,6 +708,35 @@ class EditCluster extends React.Component {
         }
     }
 
+    // 获取每项Input的值
+    getFirstInputValue(e) {
+        this.setState({
+            firstIptValue: e.target.value
+        })
+    }
+    getSecondInputValue(e) {
+        this.setState({
+            secondIptValue: e.target.value
+        })
+    }
+    getThirdInputValue(e) {
+        this.setState({
+            thirdIptValue: e.target.value
+        })
+    }
+    changeFirstOption(value) {
+        // const { setFieldsValue } = this.props.form;
+        this.setState({
+            firstOption: value
+        })
+        // console.log(this.state.firstOption)
+    }
+    changeSecondOption(value) {
+        this.setState({
+            secondOption: value
+        })
+    }
+
     render() {
         const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -710,6 +746,7 @@ class EditCluster extends React.Component {
         const columns = this.initColumns();
         // 获取flink版本
         const flinkVersion = getFieldValue("flinkConf.typeName");
+        const {firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption} = this.state;
         return (
             <div className="contentBox">
                 <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
@@ -1081,8 +1118,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayHost"
                                         }],
+                                        initialValue: firstIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView}  onChange={(e) => {this.getFirstInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1094,8 +1132,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayPort"
                                         }],
+                                        initialValue: secondIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView} onChange={(e) => {this.getSecondInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1107,8 +1146,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "请输入gatewayJobName"
                                         }],
+                                        initialValue: thirdIptValue
                                     })(
-                                        <Input disabled={isView} />
+                                        <Input disabled={isView} onChange={(e) => {this.getThirdInputValue(e)}} />
                                     )}
                                 </FormItem>
                                 <FormItem
@@ -1120,9 +1160,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "deleteOnShutdown"
                                         }],
-                                        initialValue: "FALSE"
+                                        initialValue: firstOption
                                     })(
-                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                        <Select disabled={isView} style={{ width: "100px" }}  onChange={this.changeFirstOption.bind(this)} >
                                             <Option value="FALSE">FALSE</Option>
                                             <Option value="TRUE">TRUE</Option>
                                         </Select>
@@ -1137,9 +1177,9 @@ class EditCluster extends React.Component {
                                             required: true,
                                             message: "randomJobNameSuffix"
                                         }],
-                                        initialValue: "TRUE"
+                                        initialValue: secondOption
                                     })(
-                                        <Select disabled={isView} style={{ width: "100px" }}>
+                                        <Select disabled={isView} style={{ width: "100px" }} onChange={this.changeSecondOption.bind(this)}>
                                             <Option value="FALSE">FALSE</Option>
                                             <Option value="TRUE">TRUE</Option>
                                         </Select>
