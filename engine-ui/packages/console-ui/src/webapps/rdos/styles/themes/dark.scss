@@ -20,6 +20,10 @@ $fontColor1: #2491F7;
         opacity: 0;
     }
 
+    .btn-upload {
+        border: 1px solid $borderColor1 !important;
+    }
+
     .bd,
     table,
     .ant-table-fixed,
