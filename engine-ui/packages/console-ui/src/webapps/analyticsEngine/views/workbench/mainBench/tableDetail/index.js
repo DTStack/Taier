@@ -82,7 +82,7 @@ class TableDetail extends Component {
                         <tr>
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope}</td>
-                            <td>Block大小</td>
+                            <td>Block Size</td>
                             <td>{tableDetail.blockSize}</td>
                         </tr>
                         </tbody>

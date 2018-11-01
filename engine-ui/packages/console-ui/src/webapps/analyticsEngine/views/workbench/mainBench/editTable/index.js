@@ -361,6 +361,33 @@ export default class EditTable extends Component{
       }
     ]
 
+    const tableCOl_partition = [
+      {
+        title: '字段名',
+        dataIndex: 'name',
+        // render: (text,record)=>(
+        //   <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
+        // )
+      },{
+        title: '字段类型',
+        dataIndex: 'type',
+        // render: (text,record)=>(
+        //   <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+        //     {
+        //       field_type.map(o=>{
+        //         return <Option key={o.value} value={o.value}>{o.name}</Option>
+        //       })
+        //     }
+        //   </Select>
+        // )
+      },{
+        title: '注释',
+        dataIndex: 'comment',
+        // render: (text,record)=>(
+        //   <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+        // )
+      }
+    ]
     return (
       <div className="edit-table-container" style={{marginBottom: 50}}>
         <Row className="panel">
@@ -433,6 +460,18 @@ export default class EditTable extends Component{
             </Table>
           <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
         </Row>
+
+      <Row className="panel table-box">
+          <div className="title">分区信息</div>
+          <Table
+          size="small"
+          className="table-small"
+          columns={tableCOl_partition}
+          rowKey="_fid"
+          dataSource={tableDetail.partitions}
+          pagination={false}>
+          </Table>
+      </Row>
         <Button type="danger"  style={{marginLeft: 20, width: 90,height: 30}} onClick={this.handleDelTable}>删除</Button>
         <Button type="primary" style={{marginLeft: 20, width: 90,height: 30}} onClick={this.props.saveTableInfo}>保存</Button>
       </div>

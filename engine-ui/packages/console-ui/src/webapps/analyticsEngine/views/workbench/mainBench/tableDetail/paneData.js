@@ -30,6 +30,7 @@ export default class PaneData extends Component{
   getData = ()=>{
     API.getPreviewData({
       tableId: this.props.tableDateil.id,
+      databaseId: this.props.tableDateil.databaseId,
     }).then(res=>{
       if(res.code === 1){
         this.state.previewList = res.data;

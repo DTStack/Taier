@@ -64,6 +64,7 @@ export function onCreateTable(params) {
                 databaseId: params ? params.id : undefined,
                 compactionSize: '1024',
                 type: 0,
+                sortScope: 0,
                 lifeCycle: 90,
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
@@ -286,10 +287,17 @@ export function saveTableInfo(param){
         let flag = [];
         columns.map(o=>{
             if(o.isNew){
-                delete o.isNew;
-                flag.push(o)
+                flag.push({
+                    comment: o.comment,
+                    dictionary: o.dictionary,
+                    invert: o.invert,
+                    name: o.name,
+                    sortColumn: o.sortColumn,
+                    type: o.type
+                })
             }
         })
+        console.log(tableDetail)
 
 
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
