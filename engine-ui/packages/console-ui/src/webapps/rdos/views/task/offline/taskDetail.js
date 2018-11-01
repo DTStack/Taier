@@ -133,7 +133,7 @@ class TaskDetail extends React.Component {
 
     render() {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit, editor } = this.props;
         const isPro=project.projectType==PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
@@ -173,6 +173,7 @@ class TaskDetail extends React.Component {
                     <TaskVersion
                         isPro={isPro}
                         taskInfo={tabData}
+                        editor={editor}
                         changeSql={this.setSqlText}
                     />
                 </Panel>
@@ -187,6 +188,7 @@ export default connect((state, ownProps) => {
         projectUsers: state.projectUsers,
         project:state.project,
         tabs: workbench.tabs,
+        editor: state.editor,
     };
 
 }, workbenchActions)(TaskDetail);
