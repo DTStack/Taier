@@ -496,6 +496,9 @@ class OfflineTaskList extends Component {
 
     onExpand=(expanded, record)=>{
         if(expanded){
+            if(record.children&&record.children.length){
+                return ;
+            }
             const {tasks} = this.state;
             let newTasks=cloneDeep(tasks);
             const {jobId} =record;
