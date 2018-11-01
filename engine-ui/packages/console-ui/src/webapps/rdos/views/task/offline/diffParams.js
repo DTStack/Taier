@@ -397,7 +397,7 @@ class DiffParams extends React.Component {
             historyvalue, tabKey, 
         } = this.state;
 
-        return <div className="m-taksdetail" style={{marginTop: '5px'}}>
+        return <div className="m-taksdetail diff-params-modal" style={{marginTop: '5px'}}>
             <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
                 {
                     taskType === "realTimeTask" ?  "" : 

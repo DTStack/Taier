@@ -23,23 +23,28 @@ $fontColor1: #2491F7;
     .bd,
     table,
     .ant-table-fixed,
-    .ant-tabs-bar,
     .diff-params .box-padding,
     .diff-params .box-padding .line,
     .ant-table-placeholder {
         border-color: $borderColor1 !important;
     }
 
-    .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
-        background: #2D2D2D;
-        border-color: #2D2D2D;
-        color: #ffffff;
-    }
+    .diff-params-modal {
+        .ant-tabs-bar {
+            border-color: $borderColor1 !important;
+        }
 
-    .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
-        background: #252525;
-        border-color: #252525;
-        height: 31px;
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+            background: #2D2D2D;
+            border-color: #2D2D2D;
+            color: #ffffff;
+        }
+    
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            background: #252525;
+            border-color: #252525;
+            height: 31px;
+        }
     }
 
     .ant-dropdown-menu-item-divider {
