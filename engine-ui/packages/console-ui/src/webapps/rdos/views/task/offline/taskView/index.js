@@ -355,8 +355,8 @@ export default class TaskView extends Component {
     /* eslint-enable */
     render() {
         return (
-            <div className="graph-editor" 
-                style={{  position: 'relative', }}
+            <div className="graph-editor"
+                style={{ position: 'relative', }}
             >
                 <Spin
                     tip="Loading..."

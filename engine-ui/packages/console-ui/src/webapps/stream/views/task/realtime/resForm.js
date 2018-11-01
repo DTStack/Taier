@@ -144,7 +144,7 @@ class ResFormModal extends Component {
                                 <div>
                                     <label
                                     style={{ lineHeight: '28px' }}
-                                    className="ant-btn"
+                                    className="ant-btn btn-upload"
                                     htmlFor="myFile">选择文件</label>
                                     <span> {file.files && file.files[0] && file.files[0].name}</span>
                                     <input

@@ -29,7 +29,7 @@ class DiffEditor extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        // // 此处禁用render， 直接用editor实例更新编辑器
+        // // 此处禁用render，直接用editor实例更新编辑器
         return false;
     }
 
@@ -41,7 +41,7 @@ class DiffEditor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, original={},modified={}, options={} } = nextProps;
+        const { sync, original={},modified={}, options={}, theme } = nextProps;
         if (this.props.original&&this.props.original.value !== original.value && sync) {
             const editorText = !original.value ? '' : original.value;
             this.updateValueWithNoEvent(editorText);
@@ -51,6 +51,9 @@ class DiffEditor extends React.Component {
         }
         if (this.props.options !== options) {
             this.monacoInstance.updateOptions({...options,originalEditable:!options.readOnly})
+        }
+        if (this.props.theme !== theme) {
+            monaco.editor.setTheme(theme);
         }
     }
 
@@ -141,7 +144,7 @@ class DiffEditor extends React.Component {
     initTheme() {
         //hack 交换对比编辑器的位置
         monaco.editor.defineTheme('flippedDiffTheme', {
-            base: 'vs',
+            base: this.props.theme || 'vs',
             inherit: true,
             rules: [],
             colors: {
@@ -151,6 +154,7 @@ class DiffEditor extends React.Component {
         });
         monaco.editor.setTheme("flippedDiffTheme");
     }
+
     updateValueWithNoEvent(value) {
         this._originalEditor.setValue(value);
     }

@@ -391,13 +391,13 @@ class DiffParams extends React.Component {
     }
 
     render() {
-        const { taskType } = this.props;
+        const { taskType, editor } = this.props;
         const { 
             contrastResults, historyParse, currentParse, 
             historyvalue, tabKey, 
         } = this.state;
 
-        return <div className="m-taksdetail" style={{marginTop: '5px'}}>
+        return <div className="m-taksdetail diff-params-modal" style={{marginTop: '5px'}}>
             <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
                 {
                     taskType === "realTimeTask" ?  "" : 
@@ -418,6 +418,7 @@ class DiffParams extends React.Component {
                             className="merge-text"
                             style={{height:"500px"}}
                             options={{readOnly:true}}
+                            theme={ editor.options.theme }
                             sync={true}
                             modified={{value:historyvalue&&historyvalue.taskParams||" "}}
                             original={{value:this.state.currentValue&&this.state.currentValue.taskParams||" "}}
@@ -439,6 +440,7 @@ const mapState = state => {
     return {
         currentTabData,
         currentRealTabData: currentPage,
+        editor: state.editor,
     };
 };
 
