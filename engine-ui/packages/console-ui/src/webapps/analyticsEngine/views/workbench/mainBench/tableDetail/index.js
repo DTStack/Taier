@@ -36,7 +36,7 @@ class TableDetail extends Component {
             }
         ]
         return (
-            <div className="table-detail-container">
+            <div className="table-detail-container pane-wrapper">
                 <Row className="table-detail-panel">
                     <div className="func-box">
                         <span className="title">数据库信息</span>
