@@ -5,7 +5,6 @@ import {
     Form,
     Radio,
     Select,
-    Checkbox,
     InputNumber,
 } from "antd";
 
@@ -48,7 +47,7 @@ const editorOptions = {
 class DataMapForm extends Component {
 
     state = {
-        datamapType: DATAMAP_TYPE.PRE_SUM,
+        datamapType: this.props.data ? this.props.data.type : DATAMAP_TYPE.PRE_SUM,
     };
 
     onDataMapTypeChange = (e) => {
@@ -57,19 +56,13 @@ class DataMapForm extends Component {
         });
     }
 
-    onQueryTextChange = (value) => {
-        this.props.form.setFieldsValue({
-            'configJSON.selectSql': value,
-        });
-    }
-
     dynamicRender = (timestampColumns) => {
         const { datamapType } = this.state;
-        const { form, data, tableData } = this.props;
+        const { form, data, tableData, onQueryTextChange } = this.props;
         const { getFieldDecorator } = form;
 
-        const config = data.config ? JSON.parse(data.config) : undefined;
         const defaultQueryText = '-- 支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理';
+        const config = data.config ? JSON.parse(data.config) : undefined;
 
         const editorInput = <Editor
             style={{
@@ -79,7 +72,7 @@ class DataMapForm extends Component {
             }}
             language="sql"
             options={editorOptions}
-            onChange={this.onQueryTextChange}
+            onChange={onQueryTextChange}
             value={config ? config.selectSql : defaultQueryText}
         />
     
@@ -97,7 +90,7 @@ class DataMapForm extends Component {
             case DATAMAP_TYPE.TIME_SEQUENCE: {
 
                 return ([
-                    <FormItem {...formItemLayout} label="时间字段" hasFeedback>
+                    <FormItem key="timeColumn" {...formItemLayout} label="时间字段" hasFeedback>
                         {getFieldDecorator("configJSON.timeColumn", {
                             rules: [
                                 {
@@ -112,7 +105,7 @@ class DataMapForm extends Component {
                             </Select>
                         )}
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="时间粒度" hasFeedback>
+                    <FormItem key="timeType" {...formItemLayout} label="时间粒度" hasFeedback>
                         {getFieldDecorator("configJSON.timeType", { 
                             rules: [
                                 {
@@ -120,18 +113,18 @@ class DataMapForm extends Component {
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.time : 1,
+                            initialValue: config ? config.timeType : "1",
                         })(
-                            <Checkbox.Group>
-                                <Checkbox value="4">年</Checkbox>
-                                <Checkbox value="3">月</Checkbox>
-                                <Checkbox value="2">日</Checkbox>
-                                <Checkbox value="1">小时</Checkbox>
-                                <Checkbox value="0">分钟</Checkbox>
-                            </Checkbox.Group>
+                            <RadioGroup>
+                                <Radio value="4">年</Radio>
+                                <Radio value="3">月</Radio>
+                                <Radio value="2">日</Radio>
+                                <Radio value="1">小时</Radio>
+                                <Radio value="0">分钟</Radio>
+                            </RadioGroup>
                         )}
                     </FormItem>,
-                    <FormItem {...formItemLayout} label="主表查询">
+                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label="主表查询">
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -199,7 +192,7 @@ class DataMapForm extends Component {
             case DATAMAP_TYPE.PRE_SUM:
             default: {
                 return (
-                    <FormItem {...formItemLayout} label="主表查询">
+                    <FormItem key="selectSql" {...formItemLayout} label="主表查询">
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -224,7 +217,7 @@ class DataMapForm extends Component {
         const { getFieldDecorator } = form;
 
         const tableColumns = tableData ? tableData.columns : [];
-        const timestampColumns = tableColumns.filter(item => item.timestamp);
+        const timestampColumns = tableColumns.filter(item => item.type === 'timestamp');
         const isDisable = timestampColumns && timestampColumns.length > 0 
         ? false : true;
 
