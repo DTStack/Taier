@@ -89,25 +89,7 @@ class DiffEditor extends React.Component {
             return;
         }
 
-        window.MonacoEnvironment = {
-            getWorkerUrl: function (moduleId, label) {
-                if (label === "json") {
-                    return "./json.worker.js";
-                }
-                if (label === "css") {
-                    return "./css.worker.js";
-                }
-                if (label === "html") {
-                    return "./html.worker.js";
-                }
-                if (label === "typescript" || label === "javascript") {
-                    return "./typescript.worker.js";
-                }
-                return "./editor.worker.js";
-            }
-        };
-
-        const editorOptions = Object.assign(defaultOptions, options, {
+        const editorOptions = Object.assign({},defaultOptions, options, {
             originalEditable: options?!options.readOnly:true,//支持源可编辑
             renderIndicators: false,
             scrollbar:{

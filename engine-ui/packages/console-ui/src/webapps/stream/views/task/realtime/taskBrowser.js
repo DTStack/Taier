@@ -363,6 +363,7 @@ class TaskBrowser extends Component {
                             }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
+                                    editorInstanceRef={(ref)=>{window.tttttp=ref}}
                                     key="params-editor"
                                     sync={this._syncEditor}
                                     value={currentPage.taskParams}
