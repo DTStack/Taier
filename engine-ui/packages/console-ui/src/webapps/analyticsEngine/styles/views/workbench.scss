@@ -435,6 +435,10 @@
     }
 }
 .table-detail-container{
+    .ant-table-small{
+        border-left: none;
+        border-right: none;
+    }
     .ant-tabs-tabpane{
         height: auto;
     }
