@@ -52,7 +52,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -68,7 +67,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -84,7 +82,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -100,7 +97,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -116,7 +112,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -132,7 +127,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -148,7 +142,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
@@ -164,7 +157,6 @@ public class ClientProxy implements IClient{
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
-            logger.error("", e);
             throw new RdosException(e.getMessage());
         }
     }
