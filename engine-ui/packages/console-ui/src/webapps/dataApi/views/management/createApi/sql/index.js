@@ -1,12 +1,14 @@
 import React from "react";
 import { Card, Modal, Spin, Button, Checkbox } from "antd";
+import { connect } from 'react-redux';
+import { apiManageActions } from '../../../../actions/apiManage';
 
 import CodeEditor from "widgets/editor";
 class ApiSqlEditor extends React.Component {
     state = {
         sql: "",
         loading: false,
-        visible: true
+        visible: false
     }
     componentWillMount(){
         if(this.props.disAbleTip){
@@ -15,6 +17,18 @@ class ApiSqlEditor extends React.Component {
             })
         }
     }
+    componentDidMount() {
+        if(this.props.isClickCode) {
+            this.setState({
+                visible:false
+            })
+        } else {
+            this.setState({
+                visible:true
+            })
+        }
+    }
+    // select LOCK_NAME from QRTZ_LOCKS
     showModal() {
         this.setState({
             visible: true
@@ -118,4 +132,12 @@ class ApiSqlEditor extends React.Component {
     }
 }
 
-export default ApiSqlEditor;
+const mapStateToProps = (state) => {
+    const { apiManage } = state
+    return {
+        isClickCode: apiManage.isClickCode
+    }
+}
+
+
+export default connect(mapStateToProps, null)(ApiSqlEditor);
