@@ -431,13 +431,8 @@ class DiffParams extends React.Component {
 }
 
 const mapState = state => {
-    const { currentTab, tabs } = state.offlineTask.workbench;
     const { currentPage } = state.realtimeTask;
-    const currentTabData = tabs.filter(tab => {
-        return tab.id === currentTab;
-    })[0];
     return {
-        currentTabData,
         currentRealTabData: currentPage,
     };
 };
