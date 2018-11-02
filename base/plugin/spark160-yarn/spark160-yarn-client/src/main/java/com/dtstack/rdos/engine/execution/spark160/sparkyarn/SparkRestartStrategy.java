@@ -1,8 +1,11 @@
 package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.spark160.sparkyarn.enums.ExceptionInfoConstrant;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +15,7 @@ public class SparkRestartStrategy extends IRestartStrategy {
     
     private static final Logger LOG = LoggerFactory.getLogger(SparkRestartStrategy.class);
 
+    private final static List<String> unrestartExceptionList = Lists.newArrayList(EngineResourceInfo.LIMIT_RESOURCE_ERROR);
     private final static List<String> exceptionList = ExceptionInfoConstrant.getNeedRestartException();
 
     @Override
@@ -35,21 +39,20 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId, String msg) {
-        /*boolean restart = false;
+        boolean restart = true;
         if(StringUtils.isNotBlank(msg)){
-            for(String emsg : exceptionList){
+            for(String emsg : unrestartExceptionList){
                 if(msg.contains(emsg)){
-                    restart =  true;
+                    restart =  false;
                     break;
                 }
             }
         }
+
         if(restart){
             return retry(jobId,null);
         }else {
             return false;
-        }*/
-
-        return retry(jobId,null);
+        }
     }
 }

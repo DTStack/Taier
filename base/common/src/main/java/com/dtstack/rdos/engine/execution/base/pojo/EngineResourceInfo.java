@@ -14,6 +14,7 @@ import java.util.List;
  */
 public abstract class EngineResourceInfo {
 
+    public final static String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
     protected float capacity = 1;
     protected int totalFreeCore = 0;
     protected int totalFreeMem = 0;
@@ -28,7 +29,7 @@ public abstract class EngineResourceInfo {
 
     public boolean judgeFlinkResource(int sqlEnvParallel, int mrParallel) {
         if (sqlEnvParallel == 0 && mrParallel == 0) {
-            throw new RdosException("Flink 任务资源配置错误，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务资源配置错误，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
         int availableSlots = 0;
         int totalSlots = 0;
@@ -42,14 +43,14 @@ public abstract class EngineResourceInfo {
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
-            throw new RdosException("Flink任务配置资源超过集群最大资源");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务配置资源超过集群最大资源");
         }
         return availableSlots >= maxParallel;
     }
 
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new RdosException("Yarn 任务资源配置错误，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务资源配置错误，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
@@ -87,7 +88,7 @@ public abstract class EngineResourceInfo {
     protected boolean judgeCores(int instances, int coresPerInstance, int freeCore, int totalCore) {
         int needCores = instances * coresPerInstance;
         if (needCores > (totalCore * capacity)) {
-            throw new RdosException("Yarn 任务设置的core 大于 分配的最大的core");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务设置的core 大于 分配的最大的core");
         }
         return needCores <= (freeCore * capacity);
     }
@@ -95,7 +96,7 @@ public abstract class EngineResourceInfo {
     protected boolean judgeMem(int instances, int memPerInstance, int freeMem, int totalMem) {
         int needTotal = instances * memPerInstance;
         if (needTotal > (totalMem * capacity)) {
-            throw new RdosException("Yarn 任务设置的MEM 大于 集群最大的MEM");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务设置的MEM 大于 集群最大的MEM");
         }
         if (needTotal > (freeMem * capacity)) {
             return false;

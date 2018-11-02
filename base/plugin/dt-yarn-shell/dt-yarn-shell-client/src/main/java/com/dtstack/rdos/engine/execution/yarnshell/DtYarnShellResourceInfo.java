@@ -40,13 +40,13 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
 
     private boolean judgeResource(int workerNum, int workerCores, int workerMem, int psNum, int psCores, int psMem) {
         if (workerNum == 0 || workerMem == 0 || workerCores == 0) {
-            throw new RdosException("Yarn 任务资源配置错误，instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务资源配置错误，instance：" + workerNum + ", coresPerInstance：" + workerCores + ", memPerInstance：" + workerMem);
         }
         calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
-        int instanceTotalCore = workerNum * workerMem + psNum * psCores;
+        int instanceTotalCore = workerNum * workerCores + psNum * psCores;
         if (!judgeCores(1, instanceTotalCore, totalFreeCore, totalCore)) {
             return false;
         }

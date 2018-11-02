@@ -74,7 +74,7 @@ public class SparkResourceInfo extends EngineResourceInfo {
         needMem += executorMem;
 
         if(needMem > totalMem){
-            throw new RdosException("任务配置的MEM 大于集群的MEM");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "任务配置的MEM 大于集群的MEM");
         }
 
         if(needMem > freeMemNum){
@@ -106,7 +106,7 @@ public class SparkResourceInfo extends EngineResourceInfo {
         needCore += executorCores * executorNum;
 
         if(needCore > totalCore){
-            throw new RdosException("任务配置的Core 大于 集群最大的Core");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "任务配置的Core 大于 集群最大的Core");
         }
 
         if(needCore > freeCoreNum){

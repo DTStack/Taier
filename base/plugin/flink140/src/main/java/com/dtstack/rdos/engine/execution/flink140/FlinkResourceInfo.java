@@ -1,12 +1,10 @@
 package com.dtstack.rdos.engine.execution.flink140;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink140.enums.FlinkYarnMode;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
@@ -18,7 +16,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 用于存储从flink上获取的资源信息
