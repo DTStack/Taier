@@ -21,7 +21,6 @@ import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -510,20 +509,12 @@ public class SparkYarnClient extends AbsClient {
                 Resource used = report.getUsed();
                 int totalMem = capability.getMemory();
                 int totalCores = capability.getVirtualCores();
-
                 int usedMem = used.getMemory();
                 int usedCores = used.getVirtualCores();
+                int freeCores = totalCores - usedCores;
+                int freeMem = totalMem - usedMem;
 
-                Map<String, Object> workerInfo = Maps.newHashMap();
-                workerInfo.put(SparkYarnResourceInfo.CORE_TOTAL_KEY, totalCores);
-                workerInfo.put(SparkYarnResourceInfo.CORE_USED_KEY, usedCores);
-                workerInfo.put(SparkYarnResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
-
-                workerInfo.put(SparkYarnResourceInfo.MEMORY_TOTAL_KEY, totalMem);
-                workerInfo.put(SparkYarnResourceInfo.MEMORY_USED_KEY, usedMem);
-                workerInfo.put(SparkYarnResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
-
-                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
             }
         } catch (Exception e) {
             logger.error("", e);

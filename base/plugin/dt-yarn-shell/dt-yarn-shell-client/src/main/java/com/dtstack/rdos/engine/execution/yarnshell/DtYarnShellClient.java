@@ -10,7 +10,6 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
-import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +17,6 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
-import org.apache.hadoop.yarn.api.records.NodeState;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
@@ -30,7 +28,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -207,16 +204,10 @@ public class DtYarnShellClient extends AbsClient {
                 int usedMem = used.getMemory();
                 int usedCores = used.getVirtualCores();
 
-                Map<String, Object> workerInfo = Maps.newHashMap();
-                workerInfo.put(DtYarnShellResourceInfo.CORE_TOTAL_KEY, totalCores);
-                workerInfo.put(DtYarnShellResourceInfo.CORE_USED_KEY, usedCores);
-                workerInfo.put(DtYarnShellResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+                int freeCores = totalCores - usedCores;
+                int freeMem = totalMem - usedMem;
 
-                workerInfo.put(DtYarnShellResourceInfo.MEMORY_TOTAL_KEY, totalMem);
-                workerInfo.put(DtYarnShellResourceInfo.MEMORY_USED_KEY, usedMem);
-                workerInfo.put(DtYarnShellResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
-
-                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
             }
         } catch (Exception e) {
             LOG.error("", e);

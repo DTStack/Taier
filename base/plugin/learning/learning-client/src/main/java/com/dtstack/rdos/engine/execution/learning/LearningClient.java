@@ -10,7 +10,6 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
-import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -198,20 +197,13 @@ public class LearningClient extends AbsClient {
                 Resource used = report.getUsed();
                 int totalMem = capability.getMemory();
                 int totalCores = capability.getVirtualCores();
-
                 int usedMem = used.getMemory();
                 int usedCores = used.getVirtualCores();
 
-                Map<String, Object> workerInfo = Maps.newHashMap();
-                workerInfo.put(LearningResourceInfo.CORE_TOTAL_KEY, totalCores);
-                workerInfo.put(LearningResourceInfo.CORE_USED_KEY, usedCores);
-                workerInfo.put(LearningResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+                int freeCores = totalCores - usedCores;
+                int freeMem = totalMem - usedMem;
 
-                workerInfo.put(LearningResourceInfo.MEMORY_TOTAL_KEY, totalMem);
-                workerInfo.put(LearningResourceInfo.MEMORY_USED_KEY, usedMem);
-                workerInfo.put(LearningResourceInfo.MEMORY_FREE_KEY, totalMem - usedMem);
-
-                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
             }
         } catch (Exception e) {
             LOG.error("", e);

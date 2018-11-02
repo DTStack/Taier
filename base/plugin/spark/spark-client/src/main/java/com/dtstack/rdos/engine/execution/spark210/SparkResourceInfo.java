@@ -37,27 +37,9 @@ public class SparkResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        int freeCoreNum = 0;
-        int freeMemNum = 0;
+        super.calc();
 
-        int totalCore = 0;
-        int totalMem = 0;
-
-        for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
-            int workerFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.MEMORY_FREE_KEY));
-            int workerFreeCpu = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.CORE_FREE_KEY));
-
-            int workerTotalCpu = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.CORE_TOTAL_KEY));
-            int workerTotalMem = MathUtil.getIntegerVal(tmpMap.getProp(SparkStandaloneRestParseUtil.MEMORY_TOTAL_KEY));
-
-            freeMemNum += workerFreeMem;
-            freeCoreNum += workerFreeCpu;
-
-            totalCore += workerTotalCpu;
-            totalMem += workerTotalMem;
-        }
-
-        if(freeCoreNum == 0 || freeMemNum == 0){
+        if(totalFreeCore == 0 || totalFreeMem == 0){
             return false;
         }
 
@@ -71,8 +53,8 @@ public class SparkResourceInfo extends EngineResourceInfo {
         int executorNum = coresMax/executorCores;
         executorNum = executorNum > 0 ? executorNum : 1;
 
-        return checkNeedMEMForSparkStandalone(jobClient, freeMemNum, executorNum, totalMem)
-                && checkNeedCPUForSparkStandalone(jobClient, freeCoreNum, executorCores, totalCore);
+        return checkNeedMEMForSparkStandalone(jobClient, totalFreeMem, executorNum, totalMem)
+                && checkNeedCPUForSparkStandalone(jobClient, totalFreeCore, executorCores, totalCore);
     }
 
     public boolean checkNeedMEMForSparkStandalone(JobClient jobClient, int freeMemNum, int executorNum, int totalMem){

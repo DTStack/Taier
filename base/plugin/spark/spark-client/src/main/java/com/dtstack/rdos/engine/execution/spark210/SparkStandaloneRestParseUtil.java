@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.spark210;
 
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.MathUtil;
-import com.google.common.collect.Maps;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,17 +107,9 @@ public class SparkStandaloneRestParseUtil {
                 continue;
             }
 
-            Map<String, Object> workerInfo = Maps.newHashMap();
-            workerInfo.put(ADDRESS_KEY, address);
-            workerInfo.put(CORE_TOTAL_KEY, coreInfo.getLeft());
-            workerInfo.put(CORE_USED_KEY, coreInfo.getRight());
-            workerInfo.put(CORE_FREE_KEY, coreInfo.getLeft() - coreInfo.getRight());
-
-            workerInfo.put(MEMORY_TOTAL_KEY, memInfo.getLeft());
-            workerInfo.put(MEMORY_USED_KEY, memInfo.getRight());
-            workerInfo.put(MEMORY_FREE_KEY, memInfo.getLeft() - memInfo.getRight());
-
-            engineResourceInfo.addNodeResource(workId, workerInfo);
+            int coresFree = coreInfo.getLeft() - coreInfo.getRight();
+            int memoryFree = memInfo.getLeft() - memInfo.getRight();
+            engineResourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(workId, coreInfo.getLeft(),coreInfo.getRight(),coresFree,memInfo.getLeft(),memInfo.getRight(),memoryFree));
         }
 
         return engineResourceInfo;

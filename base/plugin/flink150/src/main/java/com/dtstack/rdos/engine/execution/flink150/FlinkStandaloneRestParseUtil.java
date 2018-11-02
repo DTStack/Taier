@@ -2,7 +2,9 @@ package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.google.common.base.Strings;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -81,7 +83,9 @@ public class FlinkStandaloneRestParseUtil {
             if(taskManagerInfo.containsKey("taskmanagers")){
                 List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
                 for(Map<String, Object> tmp : taskManagerList){
-                    resourceInfo.addNodeResource((String)tmp.get("id"), tmp);
+                    int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
+                    int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
+                    resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
                 }
             }
         }catch (Exception e){
