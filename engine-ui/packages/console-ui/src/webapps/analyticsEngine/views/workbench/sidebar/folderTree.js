@@ -116,7 +116,7 @@ class FolderTree extends React.PureComponent {
                         </span>
                     </Tooltip>
                 )
-
+                
                 return (
                     <TreeNode
                         title={nodeTitle}
@@ -127,7 +127,9 @@ class FolderTree extends React.PureComponent {
                         fileType={item.type}
                         className={className}
                     >
-                        {item.children && loop(item.children)}
+                        {
+                            item.children && loop(item.children)
+                        }
                     </TreeNode>
                 )
             })

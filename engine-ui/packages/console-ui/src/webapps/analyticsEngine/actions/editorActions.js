@@ -313,6 +313,7 @@ export function updateEditorOptions(data) {
     }
 }
 
+
 export function getEditorThemeClassName(editorTheme) {
     // 如果是dark类的编辑器，则切换ide的theme为dark风格
     return editorTheme === 'vs-dark' || editorTheme === 'hc-black'
