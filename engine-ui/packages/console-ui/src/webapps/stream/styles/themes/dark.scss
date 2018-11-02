@@ -296,7 +296,14 @@ $fontColor1: #2491F7;
         background: $color2;
         border-color: $borderColor1 !important;
     }
-
+    .ant-select-selection--multiple {
+        .ant-select-search--inline {
+            .ant-select-search__field{
+                background: transparent;
+            }
+        }
+    }
+    
     .task-sidebar .menu-content {
         .tab-search {
             background: #2D2D2D;

@@ -39,21 +39,21 @@ class ProjectForm extends Component {
                 <Form>
                     <FormItem
                       {...formItemLayout}
-                      label="项目名称"
+                      label="项目标识"
                       hasFeedback
                     >
                         {getFieldDecorator('projectName', {
                             rules: [{
-                                required: true, message: '项目名称不可为空！',
+                                required: true, message: '项目标识不可为空！',
                             }, {
                                 pattern: /^[A-Za-z0-9_]*([A-Za-z])[A-Za-z0-9_]*$/,
-                                message: '项目名称由字母、数字、下划线组成!',
+                                message: '项目标识由字母、数字、下划线组成!',
                             }, {
                                 max: 20,
-                                message: '项目名称不得超过20个字符！',
+                                message: '项目标识不得超过20个字符！',
                             }],
                         })(
-                            <Input placeholder="请输入项目名称" />,
+                            <Input placeholder="请输入项目标识" />,
                         )}
                     </FormItem>
                     <FormItem
