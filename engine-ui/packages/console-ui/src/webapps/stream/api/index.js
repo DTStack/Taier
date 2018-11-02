@@ -362,4 +362,8 @@ export default {
             return http.post(req.GET_REALTIME_LINK_SOURCE, params)
         }
     },
+    //========运维中心=======
+    getContainerInfos(params){
+        return http.post(stremReq.GET_CONTAINER_INFOS, params)
+    },
 }

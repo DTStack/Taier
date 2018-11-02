@@ -36,7 +36,10 @@ const field_type = [
   },{
     name: 'BOOLEAN',
     value: 'BOOLEAN',
-  },
+  },{
+    name: 'DECIMAL',
+    value: 'DECIMAL'
+  }
 ]
 const partition_mode = [
   {

@@ -36,7 +36,7 @@ class TableDetail extends Component {
             }
         ]
         return (
-            <div className="table-detail-container">
+            <div className="table-detail-container pane-wrapper">
                 <Row className="table-detail-panel">
                     <div className="func-box">
                         <span className="title">数据库信息</span>
@@ -69,7 +69,7 @@ class TableDetail extends Component {
                         </tr>
                         <tr>
                             <td>表类型</td>
-                            <td>{tableDetail.tableType}</td>
+                            <td>{tableDetail.type===0?'内部表':'外部表'}</td>
                             <td>表结构最后变更时间</td>
                             <td>{moment(tableDetail.lastDdlTime).format('YYYY-MM-DD')}</td>
                         </tr>

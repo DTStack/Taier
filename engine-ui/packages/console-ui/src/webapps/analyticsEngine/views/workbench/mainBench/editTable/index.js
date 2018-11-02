@@ -58,7 +58,10 @@ const field_types = [
   },{
     name: 'BOOLEAN',
     value: 'BOOLEAN',
-  },
+  },{
+    name: 'DECIMAL',
+    value: 'DECIMAL'
+  }
 ]
 
 
