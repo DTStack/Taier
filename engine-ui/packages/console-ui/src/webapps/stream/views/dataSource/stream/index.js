@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import {cloneDeep} from "lodash";
 import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip
@@ -141,7 +142,7 @@ class DataSourceManaStream extends Component {
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source,
+            source:cloneDeep(source),
         })
     }
 
