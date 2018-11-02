@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.UnitConvertUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -16,18 +15,6 @@ import java.util.Properties;
  */
 
 public class SparkYarnResourceInfo extends EngineResourceInfo {
-
-    public final static String CORE_TOTAL_KEY = "cores.total";
-
-    public final static String CORE_USED_KEY = "cores.used";
-
-    public final static String CORE_FREE_KEY = "cores.free";
-
-    public final static String MEMORY_TOTAL_KEY = "memory.total";
-
-    public final static String MEMORY_USED_KEY = "memory.used";
-
-    public final static String MEMORY_FREE_KEY = "memory.free";
 
     private final static String EXECUTOR_INSTANCES_KEY = "executor.instances";
 
@@ -45,35 +32,8 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
 
     public final static int DEFAULT_MEM_OVERHEAD = 384;
 
-    private float capacity = 1;
-
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        int totalFreeCore = 0;
-        int totalFreeMem = 0;
-
-        int totalCore = 0;
-        int totalMem = 0;
-
-        int[] nmFree = new int[nodeResourceMap.size()];
-        int index = 0;
-        for(NodeResourceInfo tmpMap : nodeResourceMap.values()){
-            int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
-            int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
-            int nodeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_TOTAL_KEY));
-            int nodeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_TOTAL_KEY));
-
-            totalFreeMem += nodeFreeMem;
-            totalFreeCore += nodeFreeCores;
-            totalCore += nodeCores;
-            totalMem += nodeMem;
-
-            nmFree[index++] = nodeFreeMem;
-        }
-
-        if(totalFreeCore == 0 || totalFreeMem == 0){
-            return false;
-        }
 
         Properties properties = jobClient.getConfProperties();
         int instances = DEFAULT_INSTANCES;
@@ -81,60 +41,23 @@ public class SparkYarnResourceInfo extends EngineResourceInfo {
             instances = MathUtil.getIntegerVal(properties.get(EXECUTOR_INSTANCES_KEY));
         }
 
-        return judgeCores(jobClient, instances, totalFreeCore, totalCore)
-                && judgeMem(jobClient, instances, totalFreeMem, totalMem, nmFree);
-    }
-
-    private boolean judgeCores(JobClient jobClient, int instances, int freeCore, int totalCore){
-
-        Properties properties = jobClient.getConfProperties();
         int executorCores = DEFAULT_CORES;
         if(properties != null && properties.containsKey(EXECUTOR_CORES_KEY)){
             executorCores = MathUtil.getIntegerVal(properties.get(EXECUTOR_CORES_KEY));
         }
-
-        int needCores = instances * executorCores;
-        if(needCores > (totalCore * capacity)){
-            throw new RdosException("任务设置的core 大于 分配的最大的core");
-        }
-
-        return needCores <= (freeCore * capacity);
-    }
-
-    private boolean judgeMem(JobClient jobClient, int instances, int freeMem, int totalMem, int[] nmFree){
-        Properties properties = jobClient.getConfProperties();
 
         int oneNeedMem = DEFAULT_MEM;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_KEY);
             oneNeedMem = UnitConvertUtil.convert2MB(setMemStr);
         }
-
         int executorJvmMem = DEFAULT_MEM_OVERHEAD;
         if(properties != null && properties.containsKey(EXECUTOR_MEM_OVERHEAD_KEY)){
             String setMemStr = properties.getProperty(EXECUTOR_MEM_OVERHEAD_KEY);
             executorJvmMem = UnitConvertUtil.convert2MB(setMemStr);
         }
+        oneNeedMem+= executorJvmMem;
 
-        oneNeedMem += executorJvmMem;
-        int needTotal = instances * oneNeedMem;
-
-        if(needTotal > (totalMem * capacity)){
-            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
-        }
-        if (needTotal > (freeMem * capacity)){
-            return false;
-        }
-
-        for (int i = 1; i <= instances; i++) {
-            if (!allocateResource(nmFree, oneNeedMem)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void setCapacity(float capacity) {
-        this.capacity = capacity;
+        return super.judgeYarnResource(instances,executorCores, oneNeedMem);
     }
 }

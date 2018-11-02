@@ -27,7 +27,7 @@ import java.util.Map;
  * @author xuchao
  */
 
-public class FlinkResourceInfo extends EngineResourceInfo{
+public class FlinkResourceInfo extends EngineResourceInfo {
 
     public static final String FLINK_SQL_ENV_PARALLELISM = "sql.env.parallelism";
 
@@ -49,40 +49,15 @@ public class FlinkResourceInfo extends EngineResourceInfo{
         if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB == flinkYarnMode){
            return judgePerjobResource(jobClient);
         }
-
-        int availableSlots = 0;
-        int totalSlots = 0;
-
-        for(NodeResourceInfo value : nodeResourceMap.values()){
-            int freeSlots = MathUtil.getIntegerVal(value.getProp("freeSlots"));
-            int slotsNumber = MathUtil.getIntegerVal(value.getProp("slotsNumber"));
-            availableSlots += freeSlots;
-            totalSlots += slotsNumber;
-        }
-
-        //没有资源直接返回false
-        if(availableSlots == 0){
-            return false;
-        }
-
-        boolean result = true;
-        int maxParall = 0;
-
+        int sqlEnvParallel = 0;
+        int mrParallel = 0;
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
-            maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
-            result = result && availableSlots >= maxParall;
+            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
         }
-
         if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
-            maxParall = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
-            result = result && availableSlots >= maxParall;
+            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
         }
-
-        if(totalSlots < maxParall){
-            throw new RdosException("任务配置资源超过集群最大资源");
-        }
-
-        return result;
+        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
     private boolean judgePerjobResource(JobClient jobClient) {
@@ -110,21 +85,13 @@ public class FlinkResourceInfo extends EngineResourceInfo{
                 int usedMem = used.getMemory();
                 int usedCores = used.getVirtualCores();
 
-                Map<String, Object> workerInfo = Maps.newHashMap();
-                workerInfo.put(FlinkPerJobResourceInfo.CORE_TOTAL_KEY, totalCores);
-                workerInfo.put(FlinkPerJobResourceInfo.CORE_USED_KEY, usedCores);
-                workerInfo.put(FlinkPerJobResourceInfo.CORE_FREE_KEY, totalCores - usedCores);
+                int freeCores = totalCores - usedCores;
+                int freeMem = totalMem - usedMem;
 
-                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_TOTAL_KEY, totalMem);
-                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_USED_KEY, usedMem);
-                int free = totalMem - usedMem;
-                workerInfo.put(FlinkPerJobResourceInfo.MEMORY_FREE_KEY, free);
-
-                if (free > containerLimit) {
-                    containerLimit = free;
+                if (freeMem > containerLimit) {
+                    containerLimit = freeMem;
                 }
-
-                resourceInfo.addNodeResource(report.getNodeId().toString(), workerInfo);
+                resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail(report.getNodeId().toString(), totalCores,usedCores,freeCores, totalMem,usedMem,freeMem));
             }
             resourceInfo.setContainerLimit(containerLimit);
         } catch (Exception e) {

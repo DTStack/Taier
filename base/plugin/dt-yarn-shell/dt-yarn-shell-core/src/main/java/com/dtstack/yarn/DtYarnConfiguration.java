@@ -55,6 +55,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static Boolean DEFAULT_LEARNING_MXNET_MODE_SINGLE = false;
 
+    public static final String DT_APP_ELASTIC_CAPACITY = "elasticCapacity";
+
+    public static final String DT_APP_YARN_ACCEPTER_TASK_NUMBER = "yarnAccepterTaskNumber";
+
     public static final String DT_APP_QUEUE = "queue";
 
     public static final String DEFAULT_DT_APP_QUEUE = "default";

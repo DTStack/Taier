@@ -235,7 +235,7 @@ public class FlinkConfig {
     }
 
     public int getYarnAccepterTaskNumber() {
-        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 2: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
     }
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {

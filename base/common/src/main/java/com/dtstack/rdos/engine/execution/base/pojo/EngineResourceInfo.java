@@ -1,39 +1,111 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 
-import java.util.Map;
+import java.util.List;
+
 
 /**
- * 引擎的资源信息
- * Date: 2017/11/27
- * Company: www.dtstack.com
- * @author xuchao
+ * company: www.dtstack.com
+ * author: toutian
+ * create: 2018/11/1
  */
+public abstract class EngineResourceInfo {
 
-public class EngineResourceInfo {
+    protected float capacity = 1;
+    protected int totalFreeCore = 0;
+    protected int totalFreeMem = 0;
+    protected int totalCore = 0;
+    protected int totalMem = 0;
+    protected int[] nmFree = null;
 
-    protected Map<String, NodeResourceInfo> nodeResourceMap = Maps.newHashMap();
 
-    public Map<String, NodeResourceInfo> getNodeResourceMap() {
-        return nodeResourceMap;
+    protected List<NodeResourceDetail> nodeResources = Lists.newArrayList();
+
+    public abstract boolean judgeSlots(JobClient jobClient);
+
+    public boolean judgeFlinkResource(int sqlEnvParallel, int mrParallel) {
+        if (sqlEnvParallel == 0 && mrParallel == 0) {
+            throw new RdosException("Flink 任务资源配置错误，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
+        }
+        int availableSlots = 0;
+        int totalSlots = 0;
+        for (NodeResourceDetail resourceDetail : nodeResources) {
+            availableSlots += resourceDetail.freeSlots;
+            totalSlots += resourceDetail.slotsNumber;
+        }
+        //没有资源直接返回false
+        if (availableSlots == 0) {
+            return false;
+        }
+        int maxParallel = Math.max(sqlEnvParallel, mrParallel);
+        if (totalSlots < maxParallel) {
+            throw new RdosException("Flink任务配置资源超过集群最大资源");
+        }
+        return availableSlots >= maxParallel;
     }
 
-    public void addNodeResource(String nodeId, Map<String, Object> prop){
+    public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
+        if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
+            throw new RdosException("Yarn 任务资源配置错误，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+        }
+        calc();
+        if (totalFreeCore == 0 || totalFreeMem == 0) {
+            return false;
+        }
 
-        NodeResourceInfo resourceInfo = new NodeResourceInfo(nodeId, prop);
-        nodeResourceMap.put(nodeId, resourceInfo);
+        if (!judgeCores(instances, coresPerInstance, totalFreeCore, totalCore)) {
+            return false;
+        }
+        if (!judgeMem(instances, memPerInstance, totalFreeMem, totalMem)) {
+            return false;
+        }
+        return true;
     }
 
-    /**
-     * FIXME 注意是否会有多线程问题
-     * 默认返回true, 需要子类自定义
-     * @param jobClient
-     * @return
-     *
-     */
-    public boolean judgeSlots(JobClient jobClient){
+    protected void calc() {
+        nmFree = new int[nodeResources.size()];
+        int index = 0;
+        //yarn 方式执行时，统一对每个node保留512M和1core
+        for (NodeResourceDetail resourceDetail : nodeResources) {
+            int nodeFreeMem = Math.max(resourceDetail.memoryFree - 512, 0);
+            int nodeFreeCores = Math.max(resourceDetail.coresFree - 1, 0);
+            int nodeCores = resourceDetail.coresTotal - 1;
+            int nodeMem = resourceDetail.memoryTotal - 512;
+
+            totalFreeMem += nodeFreeMem;
+            totalFreeCore += nodeFreeCores;
+            totalCore += nodeCores;
+            totalMem += nodeMem;
+
+            nmFree[index++] = nodeFreeMem;
+        }
+    }
+
+    protected boolean judgeCores(int instances, int coresPerInstance, int freeCore, int totalCore) {
+        int needCores = instances * coresPerInstance;
+        if (needCores > (totalCore * capacity)) {
+            throw new RdosException("Yarn 任务设置的core 大于 分配的最大的core");
+        }
+        return needCores <= (freeCore * capacity);
+    }
+
+    protected boolean judgeMem(int instances, int memPerInstance, int freeMem, int totalMem) {
+        int needTotal = instances * memPerInstance;
+        if (needTotal > (totalMem * capacity)) {
+            throw new RdosException("Yarn 任务设置的MEM 大于 集群最大的MEM");
+        }
+        if (needTotal > (freeMem * capacity)) {
+            return false;
+        }
+
+        for (int i = 1; i <= instances; i++) {
+            if (!allocateResource(nmFree, memPerInstance)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -47,42 +119,43 @@ public class EngineResourceInfo {
         return false;
     }
 
-    /***
-     * 节点的资源信息
-     */
-    protected class NodeResourceInfo {
+    public List<NodeResourceDetail> getNodeResources() {
+        return nodeResources;
+    }
 
-        private String nodeId;
+    public void addNodeResource(NodeResourceDetail nodeResourceDetail) {
+        nodeResources.add(nodeResourceDetail);
+    }
 
-        private Map<String, Object> nodeDetail = Maps.newHashMap();
+    public static class NodeResourceDetail {
+        public String nodeId;
+        public int coresTotal;
+        public int coresUsed;
+        public int coresFree;
+        public int memoryTotal;
+        public int memoryUsed;
+        public int memoryFree;
+        public int freeSlots;
+        public int slotsNumber;
 
-        public NodeResourceInfo(String nodeId, Map<String, Object> nodeDetail){
+        public NodeResourceDetail(String nodeId, int coresTotal, int coresUsed, int coresFree, int memoryTotal, int memoryUsed, int memoryFree) {
             this.nodeId = nodeId;
-            this.nodeDetail = nodeDetail;
+            this.coresTotal = coresTotal;
+            this.coresUsed = coresUsed;
+            this.coresFree = coresFree;
+            this.memoryTotal = memoryTotal;
+            this.memoryUsed = memoryUsed;
+            this.memoryFree = memoryFree;
         }
 
-        public String getNodeId() {
-            return nodeId;
-        }
-
-        public void setNodeId(String nodeId) {
+        public NodeResourceDetail(String nodeId, int freeSlots, int slotsNumber) {
             this.nodeId = nodeId;
+            this.freeSlots = freeSlots;
+            this.slotsNumber = slotsNumber;
         }
+    }
 
-        public Object addProp(String key, Object val){
-            return nodeDetail.put(key, val);
-        }
-
-        public Object getProp(String key){
-            return nodeDetail.get(key);
-        }
-
-        public Map<String, Object> getNodeDetail() {
-            return nodeDetail;
-        }
-
-        public void setNodeDetail(Map<String, Object> nodeDetail) {
-            this.nodeDetail = nodeDetail;
-        }
+    public void setCapacity(float capacity) {
+        this.capacity = capacity;
     }
 }

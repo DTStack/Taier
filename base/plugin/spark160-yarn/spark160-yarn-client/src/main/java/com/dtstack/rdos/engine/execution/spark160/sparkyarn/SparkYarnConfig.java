@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.spark160.sparkyarn;
 
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.Map;
 
@@ -42,8 +43,12 @@ public class SparkYarnConfig {
     private String defaultFS;
 
     private String hadoopUserName;
-
+    //队列名称
     private String queue;
+    //是否支持弹性，true/false
+    private String elasticCapacity;
+    //在yarn队列中允许等待执行的任务数量
+    private String yarnAccepterTaskNumber;
 
     public String getTypeName() {
         return typeName;
@@ -179,5 +184,21 @@ public class SparkYarnConfig {
 
     public void setQueue(String queue) {
         this.queue = queue;
+    }
+
+    public boolean getElasticCapacity() {
+        return  StringUtils.isBlank(elasticCapacity) ? true: Boolean.valueOf(elasticCapacity);
+    }
+
+    public void setElasticCapacity(String elasticCapacity) {
+        this.elasticCapacity = elasticCapacity;
+    }
+
+    public int getYarnAccepterTaskNumber() {
+        return StringUtils.isBlank(yarnAccepterTaskNumber) ? 1: NumberUtils.toInt(yarnAccepterTaskNumber,2);
+    }
+
+    public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
+        this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
     }
 }

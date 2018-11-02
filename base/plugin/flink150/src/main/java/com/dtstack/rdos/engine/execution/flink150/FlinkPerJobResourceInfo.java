@@ -17,15 +17,6 @@ import java.util.Properties;
 
 public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
-
-    public final static String CORE_TOTAL_KEY = "cores.total";
-    public final static String CORE_USED_KEY = "cores.used";
-    public final static String CORE_FREE_KEY = "cores.free";
-
-    public final static String MEMORY_TOTAL_KEY = "memory.total";
-    public final static String MEMORY_USED_KEY = "memory.used";
-    public final static String MEMORY_FREE_KEY = "memory.free";
-
     public final static String JOBMANAGER_MEMORY_MB = "jobmanager.memory.mb";
     public final static String TASKMANAGER_MEMORY_MB = "taskmanager.memory.mb";
     public final static String CONTAINER = "container";
@@ -40,31 +31,9 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
     private int slotsPerTaskManager = 1;
     private int containerLimit;
 
-    private float capacity = 1;
-
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        int totalFreeCore = 0;
-        int totalFreeMem = 0;
-
-        int totalCore = 0;
-        int totalMem = 0;
-
-        int[] nmFree = new int[nodeResourceMap.size()];
-        int index = 0;
-        for (NodeResourceInfo tmpMap : nodeResourceMap.values()) {
-            int nodeFreeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_FREE_KEY));
-            int nodeFreeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_FREE_KEY));
-            int nodeCores = MathUtil.getIntegerVal(tmpMap.getProp(CORE_TOTAL_KEY));
-            int nodeMem = MathUtil.getIntegerVal(tmpMap.getProp(MEMORY_TOTAL_KEY));
-
-            totalFreeMem += nodeFreeMem;
-            totalFreeCore += nodeFreeCores;
-            totalCore += nodeCores;
-            totalMem += nodeMem;
-
-            nmFree[index++] = nodeFreeMem;
-        }
+        super.calc();
 
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
@@ -76,7 +45,7 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
         if ((totalCore * capacity) < slotsPerTaskManager) {
-            throw new RdosException("任务设置的core 大于 分配的最大的core");
+            throw new RdosException("Flink 任务设置的core 大于 分配的最大的core");
         }
         if ((totalFreeCore * capacity) < slotsPerTaskManager) {
             return false;
@@ -102,7 +71,7 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
         int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
         if ((totalMem * capacity) < totalMemoryRequired) {
-            throw new RdosException("任务设置的MEM 大于 集群最大的MEM");
+            throw new RdosException("Flink 任务设置的MEM 大于 集群最大的MEM");
         }
         if ((totalFreeMem * capacity) < totalMemoryRequired) {
             return false;
@@ -126,9 +95,5 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
     public void setContainerLimit(int containerLimit) {
         this.containerLimit = containerLimit;
-    }
-
-    public void setCapacity(float capacity) {
-        this.capacity = capacity;
     }
 }

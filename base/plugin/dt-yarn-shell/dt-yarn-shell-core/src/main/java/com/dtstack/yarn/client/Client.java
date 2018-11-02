@@ -336,6 +336,10 @@ public class Client {
         return yarnClient.getNodeReports(NodeState.RUNNING);
     }
 
+    public YarnClient getYarnClient() {
+        return yarnClient;
+    }
+
     public List<String> getContainerInfos(String jobId) throws IOException {
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
         Path cIdPath = Utilities.getRemotePath(conf, appId,"containers");
