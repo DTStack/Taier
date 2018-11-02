@@ -161,11 +161,11 @@ class BaseForm extends Component {
             case DATA_SOURCE.ORACLE:
                 return /jdbc:oracle:thin:@(\/\/)?(\w)+/;
             case DATA_SOURCE.SQLSERVER:
-                return /jdbc:sqlserver:\/\/(\w)+/;
+                return undefined;
             case DATA_SOURCE.POSTGRESQL:
                 return /jdbc:postgresql:\/\/(\w)+/;
             default:
-                return null;
+                return undefined;
         }
     }
 
