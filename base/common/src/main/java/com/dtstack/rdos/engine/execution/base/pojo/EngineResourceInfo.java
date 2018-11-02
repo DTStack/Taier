@@ -68,11 +68,12 @@ public abstract class EngineResourceInfo {
     protected void calc() {
         nmFree = new int[nodeResources.size()];
         int index = 0;
+        //yarn 方式执行时，统一对每个node保留512M和1core
         for (NodeResourceDetail resourceDetail : nodeResources) {
-            int nodeFreeMem = resourceDetail.memoryFree;
-            int nodeFreeCores = resourceDetail.coresFree;
-            int nodeCores = resourceDetail.coresTotal;
-            int nodeMem = resourceDetail.memoryTotal;
+            int nodeFreeMem = Math.max(resourceDetail.memoryFree - 512, 0);
+            int nodeFreeCores = Math.max(resourceDetail.coresFree - 1, 0);
+            int nodeCores = resourceDetail.coresTotal - 1;
+            int nodeMem = resourceDetail.memoryTotal - 512;
 
             totalFreeMem += nodeFreeMem;
             totalFreeCore += nodeFreeCores;
