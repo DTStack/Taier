@@ -134,7 +134,7 @@ class ResForm extends React.Component {
                         <div>
                             <label
                                 style={{ lineHeight: '28px' }}
-                                className="ant-btn"
+                                className="ant-btn btn-upload"
                                 htmlFor="myOfflinFile">选择文件</label>
                             <span> {file.files && file.files[0].name}</span>
                             <input

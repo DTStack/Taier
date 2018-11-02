@@ -8,6 +8,7 @@ import { TASK_TYPE } from "../../../comm/const";
 import DiffParams from "./diffParams";
 
 export default class TaskVersion extends React.Component {
+
     state = {
         showDiff: false,
         campareTo: "",
@@ -69,7 +70,7 @@ export default class TaskVersion extends React.Component {
     }
 
     render() {
-        const { taskInfo, taskType } = this.props;
+        const { taskInfo, taskType, editor } = this.props;
         const { showDiff, campareTo, diffParams } = this.state;
 
         let sqlTextJSON = taskInfo.sqlText;
@@ -115,9 +116,10 @@ export default class TaskVersion extends React.Component {
                 >
                     <DiffCodeEditor
                         className="merge-text"
-                        original={{value:sqlTextJSON}}
-                        modified={{value:compareToText}}
-                        options={{readOnly:true}}
+                        original={{value: sqlTextJSON}}
+                        modified={{value: compareToText}}
+                        options={{ readOnly: true, }}
+                        theme={ editor.options.theme }
                         onChange={this.codeChange}
                         language={language}
                     />
