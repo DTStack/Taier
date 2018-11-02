@@ -27,7 +27,7 @@ public abstract class EngineResourceInfo {
     public abstract boolean judgeSlots(JobClient jobClient);
 
     public boolean judgeFlinkResource(int sqlEnvParallel, int mrParallel) {
-        if (sqlEnvParallel == 0 || mrParallel == 0) {
+        if (sqlEnvParallel == 0 && mrParallel == 0) {
             throw new RdosException("Flink 任务资源配置错误，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
         int availableSlots = 0;
