@@ -46,7 +46,7 @@ public class DtYarnShellResourceInfo extends EngineResourceInfo {
         if (totalFreeCore == 0 || totalFreeMem == 0) {
             return false;
         }
-        int instanceTotalCore = workerNum * workerMem + psNum * psCores;
+        int instanceTotalCore = workerNum * workerCores + psNum * psCores;
         if (!judgeCores(1, instanceTotalCore, totalFreeCore, totalCore)) {
             return false;
         }
