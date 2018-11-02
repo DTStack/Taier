@@ -69,7 +69,7 @@ class TableDetail extends Component {
                         </tr>
                         <tr>
                             <td>表类型</td>
-                            <td>{tableDetail.tableType}</td>
+                            <td>{tableDetail.type===0?'内部表':'外部表'}</td>
                             <td>表结构最后变更时间</td>
                             <td>{moment(tableDetail.lastDdlTime).format('YYYY-MM-DD')}</td>
                         </tr>

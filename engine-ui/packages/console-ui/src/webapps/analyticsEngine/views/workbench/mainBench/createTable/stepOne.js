@@ -72,7 +72,7 @@ export default class StepOne extends Component{
     this.state = {
       databaseList: [],
       sortScopeList: [],
-      downIcon: true,
+      downIcon: false,
       short: false,
       customLifeCycle: '',
     }
@@ -302,14 +302,14 @@ export default class StepOne extends Component{
                 rules: [
                   {required: true, message: 'Block不可为空'}
                 ],
-                initialValue: formData.blockSize || undefined
+                initialValue: formData.blockSize || 1024
               })(
                 <Input style={{width: 570,marginRight:10 }}/>
               )
             }
             <HelpDoc style={relativeStyle} doc="blockSize" />
           </FormItem>
-          <Collapse defaultActiveKey="1" onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
+          <Collapse onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
             <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon fill="#999999" type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
               <FormItem
               {...formItemLayout}

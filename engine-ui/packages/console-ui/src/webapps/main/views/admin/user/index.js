@@ -91,12 +91,6 @@ class AdminUser extends Component {
         else if(!databaseExsit && this.hasDatabase(active)&&!isGetDatabaseBack) {
             this.getDatabase(active);
         }
-        else if (!databaseExsit && !this.hasDatabase(app)) {
-            this.loadUsers(active, params);
-            this.loadRoles(active, assign(params, {
-                currentPage: 1,
-            }));
-        }
         else if (MY_APPS.ANALYTICS_ENGINE == active) {
             params.databaseId = selecteDatabase;
             this.loadUsers(active, params);
@@ -104,12 +98,7 @@ class AdminUser extends Component {
                 currentPage: 1,
             }));
         }
-        else if (!projectsExsit && !hasProject(app)) {
-            this.loadUsers(active, params);
-            this.loadRoles(active, assign(params, {
-                currentPage: 1,
-            }));
-        } else {
+        else {
             if (MY_APPS.RDOS == active) {
                 params.projectId = selectedProject;
             } else if (MY_APPS.STREAM == active) {

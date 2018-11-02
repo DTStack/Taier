@@ -4,9 +4,10 @@ import { bindActionCreators } from 'redux'
 
 import { Collapse, Form, Input, Radio, Tabs } from "antd";
 import Editor from "widgets/editor"
+import Address from "./runcode/address";
 
 import { TASK_TYPE } from "../../../../../comm/const";
-import { formItemLayout } from "../../../../../comm/const";
+import { formItemLayout, DATA_SOURCE } from "../../../../../comm/const";
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../../store/modules/realtimeTask/comm';
 
 const { TextArea } = Input;
@@ -123,8 +124,9 @@ class RunCode extends React.Component {
     }
     render() {
         const { tabKey } = this.state;
-        const { data={}, isShow } = this.props;
-        const {taskType} = data;
+        const { data = {}, isShow } = this.props;
+        const { taskType, originSourceType } = data;
+        const isShowAddress = taskType == TASK_TYPE.DATA_COLLECTION && originSourceType == DATA_SOURCE.BEATS;
 
         const editorBoxStyle = {
             position: "absolute",
@@ -136,32 +138,36 @@ class RunCode extends React.Component {
         }
         return (
             <div className="m-tabs">
-                    <Tabs
-                        className="nav-border content-border"
-                        animated={false}
-                        tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
-                        onChange={this.changeTab.bind(this)}
-                        value={tabKey}
-                    >
-                        <TabPane className="m-panel2" tab="运行代码" key="code">
-                            <div style={editorBoxStyle}>
-                                {this.getRunCode()}
-                            </div>
+                <Tabs
+                    className="nav-border content-border"
+                    animated={false}
+                    tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
+                    onChange={this.changeTab.bind(this)}
+                    value={tabKey}
+                >
+                    <TabPane className="m-panel2" tab="运行代码" key="code">
+                        <div style={editorBoxStyle}>
+                            {this.getRunCode()}
+                        </div>
+                    </TabPane>
+                    <TabPane className="m-panel2" tab="环境参数" key="env">
+                        <div style={editorBoxStyle}>
+                            <Editor
+                                sync={true}
+                                style={{ height: "100%" }}
+                                options={{ readOnly: false }}
+                                language="ini"
+                                options={{ readOnly: true, minimap: { enabled: false } }}
+                                value={data.taskParams}
+                            />
+                        </div>
+                    </TabPane>
+                    {isShowAddress && (
+                        <TabPane className="m-panel2" tab="运行地址" key="address">
+                            <Address  style={editorBoxStyle} taskId={data.id} />
                         </TabPane>
-                        <TabPane className="m-panel2" tab="环境参数" key="env">
-                            <div style={editorBoxStyle}>
-                                <Editor
-                                    sync={true}
-                                    style={{ height: "100%" }}
-                                    options={{ readOnly: false }}
-                                    language="ini"
-                                    options={{ readOnly: true, minimap: { enabled: false } }}
-                                    value={data.taskParams}
-                                />
-                            </div>
-                        </TabPane>
-                        {}
-                    </Tabs>
+                    )}
+                </Tabs>
             </div>
         )
     }

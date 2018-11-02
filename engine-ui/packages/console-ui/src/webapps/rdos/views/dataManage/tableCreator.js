@@ -520,7 +520,7 @@ export class ColumnsPartition extends React.Component {
                     <a href="javascript:void(0)"
                         disabled={ isEdit }
                         onClick={ this.addRow.bind(this, 2) }>
-                        <Icon type="plus-circle-o" /> 新增分区
+                        <Icon type="plus-circle-o" /> 新增分区字段
                     </a>
                 </div>
             </div>

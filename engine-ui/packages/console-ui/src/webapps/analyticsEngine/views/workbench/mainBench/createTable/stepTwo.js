@@ -36,7 +36,10 @@ const field_type = [
   },{
     name: 'BOOLEAN',
     value: 'BOOLEAN',
-  },
+  },{
+    name: 'DECIMAL',
+    value: 'DECIMAL'
+  }
 ]
 
 export default class StepTwo extends Component{
@@ -344,7 +347,7 @@ export default class StepTwo extends Component{
           pagination={false}
           size="small"
           ></Table>
-          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加字段</a>
+          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>
         </div>
 
         <div className="nav-btn-box">

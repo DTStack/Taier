@@ -326,7 +326,7 @@
             font-weight: bold;
         }
         .btn{
-            display: block;
+            display: inline-block;
             margin-top: 15px;
         }
         table{
@@ -428,6 +428,10 @@
     }
 }
 .table-detail-container{
+    .ant-table-small{
+        border-left: none;
+        border-right: none;
+    }
     .ant-tabs-tabpane{
         height: auto;
     }

@@ -325,6 +325,9 @@ export default {
     getCreateTargetTable(params) {
         return http.post(req.GET_CREATE_TARGET_TABLE, params)
     },
+    getRelatedJobs(params) {
+        return http.post(offlineReq.GET_WORKFLOW_RELATED_JOBS, params)
+    },
     // =========== 脚本模块 ==================//
     saveScript(params) {
         return http.post(offlineReq.SAVE_SCRIPT, params)

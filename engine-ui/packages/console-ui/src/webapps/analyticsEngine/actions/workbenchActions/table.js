@@ -60,7 +60,7 @@ export function onCreateTable(params) {
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
             databaseId: params ? params.id : undefined,
-            tableItem: { 
+            tableItem: {
                 databaseId: params ? params.id : undefined,
                 compactionSize: '1024',
                 type: 0,
@@ -69,7 +69,9 @@ export function onCreateTable(params) {
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
                 preserveSegments: 0,
-                allowCompactionDays:0 },
+                blockSize: 1024,
+                allowCompactionDays:0
+            },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
