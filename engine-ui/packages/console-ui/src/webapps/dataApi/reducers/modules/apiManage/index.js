@@ -4,7 +4,8 @@ import { cloneDeep } from 'lodash';
 const initialState = {
    
     apiList:[],
-    disAbleTip:window.localStorage.getItem("disAbleTip")
+    disAbleTip:window.localStorage.getItem("disAbleTip"),
+    isClickCode: false
 
 }
 
@@ -22,7 +23,11 @@ export default function apiManage(state = initialState, action) {
             window.localStorage.setItem("disAbleTip",clone.disAbleTip);
             return clone;
         }
-
+        case apiManageActionType.CHNAGE_CODE_CLICK: {
+            const clone = cloneDeep(state);
+            clone.isClickCode=payload
+            return clone;
+        }
 
         default:
             return state;
