@@ -151,7 +151,6 @@ class DataSourceManaStream extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '120px',
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -167,13 +166,11 @@ class DataSourceManaStream extends Component {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '150px',
         }, 
         {
             title: '连接信息',
             dataIndex: 'ext',
             key: 'ext',
-            width: '240px',
             render: (empty, record) => {
                 return <ExtTableCell sourceData={record} />
             },
@@ -218,9 +215,8 @@ class DataSourceManaStream extends Component {
             },
         },
         {
-            title: <div className="txt-right m-r-8">操作</div>,
-            width: '180px',
-            className: 'txt-right m-r-8',
+            title: "操作",
+            width: '150px',
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
