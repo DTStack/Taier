@@ -368,7 +368,7 @@ class TaskBrowser extends Component {
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
                                     language="ini"
-                                    options={{ theme: editor.options.theme }}
+                                    theme={editor.options.theme}
                                 />
                             </TabPane>
                         </Tabs>

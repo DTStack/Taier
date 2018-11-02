@@ -178,11 +178,11 @@ class AlarmForm extends Component {
                             initialValue: myTrigger,
                         })(
                             <Select onChange={this.changeMyTrigger.bind(this)}>
-                                <Option key={alarmTriggerType.TASK_FAIL} >任务失败</Option>
-                                <Option key={alarmTriggerType.TASK_STOP} >任务停止</Option>
+                                <Option key={alarmTriggerType.TASK_FAIL} value={alarmTriggerType.TASK_FAIL} >任务失败</Option>
+                                <Option key={alarmTriggerType.TASK_STOP} value={alarmTriggerType.TASK_STOP} >任务停止</Option>
                                 {isFlink && [
-                                    <Option key={alarmTriggerType.DELAY_COST} >延迟消费数</Option>,
-                                    <Option key={alarmTriggerType.DELAY_COST_P} >延迟消费比例</Option>
+                                    <Option key={alarmTriggerType.DELAY_COST} value={alarmTriggerType.DELAY_COST} >延迟消费数</Option>,
+                                    <Option key={alarmTriggerType.DELAY_COST_P} value={alarmTriggerType.DELAY_COST_P} >延迟消费比例</Option>
                                 ]}
                             </Select>,
                         )}
