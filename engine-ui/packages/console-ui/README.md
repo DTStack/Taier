@@ -5,6 +5,8 @@
  > 日期：2018-11-12
 
 - 【开发套件】修复若干模块Theme切换不完整的问题
+- 【开发套件】修复数据同步不支持多变量的问题
+- 【开发套件】修复数据同步字段预览时样式变形的问题
 - 【 其他 】`优化`UI细节，Bug修复 [更多](http://redmine.prod.dtstack.cn/projects/dtinsight-v2-12-0/issues)
 
 
