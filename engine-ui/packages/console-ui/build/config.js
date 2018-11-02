@@ -43,8 +43,8 @@ module.exports = {
                 secure: false,
             },
             "/api/console": { // 控制台
-                // target: "http://172.16.8.107:8084",//测试环境
-                target: "http://172.16.10.34:8084",
+                target: "http://172.16.8.107:8084",//测试环境
+                // target: "http://172.16.10.34:8084",
                 // target: "http://172.16.0.225:8084",
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
