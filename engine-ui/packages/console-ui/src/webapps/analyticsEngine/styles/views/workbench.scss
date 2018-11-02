@@ -326,7 +326,7 @@
             font-weight: bold;
         }
         .btn{
-            display: block;
+            display: inline-block;
             margin-top: 15px;
         }
         table{
@@ -624,7 +624,4 @@
     .ant-table-thead > tr > th, .ant-table-tbody > tr > td{
         font-size: 12px;
     }
-}
-.ant-tabs:not(.ant-tabs-vertical)>.ant-tabs-content{
-    overflow: scroll;
 }
