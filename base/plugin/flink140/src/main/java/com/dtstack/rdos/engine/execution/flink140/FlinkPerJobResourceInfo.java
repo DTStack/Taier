@@ -45,7 +45,7 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
             slotsPerTaskManager = MathUtil.getIntegerVal(properties.get(SLOTS));
         }
         if ((totalCore * capacity) < slotsPerTaskManager) {
-            throw new RdosException(LIMIT_ERROR + "Flink任务设置的core 大于 分配的最大的core");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的core 大于 分配的最大的core");
         }
         if ((totalFreeCore * capacity) < slotsPerTaskManager) {
             return false;
@@ -71,7 +71,7 @@ public class FlinkPerJobResourceInfo extends EngineResourceInfo {
 
         int totalMemoryRequired = jobmanagerMemoryMb + taskmanagerMemoryMb * numberTaskManagers;
         if ((totalMem * capacity) < totalMemoryRequired) {
-            throw new RdosException(LIMIT_ERROR + "Flink任务设置的MEM 大于 集群最大的MEM");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务设置的MEM 大于 集群最大的MEM");
         }
         if ((totalFreeMem * capacity) < totalMemoryRequired) {
             return false;
