@@ -1,5 +1,5 @@
  // 从config文件全局读取
- import { STREAM_BASE_URL } from 'config/base';
+ import { STREAM_BASE_URL, STREAM_BASE_URL_NOT_SERVICE } from 'config/base';
 
  export default {
  
@@ -78,7 +78,7 @@
 
      UNLOCK_FILE: `${STREAM_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
      // ===== resource资源模块 ===== //
-     UPLOAD_RES: `${STREAM_BASE_URL}/upload/streamResource/addResource`, // 资源上传
+     UPLOAD_RES: `${STREAM_BASE_URL_NOT_SERVICE}/upload/streamResource/addResource`, // 资源上传
      GET_RES_LIST: `${STREAM_BASE_URL}/streamResource/getResources`, // 资源列表
      DELETE_RES: `${STREAM_BASE_URL}/streamResource/deleteResource`, // 删除资源
      GET_RES_BY_ID: `${STREAM_BASE_URL}/streamResource/getResourceById`, // 根据ID获取资源信息

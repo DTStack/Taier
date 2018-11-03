@@ -2,7 +2,7 @@ import React from "react"
 import moment from "moment"
 import utils from "utils";
 
-import { Radio, Collapse, Row, Col, Button} from "antd"
+import { Radio, Collapse, Row, Col, Button } from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
 import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
@@ -162,18 +162,26 @@ class StreamDetailGraph extends React.Component {
             metricsList.push(metricsType.SOURCE_DIRTY)
         }
 
-        Api.getTaskMetrics({
-            taskId: data.id,
-            timeStr: time,
-            chartNames: metricsList
-        }).then(
-            (res) => {
-                if (res.code == 1) {
-                    this.setLineData(res.data)
-                }
+        const successFunc = (res) => {
+            if (res.code == 1) {
+                this.setLineData(res.data)
             }
-        )
+        }
+        
+            for (let i = 0; i < metricsList.length; i++) {
+                let serverChart = metricsList[i];
+                //间隔时间，防止卡顿
+                setTimeout(()=>{
+                    Api.getTaskMetrics({
+                        taskId: data.id,
+                        timeStr: time,
+                        chartNames: [serverChart]
+                    }).then(successFunc)
+                },100+50*i)
+            }
+        
     }
+
     changeTime(e) {
         this.setState({
             time: e.target.value
@@ -188,7 +196,7 @@ class StreamDetailGraph extends React.Component {
         return (
             <div>
                 <header style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
-                    <Button onClick={this.initData.bind(this,null)} tyle="primary">刷新</Button>
+                    <Button onClick={this.initData.bind(this, null)} tyle="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
                         <RadioGroup
                             className="no-bd nobackground"
@@ -204,7 +212,7 @@ class StreamDetailGraph extends React.Component {
                     </span>
                 </header>
                 {isDataCollection ? (
-                    <div style={{padding:"0px 16px"}}>
+                    <div style={{ padding: "0px 16px" }}>
                         <div className="alarm-graph-row">
                             <section>
                                 <AlarmBaseGraph

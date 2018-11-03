@@ -206,7 +206,7 @@ class CheckPoint extends React.Component {
                 ...pagination,
                 current: page.current
             }
-        }, this.getCheckPointList.bind(this))
+        }, this.getList.bind(this))
     }
     render() {
         const { pagination, list } = this.state;
