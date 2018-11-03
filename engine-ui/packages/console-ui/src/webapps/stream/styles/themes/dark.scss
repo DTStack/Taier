@@ -20,13 +20,37 @@ $fontColor1: #2491F7;
         opacity: 0;
     }
 
+    .btn-upload {
+        border: 1px solid $borderColor1 !important;
+    }
+
     .bd,
     table,
     .ant-table-fixed,
+    .diff-params .box-padding,
+    .diff-params .box-padding .line,
     .ant-table-placeholder {
         border-color: $borderColor1 !important;
     }
+
+    .diff-params-modal {
+        .ant-tabs-bar {
+            border-color: $borderColor1 !important;
+        }
+
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab-active {
+            background: #2D2D2D;
+            border-color: #2D2D2D;
+            color: #ffffff;
+        }
     
+        .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
+            background: #252525;
+            border-color: #252525;
+            height: 31px;
+        }
+    }
+
     .ant-dropdown-menu-item-divider {
         background-color: $borderColor1;
     }
@@ -54,6 +78,7 @@ $fontColor1: #2491F7;
     }
 
     .graph-editor,
+    .diff-params,
     .ant-input-suffix,
     .ant-card-head-title,
     .ant-tabs-tab-arrow-show,
@@ -63,6 +88,7 @@ $fontColor1: #2491F7;
     .ant-pagination-jump-next:after,
     .CodeMirror-scroll,
     .ant-confirm-title,
+    .task-browser .normal-tab,
     .ant-confirm-content,
     .ant-dropdown-menu-item,
     .ant-dropdown-menu-item a,
@@ -270,7 +296,14 @@ $fontColor1: #2491F7;
         background: $color2;
         border-color: $borderColor1 !important;
     }
-
+    .ant-select-selection--multiple {
+        .ant-select-search--inline {
+            .ant-select-search__field{
+                background: transparent;
+            }
+        }
+    }
+    
     .task-sidebar .menu-content {
         .tab-search {
             background: #2D2D2D;
@@ -349,7 +382,7 @@ $fontColor1: #2491F7;
 
     // ================ Custom page styles ================ //
     .toolbar .ant-btn, 
-    .ant-tabs-bar .ant-tabs-tab,{
+    .ant-tabs-bar .ant-tabs-tab, {
         background: $color2;
         color: $fontColor;
         border-color: $color2;
@@ -555,6 +588,7 @@ $fontColor1: #2491F7;
                 border-color: #5A5A5A;
                 border-bottom: 1px solid #5A5A5A;
             }
+
             .ant-collapse-header:hover,
             .ant-collapse-header {
                 color: $fontColor;

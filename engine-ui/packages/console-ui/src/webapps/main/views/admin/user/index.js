@@ -114,6 +114,7 @@ class AdminUser extends Component {
         }
         this.getOwnRole(active, params);
     }
+    
     getOwnRole(app, params) {
         const queryParams = {
             ...params,

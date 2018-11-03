@@ -29,7 +29,7 @@ class DiffEditor extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        // // 此处禁用render， 直接用editor实例更新编辑器
+        // // 此处禁用render，直接用editor实例更新编辑器
         return false;
     }
 
@@ -41,7 +41,7 @@ class DiffEditor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { sync, original={},modified={}, options={} } = nextProps;
+        const { sync, original={},modified={}, options={}, theme } = nextProps;
         if (this.props.original&&this.props.original.value !== original.value && sync) {
             const editorText = !original.value ? '' : original.value;
             this.updateValueWithNoEvent(editorText);
@@ -51,6 +51,9 @@ class DiffEditor extends React.Component {
         }
         if (this.props.options !== options) {
             this.monacoInstance.updateOptions({...options,originalEditable:!options.readOnly})
+        }
+        if (this.props.theme !== theme) {
+            monaco.editor.setTheme(theme);
         }
     }
 
@@ -86,25 +89,7 @@ class DiffEditor extends React.Component {
             return;
         }
 
-        window.MonacoEnvironment = {
-            getWorkerUrl: function (moduleId, label) {
-                if (label === "json") {
-                    return "./json.worker.js";
-                }
-                if (label === "css") {
-                    return "./css.worker.js";
-                }
-                if (label === "html") {
-                    return "./html.worker.js";
-                }
-                if (label === "typescript" || label === "javascript") {
-                    return "./typescript.worker.js";
-                }
-                return "./editor.worker.js";
-            }
-        };
-
-        const editorOptions = Object.assign(defaultOptions, options, {
+        const editorOptions = Object.assign({},defaultOptions, options, {
             originalEditable: options?!options.readOnly:true,//支持源可编辑
             renderIndicators: false,
             scrollbar:{
@@ -141,7 +126,7 @@ class DiffEditor extends React.Component {
     initTheme() {
         //hack 交换对比编辑器的位置
         monaco.editor.defineTheme('flippedDiffTheme', {
-            base: 'vs',
+            base: this.props.theme || 'vs',
             inherit: true,
             rules: [],
             colors: {
@@ -151,6 +136,7 @@ class DiffEditor extends React.Component {
         });
         monaco.editor.setTheme("flippedDiffTheme");
     }
+
     updateValueWithNoEvent(value) {
         this._originalEditor.setValue(value);
     }

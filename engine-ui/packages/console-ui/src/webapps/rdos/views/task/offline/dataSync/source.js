@@ -191,7 +191,6 @@ class SourceForm extends React.Component {
                 selectHack: false
             })
         })
-
     }
 
     changeTable(type, value) {
@@ -385,7 +384,7 @@ class SourceForm extends React.Component {
                                 title: s,
                                 dataIndex: s,
                                 key: s,
-                                width: 20+s.length*10,
+                                width: 20 + s.length * 10,
                             }
                         });
                         let dataSource = dataList.map((arr, i) => {

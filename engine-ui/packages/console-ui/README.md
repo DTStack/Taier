@@ -1,7 +1,7 @@
 # DATA-STACK 
 
 # 更新日志 | [部署文档](./Deploy.md)
- > 版本：DTinsight v2.11.0 <br>
+ > 版本：DTinsight v2.12.0 <br>
  > 日期：2018-10-19
 
 - 【控制台】`新增`多集群管理功能

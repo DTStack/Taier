@@ -2,7 +2,8 @@ import React from "react";
 import { Card, Table, Form, Icon, Input, Select, Checkbox, Tooltip, message, InputNumber } from "antd";
 import classnames from "classnames";
 import { cloneDeep } from "lodash"
-
+import { connect } from 'react-redux';
+import { apiManageActions } from '../../../../actions/apiManage';
 import { API_MODE } from "../../../../consts"
 
 const FormItem = Form.Item;
@@ -393,7 +394,10 @@ class ColumnsConfig extends React.Component {
                     ?<span>
                             API参数配置
                             <span style={{float:"right",marginLeft:"8px",fontSize:"12px",color:"#888"}}>编辑参数</span>
-                            <a onClick={sqlModeShowChange} style={{float:"right",fontSize:"12px",}}>代码</a>
+                            <a onClick={() => {
+                                this.props.handleClickCode();
+                                sqlModeShowChange()
+                            }} style={{float:"right",fontSize:"12px",}}>代码</a>
                         </span>
                     :<p className='middle-title'>API参数配置</p>
                 }
@@ -426,4 +430,12 @@ class ColumnsConfig extends React.Component {
     }
 }
 
-export default Form.create()(ColumnsConfig);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        handleClickCode() {
+            dispatch(apiManageActions.clickCode())
+        }
+    }
+}
+
+export default connect(null, mapDispatchToProps)(Form.create()(ColumnsConfig));

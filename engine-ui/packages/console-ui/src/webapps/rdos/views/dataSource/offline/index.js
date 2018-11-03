@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
+import {cloneDeep} from "lodash";
 import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip, Menu,
@@ -136,7 +137,7 @@ class DataSourceMana extends Component {
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source,
+            source:cloneDeep(source),
         })
     }
 
@@ -146,7 +147,6 @@ class DataSourceMana extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: '120px',
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -162,13 +162,11 @@ class DataSourceMana extends Component {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: '150px',
         },
         {
             title: '连接信息',
             dataIndex: 'ext',
             key: 'ext',
-            width: '240px',
             render: (empty, record) => {
                 return <ExtTableCell sourceData={record} />
             },
@@ -216,15 +214,13 @@ class DataSourceMana extends Component {
             title: '映射状态',
             dataIndex: 'linkSourceName',
             key: 'linkSourceName',
-            width: '70px',
             render: (linkSourceName, record) => {
                 return linkSourceName ? '已配置' : '未配置';
             },
         },
         {
-            title: <div className="txt-right m-r-8">操作</div>,
-            width: '230px',
-            className: 'txt-right m-r-8',
+            title: "操作",
+            width: '120px',
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改

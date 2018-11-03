@@ -107,7 +107,7 @@ class ProjectConfig extends Component {
                 <div className="box-card">
                     <table className="project-config-table bd">
                         <tbody>
-                            <tr><td className="t-title">项目名称</td><td>{projectIdentifier}</td></tr>
+                            <tr><td className="t-title">项目标识</td><td>{projectIdentifier}</td></tr>
                             <tr><td className="t-title">项目显示名称</td><td>
                                 {project.projectAlias}
                                 &nbsp;

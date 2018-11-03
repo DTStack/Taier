@@ -2,7 +2,7 @@ import React from "react"
 import moment from "moment"
 import utils from "utils";
 
-import { Radio, Collapse, Row, Col } from "antd"
+import { Radio, Collapse, Row, Col, Button } from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
 import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
@@ -117,8 +117,6 @@ class StreamDetailGraph extends React.Component {
                 }
                 case metricsType.DELAY: {
                     y[0] = lineData.map((data) => { return data.biz_time });
-                    y[1] = lineData.map((data) => { return data.data_interval_time });
-                    y[2] = lineData.map((data) => { return data.data_delay_time });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_BPS: {
@@ -164,18 +162,26 @@ class StreamDetailGraph extends React.Component {
             metricsList.push(metricsType.SOURCE_DIRTY)
         }
 
-        Api.getTaskMetrics({
-            taskId: data.id,
-            timeStr: time,
-            chartNames: metricsList
-        }).then(
-            (res) => {
-                if (res.code == 1) {
-                    this.setLineData(res.data)
-                }
+        const successFunc = (res) => {
+            if (res.code == 1) {
+                this.setLineData(res.data)
             }
-        )
+        }
+        
+            for (let i = 0; i < metricsList.length; i++) {
+                let serverChart = metricsList[i];
+                //间隔时间，防止卡顿
+                setTimeout(()=>{
+                    Api.getTaskMetrics({
+                        taskId: data.id,
+                        timeStr: time,
+                        chartNames: [serverChart]
+                    }).then(successFunc)
+                },100+50*i)
+            }
+        
     }
+
     changeTime(e) {
         this.setState({
             time: e.target.value
@@ -189,7 +195,8 @@ class StreamDetailGraph extends React.Component {
 
         return (
             <div>
-                <header style={{ padding: "10px 20px 10px 0px", overflow: "hidden" }}>
+                <header style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
+                    <Button onClick={this.initData.bind(this, null)} tyle="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
                         <RadioGroup
                             className="no-bd nobackground"
@@ -205,7 +212,7 @@ class StreamDetailGraph extends React.Component {
                     </span>
                 </header>
                 {isDataCollection ? (
-                    <div style={{padding:"0px 16px"}}>
+                    <div style={{ padding: "0px 16px" }}>
                         <div className="alarm-graph-row">
                             <section>
                                 <AlarmBaseGraph
@@ -249,7 +256,7 @@ class StreamDetailGraph extends React.Component {
                                             lineData={{
                                                 ...lineDatas[metricsType.DELAY],
                                                 color: CHARTS_COLOR,
-                                                legend: ["业务延时", "数据间隔时间", "数据滞留时间"],
+                                                legend: ["业务延时"],
                                                 unit: "s"
                                             }}
                                             title="Delay" />

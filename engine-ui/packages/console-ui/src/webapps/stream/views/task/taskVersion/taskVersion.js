@@ -1,5 +1,6 @@
 import React from "react";
 import { Table, Modal, message } from "antd";
+import { connect } from 'react-redux';
 
 import utils from "utils";
 
@@ -7,7 +8,14 @@ import DiffCodeEditor from "widgets/editor/diff";
 import { TASK_TYPE } from "../../../comm/const";
 import DiffParams from "./diffParams";
 
-export default class TaskVersion extends React.Component {
+const mapState = state => {
+    return {
+        editor: state.editor,
+    };
+};
+
+@connect(mapState)
+class TaskVersion extends React.Component {
     state = {
         showDiff: false,
         campareTo: "",
@@ -69,7 +77,7 @@ export default class TaskVersion extends React.Component {
     }
 
     render() {
-        const { taskInfo, taskType } = this.props;
+        const { taskInfo, taskType, editor } = this.props;
         const { showDiff, campareTo, diffParams } = this.state;
 
         let sqlTextJSON = taskInfo.sqlText;
@@ -120,6 +128,7 @@ export default class TaskVersion extends React.Component {
                         options={{readOnly:true}}
                         onChange={this.codeChange}
                         language={language}
+                        theme={editor.options.theme}
                     />
                 </Modal>
                 <Modal
@@ -199,3 +208,5 @@ export default class TaskVersion extends React.Component {
         ];
     };
 }
+
+export default  TaskVersion;

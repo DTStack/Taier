@@ -236,4 +236,11 @@ export const apiManageActions = {
             });
         }
     },
+    // 是否点击代码文案
+    clickCode() {
+        return {
+            type: ACTION_TYPE.CHNAGE_CODE_CLICK,
+            payload: true
+        }
+    }
 }   

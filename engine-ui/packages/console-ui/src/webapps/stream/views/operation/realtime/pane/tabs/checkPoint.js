@@ -115,15 +115,18 @@ class CheckPoint extends React.Component {
     }
     initCheckPointColumns() {
         return [{
-            title: 'ID',
-            dataIndex: 'id',
-        }, {
             title: 'StartTime',
             dataIndex: 'time',
             render(time) {
                 return utils.formatDateHours(time);
             }
-        }]
+        },{
+            title: '持续时间',
+            dataIndex: 'duration',
+            render(text){
+                return `${text}ms`
+            }
+        }, ]
     }
     changeDate(dates) {
         this.setState({
@@ -203,7 +206,7 @@ class CheckPoint extends React.Component {
                 ...pagination,
                 current: page.current
             }
-        }, this.getCheckPointList.bind(this))
+        }, this.getList.bind(this))
     }
     render() {
         const { pagination, list } = this.state;
@@ -211,7 +214,9 @@ class CheckPoint extends React.Component {
             <div style={{ padding: "0px 20px 20px 25px" }}>
                 {this.getTableTitle()}
                 <Table
-                    rowKey="id"
+                    rowKey={(record,index)=>{
+                        return index
+                    }}
                     className="m-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
