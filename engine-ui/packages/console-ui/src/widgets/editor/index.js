@@ -153,7 +153,7 @@ class Editor extends React.Component {
         }
 
 
-        const editorOptions = Object.assign(defaultOptions, options, {
+        const editorOptions = Object.assign({},defaultOptions, options, {
             value,
             language: language || "sql"
         });
