@@ -2,7 +2,7 @@ import React from "react"
 import moment from "moment"
 import utils from "utils";
 
-import { Radio, Collapse, Row, Col } from "antd"
+import { Radio, Collapse, Row, Col, Button} from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
 import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
@@ -187,7 +187,8 @@ class StreamDetailGraph extends React.Component {
 
         return (
             <div>
-                <header style={{ padding: "10px 20px 10px 0px", overflow: "hidden" }}>
+                <header style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
+                    <Button onClick={this.initData.bind(this,null)} tyle="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
                         <RadioGroup
                             className="no-bd nobackground"
