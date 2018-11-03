@@ -44,16 +44,16 @@ const field_type = [
 const partition_mode = [
   {
     name: '标准',
-    value: 'stard'
+    value: 0
   },{
     name: 'Hash',
-    value: 'hash'
+    value: 1
   },{
     name: 'Range',
-    value: 'range'
+    value: 2
   },{
     name: 'List',
-    value: 'list'
+    value: 3
   }
 ]
 export default class StepTwo extends Component{
@@ -62,33 +62,33 @@ export default class StepTwo extends Component{
     this.state = {
       columns: [],
       partitions: [],
-      partitionsData: {},
-      barrelData: {}
+      partitions: {},
+      bucketInfo: {}
     }
   }
 
   componentDidMount(){
     const { columns=[], 
-      partitionsData, 
-      barrelData
+      partitions, 
+      bucketInfo,
     } = this.props.tabData.tableItem;
 
     this.setState({
       columns: columns,
-      partitionsData: partitionsData,
-      barrelData: barrelData
+      partitions: partitions,
+      bucketInfo: bucketInfo
     })
   }
   componentWillReceiveProps(nextProps){
     const { columns=[], 
-      partitionsData,
-      barrelData
+      partitions,
+      bucketInfo
     } = nextProps.tabData.tableItem;
 
     this.setState({
       columns: columns,
-      partitionsData: partitionsData,
-      barrelData: barrelData
+      partitions: partitions,
+      bucketInfo: bucketInfo
     })
   }
   componentWillUpdate(){
@@ -101,7 +101,7 @@ export default class StepTwo extends Component{
   }
 
   addNewLine = (flag)=>{
-    let {columns,partitions, partitionsData,barrelData} = this.state;
+    let {columns, partitions,bucketInfo} = this.state;
     let _fid = 0;
     if(flag === 1){
       columns.map(o=>{
@@ -121,32 +121,32 @@ export default class StepTwo extends Component{
         columns: columns
       })
     }else if(flag === 2){
-      partitionsData.columns.map(o=>{
+      partitions.columns.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      partitionsData.columns[partitionsData.columns.length] = {
+      partitions.columns[partitions.columns.length] = {
         _fid: _fid + 1,
         name: '',
         type: '',
         comment: '',
       }
       this.setState({
-        partitionsData
+        partitions
       })
     }else if(flag === 3){
-      barrelData.columns.map(o=>{
+      bucketInfo.infos.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      barrelData.columns[barrelData.columns.length] = {
+      bucketInfo.infos[bucketInfo.infos.length] = {
         _fid: _fid + 1,
         name: '',
         type: '',
         comment: '',
       }
       this.setState({
-        barrelData
+        bucketInfo
       })
     }
   }
@@ -169,15 +169,15 @@ export default class StepTwo extends Component{
   }
 
   remove = (record,flag)=>{
-    let {columns,partitions,partitionsData, barrelData} = this.state;
+    let {columns,partitions, bucketInfo} = this.state;
 
-    flag === 1?columns.splice(columns.indexOf(record),1):flag===2?partitionsData.columns.splice(partitionsData.columns.indexOf(record),1):barrelData.columns.splice(barrelData.columns.indexOf(record),1);
+    flag === 1?columns.splice(columns.indexOf(record),1):flag===2?partitions.columns.splice(partitions.columns.indexOf(record),1):bucketInfo.infos.splice(bucketInfo.infos.indexOf(record),1);
 
     
     this.setState({
       columns: columns,
-      partitionsData,
-      barrelData
+      partitions,
+      bucketInfo
     })
     this.saveDataToStorage();
   }
@@ -185,8 +185,8 @@ export default class StepTwo extends Component{
   move = (record,flag,type)=>{
     //type 1上移 2下移
     // let mid = {};
-    let {columns,partitions, partitionsData,barrelData} = this.state;
-    let list = flag === 1?columns:flag === 2?partitionsData.columns:barrelData.columns;
+    let {columns, partitions,bucketInfo} = this.state;
+    let list = flag === 1?columns:flag === 2?partitions.columns:bucketInfo.infos;
     console.log(type)
     console.log( list.indexOf(record) )
     console.log(list.length)
@@ -214,31 +214,31 @@ export default class StepTwo extends Component{
       })
     else if(flag===2){
       this.setState({
-        partitionsData
+        partitions
       })
     }else{
       this.setState({
-        barrelData
+        bucketInfo
       })
     }
 
-    
-      this.saveDataToStorage();
+
+    this.saveDataToStorage();
   }
   /**
    * 保存输入的值
    */
   saveDataToStorage = ()=>{
-    const {columns, partitions, partitionsData, barrelData} = this.state;
+    const {columns, partitions, bucketInfo} = this.state;
     this.props.saveNewTableData([{
       key: 'columns',
       value: columns
     },{
-      key: 'partitionData',
-      value: partitionsData
+      key: 'partitions',
+      value: partitions
     },{
-      key: 'barrelData',
-      value: barrelData
+      key: 'bucketInfo',
+      value: bucketInfo
     }])
   }
 
@@ -262,9 +262,9 @@ export default class StepTwo extends Component{
 
   handlePartitionModeChange = (e)=>{
     console.log(e)
-    let {partitionsData} = this.state;
-    partitionsData.partitionMode = e;
-    partitionsData.columns = e === 'stard'?[]:[
+    let {partitions} = this.state;
+    partitions.partitionType = e;
+    partitions.columns = e === 'stard'?[]:[
       {
         _fid: 0,
         name: '',
@@ -273,20 +273,20 @@ export default class StepTwo extends Component{
       }
     ];
     this.setState({
-      partitionsData: partitionsData
+      partitions: partitions
     })
     this.saveDataToStorage();
   }
   handlePartitionParamChange = (e)=>{
-    let {partitionsData} = this.state;
-    partitionsData[`${partitionsData.partitionMode}Param`] = e.target.value;
+    let {partitions} = this.state;
+    partitions.partConfig = e.target.value;
     this.saveDataToStorage();
   }
   handleBarrelDataParamCahnge = (e)=>{
-    let {barrelData} = this.state;
-    barrelData.barrelNum = e.target.value;
+    let {bucketInfo} = this.state;
+    bucketInfo.bucketNumber = e.target.value;
     this.setState({
-      barrelData
+      bucketInfo
     })
     this.saveDataToStorage();
   }
@@ -421,9 +421,8 @@ export default class StepTwo extends Component{
   }
 
   render(){
-    const {columns,partitions,partitionsData,barrelData} = this.state;
+    const {columns,partitions,bucketInfo} = this.state;
     console.log(columns)
-    console.log(partitions)
     return (
       <Row className="step-two-container step-container">
         <div className="table-panel">
@@ -444,7 +443,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分区模式：</span>
-            <Select style={{width: 100}} value={partitionsData.partitionMode} onChange={this.handlePartitionModeChange}>
+            <Select style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
               {
                 partition_mode.map(o=>{
                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -453,29 +452,29 @@ export default class StepTwo extends Component{
             </Select>
           </div>
             {
-              partitionsData.partitionMode === 'hash'?
+              partitions.partitionType === 1?
               <div className="partitionParam-box" style={{marginBottom: 10}}>
                 <span>分区数量：</span>
-                <Input defaultValue={partitionsData.hashParam} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
-              </div> : partitionsData.partitionMode === 'range'?
+                <Input defaultValue={partitions.partConfig} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
+              </div> : partitions.partitionType === 2?
               <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
                 <span>范围：</span>
-                <Input.TextArea defaultValue={partitionsData.rangeParam} style={{height: 50, width: 300}} placeholder="多个范围之间用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
-              </div> : partitionsData.partitionMode === 'list' && 
+                <Input.TextArea defaultValue={partitions.partConfig} style={{height: 50, width: 300}} placeholder="多个范围之间用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
+              </div> : partitions.partitionType === 3 && 
               <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
                 <span>分区名称：</span>
-                <Input.TextArea defaultValue={partitionsData.listParam} style={{height: 50, width: 300}} placeholder="多个分区名用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
+                <Input.TextArea defaultValue={partitions.partConfig} style={{height: 50, width: 300}} placeholder="多个分区名用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
               </div>
             }
           <Table
-          columns={partitionsData.partitionMode === 'stard'?this.getTableCol(2):this.getTableCol(3)}
-          dataSource={partitionsData.columns || []}
+          columns={partitions.partitionType === 'stard'?this.getTableCol(2):this.getTableCol(3)}
+          dataSource={partitions.columns || []}
           rowKey="_fid"
           pagination={false}
           size="small"
           ></Table>
 
-          {partitionsData.partitionMode === 'stard' && <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>}
+          {partitions.partitionType === 0 && <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>}
         </div>
         <div className="table-panel">
           <div className="area-title-container">
@@ -483,11 +482,11 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分桶数量：</span>
-            <Input defaultValue={barrelData.barrelNum} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
+            <Input defaultValue={bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
           <Table
           columns={this.getTableCol(2)}
-          dataSource={barrelData.columns || []}
+          dataSource={bucketInfo.infos || []}
           rowKey="_fid"
           pagination={false}
           size="small"

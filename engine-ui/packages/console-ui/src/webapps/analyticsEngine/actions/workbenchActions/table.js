@@ -71,13 +71,15 @@ export function onCreateTable(params) {
                 preserveSegments: 0,
                 allowCompactionDays:0,
                 blockSize: 1024,
-                partitionsData: {
-                    partitionMode:'stard',
+                compactType: 0,
+                partitions: {
+                    partitionType:0,
+                    partConfig: undefined,
                     columns: [],
                 },
-                barrelData: {
-                    barrelNum: undefined,
-                    columns: []
+                bucketInfo: {
+                    bucketNumber: undefined,
+                    infos: []
                 }
              },
             currentStep: 0,
@@ -227,47 +229,69 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
-        if(params.lifeCycle === -1){
-            params.lifeCycle = params.shortLisyCycle;
-            delete params.lifeCycle;
+
+
+        let p = {
+            allowCompactionDays: params.allowCompactionDays,
+            autoLoadMerge: params.autoLoadMerge,
+            blockSize: params.blockSize,
+            bucketInfo: params.bucketInfo,
+            columns: params.columns,
+            compactType: params.compactType,
+            compactionSize: params.compactionSize,
+            databaseId: params.databaseId,
+            levelThreshold: params.levelThreshold,
+            lifeCycle: params.lifeCycle,
+            partConfig: params.partitions.partConfig,
+            partitionType: params.partitions.partitionType,
+            partitions: params.partitions.columns,
+            preserveSegments: params.preserveSegments,
+            sortScope: params.sortScope,
+            tableName: params.tableName,
+            type: params.type,
         }
-        params.columns.map(o=>{
+
+        if(p.lifeCycle === -1){
+            p.lifeCycle = p.shortLisyCycle;
+            delete p.lifeCycle;
+        }
+        p.columns.map(o=>{
             delete o._fid
         })
-
         // params.partitions.map(o=>{
         //     delete o._fid
         // })
         // params.databaseId = o.databaseId;
-        params.partitionsData.columns.map(o=>{
+        p.partitions.columns && p.partitions.columns.map(o=>{
             delete o._fid
         })
 
-        params.barrelData.columns.map(o=>{
+        p.bucketInfo.infos.map(o=>{
             delete o._fid
         })
-        console.log(params)
+9
+        console.log(p)
 
-        // const res = await API.createTable(params)
-        // if(res.code === 1){
-        //     console.log('保存成功');
-        //     const data = res.data;
-        //     // 重新加载Table列表
-        //     dispatch(gloablActions.getAllTable());
-        //     // 重新Reload数据库下的表左侧目录
-        //     dispatch(loadCatalogue({
-        //         id: data.databaseId,
-        //     }, CATALOGUE_TYPE.DATA_BASE));
-        //     return dispatch({
-        //         type: workbenchAction.NEW_TABLE_SAVED,
-        //         payload: data
-        //     })
-        // }else{
-        //     notification.error({
-        //         message: '提示',
-        //         description: res.message,
-        //     });
-        // }
+        const res = await API.createTable(p)
+        if(res.code === 1){
+            console.log('保存成功');
+            const data = res.data;
+            // 重新加载Table列表
+            dispatch(gloablActions.getAllTable());
+            // 重新Reload数据库下的表左侧目录
+            dispatch(loadCatalogue({
+                id: data.databaseId,
+            }, CATALOGUE_TYPE.DATA_BASE));
+            return dispatch({
+                type: workbenchAction.NEW_TABLE_SAVED,
+                payload: data
+            })
+        }else{
+            notification.error({
+                message: '提示',
+                description: res.message,
+            });
+        }
     }
 };
 /**

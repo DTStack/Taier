@@ -81,7 +81,7 @@ class TableDetail extends Component {
                         </tr>
                         <tr>
                             <td>Sort Scope</td>
-                            <td>{tableDetail.sortScope}</td>
+                            <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
                             <td>{tableDetail.blockSize}</td>
                         </tr>
