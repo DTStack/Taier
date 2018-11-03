@@ -115,18 +115,18 @@ class CheckPoint extends React.Component {
     }
     initCheckPointColumns() {
         return [{
-            title: '持续时间',
-            dataIndex: 'duration',
-            render(text){
-                return `${text}ms`
-            }
-        }, {
             title: 'StartTime',
             dataIndex: 'time',
             render(time) {
                 return utils.formatDateHours(time);
             }
-        }]
+        },{
+            title: '持续时间',
+            dataIndex: 'duration',
+            render(text){
+                return `${text}ms`
+            }
+        }, ]
     }
     changeDate(dates) {
         this.setState({
