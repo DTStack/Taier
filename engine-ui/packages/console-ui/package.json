@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "2.12.0",
+  "version": "2.12.1",
   "description": "DTinsight Makes data produce value.",
   "main": "src/app.js",
   "dependencies": {
