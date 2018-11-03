@@ -117,8 +117,6 @@ class StreamDetailGraph extends React.Component {
                 }
                 case metricsType.DELAY: {
                     y[0] = lineData.map((data) => { return data.biz_time });
-                    y[1] = lineData.map((data) => { return data.data_interval_time });
-                    y[2] = lineData.map((data) => { return data.data_delay_time });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_BPS: {
@@ -249,7 +247,7 @@ class StreamDetailGraph extends React.Component {
                                             lineData={{
                                                 ...lineDatas[metricsType.DELAY],
                                                 color: CHARTS_COLOR,
-                                                legend: ["业务延时", "数据间隔时间", "数据滞留时间"],
+                                                legend: ["业务延时"],
                                                 unit: "s"
                                             }}
                                             title="Delay" />

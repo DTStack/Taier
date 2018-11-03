@@ -115,8 +115,11 @@ class CheckPoint extends React.Component {
     }
     initCheckPointColumns() {
         return [{
-            title: 'ID',
-            dataIndex: 'id',
+            title: '持续时间',
+            dataIndex: 'duration',
+            render(text){
+                return `${text}ms`
+            }
         }, {
             title: 'StartTime',
             dataIndex: 'time',
@@ -211,7 +214,9 @@ class CheckPoint extends React.Component {
             <div style={{ padding: "0px 20px 20px 25px" }}>
                 {this.getTableTitle()}
                 <Table
-                    rowKey="id"
+                    rowKey={(record,index)=>{
+                        return index
+                    }}
                     className="m-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
