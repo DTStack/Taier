@@ -461,7 +461,11 @@ class RealTimeTaskList extends Component {
             goOnTask: ''
         })
     }
-
+    goOnTaskSuccess=()=>{
+        this.hideGoOnTask();
+        this.loadTaskList()
+        this.loadCount()
+    }
     render() {
         const { tasks, logInfo, selectTask, overview } = this.state
         const dataSource = tasks.data || [];
@@ -524,7 +528,7 @@ class RealTimeTaskList extends Component {
                     <GoOnTask
                         visible={this.state.goOnTask ? true : false}
                         taskId={this.state.goOnTask}
-                        onOk={this.hideGoOnTask}
+                        onOk={this.goOnTaskSuccess}
                         onCancel={this.hideGoOnTask}
                     />
                 </Card>

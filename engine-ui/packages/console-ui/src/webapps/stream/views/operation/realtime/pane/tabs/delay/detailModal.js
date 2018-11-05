@@ -149,9 +149,9 @@ class DelayDetailModal extends React.Component {
         })
     }
     expandedRowRender(record) {
-        const { taskId } = this.props;
+        const { taskId, topicName} = this.props;
         const { partitionId } = record;
-        return <DetailGraph taskId={taskId} partitionId={partitionId} />
+        return <DetailGraph taskId={taskId} partitionId={partitionId} topicName={topicName} />
     }
     onExpand(expanded, record) {
         if (expanded) {

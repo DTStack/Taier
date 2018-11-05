@@ -79,7 +79,7 @@ class AlarmForm extends Component {
         } = this.props
         const { getFieldDecorator } = form
         const { senderTypes, myTrigger } = this.state;
-        let isFlink = data.taskType == TASK_TYPE.SQL || data.taskType == TASK_TYPE.MR;
+        let isFlinkSQL = data.taskType == TASK_TYPE.SQL;
         const isDelayTrigger=myTrigger==alarmTriggerType.DELAY_COST||myTrigger==alarmTriggerType.DELAY_COST_P;
         alarmInfo = alarmInfo || {};
 
@@ -178,11 +178,11 @@ class AlarmForm extends Component {
                             initialValue: myTrigger,
                         })(
                             <Select onChange={this.changeMyTrigger.bind(this)}>
-                                <Option key={alarmTriggerType.TASK_FAIL} >任务失败</Option>
-                                <Option key={alarmTriggerType.TASK_STOP} >任务停止</Option>
-                                {isFlink && [
-                                    <Option key={alarmTriggerType.DELAY_COST} >延迟消费数</Option>,
-                                    <Option key={alarmTriggerType.DELAY_COST_P} >延迟消费比例</Option>
+                                <Option key={alarmTriggerType.TASK_FAIL} value={alarmTriggerType.TASK_FAIL} >任务失败</Option>
+                                <Option key={alarmTriggerType.TASK_STOP} value={alarmTriggerType.TASK_STOP} >任务停止</Option>
+                                {isFlinkSQL && [
+                                    <Option key={alarmTriggerType.DELAY_COST} value={alarmTriggerType.DELAY_COST} >延迟消费数</Option>,
+                                    <Option key={alarmTriggerType.DELAY_COST_P} value={alarmTriggerType.DELAY_COST_P} >延迟消费比例</Option>
                                 ]}
                             </Select>,
                         )}
@@ -220,7 +220,7 @@ class AlarmForm extends Component {
                             <span style={{ paddingLeft: "8px" }}>%</span>
                         </FormItem>
                     ):null}
-                    {isFlink&&isDelayTrigger?<FormItem
+                    {isFlinkSQL&&isDelayTrigger?<FormItem
                             {...formItemLayout}
                             label="告警抑制"
                         >

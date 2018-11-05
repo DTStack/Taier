@@ -24,24 +24,29 @@ class TopicDetailTable extends React.Component {
         this.getDetail();
     }
     componentWillReceiveProps(nextProps) {
-        const { taskId, partitionId } = this.props;
-        const { taskId: nextTaskId, partitionId: nextPartitionId } = nextProps;
-        if (taskId != nextTaskId || partitionId != nextPartitionId) {
-            this.getDetail(nextTaskId, nextPartitionId);
+        const { taskId, partitionId, topicName } = this.props;
+        const { taskId: nextTaskId, partitionId: nextPartitionId, topicName: nextTopicName } = nextProps;
+        if (taskId != nextTaskId || partitionId != nextPartitionId || topicName != nextTopicName) {
+            this.getDetail(nextTaskId, nextPartitionId, nextTopicName);
         }
     }
-    getDetail(taskId, partitionId) {
+    getDetail(taskId, partitionId, topicName) {
         taskId = typeof taskId == "undefined" ? this.props.taskId : taskId;
         partitionId = typeof partitionId == "undefined" ? this.props.partitionId : partitionId;
-        if (!taskId || !partitionId) {
+        topicName = typeof topicName == "undefined" ? this.props.topicName : topicName;
+        if (!taskId || !partitionId || !topicName) {
             return;
         }
+        /**
+         * 每次请求清空数据
+         */
         this.setState({
             data: []
         })
         Api.getDelayDetail({
             taskId: taskId,
-            partitionId: partitionId
+            partitionId: partitionId,
+            topicName: topicName
         })
             .then((res) => {
                 if (res.code == 1) {
@@ -102,7 +107,7 @@ class TopicDetailTable extends React.Component {
             ),
             type: "line",
             smooth: true,
-            areaStyle:{}    
+            areaStyle: {}
         }
         /**
          * 执行绘图
@@ -118,8 +123,8 @@ class TopicDetailTable extends React.Component {
     render() {
         return (
             <Resize onResize={this.resize.bind(this)}>
-                    <article id="delayDetail" style={{ width: '100%', height: '200px' }} />
-                </Resize>
+                <article id="delayDetail" style={{ width: '100%', height: '200px' }} />
+            </Resize>
         )
     }
 }
