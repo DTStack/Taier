@@ -136,6 +136,7 @@ class EditorContainer extends Component {
             data
         } = this.props;
 
+        console.log('exec:', data)
         const params = {
             databaseId: data.databaseId,
         };
