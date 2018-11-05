@@ -60,6 +60,8 @@ public class Client {
 
     private ApplicationId applicationId;
 
+    private Path appMasterJar;
+
     private final FileSystem dfs;
 
     private static FsPermission JOB_FILE_PERMISSION;
@@ -92,7 +94,7 @@ public class Client {
         }
 
         String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
-        Path appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
+        appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
         if (!dfs.exists(appMasterJar)){
             Path appJarSrc = new Path(clientArguments.appMasterJar);
             LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
@@ -149,11 +151,8 @@ public class Client {
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
 
-//        Path appJarSrc = new Path(clientArguments.appMasterJar);
-//        Path appJarDst = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.APP_MASTER_JAR);
-//        LOG.info("Copying " + appJarSrc + " to remote path " + appJarDst.toString());
-//        dfs.copyFromLocalFile(false, true, appJarSrc, appJarDst);
-//        localResources.put(DtYarnConstants.APP_MASTER_JAR, Utilities.createApplicationResource(dfs, appJarDst, LocalResourceType.FILE));
+        localResources.put(DtYarnConstants.APP_MASTER_JAR,
+                Utilities.createApplicationResource(dfs, appMasterJar, LocalResourceType.FILE));
 
 
         Map<String, String> appMasterEnv = new HashMap<>();
@@ -214,7 +213,6 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
-//        appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appJarDst.toUri().toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
 
 
