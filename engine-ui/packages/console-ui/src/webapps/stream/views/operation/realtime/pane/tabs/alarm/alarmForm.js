@@ -35,6 +35,12 @@ class AlarmForm extends Component {
         const { addAlarm, updateAlarm, alarmInfo } = this.props
         const alarm = this.props.form.getFieldsValue()
         alarm.receiveUsers = alarm.receiveUsers.join(',')
+        /**
+         * 服务端统一参数，但是本地存的时候需要区分，否则会导致formItem的id重复而混淆。
+         */
+        alarm.threshold=alarm.delayNum||alarm.delayNumP;
+        alarm.delayNum=undefined;
+        alarm.delayNumP=undefined;
         this.props.form.validateFields((err) => {
             if (!err) {
                 
@@ -197,7 +203,7 @@ class AlarmForm extends Component {
                                 rules: [{
                                     required: true, message: '请填写延迟消费数量！',
                                 }],
-                                initialValue: alarmInfo.delayNum,
+                                initialValue: alarmInfo.threshold,
                             })(
                                 <InputNumber precision={0} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费数量" />
                             )}
@@ -213,7 +219,7 @@ class AlarmForm extends Component {
                                 rules: [{
                                     required: true, message: '请填写延迟消费比例！',
                                 }],
-                                initialValue: alarmInfo.delayNum,
+                                initialValue: alarmInfo.threshold,
                             })(
                                 <InputNumber min={0} max={100} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费比例" />
                             )}
@@ -225,8 +231,8 @@ class AlarmForm extends Component {
                             label="告警抑制"
                         >
                             30分钟内，触发超过
-                            {getFieldDecorator('threshold', {
-                                initialValue: alarmInfo.alarmY
+                            {getFieldDecorator('alarmTimes', {
+                                initialValue: alarmInfo.alarmTimes
                             })(
                                 <InputNumber precision={0} min={1} max={999} style={{ width: "48px", margin: "0px 5px" }} />
                             )}
