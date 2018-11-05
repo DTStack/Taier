@@ -44,6 +44,7 @@ class Sidebar extends Component {
         activeNode: null,
         expandedKeys: [],
         selectedKeys: [],
+        catalogueContent: 'database',
     }
 
     componentDidMount() {
@@ -55,19 +56,25 @@ class Sidebar extends Component {
             activeNode: null,
             expandedKeys: [],
             selectedKeys: [],
+            catalogueContent: 'database',
         })
         this.props.loadCatalogue();
     }
 
     searchTable = (value) => {
+
         const query = utils.trim(value);
+        this.setState({
+            catalogueContent: 'search',
+        })
+
         if (!query) {
             this.refresh();
             return;
         };
-
+     
         this.props.loadCatalogue({
-            tableName: value,
+            tableName: query,
         }, CATALOGUE_TYPE.SEARCH_TABLE);
     }
 
@@ -143,15 +150,21 @@ class Sidebar extends Component {
             onTableDetail
         } = this.props;
 
+        const catalogueContent = this.state.catalogueContent;
+
+        const searchBar = (
+            <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
+                <Search
+                    placeholder="输入表名搜索"
+                    onSearch={this.searchTable}
+                />
+            </div>
+        );
+
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
             return (
                 <div>
-                    <div style={{ position: 'initial', margin: '15px 15px 0 15px' }}>
-                        <Search
-                            placeholder="输入表名搜索"
-                            onSearch={this.searchTable}
-                        />
-                    </div>
+                    { searchBar }
                     <FolderTree
                         onRightClick={this.onRightClick}
                         loadData={this.asynLoadCatalogue}
@@ -168,23 +181,32 @@ class Sidebar extends Component {
                 </div>
             )
         } else {
-            return (
-                <p style={{
-                    padding: '86px 36px', 
-                    fontSize: '14px', 
-                    color: '#666666',
-                    letterSpacing: 0,
-                }}>
-                    &nbsp;点击上方&nbsp;
-                        <MyIcon
-                            title="创建数据库"
-                            onClick={onCreateDB}
-                            type="btn_add_database"
-                            style={{cursor: 'pointer'}}
-                        />&nbsp;
-                        新建数据库或联系管理员获取访问权限
-                </p>
-            )
+            if (catalogueContent === 'database') {
+                return (
+                    <p style={{
+                        padding: '86px 36px', 
+                        fontSize: '14px', 
+                        color: '#666666',
+                        letterSpacing: 0,
+                    }}>
+                        &nbsp;点击上方&nbsp;
+                            <MyIcon
+                                title="创建数据库"
+                                onClick={onCreateDB}
+                                type="btn_add_database"
+                                style={{cursor: 'pointer'}}
+                            />&nbsp;
+                            新建数据库或联系管理员获取访问权限
+                    </p>
+                )
+            } else if (catalogueContent === 'search') {
+                return (
+                    <div>
+                        { searchBar }
+                        <p style={{ padding: '15px', textAlign: 'center' }}>没有发现任何表</p>
+                    </div>
+                )
+            }
         }
     }
 
