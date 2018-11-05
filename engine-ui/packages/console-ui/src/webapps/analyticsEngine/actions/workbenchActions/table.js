@@ -255,9 +255,18 @@ export function handleSave(){
             p.lifeCycle = p.shortLisyCycle;
             delete p.lifeCycle;
         }
+        let stopFlag = false;
         p.columns.map(o=>{
+            if(!o.name || o.name === '' || !o.type){
+                notification.error({
+                    message: '提示',
+                    description: '字段名称与字段类型不可为空'
+                })
+                stopFlag = true;
+            }
             delete o._fid
         })
+        if(stopFlag)    return;
         // params.partitions.map(o=>{
         //     delete o._fid
         // })
