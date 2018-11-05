@@ -4,6 +4,7 @@ package com.dtstack.yarn.am;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,7 +100,7 @@ public class AppArguments {
 //        assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
 //        appJarRemoteLocation = new Path(envs.get(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
         String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
-        appJarRemoteLocation = new Path(appMasterJarPath);
+        appJarRemoteLocation =  new Path(conf.get("fs.defaultFS"), appMasterJarPath);
 
         LOG.info("Application jar location: " + appJarRemoteLocation);
 
