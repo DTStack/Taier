@@ -225,7 +225,7 @@ class AlarmForm extends Component {
                             label="告警抑制"
                         >
                             30分钟内，触发超过
-                            {getFieldDecorator('alarmY', {
+                            {getFieldDecorator('threshold', {
                                 initialValue: alarmInfo.alarmY
                             })(
                                 <InputNumber precision={0} min={1} max={999} style={{ width: "48px", margin: "0px 5px" }} />
