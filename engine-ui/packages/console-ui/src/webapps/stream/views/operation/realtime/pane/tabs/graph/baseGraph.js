@@ -17,14 +17,30 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
+function haveData(lineData={}){
+    const { y=[]} = lineData;
+
+    let haveData=false;
+    y.forEach((item)=>{
+        if(item&&item.length){
+            haveData=true;
+        }
+    })
+    if(!haveData){
+        return false;
+    }
+    return true;
+}
 class AlarmBaseGraphBox extends React.Component {
     state = {
         key: '' + Math.random()
     }
+    
     render() {
         const { key } = this.state;
         const { title, lineData } = this.props;
         const { loading } = lineData;
+        const haveData=haveData(lineData);
         return (
             <div className="basegraph-size">
                 <div id={key} className="alarm-basegraph-box">
@@ -42,7 +58,7 @@ class AlarmBaseGraphBox extends React.Component {
                         </div>
                         :
                         <div className="graph-content">
-                            <AlarmBaseGraph   {...this.props} />
+                            {haveData?<AlarmBaseGraph   {...this.props} />:<p>暂无数据</p>}
                         </div>
                     }
                 </div>
@@ -97,7 +113,16 @@ class AlarmBaseGraph extends React.Component {
         if (loading) {
             return;
         }
-        const { x, y, legend, color, unit } = lineData;
+        const { x, y=[], legend, color, unit } = lineData;
+        /**
+         * 先检验是不是有数据，没数据就不渲染了
+         */
+        if(!haveData(lineData)){
+            return;
+        }
+        /**
+         * 初始化
+         */
         let myChart = echarts.init(this._dom);
         let options = cloneDeep(lineAreaChartOptions);
         /**
@@ -171,7 +196,6 @@ class AlarmBaseGraph extends React.Component {
                     }
                 }
             }
-            console.log(line)
             return line;
         })
         /**
