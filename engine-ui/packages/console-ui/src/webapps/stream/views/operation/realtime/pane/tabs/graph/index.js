@@ -24,6 +24,9 @@ const metricsType = {
     SOURCE_DIRTY: "source_dirty_data",
     DATA_COLLECTION_RPS: "jlogstash_rps",
     DATA_COLLECTION_BPS: "jlogstash_bps",
+    DATA_DISABLE_TPS:"data_discard_tps",
+    DATA_DISABLE_COUNT:"data_discard_count",
+
 
 }
 const defaultLineData = {
@@ -45,6 +48,8 @@ class StreamDetailGraph extends React.Component {
             [metricsType.SOURCE_DIRTY]: defaultLineData,
             [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
             [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
+            [metricsType.DATA_DISABLE_TPS]: defaultLineData,
+            [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
         }
     }
     componentDidMount() {
@@ -70,6 +75,8 @@ class StreamDetailGraph extends React.Component {
                 [metricsType.SOURCE_DIRTY]: defaultLineData,
                 [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
                 [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
+                [metricsType.DATA_DISABLE_TPS]: defaultLineData,
+                [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
             }
         })
     }
@@ -129,6 +136,14 @@ class StreamDetailGraph extends React.Component {
                     y[1] = lineData.map((data) => { return data.jlogstash_output_rps });
                     break;
                 }
+                case metricsType.DATA_DISABLE_TPS:{
+                    y[0] = lineData.map((data) => { return data.data_discard_tps });
+                    break;
+                }
+                case metricsType.DATA_DISABLE_COUNT:{
+                    y[0] = lineData.map((data) => { return data.data_discard_count });
+                    break;
+                }
             }
             stateLineData[type] = {
                 x,
@@ -160,6 +175,8 @@ class StreamDetailGraph extends React.Component {
             metricsList.push(metricsType.SOURCE_RPS)
             metricsList.push(metricsType.SOURCE_INPUT_BPS)
             metricsList.push(metricsType.SOURCE_DIRTY)
+            metricsList.push(metricsType.DATA_DISABLE_COUNT)
+            metricsList.push(metricsType.DATA_DISABLE_TPS)
         }
 
         const successFunc = (res) => {
@@ -177,7 +194,7 @@ class StreamDetailGraph extends React.Component {
                         timeStr: time,
                         chartNames: [serverChart]
                     }).then(successFunc)
-                },100+50*i)
+                },100+25*i)
             }
         
     }
@@ -325,9 +342,9 @@ class StreamDetailGraph extends React.Component {
                                         <AlarmBaseGraph
                                             time={time}
                                             lineData={{
-                                                ...lineDatas[metricsType.DELAY],
+                                                ...lineDatas[metricsType.DATA_DISABLE_TPS],
                                                 color: CHARTS_COLOR,
-                                                legend: ["丢弃TPS"]
+                                                legend: ["数据迟到丢弃TPS"]
                                             }}
                                             title="数据迟到丢弃TPS" />
                                     </section>
@@ -335,9 +352,9 @@ class StreamDetailGraph extends React.Component {
                                         <AlarmBaseGraph
                                             time={time}
                                             lineData={{
-                                                ...lineDatas[metricsType.DELAY],
+                                                ...lineDatas[metricsType.DATA_DISABLE_COUNT],
                                                 color: CHARTS_COLOR,
-                                                legend: ["丢弃数"]
+                                                legend: ["数据迟到累计丢弃数"]
                                             }}
                                             title="数据迟到累计丢弃数" />
                                     </section>
