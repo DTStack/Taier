@@ -5,6 +5,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -97,7 +98,8 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String jobId = jobIdentifier.getJobId();
         try {
             client.kill(jobId);
             return JobResult.createSuccessResult(jobId);
@@ -108,7 +110,9 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+        String jobId = jobIdentifier.getJobId();
+
         if(org.apache.commons.lang3.StringUtils.isEmpty(jobId)){
             return null;
         }
@@ -230,7 +234,10 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
             String msgInfo = applicationReport.getDiagnostics();

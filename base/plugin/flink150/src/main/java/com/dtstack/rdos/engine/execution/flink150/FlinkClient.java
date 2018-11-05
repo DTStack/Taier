@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
@@ -103,8 +104,7 @@ public class FlinkClient extends AbsClient {
 
     private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
 
-    private static final Path tmpdir =
-            Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
+    private static final Path tmpdir = Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
 
     private FlinkConfig flinkConfig;
 
@@ -133,6 +133,8 @@ public class FlinkClient extends AbsClient {
 
     private ExecutorService yarnMonitorES;
 
+    private ClusterClientCache clusterClientCache;
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
@@ -155,6 +157,7 @@ public class FlinkClient extends AbsClient {
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
         if (yarnCluster){
             initYarnClient();
+            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
         }
 
         initClient();
@@ -248,8 +251,8 @@ public class FlinkClient extends AbsClient {
 
         jobClientThreadLocal.set(jobClient);
         try {
-            String taskId = runJob(packagedProgram, runParallelism);
-            return JobResult.createSuccessResult(taskId);
+            Pair<String, String> runResult = runJob(packagedProgram, runParallelism);
+            return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         }catch (Exception e){
             logger.error("", e);
             return JobResult.createErrorResult(e);
@@ -259,7 +262,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String runJob(PackagedProgram program, int parallelism) throws Exception {
+    private Pair<String, String> runJob(PackagedProgram program, int parallelism) throws Exception {
 
         JobClient jobClient = jobClientThreadLocal.get();
 
@@ -273,14 +276,11 @@ public class FlinkClient extends AbsClient {
             descriptor.setName(jobClient.getJobName());
             ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, jobGraph,true);
 
-            try {
-                clusterClient.shutdown();
-            } catch (Exception e) {
-                logger.info("Could not properly shut down the client.", e);
-                throw new Exception("Could not properly shut down the cluster." + e.getMessage());
-            }
+            String applicationId = clusterClient.getClusterId().toString();
+            String flinkJobId = jobGraph.getJobID().toString();
+            clusterClientCache.put(applicationId, clusterClient);
 
-            return clusterClient.getClusterId().toString();
+            return Pair.create(flinkJobId, applicationId);
         } else {
 
             JobSubmissionResult result = client.run(program, parallelism);
@@ -306,7 +306,7 @@ public class FlinkClient extends AbsClient {
                 }
             }
 
-            return result.getJobID().toString();
+            return Pair.create(result.getJobID().toString(), null);
         }
     }
 
@@ -417,7 +417,10 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         if (jobId.startsWith("application")){
             try {
                 ApplicationId appId = ConverterUtils.toApplicationId(jobId);
@@ -441,11 +444,14 @@ public class FlinkClient extends AbsClient {
 
     /**
      * 直接调用rest api直接返回
-     * @param jobId
+     * @param jobIdentifier
      * @return
      */
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         if(Strings.isNullOrEmpty(jobId)){
             return null;
         }
@@ -649,28 +655,15 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
-        if (jobId.startsWith("application_")){
-            ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
+    public String getJobLog(JobIdentifier jobIdentifier) {
 
-            YarnLog yarnLog = new YarnLog();
-            try {
-                final ApplicationReport appReport = yarnClient.getApplicationReport(applicationId);
-                String msgInfo = appReport.getDiagnostics();
-                yarnLog.addAppLog(jobId, msgInfo);
-            } catch (Exception e) {
-                logger.error("", e);
-                yarnLog.addAppLog(jobId, "get log from yarn err:" + e.getMessage());
-            }
+        String jobId = jobIdentifier.getJobId();
 
-            return yarnLog.toString();
-        }
-
-        String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
+        String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
-        String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
+        String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
         String jobInfo = getMessageByHttp(jobPath);
-        String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+        String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
         String accuInfo = getMessageByHttp(accuPath);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
@@ -678,7 +671,7 @@ public class FlinkClient extends AbsClient {
         retMap.put("accuInfo", accuInfo);
 
         try {
-            return FlinkStandaloneRestParseUtil.parseEngineLog(retMap);
+            return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (IOException e) {
             logger.error("", e);
             try {
@@ -696,8 +689,8 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
-        FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
+        String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+        FlinkResourceInfo resourceInfo = FlinkRestParseUtil.getAvailSlots(slotInfo);
         if(resourceInfo == null){
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();
@@ -791,7 +784,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private boolean existsJobOnFlink(String engineJobId){
-        RdosTaskStatus taskStatus = getJobStatus(engineJobId);
+        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null));
         if(taskStatus == null){
             return false;
         }

@@ -5,6 +5,7 @@ import com.aliyun.odps.task.SQLTask;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -88,7 +89,9 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         Instance instance = odps.instances().get(jobId);
 
         if (instance == null) {
@@ -107,7 +110,9 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+
+        String jobId = jobIdentifier.getJobId();
         Instance instance = odps.instances().get(jobId);
 
         if (instance == null) {
@@ -162,7 +167,9 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         if (!hasLog(jobId)) {
             return "";
         }
@@ -188,7 +195,7 @@ public class OdpsClient extends AbsClient {
 
     private boolean hasLog(String jobId) {
         try {
-            RdosTaskStatus taskStatus = getJobStatus(jobId);
+            RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(jobId, null));
             return taskStatus.equals(RdosTaskStatus.FAILED);
         } catch (IOException e) {
             throw new RuntimeException(e);

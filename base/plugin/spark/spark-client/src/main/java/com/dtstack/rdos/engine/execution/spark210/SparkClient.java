@@ -6,6 +6,7 @@ import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
@@ -229,10 +230,13 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         RestSubmissionClient restSubmissionClient = new RestSubmissionClient(sparkConfig.getSparkMaster());
         SubmitRestProtocolResponse response = restSubmissionClient.killSubmission(jobId);
         String responseStr = response.toJson();
+
         if(Strings.isNullOrEmpty(responseStr)){
             return JobResult.createErrorResult("get null from spark response for kill " + jobId);
         }
@@ -255,7 +259,10 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+
+        String jobId = jobIdentifier.getJobId();
+
     	if(StringUtils.isBlank(jobId)){
     		return null;
     	}
@@ -322,8 +329,9 @@ public class SparkClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
 
+        String jobId = jobIdentifier.getJobId();
         SparkJobLog sparkJobLog = new SparkJobLog();
         String rootMessage = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
 

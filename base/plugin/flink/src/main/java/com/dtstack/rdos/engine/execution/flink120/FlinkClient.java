@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
@@ -350,7 +351,8 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String jobId = jobIdentifier.getJobId();
         JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
@@ -365,11 +367,14 @@ public class FlinkClient extends AbsClient {
 
     /**
      * 直接调用rest api直接返回
-     * @param jobId
+     * @param jobIdentifier
      * @return
      */
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
     	if(jobId == null || "".equals(jobId)){
     		return null;
     	}

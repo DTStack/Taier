@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.learning;
 
 
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class LearningClientTest {
         prop.setProperty("learning.python3.path", "/root/anaconda3/bin/python3");
         LearningClient learningClient = new LearningClient();
         learningClient.init(prop);
-        RdosTaskStatus status = learningClient.getJobStatus("application_1533106130429_0078");
+        RdosTaskStatus status = learningClient.getJobStatus(JobIdentifier.createInstance("application_1533106130429_0078", null));
         System.out.println(status);
     }
 }

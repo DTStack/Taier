@@ -36,7 +36,7 @@ public class ClientOperator {
 
         try{
             IClient client = clientCache.getClient(engineType, pluginInfo);
-            Object result = client.getJobStatus(jobId);
+            Object result = client.getJobStatus(JobIdentifier.createInstance(jobId, null));
 
             if(result == null){
                 return null;
@@ -67,7 +67,7 @@ public class ClientOperator {
 
         try{
             IClient client = clientCache.getClient(engineType, pluginInfo);
-            logInfo = client.getJobLog(jobId);
+            logInfo = client.getJobLog(JobIdentifier.createInstance(jobId, null));
         }catch (Exception e){
             LOG.error("", e);
             logInfo = e.toString();

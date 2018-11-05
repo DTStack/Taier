@@ -61,6 +61,8 @@ public class FlinkConfig {
 
     private String yarnAccepterTaskNumber;
 
+    private String flinkJobHistory;
+
 
     public String getFlinkZkAddress() {
         return flinkZkAddress;
@@ -240,5 +242,13 @@ public class FlinkConfig {
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
         this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+    }
+
+    public String getFlinkJobHistory() {
+        return flinkJobHistory;
+    }
+
+    public void setFlinkJobHistory(String flinkJobHistory) {
+        this.flinkJobHistory = flinkJobHistory;
     }
 }

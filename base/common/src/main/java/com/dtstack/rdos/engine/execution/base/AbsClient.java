@@ -50,7 +50,7 @@ public abstract class AbsClient implements IClient{
     protected abstract JobResult processSubmitJobWithType(JobClient jobClient);
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobId) {
         return "";
     }
 
@@ -66,7 +66,7 @@ public abstract class AbsClient implements IClient{
     }
 
     @Override
-    public List<String> getContainerInfos(String jobId) {
+    public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
         return null;
     }
 }

@@ -57,13 +57,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<JobResult>(){
 
                 @Override
                 public JobResult execute() throws Exception {
-                    return targetClient.cancelJob(jobId);
+                    return targetClient.cancelJob(jobIdentifier);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
@@ -72,13 +72,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<RdosTaskStatus>(){
 
                 @Override
                 public RdosTaskStatus execute() throws Exception {
-                    return targetClient.getJobStatus(jobId);
+                    return targetClient.getJobStatus(jobIdentifier);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
@@ -117,13 +117,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
-                    return targetClient.getJobLog(jobId);
+                    return targetClient.getJobLog(jobIdentifier);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
@@ -147,13 +147,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public List<String> getContainerInfos(String jobId) {
+    public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<List<String>>(){
 
                 @Override
                 public List<String> execute() throws Exception {
-                    return targetClient.getContainerInfos(jobId);
+                    return targetClient.getContainerInfos(jobIdentifier);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
@@ -292,7 +293,9 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
@@ -307,11 +310,13 @@ public class FlinkClient extends AbsClient {
 
     /**
      * 直接调用rest api直接返回
-     * @param jobId
+     * @param jobIdentifier
      * @return
      */
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         if(Strings.isNullOrEmpty(jobId)){
             return null;
         }
@@ -412,13 +417,17 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
         String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
         String jobInfo = getMessageByHttp(jobPath);
         String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
         String accuInfo = getMessageByHttp(accuPath);
+
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
         retMap.put("jobInfo", jobInfo);
@@ -450,7 +459,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private boolean existsJobOnFlink(String engineJobId){
-        RdosTaskStatus taskStatus = getJobStatus(engineJobId);
+        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null));
         if(taskStatus == null){
             return false;
         }
