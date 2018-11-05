@@ -19,6 +19,9 @@ public class DtYarnConfiguration extends YarnConfiguration {
      */
     public static final String DEFAULT_APP_TYPE = "shell";
 
+    public static final String DTYARNSHELL_APPMASTERJAR_PATH = "appMasterJar";
+    public static final String DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH = "/user/dtyarnshell/dt-yarn-shell-core-1.0.0.jar";
+
     public static final String LEARNING_STAGING_DIR = "xlearning.staging.dir";
 
     public static final String DEFAULT_LEARNING_STAGING_DIR = "/tmp/Learning/staging";

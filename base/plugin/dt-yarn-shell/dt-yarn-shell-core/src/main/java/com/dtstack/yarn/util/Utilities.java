@@ -75,6 +75,12 @@ public final class Utilities {
     return remotePath;
   }
 
+  public static Path getRemotePath(DtYarnConfiguration conf, String fileName) {
+    Path remotePath = new Path(conf.get("fs.defaultFS"), fileName);
+    LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
+    return remotePath;
+  }
+
   public static void setPathExecutableRecursively(String path) {
     File file = new File(path);
     if (!file.exists()) {

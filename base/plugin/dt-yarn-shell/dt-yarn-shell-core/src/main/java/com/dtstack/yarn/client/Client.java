@@ -91,6 +91,14 @@ public class Client {
             conf.set("hadoop.job.ugi", ugi.getUserName() + "," + ugi.getUserName());
         }
 
+        String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
+        Path appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
+        if (!dfs.exists(appMasterJar)){
+            Path appJarSrc = new Path(clientArguments.appMasterJar);
+            LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
+            dfs.copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+        }
+
         conf.set(DtYarnConfiguration.LEARNING_AM_MEMORY, String.valueOf(clientArguments.amMem));
         conf.set(DtYarnConfiguration.LEARNING_AM_CORES, String.valueOf(clientArguments.amCores));
         conf.set(DtYarnConfiguration.LEARNING_WORKER_MEMORY, String.valueOf(clientArguments.workerMemory));
@@ -140,13 +148,12 @@ public class Client {
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
-        Path appJarSrc = new Path(clientArguments.appMasterJar);
-        Path appJarDst = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.APP_MASTER_JAR);
-        LOG.info("Copying " + appJarSrc + " to remote path " + appJarDst.toString());
-        dfs.copyFromLocalFile(false, true, appJarSrc, appJarDst);
 
-        localResources.put(DtYarnConstants.APP_MASTER_JAR,
-                Utilities.createApplicationResource(dfs, appJarDst, LocalResourceType.FILE));
+//        Path appJarSrc = new Path(clientArguments.appMasterJar);
+//        Path appJarDst = Utilities.getRemotePath(conf, applicationId, DtYarnConstants.APP_MASTER_JAR);
+//        LOG.info("Copying " + appJarSrc + " to remote path " + appJarDst.toString());
+//        dfs.copyFromLocalFile(false, true, appJarSrc, appJarDst);
+//        localResources.put(DtYarnConstants.APP_MASTER_JAR, Utilities.createApplicationResource(dfs, appJarDst, LocalResourceType.FILE));
 
 
         Map<String, String> appMasterEnv = new HashMap<>();
@@ -207,7 +214,7 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(conf, applicationId, "").toString());
-        appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appJarDst.toUri().toString());
+//        appMasterEnv.put(DtYarnConstants.Environment.APP_JAR_LOCATION.toString(), appJarDst.toUri().toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
 
 

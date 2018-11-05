@@ -96,8 +96,11 @@ public class AppArguments {
         appPriority = conf.getInt(DtYarnConfiguration.APP_PRIORITY, DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY);
         exclusive = conf.getBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE);
 
-        assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
-        appJarRemoteLocation = new Path(envs.get(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
+//        assert (envs.containsKey(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
+//        appJarRemoteLocation = new Path(envs.get(DtYarnConstants.Environment.APP_JAR_LOCATION.toString()));
+        String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
+        appJarRemoteLocation = new Path(appMasterJarPath);
+
         LOG.info("Application jar location: " + appJarRemoteLocation);
 
         assert (envs.containsKey(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString()));
