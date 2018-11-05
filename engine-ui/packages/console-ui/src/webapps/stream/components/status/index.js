@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tag, Badge } from 'antd'
-import { TASK_STATUS, TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE } from '../../comm/const'
+import { TASK_STATUS, TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE, alarmTriggerType } from '../../comm/const'
 import { Circle } from 'widgets/circle'
 
 export function ProjectStatus(props) {
@@ -317,16 +317,20 @@ export function ScriptType(props) {
 export function AlarmTriggerType(props) {
     const value = props.value
     switch (value) {
-        case 0:
+        case alarmTriggerType.TASK_FAIL:
             return <span>任务失败</span>
         case 2:
             return <span>未完成</span>
-        case 3:
+        case alarmTriggerType.TASK_STOP:
             return <span>任务停止</span>
         case 4:
             return <span>定时未完成</span>
         case 5:
             return <span>超时未完成</span>
+        case alarmTriggerType.DELAY_COST:
+            return <span>延迟消费数</span>
+        case alarmTriggerType.DELAY_COST_P:
+            return <span>延迟消费比例</span>
         default:
             return <span>-</span>
     }
