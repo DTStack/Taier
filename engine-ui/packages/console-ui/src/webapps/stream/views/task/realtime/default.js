@@ -33,7 +33,7 @@ class Default extends Component {
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
                         className="operation-content">
                         <img src={`${iconBaseUrl}/upload_res.png`} className="anticon" />
-                            <p className="txt-center operation-title">上传计算资源</p>
+                            <p className="txt-center operation-title">上传资源</p>
                     </div>
                 </Col>
             </Row>
