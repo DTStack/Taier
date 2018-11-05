@@ -313,6 +313,21 @@ export default class StepOne extends Component{
             <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon fill="#999999" type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
               <FormItem
               {...formItemLayout}
+              label="压缩模式">
+              {
+                getFieldDecorator('compactType',{
+                  initialValue: formData.compactType || 0
+                })(
+                  <RadioGroup>
+                    <Radio value={0}>Major</Radio>
+                    <Radio value={1}>Minor</Radio>
+                  </RadioGroup>
+                )
+              }
+              <HelpDoc style={relativeStyle} doc="compressMode" />
+              </FormItem>
+              <FormItem
+              {...formItemLayout}
               label="MAJOR_COMPACTION_SIZE">
               {
                 getFieldDecorator('compactionSize',{

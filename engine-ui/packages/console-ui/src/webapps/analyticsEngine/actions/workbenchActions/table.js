@@ -69,9 +69,19 @@ export function onCreateTable(params) {
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
                 preserveSegments: 0,
+                allowCompactionDays:0,
                 blockSize: 1024,
-                allowCompactionDays:0
-            },
+                compactType: 0,
+                partitions: {
+                    partitionType:0,
+                    partConfig: undefined,
+                    columns: [],
+                },
+                bucketInfo: {
+                    bucketNumber: undefined,
+                    infos: []
+                }
+             },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
@@ -219,20 +229,50 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
-        if(params.lifeCycle === -1){
-            params.lifeCycle = params.shortLisyCycle;
-            delete params.lifeCycle;
+
+
+        let p = {
+            allowCompactionDays: params.allowCompactionDays,
+            autoLoadMerge: params.autoLoadMerge,
+            blockSize: params.blockSize,
+            bucketInfo: params.bucketInfo,
+            columns: params.columns,
+            compactType: params.compactType,
+            compactionSize: params.compactionSize,
+            databaseId: params.databaseId,
+            levelThreshold: params.levelThreshold,
+            lifeCycle: params.lifeCycle,
+            partConfig: params.partitions.partConfig,
+            partitionType: params.partitions.partitionType,
+            partitions: params.partitions.columns,
+            preserveSegments: params.preserveSegments,
+            sortScope: params.sortScope,
+            tableName: params.tableName,
+            type: params.type,
         }
-        params.columns.map(o=>{
-            delete o._fid
-        })
 
-        params.partitions.map(o=>{
+        if(p.lifeCycle === -1){
+            p.lifeCycle = p.shortLisyCycle;
+            delete p.lifeCycle;
+        }
+        p.columns.map(o=>{
             delete o._fid
         })
+        // params.partitions.map(o=>{
+        //     delete o._fid
+        // })
         // params.databaseId = o.databaseId;
+        p.partitions.columns && p.partitions.columns.map(o=>{
+            delete o._fid
+        })
 
-        const res = await API.createTable(params)
+        p.bucketInfo.infos.map(o=>{
+            delete o._fid
+        })
+9
+        console.log(p)
+
+        const res = await API.createTable(p)
         if(res.code === 1){
             console.log('保存成功');
             const data = res.data;

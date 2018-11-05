@@ -296,6 +296,13 @@
     }
 }
 .step-two-container, .step-three-container{
+    .partitionParam-box{
+        span{
+            min-width: 60px;
+            display: inline-flex;
+            justify-content: flex-end;
+        }
+    }
     .table-panel:nth-child(1){
         margin-bottom: 40px;
     }
@@ -628,4 +635,7 @@
     .ant-table-thead > tr > th, .ant-table-tbody > tr > td{
         font-size: 12px;
     }
+}
+.ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content{
+    overflow: scroll;
 }

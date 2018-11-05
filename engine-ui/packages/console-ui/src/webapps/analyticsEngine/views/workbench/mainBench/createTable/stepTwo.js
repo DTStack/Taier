@@ -41,34 +41,54 @@ const field_type = [
     value: 'DECIMAL'
   }
 ]
-
+const partition_mode = [
+  {
+    name: '标准',
+    value: 0
+  },{
+    name: 'Hash',
+    value: 1
+  },{
+    name: 'Range',
+    value: 2
+  },{
+    name: 'List',
+    value: 3
+  }
+]
 export default class StepTwo extends Component{
   constructor(props){
     super();
     this.state = {
       columns: [],
       partitions: [],
+      partitions: {},
+      bucketInfo: {}
     }
   }
 
   componentDidMount(){
-    const { columns=[], partitions=[] } = this.props.tabData.tableItem;
-    this.setState({
-      columns: columns ,
-      partitions: partitions 
-    })
-    console.log(columns)
-    console.log(partitions)
-  }
-  componentWillReceiveProps(nextProps){
-    const { columns=[], partitions=[]  } = nextProps.tabData.tableItem;
+    const { columns=[], 
+      partitions, 
+      bucketInfo,
+    } = this.props.tabData.tableItem;
 
     this.setState({
       columns: columns,
-      partitions: partitions
-    },()=>{
-      console.log(this.state.columns)
-      console.log(this.state.partitions)
+      partitions: partitions,
+      bucketInfo: bucketInfo
+    })
+  }
+  componentWillReceiveProps(nextProps){
+    const { columns=[], 
+      partitions,
+      bucketInfo
+    } = nextProps.tabData.tableItem;
+
+    this.setState({
+      columns: columns,
+      partitions: partitions,
+      bucketInfo: bucketInfo
     })
   }
   componentWillUpdate(){
@@ -81,7 +101,7 @@ export default class StepTwo extends Component{
   }
 
   addNewLine = (flag)=>{
-    let {columns,partitions} = this.state;
+    let {columns, partitions,bucketInfo} = this.state;
     let _fid = 0;
     if(flag === 1){
       columns.map(o=>{
@@ -101,18 +121,32 @@ export default class StepTwo extends Component{
         columns: columns
       })
     }else if(flag === 2){
-      partitions.map(o=>{
+      partitions.columns.map(o=>{
         if(o._fid>_fid)
           _fid = o._fid
       })
-      partitions[partitions.length] = {
+      partitions.columns[partitions.columns.length] = {
         _fid: _fid + 1,
         name: '',
         type: '',
         comment: '',
       }
       this.setState({
-        partitions: partitions
+        partitions
+      })
+    }else if(flag === 3){
+      bucketInfo.infos.map(o=>{
+        if(o._fid>_fid)
+          _fid = o._fid
+      })
+      bucketInfo.infos[bucketInfo.infos.length] = {
+        _fid: _fid + 1,
+        name: '',
+        type: '',
+        comment: '',
+      }
+      this.setState({
+        bucketInfo
       })
     }
   }
@@ -135,13 +169,15 @@ export default class StepTwo extends Component{
   }
 
   remove = (record,flag)=>{
-    let {columns,partitions} = this.state;
+    let {columns,partitions, bucketInfo} = this.state;
 
-    flag === 1?columns.splice(columns.indexOf(record),1):partitions.splice(partitions.indexOf(record),1);
+    flag === 1?columns.splice(columns.indexOf(record),1):flag===2?partitions.columns.splice(partitions.columns.indexOf(record),1):bucketInfo.infos.splice(bucketInfo.infos.indexOf(record),1);
 
+    
     this.setState({
       columns: columns,
-      partitions: partitions
+      partitions,
+      bucketInfo
     })
     this.saveDataToStorage();
   }
@@ -149,8 +185,8 @@ export default class StepTwo extends Component{
   move = (record,flag,type)=>{
     //type 1上移 2下移
     // let mid = {};
-    let {columns,partitions} = this.state;
-    let list = flag === 1?columns:partitions;
+    let {columns, partitions,bucketInfo} = this.state;
+    let list = flag === 1?columns:flag === 2?partitions.columns:bucketInfo.infos;
     console.log(type)
     console.log( list.indexOf(record) )
     console.log(list.length)
@@ -176,25 +212,33 @@ export default class StepTwo extends Component{
       this.setState({
         columns: list
       })
-    else
+    else if(flag===2){
       this.setState({
-        partitions: list
+        partitions
       })
+    }else{
+      this.setState({
+        bucketInfo
+      })
+    }
 
-    
-      this.saveDataToStorage();
+
+    this.saveDataToStorage();
   }
   /**
    * 保存输入的值
    */
   saveDataToStorage = ()=>{
-    const {columns, partitions} = this.state;
+    const {columns, partitions, bucketInfo} = this.state;
     this.props.saveNewTableData([{
       key: 'columns',
       value: columns
     },{
       key: 'partitions',
       value: partitions
+    },{
+      key: 'bucketInfo',
+      value: bucketInfo
     }])
   }
 
@@ -216,8 +260,78 @@ export default class StepTwo extends Component{
 
   }
 
+  handlePartitionModeChange = (e)=>{
+    console.log(e)
+    let {partitions} = this.state;
+    partitions.partitionType = e;
+    partitions.columns = e === 'stard'?[]:[
+      {
+        _fid: 0,
+        name: '',
+        type: '',
+        comment: '',
+      }
+    ];
+    this.setState({
+      partitions: partitions
+    })
+    this.saveDataToStorage();
+  }
+  handlePartitionParamChange = (e)=>{
+    let {partitions} = this.state;
+    partitions.partConfig = e.target.value;
+    this.saveDataToStorage();
+  }
+  handleBarrelDataParamCahnge = (e)=>{
+    let {bucketInfo} = this.state;
+    bucketInfo.bucketNumber = e.target.value;
+    this.setState({
+      bucketInfo
+    })
+    this.saveDataToStorage();
+  }
   getTableCol = (flag)=>{
     let col = [
+      {
+        title: '字段名',
+        dataIndex: 'name',
+        render: (text,record)=>(
+          <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
+        )
+      },{
+        title: '字段类型',
+        dataIndex: 'type',
+        render: (text,record)=>(
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+            {
+              field_type.map(o=>{
+                return (<Option key={o.value} value={o.value}>{o.name}</Option>)
+              })
+            }
+          </Select>
+        )
+      },{
+        title: '注释',
+        dataIndex: 'comment',
+        render: (text,record)=>(
+          <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+        )
+      },{
+        title: '操作',
+        dataIndex: 'action',
+        render: (text,record)=>(
+          <span className="action-span">
+            <a href="javascript:;" onClick={()=>this.move(record,flag,1)}>上移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.move(record,flag,2)}>下移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.remove(record,flag)}>删除</a>
+          </span>
+        )
+      }
+    ]
+
+    let col_noaction = [
       {
         title: '字段名',
         dataIndex: 'name',
@@ -241,18 +355,6 @@ export default class StepTwo extends Component{
         dataIndex: 'comment',
         render: (text,record)=>(
           <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
-        )
-      },{
-        title: '操作',
-        dataIndex: 'action',
-        render: (text,record)=>(
-          <span className="action-span">
-            <a href="javascript:;" onClick={()=>this.move(record,flag,1)}>上移</a>
-            <span className="line"/>
-            <a href="javascript:;" onClick={()=>this.move(record,flag,2)}>下移</a>
-            <span className="line"/>
-            <a href="javascript:;" onClick={()=>this.remove(record,flag)}>删除</a>
-          </span>
         )
       }
     ]
@@ -315,13 +417,12 @@ export default class StepTwo extends Component{
       }
     ]
     
-    return flag===1?col_field:col;
+    return flag===1?col_field:flag===2?col:col_noaction;
   }
 
   render(){
-    const {columns,partitions} = this.state;
+    const {columns,partitions,bucketInfo} = this.state;
     console.log(columns)
-    console.log(partitions)
     return (
       <Row className="step-two-container step-container">
         <div className="table-panel">
@@ -335,19 +436,62 @@ export default class StepTwo extends Component{
           ></Table>
           <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon className="icon" type="plus-circle-o"  />添加字段</a>
         </div>
-        <div className="table-panel">
+        <div className="table-panel" style={{marginBottom: 40}}>
           <div className="area-title-container">
             <span className="title">分区信息</span>
-            <a href="javascript:;"><Icon className="icon" type="question-circle-o"/>如何添加复杂的分区格式?</a>
+            {/* <a href="javascript:;"><Icon className="icon" type="question-circle-o"/>如何添加复杂的分区格式?</a> */}
           </div>
-          <Table 
-          columns={this.getTableCol(2)}
-          dataSource={partitions}
+          <div style={{marginBottom: 10}}>
+            <span>分区模式：</span>
+            <Select style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
+              {
+                partition_mode.map(o=>{
+                  return (<Option key={o.value} value={o.value}>{o.name}</Option>)
+                })
+              }
+            </Select>
+          </div>
+            {
+              partitions.partitionType === 1?
+              <div className="partitionParam-box" style={{marginBottom: 10}}>
+                <span>分区数量：</span>
+                <Input defaultValue={partitions.partConfig} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
+              </div> : partitions.partitionType === 2?
+              <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
+                <span>范围：</span>
+                <Input.TextArea defaultValue={partitions.partConfig} style={{height: 50, width: 300}} placeholder="多个范围之间用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
+              </div> : partitions.partitionType === 3 && 
+              <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
+                <span>分区名称：</span>
+                <Input.TextArea defaultValue={partitions.partConfig} style={{height: 50, width: 300}} placeholder="多个分区名用英文逗号间隔" onChange={this.handlePartitionParamChange}/>
+              </div>
+            }
+          <Table
+          columns={partitions.partitionType === 'stard'?this.getTableCol(2):this.getTableCol(3)}
+          dataSource={partitions.columns || []}
           rowKey="_fid"
           pagination={false}
           size="small"
           ></Table>
-          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>
+
+          {partitions.partitionType === 0 && <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>}
+        </div>
+        <div className="table-panel">
+          <div className="area-title-container">
+            <span className="title">分桶信息</span>
+          </div>
+          <div style={{marginBottom: 10}}>
+            <span>分桶数量：</span>
+            <Input defaultValue={bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
+          </div>
+          <Table
+          columns={this.getTableCol(2)}
+          dataSource={bucketInfo.infos || []}
+          rowKey="_fid"
+          pagination={false}
+          size="small"
+          ></Table>
+          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(3)}><Icon className="icon" type="plus-circle-o" />添加分桶字段</a>
         </div>
 
         <div className="nav-btn-box">
