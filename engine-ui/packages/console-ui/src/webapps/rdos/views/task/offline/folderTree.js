@@ -459,7 +459,7 @@ class FolderTree extends React.Component {
                     <span className={claName}>
                         { name }
                         <i className="item-tooltip">
-                            {createUser}
+                            <span style={{color: "#ccc"}}>{createUser}</span>
                         </i>
                     </span> :
                     <CtxMenu
@@ -474,7 +474,7 @@ class FolderTree extends React.Component {
                             { this.renderStatusBadge(treeType, data) }
                             { name }&nbsp; 
                             <i className="item-tooltip">
-                                { this.renderFileInfo(treeType, data) }
+                                <span style={{color: "#ccc"}}>{this.renderFileInfo(treeType, data)}</span>
                             </i>
                         </span>
                     </CtxMenu>
