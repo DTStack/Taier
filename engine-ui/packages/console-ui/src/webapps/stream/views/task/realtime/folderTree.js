@@ -92,7 +92,7 @@ class FolderTree extends Component {
                         className={claTitle}>
                         {this.renderStatusBadge(treeType, item)}
                         {item.name} 
-                        <i className="item-tooltip">{this.renderFileInfo(treeType, item)}</i>
+                        <i className="item-tooltip"><span style={{color: "#ccc"}}>{this.renderFileInfo(treeType, item)}</span></i>
                     </span>
                 );
 
