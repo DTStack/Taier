@@ -287,7 +287,7 @@ class Index extends Component {
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
                                                     <Col span="17">
-                                                        <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${taskCountMap.submitCount} / ${taskCountMap.allCount}`}</span></div>
+                                                        <div className="statistics" >已提交/总任务数： <span className="statistics-info">{`${taskCountMap.submitCount} / ${taskCountMap.allCount}`}</span></div>
                                                         <div className="statistics" >项目创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
                                                         <div className="statistics" >
                                                             <Circle style={{ background: "#00A755", marginRight: "5px" }} />运行中任务：
