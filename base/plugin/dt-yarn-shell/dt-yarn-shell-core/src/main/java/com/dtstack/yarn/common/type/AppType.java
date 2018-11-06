@@ -1,9 +1,9 @@
 package com.dtstack.yarn.common.type;
 
 
-import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.util.Map;
@@ -27,11 +27,11 @@ public abstract class AppType {
         throw new IllegalArgumentException("Unsupported appType: " + type);
     }
 
-    public String cmdPrefix(DtYarnConfiguration config) {
+    public String cmdPrefix(YarnConfiguration config) {
         return "";
     }
 
-    public String buildCmd(ClientArguments clientArguments, DtYarnConfiguration conf) {
+    public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
         if (StringUtils.isNotBlank(clientArguments.getLaunchCmd())) {
             return clientArguments.getLaunchCmd();
         } else {

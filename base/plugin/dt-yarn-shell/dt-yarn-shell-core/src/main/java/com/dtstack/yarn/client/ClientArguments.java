@@ -1,10 +1,8 @@
 package com.dtstack.yarn.client;
 
 import com.dtstack.yarn.DtYarnConfiguration;
-import com.dtstack.yarn.am.ApplicationMaster;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.JobPriority;
-import com.dtstack.yarn.common.type.DummyType;
 import com.google.gson.Gson;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -18,9 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.mapred.JobConf;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -574,13 +570,6 @@ public class ClientArguments {
             String streamEpochStr = commandLine.getOptionValue("stream-epoch");
             streamEpoch = Integer.parseInt(streamEpochStr);
         }
-
-        if (commandLine.hasOption("test")) {
-            appMasterJar = System.getProperty("user.dir") + File.separator + "lib" + File.separator + "core.jar";
-        } else {
-            appMasterJar = JobConf.findContainingJar(ApplicationMaster.class);
-        }
-
 
         if (commandLine.hasOption("cacheFile")) {
             cacheFiles = commandLine.getOptionValue("cacheFile");

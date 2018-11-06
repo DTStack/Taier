@@ -104,8 +104,8 @@ public class DtContainer {
         containerInfo.put("host", NetUtils.getHostname());
 
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
-        containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
         containerStatusNotifier.start();
+        containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
 
     }
 
@@ -179,10 +179,6 @@ public class DtContainer {
         Utilities.sleep(3000);
 
         System.exit(-1);
-    }
-
-    private void reportFailedAndExit() {
-        reportFailedAndExit("");
     }
 
     private void reportSucceededAndExit() {
@@ -264,7 +260,7 @@ public class DtContainer {
                 container.reportSucceededAndExit();
             } else {
                 LOG.error("DtContainer run failed!");
-                container.reportFailedAndExit();
+                container.reportFailedAndExit("");
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);

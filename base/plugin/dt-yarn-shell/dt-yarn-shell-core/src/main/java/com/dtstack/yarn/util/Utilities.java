@@ -10,6 +10,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
@@ -66,7 +67,7 @@ public final class Utilities {
     return paths;
   }
 
-  public static Path getRemotePath(DtYarnConfiguration conf, ApplicationId appId, String fileName) {
+  public static Path getRemotePath(YarnConfiguration conf, ApplicationId appId, String fileName) {
     String pathSuffix = appId.toString() + "/" + fileName;
     Path remotePath = new Path(conf.get(DtYarnConfiguration.LEARNING_STAGING_DIR, DtYarnConfiguration.DEFAULT_LEARNING_STAGING_DIR),
         pathSuffix);
@@ -75,7 +76,7 @@ public final class Utilities {
     return remotePath;
   }
 
-  public static Path getRemotePath(DtYarnConfiguration conf, String fileName) {
+  public static Path getRemotePath(YarnConfiguration conf, String fileName) {
     Path remotePath = new Path(conf.get("fs.defaultFS"), fileName);
     LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
     return remotePath;

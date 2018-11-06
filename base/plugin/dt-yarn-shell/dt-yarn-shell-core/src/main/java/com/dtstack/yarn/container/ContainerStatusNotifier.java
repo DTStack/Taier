@@ -10,9 +10,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class ContainerStatusNotifier implements Runnable {
@@ -33,13 +35,14 @@ public class ContainerStatusNotifier implements Runnable {
 
     private int heartbeatRetryMax;
 
-    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-
+    private ScheduledExecutorService scheduledExecutorService;
 
     public ContainerStatusNotifier(ApplicationContainerProtocol protocol, Configuration conf, DtContainerId xlearningContainerId) {
         this.protocol = protocol;
         this.conf = conf;
         this.containerId = xlearningContainerId;
+        // 自定义 CustomThreadFactory 对线程设置为守护线程
+        this.scheduledExecutorService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory(containerId.toString() + "heartbeat"));
         this.heartbeatRequest = new HeartbeatRequest();
         this.heartbeatRequest.setContainerUserDir(System.getProperty("user.dir"));
         this.heartbeatResponse = new HeartbeatResponse();
@@ -107,4 +110,32 @@ public class ContainerStatusNotifier implements Runnable {
         scheduledExecutorService.shutdown();
     }
 
+
+    private class CustomThreadFactory implements ThreadFactory {
+        private final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        public CustomThreadFactory(String name) {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            namePrefix = "pool-" + name + "-" +
+                    poolNumber.getAndIncrement() +
+                    "-thread-";
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r,
+                    namePrefix + threadNumber.getAndIncrement(),
+                    0);
+            t.setDaemon(true);
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
+                t.setPriority(Thread.NORM_PRIORITY);
+            }
+            return t;
+        }
+    }
 }

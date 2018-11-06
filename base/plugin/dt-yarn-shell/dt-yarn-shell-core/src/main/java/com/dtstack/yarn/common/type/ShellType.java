@@ -1,12 +1,12 @@
 package com.dtstack.yarn.common.type;
 
 
-import com.dtstack.yarn.DtYarnConfiguration;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 public class ShellType extends AppType {
 
     @Override
-    public String cmdPrefix(DtYarnConfiguration config) {
+    public String cmdPrefix(YarnConfiguration config) {
         return "bash";
     }
 

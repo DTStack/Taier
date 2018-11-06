@@ -1,10 +1,10 @@
 package com.dtstack.yarn.common.type;
 
-import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.ClientArguments;
 import com.dtstack.yarn.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class JLogstashType extends AppType {
 
     @Override
-    public String buildCmd(ClientArguments clientArguments, DtYarnConfiguration conf) {
+    public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
 
         String root = conf.get("jlogstash.root");
         if (StringUtils.isBlank(root)) {
