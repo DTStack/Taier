@@ -47,6 +47,7 @@ class CreateDatabaseModal extends Component {
                         submitted: true,
                     });
                     loadCatalogue();
+                    // 移除当前元素active样式
                     document.activeElement.blur();
                 }
                 this.setState({
