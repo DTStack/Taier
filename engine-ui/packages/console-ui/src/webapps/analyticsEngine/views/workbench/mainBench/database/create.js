@@ -40,6 +40,8 @@ class CreateDatabaseModal extends Component {
 
         form.validateFields( async (err, values) => {
             if (!err) {
+                // 创建数据库默认ID -1, 用于后端权限校验
+                values.databaseId = -1;
                 const result = await API.createDB(values);
                 if (result.code === 1) {
                     this.setState({
