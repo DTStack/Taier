@@ -49,13 +49,22 @@ class SourceForm extends React.Component {
     componentDidMount() {
         const { sourceMap } = this.props;
         const { sourceList } = sourceMap;
+        let tableName = "";
+        let sourceId = "";
         if (sourceList) {
             for (let i = 0; i < sourceList.length; i++) {
                 let source = sourceList[i];
                 if (source.sourceId != null) {
                     this.getTableList(source.sourceId);
+                    if (source.tables && i == 0) {
+                        tableName = source.tables;
+                        sourceId = source.sourceId;
+                    }
                 }
             }
+        }
+        if (tableName && sourceId) {
+            this.getCopate(sourceId, tableName);
         }
     }
 
@@ -105,7 +114,7 @@ class SourceForm extends React.Component {
             //form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
             form.setFields({
                 splitPK: {
-                  value: '',
+                    value: '',
                 }
             })
             return;
@@ -119,17 +128,8 @@ class SourceForm extends React.Component {
         }
 
         const sourceId = form.getFieldValue('sourceId');
-        if(type){
-            ajax.getOfflineColumnForSyncopate({
-                sourceId,
-                tableName
-            }).then(res => {
-                if (res.code === 1) {
-                    handleTableCopateChange(res.data);
-                } else {
-                    handleTableCopateChange([]);
-                }
-            })
+        if (type) {
+            this.getCopate(sourceId, tableName)
         }
         ajax.getOfflineTableColumn({
             sourceId,
@@ -142,7 +142,22 @@ class SourceForm extends React.Component {
             }
         })
     }
-
+    getCopate(sourceId, tableName) {
+        const { handleTableCopateChange } = this.props;
+        if (tableName instanceof Array) {
+            tableName = tableName[0];
+        }
+        ajax.getOfflineColumnForSyncopate({
+            sourceId,
+            tableName
+        }).then(res => {
+            if (res.code === 1) {
+                handleTableCopateChange(res.data);
+            } else {
+                handleTableCopateChange([]);
+            }
+        })
+    }
     getDataObjById(id) {
         const { dataSourceList } = this.props;
         return dataSourceList.filter(src => {
@@ -228,7 +243,7 @@ class SourceForm extends React.Component {
 
     submitForm(event, sourceKey) {
         const {
-            form,handleSourceMapChange, 
+            form, handleSourceMapChange,
             targetMap, taskCustomParams,
             updateDataSyncVariables,
         } = this.props;
@@ -338,9 +353,11 @@ class SourceForm extends React.Component {
                 {this.state.showPreview ?
                     <Table dataSource={this.state.dataSource}
                         columns={this.state.columns}
-                        scroll={{ x: this.state.columns.reduce((a,b)=>{
-                            return a+b.width;
-                        },0)}}
+                        scroll={{
+                            x: this.state.columns.reduce((a, b) => {
+                                return a + b.width;
+                            }, 0)
+                        }}
                         pagination={false}
                         bordered={false}
                     /> : null
@@ -362,8 +379,8 @@ class SourceForm extends React.Component {
             message.error('数据源或表名缺失');
             return;
         }
-        if(tableName instanceof Array){
-            tableName=tableName[0];
+        if (tableName instanceof Array) {
+            tableName = tableName[0];
         }
         if (!showPreview) {
             ajax.getDataPreview({
@@ -527,7 +544,7 @@ class SourceForm extends React.Component {
                                 required: true,
                                 message: '数据源表为必选项！'
                             }],
-                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary?sourceMap.sourceList[0].tables:sourceMap.type.table
+                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary ? sourceMap.sourceList[0].tables : sourceMap.type.table
                         })(
                             <Select
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
@@ -579,14 +596,14 @@ class SourceForm extends React.Component {
                     >
                         {getFieldDecorator('splitPK', {
                             rules: [],
-                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.splitPK
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.splitPK
                         })(
                             <Select
                                 showSearch
                                 showArrow={true}
                                 onChange={this.submitForm.bind(this)}
                             >
-                                {(sourceMap.copate&&sourceMap.copate.map(v=>v.key).filter((v,index,self)=> self.indexOf(v) === index ) || []).map((copateValue,index) => {
+                                {(sourceMap.copate && sourceMap.copate.map(v => v.key).filter((v, index, self) => self.indexOf(v) === index) || []).map((copateValue, index) => {
                                     return <Option key={`copate-${index}`} value={copateValue}>
                                         {copateValue}
                                     </Option>
