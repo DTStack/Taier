@@ -3,6 +3,8 @@ package com.dtstack.yarn.common.type;
 
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
+import java.util.List;
+
 public class ShellType extends AppType {
 
     @Override
@@ -15,4 +17,9 @@ public class ShellType extends AppType {
         return "SHELL";
     }
 
+    @Override
+    public void env(List<String> envList) {
+        super.env(envList);
+        envList.add("PATH=" + "./:" + System.getenv("PATH"));
+    }
 }

@@ -113,20 +113,9 @@ public class JLogstashType extends AppType {
         return "JLOGSTASH";
     }
 
-    public static void main(String[] args) throws Exception {
-        String cmd = "/opt/dtstack/java/bin/java -cp " +
-                "/opt/dtstack/jlogstash/jlogstash.jar " +
-                "com.dtstack.jlogstash.JlogstashMain " +
-                "-l stdout " +
-                "-vvv " +
-                "-f " +
-                "%7B%22outputs%22%3A%5B%7B%22Stdout%22%3A%7B%22codec%22%3A%22line%22%7D%7D%5D%2C%22inputs%22%3A%5B%7B%22Beats%22%3A%7B%22port%22%3A6767%2C%22host%22%3A%220.0.0.0%22%7D%7D%5D%7D " +
-                "-p " +
-                "/opt/dtstack/jlogstash";
-
-        AppType appType = new JLogstashType();
-        Map m = new HashMap<String,Object>();
-        System.out.println(appType.cmdContainerExtra(cmd, m));
-        System.out.println(m);
+    @Override
+    public void env(List<String> envList) {
+        super.env(envList);
+        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
     }
 }

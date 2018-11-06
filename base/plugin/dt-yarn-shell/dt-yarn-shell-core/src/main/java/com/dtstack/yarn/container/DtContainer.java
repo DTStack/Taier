@@ -130,8 +130,8 @@ public class DtContainer {
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.RUNNING);
 
         List<String> envList = new ArrayList<>(20);
-        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
-        envList.add("LANG=zh_CN.UTF-8");
+        appType.env(envList);
+
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
 

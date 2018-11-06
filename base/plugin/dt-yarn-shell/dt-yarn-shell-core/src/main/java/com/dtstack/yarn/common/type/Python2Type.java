@@ -5,6 +5,8 @@ import com.dtstack.yarn.DtYarnConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
+import java.util.List;
+
 public class Python2Type extends AppType {
 
     @Override
@@ -18,4 +20,9 @@ public class Python2Type extends AppType {
         return "PYTHON2";
     }
 
+    @Override
+    public void env(List<String> envList) {
+        super.env(envList);
+        envList.add("PATH=" + "./:" + System.getenv("PATH"));
+    }
 }

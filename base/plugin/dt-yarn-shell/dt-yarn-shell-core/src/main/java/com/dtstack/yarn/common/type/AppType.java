@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.util.List;
 import java.util.Map;
 
 public abstract class AppType {
@@ -51,5 +52,9 @@ public abstract class AppType {
     }
 
     abstract public String name();
+
+    public void env(List<String> envList) {
+        envList.add("LANG=zh_CN.UTF-8");
+    }
 
 }
