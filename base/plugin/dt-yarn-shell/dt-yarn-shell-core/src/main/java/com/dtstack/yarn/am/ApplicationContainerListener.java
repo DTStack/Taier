@@ -118,10 +118,11 @@ public class ApplicationContainerListener
     private int getLaneOf(DtContainerId containerId) {
         LOG.info("getLaneOf containerId: " + containerId);
         for(int i = 0; i < entities.size(); ++i) {
-            LOG.info("getLaneOf entities.get(i): " + entities.get(i));
-            LOG.info("getLaneOf entities.get(i).getContainerId: " + entities.get(i).getContainerId().getContainerId());
-            if(containerId.equals(entities.get(i).getContainerId())) {
-                return i;
+            ContainerEntity containerEntity = entities.get(i);
+            LOG.info("getLaneOf entities.get(i): " + containerEntity);
+            LOG.info("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
+            if(containerId.equals(containerEntity.getContainerId())) {
+                return containerEntity.getLane();
             }
         }
         return -1;
