@@ -48,25 +48,24 @@ class SourceForm extends React.Component {
 
     componentDidMount() {
         const { sourceMap } = this.props;
-        const { sourceList, type } = sourceMap;
-        let tableName="";
-        let sourceId="";
+        const { sourceList } = sourceMap;
+        let tableName = "";
+        let sourceId = "";
         if (sourceList) {
             for (let i = 0; i < sourceList.length; i++) {
                 let source = sourceList[i];
                 if (source.sourceId != null) {
                     this.getTableList(source.sourceId);
-                    if(source.tables&&i==0){
-                        tableName=source.tables;
-                        sourceId=source.sourceId;
+                    if (source.tables && i == 0) {
+                        tableName = source.tables;
+                        sourceId = source.sourceId;
                     }
                 }
             }
         }
-        if(tableName&&sourceId){
-            this.getCopate(sourceId,tableName);
+        if (tableName && sourceId) {
+            this.getCopate(sourceId, tableName);
         }
-        
     }
 
     componentWillUnmount() {
@@ -130,7 +129,7 @@ class SourceForm extends React.Component {
 
         const sourceId = form.getFieldValue('sourceId');
         if (type) {
-           this.getCopate(sourceId,tableName)
+            this.getCopate(sourceId, tableName)
         }
         ajax.getOfflineTableColumn({
             sourceId,
@@ -143,8 +142,8 @@ class SourceForm extends React.Component {
             }
         })
     }
-    getCopate(sourceId,tableName){
-        const {handleTableCopateChange} = this.props;
+    getCopate(sourceId, tableName) {
+        const { handleTableCopateChange } = this.props;
         if (tableName instanceof Array) {
             tableName = tableName[0];
         }
@@ -360,9 +359,11 @@ class SourceForm extends React.Component {
                 {this.state.showPreview ?
                     <Table dataSource={this.state.dataSource}
                         columns={this.state.columns}
-                        scroll={{ x: this.state.columns.reduce((a,b)=>{
-                            return a+b.width;
-                        },0)}}
+                        scroll={{
+                            x: this.state.columns.reduce((a, b) => {
+                                return a + b.width;
+                            }, 0)
+                        }}
                         pagination={false}
                         bordered={false}
                     /> : null
