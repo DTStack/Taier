@@ -77,6 +77,9 @@ class RealTimeTaskList extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
+            if(!this.state.taskTypes||!this.state.taskTypes.length){
+                this.loadTaskTypes();
+            }
             this.setState({
                 visibleSlidePane: false,
                 selectTask: null
