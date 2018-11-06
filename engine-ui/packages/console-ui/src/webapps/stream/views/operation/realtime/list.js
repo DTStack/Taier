@@ -92,7 +92,9 @@ class RealTimeTaskList extends Component {
     }
 
     loadCount() {
-        Api.taskStatistics().then(
+        Api.taskStatistics({
+            taskName: this.state.taskName
+        }).then(
             (res) => {
                 if (res.code == 1) {
                     this.setState({
@@ -106,7 +108,10 @@ class RealTimeTaskList extends Component {
     searchTask = (query) => {
         this.setState({
             taskName: query,
-        }, this.loadTaskList)
+        }, ()=>{
+            this.loadTaskList();
+            this.loadCount();
+        })
     }
     /**
      * 这里判断是否需要自动刷新，
