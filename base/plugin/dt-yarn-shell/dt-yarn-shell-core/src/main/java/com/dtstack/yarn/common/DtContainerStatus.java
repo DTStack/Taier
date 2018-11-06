@@ -9,5 +9,6 @@ public enum DtContainerStatus {
   RUNNING,
   FAILED,
   SUCCEEDED,
-  STARTED
+  STARTED,
+  TIMEOUT
 }

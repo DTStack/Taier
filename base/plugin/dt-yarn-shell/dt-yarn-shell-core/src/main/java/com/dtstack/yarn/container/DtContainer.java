@@ -112,6 +112,7 @@ public class DtContainer {
 
         List<String> envList = new ArrayList<>(20);
         envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
+        envList.add("PATH=" + "./:" + System.getenv("PATH"));
         envList.add("LANG=zh_CN.UTF-8");
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());

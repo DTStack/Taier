@@ -15,7 +15,6 @@ import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.service.AbstractService;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,12 +47,19 @@ public class ApplicationContainerListener
 
     private final ApplicationContext applicationContext;
 
+    private ContainerLostDetector containerLostDetector;
+
+
+    public List<ContainerEntity> getEntities() {
+        return entities;
+    }
 
     public ApplicationContainerListener(ApplicationContext applicationContext, Configuration conf) {
         super("slotManager");
         setConfig(conf);
         this.applicationContext = applicationContext;
         this.entities = Collections.synchronizedList(new ArrayList<>());
+        this.containerLostDetector = new ContainerLostDetector(this);
     }
 
     @Override
@@ -72,6 +78,7 @@ public class ApplicationContainerListener
             return;
         }
         server.start();
+        containerLostDetector.start();
     }
 
 
@@ -147,9 +154,13 @@ public class ApplicationContainerListener
         if(lane != -1) {
             ContainerEntity oldEntity = entities.get(lane);
             DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
+            oldEntity.setLastBeatTime(System.currentTimeMillis());
             if(oldEntity.getDtContainerStatus() != status) {
                 oldEntity.setDtContainerStatus(status);
-                if(status == DtContainerStatus.FAILED && oldEntity.getAttempts() == maxAttempts) {
+                if(status == DtContainerStatus.TIMEOUT) {
+                    failed = true;
+                    failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
+                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() == maxAttempts) {
                     failed = true;
                     failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
                 }
@@ -181,6 +192,5 @@ public class ApplicationContainerListener
         return ProtocolSignature.getProtocolSignature(this, protocol,
                 clientVersion, clientMethodsHash);
     }
-
 
 }
