@@ -1,0 +1,1 @@
+alter table rdos_engine_stream_job add COLUMN application_id varchar(256);

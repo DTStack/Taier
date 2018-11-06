@@ -178,7 +178,7 @@ public class TaskStatusListener implements Runnable{
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    rdosStreamTaskDAO.updateTaskEngineIdAndStatus(taskId, engineTaskId, status);
+                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
                     updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
 
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
@@ -276,7 +276,7 @@ public class TaskStatusListener implements Runnable{
             status = RdosTaskStatus.CANCELED.getStatus();
             rdosEngineJobCacheDao.deleteJob(jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-            rdosStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, engineTaskId, status);
+            rdosStreamTaskDAO.updateTaskStatus(jobId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
         }
 

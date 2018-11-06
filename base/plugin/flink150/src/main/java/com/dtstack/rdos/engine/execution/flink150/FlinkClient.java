@@ -420,25 +420,24 @@ public class FlinkClient extends AbsClient {
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getJobId();
+        String applicationId = jobIdentifier.getApplicationId();
 
-        if (jobId.startsWith("application")){
-            try {
-                ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-                flinkClientBuilder.getYarnClient().killApplication(appId);
-            } catch (Exception e) {
-                return JobResult.createErrorResult(e);
-            }
-        } else {
-            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
-            try{
-                client.cancel(jobID);
-            }catch (Exception e){
-                return JobResult.createErrorResult(e);
-            }
+        ClusterClient targetClusterClient;
+        if(Strings.isNullOrEmpty(applicationId)){
+            targetClusterClient = clusterClientCache.getClusterClient(applicationId);
+        }else{
+            targetClusterClient = client;
+        }
+
+        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
+        try{
+            targetClusterClient.cancel(jobID);
+        }catch (Exception e){
+            return JobResult.createErrorResult(e);
         }
 
         JobResult jobResult = JobResult.newInstance(false);
-        jobResult.setData("jobid", jobId);
+        jobResult.setData(JobResult.JOB_ID_KEY, jobId);
         return jobResult;
     }
 
@@ -451,51 +450,14 @@ public class FlinkClient extends AbsClient {
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getJobId();
+        String applicationId = jobIdentifier.getApplicationId();
+
+        if(!Strings.isNullOrEmpty(applicationId)){
+            return getPerJobStatus(applicationId);
+        }
 
         if(Strings.isNullOrEmpty(jobId)){
             return null;
-        }
-
-        if (jobId.startsWith("application_")){
-            ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-            try {
-                ApplicationReport report = yarnClient.getApplicationReport(appId);
-                YarnApplicationState applicationState = report.getYarnApplicationState();
-                switch(applicationState) {
-                    case KILLED:
-                        return RdosTaskStatus.KILLED;
-                    case NEW:
-                    case NEW_SAVING:
-                        return RdosTaskStatus.CREATED;
-                    case SUBMITTED:
-                        //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
-                        return RdosTaskStatus.WAITCOMPUTE;
-                    case ACCEPTED:
-                        return RdosTaskStatus.SCHEDULED;
-                    case RUNNING:
-                        return RdosTaskStatus.RUNNING;
-                    case FINISHED:
-                        //state 为finished状态下需要兼顾判断finalStatus.
-                        FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
-                        if(finalApplicationStatus == FinalApplicationStatus.FAILED){
-                            return RdosTaskStatus.FAILED;
-                        }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
-                            return RdosTaskStatus.FINISHED;
-                        }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
-                            return RdosTaskStatus.KILLED;
-                        }else{
-                            return RdosTaskStatus.RUNNING;
-                        }
-
-                    case FAILED:
-                        return RdosTaskStatus.FAILED;
-                    default:
-                        throw new RdosException("Unsupported application state");
-                }
-            } catch (YarnException | IOException e) {
-                logger.error("", e);
-                return RdosTaskStatus.NOTFOUND;
-            }
         }
 
         String reqUrl = getReqUrl() + "/jobs/" + jobId;
@@ -533,14 +495,63 @@ public class FlinkClient extends AbsClient {
                 yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor(), flinkConfig);
             } catch (RdosException appIdNotFindEx) {
             }
-            if (yarnAppId!=null&& appId.toString().equals(yarnAppId.toString())){
+
+            if (yarnAppId !=null && appId.toString().equals(yarnAppId.toString())){
                 logger.error("", e);
                 return RdosTaskStatus.NOTFOUND;
             } else {
                 return RdosTaskStatus.FAILED;
             }
+
         }
 
+    }
+
+    /**
+     * per-job模式其实获取的任务状态是yarn-application状态
+     * @param applicationId
+     * @return
+     */
+    public RdosTaskStatus getPerJobStatus(String applicationId){
+        ApplicationId appId = ConverterUtils.toApplicationId(applicationId);
+        try {
+            ApplicationReport report = yarnClient.getApplicationReport(appId);
+            YarnApplicationState applicationState = report.getYarnApplicationState();
+            switch(applicationState) {
+                case KILLED:
+                    return RdosTaskStatus.KILLED;
+                case NEW:
+                case NEW_SAVING:
+                    return RdosTaskStatus.CREATED;
+                case SUBMITTED:
+                    //FIXME 特殊逻辑,认为已提交到计算引擎的状态为等待资源状态
+                    return RdosTaskStatus.WAITCOMPUTE;
+                case ACCEPTED:
+                    return RdosTaskStatus.SCHEDULED;
+                case RUNNING:
+                    return RdosTaskStatus.RUNNING;
+                case FINISHED:
+                    //state 为finished状态下需要兼顾判断finalStatus.
+                    FinalApplicationStatus finalApplicationStatus = report.getFinalApplicationStatus();
+                    if(finalApplicationStatus == FinalApplicationStatus.FAILED){
+                        return RdosTaskStatus.FAILED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.SUCCEEDED){
+                        return RdosTaskStatus.FINISHED;
+                    }else if(finalApplicationStatus == FinalApplicationStatus.KILLED){
+                        return RdosTaskStatus.KILLED;
+                    }else{
+                        return RdosTaskStatus.RUNNING;
+                    }
+
+                case FAILED:
+                    return RdosTaskStatus.FAILED;
+                default:
+                    throw new RdosException("Unsupported application state");
+            }
+        } catch (YarnException | IOException e) {
+            logger.error("", e);
+            return RdosTaskStatus.NOTFOUND;
+        }
     }
 
     public String getReqUrl() {
@@ -610,28 +621,6 @@ public class FlinkClient extends AbsClient {
     	return url.split("//")[1];
     }
 
-    private StreamExecutionEnvironment getStreamExeEnv(Properties confProperties) throws IOException {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment();
-        env.setParallelism(FlinkUtil.getEnvParallelism(confProperties));
-
-        if(FlinkUtil.getMaxEnvParallelism(confProperties) > 0){
-            env.setMaxParallelism(FlinkUtil.getMaxEnvParallelism(confProperties));
-        }
-
-        if(FlinkUtil.getBufferTimeoutMillis(confProperties) > 0){
-            env.setBufferTimeout(FlinkUtil.getBufferTimeoutMillis(confProperties));
-        }
-
-        env.setRestartStrategy(RestartStrategies.failureRateRestart(
-                failureRate, // 一个时间段内的最大失败次数
-                Time.of(failureInterval, TimeUnit.MINUTES), // 衡量失败次数的是时间段
-                Time.of(delayInterval, TimeUnit.SECONDS) // 间隔
-        ));
-
-        return env;
-    }
-
-
     private JobResult submitSyncJob(JobClient jobClient) {
         //使用flink作为数据同步调用的其实是提交mr--job
         JarFileInfo coreJar = syncPluginInfo.createAddJarInfo();
@@ -646,7 +635,7 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s",getReqUrl(),path);
+        String reqUrl = String.format("%s%s", getReqUrl(), path);
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
@@ -658,6 +647,12 @@ public class FlinkClient extends AbsClient {
     public String getJobLog(JobIdentifier jobIdentifier) {
 
         String jobId = jobIdentifier.getJobId();
+        String applicationId = jobIdentifier.getApplicationId();
+
+        //TODO 区分是在运行中还是已经结束状态
+        if(StringUtils.isNotBlank(applicationId)){
+            return null;
+        }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);

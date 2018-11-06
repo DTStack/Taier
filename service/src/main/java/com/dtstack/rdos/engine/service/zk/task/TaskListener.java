@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.service.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
+import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -62,7 +63,9 @@ public class TaskListener implements Runnable{
 				if(ComputeType.STREAM.getType().equals(jobClient.getComputeType().getType())){
 
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
-						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+						JobResult jobResult = jobClient.getJobResult();
+						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
+						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId);
 						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), null);
 
 					}else{//设置为失败
