@@ -15,33 +15,33 @@ const editorOptions = {
 }
 
 class BaseInfo extends React.Component {
-    state={
-        logInfo:''
+    state = {
+        logInfo: ''
     }
-    componentDidMount(){
+    componentDidMount() {
         console.log("BaseInfo")
         this.getLog();
     }
     componentWillReceiveProps(nextProps) {
-        const {data={}} = this.props;
-        const {data:nextData={}} = nextProps;
+        const { data = {} } = this.props;
+        const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
         ) {
             this.getLog(nextData);
         }
     }
-    getLog(data){
-        data=data||this.props.data;
-        if(!data||(
-            data.status!=TASK_STATUS.RUN_FAILED
-            &&data.status!=TASK_STATUS.SUBMIT_FAILED
-        )){
+    getLog(data) {
+        data = data || this.props.data;
+        if (!data || (
+            data.status != TASK_STATUS.RUN_FAILED
+            && data.status != TASK_STATUS.SUBMIT_FAILED
+        )) {
             return;
         }
         this.setState({
-            logInfo:''
+            logInfo: ''
         })
-        Api.getTaskLogs({ taskId:data.id }).then((res) => {
+        Api.getTaskLogs({ taskId: data.id }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     logInfo: res.data
@@ -49,10 +49,10 @@ class BaseInfo extends React.Component {
             }
         })
     }
-    getBaseInfo(){
-        const {data={},isShow} = this.props;
-        const {status} = data;
-        const {logInfo} = this.state;
+    getBaseInfo() {
+        const { data = {}, isShow } = this.props;
+        const { status } = data;
+        const { logInfo } = this.state;
         /**
          * 不显示的时候这里不能渲染，
          * 因为Editor和echarts绘图的时候会计算当前dom大小
@@ -64,33 +64,35 @@ class BaseInfo extends React.Component {
         // if(!isShow){
         //     return null;
         // }
-        switch(status){
+        switch (status) {
             case TASK_STATUS.RUN_FAILED:
-            case TASK_STATUS.SUBMIT_FAILED:{
+            case TASK_STATUS.SUBMIT_FAILED: {
                 return (
-                    <LogInfo log={logInfo} />
+                    <div style={{ paddingLeft: "8px", background: "#f7f7f7" }}>
+                        <LogInfo log={logInfo} />
+                    </div>
                 )
             }
             case TASK_STATUS.RUNNING:
-            case TASK_STATUS.FINISHED:{
+            case TASK_STATUS.FINISHED: {
                 return (
-                   <StreamDetailGraph data={data} />
+                    <StreamDetailGraph data={data} />
                 )
             }
-            default:{
+            default: {
                 return <div className="not-run-box">
                     <img src="/public/stream/img/not_run.svg" className="icon" />
                     <p className="text">该任务暂未运行</p>
                 </div>
             }
-            
+
         }
     }
     render() {
         return (
-           <div>
-               {this.getBaseInfo()}
-           </div>
+            <div>
+                {this.getBaseInfo()}
+            </div>
         )
     }
 }

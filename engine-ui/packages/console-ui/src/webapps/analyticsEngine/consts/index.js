@@ -14,9 +14,9 @@ export const CATALOGUE_TYPE = {
  * SQL执行状态
  */
 export const sqlExecStatus = {
-    FAILED: -1,
-    FINISHED: 1,
-    CANCELED: 2,
+    FINISHED: 5,
+    FAILED: 8,
+    CANCELED: 7,
 }
 
 

@@ -136,7 +136,6 @@ class EditorContainer extends Component {
             data
         } = this.props;
 
-        console.log('exec:', data)
         const params = {
             databaseId: data.databaseId,
         };
@@ -182,11 +181,12 @@ class EditorContainer extends Component {
         };
         API.formatSQL(params).then(res => {
             if (res.data) {
-                const data = {
+                const result = {
                     merged: true,
-                    value: res.data
+                    sqlText: res.data,
+                    id: data.id,
                 };
-                updateTab(data);
+                updateTab(result);
             }
         });
     };

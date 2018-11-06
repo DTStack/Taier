@@ -14,7 +14,6 @@ class BenchContent extends Component {
 
         const props = this.props;
         const { tabData } = props;
-        console.log(props)
         const { editTableInfoList={}, currentTab } = props.workbench.mainBench
 
         switch (tabData.actionType) {

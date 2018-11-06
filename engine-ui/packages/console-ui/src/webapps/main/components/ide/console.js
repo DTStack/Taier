@@ -131,7 +131,7 @@ class Console extends Component {
                         key={`${index}`}
                     >
                         <Result data={tab.data} />
-                        {tab.jobId ? (
+                        {tab.jobId && tab.data && tab.data.length > 1 ? (
                             <a
                                 href={`${this.props.downloadUri}?jobId=${
                                     tab.jobId

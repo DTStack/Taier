@@ -106,6 +106,7 @@ class EditCluster extends React.Component {
                             form.setFieldsValue({
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
+                                carbonConf: clusterConf.carbonConf,
                                 sparkConf: clusterConf.sparkConf,
                                 flinkConf: clusterConf.flinkConf,
                                 learningConf: this.myUpperCase(clusterConf.learningConf),
@@ -649,6 +650,7 @@ class EditCluster extends React.Component {
         clusterConf["yarnConf"] = zipConfig.yarnConf;
         clusterConf["hiveMeta"] = zipConfig.hiveMeta;
         clusterConf["hiveConf"] = formValues.hiveConf;
+        clusterConf["carbonConf"] = formValues.carbonConf;
         clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
         clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
         clusterConf["learningConf"] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
@@ -656,6 +658,9 @@ class EditCluster extends React.Component {
         //服务端兼容，不允许null
         clusterConf["hiveConf"].username = clusterConf["hiveConf"].username || '';
         clusterConf["hiveConf"].password = clusterConf["hiveConf"].password || '';
+
+        clusterConf["carbonConf"].username = clusterConf["carbonConf"].username || '';
+        clusterConf["carbonConf"].password = clusterConf["carbonConf"].password || '';
         return clusterConf;
     }
     getCustomParams(data, ParamKey) {
@@ -895,6 +900,41 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                     </div>
+                    
+                    <p className="config-title">CarbonData JDBC信息</p>
+                    <div className="config-content" style={{ width: "680px" }}>
+                        <FormItem
+                            label="JDBC URL"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('carbonConf.jdbcUrl', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入jdbcUrl"
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="用户名"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('carbonConf.username')(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="密码"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('carbonConf.password')(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                    </div>
+
+
                     <p className="config-title">Spark</p>
                     <div className="config-content" style={{ width: "680px" }}>
                         <FormItem

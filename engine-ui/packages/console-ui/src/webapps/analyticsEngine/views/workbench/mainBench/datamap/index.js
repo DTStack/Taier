@@ -56,6 +56,9 @@ class DataMap extends Component {
         form.validateFields( async (err, values) => {
             if (!err) {
                 values.configJSON.selectSql = this._selectSQL;
+                if (values.configJSON.columns) {
+                    values.configJSON.columns = values.configJSON.columns.join(',');
+                }
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
