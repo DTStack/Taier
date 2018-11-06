@@ -262,6 +262,7 @@ export default class StepTwo extends Component{
 
   handleBucketChange = (e,record)=>{
     console.log(e)
+    record.flagIndex = e;
     const {columns} = this.state;
     e = columns[e];
     record.name = e.name;
@@ -372,7 +373,7 @@ export default class StepTwo extends Component{
         title: '字段名',
         dataIndex: 'name',
         render: (text,record)=>(
-          <Select style={{minWidth: 150}} onChange={(e)=>this.handleBucketChange(e,record)}>
+          <Select defaultValue={record.flagIndex} style={{minWidth: 150}} onChange={(e)=>this.handleBucketChange(e,record)}>
             {
               this.state.columns.map(o=>{
                 return <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>
