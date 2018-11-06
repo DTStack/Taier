@@ -260,6 +260,15 @@ export default class StepTwo extends Component{
 
   }
 
+  handleBucketChange = (e,record)=>{
+    console.log(e)
+    const {columns} = this.state;
+    e = columns[e];
+    record.name = e.name;
+    record.type = e.type;
+    this.saveDataToStorage();
+  }
+
   handlePartitionModeChange = (e)=>{
     console.log(e)
     let {partitions} = this.state;
@@ -358,6 +367,45 @@ export default class StepTwo extends Component{
         )
       }
     ]
+    let col_bucket = [
+      {
+        title: '字段名',
+        dataIndex: 'name',
+        render: (text,record)=>(
+          <Select style={{minWidth: 150}} onChange={(e)=>this.handleBucketChange(e,record)}>
+            {
+              this.state.columns.map(o=>{
+                return <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>
+              })
+            }
+          </Select>
+        )
+      },{
+        title: '字段类型',
+        dataIndex: 'type',
+        render: (text,record)=>(
+          <span style={{fontSize: 12}}>{text}</span>
+        )
+      },{
+        title: '注释',
+        dataIndex: 'comment',
+        render: (text,record)=>(
+          <Input style={{width: 159, }}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+        )
+      },{
+        title: '操作',
+        dataIndex: 'action',
+        render: (text,record)=>(
+          <span className="action-span">
+            <a href="javascript:;" onClick={()=>this.move(record,flag,1)}>上移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.move(record,flag,2)}>下移</a>
+            <span className="line"/>
+            <a href="javascript:;" onClick={()=>this.remove(record,flag)}>删除</a>
+          </span>
+        )
+      }
+    ]
 
     let col_field = [
       {
@@ -417,7 +465,7 @@ export default class StepTwo extends Component{
       }
     ]
     
-    return flag===1?col_field:flag===2?col:col_noaction;
+    return flag===1?col_field:flag===2?col:flag===4?col_bucket:col_noaction;
   }
 
   render(){
@@ -467,7 +515,7 @@ export default class StepTwo extends Component{
               </div>
             }
           <Table
-          columns={partitions.partitionType === 'stard'?this.getTableCol(2):this.getTableCol(3)}
+          columns={partitions.partitionType === 0?this.getTableCol(2):this.getTableCol(3)}
           dataSource={partitions.columns || []}
           rowKey="_fid"
           pagination={false}
@@ -485,7 +533,7 @@ export default class StepTwo extends Component{
             <Input defaultValue={bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
           <Table
-          columns={this.getTableCol(2)}
+          columns={this.getTableCol(4)}
           dataSource={bucketInfo.infos || []}
           rowKey="_fid"
           pagination={false}
