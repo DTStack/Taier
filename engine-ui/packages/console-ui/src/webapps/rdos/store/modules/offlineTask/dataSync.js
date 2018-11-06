@@ -148,7 +148,7 @@ const sourceMap = (state = {}, action) => {
             }
 
             delete action.payload.sourceId;
-            clone.type = assign(action.payload, { type });
+            clone.type = assign({},action.payload, { type,splitPK });
 
             if (typeof key != "undefined") {
                 for (let i in clone.sourceList) {
