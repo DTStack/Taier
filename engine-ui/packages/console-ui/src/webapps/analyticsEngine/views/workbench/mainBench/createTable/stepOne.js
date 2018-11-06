@@ -260,7 +260,7 @@ export default class StepOne extends Component{
                     ],
                     initialValue: formData.lifeCycle || 90
                   })(
-                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:570,height: 36,marginRight:10}}>
+                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === -1?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
@@ -268,7 +268,7 @@ export default class StepOne extends Component{
                   )
                 }
                 {
-                getFieldsValue().lifeCycle === '-1' &&
+                getFieldsValue().lifeCycle === -1 &&
                   <Input style={{width: 570,marginRight:10 }} size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.handleShortLiftCycleChange(e)}}/>
                 }
               </span>
