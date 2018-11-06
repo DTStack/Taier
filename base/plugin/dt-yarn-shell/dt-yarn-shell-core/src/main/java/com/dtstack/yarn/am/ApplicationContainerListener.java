@@ -160,7 +160,7 @@ public class ApplicationContainerListener
                 if(status == DtContainerStatus.TIMEOUT) {
                     failed = true;
                     failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
-                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() == maxAttempts) {
+                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
                     failed = true;
                     failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
                 }

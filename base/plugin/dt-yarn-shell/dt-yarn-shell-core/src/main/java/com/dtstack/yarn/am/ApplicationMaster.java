@@ -195,13 +195,13 @@ public class ApplicationMaster extends CompositeService {
 
         while(!containerListener.isFinished()) {
             Utilities.sleep(1000);
-            List<ContainerEntity> entities = containerListener.getFailedContainerEntities();
+            List<ContainerEntity> failedEntities = containerListener.getFailedContainerEntities();
 
-            if(entities.isEmpty()) {
+            if(failedEntities.isEmpty()) {
                 continue;
             }
 
-            for(ContainerEntity containerEntity : entities) {
+            for(ContainerEntity containerEntity : failedEntities) {
                 ContainerId containerId = containerEntity.getContainerId().getContainerId();
                 LOG.info("Canceling container: " + containerId.toString());
                 amrmAsync.releaseAssignedContainer(containerId);
@@ -210,11 +210,11 @@ public class ApplicationMaster extends CompositeService {
             }
 
             //失败后重试
-            handleRMCallbackOfContainerRequest(entities.size());
+            handleRMCallbackOfContainerRequest(failedEntities.size());
 
             acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
 
-            for (ContainerEntity containerEntity : entities) {
+            for (ContainerEntity containerEntity : failedEntities) {
                 Container container = acquiredWorkerContainers.remove(0);
                 launchContainer(containerLocalResource, workerContainerEnv,
                         workerContainerLaunchCommands, container, containerEntity.getLane());
