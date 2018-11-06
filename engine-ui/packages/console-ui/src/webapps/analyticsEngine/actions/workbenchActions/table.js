@@ -270,6 +270,9 @@ export function handleSave(){
             delete o._fid
         })
         if(stopFlag)    return;
+        p.bucketInfo.infos.map(o=>{
+            delete o.flagIndex
+        })
         // params.partitions.map(o=>{
         //     delete o._fid
         // })
