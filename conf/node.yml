@@ -130,23 +130,24 @@ engineTypes:
 
 
 
-#    -
-#        typeName: flink150
-#        clusterMode: yarn
-#        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
-#        #简化为只配置/flink150/ha
-#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink150/ha
-#        flinkZkNamespace: /flink150
-#        jarTmpDir: ../tmp150
-#        flinkPluginRoot: /opt/dtstack/flinkplugin
-#        remotePluginRootDir: /opt/dtstack/flinkplugin
-#        #新增配置
-#        flinkYarnMode:  new # flinkOnYarn 三种模式： new、legacy、per_job
-#        #new
-#        flinkYarnNewModeMaxSlots: 4
-#        #perjob
-#        flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-#        flinkJarPath: /opt/dtstack/flink-1.5.0/lib/flink-dist_2.11-1.5.0.jar
+    -
+        typeName: flink150
+        clusterMode: yarn
+        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
+        #简化为只配置/flink150/ha
+        flinkHighAvailabilityStorageDir: hdfs://ns1/flink150/ha
+        flinkZkNamespace: /flink150
+        jarTmpDir: ../tmp150
+        flinkPluginRoot: /opt/dtstack/flinkplugin
+        remotePluginRootDir: /opt/dtstack/flinkplugin
+        #新增配置
+        flinkYarnMode:  new # flinkOnYarn 三种模式： new、legacy、per_job
+        #new
+        flinkYarnNewModeMaxSlots: 4
+        #perjob
+        flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+        flinkJarPath: /opt/dtstack/flink-1.5.0/lib/flink-dist_2.11-1.5.0.jar
+        flinkJobHistory: http://node01:8082
 
 
     #-

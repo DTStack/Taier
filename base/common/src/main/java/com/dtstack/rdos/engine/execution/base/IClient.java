@@ -21,18 +21,18 @@ public interface IClient {
 
     JobResult submitJob(JobClient jobClient);
 
-    JobResult cancelJob(String jobId);
+    JobResult cancelJob(JobIdentifier jobIdentifier);
 
-    RdosTaskStatus getJobStatus(String jobId) throws IOException;
+    RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
 
 	String getJobMaster();
 	
 	String getMessageByHttp(String path);
 
-	String getJobLog(String jobId);
+	String getJobLog(JobIdentifier jobIdentifier);
 
 	EngineResourceInfo getAvailSlots();
 
-	List<String> getContainerInfos(String jobId);
+	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 
 }

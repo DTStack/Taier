@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.base.pojo;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.google.common.base.Strings;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
@@ -10,8 +11,7 @@ import org.slf4j.LoggerFactory;
  * Reason:
  * Date: 2017/2/20
  * Company: www.dtstack.com
- *
- * @ahthor xuchao
+ * @author xuchao
  */
 
 public class JobResult {
@@ -21,6 +21,8 @@ public class JobResult {
     private boolean isErr;
 
     public static final String JOB_ID_KEY = "jobid";
+
+    public static final String Ext_ID_KEY = "extid";
 
     public static final String MSG_INFO = "msg_info";
 
@@ -49,6 +51,15 @@ public class JobResult {
         JobResult jobResult = JobResult.newInstance(false);
         jobResult.setData(JOB_ID_KEY, taskId);
         jobResult.setData(MSG_INFO, "submit job is success");
+        return jobResult;
+    }
+
+    public static JobResult createSuccessResult(String taskId, String extId){
+        JobResult jobResult = createSuccessResult(taskId);
+        if(!Strings.isNullOrEmpty(extId)){
+            jobResult.setData(Ext_ID_KEY, extId);
+        }
+
         return jobResult;
     }
 

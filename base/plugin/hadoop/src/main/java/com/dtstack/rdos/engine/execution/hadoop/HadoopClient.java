@@ -7,6 +7,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -87,7 +88,10 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         try {
             yarnDelegate.killApplication(generateApplicationId(jobId));
         } catch (YarnException | IOException e) {
@@ -105,8 +109,11 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+
+        String jobId = jobIdentifier.getJobId();
         ApplicationId appId = generateApplicationId(jobId);
+
         try {
             ApplicationReport report = yarnDelegate.getApplicationReport(appId);
             YarnApplicationState applicationState = report.getYarnApplicationState();
@@ -211,7 +218,10 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         try {
             ApplicationReport applicationReport = yarnDelegate.getApplicationReport(generateApplicationId(jobId));
             return applicationReport.getDiagnostics();

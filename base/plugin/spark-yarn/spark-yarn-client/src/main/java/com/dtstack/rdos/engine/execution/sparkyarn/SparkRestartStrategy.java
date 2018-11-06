@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
@@ -39,7 +40,7 @@ public class SparkRestartStrategy extends IRestartStrategy {
 
     @Override
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
-        String msg = client.getJobLog(engineJobId);
+        String msg = client.getJobLog(JobIdentifier.createInstance(engineJobId, null));
         return checkCanRestart(jobId, msg);
     }
 

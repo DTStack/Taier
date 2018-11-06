@@ -8,6 +8,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
@@ -326,7 +327,10 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
+
         try {
             ApplicationId appId = ConverterUtils.toApplicationId(jobId);
             yarnClient.killApplication(appId);
@@ -338,10 +342,14 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+
+        String jobId = jobIdentifier.getJobId();
+
         if(StringUtils.isEmpty(jobId)){
             return null;
         }
+
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
         try {
             ApplicationReport report = yarnClient.getApplicationReport(appId);
@@ -456,7 +464,9 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+
+        String jobId = jobIdentifier.getJobId();
         ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
         SparkJobLog sparkJobLog = new SparkJobLog();
 

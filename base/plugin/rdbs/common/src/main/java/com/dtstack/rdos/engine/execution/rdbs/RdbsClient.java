@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.rdbs;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -70,7 +71,8 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     @Override
-    public JobResult cancelJob(String jobId) {
+    public JobResult cancelJob(JobIdentifier jobIdentifier) {
+        String jobId = jobIdentifier.getJobId();
         boolean cancelResult = exeQueue.cancelJob(jobId);
         if(cancelResult){
             return JobResult.createSuccessResult(jobId);
@@ -80,7 +82,8 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     @Override
-    public RdosTaskStatus getJobStatus(String jobId) throws IOException {
+    public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
+        String jobId = jobIdentifier.getJobId();
         return exeQueue.getJobStatus(jobId);
     }
 
@@ -95,7 +98,8 @@ public abstract class RdbsClient extends AbsClient {
     }
 
     @Override
-    public String getJobLog(String jobId) {
+    public String getJobLog(JobIdentifier jobIdentifier) {
+        String jobId = jobIdentifier.getJobId();
         return exeQueue.getJobLog(jobId);
     }
 
