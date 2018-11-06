@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import { 
     Row, Table, Card, Input, Modal, Popconfirm,
-    Button, Dropdown, Menu, Icon, message,
+    Button, Dropdown, Menu, message, Pagination,
 } from 'antd';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -10,6 +10,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import utils from 'utils';
 import { MY_APPS, APP_ROLE } from 'main/consts'
 import EditUserRole from 'main/views/admin/user/editRole';
+import MyIcon from '../../../../components/icon';
 
 import AddUserModal from './addUser';
 import UpdateDBModal from './update';
@@ -55,9 +56,11 @@ class DatabaseDetail extends Component {
         if (res.code === 1) {
             this.setState({
                 userList: res.data || {},
-                loading: 'success',
             })
         }
+        this.setState({
+            loading: 'success',
+        })
     }
 
     loadDBUserRoles = async () => {
@@ -183,7 +186,6 @@ class DatabaseDetail extends Component {
     }
 
     onSelectMenu = ({ key }) => {
-        console.log('onClick:', key)
         const { data, onRemoveDB } = this.props;
         
         if (key === 'RESET') {
@@ -292,10 +294,12 @@ class DatabaseDetail extends Component {
                     </Menu.Item>
                 </Menu>
             }>
-                <Icon type="bars" style={{ 
-                    margin: '7 5 0 0', fontSize: 18, color: '#333333',
-                    float: 'right',
-                }} />
+                <MyIcon type="more" style={{ 
+                        margin: '8 10 0 0', fontSize: 18, color: '#333333',
+                        float: 'right',
+                        cursor: 'pointer',
+                    }}
+                />
             </Dropdown>
         )
     }
@@ -304,14 +308,18 @@ class DatabaseDetail extends Component {
         const { data, user } = this.props;
 
         const { 
-            loading, userList, userRoles, 
+            loading, userList, userRoles, queryParams,
             usersNotInDB, selectedItem, myRoles 
         } = this.state;
 
         const pagination = {
             total: userList.totalCount,
             defaultPageSize: 10,
-            current: userList.currentPage,
+            current: queryParams.currentPage,
+            style: {
+                float: 'right',
+                marginTop: 15,
+            }
         };
 
         return (
@@ -326,10 +334,10 @@ class DatabaseDetail extends Component {
                             <tr>
                                 <td>JDBC信息</td>
                                 <td>
-                                    {data.jdbcUrl}&nbsp;
+                                    {data.jdbcUrl}
                                     <CopyToClipboard key="copy" text={data.jdbcUrl}
                                         onCopy={this.copyOk}>
-                                        <a>复制</a>
+                                        <a style={{ marginLeft: 4 }}>复制</a>
                                     </CopyToClipboard>
                                 </td>
                                 <td>创建时间</td>
@@ -338,10 +346,10 @@ class DatabaseDetail extends Component {
                             <tr>
                                 <td>用户名</td>
                                 <td>
-                                    {data.dbUserName}&nbsp;
+                                    {data.dbUserName}
                                     <CopyToClipboard key="copy" text={data.dbUserName}
                                             onCopy={this.copyOk}>
-                                            <a>复制</a>
+                                            <a style={{ marginLeft: 4 }}>复制</a>
                                         </CopyToClipboard>
                                     </td>
                                 <td>表数量</td>
@@ -382,21 +390,28 @@ class DatabaseDetail extends Component {
                                         visibleAddUser: true,
                                     })
                                 }}
+                                style={{ marginRight: 8 }}
                             >
                                 添加用户
                             </Button>
                         }
                     >
                         <Table
-                            className="m-table bd"
+                            className="m-table bd db-users"
                             rowKey="id"
-                            columns={this.initColumns()}
+                            columns={ this.initColumns() }
                             dataSource={ userList.data }
-                            onChange={(pagination) => this.loadDBUsers({
-                                currentPage: pagination.current,
-                            })}
-                            loading={loading === 'loading'}
-                            pagination={pagination}
+                            loading={ loading === 'loading' }
+                            pagination={ false }
+                        />
+                        <Pagination
+                            {...pagination}
+                            onChange={(current) => {
+                                this.loadDBUsers({
+                                    currentPage: current,
+                                    name: undefined,
+                                })
+                            }}
                         />
                     </Card>
                 </Row>

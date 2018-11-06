@@ -142,17 +142,17 @@ class DataMapForm extends Component {
             }
             case DATAMAP_TYPE.FILTER: {
                 return ([
-                    <FormItem key="timeColumn" {...formItemLayout} label="时间字段" hasFeedback>
-                        {getFieldDecorator("configJSON.timeColumn", {
+                    <FormItem key="columns" {...formItemLayout} label="索引字段" hasFeedback>
+                        {getFieldDecorator("configJSON.columns", {
                             rules: [
                                 {
                                     required: true,
                                     message: "时间字段不可为空！"
                                 }
                             ],
-                            initialValue: config ? config.timeColumn : tableColumns.length > 0 ? tableColumns[0].name : '',
+                            initialValue: config ? config.columns.split(',') : tableColumns.length > 0 ? [tableColumns[0].name] : [],
                         })(
-                            <Select placeholder="请选择时间字段"> 
+                            <Select mode="multiple" placeholder="请选择时间字段"> 
                                 {timeColumnsOptions} 
                             </Select>
                         )}
