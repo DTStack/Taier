@@ -40,17 +40,17 @@ class AlarmBaseGraphBox extends React.Component {
         const { key } = this.state;
         const { title, lineData } = this.props;
         const { loading } = lineData;
-        const haveData=haveData(lineData);
+        const haveLineData=haveData(lineData);
         return (
             <div className="basegraph-size">
                 <div id={key} className="alarm-basegraph-box">
                     <header>
                         {title}
-                        <FullScreen
+                        {loading&&haveLineData?<FullScreen
                             target={key}
                             fullIcon={<Icon className="alt" type="arrows-alt" />}
                             exitFullIcon={<Icon className="alt" type="shrink" />}
-                            isShowTitle={false} />
+                            isShowTitle={false} />:null}
                     </header>
                     {loading ?
                         <div className="loading-box">
@@ -58,7 +58,7 @@ class AlarmBaseGraphBox extends React.Component {
                         </div>
                         :
                         <div className="graph-content">
-                            {haveData?<AlarmBaseGraph   {...this.props} />:<p>暂无数据</p>}
+                            {haveLineData?<AlarmBaseGraph   {...this.props} />:<p className="no-data-text">暂无数据</p>}
                         </div>
                     }
                 </div>
