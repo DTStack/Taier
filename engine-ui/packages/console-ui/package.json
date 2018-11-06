@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "2.12.1",
+  "version": "2.12.2",
   "description": "DTinsight Makes data produce value.",
   "main": "src/app.js",
   "dependencies": {
@@ -8,7 +8,7 @@
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-sql-parser": "^1.1.6",
+    "dt-sql-parser": "^1.1.7",
     "echarts": "3.8.5",
     "history": "4.6.1",
     "lodash": "4.17.4",
