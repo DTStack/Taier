@@ -35,7 +35,7 @@ class MainBench extends Component {
 
                 let title = (<span>
                     <TabIcon type={tab.actionType} />
-                    <span className="tab-ellipsis" title={tabs}>
+                    <span className="tab-ellipsis" title={tab.tabName}>
                         {tab.tabName}
                     </span>
                 </span>);
