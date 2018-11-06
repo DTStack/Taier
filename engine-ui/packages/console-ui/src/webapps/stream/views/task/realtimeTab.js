@@ -66,8 +66,10 @@ class RealTimeTabPane extends Component {
     }
 
     componentDidMount() {
-        const { dispatch } = this.props
-        dispatch(TreeAction.getRealtimeTree(rootNode))
+        const { dispatch, realtimeTree } = this.props
+        if(!realtimeTree||!realtimeTree.length){
+            dispatch(TreeAction.getRealtimeTree(rootNode))
+        }
         dispatch(ResAction.getResources())
         this.loadTaskTypes();
     }
@@ -459,12 +461,10 @@ class RealTimeTabPane extends Component {
         let checkedPath = '', path = ''; // 路径存储
 
         if (hasPath(realtimeTree[0], id, path)) {
-            debugger;
             const keys = getExpandedKey(checkedPath);
             this.setState({ expandedKeys: union(expandedKeys, keys) });
             scroll();
         } else {
-            debugger;
             Api.locateStreamCataPosition({
                 id,
                 catalogueType: type,
