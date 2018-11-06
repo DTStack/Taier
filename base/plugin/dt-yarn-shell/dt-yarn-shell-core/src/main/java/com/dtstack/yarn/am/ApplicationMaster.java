@@ -180,9 +180,7 @@ public class ApplicationMaster extends CompositeService {
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
 
-        handleRMCallbackOfContainerRequest(appArguments.workerNum);
-
-        List<Container> acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
+        List<Container> acquiredWorkerContainers = handleRMCallbackOfContainerRequest(appArguments.workerNum);
 
         int i = 0;
         for (Container container : acquiredWorkerContainers) {
@@ -210,9 +208,7 @@ public class ApplicationMaster extends CompositeService {
             }
 
             //失败后重试
-            handleRMCallbackOfContainerRequest(failedEntities.size());
-
-            acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
+            acquiredWorkerContainers = handleRMCallbackOfContainerRequest(failedEntities.size());
 
             for (ContainerEntity containerEntity : failedEntities) {
                 Container container = acquiredWorkerContainers.remove(0);
@@ -232,7 +228,7 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
-    public void handleRMCallbackOfContainerRequest(int workerNum){
+    public List<Container> handleRMCallbackOfContainerRequest(int workerNum){
         rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
         rmCallbackHandler.resetAllocatedWorkerContainerNumber();
         rmCallbackHandler.resetAcquiredWorkerContainers();
@@ -277,6 +273,9 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info("Release container " + releaseContainer.getId().toString());
             }
         }
+
+        LOG.info("Total " + acquiredWorkerContainers.size() + " worker containers has allocated.");
+        return acquiredWorkerContainers;
     }
 
     private Map<String, LocalResource> buildContainerLocalResource() {
