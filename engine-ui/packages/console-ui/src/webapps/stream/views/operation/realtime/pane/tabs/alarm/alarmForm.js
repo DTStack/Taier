@@ -22,6 +22,7 @@ class AlarmForm extends Component {
     componentWillReceiveProps(nextProps) {
         const { alarmInfo = {}, visible } = nextProps;
         if (visible && this.props.visible != visible) {
+            this.props.form.resetFields();
             this.setState({
                 senderTypes: alarmInfo.senderTypes || [],
                 myTrigger: alarmInfo.myTrigger || alarmTriggerType.TASK_FAIL
@@ -110,6 +111,7 @@ class AlarmForm extends Component {
                 visible={visible}
                 onOk={this.submit}
                 onCancel={this.cancle}
+                width={550}
             >
                 <Form>
                     <FormItem

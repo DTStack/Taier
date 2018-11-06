@@ -171,7 +171,7 @@ class AlarmConfigList extends React.Component {
             if (res.code === 1) {
                 ctx.setState({ visible: false, alarmInfo:undefined })
                 ctx.loadAlarmRules()
-                resolve(true);
+                return true;
             }
         })
     }
@@ -218,7 +218,7 @@ class AlarmConfigList extends React.Component {
                 message.success('告警更新成功！')
                 ctx.setState({ visible: false, alarmInfo:undefined })
                 ctx.loadAlarmRules()
-                resolve(true);
+                return true;
             }
         })
     }

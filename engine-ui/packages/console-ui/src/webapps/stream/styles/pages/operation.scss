@@ -351,7 +351,7 @@
         padding-top:40px;
         text-align: center;
         .loading{
-            position: relative;
+            position: absolute;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -360,6 +360,12 @@
         padding-top:40px;
         height:100%;
         position: relative;
+        .no-data-text{
+            color: #666666;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 100px;
+        }
     }
 }
 .alarm-graph-row{
@@ -391,6 +397,7 @@
         font-size: 14px;
     }
 }
+
 .pane-height100-box{
     display: flex;
     height: 100%;
