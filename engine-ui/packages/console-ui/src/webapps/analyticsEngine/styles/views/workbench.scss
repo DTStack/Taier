@@ -636,6 +636,15 @@
         font-size: 12px;
     }
 }
-.ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content{
-    overflow: scroll;
+
+.db-users {
+    border-bottom: 0;
+
+    .ant-table-thead > tr > th {
+        padding: 9px 8px;
+    }
+
+    .ant-table-tbody > tr > td {
+        padding: 12px 8px;
+    }
 }

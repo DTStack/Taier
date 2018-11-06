@@ -43,7 +43,7 @@ class DatabaseForm extends Component {
 
         return (
             <Form style={{marginTop: '24px'}}>
-                <FormItem {...formItemLayout} label="数据库标识" hasFeedback>
+                <FormItem {...formItemLayout} label="数据库标识" hasFeedback={isCreate}>
                     {getFieldDecorator("name", {
                         rules: [
                             {
@@ -63,7 +63,7 @@ class DatabaseForm extends Component {
                         initialValue: databaseData ? databaseData.name : ""
                     })(<Input autoComplete="off" disabled={!isCreate} />)}
                 </FormItem>
-                <FormItem {...formItemLayout} label="用户名" hasFeedback>
+                <FormItem {...formItemLayout} label="用户名" hasFeedback={isCreate}>
                     {getFieldDecorator("dbUserName", {
                         rules: [
                             {
