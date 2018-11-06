@@ -45,6 +45,6 @@ public class TestDao {
         RdosEngineStreamJobDAO rdosTaskDAO = new RdosEngineStreamJobDAO();
         String taskId = "123";
         String engineId = "123";
-        rdosTaskDAO.updateTaskEngineId(taskId, engineId);
+        rdosTaskDAO.updateTaskEngineId(taskId, engineId, null);
     }
 }

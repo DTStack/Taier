@@ -70,7 +70,7 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 
-	public void updateTaskPluginId(final String taskId, long pluginId){
+	public void updateTaskPluginId(String taskId, long pluginId){
 
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
@@ -84,28 +84,28 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 	
-	public void updateTaskEngineId(final String taskId,final String engineId){
+	public void updateTaskEngineId( String taskId, String engineId, String applicationId){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				rdosTaskMapper.updateTaskEngineId(taskId, engineId);
+				rdosTaskMapper.updateTaskEngineId(taskId, engineId, applicationId);
 				return null;
 			}
 		});
 	}
 	
 	
-	public void updateTaskEngineIdAndStatus(final String taskId, final String engineId, final int status){
+	public void updateTaskEngineIdAndStatus(String taskId, String engineId, String applicationId, int status){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, status);
+				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, applicationId, status);
 				return null;
 			}
 		});

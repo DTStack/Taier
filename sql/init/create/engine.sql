@@ -38,6 +38,7 @@ CREATE TABLE `rdos_engine_stream_job` (
   `task_id` varchar(256) NOT NULL COMMENT '离线任务id',
   `task_name` VARCHAR(256) DEFAULT NULL COMMENT '任务名称',
   `engine_task_id` varchar(256)  COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256)  COMMENT '独立运行的任务需要记录额外的id',
   `exec_start_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '执行开始时间',
   `exec_end_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '执行结束时间',
   `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',

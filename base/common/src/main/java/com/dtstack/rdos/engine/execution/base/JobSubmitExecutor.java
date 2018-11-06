@@ -88,7 +88,7 @@ public class JobSubmitExecutor {
         }
 
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.cancelJob(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null));
+        return client.cancelJob(JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId()));
     }
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {

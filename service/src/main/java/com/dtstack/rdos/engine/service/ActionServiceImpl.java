@@ -275,6 +275,7 @@ public class ActionServiceImpl {
                 RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
                 if(streamJob != null){
                     paramAction.setEngineTaskId(streamJob.getEngineTaskId());
+                    paramAction.setApplicationId(streamJob.getApplicationId());
                 }
             }
 
@@ -507,7 +508,7 @@ public class ActionServiceImpl {
         //do reset status
 
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus());
+            engineStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.UNSUBMIT.getStatus());
             engineStreamTaskDAO.updateSubmitLog(jobId, "");
             engineStreamTaskDAO.updateEngineLog(jobId, "");
         }else if(ComputeType.BATCH.getType().equals(computeType)){

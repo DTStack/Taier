@@ -22,6 +22,8 @@ public class ParamAction {
 	private String taskId;
 	
 	private String engineTaskId;
+
+	private String applicationId;
 	
 	private String name;
 	
@@ -194,6 +196,14 @@ public class ParamAction {
 
 	public void setPriority(long priority) {
 		this.priority = priority;
+	}
+
+	public String getApplicationId() {
+		return applicationId;
+	}
+
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
 	}
 
 	@Override

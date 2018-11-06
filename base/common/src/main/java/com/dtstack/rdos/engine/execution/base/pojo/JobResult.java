@@ -22,7 +22,7 @@ public class JobResult {
 
     public static final String JOB_ID_KEY = "jobid";
 
-    public static final String Ext_ID_KEY = "extid";
+    public static final String EXT_ID_KEY = "extid";
 
     public static final String MSG_INFO = "msg_info";
 
@@ -57,7 +57,7 @@ public class JobResult {
     public static JobResult createSuccessResult(String taskId, String extId){
         JobResult jobResult = createSuccessResult(taskId);
         if(!Strings.isNullOrEmpty(extId)){
-            jobResult.setData(Ext_ID_KEY, extId);
+            jobResult.setData(EXT_ID_KEY, extId);
         }
 
         return jobResult;

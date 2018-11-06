@@ -55,6 +55,8 @@ public class JobClient extends OrderObject{
 
     private String engineTaskId;
 
+    private String applicationId;
+
     private EJobType jobType;
 
     private ComputeType computeType;
@@ -109,6 +111,7 @@ public class JobClient extends OrderObject{
         this.jobName = paramAction.getName();
         this.taskId = paramAction.getTaskId();
         this.engineTaskId = paramAction.getEngineTaskId();
+        this.applicationId = paramAction.getApplicationId();
         this.jobType = EJobType.getEJobType(paramAction.getTaskType());
         this.computeType = ComputeType.getType(paramAction.getComputeType());
         this.externalPath = paramAction.getExternalPath();
@@ -155,6 +158,7 @@ public class JobClient extends OrderObject{
         action.setRestartTime(restartTime);
         action.setGenerateTime(generateTime);
         action.setPriority(priority);
+        action.setApplicationId(applicationId);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -344,6 +348,14 @@ public class JobClient extends OrderObject{
 
     public int getJobPriority() {
         return Integer.MAX_VALUE - (int)(getPriority() / 1000);
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     @Override

@@ -24,6 +24,8 @@ public class RdosEngineStreamJob extends DataObject{
 	 */
     private String engineTaskId;
 
+    private String applicationId;
+
     /**
      * 任务状态
      */
@@ -120,4 +122,12 @@ public class RdosEngineStreamJob extends DataObject{
     public void setPluginInfoId(long pluginInfoId) {
         this.pluginInfoId = pluginInfoId;
     }
+
+	public String getApplicationId() {
+		return applicationId;
+	}
+
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
+	}
 }
