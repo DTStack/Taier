@@ -28,15 +28,45 @@ const taskTypeFilter = (state = [], action) => {
         default: return state;
     }
 }
+const tables = (state = {}, action) => {
+    const { type, key, payload } =  action;
+    const newState = assign({}, state);
+    switch (type) {
+        case commAction.SET_TABLE_LIST: {
+            newState[key] = payload
+            return newState;
+        }
+
+        default: return newState;
+    }
+}
 
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
+    tables
 });
 
 /**
  *  Actions
  */
+export const getTableList = (projectId) => {
+    return (dispatch, getState) => {
+        Api.getTableListByName({
+            appointProjectId: projectId
+        }).then((res) => {
+            if (res.code == 1) {
+                let { data } = res;
+                dispatch({
+                    type: commAction.SET_TABLE_LIST,
+                    payload: data.children,
+                    key: projectId
+                })
+            }
+        })
+    }
+}
+
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
 

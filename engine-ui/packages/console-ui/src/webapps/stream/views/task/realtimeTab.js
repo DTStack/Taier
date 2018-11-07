@@ -535,7 +535,27 @@ class RealTimeTabPane extends Component {
             }
         }
     }
-
+    /**
+     * 没有内容的就不要展开了
+     */
+    safeExpandedKeys(expandedKeys=[],tree=[]){
+        console.log(expandedKeys,tree)
+        let treeKeys=[];
+        function loopTree(tree){
+            for(let i =0;i<tree.length;i++){
+                const item=tree[i];
+                treeKeys.push(''+item.id);
+                if(item.children&&item.children.length){
+                    loopTree(item.children)
+                }
+            }
+        }
+        loopTree(tree);
+        expandedKeys=expandedKeys.filter((expandedKey)=>{
+            return treeKeys.includes(expandedKey)
+        })
+        return expandedKeys;
+    }
     renderTabPanes = () => {
         const { realtimeTree, currentPage, project } = this.props;
         const { expandedKeys, expandedKeys2 } = this.state;
@@ -582,7 +602,7 @@ class RealTimeTabPane extends Component {
                                         loadData={this.loadTreeData}
                                         treeData={menuItem.children}
                                         treeType={menuItem.catalogueType}
-                                        expandedKeys={expandedKeys}
+                                        expandedKeys={this.safeExpandedKeys(expandedKeys,menuItem.children)}
                                         onExpand={this.onExpand}
                                         selectedKeys={[`${currentPage.id}`]}
                                     />

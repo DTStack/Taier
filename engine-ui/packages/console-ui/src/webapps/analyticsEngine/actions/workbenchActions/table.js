@@ -229,37 +229,15 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
-
-
-        let p = {
-            allowCompactionDays: params.allowCompactionDays,
-            autoLoadMerge: params.autoLoadMerge,
-            blockSize: params.blockSize,
-            bucketInfo: params.bucketInfo,
-            columns: params.columns,
-            compactType: params.compactType,
-            compactionSize: params.compactionSize,
-            databaseId: params.databaseId,
-            levelThreshold: params.levelThreshold,
-            lifeCycle: params.lifeCycle,
-            partConfig: params.partitions.partConfig,
-            partitionType: params.partitions.partitionType,
-            partitions: params.partitions.columns,
-            preserveSegments: params.preserveSegments,
-            sortScope: params.sortScope,
-            tableName: params.tableName,
-            type: params.type,
-        }
-        if(p.type === 1){
-            p.location = params.location
-        }
-
-        if(p.lifeCycle === -1){
-            p.lifeCycle = p.shortLisyCycle;
-            delete p.lifeCycle;
+        if(!params.bucketInfo.bucketNumber && (params.bucketInfo.infos && params.bucketInfo.infos.length !== 0)){
+            notification.error({
+                message: '提示',
+                description: '分桶数量不能为空'
+            })
+            return;
         }
         let stopFlag = false;
-        p.columns.map(o=>{
+        params.columns.map(o=>{
             if(!o.name || o.name === '' || !o.type){
                 notification.error({
                     message: '提示',
@@ -267,27 +245,38 @@ export function handleSave(){
                 })
                 stopFlag = true;
             }
-            delete o._fid
         })
         if(stopFlag)    return;
-        p.bucketInfo.infos.map(o=>{
-            delete o.flagIndex
-        })
-        // params.partitions.map(o=>{
-        //     delete o._fid
-        // })
-        // params.databaseId = o.databaseId;
-        p.partitions.columns && p.partitions.columns.map(o=>{
-            delete o._fid
+        else    stopFlag = false;
+
+        params.partitions.columns.map(o=>{
+            if((o.name==='' && o.type!=='') || (o.name!=='' && o.type==='')){
+                notification.error({
+                    message: '提示',
+                    description: '分区名称与分区类型不可为空'
+                })
+                stopFlag = true;
+            }
         })
 
-        p.bucketInfo.infos.map(o=>{
-            delete o._fid
-        })
-9
-        console.log(p)
+        if(stopFlag)    return;
+        else    stopFlag = false;
 
-        const res = await API.createTable(p)
+        if(params.type === 1){
+            params.location = params.location
+        }
+
+        if(params.lifeCycle === -1){
+            params.lifeCycle = params.shortLisyCycle;
+            // delete params.shortLisyCycle;
+        }
+        params.partConfig = params.partitions.partConfig;
+        params.partitionType = params.partitions.partitionType;
+        params.partitions = params.partitions.columns;
+
+
+
+        const res = await API.createTable(params)
         if(res.code === 1){
             console.log('保存成功');
             const data = res.data;
@@ -302,6 +291,11 @@ export function handleSave(){
                 payload: data
             })
         }else{
+            params.partitions = {
+                partConfig: params.partConfig,
+                partitionType: params.partitionType,
+                columns: params.partitions
+            }
             notification.error({
                 message: '提示',
                 description: res.message,

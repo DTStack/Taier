@@ -24,11 +24,24 @@ import { defaultOptions } from './config';
 
 const provideCompletionItemsMap = {
     dtsql: {
+        /**
+         * 注册自定义补全函数
+         */
         register: dtsql.registeCompleteItemsProvider,
+        /**
+         * 释放自定义补全函数
+         */
         dispose: dtsql.disposeProvider,
+        /**
+         * value改变事件注册函数
+         */
         onChange: dtsql.onChange
     }
 }
+/**
+ * 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
+ * @param {function} func 
+ */
 function delayFunctionWrap(func){
     /**
      * 最小执行间隔，每隔一段时间强制执行一次函数
@@ -81,6 +94,9 @@ class Editor extends React.Component {
             this.props.editorInstanceRef(this.monacoInstance)
         }
     }
+    /**
+     * 补全代理函数，来执行用户自定义补全方法。
+     */
     providerProxy = (completeItems, resolve, customCompletionItemsCreater, ext) => {
         const { customCompleteProvider } = this.props;
         if (customCompleteProvider) {
@@ -93,6 +109,9 @@ class Editor extends React.Component {
     initProviderProxy() {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
         for (let [type, language] of keyAndValues) {
+            /**
+             * 每个函数的补全函数都由该组件统一代理
+             */
             language.register(this.providerProxy);
         }
     }
@@ -105,6 +124,9 @@ class Editor extends React.Component {
     componentWillReceiveProps(nextProps) {
         const { sync, value, theme, languageConfig, language, download } = nextProps;
         if (this.props.value !== value && sync) {
+            /**
+             * value更新， 并且含有sync同步标记，则更新编辑器值
+             */
             const editorText = !value ? '' : value;
             this.updateValueWithNoEvent(editorText);
         }
@@ -127,6 +149,10 @@ class Editor extends React.Component {
         this.destroyMonaco();
         this.disposeProviderProxy();
     }
+    /**
+     * 提供下载链接。ps:不是很好用，屏蔽了
+     * @param {string} link 
+     */
     initLink(link){
         this.monacoInstance.changeViewZones(
             (changeAccessor)=>{

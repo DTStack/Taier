@@ -83,17 +83,17 @@ export default class StepOne extends Component{
   }
 
   componentDidMount(){
-    this.getDataBases();
+    // this.getDataBases();
   }
 
-  getDataBases = async (params) => {
-    const result = await API.getDatabases();
-    if (result.code === 1) {
-        this.setState({
-            databaseList: result.data,
-        })
-    }
-}
+  // getDataBases = async (params) => {
+  //   const result = await API.getDatabases();
+  //   if (result.code === 1) {
+  //       this.setState({
+  //           databaseList: result.data,
+  //       })
+  //   }
+  // }
 
 
   next = ()=>{
@@ -165,7 +165,7 @@ export default class StepOne extends Component{
 
   render(){
     const { getFieldDecorator, getFieldsValue } = this.props.form;
-    const { tabData } = this.props;
+    const { tabData,databaseList } = this.props;
     let formData = tabData.tableItem;
     console.log(formData)
     return (
@@ -186,7 +186,7 @@ export default class StepOne extends Component{
               })(
                   <Select style={{width: 570,marginRight:10}}>
                   {
-                    this.state.databaseList.map(o=>(
+                    databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
                     ))
                   }
