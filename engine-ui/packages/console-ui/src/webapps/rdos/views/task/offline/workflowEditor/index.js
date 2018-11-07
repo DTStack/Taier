@@ -276,7 +276,6 @@ class WorkflowEditor extends Component {
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value)) {
                     task.name = value;
-                    // task.readWriteLockVO = null;
                     saveTask(task, true).then(res => {
                         const fileStatus = res.data && res.data.readWriteLockVO 
                         && res.data.readWriteLockVO.result;
