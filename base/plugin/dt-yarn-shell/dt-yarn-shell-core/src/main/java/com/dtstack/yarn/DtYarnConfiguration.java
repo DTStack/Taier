@@ -29,7 +29,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String LEARNING_AM_MEMORY = "learning.am.memory";
 
-    public static final int DEFAULT_LEARNING_AM_MEMORY = 1024;
+    public static final int DEFAULT_LEARNING_AM_MEMORY = 512;
 
     public static final String LEARNING_AM_CORES = "xlearning.am.cores";
 
@@ -37,7 +37,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String LEARNING_WORKER_MEMORY = "xlearning.worker.memory";
 
-    public static final int DEFAULT_LEARNING_WORKER_MEMORY = 1024;
+    public static final int DEFAULT_LEARNING_WORKER_MEMORY = 512;
 
     public static final String LEARNING_WORKER_VCORES = "xlearning.worker.cores";
 
