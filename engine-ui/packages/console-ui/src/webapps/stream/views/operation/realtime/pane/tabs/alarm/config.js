@@ -49,6 +49,27 @@ class AlarmConfigList extends React.Component {
             alarmStatus: filters.alarmStatus ? filters.alarmStatus[0] : ''
         }, this.loadAlarmRules)
     }
+    /**
+     * 删除成功重新加载数据，重新计算current值是否合理
+     */
+    safeDeleteReLoad(){
+        const {pagination} = this.state;
+        let {current,total,pageSize} = pagination;
+        total=total-1;
+        /**
+         * 判断current是否超出total边界
+         */
+        if((current-1)*pageSize>=total&&current>1){
+            current=current-1;
+        }
+        this.setState({
+            pagination:{
+                ...pagination,
+                total,
+                current
+            }
+        },this.loadAlarmRules)
+    }
     loadAlarmRules(data){
         const {pagination,alarmStatus} = this.state;
         data=data||this.props.data||{};
@@ -181,7 +202,7 @@ class AlarmConfigList extends React.Component {
         Api.deleteAlarm(alarm).then((res) => {
             if (res.code === 1) {
                 message.success('删除告警成功！')
-                ctx.loadAlarmRules()
+                ctx.safeDeleteReLoad();
             }
         })
     }
