@@ -222,8 +222,6 @@ class EditorContainer extends Component {
 
         const { tableCompleteItems, funcCompleteItems } = this.state;
 
-        console.log(status);
-
         //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
@@ -292,8 +290,8 @@ class EditorContainer extends Component {
             <Option key={`${opt.id}`} value={opt.id}>{opt.name}</Option>
         ))
         
-        const defaultValue = data ? data.databaseId : 
-        databaseList.length > 0 ? `${databaseList[0].id}` : undefined;
+        const defaultValue = data && data.databaseId ? data.databaseId : 
+        databaseList.length > 0 ? databaseList[0].id : undefined;
 
         return (
             <Select
