@@ -536,7 +536,7 @@ class RealTimeTabPane extends Component {
         }
     }
     /**
-     * 
+     * 没有内容的就不要展开了
      */
     safeExpandedKeys(expandedKeys=[],tree=[]){
         console.log(expandedKeys,tree)
