@@ -249,9 +249,9 @@ class WorkflowEditor extends Component {
         return '';
     }
 
-
     initEditTaskCell = (cell, task) => {
         const ctx = this;
+        const originName = task.name;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
         const { saveTask, loadTreeNode } = this.props;
 
@@ -271,15 +271,22 @@ class WorkflowEditor extends Component {
             if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
-                if (checkNodeName(value) && task.name !== value) {
+                if (checkNodeName(value) && originName !== value) {
                     task.name = value;
                     saveTask(task, true).then(res => {
-                        loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
-                        ctx.updateCellData(cell, task);
-                        ctx.updateGraphData();
+                        const fileStatus = res.data && res.data.readWriteLockVO 
+                        && res.data.readWriteLockVO.result;
+                        if ( res.code === 1 && fileStatus === 0 ) {
+                            console.log('editSucc?', res);
+                            loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
+                            ctx.updateCellData(cell, task);
+                            ctx.updateGraphData();
+                        } else {
+                            editTarget.value = originName;
+                        }
                     });
                 } else {
-                    editTarget.value = task.name;
+                    editTarget.value = originName;
                 }
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);

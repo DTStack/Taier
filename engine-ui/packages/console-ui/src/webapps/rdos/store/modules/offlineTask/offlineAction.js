@@ -422,8 +422,8 @@ export const workbenchActions = (dispatch) => {
                             },
                         });
                     }
-                    return res;
                 }
+                return res;
             }
 
             return ajax.saveOfflineJobData(task).then(succCallback);
