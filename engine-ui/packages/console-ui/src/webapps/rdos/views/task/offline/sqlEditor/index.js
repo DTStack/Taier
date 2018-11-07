@@ -25,6 +25,7 @@ import {
 import { updateUser } from "../../../../store/modules/user";
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
+import { getTableList } from "../../../../store/modules/offlineTask/comm";
 
 @pureRender
 class EditorContainer extends Component {
@@ -34,7 +35,6 @@ class EditorContainer extends Component {
         execConfirmVisible: false,
         tableList: [],
         funcList: [],
-        tableCompleteItems: [],
         funcCompleteItems: [],
         tables: [],
         columns: {}
@@ -58,24 +58,7 @@ class EditorContainer extends Component {
             console.log("project id 0 remove")
             return;
         }
-        API.getTableListByName({
-            appointProjectId: id
-        })
-            .then(
-                (res) => {
-                    if (res.code == 1) {
-                        let { data } = res;
-                        this.setState({
-                            tableList: data.children || [],
-                            tableCompleteItems: data.children && data.children.map(
-                                (table) => {
-                                    return [table.name, '表名', '1200', 'Field']
-                                }
-                            )
-                        })
-                    }
-                }
-            )
+        this.props.getTableList(id);
     }
 
     initFuncList() {
@@ -258,10 +241,20 @@ class EditorContainer extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab)
     }
-
+    tableCompleteItems(tableList) {
+        return tableList.map(
+            (table) => {
+                return [table.name, '表名', '1200', 'Field']
+            }
+        )
+    }
     completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
         const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
-        const { tableCompleteItems, funcCompleteItems } = this.state;
+        const { funcCompleteItems } = this.state;
+        const { project, tables } = this.props;
+        const projectId=project.id;
+        const tableList=tables[projectId];
+        const tableCompleteItems=this.tableCompleteItems(tableList);
         console.log(status)
         //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
@@ -365,14 +358,14 @@ class EditorContainer extends Component {
         let promiseList = [];
         let tables = [];
         let columns = {};
-        let tmp_tables={};
+        let tmp_tables = {};
         for (let location of locations) {
             if (location.type == "table") {
                 for (let identifierChain of location.identifierChain) {
-                    if(tmp_tables[identifierChain.name]){
+                    if (tmp_tables[identifierChain.name]) {
                         continue;
                     }
-                    tmp_tables[identifierChain.name]=true;
+                    tmp_tables[identifierChain.name] = true;
                     tables.push(identifierChain.name);
                     let columns = this.getTableColumns(identifierChain.name);
                     promiseList.push(columns)
@@ -385,7 +378,7 @@ class EditorContainer extends Component {
         Promise.all(promiseList)
             .then(
                 (values) => {
-                    
+
                     //value:[tableName,data]
                     for (let value of values) {
                         //去除未存在的表
@@ -400,11 +393,11 @@ class EditorContainer extends Component {
                 }
             )
     }
-    
+
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
-    debounceSyntaxChange=debounce(this.onSyntaxChange.bind(this),200,{ 'maxWait': 2000 })
-    
+    debounceSyntaxChange = debounce(this.onSyntaxChange.bind(this), 200, { 'maxWait': 2000 })
+
     render() {
 
         const { editor, currentTabData, value, project, user } = this.props;
@@ -420,12 +413,12 @@ class EditorContainer extends Component {
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         const editorOpts = {
             value: value,
             language: 'dtsql',
             options: {
-                readOnly: !couldEdit||isLocked,
+                readOnly: !couldEdit || isLocked,
             },
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
@@ -476,49 +469,49 @@ class EditorContainer extends Component {
                     console={consoleOpts}
                 />
                 <div id="JS_ddl_confirm_modal">
-                <Modal
-                    maskClosable
-                    visible={execConfirmVisible}
-                    title="执行的语句中包含DDL语句，是否确认执行？"
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
-                    getContainer={() => getContainer('JS_ddl_confirm_modal')}
-                    onCancel={() => {
-                        this.setState({ execConfirmVisible: false });
-                    }}
-                    footer={
-                        <div>
-                            <Checkbox onChange={this.onNeverWarning}>
-                                不再提示
+                    <Modal
+                        maskClosable
+                        visible={execConfirmVisible}
+                        title="执行的语句中包含DDL语句，是否确认执行？"
+                        wrapClassName="vertical-center-modal modal-body-nopadding"
+                        getContainer={() => getContainer('JS_ddl_confirm_modal')}
+                        onCancel={() => {
+                            this.setState({ execConfirmVisible: false });
+                        }}
+                        footer={
+                            <div>
+                                <Checkbox onChange={this.onNeverWarning}>
+                                    不再提示
                             </Checkbox>
-                            <Button
-                                onClick={() => {
-                                    this.setState({
-                                        execConfirmVisible: false
-                                    });
+                                <Button
+                                    onClick={() => {
+                                        this.setState({
+                                            execConfirmVisible: false
+                                        });
+                                    }}
+                                >
+                                    取消
+                            </Button>
+                                <Button type="primary" onClick={this.execSQL}>
+                                    执行
+                            </Button>
+                            </div>
+                        }
+                    >
+                        <div style={{ height: "400px" }}>
+                            <Editor
+                                value={confirmCode}
+                                sync={true}
+                                language="dtsql"
+                                options={{
+                                    readOnly: true,
+                                    minimap: {
+                                        enabled: false,
+                                    },
                                 }}
-                            >
-                                取消
-                            </Button>
-                            <Button type="primary" onClick={this.execSQL}>
-                                执行
-                            </Button>
+                            />
                         </div>
-                    }
-                >
-                    <div style={{ height: "400px" }}>
-                        <Editor
-                            value={confirmCode}
-                            sync={true}
-                            language="dtsql"
-                            options={{
-                                readOnly: true,
-                                minimap: {
-                                    enabled: false,
-                                },
-                            }}
-                        />
-                    </div>
-                </Modal>
+                    </Modal>
                 </div>
             </div>
         )
@@ -530,6 +523,7 @@ export default connect(state => {
         editor: state.editor,
         project: state.project,
         user: state.user,
+        tables: state.offlineTask.comm.tables
     }
 }, dispatch => {
     const taskAc = workbenchActions(dispatch);
@@ -538,6 +532,9 @@ export default connect(state => {
         updateTaskField: taskAc.updateTaskField,
         updateUser: (user) => {
             dispatch(updateUser(user));
+        },
+        getTableList: (projectId) => {
+            dispatch(getTableList(projectId));
         }
     })
     return actions;
