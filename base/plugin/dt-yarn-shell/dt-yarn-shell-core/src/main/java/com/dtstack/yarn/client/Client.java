@@ -45,10 +45,13 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
     private static final Log LOG = LogFactory.getLog(Client.class);
+
+    private static final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
 
     private DtYarnConfiguration conf;
     private final FileSystem dfs;
@@ -67,10 +70,20 @@ public class Client {
 
         String appMasterJarPath = conf.get(DtYarnConfiguration.DTYARNSHELL_APPMASTERJAR_PATH, DtYarnConfiguration.DEFAULT_DTYARNSHELL_APPMASTERJAR_PATH);
         appMasterJar = Utilities.getRemotePath(conf, appMasterJarPath);
-        if (!dfs.exists(appMasterJar)){
-            Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
-            LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
-            dfs.copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+        if (REFRESH_APP_MASTER_JAR.get()) {
+            synchronized (REFRESH_APP_MASTER_JAR) {
+                if (REFRESH_APP_MASTER_JAR.get()) {
+                    if (dfs.exists(appMasterJar)) {
+                        if (dfs.delete(appMasterJar)) {
+                            LOG.warn("Could not delete remote path " + appMasterJar.toString());
+                        }
+                    }
+                    Path appJarSrc = new Path(JobConf.findContainingJar(ApplicationMaster.class));
+                    LOG.info("Copying " + appJarSrc + " to remote path " + appMasterJar.toString());
+                    dfs.copyFromLocalFile(false, true, appJarSrc, appMasterJar);
+                    REFRESH_APP_MASTER_JAR.set(false);
+                }
+            }
         }
     }
 
@@ -150,7 +163,7 @@ public class Client {
             for (int i = 0; i < clientArguments.files.length; i++) {
                 assert (!clientArguments.files[i].isEmpty());
 
-                if(!clientArguments.files[i].startsWith("hdfs:")) { //local
+                if (!clientArguments.files[i].startsWith("hdfs:")) { //local
                     Path xlearningFilesSrc = new Path(clientArguments.files[i]);
                     xlearningFilesDst[i] = Utilities.getRemotePath(
                             taskConf, applicationId, new Path(clientArguments.files[i]).getName());
@@ -327,7 +340,7 @@ public class Client {
 
     public List<String> getContainerInfos(String jobId) throws IOException {
         ApplicationId appId = ConverterUtils.toApplicationId(jobId);
-        Path cIdPath = Utilities.getRemotePath(conf, appId,"containers");
+        Path cIdPath = Utilities.getRemotePath(conf, appId, "containers");
         FileStatus[] status = dfs.listStatus(cIdPath);
         List<String> infos = new ArrayList<>(status.length);
         for (FileStatus file : status) {

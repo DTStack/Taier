@@ -240,7 +240,7 @@ public class DtContainer {
         try {
             ContainerId cId = containerId.getContainerId();
             Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
-            if (!dfs.exists(cIdPath)) {
+            if (dfs.exists(cIdPath)) {
                 dfs.delete(cIdPath);
             }
             out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
