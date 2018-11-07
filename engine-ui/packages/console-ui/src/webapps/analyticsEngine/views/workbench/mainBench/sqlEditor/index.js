@@ -46,7 +46,7 @@ class EditorContainer extends Component {
         funcList: [],
         tableCompleteItems: [],
         funcCompleteItems: [],
-        selectedDatabase: this.props.data ? this.props.data.databaseId : '', // 选中的数据库数据库
+        selectedDatabase: '', // 选中的数据库数据库
         tables: [],
         columns: {}, // 暂时不支持字段AutoComplete
     };
@@ -55,10 +55,16 @@ class EditorContainer extends Component {
     _tableLoading = {};
 
     componentDidMount() {
-        const currentNode = this.props.data;
-        if (currentNode) {
-            this.props.getTab(currentNode.id); //初始化console所需的数据结构
+        const { databaseList, data } = this.props;
+        if (data) {
+            this.props.getTab(data.id); //初始化console所需的数据结构
         }
+
+        const defaultDBValue = data && data.databaseId ? data.databaseId : 
+        databaseList.length > 0 ? databaseList[0].id : '';
+        this.setState({
+            selectedDatabase: defaultDBValue,
+        })
         this.initTableList();
     }
 
@@ -290,15 +296,12 @@ class EditorContainer extends Component {
             <Option key={`${opt.id}`} value={opt.id}>{opt.name}</Option>
         ))
         
-        const defaultValue = data && data.databaseId ? data.databaseId : 
-        databaseList.length > 0 ? databaseList[0].id : undefined;
-
         return (
             <Select
                 className="ide-toobar-select"
                 placeholder="请选择数据库"
                 onChange={this.onDatabaseChange}
-                defaultValue={defaultValue}
+                value={this.state.selectedDatabase}
             >
                 { dbOptions }
             </Select>
