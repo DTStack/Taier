@@ -46,7 +46,7 @@ class AlarmBaseGraphBox extends React.Component {
                 <div id={key} className="alarm-basegraph-box">
                     <header>
                         {title}
-                        {loading&&haveLineData?<FullScreen
+                        {!loading&&haveLineData?<FullScreen
                             target={key}
                             fullIcon={<Icon className="alt" type="arrows-alt" />}
                             exitFullIcon={<Icon className="alt" type="shrink" />}
