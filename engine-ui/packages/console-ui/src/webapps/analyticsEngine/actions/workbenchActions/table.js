@@ -229,22 +229,14 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
-        if(params.type === 1){
-            params.location = params.location
-        }
-
-        if(params.lifeCycle === -1){
-            params.lifeCycle = params.shortLisyCycle;
-            delete params.shortLisyCycle;
-        }
-        let stopFlag = false;
-        if(!params.bucketInfo.bucketNumber){
+        if(!params.bucketInfo.bucketNumber && (params.bucketInfo.infos && params.bucketInfo.infos.length !== 0)){
             notification.error({
                 message: '提示',
                 description: '分桶数量不能为空'
             })
             return;
         }
+        let stopFlag = false;
         params.columns.map(o=>{
             if(!o.name || o.name === '' || !o.type){
                 notification.error({
@@ -255,6 +247,34 @@ export function handleSave(){
             }
         })
         if(stopFlag)    return;
+        else    stopFlag = false;
+
+        params.partitions.columns.map(o=>{
+            if((o.name==='' && o.type!=='') || (o.name!=='' && o.type==='')){
+                notification.error({
+                    message: '提示',
+                    description: '分区名称与分区类型不可为空'
+                })
+                stopFlag = true;
+            }
+        })
+
+        if(stopFlag)    return;
+        else    stopFlag = false;
+
+        if(params.type === 1){
+            params.location = params.location
+        }
+
+        if(params.lifeCycle === -1){
+            params.lifeCycle = params.shortLisyCycle;
+            // delete params.shortLisyCycle;
+        }
+        params.partConfig = params.partitions.partConfig;
+        params.partitionType = params.partitions.partitionType;
+        params.partitions = params.partitions.columns;
+
+
 
         const res = await API.createTable(params)
         if(res.code === 1){
@@ -271,6 +291,11 @@ export function handleSave(){
                 payload: data
             })
         }else{
+            params.partitions = {
+                partConfig: params.partConfig,
+                partitionType: params.partitionType,
+                columns: params.partitions
+            }
             notification.error({
                 message: '提示',
                 description: res.message,
