@@ -96,6 +96,8 @@ public class FlinkClient extends AbsClient {
     //FIXME key值需要根据客户端传输名称调整
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
+    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
+
     private String tmpFileDirPath = "./tmp";
 
     //http://${addr}/proxy/${applicationId}/
@@ -140,7 +142,7 @@ public class FlinkClient extends AbsClient {
     public void init(Properties prop) throws Exception {
 
         String propStr = PublicUtil.objToString(prop);
-        flinkConfig = PublicUtil.jsonStrToObject (propStr, FlinkConfig.class);
+        flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
         prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
 
         tmpFileDirPath = flinkConfig.getJarTmpDir();
@@ -646,8 +648,8 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String getMessageByHttp(String path, ClusterClient clusterClient) {
-        String reqUrl = String.format("%s%s", getReqUrl(client), path);
+    private String getMessageByHttp(String path, String reqURL){
+        String reqUrl = String.format("%s%s", reqURL, path);
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
@@ -662,27 +664,29 @@ public class FlinkClient extends AbsClient {
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+        String reqURL;
 
         //从jobhistory读取
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
-            return "---not deal now----";
-        }
-
-        //TODO 区分是在运行中还是已经结束状态
-        ClusterClient currClient;
-        if(StringUtils.isNotBlank(applicationId)){
-            currClient = clusterClientCache.getClusterClient(applicationId);
+            reqURL = flinkConfig.getFlinkJobHistory();
         }else{
-            currClient = client;
+            ClusterClient currClient;
+            if(StringUtils.isNotBlank(applicationId)){
+                currClient = clusterClientCache.getClusterClient(applicationId);
+            }else{
+                currClient = client;
+            }
+
+            reqURL = currClient.getWebInterfaceURL();
         }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-        String except = getMessageByHttp(exceptPath, currClient);
+        String except = getMessageByHttp(exceptPath, reqURL);
         String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-        String jobInfo = getMessageByHttp(jobPath, currClient);
+        String jobInfo = getMessageByHttp(jobPath, reqURL);
         String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-        String accuInfo = getMessageByHttp(accuPath, currClient);
+        String accuInfo = getMessageByHttp(accuPath, reqURL);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
         retMap.put("jobInfo", jobInfo);
@@ -799,6 +803,31 @@ public class FlinkClient extends AbsClient {
         }
 
         cacheFile.remove(jobClient.getTaskId());
+    }
+
+    @Override
+    public String getCheckpoints(JobIdentifier jobIdentifier) {
+        String appId = jobIdentifier.getApplicationId();
+        String jobId = jobIdentifier.getJobId();
+
+        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+
+        String reqURL;
+        if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
+                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
+            reqURL = flinkConfig.getFlinkJobHistory();
+        }else{
+            ClusterClient currClient;
+            if(StringUtils.isNotBlank(appId)){
+                currClient = clusterClientCache.getClusterClient(appId);
+            }else{
+                currClient = client;
+            }
+
+            reqURL = currClient.getWebInterfaceURL();
+        }
+
+        return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
     }
 
     private boolean existsJobOnFlink(String engineJobId){

@@ -160,4 +160,19 @@ public class ClientProxy implements IClient{
             throw new RdosException(e.getMessage());
         }
     }
+
+    @Override
+    public String getCheckpoints(JobIdentifier jobIdentifier) {
+        try {
+            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
+
+                @Override
+                public String execute() throws Exception {
+                    return targetClient.getCheckpoints(jobIdentifier);
+                }
+            }, targetClient.getClass().getClassLoader(),true);
+        } catch (Exception e) {
+            throw new RdosException(e.getMessage());
+        }
+    }
 }

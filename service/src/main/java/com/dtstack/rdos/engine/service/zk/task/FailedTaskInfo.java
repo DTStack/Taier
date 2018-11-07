@@ -1,5 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.task;
 
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
+
 /**
  *
  * Date: 2018/6/11
@@ -15,7 +17,7 @@ public class FailedTaskInfo {
 
     private String jobId;
 
-    private String engineJobId;
+    private JobIdentifier jobIdentifier;
 
     private String engineType;
 
@@ -23,9 +25,9 @@ public class FailedTaskInfo {
 
     private String pluginInfo;
 
-    public FailedTaskInfo(String jobId, String engineJobId, String engineType, int computeType, String pluginInfo){
+    public FailedTaskInfo(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
         this.jobId = jobId;
-        this.engineJobId = engineJobId;
+        this.jobIdentifier = jobIdentifier;
         this.engineType = engineType;
         this.computeType = computeType;
         this.pluginInfo = pluginInfo;
@@ -45,14 +47,6 @@ public class FailedTaskInfo {
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
-    }
-
-    public String getEngineJobId() {
-        return engineJobId;
-    }
-
-    public void setEngineJobId(String engineJobId) {
-        this.engineJobId = engineJobId;
     }
 
     public String getEngineType() {
@@ -77,6 +71,14 @@ public class FailedTaskInfo {
 
     public void setPluginInfo(String pluginInfo) {
         this.pluginInfo = pluginInfo;
+    }
+
+    public JobIdentifier getJobIdentifier() {
+        return jobIdentifier;
+    }
+
+    public void setJobIdentifier(JobIdentifier jobIdentifier) {
+        this.jobIdentifier = jobIdentifier;
     }
 
     public boolean canTryLogAgain(){

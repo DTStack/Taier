@@ -69,4 +69,9 @@ public abstract class AbsClient implements IClient{
     public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
         return null;
     }
+
+    @Override
+    public String getCheckpoints(JobIdentifier jobIdentifier) {
+        return null;
+    }
 }

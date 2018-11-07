@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.google.common.base.Strings;
@@ -45,36 +46,45 @@ public class ClientOperator {
 
             return  (RdosTaskStatus) result;
         }catch (Exception e){
-            LOG.error("", e);
-            throw new RdosException("get job:" + jobId + " exception:" + e.getMessage());
+            throw new RdosException("get job:" + jobId + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 
     public String getEngineMessageByHttp(String engineType, String path, String pluginInfo){
-        String message = "";
+        String message;
+
         try {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             message = client.getMessageByHttp(path);
         } catch (Exception e) {
-            LOG.error("", e);
-            message = e.toString();
+            message = ExceptionUtil.getErrorMessage(e);
         }
+
         return message;
     }
 
-    public String getEngineLog(String engineType, String pluginInfo, String jobId) {
+    public String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
 
-        String logInfo = "";
+        String logInfo;
 
         try{
             IClient client = clientCache.getClient(engineType, pluginInfo);
-            logInfo = client.getJobLog(JobIdentifier.createInstance(jobId, null));
+            logInfo = client.getJobLog(jobIdentifier);
         }catch (Exception e){
-            LOG.error("", e);
-            logInfo = e.toString();
+            logInfo = ExceptionUtil.getErrorMessage(e);
         }
 
         return logInfo;
+    }
+
+    public String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+
+        try{
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getCheckpoints(jobIdentifier);
+        }catch (Exception e){
+            throw new RdosException("get job checkpoints:" + jobIdentifier.getJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+        }
     }
 
 }

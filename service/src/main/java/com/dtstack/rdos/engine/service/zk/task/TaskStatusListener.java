@@ -52,7 +52,6 @@ public class TaskStatusListener implements Runnable{
 
     public final static String SYS_CANCLED_LOG = "系统查询不到任务状态,主动设置为取消状态";
 
-    public final static String FLINK_CP_URL_FORMAT = "/jobs/%s/checkpoints";
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
 
@@ -105,7 +104,7 @@ public class TaskStatusListener implements Runnable{
             for(Map.Entry<String, FailedTaskInfo> failedTaskEntry : failedJobCache.entrySet()){
                 FailedTaskInfo failedTaskInfo = failedTaskEntry.getValue();
                 String key = failedTaskEntry.getKey();
-                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getEngineJobId(),
+                updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
                 failedTaskInfo.tryLog();
 
@@ -183,18 +182,18 @@ public class TaskStatusListener implements Runnable{
                     Integer status = rdosTaskStatus.getStatus();
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                    updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }
 
-                    dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, engineTaskId, pluginInfoStr);
+                    dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, jobIdentifier, pluginInfoStr);
                 }
 
                 if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
-                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, engineTaskId,
+                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
                 }
@@ -210,19 +209,21 @@ public class TaskStatusListener implements Runnable{
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, null);
+
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
                 if(rdosBatchJob.getPluginInfoId() > 0 ){
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, JobIdentifier.createInstance(engineTaskId, null));
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                    updateJobEngineLog(taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
@@ -233,7 +234,7 @@ public class TaskStatusListener implements Runnable{
                 }
 
                 if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
-                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), rdosBatchJob.getEngineJobId(),
+                    FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
                 }
@@ -244,10 +245,10 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-	private void updateJobEngineLog(String jobId, String engineJobId, String engineType, int computeType, String pluginInfo){
+	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
 
         //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, pluginInfo, engineJobId);
+        String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
 
         updateJobEngineLog(jobId, jobLog, computeType);
     }
@@ -270,10 +271,11 @@ public class TaskStatusListener implements Runnable{
      * @param jobId
      */
     private void dealStreamAfterGetStatus(Integer status, String jobId, String engineTypeName, String zkTaskId,
-                                          int computeType, String engineTaskId, String pluginInfo){
+                                          int computeType, JobIdentifier jobIdentifier, String pluginInfo){
 
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
+        String engineTaskId = jobIdentifier.getJobId();
 
         if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 
@@ -293,8 +295,7 @@ public class TaskStatusListener implements Runnable{
             }
 
             //TODO 各个插件的操作移动到插件本身
-            String checkPath = String.format(FLINK_CP_URL_FORMAT, engineTaskId);
-            String checkPointJsonStr = JobClient.getInfoByHttp(engineTypeName, checkPath, pluginInfo);
+            String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
             updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
         }
     }

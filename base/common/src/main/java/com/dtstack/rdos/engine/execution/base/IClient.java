@@ -35,4 +35,6 @@ public interface IClient {
 
 	List<String> getContainerInfos(JobIdentifier jobIdentifier);
 
+	String getCheckpoints(JobIdentifier jobIdentifier);
+
 }

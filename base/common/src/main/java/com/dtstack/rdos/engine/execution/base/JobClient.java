@@ -92,12 +92,16 @@ public class JobClient extends OrderObject{
         return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, jobIdentifier);
     }
 
-    public static String getEngineLog(String engineType, String pluginInfo, String jobId){
-        return ClientOperator.getInstance().getEngineLog(engineType, pluginInfo, jobId);
+    public static String getEngineLog(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+        return ClientOperator.getInstance().getEngineLog(engineType, pluginInfo, jobIdentifier);
     }
 
     public static String getInfoByHttp(String engineType, String path, String pluginInfo){
         return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path, pluginInfo);
+    }
+
+    public static String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+        return ClientOperator.getInstance().getCheckpoints(engineType, pluginInfo, jobIdentifier);
     }
 
     @Deprecated
