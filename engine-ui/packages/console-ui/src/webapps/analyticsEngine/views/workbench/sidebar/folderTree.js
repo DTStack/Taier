@@ -143,12 +143,14 @@ class FolderTree extends React.PureComponent {
     }
 
     render() {
+        console.log('expandedKeys:', this.props.expandedKeys)
         return (
             <div className="s-catalogue">
                 <Tree
                     showIcon={true}
                     autoExpandParent={false}
                     expandedKeys={this.props.expandedKeys}
+                    selectedKeys={this.props.selectedKeys}
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}

@@ -111,21 +111,21 @@ class Sidebar extends Component {
 
         const { expandedKeys } = this.state;
         const { eventKey, fileType } = node.props;
-        if (fileType === CATALOGUE_TYPE.DATA_MAP ) return false;
-
         this.setState({
             selectedKeys, 
         });
+
+        if (fileType === CATALOGUE_TYPE.DATA_MAP ) return false;
 
         const eventKeyIndex = expandedKeys.indexOf(eventKey);
         this.asynLoadCatalogue(node);
 
         if (eventKeyIndex > -1) {
             expandedKeys.splice(eventKeyIndex, 1);
-            this.onExpand(expandedKeys, { expanded: false })
+            this.onExpand(expandedKeys, { expanded: false });
         } else {
             expandedKeys.push(eventKey);
-            this.onExpand(expandedKeys, { expanded: true })
+            this.onExpand(expandedKeys, { expanded: true });
         }
     }
 
