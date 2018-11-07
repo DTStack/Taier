@@ -250,7 +250,8 @@ class WorkflowEditor extends Component {
     }
 
 
-    initEditTaskCell = (task) => {
+    initEditTaskCell = (cell, task) => {
+        const ctx = this;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
         const { saveTask, loadTreeNode } = this.props;
 
@@ -274,7 +275,9 @@ class WorkflowEditor extends Component {
                     task.name = value;
                     saveTask(task, true).then(res => {
                         loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
-                    })
+                        ctx.updateCellData(cell, task);
+                        ctx.updateGraphData();
+                    });
                 } else {
                     editTarget.value = task.name;
                 }
@@ -526,7 +529,7 @@ class WorkflowEditor extends Component {
                     ctx.saveTask(cell);
                 }, null, null, true) // 正常状态
                 menu.addItem('编辑名称', null, function() {
-                    ctx.initEditTaskCell(currentNode);
+                    ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true) // 正常状态
     
                 menu.addItem('查看节点内容', null, function() {
