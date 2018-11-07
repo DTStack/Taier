@@ -323,7 +323,7 @@ class DatabaseDetail extends Component {
         };
 
         return (
-            <div className="pane-wrapper" style={{ padding: '0px 20px' }}>
+            <div className="pane-wrapper" style={{ padding: '0px 20px 50px 20px' }}>
                 <Row className="row-content">
                     <h1 className="row-title">
                         数据库信息
