@@ -18,6 +18,7 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { matchTaskParams } from '../../../../comm';
+import {RDB_TYPE_ARRAY} from "../../../../comm/const"
 import {
     workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
@@ -63,7 +64,7 @@ class SourceForm extends React.Component {
                 }
             }
         }
-        if (tableName && sourceId) {
+        if (tableName && sourceId && RDB_TYPE_ARRAY.indexOf(sourceMap.type.type)>-1) {
             this.getCopate(sourceId, tableName);
         }
     }
