@@ -60,7 +60,35 @@ class EditCluster extends React.Component {
         secondIptValue: undefined,
         thirdIptValue: undefined,
         firstOption: "FALSE",
-        secondOption: "TRUE"
+        secondOption: "TRUE",
+        hasFlink: false
+    }
+    componentWillMount() {
+        const { location, form } = this.props;
+        const params = location.state || {};
+        if (params.mode == "edit" || params.mode == "view") {
+            Api.getClusterInfo({
+                clusterId: params.cluster.id
+            }).then((res) => {
+                if (res.code == 1) {
+                    const cluster = res.data;
+                    let clusterConf = cluster.clusterConf;
+                    clusterConf = JSON.parse(clusterConf);
+                    const flinkData = clusterConf.flinkConf;
+                    if (flinkData.hasOwnProperty('gatewayHost')) {
+                        this.setState({
+                            hasFlink: true
+                        },() => {
+                            if(this.state.hasFlink) {
+                                this.setState({
+                                    checked: true
+                                })
+                            }
+                        })
+                    }
+                }
+            })
+        }
     }
     componentDidMount() {
         this.getDataList();
@@ -69,13 +97,9 @@ class EditCluster extends React.Component {
 
     // 填充表单数据
     getDataList() {
-        // const {checked} = this.state;
         const { location, form } = this.props;
         const params = location.state || {};
         if (params.mode == "edit" || params.mode == "view") {
-            // this.setState({
-            //     checked: true
-            // })
             Api.getClusterInfo({
                 clusterId: params.cluster.id
             })
@@ -85,10 +109,12 @@ class EditCluster extends React.Component {
                             const cluster = res.data;
                             let clusterConf = cluster.clusterConf;
                             clusterConf = JSON.parse(clusterConf);
+                            const flinkData = clusterConf.flinkConf;
                             const extParams = this.exchangeServerParams(clusterConf)
                             const flinkConf = clusterConf.flinkConf;
                             this.myUpperCase(flinkConf);
                             this.setState({
+                                // checked: true,
                                 core: cluster.totalCore,
                                 memory: cluster.totalMemory,
                                 nodeNumber: cluster.totalNode,
@@ -199,7 +225,7 @@ class EditCluster extends React.Component {
           for (let i = 0; i < values.length; i++){
             after[newKeys[i]] = values[i]
           }
-          console.log(after)
+        //   console.log(after)
         return after;
     }
 
@@ -227,7 +253,7 @@ class EditCluster extends React.Component {
             after[keySplit] = obj[i];
           }
         }
-        console.log(after)
+        // console.log(after)
         return after;
     }
 
@@ -686,7 +712,8 @@ class EditCluster extends React.Component {
     }
 
     changeCheckbox(e) {
-        const {checked} = this.state;
+        const {checked, flinkData} = this.state;
+        const { location, form } = this.props;
         this.setState({
             checked: e.target.checked
         })
@@ -752,6 +779,7 @@ class EditCluster extends React.Component {
         // 获取flink版本
         const flinkVersion = getFieldValue("flinkConf.typeName");
         const {firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption} = this.state;
+        // const havedata = this.getFieldValue()
         return (
             <div className="contentBox">
                 <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
@@ -1134,11 +1162,13 @@ class EditCluster extends React.Component {
                                 checked={checked}
                                 // disabled={isView}
                                 onChange={this.changeCheckbox.bind(this)}
+                                disabled={isView}
                             >
                                 配置Prometheus Metric地址
                             </Checkbox>
                         </div>
-                        { checked ? (<div>
+                        
+                        {checked ? (<div>
                                 <FormItem
                                     label="reporterClass"
                                     {...formItemLayout}
