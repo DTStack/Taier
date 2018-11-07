@@ -173,9 +173,16 @@ monaco.languages.registerCompletionItemProvider("dtsql", {
     }
 });
 
+/**
+ * 该方法提供一个注册自定义补全函数的接口
+ * @param {function} completeProvideFunc 
+ */
 export function registeCompleteItemsProvider(completeProvideFunc) {
     _completeProvideFunc = completeProvideFunc;
 }
+/**
+ * 注销自定义补全函数
+ */
 export function disposeProvider() {
     _completeProvideFunc = null;
 }
