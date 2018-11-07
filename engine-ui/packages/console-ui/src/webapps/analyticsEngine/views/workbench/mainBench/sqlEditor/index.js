@@ -83,7 +83,6 @@ class EditorContainer extends Component {
                 tableList: tableList,
                 tableCompleteItems: items,
             });
-            console.log('initTableList:', tableList, items);
         }
     }
 
