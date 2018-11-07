@@ -356,13 +356,13 @@ export const workbenchActions = (dispatch) => {
                 task.taskVOS = null;
             }
 
-
             const succCallback = (res) => {
 
                 const updateTabData = (res) => {
                     const resData = res.data;
                     const data = {
                         id: task.id,
+                        name: resData.name,
                         version: resData.version,
                         readWriteLockVO: resData.readWriteLockVO,
                     }

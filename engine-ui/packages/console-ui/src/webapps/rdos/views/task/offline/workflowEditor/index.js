@@ -3,20 +3,21 @@ import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 
 import { 
-    Tooltip, Icon, 
+    Tooltip, Icon, message,
     Button, Modal, Select, 
 } from 'antd';
 
-import KeyEventListener from 'widgets/keyCombiner/listener'
-import KEY_CODE from 'widgets/keyCombiner/keyCode'
+import utils from 'utils';
+import KeyEventListener from 'widgets/keyCombiner/listener';
+import KEY_CODE from 'widgets/keyCombiner/keyCode';
 
-import MyIcon from '../../../../components/icon'
-import { taskTypeText } from '../../../../components/display'
-import LockPanel from '../../../../components/lockPanel'
+import MyIcon from '../../../../components/icon';
+import { taskTypeText } from '../../../../components/display';
+import LockPanel from '../../../../components/lockPanel';
 
 import {
     workbenchActions,
-} from '../../../../store/modules/offlineTask/offlineAction'
+} from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
 
@@ -26,7 +27,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxLanguage: 'none',
     mxLoadResources: false,
     mxLoadStylesheets: false,
-})
+});
 
 const {
     mxGraph,
@@ -82,7 +83,7 @@ const applyCellStyle = (cellState, style) => {
         currentTab,
         editor,
         taskTypes: offlineTask.comm.taskTypes,
-        project:project
+        project: project
     }
 }, workbenchActions )
 class WorkflowEditor extends Component {
@@ -240,11 +241,54 @@ class WorkflowEditor extends Component {
         if (task) {
             let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
             const taskType = taskTypeText(task.taskType);
-            return `<div class="vertex"><div class="vertex-title">${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span></div>
+            return `<div class="vertex"><div class="vertex-title">${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>
+            <input class="vertex-input" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
             <span class="vertex-desc">${taskType}</span>
             </div>`
         }
         return '';
+    }
+
+
+    initEditTaskCell = (task) => {
+        const editTarget = document.getElementById(`JS_cell_${task.id}`);
+        const { saveTask, loadTreeNode } = this.props;
+
+        const checkNodeName = function(name) {
+            const reg = /^[A-Za-z0-9_]+$/;
+            if (name.length > 64) {
+                message.error('子节点名称不得超过64个字符！')
+                return false;
+            } else if (!reg.test(name)) {
+                message.error('子节点名称只能由字母、数字、下划线组成!')
+                return false;
+            }
+            return true;
+        }
+   
+        const editSucc = (evt) => {
+            if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
+                editTarget.style.display = 'none';
+                const value = utils.trim(editTarget.value);
+                if (checkNodeName(value) && task.name !== value) {
+                    task.name = value;
+                    saveTask(task, true).then(res => {
+                        loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
+                    })
+                } else {
+                    editTarget.value = task.name;
+                }
+                editTarget.removeEventListener('blur', editSucc, false);
+                editTarget.removeEventListener('keypress', editSucc, false);
+            }
+        }
+
+        if (editTarget) {
+            editTarget.style.display = 'inline-block';
+            editTarget.focus();
+            editTarget.addEventListener("blur", editSucc, false);
+            editTarget.addEventListener("keypress", editSucc, false)
+        }
     }
 
     onkeyDown = (evt) => {
@@ -361,7 +405,7 @@ class WorkflowEditor extends Component {
         const task = tabs.find(item => {
             return item.id === targetTask.id;
         })
-        
+
         if (task) {
             task.notSynced = false;
             saveTask(task).then(res => {
@@ -459,7 +503,7 @@ class WorkflowEditor extends Component {
         const graph = this.graph;
 
         const { openTaskInDev, data, project, user } = this.props;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function() {
             var cells = this.graph.getSelectionCells()
@@ -480,6 +524,9 @@ class WorkflowEditor extends Component {
             if (cell.vertex) {
                 menu.addItem('保存节点', null, function() {
                     ctx.saveTask(cell);
+                }, null, null, true) // 正常状态
+                menu.addItem('编辑名称', null, function() {
+                    ctx.initEditTaskCell(currentNode);
                 }, null, null, true) // 正常状态
     
                 menu.addItem('查看节点内容', null, function() {
@@ -592,15 +639,30 @@ class WorkflowEditor extends Component {
         const { openTaskInDev, } = this.props;
 
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
+            const event = evt.getProperty('event');
+
+            if (event.target.className.indexOf('vertex-input') > -1) {
+                return;
+            }
+
             const cell = evt.getProperty('cell')
             if (cell && cell.vertex) {
                 const data = cell.data;
                 openTaskInDev(data.id);
             }
-        })
+        });
 
         graph.addListener(mxEvent.CLICK, function(sender, evt) {
-            const cell = evt.getProperty('cell')
+            const cell = evt.getProperty('cell');
+            const event = evt.getProperty('event');
+
+            const activeElement = document.activeElement;
+            // 当从编辑对象触发点击事件时，清除activeElement的焦点
+            if (
+                activeElement && activeElement.className.indexOf('vertex-input') > -1) {
+                activeElement.blur();
+            }
+
             if (cell && cell.vertex) {
 
                 graph.clearSelection();
@@ -619,7 +681,7 @@ class WorkflowEditor extends Component {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
             }
-        })
+        });
 
         graph.clearSelection = function(evt) {
             if (selectedCell) {
@@ -636,7 +698,7 @@ class WorkflowEditor extends Component {
 
                 selectedCell = null;
             }
-        }
+        };
     }
 
     listenGraphUpdate = () => {
@@ -758,9 +820,9 @@ class WorkflowEditor extends Component {
 
     renderToolBar = () => {
         const { taskTypes, data, user, project } = this.props;
-        const isPro=project.projectType==PROJECT_TYPE.PRO;
-        const isRoot=user.isRoot;
-        const couldEdit=!isPro||isRoot;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
+        const isRoot = user.isRoot;
+        const couldEdit = !isPro || isRoot;
 
         const showTitle = (type, title) => {
             switch(type) {
