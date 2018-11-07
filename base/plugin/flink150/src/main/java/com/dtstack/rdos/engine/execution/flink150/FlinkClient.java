@@ -649,9 +649,17 @@ public class FlinkClient extends AbsClient {
         String jobId = jobIdentifier.getJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
+        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+
+        //从jobhistory读取
+        if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
+                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
+
+        }
+
         //TODO 区分是在运行中还是已经结束状态
         if(StringUtils.isNotBlank(applicationId)){
-            return null;
+            //return null;
         }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
