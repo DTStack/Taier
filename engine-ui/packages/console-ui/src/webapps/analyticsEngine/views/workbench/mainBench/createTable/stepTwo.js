@@ -393,7 +393,8 @@ export default class StepTwo extends Component{
           <Select defaultValue={record.flagIndex} style={{minWidth: 150}} onChange={(e)=>this.handleBucketChange(e,record)}>
             {
               this.state.columns.map(o=>{
-                return <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>
+
+                return o.name? <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>:''
               })
             }
           </Select>
@@ -448,14 +449,14 @@ export default class StepTwo extends Component{
           {
             record.type === 'DECIMAL' && 
             <span>
-              <Select style={{width: 60,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
                 {
                   decimalPrecision.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
                   })
                 }
               </Select>
-              <Select style={{width: 60,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
                 {
                   decimalScale.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
@@ -490,7 +491,7 @@ export default class StepTwo extends Component{
         title: '注释',
         dataIndex: 'comment',
         render: (text,record)=>(
-          <Input style={{width: record.type === 'DECIMAL' ?120:159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+          <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
         )
       },{
         title: '操作',
