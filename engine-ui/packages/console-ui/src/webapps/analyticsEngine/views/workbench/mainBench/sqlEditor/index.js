@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { debounce } from "lodash";
 import { bindActionCreators } from "redux";
+import { Select } from 'antd';
 
 import utils from "utils";
 import { filterComments, splitSql } from "funcs";
@@ -17,12 +18,16 @@ import workbenchActions from "../../../../actions/workbenchActions";
 import * as editorActions from "../../../../actions/editorActions";
 import commActions from "../../../../actions";
 
+const Option = Select.Option;
+
 @connect(
     state => {
         const { workbench, editor, common } = state;
+        const databaseList = workbench.folderTree.children || [];
         return {
             editor,
             workbench,
+            databaseList,
             tableList: common.tableList,
             currentTab: workbench.mainBench.currentTab,
         };
@@ -41,6 +46,7 @@ class EditorContainer extends Component {
         funcList: [],
         tableCompleteItems: [],
         funcCompleteItems: [],
+        selectedDatabase: this.props.data ? this.props.data.databaseId : '', // 选中的数据库数据库
         tables: [],
         columns: {}, // 暂时不支持字段AutoComplete
     };
@@ -77,7 +83,6 @@ class EditorContainer extends Component {
                 tableList: tableList,
                 tableCompleteItems: items,
             });
-            console.log('initTableList:', tableList, items);
         }
     }
 
@@ -130,6 +135,7 @@ class EditorContainer extends Component {
     };
 
     execSQL = () => {
+
         const {
             editor,
             currentTab,
@@ -137,7 +143,7 @@ class EditorContainer extends Component {
         } = this.props;
 
         const params = {
-            databaseId: data.databaseId,
+            databaseId: this.state.selectedDatabase,
         };
 
         const code =
@@ -216,8 +222,6 @@ class EditorContainer extends Component {
 
         const { tableCompleteItems, funcCompleteItems } = this.state;
 
-        console.log(status);
-
         //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
@@ -274,6 +278,33 @@ class EditorContainer extends Component {
         });
     }
 
+    onDatabaseChange = (value) => {
+        this.setState({
+            selectedDatabase: value,
+        })
+    }
+
+    customToolbar = () => {
+        const { databaseList, data } = this.props;
+        const dbOptions = databaseList && databaseList.map(opt => (
+            <Option key={`${opt.id}`} value={opt.id}>{opt.name}</Option>
+        ))
+        
+        const defaultValue = data && data.databaseId ? data.databaseId : 
+        databaseList.length > 0 ? databaseList[0].id : undefined;
+
+        return (
+            <Select
+                className="ide-toobar-select"
+                placeholder="请选择数据库"
+                onChange={this.onDatabaseChange}
+                defaultValue={defaultValue}
+            >
+                { dbOptions }
+            </Select>
+        )
+    }
+
     debounceChange = debounce(this.handleEditorTxtChange, 300, {
         maxWait: 2000
     });
@@ -285,7 +316,7 @@ class EditorContainer extends Component {
     });
 
     render() {
-        const { editor, data } = this.props;
+        const { editor, data, databaseList } = this.props;
 
         const currentTab = data.id;
 
@@ -329,7 +360,8 @@ class EditorContainer extends Component {
             onRun: this.execConfirm,
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
-            onFileEdit: commonFileEditDelegator(this._editor)
+            onFileEdit: commonFileEditDelegator(this._editor),
+            customToobar: this.customToolbar(),
         };
 
         const consoleOpts = {

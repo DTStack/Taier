@@ -87,3 +87,8 @@ export const compressMode = (
         <p>Minor：在每次插入数据时合并segment</p>
     </div>
 )
+export const decimalType = (
+    <div>
+        <p>type(precision,scale);presicion:数字总长度，最大为38；scale：小数点之后的位数</p>
+    </div>
+)

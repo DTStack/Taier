@@ -36,13 +36,15 @@ class CreateTable extends Component {
     }
     render () {
         const {currentStep} = this.props.data;
+        const {folderTree} = this.props.workbench
+        console.log(this.props)
 
         console.log(this.props.data)
 
         const steps = [
             {
                 title: '基本信息',
-                content: <StepOne tabData={this.props.data}  handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData} handleCancel={this.props.handleCancel} toTableDetail={this.props.toTableDetail}/>
+                content: <StepOne databaseList={folderTree.children || []} tabData={this.props.data}  handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData} handleCancel={this.props.handleCancel} toTableDetail={this.props.toTableDetail}/>
             },{
                 title: '字段与分区',
                 content: <StepTwo tabData={this.props.data}   handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
