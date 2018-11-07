@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -167,13 +168,16 @@ public class TaskStatusListener implements Runnable{
 
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
+            String appId = rdosTask.getApplicationId();
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId);
+
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
                 if(rdosTask.getPluginInfoId() > 0 ){
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosTask.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
@@ -212,7 +216,7 @@ public class TaskStatusListener implements Runnable{
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, engineTaskId);
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, JobIdentifier.createInstance(engineTaskId, null));
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();

@@ -85,11 +85,11 @@ public class JobClient extends OrderObject{
 
     /***
      * 获取engine上job执行的状态
-     * @param engineTaskId engine jobId
+     * @param jobIdentifier
      * @return
      */
-    public static RdosTaskStatus getStatus(String engineType, String pluginInfo, String engineTaskId) {
-        return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, engineTaskId);
+    public static RdosTaskStatus getStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier) {
+        return ClientOperator.getInstance().getJobStatus(engineType, pluginInfo, jobIdentifier);
     }
 
     public static String getEngineLog(String engineType, String pluginInfo, String jobId){

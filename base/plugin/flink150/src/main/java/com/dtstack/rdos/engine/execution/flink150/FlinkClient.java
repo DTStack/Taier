@@ -5,7 +5,12 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.*;
+import com.dtstack.rdos.engine.execution.base.AbsClient;
+import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
+import com.dtstack.rdos.engine.execution.base.JobParam;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
@@ -28,15 +33,12 @@ import org.apache.commons.math3.util.Pair;
 import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobSubmissionResult;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -71,7 +73,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.security.AccessController.doPrivileged;
@@ -87,12 +92,6 @@ public class FlinkClient extends AbsClient {
     private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
 
     private static final String CLASS_FILE_NAME_PRESTR = "class_path";
-
-    private static final int failureRate = 3;
-
-    private static final int failureInterval = 6; //min
-
-    private static final int delayInterval = 10; //sec
 
     //FIXME key值需要根据客户端传输名称调整
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
@@ -423,7 +422,7 @@ public class FlinkClient extends AbsClient {
         String applicationId = jobIdentifier.getApplicationId();
 
         ClusterClient targetClusterClient;
-        if(Strings.isNullOrEmpty(applicationId)){
+        if(!Strings.isNullOrEmpty(applicationId)){
             targetClusterClient = clusterClientCache.getClusterClient(applicationId);
         }else{
             targetClusterClient = client;
@@ -460,7 +459,7 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String reqUrl = getReqUrl(client) + "/jobs/" + jobId;
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
@@ -564,6 +563,10 @@ public class FlinkClient extends AbsClient {
         }
     }
 
+    public String getReqUrl(ClusterClient clusterClient){
+        return clusterClient.getWebInterfaceURL();
+    }
+
     private String getNewReqUrl(){
         return client.getWebInterfaceURL();
     }
@@ -617,7 +620,7 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobMaster(){
-    	String url = getReqUrl();
+    	String url = getReqUrl(client);
     	return url.split("//")[1];
     }
 
@@ -635,7 +638,16 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s", getReqUrl(), path);
+        String reqUrl = String.format("%s%s", getReqUrl(client), path);
+        try {
+            return PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String getMessageByHttp(String path, ClusterClient clusterClient) {
+        String reqUrl = String.format("%s%s", getReqUrl(client), path);
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
@@ -649,17 +661,28 @@ public class FlinkClient extends AbsClient {
         String jobId = jobIdentifier.getJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
+        RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
+
+        //从jobhistory读取
+        if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
+                || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
+            return "---not deal now----";
+        }
+
         //TODO 区分是在运行中还是已经结束状态
+        ClusterClient currClient;
         if(StringUtils.isNotBlank(applicationId)){
-            return null;
+            currClient = clusterClientCache.getClusterClient(applicationId);
+        }else{
+            currClient = client;
         }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-        String except = getMessageByHttp(exceptPath);
+        String except = getMessageByHttp(exceptPath, currClient);
         String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-        String jobInfo = getMessageByHttp(jobPath);
+        String jobInfo = getMessageByHttp(jobPath, currClient);
         String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-        String accuInfo = getMessageByHttp(accuPath);
+        String accuInfo = getMessageByHttp(accuPath, currClient);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
         retMap.put("jobInfo", jobInfo);

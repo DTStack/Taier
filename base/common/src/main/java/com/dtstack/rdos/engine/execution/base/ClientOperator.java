@@ -28,15 +28,16 @@ public class ClientOperator {
         return singleton;
     }
 
-    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, String jobId){
+    public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
 
+        String jobId = jobIdentifier.getJobId();
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
 
         try{
             IClient client = clientCache.getClient(engineType, pluginInfo);
-            Object result = client.getJobStatus(JobIdentifier.createInstance(jobId, null));
+            Object result = client.getJobStatus(jobIdentifier);
 
             if(result == null){
                 return null;
