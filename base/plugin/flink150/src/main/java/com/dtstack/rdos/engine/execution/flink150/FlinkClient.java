@@ -88,12 +88,6 @@ public class FlinkClient extends AbsClient {
 
     private static final String CLASS_FILE_NAME_PRESTR = "class_path";
 
-    private static final int failureRate = 3;
-
-    private static final int failureInterval = 6; //min
-
-    private static final int delayInterval = 10; //sec
-
     //FIXME key值需要根据客户端传输名称调整
     private static final String FLINK_JOB_ALLOWNONRESTOREDSTATE_KEY = "allowNonRestoredState";
 
@@ -460,7 +454,7 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String reqUrl = getReqUrl() + "/jobs/" + jobId;
+        String reqUrl = getReqUrl(client) + "/jobs/" + jobId;
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
@@ -554,7 +548,7 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String getReqUrl() {
+    /*public String getReqUrl() {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
             return getLegacyReqUrl();
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
@@ -562,6 +556,10 @@ public class FlinkClient extends AbsClient {
         } else {
             return getLegacyReqUrl();
         }
+    }*/
+
+    public String getReqUrl(ClusterClient clusterClient){
+        return clusterClient.getWebInterfaceURL();
     }
 
     private String getNewReqUrl(){
@@ -617,7 +615,7 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobMaster(){
-    	String url = getReqUrl();
+    	String url = getReqUrl(client);
     	return url.split("//")[1];
     }
 
@@ -635,7 +633,16 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s", getReqUrl(), path);
+        String reqUrl = String.format("%s%s", getReqUrl(client), path);
+        try {
+            return PoolHttpClient.get(reqUrl);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String getMessageByHttp(String path, ClusterClient clusterClient) {
+        String reqUrl = String.format("%s%s", getReqUrl(client), path);
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
@@ -654,20 +661,23 @@ public class FlinkClient extends AbsClient {
         //从jobhistory读取
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
-
+            return "---not deal now----";
         }
 
         //TODO 区分是在运行中还是已经结束状态
+        ClusterClient currClient;
         if(StringUtils.isNotBlank(applicationId)){
-            return null;
+            currClient = clusterClientCache.getClusterClient(applicationId);
+        }else{
+            currClient = client;
         }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-        String except = getMessageByHttp(exceptPath);
+        String except = getMessageByHttp(exceptPath, currClient);
         String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-        String jobInfo = getMessageByHttp(jobPath);
+        String jobInfo = getMessageByHttp(jobPath, currClient);
         String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-        String accuInfo = getMessageByHttp(accuPath);
+        String accuInfo = getMessageByHttp(accuPath, currClient);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
         retMap.put("jobInfo", jobInfo);
