@@ -257,7 +257,10 @@ class WorkflowEditor extends Component {
 
         const checkNodeName = function(name) {
             const reg = /^[A-Za-z0-9_]+$/;
-            if (name.length > 64) {
+            if (name === '') {
+                message.error('子节点名称不可为空！')
+                return false;
+            } else if (name.length > 64) {
                 message.error('子节点名称不得超过64个字符！')
                 return false;
             } else if (!reg.test(name)) {
@@ -271,8 +274,9 @@ class WorkflowEditor extends Component {
             if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
-                if (checkNodeName(value) && originName !== value) {
+                if (checkNodeName(value)) {
                     task.name = value;
+                    // task.readWriteLockVO = null;
                     saveTask(task, true).then(res => {
                         const fileStatus = res.data && res.data.readWriteLockVO 
                         && res.data.readWriteLockVO.result;
