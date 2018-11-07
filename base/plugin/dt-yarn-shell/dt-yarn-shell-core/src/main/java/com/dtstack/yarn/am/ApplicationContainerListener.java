@@ -141,7 +141,7 @@ public class ApplicationContainerListener
         return failedEntities;
     }
 
-    public List<String> getNodeHosts() {
+    public List<String> getNodeAddress() {
         return entities.stream().map(e->e.getNodeHost()).collect(Collectors.toList());
     }
 
