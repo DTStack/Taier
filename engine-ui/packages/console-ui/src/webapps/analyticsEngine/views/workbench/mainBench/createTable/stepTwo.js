@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { Input, Table, Select, Icon, Button, Row, Checkbox } from 'antd'
+import { Input, Table, Select, Icon, Button, Row, Checkbox, notification } from 'antd'
+import API from '../../../../api';
+import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
+
+
 
 const Option = Select.Option;
 
@@ -56,6 +60,9 @@ const partition_mode = [
     value: 3
   }
 ]
+
+const decimalPrecision = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]
+const decimalScale = [0,1,2,3,4,5,6,7,8,9]
 export default class StepTwo extends Component{
   constructor(props){
     super();
@@ -99,6 +106,7 @@ export default class StepTwo extends Component{
   next = ()=>{
     this.props.handleNextStep();
   }
+
 
   addNewLine = (flag)=>{
     let {columns, partitions,bucketInfo} = this.state;
@@ -270,6 +278,15 @@ export default class StepTwo extends Component{
     this.saveDataToStorage();
   }
 
+  handleDECIMALSelectChange = (e,record,flag)=>{
+    if(flag === 1){
+      record.precision = e
+    }else{
+      record.scale = e;
+    }
+    this.saveDataToStorage();
+  }
+
   handlePartitionModeChange = (e)=>{
     console.log(e)
     let {partitions} = this.state;
@@ -352,13 +369,13 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
-            {
-              field_type.map(o=>{
-                return <Option key={o.value} value={o.value}>{o.name}</Option>
-              })
-            }
-          </Select>
+            <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+              {
+                field_type.map(o=>{
+                  return <Option key={o.value} value={o.value}>{o.name}</Option>
+                })
+              }
+            </Select>
         )
       },{
         title: '注释',
@@ -419,13 +436,37 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <span>
+          <Select style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return <Option key={o.value} value={o.value}>{o.name}</Option>
               })
             }
           </Select>
+
+          {
+            record.type === 'DECIMAL' && 
+            <span>
+              <Select style={{width: 60,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+                {
+                  decimalPrecision.map(o=>{
+                    return <Option key={o} value={o}>{o}</Option>
+                  })
+                }
+              </Select>
+              <Select style={{width: 60,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+                {
+                  decimalScale.map(o=>{
+                    return <Option key={o} value={o}>{o}</Option>
+                  })
+                }
+              </Select>
+              
+            <HelpDoc style={relativeStyle} doc="decimalType" />
+            </span>
+          }
+          </span>
         )
       },{
         title: '倒排索引',
@@ -443,13 +484,13 @@ export default class StepTwo extends Component{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={record.type==='DOUBLE'} defaultChecked={text===1?record.type!=='DOUBLE'?true:false:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',
         dataIndex: 'comment',
         render: (text,record)=>(
-          <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
+          <Input style={{width: record.type === 'DECIMAL' ?120:159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
         )
       },{
         title: '操作',
@@ -531,7 +572,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分桶数量：</span>
-            <Input defaultValue={bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
+            <Input defaultValue={this.state.bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
           <Table
           columns={this.getTableCol(4)}
@@ -545,7 +586,7 @@ export default class StepTwo extends Component{
 
         <div className="nav-btn-box">
               <Button onClick={this.props.handleLastStep}>上一步</Button>
-              <Button type="primary" onClick={this.props.handleSave}>下一步</Button>
+              <Button type="primary" onClick={this.handleSave}>下一步</Button>
         </div>
       </Row>
     )
