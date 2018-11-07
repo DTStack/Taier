@@ -68,7 +68,6 @@ export default class StepTwo extends Component{
     super();
     this.state = {
       columns: [],
-      partitions: [],
       partitions: {},
       bucketInfo: {}
     }
@@ -91,6 +90,7 @@ export default class StepTwo extends Component{
       partitions,
       bucketInfo
     } = nextProps.tabData.tableItem;
+    bucketInfo.bucketNumber = bucketInfo.bucketNumber;
 
     this.setState({
       columns: columns,
@@ -312,10 +312,14 @@ export default class StepTwo extends Component{
   handleBarrelDataParamCahnge = (e)=>{
     let {bucketInfo} = this.state;
     bucketInfo.bucketNumber = e.target.value;
-    this.setState({
-      bucketInfo
-    })
+    // this.setState({
+    //   bucketInfo
+    // })
     this.saveDataToStorage();
+  }
+  getBucketNumber = ()=>{
+    console.log(this.state.bucketInfo.bucketNumber)
+    return this.state.bucketInfo.bucketNumber
   }
   getTableCol = (flag)=>{
     let col = [
@@ -329,7 +333,7 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -369,7 +373,7 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-            <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+            <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
               {
                 field_type.map(o=>{
                   return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -390,7 +394,7 @@ export default class StepTwo extends Component{
         title: '字段名',
         dataIndex: 'name',
         render: (text,record)=>(
-          <Select defaultValue={record.flagIndex} style={{minWidth: 150}} onChange={(e)=>this.handleBucketChange(e,record)}>
+          <Select getPopupContainer={()=>document.getElementById('table-panel')} defaultValue={record.flagIndex} style={{width: 159}} onChange={(e)=>this.handleBucketChange(e,record)}>
             {
               this.state.columns.map(o=>{
 
@@ -403,7 +407,7 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <span style={{fontSize: 12}}>{text}</span>
+          <span style={{fontSize: 12,width: 159,display:'block'}}>{text}</span>
         )
       },{
         title: '注释',
@@ -438,7 +442,7 @@ export default class StepTwo extends Component{
         dataIndex: 'type',
         render: (text,record)=>(
           <span>
-          <Select style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -449,14 +453,14 @@ export default class StepTwo extends Component{
           {
             record.type === 'DECIMAL' && 
             <span>
-              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+              <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
                 {
                   decimalPrecision.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
                   })
                 }
               </Select>
-              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+              <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
                 {
                   decimalScale.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
@@ -516,7 +520,7 @@ export default class StepTwo extends Component{
     console.log(columns)
     return (
       <Row className="step-two-container step-container">
-        <div className="table-panel">
+        <div className="table-panel" id="table-panel">
           <span className="title">字段信息</span>
           <Table 
           columns={this.getTableCol(1)}
@@ -534,7 +538,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分区模式：</span>
-            <Select style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
+            <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
               {
                 partition_mode.map(o=>{
                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -573,7 +577,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分桶数量：</span>
-            <Input defaultValue={this.state.bucketInfo.bucketNumber} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
+            <Input style={{width: 100,marginRight: 4}} value={bucketInfo.bucketNumber} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
           <Table
           columns={this.getTableCol(4)}
@@ -586,8 +590,8 @@ export default class StepTwo extends Component{
         </div>
 
         <div className="nav-btn-box">
-              <Button onClick={this.props.handleLastStep}>上一步</Button>
-              <Button type="primary" onClick={this.props.handleSave}>下一步</Button>
+              <Button onClick={this.props.handleLastStep} style={{width: 90}}>上一步</Button>
+              <Button type="primary" onClick={this.props.handleSave} style={{width: 90}}>下一步</Button>
         </div>
       </Row>
     )

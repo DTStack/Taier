@@ -312,7 +312,7 @@ export default class EditTable extends Component{
         dataIndex: 'type',
         render: (text,record)=>{
           if(record.isNew){
-            return <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+            return <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
                 {field_types.map(o=>{
                   return <Option key={o.value} value={o.value}>{o.name}</Option>
                 })}
@@ -375,7 +375,7 @@ export default class EditTable extends Component{
         title: '字段类型',
         dataIndex: 'type',
         // render: (text,record)=>(
-        //   <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+        //   <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
         //     {
         //       field_type.map(o=>{
         //         return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -392,7 +392,7 @@ export default class EditTable extends Component{
       }
     ]
     return (
-      <div className="edit-table-container" style={{marginBottom: 50}}>
+      <div className="edit-table-container">
         <Row className="panel">
           <div className="title">基本信息</div>
           <Form>
@@ -421,7 +421,7 @@ export default class EditTable extends Component{
                     ],
                     initialValue: tableDetail.lifeDay || undefined
                   })(
-                    <Select onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
+                    <Select getPopupContainer={triggerNode => triggerNode.parentNode} onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}

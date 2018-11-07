@@ -83,18 +83,21 @@ console.log(dataList)
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
+          text === 0?'-':
           <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
+          text === 0?'-':
           <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
+          text === 0?'-':
           <Checkbox disabled={true} defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
@@ -102,13 +105,16 @@ console.log(dataList)
         dataIndex: 'type',
       },{
         title: '注释',
-        dataIndex: 'comment'
+        dataIndex: 'comment',
+        render: (text,record)=>(
+          text?text:'-'
+        )
       }
     ]
     return(
       <div className="pane-field-container">
-        <div className="func-box">
-          <RadioGroup style={{margin: '10px 0'}} onChange={this.changeData} defaultValue="column">
+        <div className="func-box" style={{marginBottom: 10}}>
+          <RadioGroup  onChange={this.changeData} defaultValue="column">
             <RadioButton value="column">非分区字段</RadioButton>
             <RadioButton value="partition">分区字段</RadioButton>
           </RadioGroup>

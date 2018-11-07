@@ -22,15 +22,15 @@ class TableDetail extends Component {
 
         const tabsData = [
             {
-                title: '字段信息',
+                title: <span style={{fontSize: 12}}>字段信息</span>,
                 key: '1',
                 content: <PaneField data={{columnData:tableDetail.columns,partData:tableDetail.partitions}}/>
             },{
-                title: '分区信息',
+                title: <span style={{fontSize: 12}}>分区信息</span>,
                 key: '2',
                 content: <PanePartition tableDateil={tableDetail}/>
             },{
-                title: '数据预览',
+                title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
                 content: <PaneData  tableDateil={tableDetail}/>
             }
@@ -39,7 +39,7 @@ class TableDetail extends Component {
             <div className="table-detail-container pane-wrapper">
                 <Row className="table-detail-panel">
                     <div className="func-box">
-                        <span className="title">数据库信息</span>
+                        <span className="title" style={{fontWeight: 'bold'}}>数据库信息</span>
                         <Button className="btn" type="primary"
                             onClick={() => onGenerateCreateSQL({
                                 tableId: tableDetail.id,
@@ -51,19 +51,19 @@ class TableDetail extends Component {
                         <tbody>
                         <tr>
                             <td>数据库</td>
-                            <td>{tableDetail.dbName}</td>
+                            <td>{tableDetail.dbName || '-'}</td>
                             <td>物理存储量</td>
-                            <td>{tableDetail.tableSize}</td>
+                            <td>{tableDetail.tableSize || '-'}</td>
                         </tr>
                         <tr>
                             <td>创建人</td>
-                            <td>{tableDetail.createUserName}</td>
+                            <td>{tableDetail.createUserName || '-'}</td>
                             <td>生命周期</td>
-                            <td>{tableDetail.lifeDay}天</td>
+                            <td>{tableDetail.lifeDay || '-'}天</td>
                         </tr>
                         <tr>
                             <td>创建时间</td>
-                            <td>{moment(tableDetail.gmtCreate).format('YYYY-MM-DD')}</td>
+                            <td>{tableDetail.gmtCreate?moment(tableDetail.gmtCreate).format('YYYY-MM-DD'):'-'}</td>
                             <td>是否分区</td>
                             <td>{tableDetail.hasPartition?'是':'否'}</td>
                         </tr>
@@ -71,26 +71,26 @@ class TableDetail extends Component {
                             <td>表类型</td>
                             <td>{tableDetail.type===0?'内部表':'外部表'}</td>
                             <td>表结构最后变更时间</td>
-                            <td>{moment(tableDetail.lastDdlTime).format('YYYY-MM-DD')}</td>
+                            <td>{tableDetail.lastDdlTime?moment(tableDetail.lastDdlTime).format('YYYY-MM-DD'):'-'}</td>
                         </tr>
                         <tr>
                             <td>描述</td>
-                            <td>{tableDetail.tableDesc}</td>
+                            <td>{tableDetail.tableDesc || '-'}</td>
                             <td>数据最后变更时间</td>
-                            <td>{moment(tableDetail.lastDmlTime).format('YYYY-MM-DD')}</td>
+                            <td>{tableDetail.lastDmlTime?moment(tableDetail.lastDmlTime).format('YYYY-MM-DD'):'-'}</td>
                         </tr>
                         <tr>
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
-                            <td>{tableDetail.blockSize}</td>
+                            <td>{tableDetail.blockSize || '-'}</td>
                         </tr>
                         </tbody>
                     </table>
                 </Row>
                 <Row className="table-detail-panel">
                     <div className="func-box">
-                        <span className="title">压缩配置</span>
+                        <span className="title" style={{fontWeight: 'bold'}}>压缩配置</span>
                     </div>
                     <table className="table-info"  width="100%" cellPadding="0" cellSpacing="0">
                         <tbody>
@@ -109,6 +109,8 @@ class TableDetail extends Component {
                             <tr>
                                 <td>ALLOWED_COMPACTION_DAYS</td>
                                 <td>{tableDetail.allowCompactionDays}</td>
+                                <td></td>
+                                <td></td>
                             </tr>
                         </tbody>
                     </table>
