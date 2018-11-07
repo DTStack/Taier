@@ -10,6 +10,7 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
 
@@ -33,7 +34,7 @@ public final class Utilities {
   }
 
   public static List<FileStatus> listStatusRecursively(Path path, FileSystem fs, List<FileStatus> fileStatuses)
-      throws IOException {
+          throws IOException {
     if (fileStatuses == null) {
       fileStatuses = new ArrayList<>(1000);
     }
@@ -66,11 +67,17 @@ public final class Utilities {
     return paths;
   }
 
-  public static Path getRemotePath(DtYarnConfiguration conf, ApplicationId appId, String fileName) {
+  public static Path getRemotePath(YarnConfiguration conf, ApplicationId appId, String fileName) {
     String pathSuffix = appId.toString() + "/" + fileName;
     Path remotePath = new Path(conf.get(DtYarnConfiguration.LEARNING_STAGING_DIR, DtYarnConfiguration.DEFAULT_LEARNING_STAGING_DIR),
-        pathSuffix);
+            pathSuffix);
     remotePath = new Path(conf.get("fs.defaultFS"), remotePath);
+    LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
+    return remotePath;
+  }
+
+  public static Path getRemotePath(YarnConfiguration conf, String fileName) {
+    Path remotePath = new Path(conf.get("fs.defaultFS"), fileName);
     LOG.debug("Got remote path of " + fileName + " is " + remotePath.toString());
     return remotePath;
   }
@@ -116,7 +123,7 @@ public final class Utilities {
   }
 
   public static LocalResource createApplicationResource(FileSystem fs, Path path, LocalResourceType type)
-      throws IOException {
+          throws IOException {
     LocalResource localResource = Records.newRecord(LocalResource.class);
     FileStatus fileStatus = fs.getFileStatus(path);
     localResource.setResource(ConverterUtils.getYarnUrlFromPath(path));

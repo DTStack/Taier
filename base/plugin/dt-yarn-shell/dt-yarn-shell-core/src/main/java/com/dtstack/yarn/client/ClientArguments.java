@@ -1,10 +1,8 @@
 package com.dtstack.yarn.client;
 
 import com.dtstack.yarn.DtYarnConfiguration;
-import com.dtstack.yarn.am.ApplicationMaster;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.JobPriority;
-import com.dtstack.yarn.common.type.DummyType;
 import com.google.gson.Gson;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -18,9 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.mapred.JobConf;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -59,6 +55,7 @@ public class ClientArguments {
     String inputs;
     String cacheFiles;
     String uploadFiles;
+    Boolean exclusive;
 
 
 
@@ -310,6 +307,14 @@ public class ClientArguments {
         this.uploadFiles = uploadFiles;
     }
 
+    public Boolean getExclusive() {
+        return exclusive;
+    }
+
+    public void setExclusive(Boolean exclusive) {
+        this.exclusive = exclusive;
+    }
+
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
         this.init();
         this.cliParser(args);
@@ -336,6 +341,7 @@ public class ClientArguments {
         priority = DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
         queue = "default";
         userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
+        exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
 
 
         allOptions = new Options();
@@ -407,6 +413,8 @@ public class ClientArguments {
         allOptions.addOption("pythonVersion", "python-version", true, "python version");
 
         allOptions.addOption("remoteDfsConfig", "remote-dfs-config", true, "hdfs config for files waiting for uploading");
+
+        allOptions.addOption("exclusive", "exclusive", true, "app nodemanager exclusive");
 
 
         OptionBuilder.withArgName("property=value");
@@ -563,19 +571,17 @@ public class ClientArguments {
             streamEpoch = Integer.parseInt(streamEpochStr);
         }
 
-        if (commandLine.hasOption("test")) {
-            appMasterJar = System.getProperty("user.dir") + File.separator + "lib" + File.separator + "core.jar";
-        } else {
-            appMasterJar = JobConf.findContainingJar(ApplicationMaster.class);
-        }
-
-
         if (commandLine.hasOption("cacheFile")) {
             cacheFiles = commandLine.getOptionValue("cacheFile");
         }
 
         if (commandLine.hasOption("uploadFile")) {
             uploadFiles = commandLine.getOptionValue("uploadFile");
+        }
+
+        if (commandLine.hasOption("exclusive")) {
+            String exclusiveStr = commandLine.getOptionValue("exclusive");
+            exclusive = Boolean.parseBoolean(exclusiveStr);
         }
 
         LOG.info("Application Master's jar is " + appMasterJar);

@@ -17,6 +17,7 @@ import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
+import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.LocalResource;
@@ -29,6 +30,8 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -167,43 +170,52 @@ public class ApplicationMaster extends CompositeService {
 
         register();
 
-        LOG.info("Try to allocate " + appArguments.workerNum + " worker containers");
+        if (appArguments.exclusive){
+            rmCallbackHandler.startWorkerContainersExclusive();
+        }
+
         buildContainerRequest();
         List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.workerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
-        for(int i = 0; i < appArguments.workerNum; ++i) {
-            amrmAsync.addContainerRequest(workerContainerRequest);
-        }
 
-        for(int i = 0; i < appArguments.workerNum; ++i) {
-            Container container = rmCallbackHandler.take();
-            LOG.info("containerAddress: " + container.getNodeHttpAddress());
+        List<Container> acquiredWorkerContainers = handleRMCallbackOfContainerRequest(appArguments.workerNum);
+
+        int i = 0;
+        for (Container container : acquiredWorkerContainers) {
+            LOG.info("Launching worker container " + container.getId()
+                    + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
             launchContainer(containerLocalResource, workerContainerEnv,
                     workerContainerLaunchCommands, container, i);
-            containerListener.registerContainer(true, i, new DtContainerId(container.getId()), container.getNodeHttpAddress());
+            containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId().getHost());
         }
 
         while(!containerListener.isFinished()) {
             Utilities.sleep(1000);
-            List<ContainerEntity> entities = containerListener.getFailedContainerEntities();
+            List<ContainerEntity> failedEntities = containerListener.getFailedContainerEntities();
 
-            if(entities.isEmpty()) {
+            if(failedEntities.isEmpty()) {
                 continue;
             }
 
-            for(int i = 0; i < entities.size(); ++i) {
+            for(ContainerEntity containerEntity : failedEntities) {
+                ContainerId containerId = containerEntity.getContainerId().getContainerId();
+                LOG.info("Canceling container: " + containerId.toString());
+                amrmAsync.releaseAssignedContainer(containerId);
                 amrmAsync.addContainerRequest(workerContainerRequest);
+                rmCallbackHandler.removeLaunchFailed(containerEntity.getNodeHost());
             }
 
-            for(int i = 0; i < entities.size(); ++i) {
-                Container container = rmCallbackHandler.take();
+            //失败后重试
+            acquiredWorkerContainers = handleRMCallbackOfContainerRequest(failedEntities.size());
+
+            for (ContainerEntity containerEntity : failedEntities) {
+                Container container = acquiredWorkerContainers.remove(0);
                 launchContainer(containerLocalResource, workerContainerEnv,
-                        workerContainerLaunchCommands, container, entities.get(i).getLane());
-                containerListener.registerContainer(false, entities.get(i).getLane(), new DtContainerId(container.getId()), container.getNodeHttpAddress());
+                        workerContainerLaunchCommands, container, containerEntity.getLane());
+                containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId().getHost());
             }
-
         }
 
         if(containerListener.isFailed()) {
@@ -214,6 +226,56 @@ public class ApplicationMaster extends CompositeService {
             return true;
         }
 
+    }
+
+    public List<Container> handleRMCallbackOfContainerRequest(int workerNum){
+        rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
+        rmCallbackHandler.resetAllocatedWorkerContainerNumber();
+        rmCallbackHandler.resetAcquiredWorkerContainers();
+
+        for(int i = 0; i < workerNum; ++i) {
+            amrmAsync.addContainerRequest(workerContainerRequest);
+        }
+
+        LOG.info("Try to allocate " + workerNum + " worker containers");
+
+        //对独占的nm，向rm进行updateBlacklist操作
+        while (rmCallbackHandler.getAllocatedWorkerContainerNumber() < workerNum) {
+            List<Container> releaseContainers = rmCallbackHandler.getReleaseContainers();
+            List<String> blackHosts = rmCallbackHandler.getBlackHosts();
+            try {
+                Method updateBlacklist = amrmAsync.getClass().getMethod("updateBlacklist", List.class, List.class);
+                updateBlacklist.invoke(amrmAsync, blackHosts, null);
+            } catch (NoSuchMethodException e) {
+                LOG.debug("current hadoop version don't have the method updateBlacklist of Class " + amrmAsync.getClass().toString() + ". For More Detail:" + e);
+            } catch (InvocationTargetException e) {
+                LOG.error("InvocationTargetException : " + e);
+            } catch (IllegalAccessException e) {
+                LOG.error("IllegalAccessException : " + e);
+            }
+            if (releaseContainers.size() != 0) {
+                for (Container container : releaseContainers) {
+                    LOG.info("Releaseing container: " + container.getId().toString());
+                    amrmAsync.releaseAssignedContainer(container.getId());
+                    amrmAsync.addContainerRequest(workerContainerRequest);
+                }
+                releaseContainers.clear();
+            }
+        }
+
+        List<Container> acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
+        //释放可能的多余资源
+        int totalNumAllocatedWorkers = rmCallbackHandler.getAllocatedWorkerContainerNumber();
+        if (totalNumAllocatedWorkers > workerNum) {
+            while (acquiredWorkerContainers.size() > workerNum) {
+                Container releaseContainer = acquiredWorkerContainers.remove(0);
+                amrmAsync.releaseAssignedContainer(releaseContainer.getId());
+                LOG.info("Release container " + releaseContainer.getId().toString());
+            }
+        }
+
+        LOG.info("Total " + acquiredWorkerContainers.size() + " worker containers has allocated.");
+        return acquiredWorkerContainers;
     }
 
     private Map<String, LocalResource> buildContainerLocalResource() {

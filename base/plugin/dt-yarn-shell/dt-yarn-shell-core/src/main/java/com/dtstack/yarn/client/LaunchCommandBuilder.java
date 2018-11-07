@@ -1,15 +1,15 @@
 package com.dtstack.yarn.client;
 
-import com.dtstack.yarn.DtYarnConfiguration;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 
 public class LaunchCommandBuilder {
 
     private ClientArguments clientArguments;
 
-    private DtYarnConfiguration conf;
+    private YarnConfiguration conf;
 
-    public LaunchCommandBuilder(ClientArguments clientArguments, DtYarnConfiguration conf) {
+    public LaunchCommandBuilder(ClientArguments clientArguments, YarnConfiguration conf) {
         this.clientArguments = clientArguments;
         this.conf = conf;
     }

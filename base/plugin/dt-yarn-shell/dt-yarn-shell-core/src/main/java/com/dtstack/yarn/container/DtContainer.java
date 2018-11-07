@@ -5,6 +5,8 @@ import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.common.type.AppType;
+import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
@@ -20,6 +22,7 @@ import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -56,7 +60,14 @@ public class DtContainer {
 
     private final FileSystem dfs;
 
+    private final AppType appType;
+
+    private final Map<String,Object> containerInfo;
+
+
     private DtContainer() throws IOException {
+        containerInfo = new HashMap<>();
+
         this.conf = new DtYarnConfiguration();
 
         this.dfs = FileSystem.get(conf);
@@ -68,6 +79,12 @@ public class DtContainer {
         LOG.info("sub container id: " + containerId);
         this.envs = System.getenv();
         this.role = envs.get(DtYarnConstants.Environment.XLEARNING_TF_ROLE.toString());
+        if (envs.containsKey(DtYarnConstants.Environment.APP_TYPE.toString())) {
+            String applicationType = envs.get(DtYarnConstants.Environment.APP_TYPE.toString()).toUpperCase();
+            appType = AppType.fromString(applicationType);
+        } else {
+            appType = new DummyType();
+        }
     }
 
     private void init() {
@@ -84,9 +101,11 @@ public class DtContainer {
             System.exit(1);
         }
 
+        containerInfo.put("host", NetUtils.getHostname());
+
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
-        containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
         containerStatusNotifier.start();
+        containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
 
     }
 
@@ -111,11 +130,12 @@ public class DtContainer {
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.RUNNING);
 
         List<String> envList = new ArrayList<>(20);
-        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
-        envList.add("PATH=" + "./:" + System.getenv("PATH"));
-        envList.add("LANG=zh_CN.UTF-8");
+        appType.env(envList);
+
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
+
+        command = appType.cmdContainerExtra(command, containerInfo);
 
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();
@@ -159,10 +179,6 @@ public class DtContainer {
         Utilities.sleep(3000);
 
         System.exit(-1);
-    }
-
-    private void reportFailedAndExit() {
-        reportFailedAndExit("");
     }
 
     private void reportSucceededAndExit() {
@@ -219,18 +235,16 @@ public class DtContainer {
 
     }
 
-    private void printContainerInfo() {
+    private void printContainerInfo() throws IOException {
         FSDataOutputStream out = null;
         try {
             ContainerId cId = containerId.getContainerId();
-            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containes/" + cId.toString());
+            Path cIdPath = Utilities.getRemotePath(conf, cId.getApplicationAttemptId().getApplicationId(), "containers/" + cId.toString());
             if (!dfs.exists(cIdPath)) {
                 dfs.delete(cIdPath);
             }
             out = FileSystem.create(cIdPath.getFileSystem(conf), cIdPath, new FsPermission(FsPermission.createImmutable((short) 0777)));
-            out.writeUTF(NetUtils.getHostname().toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+            out.writeUTF(new ObjectMapper().writeValueAsString(containerInfo));
         } finally {
             IOUtils.closeStream(out);
         }
@@ -246,7 +260,7 @@ public class DtContainer {
                 container.reportSucceededAndExit();
             } else {
                 LOG.error("DtContainer run failed!");
-                container.reportFailedAndExit();
+                container.reportFailedAndExit("");
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);

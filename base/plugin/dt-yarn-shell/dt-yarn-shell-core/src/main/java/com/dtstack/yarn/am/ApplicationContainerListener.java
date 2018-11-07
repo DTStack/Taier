@@ -49,17 +49,16 @@ public class ApplicationContainerListener
 
     private ContainerLostDetector containerLostDetector;
 
-
-    public List<ContainerEntity> getEntities() {
-        return entities;
-    }
-
     public ApplicationContainerListener(ApplicationContext applicationContext, Configuration conf) {
         super("slotManager");
         setConfig(conf);
         this.applicationContext = applicationContext;
         this.entities = Collections.synchronizedList(new ArrayList<>());
         this.containerLostDetector = new ContainerLostDetector(this);
+    }
+
+    public List<ContainerEntity> getEntities() {
+        return entities;
     }
 
     @Override
@@ -106,22 +105,23 @@ public class ApplicationContainerListener
     }
 
 
-    public void registerContainer(boolean isNew, int lane, DtContainerId containerId, String nodeHttpAddress) {
+    public void registerContainer(boolean isNew, int lane, DtContainerId containerId, String nodeHost) {
         if(isNew) {
-            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, 1));
+            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHost, 1));
         } else {
             int attempt =  entities.get(lane).getAttempts();
-            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHttpAddress, attempt + 1));
+            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHost, attempt + 1));
         }
     }
 
     private int getLaneOf(DtContainerId containerId) {
         LOG.info("getLaneOf containerId: " + containerId);
         for(int i = 0; i < entities.size(); ++i) {
-            LOG.info("getLaneOf entities.get(i): " + entities.get(i));
-            LOG.info("getLaneOf entities.get(i).getContainerId: " + entities.get(i).getContainerId().getContainerId());
-            if(containerId.equals(entities.get(i).getContainerId())) {
-                return i;
+            ContainerEntity containerEntity = entities.get(i);
+            LOG.info("getLaneOf entities.get(i): " + containerEntity);
+            LOG.info("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
+            if(containerId.equals(containerEntity.getContainerId())) {
+                return containerEntity.getLane();
             }
         }
         return -1;
@@ -141,7 +141,7 @@ public class ApplicationContainerListener
     }
 
     public List<String> getNodeAddress() {
-        return entities.stream().map(e->e.getNodeHttpAddress()).collect(Collectors.toList());
+        return entities.stream().map(e->e.getNodeHost()).collect(Collectors.toList());
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ApplicationContainerListener
                 if(status == DtContainerStatus.TIMEOUT) {
                     failed = true;
                     failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
-                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() == maxAttempts) {
+                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
                     failed = true;
                     failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
                 }

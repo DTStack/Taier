@@ -45,8 +45,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB == flinkYarnMode){
             return judgePerjobResource(jobClient);
         }
-        int sqlEnvParallel = 0;
-        int mrParallel = 0;
+        int sqlEnvParallel = 1;
+        int mrParallel = 1;
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
             sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
         }
