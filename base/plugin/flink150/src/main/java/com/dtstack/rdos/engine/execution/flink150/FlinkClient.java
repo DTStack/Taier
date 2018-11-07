@@ -423,7 +423,7 @@ public class FlinkClient extends AbsClient {
         String applicationId = jobIdentifier.getApplicationId();
 
         ClusterClient targetClusterClient;
-        if(Strings.isNullOrEmpty(applicationId)){
+        if(!Strings.isNullOrEmpty(applicationId)){
             targetClusterClient = clusterClientCache.getClusterClient(applicationId);
         }else{
             targetClusterClient = client;
@@ -659,7 +659,7 @@ public class FlinkClient extends AbsClient {
 
         //TODO 区分是在运行中还是已经结束状态
         if(StringUtils.isNotBlank(applicationId)){
-            //return null;
+            return null;
         }
 
         String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
