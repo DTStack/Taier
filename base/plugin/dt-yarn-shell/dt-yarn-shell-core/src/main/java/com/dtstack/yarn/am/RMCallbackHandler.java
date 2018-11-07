@@ -48,7 +48,7 @@ public class RMCallbackHandler implements CallbackHandler {
     }
 
     public List<Container> getReleaseContainers() {
-        return releaseContainers;
+        return new ArrayList<>(releaseContainers);
     }
 
     public void startWorkerContainersExclusive() {
@@ -75,17 +75,23 @@ public class RMCallbackHandler implements CallbackHandler {
         }
     }
 
+    /**
+     * am 与 rm 的通信是异步的
+     * acquiredWorkerContainers 、releaseContainers 要注意并发问题
+     *
+     * @param containers
+     */
     @Override
     public void onContainersAllocated(List<Container> containers) {
+        List<Container> allocatedContainers = new ArrayList<>(containers.size());
         for (Container acquiredContainer : containers) {
             LOG.info("Acquired container " + acquiredContainer.getId()
                     + " on host " + acquiredContainer.getNodeId().getHost()
                     + " , with the resource " + acquiredContainer.getResource().toString());
             String host = acquiredContainer.getNodeId().getHost();
             if (!blackHosts.contains(host)) {
-                acquiredWorkerContainers.add(acquiredContainer);
-                acquiredWorkerContainersCount.incrementAndGet();
-                if (workerContainersExclusive.get()){
+                allocatedContainers.add(acquiredContainer);
+                if (workerContainersExclusive.get()) {
                     blackHosts.add(acquiredContainer.getNodeId().getHost());
                 }
             } else {
@@ -93,12 +99,14 @@ public class RMCallbackHandler implements CallbackHandler {
                 releaseContainers.add(acquiredContainer);
             }
         }
+        acquiredWorkerContainers.addAll(allocatedContainers);
+        acquiredWorkerContainersCount.addAndGet(allocatedContainers.size());
         LOG.info("Current acquired worker container " + acquiredWorkerContainersCount.get()
                 + " / " + neededWorkerContainersCount);
     }
 
     public void removeLaunchFailed(String nodeHost) {
-        if (workerContainersExclusive.get()){
+        if (workerContainersExclusive.get()) {
             blackHosts.remove(nodeHost);
         }
     }
@@ -131,5 +139,9 @@ public class RMCallbackHandler implements CallbackHandler {
 
     public void resetAcquiredWorkerContainers() {
         acquiredWorkerContainers.clear();
+    }
+
+    public void removeReleaseContainers(List<Container> removeContainers) {
+        releaseContainers.removeAll(removeContainers);
     }
 }

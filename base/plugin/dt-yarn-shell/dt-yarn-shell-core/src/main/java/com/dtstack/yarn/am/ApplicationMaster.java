@@ -201,9 +201,8 @@ public class ApplicationMaster extends CompositeService {
 
             for(ContainerEntity containerEntity : failedEntities) {
                 ContainerId containerId = containerEntity.getContainerId().getContainerId();
-                LOG.info("Canceling container: " + containerId.toString());
+                LOG.info("Canceling container: " + containerId.toString() + " nodeHost: " + containerEntity.getNodeHost());
                 amrmAsync.releaseAssignedContainer(containerId);
-                amrmAsync.addContainerRequest(workerContainerRequest);
                 rmCallbackHandler.removeLaunchFailed(containerEntity.getNodeHost());
             }
 
@@ -259,8 +258,9 @@ public class ApplicationMaster extends CompositeService {
                     amrmAsync.releaseAssignedContainer(container.getId());
                     amrmAsync.addContainerRequest(workerContainerRequest);
                 }
-                releaseContainers.clear();
+                rmCallbackHandler.removeReleaseContainers(releaseContainers);
             }
+            Utilities.sleep(1000);
         }
 
         List<Container> acquiredWorkerContainers = rmCallbackHandler.getAcquiredWorkerContainer();
