@@ -83,17 +83,17 @@ export default class StepOne extends Component{
   }
 
   componentDidMount(){
-    this.getDataBases();
+    // this.getDataBases();
   }
 
-  getDataBases = async (params) => {
-    const result = await API.getDatabases();
-    if (result.code === 1) {
-        this.setState({
-            databaseList: result.data,
-        })
-    }
-}
+  // getDataBases = async (params) => {
+  //   const result = await API.getDatabases();
+  //   if (result.code === 1) {
+  //       this.setState({
+  //           databaseList: result.data,
+  //       })
+  //   }
+  // }
 
 
   next = ()=>{
@@ -165,7 +165,7 @@ export default class StepOne extends Component{
 
   render(){
     const { getFieldDecorator, getFieldsValue } = this.props.form;
-    const { tabData } = this.props;
+    const { tabData,databaseList } = this.props;
     let formData = tabData.tableItem;
     console.log(formData)
     return (
@@ -186,7 +186,7 @@ export default class StepOne extends Component{
               })(
                   <Select style={{width: 570,marginRight:10}}>
                   {
-                    this.state.databaseList.map(o=>(
+                    databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
                     ))
                   }
@@ -260,7 +260,7 @@ export default class StepOne extends Component{
                     ],
                     initialValue: formData.lifeCycle || 90
                   })(
-                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === '-1'?78:570,height: 36,marginRight:10}}>
+                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === -1?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
@@ -268,7 +268,7 @@ export default class StepOne extends Component{
                   )
                 }
                 {
-                getFieldsValue().lifeCycle === '-1' &&
+                getFieldsValue().lifeCycle === -1 &&
                   <Input style={{width: 570,marginRight:10 }} size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.handleShortLiftCycleChange(e)}}/>
                 }
               </span>
@@ -311,6 +311,21 @@ export default class StepOne extends Component{
           </FormItem>
           <Collapse onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
             <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon fill="#999999" type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
+              <FormItem
+              {...formItemLayout}
+              label="压缩模式">
+              {
+                getFieldDecorator('compactType',{
+                  initialValue: formData.compactType || 0
+                })(
+                  <RadioGroup>
+                    <Radio value={0}>Major</Radio>
+                    <Radio value={1}>Minor</Radio>
+                  </RadioGroup>
+                )
+              }
+              <HelpDoc style={relativeStyle} doc="compressMode" />
+              </FormItem>
               <FormItem
               {...formItemLayout}
               label="MAJOR_COMPACTION_SIZE">

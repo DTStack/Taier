@@ -85,15 +85,11 @@ class TaskIndex extends Component {
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
-        if (panelColumn.length > 0) {
-            currentPage.source = panelColumn;
-        }
-        if (outputPanelColumn.length > 0) {
-            currentPage.sink = outputPanelColumn;
-        }
-        if (dimensionPanelColumn.length > 0) {
-            currentPage.side = dimensionPanelColumn;
-        }
+    
+        currentPage.source = panelColumn;
+        currentPage.sink = outputPanelColumn;
+        currentPage.side = dimensionPanelColumn;
+
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
 
         return new Promise((resolve, reject) => {
@@ -110,7 +106,7 @@ class TaskIndex extends Component {
                             catalogueType: MENU_TYPE.TASK_DEV
                         }))
                     }
-                    if(currentPage.taskType==TASK_TYPE.DATA_COLLECTION&&currentPage.createModel==DATA_SYNC_TYPE.GUIDE){
+                    if (currentPage.taskType == TASK_TYPE.DATA_COLLECTION && currentPage.createModel == DATA_SYNC_TYPE.GUIDE) {
                         dispatch(collectionActions.initCollectionTask(currentPage.id))
                         dispatch(collectionActions.getDataSource())
                     }
@@ -278,7 +274,7 @@ class TaskIndex extends Component {
                                 taskInfo.merged = true;
                                 taskInfo.notSynced = false;// 添加已保存标记
                                 dispatch(BrowserAction.setCurrentPage(taskInfo))
-                                if(taskInfo.taskType==TASK_TYPE.DATA_COLLECTION&&taskInfo.createModel==DATA_SYNC_TYPE.GUIDE){
+                                if (taskInfo.taskType == TASK_TYPE.DATA_COLLECTION && taskInfo.createModel == DATA_SYNC_TYPE.GUIDE) {
                                     dispatch(collectionActions.initCollectionTask(taskInfo.id))
                                     dispatch(collectionActions.getDataSource())
                                 }
@@ -351,25 +347,25 @@ class TaskIndex extends Component {
                                 }}
                                 title="创建任务"
                             >
-                                <MyIcon className="my-icon" type="focus" themeDark={themeDark}/> 新建任务
+                                <MyIcon className="my-icon" type="focus" themeDark={themeDark} /> 新建任务
                                 </Button>
                             <Button
                                 disabled={currentPage.invalid}
                                 onClick={this.saveTask}
                                 title="保存任务"
                             >
-                                <MyIcon className="my-icon" type="save" themeDark={themeDark}/>保存
+                                <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
                             </Button>
                             <Button
                                 onClick={this.searchTask}
                                 title="打开任务"
                             >
-                                <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
+                                <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                                 搜索
                             </Button>
                         </span>
-                        <FullScreenButton themeDark={themeDark}/>
-                        <ThemeSwitcher 
+                        <FullScreenButton themeDark={themeDark} />
+                        <ThemeSwitcher
                             editorTheme={editor.options.theme}
                             onThemeChange={(theme) => {
                                 dispatch(updateEditorOptions({ theme }))
@@ -390,7 +386,7 @@ class TaskIndex extends Component {
                         </span>
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
                             <Button>
-                                <MyIcon className="my-icon" type="goin" themeDark={themeDark}/> 运维
+                                <MyIcon className="my-icon" type="goin" themeDark={themeDark} /> 运维
                             </Button>
                         </Link>
                     </Col>

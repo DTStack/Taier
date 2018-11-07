@@ -162,8 +162,8 @@ export default {
     deleteTask(params) {
         return http.post(req.DELETE_TASK, params)
     },
-    taskStatistics() {
-        return http.post(req.TASK_STATISTICS)
+    taskStatistics(params) {
+        return http.post(req.TASK_STATISTICS,params)
     },
     getTaskLogs(params) {
         return http.post(req.GET_TASK_LOG, params)

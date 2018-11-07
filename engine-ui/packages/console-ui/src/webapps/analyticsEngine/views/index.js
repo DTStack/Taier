@@ -31,7 +31,7 @@ class Main extends Component {
     render() {
         const { children } = this.props
         return (
-            <div className="main header-fixed">
+            <div className="app-analytics main header-fixed">
                 <Header/>
                 <div className="container">
                     { children || <Workbench /> }

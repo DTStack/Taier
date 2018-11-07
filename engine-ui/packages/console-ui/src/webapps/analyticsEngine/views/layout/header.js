@@ -32,7 +32,7 @@ class Header extends Component {
                 fontSize: "14px",
                 color: "#ffffff",
                 position: "absolute",
-                left: "80px",
+                left: "70px",
                 top: 0
             }}>
                 DTinsight.Analytics

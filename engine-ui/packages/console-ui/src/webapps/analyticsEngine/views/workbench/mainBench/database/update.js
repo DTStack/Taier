@@ -71,7 +71,7 @@ class UpdateDatabaseModal extends Component {
                 visible={visible}
                 onOk={this.onSubmit}
                 cancelText={databaseData ? '关闭' : '取消'}
-                okText={databaseData ? '确认复制' : '确认'}
+                okText={databaseData ? '确认复制' : '重置'}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
             >   

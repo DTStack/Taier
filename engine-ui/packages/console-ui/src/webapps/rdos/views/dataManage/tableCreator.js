@@ -166,6 +166,7 @@ class BaseForm extends React.Component {
                     <Select>
                         <Option value="textfile">textfile</Option>
                         <Option value="orc">orc</Option>
+                        <Option value="parquet">parquet</Option>
                     </Select>
                 )}
             </FormItem>

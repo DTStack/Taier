@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from "react-redux"
 import { isObject, debounce } from 'lodash'
 import {
     Modal, Button, Form, Radio, message,
@@ -12,35 +13,48 @@ import CopyIcon from "main/components/copy-icon";
 
 import { formItemLayout } from '../../../../comm/const'
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
+import { getTableList } from "../../../../store/modules/offlineTask/comm";
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
 const Option = Select.Option
 
 // Table Data
+@connect(state => {
+    return {
+        project: state.project,
+        tables: state.offlineTask.comm.tables
+    }
+}, dispatch => {
+    return {
+        getTableList: (projectId) => {
+            dispatch(getTableList(projectId));
+        }
+    }
+})
 export default class ImportTarget extends Component {
 
     state = {
         visible: false,
-        pagination:{
-            current:1,
-            pageSize:10
+        pagination: {
+            current: 1,
+            pageSize: 10
         }
     }
 
-    componentWillReceiveProps(nextProps){
+    componentWillReceiveProps(nextProps) {
         const { visible } = this.props;
-        const { visible:visibleNext } = nextProps;
-        if(visible!=visibleNext&&!visibleNext){
+        const { visible: visibleNext } = nextProps;
+        if (visible != visibleNext && !visibleNext) {
             this.setState({
-                pagination:{
-                    current:1,
-                    pageSize:10
+                pagination: {
+                    current: 1,
+                    pageSize: 10
                 }
             })
         }
     }
-    
+
     tableInput = (tableName) => {
         const { changeStatus } = this.props
         if (tableName.length > 0) {
@@ -69,7 +83,7 @@ export default class ImportTarget extends Component {
     tableChange = (value, option) => {
         const table = option.props.data
         const { changeStatus, data } = this.props;
-        const fileColumns=data[0]||[];
+        const fileColumns = data[0] || [];
 
         // 加载分区
         API.getTable({ tableId: table.id }).then((res) => {
@@ -77,10 +91,10 @@ export default class ImportTarget extends Component {
                 const tableData = res.data
                 const columnMap = tableData.column && tableData.column.map(item => {
                     //假如发现和文件资源column有相等的columnName，则直接默认设置为此columnName。
-                    const columnName=item.columnName;
-                    const index=fileColumns.indexOf(columnName);
+                    const columnName = item.columnName;
+                    const index = fileColumns.indexOf(columnName);
 
-                    if(index>-1){
+                    if (index > -1) {
                         return columnName;
                     }
                     return "";
@@ -127,17 +141,24 @@ export default class ImportTarget extends Component {
             }
         })
     }
-
+    getTableList() {
+        const { project, getTableList } = this.props;
+        const projectId = project.id;
+        if(projectId){
+           getTableList(projectId);
+        }
+    }
     createTable = () => {
         const { sqlText } = this.props.formState
         API.createDdlTable({ sql: sqlText }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     visible: false,
-                    tableList:[res.data]
+                    tableList: [res.data]
                 })
                 this.tbNameOnChange(res.data.id)
-                this.tableChange(res.data.id,{props:{data:res.data}})
+                this.tableChange(res.data.id, { props: { data: res.data } })
+                this.getTableList();
                 message.success('表创建成功!')
             }
         })
@@ -159,7 +180,7 @@ export default class ImportTarget extends Component {
         })
     }
 
-    onTableChange(pagination){
+    onTableChange(pagination) {
         this.setState({
             pagination: pagination
         })
@@ -203,7 +224,7 @@ export default class ImportTarget extends Component {
         const { formState, warning } = this.props;
         const { pagination } = this.state;
         const { columnMap } = formState;
-        const options = data&&data.length ? data[0].map((item, index) => {
+        const options = data && data.length ? data[0].map((item, index) => {
             return (
                 <Option key={`col-${index}`} value={item}>
                     {item}
@@ -227,10 +248,10 @@ export default class ImportTarget extends Component {
             title: sourceTitle,
             key: 'source_part',
             render: (text, record, index) => {
-                let columnIndex=index+(pagination.current-1)*pagination.pageSize;
+                let columnIndex = index + (pagination.current - 1) * pagination.pageSize;
                 return (<span>
                     <Select
-                        value={formState.matchType === 0 ? '' :columnMap[columnIndex]}
+                        value={formState.matchType === 0 ? '' : columnMap[columnIndex]}
                         disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, columnIndex) }}
                         style={{ width: '200px' }}
@@ -378,7 +399,7 @@ export default class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title={(
-                        <span>建表语句<CopyIcon title="复制模版" style={{marginLeft:"8px"}} copyText={DDL_ide_placeholder}/></span>
+                        <span>建表语句<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_ide_placeholder} /></span>
                     )}
                     maskClosable={false}
                     style={{ height: 424 }}
@@ -386,7 +407,7 @@ export default class ImportTarget extends Component {
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
                 >
-                    <Editor language="dtsql"  placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
+                    <Editor language="dtsql" placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
                 </Modal>
             </div>
         )

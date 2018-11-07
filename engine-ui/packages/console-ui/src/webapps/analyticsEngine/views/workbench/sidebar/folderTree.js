@@ -2,6 +2,7 @@ import React from 'react';
 import { Tree, Tooltip, Icon } from 'antd';
 
 import { CATALOGUE_TYPE } from '../../../consts';
+import MyIcon from '../../../components/icon';
 
 const TreeNode = Tree.TreeNode;
 
@@ -43,7 +44,8 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.DATA_BASE:
             return (
                 <span className="tree-node-hover-items">
-                    <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
+                    <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
+                        title="SQL查询" 
                         onClick={(e) => {
                             e.stopPropagation();
                             onSQLQuery(item);
@@ -72,7 +74,8 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.TABLE:
                 return (
                     <span className="tree-node-hover-items">
-                        <Icon className="tree-node-hover-item" style={{ fontSize: '15px' }} title="SQL查询" type="search" 
+                        <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
+                            title="SQL查询"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onSQLQuery(item);
@@ -140,12 +143,14 @@ class FolderTree extends React.PureComponent {
     }
 
     render() {
+        console.log('expandedKeys:', this.props.expandedKeys)
         return (
             <div className="s-catalogue">
                 <Tree
                     showIcon={true}
                     autoExpandParent={false}
                     expandedKeys={this.props.expandedKeys}
+                    selectedKeys={this.props.selectedKeys}
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}

@@ -14,7 +14,7 @@ class Toolbar extends Component {
                 <MyIcon title="创建数据库" className="btn-icon" type="btn_add_database" 
                     onClick={onCreateDB}
                 />
-                <MyIcon title="SQL查询" className="btn-icon" type="btn_search" 
+                <MyIcon title="SQL查询" className="btn-icon" type="btn_sql_query" 
                     onClick={onSQLQuery}
                 />
                 <MyIcon title="刷新" className="btn-icon" type="btn_refresh" 

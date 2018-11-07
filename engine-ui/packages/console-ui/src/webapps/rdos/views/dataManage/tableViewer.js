@@ -308,6 +308,10 @@ export default class TableViewer extends React.Component {
                                         <th>数据最后变更时间</th>
                                         <td>{ moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
                                     </tr>
+                                    <tr>
+                                        <th>存储格式</th>
+                                        <td>{ tableData.table.storedType }</td>
+                                    </tr>
                                 </tbody>
                             </table>}
                         </Col>

@@ -7,7 +7,7 @@ export default {
     EXEC_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
     STOP_EXEC_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
     FORMAT_SQL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/formatSql`, // 格式化SQL
-    DOWNLOAD_SQL_RESULT: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/download`, // 下载执行结果
+    DOWNLOAD_SQL_RESULT: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/download/batch/batchDownload/downloadSqlExeResult`, // 下载执行结果
     GET_SQL_RESULT: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
 
     // ================== Database ================== //

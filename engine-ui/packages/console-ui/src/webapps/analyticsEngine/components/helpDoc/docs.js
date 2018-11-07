@@ -81,3 +81,14 @@ export const allowedCompactionDays = (
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
+export const compressMode = (
+    <div>
+        <p>Major：在系统空闲时自动合并segments</p>
+        <p>Minor：在每次插入数据时合并segment</p>
+    </div>
+)
+export const decimalType = (
+    <div>
+        <p>type(precision,scale);presicion:数字总长度，最大为38；scale：小数点之后的位数</p>
+    </div>
+)

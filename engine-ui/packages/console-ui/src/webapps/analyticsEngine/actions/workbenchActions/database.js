@@ -47,7 +47,7 @@ export function onRemoveDB(params) {
         const res = await API.deleteDB(params);
         if (res.code === 1) {
             message.success('删除数据库成功！');
-            dispatch(closeTab(params.id));
+            dispatch(closeTab(params.databaseId));
             dispatch(loadCatalogue());
         }
     }

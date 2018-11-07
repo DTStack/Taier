@@ -77,6 +77,9 @@ class RealTimeTaskList extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
+            if(!this.state.taskTypes||!this.state.taskTypes.length){
+                this.loadTaskTypes();
+            }
             this.setState({
                 visibleSlidePane: false,
                 selectTask: null
@@ -92,7 +95,9 @@ class RealTimeTaskList extends Component {
     }
 
     loadCount() {
-        Api.taskStatistics().then(
+        Api.taskStatistics({
+            taskName: this.state.taskName
+        }).then(
             (res) => {
                 if (res.code == 1) {
                     this.setState({
@@ -106,7 +111,10 @@ class RealTimeTaskList extends Component {
     searchTask = (query) => {
         this.setState({
             taskName: query,
-        }, this.loadTaskList)
+        }, ()=>{
+            this.loadTaskList();
+            this.loadCount();
+        })
     }
     /**
      * 这里判断是否需要自动刷新，

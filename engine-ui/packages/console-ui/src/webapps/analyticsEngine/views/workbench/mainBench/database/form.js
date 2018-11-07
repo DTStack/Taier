@@ -43,7 +43,7 @@ class DatabaseForm extends Component {
 
         return (
             <Form style={{marginTop: '24px'}}>
-                <FormItem {...formItemLayout} label="数据库标识" hasFeedback>
+                <FormItem {...formItemLayout} label="数据库标识" hasFeedback={isCreate}>
                     {getFieldDecorator("name", {
                         rules: [
                             {
@@ -61,9 +61,13 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: databaseData ? databaseData.name : ""
-                    })(<Input autoComplete="off" disabled={!isCreate} />)}
+                    })(<Input
+                        placeholder="请输入数据库名(字母、数字、下划线组成,20个字符以内)"
+                        autoComplete="off" 
+                        disabled={!isCreate} 
+                    />)}
                 </FormItem>
-                <FormItem {...formItemLayout} label="用户名" hasFeedback>
+                <FormItem {...formItemLayout} label="用户名" hasFeedback={isCreate}>
                     {getFieldDecorator("dbUserName", {
                         rules: [
                             {
@@ -80,7 +84,10 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: databaseData ? databaseData.dbUserName : ""
-                    })(<Input disabled={!isCreate}/>)}
+                    })(<Input 
+                        placeholder="请输入用户名(DBC访问数据库的用户名)"
+                        disabled={!isCreate}
+                    />)}
                 </FormItem>
                 {
                     !isCreate && 
@@ -97,7 +104,7 @@ class DatabaseForm extends Component {
                             },
                         ],
                         initialValue: '',
-                    })(<Input type="password" />)}
+                    })(<Input placeholder="请输入旧密码" type="password" />)}
                 </FormItem>
                 }
                 <FormItem {...formItemLayout} label="密码" hasFeedback>
@@ -116,7 +123,7 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: '',
-                    })(<Input type="password" />)}
+                    })(<Input placeholder="请输入用户名(DBC访问数据库的密码" type="password" />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="确认密码" hasFeedback>
                     {getFieldDecorator("confirmPassword", {
@@ -134,7 +141,7 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: '',
-                    })(<Input type="password" onBlur={this.handleConfirmBlur}/>)}
+                    })(<Input placeholder="请确认密码" type="password" onBlur={this.handleConfirmBlur}/>)}
                 </FormItem>
             </Form>
         );

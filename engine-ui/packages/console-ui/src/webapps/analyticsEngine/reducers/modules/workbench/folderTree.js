@@ -35,7 +35,6 @@ export default function folderTree(state = folderTreeRoot, action) {
             }
             const updated = cloneDeep(state)
             if (payload) {
-                console.log('replace:', updated, payload)
                 replaceTreeNode(updated, payload)
             }
             return updated

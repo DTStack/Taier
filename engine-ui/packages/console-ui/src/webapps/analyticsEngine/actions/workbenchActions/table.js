@@ -69,9 +69,19 @@ export function onCreateTable(params) {
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
                 preserveSegments: 0,
+                allowCompactionDays:0,
                 blockSize: 1024,
-                allowCompactionDays:0
-            },
+                compactType: 0,
+                partitions: {
+                    partitionType:0,
+                    partConfig: undefined,
+                    columns: [],
+                },
+                bucketInfo: {
+                    bucketNumber: undefined,
+                    infos: []
+                }
+             },
             currentStep: 0,
         }
         console.log(newCreateTableTabData)
@@ -219,18 +229,32 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
+        if(params.type === 1){
+            params.location = params.location
+        }
+
         if(params.lifeCycle === -1){
             params.lifeCycle = params.shortLisyCycle;
-            delete params.lifeCycle;
+            delete params.shortLisyCycle;
+        }
+        let stopFlag = false;
+        if(!params.bucketInfo.bucketNumber){
+            notification.error({
+                message: '提示',
+                description: '分桶数量不能为空'
+            })
+            return;
         }
         params.columns.map(o=>{
-            delete o._fid
+            if(!o.name || o.name === '' || !o.type){
+                notification.error({
+                    message: '提示',
+                    description: '字段名称与字段类型不可为空'
+                })
+                stopFlag = true;
+            }
         })
-
-        params.partitions.map(o=>{
-            delete o._fid
-        })
-        // params.databaseId = o.databaseId;
+        if(stopFlag)    return;
 
         const res = await API.createTable(params)
         if(res.code === 1){
