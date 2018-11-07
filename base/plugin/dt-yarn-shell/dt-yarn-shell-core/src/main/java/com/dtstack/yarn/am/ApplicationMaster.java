@@ -233,6 +233,7 @@ public class ApplicationMaster extends CompositeService {
         rmCallbackHandler.resetAcquiredWorkerContainers();
 
         for(int i = 0; i < workerNum; ++i) {
+            amrmAsync.removeContainerRequest(workerContainerRequest);
             amrmAsync.addContainerRequest(workerContainerRequest);
         }
 
@@ -255,6 +256,7 @@ public class ApplicationMaster extends CompositeService {
             if (releaseContainers.size() != 0) {
                 for (Container container : releaseContainers) {
                     LOG.info("Releaseing container: " + container.getId().toString());
+                    amrmAsync.removeContainerRequest(workerContainerRequest);
                     amrmAsync.releaseAssignedContainer(container.getId());
                     amrmAsync.addContainerRequest(workerContainerRequest);
                 }
