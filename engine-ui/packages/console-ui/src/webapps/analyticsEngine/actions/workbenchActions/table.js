@@ -250,6 +250,9 @@ export function handleSave(){
             tableName: params.tableName,
             type: params.type,
         }
+        if(p.type === 1){
+            p.location = params.location
+        }
 
         if(p.lifeCycle === -1){
             p.lifeCycle = p.shortLisyCycle;
@@ -267,6 +270,9 @@ export function handleSave(){
             delete o._fid
         })
         if(stopFlag)    return;
+        p.bucketInfo.infos.map(o=>{
+            delete o.flagIndex
+        })
         // params.partitions.map(o=>{
         //     delete o._fid
         // })

@@ -16,6 +16,7 @@ import { scrollToView } from 'funcs';
 
 
 import * as BrowserAction from '../../store/modules/realtimeTask/browser'
+import { actions as collectionActions } from '../../store/modules/realtimeTask/collection';
 import * as ModalAction from '../../store/modules/realtimeTask/modal'
 import * as TreeAction from '../../store/modules/realtimeTask/tree'
 import * as ResAction from '../../store/modules/realtimeTask/res'
@@ -33,7 +34,7 @@ import FnViewModal from './realtime/function/fnViewModal'
 
 import Api from '../../api'
 
-import { MENU_TYPE } from '../../comm/const';
+import { MENU_TYPE, TASK_TYPE, DATA_SYNC_TYPE } from '../../comm/const';
 
 const TabPane = Tabs.TabPane
 
@@ -65,8 +66,10 @@ class RealTimeTabPane extends Component {
     }
 
     componentDidMount() {
-        const { dispatch } = this.props
-        dispatch(TreeAction.getRealtimeTree(rootNode))
+        const { dispatch, realtimeTree } = this.props
+        if(!realtimeTree||!realtimeTree.length){
+            dispatch(TreeAction.getRealtimeTree(rootNode))
+        }
         dispatch(ResAction.getResources())
         this.loadTaskTypes();
     }
@@ -245,6 +248,10 @@ class RealTimeTabPane extends Component {
                     if (task.nodePid !== activeNode.parentId) {
                         dispatch(TreeAction.removeRealtimeTree(activeNode))
                     }
+                    if(task.taskType==TASK_TYPE.DATA_COLLECTION&&task.createModel==DATA_SYNC_TYPE.GUIDE){
+                        dispatch(collectionActions.initCollectionTask(task.id))
+                        dispatch(collectionActions.getDataSource())
+                    }
 
                     dispatch(TreeAction.getRealtimeTree({
                         id: task.nodePid,
@@ -417,7 +424,6 @@ class RealTimeTabPane extends Component {
     }
 
     locateFilePos = (id, type, name) => {
-
         if (!id) return;
         const { expandedKeys } = this.state;
         const { dispatch, realtimeTree } = this.props;

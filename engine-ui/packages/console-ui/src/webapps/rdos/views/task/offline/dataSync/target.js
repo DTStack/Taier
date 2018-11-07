@@ -409,6 +409,95 @@ class TargetForm extends React.Component {
                 ];
                 break;
             }
+            case DATA_SOURCE.ANALYSIS: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表',
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                // disabled={ !isCurrentTabNew }
+                                optionFilterProp="value"
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入前准备语句"
+                        key="preSql"
+                    >
+                        {getFieldDecorator('preSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据前执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入后准备语句"
+                        key="postSql"
+                    >
+                        {getFieldDecorator('postSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据后执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        key="writeMode"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="replace" style={{ float: 'left' }}>
+                                    覆盖（Insert Overwrite）
+                                </Radio>
+                                <Radio value="insert" style={{ float: 'left' }}>
+                                    追加（Insert Into）
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
