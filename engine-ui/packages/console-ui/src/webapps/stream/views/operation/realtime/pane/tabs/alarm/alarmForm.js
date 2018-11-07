@@ -194,7 +194,7 @@ class AlarmForm extends Component {
                                 ]}
                             </Select>,
                         )}
-                        <HelpDoc doc="alarmWarning" />
+                        {isFlinkSQL&&<HelpDoc doc="alarmWarning" />}
                     </FormItem>
                     {myTrigger == alarmTriggerType.DELAY_COST ? (
                         <FormItem
