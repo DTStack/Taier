@@ -587,7 +587,7 @@ export default class StepTwo extends Component{
 
         <div className="nav-btn-box">
               <Button onClick={this.props.handleLastStep}>上一步</Button>
-              <Button type="primary" onClick={this.handleSave}>下一步</Button>
+              <Button type="primary" onClick={this.props.handleSave}>下一步</Button>
         </div>
       </Row>
     )
