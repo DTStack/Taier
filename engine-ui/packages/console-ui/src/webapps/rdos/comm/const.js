@@ -13,7 +13,10 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14
+    KAFKA: 14,
+    ADS: 15,
+    BEATS: 16,
+    ANALYSIS:17
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -29,7 +32,8 @@ export const DATA_SOURCE_TEXT = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'Kafka'
+    14: 'Kafka',
+    17: '分析引擎'
 }
 
 // 锁类型

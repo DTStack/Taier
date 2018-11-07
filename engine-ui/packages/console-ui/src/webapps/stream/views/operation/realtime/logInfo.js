@@ -2,7 +2,7 @@ import React from 'react'
 import { isArray } from 'lodash'
 import { Button, Row } from 'antd'
 
-import Editor from 'main/components/code-editor'
+import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'
 
 const editorStyle = { height: '300px' }
@@ -43,11 +43,11 @@ export default function LogInfo(props) {
     const baseLog = log.logInfo ? JSON.parse(log.logInfo) : {}
 
     let logText = ''
-    if (props.downloadLog) {
-        logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
+    if (log.downLoadLog) {
+        logText = `完整日志下载地址：${createLinkMark({ href: log.downLoadLog, download: '' })}\n`;
     }
     if (baseLog.msg_info) {
-        logText = `${wrappTitle('基本日志')}\n${baseLog.msg_info}`
+        logText = `${logText}${wrappTitle('基本日志')}\n${baseLog.msg_info}`
     }
 
     if (engineLogs) {

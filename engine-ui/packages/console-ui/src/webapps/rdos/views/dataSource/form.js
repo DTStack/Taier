@@ -155,6 +155,7 @@ class BaseForm extends Component {
     getJDBCRule = (type) => {
         switch (type) {
             case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.ANALYSIS:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
@@ -823,7 +824,8 @@ class BaseForm extends Component {
             case DATA_SOURCE.MYSQL:
             // case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
-            case DATA_SOURCE.POSTGRESQL: {
+            case DATA_SOURCE.POSTGRESQL:
+            case DATA_SOURCE.ANALYSIS:{
                 return [
                     <FormItem
                         {...formItemLayout}

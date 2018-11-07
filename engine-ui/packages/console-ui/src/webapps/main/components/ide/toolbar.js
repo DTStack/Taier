@@ -48,15 +48,21 @@ export default class Toolbar extends Component {
 
     render() {
         const {
-            onFormat, enableFormat, leftCustomButton, rightCustomButton, disAbleEdit
+            onFormat, enableFormat, disAbleEdit,
+            leftCustomButton, rightCustomButton, customToobar
         } = this.props;
 
         return (
             <div className="toolbar ide-toolbar clear-offset">
                 {
+                    customToobar
+                }
+                {
                     this.renderRun()
                 }
-                {leftCustomButton}
+                {
+                    leftCustomButton
+                }
                 {
                     enableFormat &&
                     <Button

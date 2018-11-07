@@ -42,8 +42,18 @@ class TaskBrowser extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const { id } = nextProps.currentPage || {};
+        const { id: old_id } = this.props.currentPage || {};
+
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
+        }
+        if (id != old_id) {
+            this.setState({
+                selected: '',
+                expanded: false
+            })
+            this.SideBench.style.width = '30px';
         }
     }
 
@@ -289,9 +299,9 @@ class TaskBrowser extends Component {
         } = this.props;
 
         if (pages.length === 0) router.push('/realtime')
-        
+
         const panels = this.mapPanels(pages)
-        
+
         return (
             <Row className="task-browser">
                 <div className="browser-content">
@@ -314,8 +324,8 @@ class TaskBrowser extends Component {
                                 {pages.map((tab) => {
                                     return <Menu.Item key={tab.id} >
                                         <a
-                                            onClick={()=>{
-                                                if(currentPage.id==tab.id){
+                                            onClick={() => {
+                                                if (currentPage.id == tab.id) {
                                                     return;
                                                 }
                                                 this.onChange(tab.id)
@@ -363,7 +373,7 @@ class TaskBrowser extends Component {
                             }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
-                                    editorInstanceRef={(ref)=>{window.tttttp=ref}}
+                                    editorInstanceRef={(ref) => { window.tttttp = ref }}
                                     key="params-editor"
                                     sync={this._syncEditor}
                                     value={currentPage.taskParams}
