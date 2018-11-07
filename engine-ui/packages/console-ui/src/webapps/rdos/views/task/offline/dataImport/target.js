@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {connect} from "react-redux"
+import { connect } from "react-redux"
 import { isObject, debounce } from 'lodash'
 import {
     Modal, Button, Form, Radio, message,
@@ -141,8 +141,12 @@ export default class ImportTarget extends Component {
             }
         })
     }
-    getTableList(){
-        this.props.getTableList(id);
+    getTableList() {
+        const { project, getTableList } = this.props;
+        const projectId = project.id;
+        if(projectId){
+           getTableList(projectId);
+        }
     }
     createTable = () => {
         const { sqlText } = this.props.formState
