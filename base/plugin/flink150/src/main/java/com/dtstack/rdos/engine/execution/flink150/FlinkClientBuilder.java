@@ -259,15 +259,24 @@ public class FlinkClientBuilder {
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
         String flinkJarPath = null;
+
         if (StringUtils.isNotBlank(flinkConfig.getFlinkJarPath())) {
+
             if (!new File(flinkConfig.getFlinkJarPath()).exists()) {
                 throw new RdosException("The Flink jar path is not exist");
             }
+
             flinkJarPath = flinkConfig.getFlinkJarPath();
         }
-        List<URL> classpaths = new ArrayList<URL>();
+
+        if(StringUtils.isNotBlank(flinkConfig.getJobmanagerArchiveFsDir())){
+            newConf.setString(JobManagerOptions.ARCHIVE_DIR, flinkConfig.getJobmanagerArchiveFsDir());
+        }
+
+        List<URL> classpaths = new ArrayList<>();
         if (flinkJarPath != null) {
             File[] jars = new File(flinkJarPath).listFiles();
+
             for (File file : jars){
                 if (file.toURI().toURL().toString().contains("flink-dist")){
                     clusterDescriptor.setLocalJarPath(new Path(file.toURI().toURL().toString()));
@@ -275,9 +284,11 @@ public class FlinkClientBuilder {
                     classpaths.add(file.toURI().toURL());
                 }
             }
+
         } else {
             throw new RdosException("The Flink jar path is null");
         }
+
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
@@ -344,12 +355,12 @@ public class FlinkClientBuilder {
             return;
         }
 
-        configuration.setString("metrics.reporter.promgateway.class", gatewayConfig.getReporterClass());
-        configuration.setString("metrics.reporter.promgateway.host", gatewayConfig.getGatewayHost());
-        configuration.setString("metrics.reporter.promgateway.port", gatewayConfig.getGatewayPort());
-        configuration.setString("metrics.reporter.promgateway.jobName", gatewayConfig.getGatewayJobName());
-        configuration.setString("metrics.reporter.promgateway.randomJobNameSuffix", gatewayConfig.getRandomJobNameSuffix());
-        configuration.setString("metrics.reporter.promgateway.deleteOnShutdown", gatewayConfig.getDeleteOnShutdown());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_CLASS_KEY, gatewayConfig.getReporterClass());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_HOST_KEY, gatewayConfig.getGatewayHost());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_PORT_KEY, gatewayConfig.getGatewayPort());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_JOBNAME_KEY, gatewayConfig.getGatewayJobName());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_RANDOMJOBNAMESUFFIX_KEY, gatewayConfig.getRandomJobNameSuffix());
+        configuration.setString(FlinkPrometheusGatewayConfig.PROMGATEWAY_DELETEONSHUTDOWN_KEY, gatewayConfig.getDeleteOnShutdown());
     }
 
     public AbstractYarnClusterDescriptor getYarnClusterDescriptor() {
