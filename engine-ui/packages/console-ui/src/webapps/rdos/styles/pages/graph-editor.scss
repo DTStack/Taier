@@ -189,6 +189,8 @@ table.mxPopupMenu tr {
 .vertex {
     user-select: none;
     margin-top: -2px;
+    position: relative;
+
     .vertex-title {
         width: 120px;
         text-align: center;
@@ -210,6 +212,23 @@ table.mxPopupMenu tr {
         letter-spacing: 0;
         line-height: 14px;
         font-weight: initial;
+    }
+
+    .vertex-input {
+        border: 0;
+        padding: 0;
+        height: 16px;
+        margin: 0;
+        position: absolute;
+        background: #F5F5F5;
+        left: 0;
+        top: 3;
+        width: 100%;
+        display: none;
+    }
+
+    .vertex-editing {
+        border: 1px solid inherit;
     }
 }
 

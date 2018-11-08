@@ -198,11 +198,10 @@ class ChannelForm extends React.Component{
     }
 
     next(cb) {
-        const { changeChannelSetting, form } = this.props;
+        const { form } = this.props;
         form.validateFields((err, values) => {
             if(!err) {
                 cb.call(null, 4);
-                changeChannelSetting(values)
             }
         });
     }

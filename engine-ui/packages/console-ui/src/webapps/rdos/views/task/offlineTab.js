@@ -26,7 +26,6 @@ import {
 } from '../../store/modules/offlineTask/offlineAction';
 
 import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
-import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 import { isProjectCouldEdit } from '../../comm';
 
 const TabPane = Tabs.TabPane;
@@ -67,7 +66,6 @@ class OfflineTabPane extends Component {
 
     componentDidMount() {
         this.props.loadTaskParams();
-        this.props.dispatch(getTaskTypes());
         this.getCatelogue();
     }
 
