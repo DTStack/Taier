@@ -328,20 +328,20 @@ export default class EditTable extends Component{
           if(record.isNew){
             if(record.type === 'DECIMAL'){
               return  <span>
-                    <Select  style={{width: 90,marginRight: 5}}   getPopupContainer={()=>document.getElementById('table-panel')} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+                    <Select  style={{width: 90,marginRight: 5}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
                       {field_types.map(o=>{
                         return <Option key={o.value} value={o.value}>{o.name}</Option>
                       })}
                     </Select>
                     <span>
-                      <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+                      <Select style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
                         {
                           decimalPrecision.map(o=>{
                             return <Option key={o} value={o}>{o}</Option>
                           })
                         }
                       </Select>
-                      <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+                      <Select style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
                         {
                           decimalScale.map(o=>{
                             return <Option key={o} value={o}>{o}</Option>
@@ -352,7 +352,7 @@ export default class EditTable extends Component{
                   </span>
                 </span>
             }else
-            return  <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+            return  <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
             {field_types.map(o=>{
               return <Option key={o.value} value={o.value}>{o.name}</Option>
             })}
@@ -462,7 +462,7 @@ export default class EditTable extends Component{
                     ],
                     initialValue: tableDetail.lifeDay || undefined
                   })(
-                    <Select getPopupContainer={triggerNode => triggerNode.parentNode} onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
+                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}

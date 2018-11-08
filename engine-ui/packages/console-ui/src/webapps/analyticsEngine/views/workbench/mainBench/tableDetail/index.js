@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
+import API from '../../../../api'
 import { Button, Tabs, Row} from 'antd';
 
 import PaneData from './paneData';
@@ -11,6 +12,35 @@ const TabPane = Tabs.TabPane;
 
 
 class TableDetail extends Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            previewList: []
+        }
+    }
+    handleTabsChange = (e)=>{
+        if(e === '4'){
+            this.getData();
+        }
+    }
+    getData = ()=>{
+        API.getPreviewData({
+        tableId: this.props.data.tableDetail.id,
+        databaseId: this.props.data.tableDetail.databaseId,
+        }).then(res=>{
+        if(res.code === 1){
+            this.state.previewList = res.data;
+            this.setState({
+                previewList: this.state.previewList
+            })
+        }else{
+            notification.error({
+            title: '提示',
+            description: res.message
+            })
+        }
+        })
+    }
 
     render () {
         const tableDetail = this.props.data.tableDetail || {}
@@ -32,7 +62,8 @@ class TableDetail extends Component {
             },{
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
-                content: <PaneData  tableDateil={tableDetail}/>
+                content: <PaneData data={this.state.previewList}  tableDateil={tableDetail}/>,
+
             }
         ]
         return (
@@ -117,7 +148,7 @@ class TableDetail extends Component {
                 </Row>
                 <Row className="tabs-row" style={{marginBottom: 40}}>
                     <div className="tabs-container">
-                    <Tabs type="card">
+                    <Tabs type="card" onChange={this.handleTabsChange}>
                         {
                             tabsData.map(o=>(
                                 <TabPane tab={o.title} key={o.key}>{o.content}</TabPane>

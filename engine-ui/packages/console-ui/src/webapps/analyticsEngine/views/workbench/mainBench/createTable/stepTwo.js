@@ -333,7 +333,7 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -373,7 +373,7 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-            <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+            <Select  style={{width: 159}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
               {
                 field_type.map(o=>{
                   return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -394,7 +394,7 @@ export default class StepTwo extends Component{
         title: '字段名',
         dataIndex: 'name',
         render: (text,record)=>(
-          <Select getPopupContainer={()=>document.getElementById('table-panel')} defaultValue={record.flagIndex} style={{width: 159}} onChange={(e)=>this.handleBucketChange(e,record)}>
+          <Select defaultValue={record.flagIndex} style={{width: 159}} onChange={(e)=>this.handleBucketChange(e,record)}>
             {
               this.state.columns.map(o=>{
 
@@ -442,7 +442,7 @@ export default class StepTwo extends Component{
         dataIndex: 'type',
         render: (text,record)=>(
           <span>
-          <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -453,14 +453,14 @@ export default class StepTwo extends Component{
           {
             record.type === 'DECIMAL' && 
             <span>
-              <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
                 {
                   decimalPrecision.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
                   })
                 }
               </Select>
-              <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+              <Select style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
                 {
                   decimalScale.map(o=>{
                     return <Option key={o} value={o}>{o}</Option>
@@ -520,7 +520,7 @@ export default class StepTwo extends Component{
     console.log(columns)
     return (
       <Row className="step-two-container step-container" id="table-panel">
-        <div className="table-panel" >
+        <div className="table-panel" id="field_panel">
           <span className="title">字段信息</span>
           <Table 
           columns={this.getTableCol(1)}
@@ -531,7 +531,7 @@ export default class StepTwo extends Component{
           ></Table>
           <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon className="icon" type="plus-circle-o"  />添加字段</a>
         </div>
-        <div className="table-panel" style={{marginBottom: 40}}>
+        <div className="table-panel" style={{marginBottom: 40}} id="parti_panel">
           <div className="area-title-container">
             <span className="title">分区信息</span>
             {/* <a href="javascript:;"><Icon className="icon" type="question-circle-o"/>如何添加复杂的分区格式?</a> */}
@@ -571,7 +571,7 @@ export default class StepTwo extends Component{
 
           {partitions.partitionType === 0 && <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(2)}><Icon className="icon" type="plus-circle-o" />添加分区字段</a>}
         </div>
-        <div className="table-panel">
+        <div className="table-panel" id="bucket_panel">
           <div className="area-title-container">
             <span className="title">分桶信息</span>
           </div>
