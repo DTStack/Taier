@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import {Table,notification} from 'antd'
-import API from '../../../../api'
 
 export default class PaneData extends Component{
 
@@ -19,32 +18,40 @@ export default class PaneData extends Component{
   }
   componentDidMount(){
     // this.initData(this.props)
-    this.getData();
+    // this.getData();
+    this.state.tableCol = [];
+    this.state.dataList = [];
+
+    this.processData(this.props.data);
   }
 
   componentWillReceiveProps(nextProps){
+    this.state.tableCol = [];
+    this.state.dataList = [];
+    this.processData(nextProps.data);
     // this.initData(nextProps)
   }
 
 
-  getData = ()=>{
-    API.getPreviewData({
-      tableId: this.props.tableDateil.id,
-      databaseId: this.props.tableDateil.databaseId,
-    }).then(res=>{
-      if(res.code === 1){
-        this.state.previewList = res.data;
-        this.processData(res.data);
-      }else{
-        notification.error({
-          title: '提示',
-          description: res.message
-        })
-      }
-    })
-  }
+  // getData = ()=>{
+  //   API.getPreviewData({
+  //     tableId: this.props.tableDateil.id,
+  //     databaseId: this.props.tableDateil.databaseId,
+  //   }).then(res=>{
+  //     if(res.code === 1){
+  //       this.state.previewList = res.data;
+  //       this.processData(res.data);
+  //     }else{
+  //       notification.error({
+  //         title: '提示',
+  //         description: res.message
+  //       })
+  //     }
+  //   })
+  // }
 
   processData = (list)=>{
+    if(list.length===0) return;
     let { dataList, paginationParams, tableCol } = this.state;
 
     
@@ -76,6 +83,9 @@ export default class PaneData extends Component{
       tableCol: tableCol,
       dataList: dataList,
       paginationParams: paginationParams
+    },()=>{
+      console.log(this.state.dataList)
+      console.log(this.state.tableCol)
     })
   }
 

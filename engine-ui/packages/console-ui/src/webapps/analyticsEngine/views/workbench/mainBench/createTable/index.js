@@ -62,7 +62,7 @@ class CreateTable extends Component {
                         ))
                     }
                 </Steps>
-                <div className="form-box">
+                <div className="form-box" id="form-box">
                     {steps[currentStep].content}
                 </div>
             </div>

@@ -58,8 +58,7 @@ class MainBench extends Component {
         const { tabs, currentTab } = workbench.mainBench;
         return (
             <Dropdown overlay={
-                <Menu style={{ marginRight: 2, maxHeight:"500px", overflowY:"auto" }}
-                >
+                <Menu style={{ marginRight: 2, maxHeight:"500px", overflowY:"auto" }}>
                     <Menu.Item  key="OHTERS">
                     <a onClick={() => closeTabs("OHTERS")}>关闭其他</a>
                     </Menu.Item>
