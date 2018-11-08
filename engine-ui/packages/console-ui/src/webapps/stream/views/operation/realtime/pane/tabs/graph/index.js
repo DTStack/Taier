@@ -286,7 +286,7 @@ class StreamDetailGraph extends React.Component {
                                             lineData={{
                                                 color: CHARTS_COLOR,
                                                 ...lineDatas[metricsType.SOURCE_TPS],
-                                                unit: "bps"
+                                                unit: "bps 条/秒"
                                             }}
                                             title="各Source的TPS数据输入" />
                                     </section>
@@ -296,7 +296,7 @@ class StreamDetailGraph extends React.Component {
                                             lineData={{
                                                 ...lineDatas[metricsType.SINK_OUTPUT_RPS],
                                                 color: CHARTS_COLOR,
-                                                unit: "rps"
+                                                unit: "rps 条/秒"
                                             }}
                                             title="各Sink的数据输出" />
                                     </section>
@@ -308,7 +308,7 @@ class StreamDetailGraph extends React.Component {
                                             lineData={{
                                                 ...lineDatas[metricsType.SOURCE_RPS],
                                                 color: CHARTS_COLOR,
-                                                unit: "rps"
+                                                unit: "rps 条/秒"
                                             }}
                                             title="各Source的RPS数据输入" />
                                     </section>
@@ -320,7 +320,7 @@ class StreamDetailGraph extends React.Component {
                                                 color: CHARTS_COLOR,
                                                 unit: "KB"
                                             }}
-                                            title="各Source的数据流量输入" />
+                                            title="各Source的BPS数据输入" />
                                     </section>
                                 </div>
 
