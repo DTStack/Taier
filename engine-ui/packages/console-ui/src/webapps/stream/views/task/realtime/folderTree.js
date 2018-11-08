@@ -89,6 +89,7 @@ class FolderTree extends Component {
                     <span 
                         title={item.name}
                         id={`JS_${item.id}`}
+                        style={{padding:"8px 0px"}}
                         className={claTitle}>
                         {this.renderStatusBadge(treeType, item)}
                         {item.name}

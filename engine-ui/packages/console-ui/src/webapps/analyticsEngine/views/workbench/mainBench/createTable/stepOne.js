@@ -212,9 +212,9 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="描述">
             {
-              getFieldDecorator('desc',{
+              getFieldDecorator('tableDesc',{
                 rules: [],
-                initialValue: formData.desc || undefined
+                initialValue: formData.tableDesc || undefined
               })(
                 <Input.TextArea style={{width: 570,marginRight:10,height: 90 }} placeholder="请输入描述信息"/>
               )

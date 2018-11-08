@@ -83,7 +83,7 @@ export const allowedCompactionDays = (
 )
 export const compressMode = (
     <div>
-        <p>Major：在系统空闲时自动合并segments</p>
+        <p>Major：在系统空闲时自动合并segment</p>
         <p>Minor：在每次插入数据时合并segment</p>
     </div>
 )

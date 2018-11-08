@@ -519,8 +519,8 @@ export default class StepTwo extends Component{
     const {columns,partitions,bucketInfo} = this.state;
     console.log(columns)
     return (
-      <Row className="step-two-container step-container">
-        <div className="table-panel" id="table-panel">
+      <Row className="step-two-container step-container" id="table-panel">
+        <div className="table-panel" >
           <span className="title">字段信息</span>
           <Table 
           columns={this.getTableCol(1)}
