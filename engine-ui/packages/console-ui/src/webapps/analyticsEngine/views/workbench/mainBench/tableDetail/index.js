@@ -39,7 +39,7 @@ class TableDetail extends Component {
             <div className="table-detail-container pane-wrapper">
                 <Row className="table-detail-panel">
                     <div className="func-box">
-                        <span className="title" style={{fontWeight: 'bold'}}>数据库信息</span>
+                        <span className="title" style={{fontWeight: 'bold'}}>表信息</span>
                         <Button className="btn" type="primary"
                             onClick={() => onGenerateCreateSQL({
                                 tableId: tableDetail.id,

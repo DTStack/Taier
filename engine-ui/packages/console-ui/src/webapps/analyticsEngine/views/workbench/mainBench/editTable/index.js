@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Row, Table, Button, Input, Form, Select, Icon,Checkbox, message, notification, Modal} from 'antd';
 import API from '../../../../api';
+import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 const confirm = Modal.confirm;
 
@@ -64,6 +65,8 @@ const field_types = [
   }
 ]
 
+const decimalPrecision = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]
+const decimalScale = [0,1,2,3,4,5,6,7,8,9]
 
 export default class EditTable extends Component{
   constructor(props){
@@ -170,8 +173,8 @@ export default class EditTable extends Component{
         type: '',
         comment: '',
         invert: 1,
-        dictionary: 0,
-        sortColumn: 0,
+        dictionary: 1,
+        sortColumn: 1,
         isNew: true
       })
       this.setState({
@@ -294,6 +297,17 @@ export default class EditTable extends Component{
   }
 
 
+  handleDECIMALSelectChange = (e,record,flag)=>{
+    if(flag === 1){
+      record.precision = e
+    }else{
+      record.scale = e;
+    }
+    this.saveDataToStorage();
+  }
+
+
+
   render(){
     const { tableDetail } = this.state;
     const { getFieldDecorator, getFieldsValue } = this.props.form;
@@ -312,11 +326,38 @@ export default class EditTable extends Component{
         dataIndex: 'type',
         render: (text,record)=>{
           if(record.isNew){
-            return <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
-                {field_types.map(o=>{
-                  return <Option key={o.value} value={o.value}>{o.name}</Option>
-                })}
-              </Select>
+            if(record.type === 'DECIMAL'){
+              return  <span>
+                    <Select  style={{width: 90,marginRight: 5}}   getPopupContainer={()=>document.getElementById('table-panel')} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+                      {field_types.map(o=>{
+                        return <Option key={o.value} value={o.value}>{o.name}</Option>
+                      })}
+                    </Select>
+                    <span>
+                      <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+                        {
+                          decimalPrecision.map(o=>{
+                            return <Option key={o} value={o}>{o}</Option>
+                          })
+                        }
+                      </Select>
+                      <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+                        {
+                          decimalScale.map(o=>{
+                            return <Option key={o} value={o}>{o}</Option>
+                          })
+                        }
+                      </Select>
+                      <HelpDoc style={relativeStyle} doc="decimalType" />
+                  </span>
+                </span>
+            }else
+            return  <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+            {field_types.map(o=>{
+              return <Option key={o.value} value={o.value}>{o.name}</Option>
+            })}
+            </Select>
+            
           }else
             return text
         }
@@ -336,7 +377,7 @@ export default class EditTable extends Component{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={!record.isNew || record.type==='DOUBLE'} defaultChecked={text===1?record.type!=='DOUBLE'?true:false:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释内容',
@@ -451,7 +492,7 @@ export default class EditTable extends Component{
           </Form>
         </Row>
 
-        <Row className="panel table-box">
+        <Row className="panel table-box"  id="table-panel">
             <div className="title">字段信息</div>
             <Table
             size="small"
@@ -461,7 +502,7 @@ export default class EditTable extends Component{
             dataSource={tableDetail.columns}
             pagination={false}>
             </Table>
-          <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
+          <a className="btn" style={{marginTop: 16, display: 'inline-block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
         </Row>
 
       <Row className="panel table-box">
