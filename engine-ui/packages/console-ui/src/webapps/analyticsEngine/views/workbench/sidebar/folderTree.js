@@ -103,9 +103,8 @@ class FolderTree extends React.PureComponent {
 
                 const id = `${item.id || item.tableId}`
                 const name = item.name || item.tableName
-                const isLeaf = !item.children;
+                const isLeaf = !item.children || item.children.length === 0;
                 // 用作展示上下文的锚点， 暂时取消
-                // const itemAnchorName = getContextMenuAnchorName(item.type);
                 const className = getItemClassName(item.type);
 
                 const nodeTitle = (
@@ -119,7 +118,7 @@ class FolderTree extends React.PureComponent {
                         </span>
                     </Tooltip>
                 )
-                
+                console.log('isLeaf:', item, isLeaf)
                 return (
                     <TreeNode
                         title={nodeTitle}
@@ -131,7 +130,7 @@ class FolderTree extends React.PureComponent {
                         className={className}
                     >
                         {
-                            item.children && loop(item.children)
+                            item.children && item.children.length > 0 && loop(item.children)
                         }
                     </TreeNode>
                 )
@@ -143,7 +142,6 @@ class FolderTree extends React.PureComponent {
     }
 
     render() {
-        console.log('expandedKeys:', this.props.expandedKeys)
         return (
             <div className="s-catalogue">
                 <Tree
