@@ -20,9 +20,11 @@ export default function mainBench(state = getInitialCachedData(), action) {
     switch (type) {
 
         case workbenchAction.SWITCH_TAB: {
-            return assign({}, state, {
+            const nextStore = assign({}, state, {
                 currentTab: payload,
-            })
+            });
+            localDb.set(workbenchStoreKey, nextStore);
+            return nextStore;
         }
 
         case workbenchAction.OPEN_TAB: {
