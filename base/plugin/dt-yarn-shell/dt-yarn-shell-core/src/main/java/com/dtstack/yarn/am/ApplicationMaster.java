@@ -27,6 +27,7 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
@@ -240,6 +241,7 @@ public class ApplicationMaster extends CompositeService {
         LOG.info("Try to allocate " + workerNum + " worker containers");
 
         //对独占的nm，向rm进行updateBlacklist操作
+        long startAllocatedTimeStamp = System.currentTimeMillis();
         while (rmCallbackHandler.getAllocatedWorkerContainerNumber() < workerNum) {
             List<Container> releaseContainers = rmCallbackHandler.getReleaseContainers();
             List<String> blackHosts = rmCallbackHandler.getBlackHosts();
@@ -261,6 +263,11 @@ public class ApplicationMaster extends CompositeService {
                     amrmAsync.addContainerRequest(workerContainerRequest);
                 }
                 rmCallbackHandler.removeReleaseContainers(releaseContainers);
+            }
+            if ((System.currentTimeMillis() - startAllocatedTimeStamp) > conf.getInt(YarnConfiguration.RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS, YarnConfiguration.DEFAULT_RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS)) {
+                String failMessage = "Container waiting except the allocated expiry time. Maybe the Cluster available resources are not satisfied the user need. Please resubmit !";
+                LOG.error(failMessage);
+                throw new RuntimeException("Container waiting except the allocated expiry time.");
             }
             Utilities.sleep(1000);
         }
