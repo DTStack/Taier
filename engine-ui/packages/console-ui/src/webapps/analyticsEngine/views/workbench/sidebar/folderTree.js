@@ -118,7 +118,6 @@ class FolderTree extends React.PureComponent {
                         </span>
                     </Tooltip>
                 )
-                console.log('isLeaf:', item, isLeaf)
                 return (
                     <TreeNode
                         title={nodeTitle}
@@ -130,7 +129,7 @@ class FolderTree extends React.PureComponent {
                         className={className}
                     >
                         {
-                            item.children && item.children.length > 0 && loop(item.children)
+                            item.children && loop(item.children)
                         }
                     </TreeNode>
                 )
