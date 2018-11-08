@@ -128,7 +128,15 @@ export default function mainBench(state = getInitialCachedData(), action) {
         case workbenchAction.TABLE_INFO_MOTIFIED: {
             //保存完成
             console.log('新的表信息已保存')
+            console.log(payload)
             
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            tabData.tableDetail = payload;
             const newStore = assign({}, state);
             return newStore;
         }
