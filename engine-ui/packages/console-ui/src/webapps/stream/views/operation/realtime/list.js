@@ -234,7 +234,7 @@ class RealTimeTaskList extends Component {
                     id: task.id,
                 }).then((res) => {
                     if (res.code === 1) {
-                        message.success('任务已执行停止！')
+                        message.success('任务正在停止！')
                         ctx.loadTaskList({ pageIndex: current })
                         ctx.loadCount();
                     }
