@@ -49,9 +49,7 @@ export function LogInfo(props) {
     });
 
     const errors = log['all-exceptions'] || ''
-    let flinkLog = isArray(errors) && errors.length > 0 ? errors.map(item => {
-        return `${item.exception} \n`
-    }) : '';
+    let flinkLog = errors;
 
     const appLogs = getLogsInfo('appLogs', log.appLog)
     const driverLog = getLogsInfo('driverLog', log.driverLog)

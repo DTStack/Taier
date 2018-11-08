@@ -9,6 +9,7 @@ import Address from "./runcode/address";
 import { TASK_TYPE } from "../../../../../comm/const";
 import { formItemLayout, DATA_SOURCE } from "../../../../../comm/const";
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../../store/modules/realtimeTask/comm';
+import utils from "utils";
 
 const { TextArea } = Input;
 const Panel = Collapse.Panel;
@@ -122,11 +123,23 @@ class RunCode extends React.Component {
             tabKey: activeKey
         })
     }
+    getJsonEditor(value) {
+        value = utils.jsonFormat(value)||'';
+        return <Editor
+            sync={true}
+            style={{ height: "100%" }}
+            options={{ readOnly: false }}
+            language="json"
+            options={{ readOnly: true, minimap: { enabled: false } }}
+            value={value}
+        />
+    }
     render() {
         const { tabKey } = this.state;
         const { data = {}, isShow } = this.props;
         const { taskType, originSourceType } = data;
         const isShowAddress = taskType == TASK_TYPE.DATA_COLLECTION && originSourceType == DATA_SOURCE.BEATS;
+        const isflinkSql = taskType == TASK_TYPE.SQL;
 
         const editorBoxStyle = {
             position: "absolute",
@@ -150,6 +163,23 @@ class RunCode extends React.Component {
                             {this.getRunCode()}
                         </div>
                     </TabPane>
+                    {isflinkSql && [
+                        <TabPane className="m-panel2" tab="源表" key="source">
+                            <div style={editorBoxStyle}>
+                                {this.getJsonEditor(data.sourceParams)}
+                            </div>
+                        </TabPane>,
+                        <TabPane className="m-panel2" tab="结果表" key="sink">
+                            <div style={editorBoxStyle}>
+                                {this.getJsonEditor(data.sinkParams)}
+                            </div>
+                        </TabPane>,
+                        <TabPane className="m-panel2" tab="维表" key="side">
+                            <div style={editorBoxStyle}>
+                                {this.getJsonEditor(data.sideParams)}
+                            </div>
+                        </TabPane>
+                    ]}
                     <TabPane className="m-panel2" tab="环境参数" key="env">
                         <div style={editorBoxStyle}>
                             <Editor
@@ -164,7 +194,7 @@ class RunCode extends React.Component {
                     </TabPane>
                     {isShowAddress && (
                         <TabPane className="m-panel2" tab="运行地址" key="address">
-                            <Address  style={editorBoxStyle} taskId={data.id} />
+                            <Address style={editorBoxStyle} taskId={data.id} />
                         </TabPane>
                     )}
                 </Tabs>

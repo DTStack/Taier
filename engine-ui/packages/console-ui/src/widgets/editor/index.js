@@ -133,6 +133,9 @@ class Editor extends React.Component {
         if (languageConfig !== this.props.languageConfig) {
             this.updateMonarch(languageConfig, language)
         }
+        if (this.props.language !== nextProps.language) {
+            monaco.editor.setModelLanguage(this.monacoInstance.getModel(),nextProps.language)
+        }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)
         }
