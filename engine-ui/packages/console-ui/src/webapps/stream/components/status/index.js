@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tag, Badge } from 'antd'
+import { Tag, Badge, Icon, Tooltip } from 'antd'
 import { TASK_STATUS, TASK_TYPE, SCRIPT_TYPE, RESOURCE_TYPE, DATA_SOURCE, alarmTriggerType } from '../../comm/const'
 import { Circle } from 'widgets/circle'
 
@@ -93,11 +93,11 @@ export function TaskStatusOverview(props) {
         </span>
         <span className="status_overview_item status_overview_stoped_font">
             <Circle className="status_overview_stoped" />&nbsp;
-            停止/取消：{data.CANCELED}
+            取消：{data.CANCELED}
         </span>
         <span className="status_overview_item status_overview_submmitting_font">
             <Circle className="status_overview_submmitting" />&nbsp;
-            提交中：{data.UNSUBMIT}
+            未运行 <Tooltip title="包括等待提交、提交中、等待运行3种状态"><Icon style={{color:"#888"}} type="question-circle-o" /></Tooltip>：{data.UNRUNNING}
         </span>
         <span className="status_overview_item status_overview_count_font">
             <Circle className="status_overview_count" />&nbsp;

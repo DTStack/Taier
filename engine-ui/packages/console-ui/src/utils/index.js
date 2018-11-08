@@ -105,6 +105,10 @@ const utils = {
         moment.locale("zh-cn");
         return moment(timestap).format("HH:mm");
     },
+    formatMinute: function(timestap) {
+        moment.locale("zh-cn");
+        return moment(timestap).format("HH:mm:ss");
+    },
 
     /**
      * 去除空串
@@ -204,6 +208,9 @@ const utils = {
      * @param {格式化占位符} space
      */
     jsonFormat(text, space) {
+        if(!text){
+            return text
+        }
         try {
             
             const json = JSON.parse(text);
