@@ -42,35 +42,35 @@ const provideCompletionItemsMap = {
  * 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
  * @param {function} func 
  */
-function delayFunctionWrap(func){
+function delayFunctionWrap(func) {
     /**
      * 最小执行间隔，每隔一段时间强制执行一次函数
      * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
      */
-    let freshTime=3000;
+    let freshTime = 3000;
     /**
      * 函数延迟时间
      */
-    let delayTime=500;
+    let delayTime = 500;
 
     let outTime;
     let _timeClock;
-    return function(){
-        const arg=arguments;
-        _timeClock&&clearTimeout(_timeClock);
+    return function () {
+        const arg = arguments;
+        _timeClock && clearTimeout(_timeClock);
         //这边设置在一定时间内，必须执行一次函数
-        if(outTime){
-            let now=new Date();
-            if(now-outTime>freshTime){
+        if (outTime) {
+            let now = new Date();
+            if (now - outTime > freshTime) {
                 func(...arg);
             }
-        }else{
-            outTime=new Date();
+        } else {
+            outTime = new Date();
         }
-        _timeClock=setTimeout(()=>{
-            outTime=null;
+        _timeClock = setTimeout(() => {
+            outTime = null;
             func(...arg);
-        },delayTime)
+        }, delayTime)
     }
 }
 class Editor extends React.Component {
@@ -79,10 +79,10 @@ class Editor extends React.Component {
         super(props);
         this.monacoDom = null;
         this.monacoInstance = null;
-        this._linkId=null;
+        this._linkId = null;
     }
 
-    
+
     shouldComponentUpdate(nextProps, nextState) {
         // // 此处禁用render， 直接用editor实例更新编辑器
         return false;
@@ -134,7 +134,7 @@ class Editor extends React.Component {
             this.updateMonarch(languageConfig, language)
         }
         if (this.props.language !== nextProps.language) {
-            monaco.editor.setModelLanguage(this.monacoInstance.getModel(),nextProps.language)
+            monaco.editor.setModelLanguage(this.monacoInstance.getModel(), nextProps.language)
         }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)
@@ -156,25 +156,25 @@ class Editor extends React.Component {
      * 提供下载链接。ps:不是很好用，屏蔽了
      * @param {string} link 
      */
-    initLink(link){
+    initLink(link) {
         this.monacoInstance.changeViewZones(
-            (changeAccessor)=>{
-                if(this._linkId){
+            (changeAccessor) => {
+                if (this._linkId) {
                     changeAccessor.removeZone(this._linkId);
                 }
-                let boxNode=document.createElement("div");
-                let domNode=document.createElement("a");
-                domNode.innerHTML="完整下载链接";
-                domNode.className="dt-monaco-link";
-                domNode.setAttribute("href",link);
-                domNode.setAttribute("download",'');
+                let boxNode = document.createElement("div");
+                let domNode = document.createElement("a");
+                domNode.innerHTML = "完整下载链接";
+                domNode.className = "dt-monaco-link";
+                domNode.setAttribute("href", link);
+                domNode.setAttribute("download", '');
                 boxNode.appendChild(domNode);
-                this._linkId=changeAccessor.addZone({
+                this._linkId = changeAccessor.addZone({
                     afterLineNumber: 0,
-					heightInLines: 1,
-					domNode: boxNode
+                    heightInLines: 1,
+                    domNode: boxNode
                 })
-            }   
+            }
         )
     }
     updateMonarch(config, language) {
@@ -209,7 +209,7 @@ class Editor extends React.Component {
         }
 
 
-        const editorOptions = Object.assign({},defaultOptions, options, {
+        const editorOptions = Object.assign({}, defaultOptions, options, {
             value,
             language: language || "sql"
         });
@@ -239,6 +239,9 @@ class Editor extends React.Component {
         this.monacoInstance.setValue(value);
     }
     languageValueOnChange(callback) {
+        if (this.props.disabledSyntaxCheck) {
+            return;
+        }
         const newValue = this.monacoInstance.getValue();
         const languageId = this.monacoInstance.getModel().getModeId();
         if (provideCompletionItemsMap[languageId] && provideCompletionItemsMap[languageId].onChange) {
@@ -246,7 +249,7 @@ class Editor extends React.Component {
         }
     }
 
-    delayLanguageValueOnChange=delayFunctionWrap(this.languageValueOnChange.bind(this))
+    delayLanguageValueOnChange = delayFunctionWrap(this.languageValueOnChange.bind(this))
 
     initEditorEvent() {
         this.languageValueOnChange(this.props.onSyntaxChange);
@@ -255,9 +258,7 @@ class Editor extends React.Component {
             const { onChange, value, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
             //考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
-            if(!this.props.disabledSyntaxCheck){
-                this.delayLanguageValueOnChange(onSyntaxChange);
-            }
+            this.delayLanguageValueOnChange(onSyntaxChange);
             if (onChange) {
                 this.log("订阅事件触发");
                 onChange(newValue, this.monacoInstance);

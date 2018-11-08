@@ -420,6 +420,7 @@ class EditorContainer extends Component {
             options: {
                 readOnly: !couldEdit || isLocked,
             },
+            disabledSyntaxCheck:true,
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
                 ...language,
