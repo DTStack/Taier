@@ -12,6 +12,7 @@
         <result column="task_name" property="taskName" jdbcType="VARCHAR" />
         <result column="engine_task_id" property="engineTaskId" jdbcType="VARCHAR" />
         <result column="application_id" property="applicationId" jdbcType="VARCHAR" />
+        <result column="plugin_info_id" property="pluginInfoId" jdbcType="BIGINT" />
         <result column="status" property="status" jdbcType="INTEGER" />
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
         <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
@@ -51,11 +52,11 @@
     </update>
 
     <select id="getRdosTaskByTaskId" parameterType="java.util.HashMap" resultMap="rdosTaskResult">
-        select task_id, engine_task_id, application_id, status from rdos_engine_stream_job where task_id=#{taskId} and is_deleted=0;
+        select task_id, engine_task_id,application_id, plugin_info_id, status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,gmt_create,gmt_modified,is_deleted from rdos_engine_stream_job where task_id=#{taskId} and is_deleted=0;
     </select>
 
     <select id="getRdosTaskByTaskIds" parameterType="java.util.HashMap" resultMap="rdosTaskResult">
-        select task_id, engine_task_id,application_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,gmt_create,gmt_modified,is_deleted from rdos_engine_stream_job
+        select task_id, engine_task_id,application_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,gmt_create,gmt_modified,is_deleted from rdos_engine_stream_job
         where task_id IN
         <foreach item="taskId" index="index" collection="taskIds" open="(" separator="," close=")">
             #{taskId}
