@@ -86,7 +86,7 @@ export default class PanePartition extends Component{
         title: '更新时间',
         dataIndex: 'lastDDLTime',
         render: (text,record)=>{
-          return moment(text).format('YYYY-MM-DD')
+          return moment(record.lastDDLTime * 1000).format('YYYY-MM-DD')
         }
       },{
         title: '存储量',

@@ -291,7 +291,7 @@ export default class StepTwo extends Component{
     console.log(e)
     let {partitions} = this.state;
     partitions.partitionType = e;
-    partitions.columns = e === 'stard'?[]:[
+    partitions.columns = e === 0?[]:[
       {
         _fid: 0,
         name: '',
@@ -301,6 +301,8 @@ export default class StepTwo extends Component{
     ];
     this.setState({
       partitions: partitions
+    },()=>{
+      console.log(this.state.partitions)
     })
     this.saveDataToStorage();
   }
@@ -442,7 +444,7 @@ export default class StepTwo extends Component{
         dataIndex: 'type',
         render: (text,record)=>(
           <span>
-          <Select style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select getPopupContainer={()=>document.getElementById('form-box')} style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return <Option key={o.value} value={o.value}>{o.name}</Option>
