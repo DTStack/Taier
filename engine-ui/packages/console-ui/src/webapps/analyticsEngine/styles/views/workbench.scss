@@ -227,6 +227,29 @@
         }
     }
     .step-one-container{
+        .anticon-caret-up:before,.anticon-caret-down:before{
+            color: #999;
+        }
+        .ant-radio-group{
+            .ant-radio-wrapper{
+                margin-right: 40px;
+                &:nth-last-child(1){
+                    margin-right: 0px;
+                }
+                span.ant-radio + *{
+                    padding-left: 4px;
+                    padding-right: 4px;
+                }
+            }
+        }
+        .ant-form-item{
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            .ant-form-item-label{
+                line-height: 17px;
+            }
+        }
         .ant-collapse-content{
             padding: 0;
         }
@@ -236,7 +259,7 @@
         .btn-box{
             display: flex;
             justify-content: flex-end;
-            margin-top: 20px;
+            // margin-top: 20px;
             margin-bottom: 20px;
         }
         .ddl-btn{
@@ -280,6 +303,8 @@
             }
         }
     }
+
+
     .ant-steps{
         padding-left: 55px;
         padding-right: 84px;
@@ -471,6 +496,18 @@
     }
 }
 .table-detail-container{
+    .ant-pagination{
+        .ant-pagination-item-active{
+            border: 1px solid #2491F7;
+            background-color: white;
+            a{
+                color: #2491F7;
+            }
+        }
+    }
+    .ant-pagination-item{
+        
+    }
     .ant-table-small{
         border-left: none;
         border-right: none;
@@ -489,6 +526,8 @@
         .ant-tabs-content{
             height: auto;
             overflow: hidden;
+            padding-top: 10px;
+            border-top: 1px solid #DDDDDD;
             table{
                 background-color: #F5F5F5;
                 padding: 0;
@@ -520,6 +559,8 @@
         }
         .ant-tabs-bar{
             height: 36px;
+            margin-bottom: 0px;
+            border-bottom: none;
             .ant-tabs-nav-container{
                 height: 35px;
             }
@@ -570,6 +611,9 @@
     }
 }
 .edit-table-container{
+    height: 100%;
+    padding-bottom: 50px;
+    overflow: scroll;
     .panel{
         padding-left: 20px;
         padding-right: 20px;

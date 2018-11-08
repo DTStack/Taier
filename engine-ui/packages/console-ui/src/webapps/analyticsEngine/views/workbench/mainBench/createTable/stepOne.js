@@ -184,7 +184,7 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.databaseId || undefined
               })(
-                  <Select style={{width: 570,marginRight:10}}>
+                  <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 570,marginRight:10}}>
                   {
                     databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
@@ -212,9 +212,9 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="描述">
             {
-              getFieldDecorator('desc',{
+              getFieldDecorator('tableDesc',{
                 rules: [],
-                initialValue: formData.desc || undefined
+                initialValue: formData.tableDesc || undefined
               })(
                 <Input.TextArea style={{width: 570,marginRight:10,height: 90 }} placeholder="请输入描述信息"/>
               )
@@ -260,7 +260,7 @@ export default class StepOne extends Component{
                     ],
                     initialValue: formData.lifeCycle || 90
                   })(
-                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === -1?78:570,height: 36,marginRight:10}}>
+                    <Select getPopupContainer={triggerNode => triggerNode.parentNode}  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeCycle === -1?78:570,height: 36,marginRight:10}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
@@ -283,7 +283,7 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.sortScope || 0
               })(
-                <Select style={{width: 570,marginRight:10}}>
+                <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 570,marginRight:10}}>
                   {
                     scortScopeList.map(o=>(
                       <Option key={o.value} value={o.value}>{o.title}</Option>
@@ -310,7 +310,7 @@ export default class StepOne extends Component{
             <HelpDoc style={relativeStyle} doc="blockSize" />
           </FormItem>
           <Collapse onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
-            <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon fill="#999999" type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
+            <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
               <FormItem
               {...formItemLayout}
               label="压缩模式">
@@ -393,8 +393,8 @@ export default class StepOne extends Component{
           </Collapse>
         </Form>
         <div className="nav-btn-box">
-              <Button onClick={this.props.handleCancel}>取消</Button>
-              <Button type="primary" onClick={this.next}>下一步</Button>
+              <Button onClick={this.props.handleCancel} style={{width: 90}}>取消</Button>
+              <Button type="primary" onClick={this.next} style={{width: 90}}>下一步</Button>
         </div>
         <Modal
         destroyOnClose={true}

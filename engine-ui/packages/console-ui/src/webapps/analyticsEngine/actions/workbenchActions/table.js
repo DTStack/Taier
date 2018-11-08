@@ -332,9 +332,18 @@ export function saveTableInfo(param){
 
         console.log(tableDetail)
         const {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
+        let stopFlag = false;
         columns.map(o=>{
-            delete o._fid
+            if((!o.name || o.name === '' || !o.type) && !stopFlag){
+                notification.error({
+                    message: '提示',
+                    description: '字段名称与字段类型不可为空'
+                })
+                stopFlag = true;
+            }
         })
+        if(stopFlag) return;
+
         let flag = [];
         columns.map(o=>{
             if(o.isNew){
@@ -344,7 +353,9 @@ export function saveTableInfo(param){
                     invert: o.invert,
                     name: o.name,
                     sortColumn: o.sortColumn,
-                    type: o.type
+                    type: o.type,
+                    precision: o.precision || null,
+                    scale: o.scale || null,
                 })
             }
         })
