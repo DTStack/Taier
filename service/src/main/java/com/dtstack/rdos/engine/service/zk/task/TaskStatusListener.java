@@ -50,8 +50,7 @@ public class TaskStatusListener implements Runnable{
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
     public final static int NOT_FOUND_LIMIT_TIMES = 300;
 
-    public final static String SYS_CANCLED_LOG = "系统查询不到任务状态,主动设置为取消状态";
-
+    public final static String SYS_CANCLED_LOG = "{\"root-exception\":\"系统查询不到任务状态,主动设置为取消状态\"}";
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
 
@@ -217,7 +216,7 @@ public class TaskStatusListener implements Runnable{
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
                 }
 
-                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
+                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();

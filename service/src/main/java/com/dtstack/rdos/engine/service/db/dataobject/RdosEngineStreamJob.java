@@ -41,7 +41,7 @@ public class RdosEngineStreamJob extends DataObject{
 
     private String engineLog;
 
-    private long pluginInfoId;
+    private Long pluginInfoId;
 
 	public String getTaskId() {
 		return taskId;

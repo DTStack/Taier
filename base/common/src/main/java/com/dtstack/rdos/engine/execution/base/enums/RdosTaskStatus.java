@@ -20,7 +20,7 @@ public enum RdosTaskStatus {
 
 	UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELLING(6),CANCELED(7),FAILED(8), SUBMITFAILD(9),
 	SUBMITTING(10), RESTARTING(11), MANUALSUCCESS(12), KILLED(13), SUBMITTED(14), NOTFOUND(15), WAITENGINE(16), WAITCOMPUTE(17),
-    FROZEN(18), ENGINEACCEPTED(19), ENGINEDISTRIBUTE(20);
+    FROZEN(18), ENGINEACCEPTED(19), ENGINEDISTRIBUTE(20), PARENTFAILED(21), FAILING(22);
 	
 	private int status;
 
@@ -54,7 +54,7 @@ public enum RdosTaskStatus {
 
         if(Strings.isNullOrEmpty(taskStatus)){
             return null;
-        }else if("error".equalsIgnoreCase(taskStatus)||"failing".equalsIgnoreCase(taskStatus)){
+        }else if("error".equalsIgnoreCase(taskStatus)){
             taskStatus = "FAILED";
         }
 
