@@ -117,7 +117,7 @@ class TableDetail extends Component {
                 </Row>
                 <Row className="tabs-row" style={{marginBottom: 40}}>
                     <div className="tabs-container">
-                    <Tabs type="card"  >
+                    <Tabs type="card">
                         {
                             tabsData.map(o=>(
                                 <TabPane tab={o.title} key={o.key}>{o.content}</TabPane>

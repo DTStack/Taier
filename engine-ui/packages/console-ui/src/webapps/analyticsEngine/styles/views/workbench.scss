@@ -505,9 +505,6 @@
             }
         }
     }
-    .ant-pagination-item{
-        
-    }
     .ant-table-small{
         border-left: none;
         border-right: none;
@@ -566,10 +563,10 @@
             }
         }
         .ant-tabs-nav-scroll{
-            background-color: #FAFAFA;
+            // background-color: #FAFAFA;
         }
         .ant-tabs-ink-bar{
-            display: none !important;
+            // display: none !important;
         }
         .ant-tabs-nav{
             .ant-tabs-tab{
@@ -610,6 +607,9 @@
         }
     }
 }
+
+
+
 .edit-table-container{
     height: 100%;
     padding-bottom: 50px;
