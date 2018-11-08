@@ -102,6 +102,8 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
 
     params.sql = `${sqls[index]}`;
     params.uniqueKey = key;
+    runningSql[currentTab] = key; // 默认的运行 Key
+
     dispatch(output(currentTab, `第${index + 1}条任务开始执行`));
 
     function execContinue() {
@@ -175,8 +177,6 @@ export function execSql(currentTab, task, params, sqls) {
     }
 }
 
-
-
 //停止sql
 export function stopSql(currentTab, currentTabData, isSilent) {
     return async (dispatch, getState) => {
@@ -199,7 +199,7 @@ export function stopSql(currentTab, currentTabData, isSilent) {
 
         const jobId = runningSql[currentTab];
         if (!jobId) return;
-      
+
         const res = await API.stopExecSQL({
             taskId: currentTabData.id,
             jobId: jobId,
