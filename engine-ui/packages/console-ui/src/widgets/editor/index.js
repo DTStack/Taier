@@ -255,7 +255,9 @@ class Editor extends React.Component {
             const { onChange, value, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
             //考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
-            this.delayLanguageValueOnChange(onSyntaxChange);
+            if(!this.props.disabledSyntaxCheck){
+                this.delayLanguageValueOnChange(onSyntaxChange);
+            }
             if (onChange) {
                 this.log("订阅事件触发");
                 onChange(newValue, this.monacoInstance);
