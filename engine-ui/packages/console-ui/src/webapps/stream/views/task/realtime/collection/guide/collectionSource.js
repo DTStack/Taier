@@ -180,73 +180,18 @@ class CollectionSourceForm extends React.Component {
 
         }
     }
-    render() {
-        let { collectionData, tableList, dataSourceTypes = [] } = this.props;
+    renderForm() {
+        let { collectionData, tableList } = this.props;
         let { dataSourceList = [], sourceMap, isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const allTable = sourceMap.allTable;
         const { type, sourceId } = sourceMap;
         const isCollectTypeEdit = sourceId ? true : false
-        const isBeats = type == DATA_SOURCE.BEATS;
-        return (
-            <div>
-                <Form>
+
+        switch (type) {
+            case DATA_SOURCE.MYSQL: {
+                return [
                     <FormItem
-                        {...formItemLayout}
-                        label="数据源类型"
-                    >
-                        {getFieldDecorator('type', {
-                            rules: [{ required: true, message: '请选择数据源类型' }],
-                        })(
-                            <Select
-                                disabled={isEdit}
-                                placeholder="请选择数据源类型"
-                                style={{ width: "100%" }}
-                            >
-                                {dataSourceTypes.map((item) => {
-                                    return <Option key={item.value} value={item.value} >{item.key}</Option>
-                                }).filter(Boolean)}
-                            </Select>
-                        )}
-                    </FormItem>
-                    {isBeats && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="主机名/IP"
-                        >
-                            {getFieldDecorator('macAndIp', {})(
-                                <Input disabled />
-                            )}
-                        </FormItem>
-                    )}
-                    {isBeats && <FormItem
-                        {...formItemLayout}
-                        label="端口"
-                    >
-                        {getFieldDecorator('port', {
-                            rules: [{ 
-                                validator: (rule, value, callback)=>{
-                                    if(value){
-                                        if(parseInt(value)){
-                                            callback()
-                                        }else{
-                                            callback("请输入正确的端口")
-                                        }
-                                    }else{
-                                        callback()
-                                    }
-                                }
-                            }],
-                        })(
-                            <Input
-                                disabled={isEdit}
-                                placeholder="请输入端口"
-                                style={{ width: "100%" }}
-                            />
-                        )}
-                        <HelpDoc doc="binlogPortHelp" />
-                    </FormItem>}
-                    {!isBeats && <FormItem
                         {...formItemLayout}
                         label="数据源"
                     >
@@ -266,8 +211,8 @@ class CollectionSourceForm extends React.Component {
                                 }).filter(Boolean)}
                             </Select>
                         )}
-                    </FormItem>}
-                    {!isBeats && <FormItem
+                    </FormItem>,
+                    <FormItem
                         {...formItemLayout}
                         label="表"
                     >
@@ -291,8 +236,8 @@ class CollectionSourceForm extends React.Component {
                                 )) : []}
                             </Select>
                         )}
-                    </FormItem>}
-                    {!isBeats && <FormItem
+                    </FormItem>,
+                    <FormItem
                         {...formItemLayout}
                         label="采集起点"
                         style={{ textAlign: "left" }}
@@ -308,9 +253,9 @@ class CollectionSourceForm extends React.Component {
                                 <Radio value={collect_type.FILE}>按文件选择</Radio>
                             </RadioGroup>
                         )}
-                    </FormItem>}
-                    {!isBeats ? this.renderByCatType() : null}
-                    {!isBeats && <FormItem
+                    </FormItem>,
+                    this.renderByCatType(),
+                    <FormItem
                         {...formItemLayout}
                         label="数据操作"
                     >
@@ -326,7 +271,79 @@ class CollectionSourceForm extends React.Component {
                             }
                             />
                         )}
-                    </FormItem>}
+                    </FormItem>
+                ]
+            }
+            case DATA_SOURCE.BEATS: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="主机名/IP"
+                    >
+                        {getFieldDecorator('macAndIp', {})(
+                            <Input disabled />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="端口"
+                    >
+                        {getFieldDecorator('port', {
+                            rules: [{
+                                validator: (rule, value, callback) => {
+                                    if (value) {
+                                        if (parseInt(value)) {
+                                            callback()
+                                        } else {
+                                            callback("请输入正确的端口")
+                                        }
+                                    } else {
+                                        callback()
+                                    }
+                                }
+                            }],
+                        })(
+                            <Input
+                                disabled={isEdit}
+                                placeholder="请输入端口"
+                                style={{ width: "100%" }}
+                            />
+                        )}
+                        <HelpDoc doc="binlogPortHelp" />
+                    </FormItem>
+                ]
+            }
+            default:{
+                return null;
+            }
+        }
+    }
+    render() {
+        let { collectionData, dataSourceTypes = [] } = this.props;
+        let { isEdit } = collectionData;
+        const { getFieldDecorator } = this.props.form;
+        return (
+            <div>
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据源类型"
+                    >
+                        {getFieldDecorator('type', {
+                            rules: [{ required: true, message: '请选择数据源类型' }],
+                        })(
+                            <Select
+                                disabled={isEdit}
+                                placeholder="请选择数据源类型"
+                                style={{ width: "100%" }}
+                            >
+                                {dataSourceTypes.map((item) => {
+                                    return <Option key={item.value} value={item.value} >{item.key}</Option>
+                                }).filter(Boolean)}
+                            </Select>
+                        )}
+                    </FormItem>
+                    {this.renderForm()}
                 </Form>
             </div>
         )
@@ -407,8 +424,8 @@ const WrapCollectionSourceForm = Form.create({
             journalName: {
                 value: sourceMap.journalName
             },
-            macAndIp:{
-                value:"任务运行时自动分配，无需手动指定"
+            macAndIp: {
+                value: "任务运行时自动分配，无需手动指定"
             }
         }
 
