@@ -21,8 +21,10 @@ export class ContextMenu extends Component {
     constructor(props){
         super(props);
         this.toggleMenu = this.toggleMenu.bind(this)
-        this.removeMenu = this.removeMenu.bind(this)
+        this.removeMenu = this.removeMenu.bind(this);
     }
+
+    _contextMenus = [];
 
     componentDidMount() {
         document.addEventListener('contextmenu', this.toggleMenu, false);
@@ -30,8 +32,8 @@ export class ContextMenu extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener('contextmenu', this.toggleMenu, false);
         document.removeEventListener("click", this.removeMenu, false);
+        document.removeEventListener('contextmenu', this.toggleMenu, false);
     }
 
     toggleMenu(evt) {
@@ -73,19 +75,16 @@ export class ContextMenu extends Component {
         }
     }
 
+    closeMenu(evt) {
+        if (!this.selfEle) return;
+        const style = this.selfEle.style;
+        style.display = "none";
+    }
+
     removeMenu(evt) {
-        const { targetClassName } = this.props
         if (!this.selfEle) return
-        const style = this.selfEle.style
-        if (evt.which === 1 ) { // When mouse right click
-            if (style.display !== 'block') return
-            if (evt.target.nodeType !== 1) {
-                 style.display = "none"; 
-            } else {
-                let parent = this.findParent(evt.target, targetClassName)
-                if (!parent) { style.display = "none"; }
-            }
-        }
+        const style = this.selfEle.style;
+        style.display = "none";
     }
 
     findParent(child, selector) {
@@ -105,7 +104,7 @@ export class ContextMenu extends Component {
         }
         return null;
     }
-    
+
     render() {
         return (
             <div ref={(e) => { this.selfEle = e } } className="context-menu" style={{ display: 'none' }}>

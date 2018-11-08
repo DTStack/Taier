@@ -335,7 +335,7 @@ class EditorContainer extends Component {
 
         const editorOpts = {
             value: data.sqlText,
-            language: "sql",
+            language: "dtsql",
 
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
