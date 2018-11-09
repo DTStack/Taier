@@ -43,7 +43,8 @@ class RealTimeTaskList extends Component {
         goOnTask: '',
         logInfo: '',
         overview: {},
-        taskTypes: []
+        taskTypes: [],
+        sorter: {}
     }
 
     componentDidMount() {
@@ -77,7 +78,7 @@ class RealTimeTaskList extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            if(!this.state.taskTypes||!this.state.taskTypes.length){
+            if (!this.state.taskTypes || !this.state.taskTypes.length) {
                 this.loadTaskTypes();
             }
             this.setState({
@@ -111,7 +112,7 @@ class RealTimeTaskList extends Component {
     searchTask = (query) => {
         this.setState({
             taskName: query,
-        }, ()=>{
+        }, () => {
             this.loadTaskList();
             this.loadCount();
         })
@@ -163,12 +164,15 @@ class RealTimeTaskList extends Component {
         if (!isSilent || typeof isSilent != "boolean") {
             this.setState({ loading: true })
         }
+        const { sorter = {} } = ctx.state;
         const reqParams = Object.assign({
             currentPage: 1,
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
-            statusList: this.state.filter
+            statusList: this.state.filter,
+            orderBy: sorter.columnKey,
+            sort: utils.exchangeOrder(sorter.order)
         }, params)
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
@@ -258,16 +262,17 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    handleTableChange = (pagination, filters) => {
-        const {location} = this.props.router;
-        if(location.state){
+    handleTableChange = (pagination, filters, sorter) => {
+        const { location } = this.props.router;
+        if (location.state) {
             hashHistory.replace({
-                pathname:location.pathname
+                pathname: location.pathname
             })
         }
         this.setState({
             current: pagination.current,
-            filter: filters.status
+            filter: filters.status,
+            sorter: sorter
         }, this.loadTaskList.bind(this))
     }
 
@@ -289,7 +294,7 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    openTask= (task) => {
+    openTask = (task) => {
         this.props.dispatch(BrowserAction.openPage({
             id: task.id,
         }))
@@ -332,7 +337,7 @@ class RealTimeTaskList extends Component {
             dataIndex: 'bizDelay',
             key: 'bizDelay',
             width: 150,
-            render(text){
+            render(text) {
                 return `${text}s`
             }
         }, {
@@ -354,7 +359,7 @@ class RealTimeTaskList extends Component {
             key: 'gmtModified',
             width: 150,
             render: text => utils.formatDateTime(text),
-            sorter: (a, b) => a.gmtModified - b.gmtModified,
+            sorter: true
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUserName',
@@ -445,7 +450,7 @@ class RealTimeTaskList extends Component {
             >
                 {recover}
             </Popconfirm>)
-            
+
             /**
              * 在每个按钮之间插入间隔符
              */
@@ -469,7 +474,7 @@ class RealTimeTaskList extends Component {
             goOnTask: ''
         })
     }
-    goOnTaskSuccess=()=>{
+    goOnTaskSuccess = () => {
         this.hideGoOnTask();
         this.loadTaskList()
         this.loadCount()
@@ -501,7 +506,7 @@ class RealTimeTaskList extends Component {
                     }
                     extra={
                         <Tooltip title="刷新数据">
-                            <Icon type="sync" onClick={()=>{
+                            <Icon type="sync" onClick={() => {
                                 this.loadCount();
                                 this.loadTaskList()
                             }}
