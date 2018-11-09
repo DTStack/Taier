@@ -102,7 +102,7 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         try {
             client.kill(jobId);
             return JobResult.createSuccessResult(jobId);
@@ -114,7 +114,7 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         if(org.apache.commons.lang3.StringUtils.isEmpty(jobId)){
             return null;
@@ -241,7 +241,7 @@ public class DtYarnShellClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
@@ -256,7 +256,7 @@ public class DtYarnShellClient extends AbsClient {
     @Override
     public List<String> getContainerInfos(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         try {
             return client.getContainerInfos(jobId);
         } catch (Exception e) {

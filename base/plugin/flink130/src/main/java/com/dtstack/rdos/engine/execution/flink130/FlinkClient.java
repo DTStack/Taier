@@ -295,7 +295,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
@@ -316,7 +316,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         if(Strings.isNullOrEmpty(jobId)){
             return null;
         }
@@ -419,7 +419,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
@@ -459,7 +459,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private boolean existsJobOnFlink(String engineJobId){
-        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null));
+        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null, null));
         if(taskStatus == null){
             return false;
         }

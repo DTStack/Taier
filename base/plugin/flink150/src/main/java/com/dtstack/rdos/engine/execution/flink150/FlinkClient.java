@@ -423,12 +423,12 @@ public class FlinkClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
         ClusterClient targetClusterClient;
         if(!Strings.isNullOrEmpty(applicationId)){
-            targetClusterClient = clusterClientCache.getClusterClient(applicationId);
+            targetClusterClient = clusterClientCache.getClusterClient(jobIdentifier);
         }else{
             targetClusterClient = client;
         }
@@ -453,7 +453,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
         if(!Strings.isNullOrEmpty(applicationId)){
@@ -663,7 +663,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
@@ -677,7 +677,7 @@ public class FlinkClient extends AbsClient {
         }else{
             ClusterClient currClient;
             if(StringUtils.isNotBlank(applicationId)){
-                currClient = clusterClientCache.getClusterClient(applicationId);
+                currClient = clusterClientCache.getClusterClient(jobIdentifier);
             }else{
                 currClient = client;
             }
@@ -812,7 +812,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         String appId = jobIdentifier.getApplicationId();
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         RdosTaskStatus rdosTaskStatus = getJobStatus(jobIdentifier);
 
@@ -823,7 +823,7 @@ public class FlinkClient extends AbsClient {
         }else{
             ClusterClient currClient;
             if(StringUtils.isNotBlank(appId)){
-                currClient = clusterClientCache.getClusterClient(appId);
+                currClient = clusterClientCache.getClusterClient(jobIdentifier);
             }else{
                 currClient = client;
             }
@@ -835,7 +835,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private boolean existsJobOnFlink(String engineJobId){
-        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null));
+        RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(engineJobId, null, null));
         if(taskStatus == null){
             return false;
         }

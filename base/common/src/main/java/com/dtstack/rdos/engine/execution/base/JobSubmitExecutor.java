@@ -88,12 +88,12 @@ public class JobSubmitExecutor {
         }
 
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.cancelJob(JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId()));
+        return client.cancelJob(JobIdentifier.createInstance(jobClient.getEngineTaskId(), jobClient.getApplicationId(), jobClient.getTaskId()));
     }
 
     public List<String> containerInfos(JobClient jobClient) throws Exception {
         IClient client = clientCache.getClient(jobClient.getEngineType(), jobClient.getPluginInfo());
-        return client.getContainerInfos(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null));
+        return client.getContainerInfos(JobIdentifier.createInstance(jobClient.getEngineTaskId(), null, jobClient.getTaskId()));
     }
 
     public LinkedBlockingQueue<JobClient> getQueueForTaskListener(){

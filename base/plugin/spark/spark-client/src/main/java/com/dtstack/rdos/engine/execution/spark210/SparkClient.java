@@ -232,7 +232,7 @@ public class SparkClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         RestSubmissionClient restSubmissionClient = new RestSubmissionClient(sparkConfig.getSparkMaster());
         SubmitRestProtocolResponse response = restSubmissionClient.killSubmission(jobId);
         String responseStr = response.toJson();
@@ -261,7 +261,7 @@ public class SparkClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
     	if(StringUtils.isBlank(jobId)){
     		return null;
@@ -331,7 +331,7 @@ public class SparkClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         SparkJobLog sparkJobLog = new SparkJobLog();
         String rootMessage = getMessageByHttp(SparkStandaloneRestParseUtil.ROOT);
 

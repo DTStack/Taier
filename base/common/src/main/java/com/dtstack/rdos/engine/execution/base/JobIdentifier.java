@@ -9,25 +9,28 @@ package com.dtstack.rdos.engine.execution.base;
 
 public class JobIdentifier {
 
-    private String jobId;
+    private String engineJobId;
 
     private String applicationId;
 
-    public JobIdentifier(String jobId, String applicationId){
-        this.jobId = jobId;
+    private String taskId;
+
+    public JobIdentifier(String engineJobId, String applicationId, String taskId){
+        this.engineJobId = engineJobId;
         this.applicationId = applicationId;
+        this.taskId = taskId;
     }
 
-    public static JobIdentifier createInstance(String jobId, String applicationId){
-        return new JobIdentifier(jobId, applicationId);
+    public static JobIdentifier createInstance(String jobId, String applicationId, String taskId){
+        return new JobIdentifier(jobId, applicationId, taskId);
     }
 
-    public String getJobId() {
-        return jobId;
+    public String getEngineJobId() {
+        return engineJobId;
     }
 
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
+    public void setEngineJobId(String engineJobId) {
+        this.engineJobId = engineJobId;
     }
 
     public String getApplicationId() {
@@ -36,5 +39,13 @@ public class JobIdentifier {
 
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }

@@ -31,7 +31,7 @@ public class ClientOperator {
 
     public RdosTaskStatus getJobStatus(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         if(Strings.isNullOrEmpty(jobId)){
             throw new RdosException("can't get job of jobId is empty or null!");
         }
@@ -83,7 +83,7 @@ public class ClientOperator {
             IClient client = clientCache.getClient(engineType, pluginInfo);
             return client.getCheckpoints(jobIdentifier);
         }catch (Exception e){
-            throw new RdosException("get job checkpoints:" + jobIdentifier.getJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
+            throw new RdosException("get job checkpoints:" + jobIdentifier.getEngineJobId() + " exception:" + ExceptionUtil.getErrorMessage(e));
         }
     }
 

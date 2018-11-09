@@ -72,7 +72,7 @@ public abstract class RdbsClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         boolean cancelResult = exeQueue.cancelJob(jobId);
         if(cancelResult){
             return JobResult.createSuccessResult(jobId);
@@ -83,7 +83,7 @@ public abstract class RdbsClient extends AbsClient {
 
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         return exeQueue.getJobStatus(jobId);
     }
 
@@ -99,7 +99,7 @@ public abstract class RdbsClient extends AbsClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         return exeQueue.getJobLog(jobId);
     }
 

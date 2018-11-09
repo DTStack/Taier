@@ -91,7 +91,7 @@ public class OdpsClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         Instance instance = odps.instances().get(jobId);
 
         if (instance == null) {
@@ -112,7 +112,7 @@ public class OdpsClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         Instance instance = odps.instances().get(jobId);
 
         if (instance == null) {
@@ -169,7 +169,7 @@ public class OdpsClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         if (!hasLog(jobId)) {
             return "";
         }
@@ -195,7 +195,7 @@ public class OdpsClient extends AbsClient {
 
     private boolean hasLog(String jobId) {
         try {
-            RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(jobId, null));
+            RdosTaskStatus taskStatus = getJobStatus(JobIdentifier.createInstance(jobId, null, null));
             return taskStatus.equals(RdosTaskStatus.FAILED);
         } catch (IOException e) {
             throw new RuntimeException(e);

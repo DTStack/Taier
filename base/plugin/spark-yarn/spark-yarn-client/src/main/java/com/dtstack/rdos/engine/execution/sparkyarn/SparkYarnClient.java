@@ -343,7 +343,7 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         try {
             ApplicationId appId = ConverterUtils.toApplicationId(jobId);
             yarnClient.killApplication(appId);
@@ -357,7 +357,7 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         if(StringUtils.isEmpty(jobId)){
             return null;
@@ -479,7 +479,7 @@ public class SparkYarnClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         ApplicationId applicationId = ConverterUtils.toApplicationId(jobId);
         SparkJobLog sparkJobLog = new SparkJobLog();
 

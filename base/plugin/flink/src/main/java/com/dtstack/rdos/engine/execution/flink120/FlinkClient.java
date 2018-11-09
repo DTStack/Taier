@@ -352,7 +352,7 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
             client.cancel(jobID);
@@ -373,7 +373,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
     	if(jobId == null || "".equals(jobId)){
     		return null;

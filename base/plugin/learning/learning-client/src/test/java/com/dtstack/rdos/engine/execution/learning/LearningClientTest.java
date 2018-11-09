@@ -17,7 +17,7 @@ public class LearningClientTest {
         prop.setProperty("learning.python3.path", "/root/anaconda3/bin/python3");
         LearningClient learningClient = new LearningClient();
         learningClient.init(prop);
-        RdosTaskStatus status = learningClient.getJobStatus(JobIdentifier.createInstance("application_1533106130429_0078", null));
+        RdosTaskStatus status = learningClient.getJobStatus(JobIdentifier.createInstance("application_1533106130429_0078", null, null));
         System.out.println(status);
     }
 }

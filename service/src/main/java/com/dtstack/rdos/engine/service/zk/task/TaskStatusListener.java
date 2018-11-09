@@ -167,7 +167,7 @@ public class TaskStatusListener implements Runnable{
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
             String appId = rdosTask.getApplicationId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId);
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
 
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
@@ -208,7 +208,7 @@ public class TaskStatusListener implements Runnable{
 
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, null);
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, null, null);
 
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
@@ -274,7 +274,7 @@ public class TaskStatusListener implements Runnable{
 
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
-        String engineTaskId = jobIdentifier.getJobId();
+        String engineTaskId = jobIdentifier.getEngineJobId();
 
         if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
 

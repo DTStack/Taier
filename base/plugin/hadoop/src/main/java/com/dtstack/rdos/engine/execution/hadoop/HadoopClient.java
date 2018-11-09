@@ -90,7 +90,7 @@ public class HadoopClient extends AbsClient {
     @Override
     public JobResult cancelJob(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         try {
             yarnDelegate.killApplication(generateApplicationId(jobId));
@@ -111,7 +111,7 @@ public class HadoopClient extends AbsClient {
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
         ApplicationId appId = generateApplicationId(jobId);
 
         try {
@@ -220,7 +220,7 @@ public class HadoopClient extends AbsClient {
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
 
-        String jobId = jobIdentifier.getJobId();
+        String jobId = jobIdentifier.getEngineJobId();
 
         try {
             ApplicationReport applicationReport = yarnDelegate.getApplicationReport(generateApplicationId(jobId));
