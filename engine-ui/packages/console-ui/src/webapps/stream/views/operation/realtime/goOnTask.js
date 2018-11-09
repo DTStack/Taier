@@ -27,10 +27,18 @@ class GoOnTask extends Component {
 
     componentWillReceiveProps(nextProps, nextState) {
         const taskId = nextProps.taskId
-        const old = this.props.taskId
+        const visible=nextProps.visible;
+        const old = this.props.taskId;
+        const old_visible=this.props.visible;
         console.log('taskId:', taskId)
 
-        if (taskId && old !== taskId) {
+        if (visible && old_visible !== visible) {
+            this.setState({
+                checkPoints:[],
+                dateRange:null,
+                externalPath:'',
+                rangeValue:[]
+            })
             this.getCheckPointRange({
                 taskId,
             })
@@ -127,7 +135,7 @@ class GoOnTask extends Component {
 
     render() {
         const { visible } = this.props
-        const { dateRange, checkPoints, rangeValue } = this.state;
+        const { dateRange, checkPoints, rangeValue, externalPath } = this.state;
 
         const options = checkPoints && checkPoints.map(item => {
             const time = utils.formatDateTime(item.time)
@@ -172,6 +180,7 @@ class GoOnTask extends Component {
                             optionFilterProp="name"
                             onChange={this.taskReadTimeChange}
                             disabled={!dateRange}
+                            value={externalPath}
                         >
                             { options }
                         </Select>

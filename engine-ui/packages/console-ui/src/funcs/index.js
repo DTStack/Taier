@@ -69,7 +69,7 @@ export function appendTreeNode(treeNode, append, target) {
 */
 export function replaceTreeNode(treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10)
+        treeNode.id === parseInt(replace.id, 10)&&treeNode.type==replace.type
     ) {
         treeNode = Object.assign(treeNode, replace);
         return;

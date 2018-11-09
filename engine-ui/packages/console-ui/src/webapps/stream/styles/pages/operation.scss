@@ -407,3 +407,24 @@
         flex-grow: 1;
     }
 }
+.pane-graph-box{
+    .graph-header{
+        position: absolute;
+        top:0px;
+        left: 0px;
+        right: 0px;
+        border-bottom: 1px solid #ddd;
+        padding: 10px 20px 10px 20px;
+        z-index:1;
+    }
+    .graph-content-box{
+        position: absolute;
+        top: 48px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        overflow: auto;
+        background: #fff;
+    }
+}
+

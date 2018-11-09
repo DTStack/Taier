@@ -81,28 +81,21 @@ export default class EditTable extends Component{
     const { tableDetail } = this.props.data;
     tableDetail.columns = tableDetail.columns || [];
     tableDetail.partitions = tableDetail.partitions || [];
+    console.log(tableDetail.lifeDay)
+    console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
     if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      this.state.customLifeCycle = tableDetail.lifeDay
-      tableDetail.lifeDay === -1;
+      tableDetail.shortLisyCycle = tableDetail.lifeDay
+        this.state.customLifeCycle = tableDetail.shortLisyCycle
+        tableDetail.lifeDay = -1;
+        this.setState({
+          short: true
+        })
     }
 
     this.setState({
       tableDetail: tableDetail
-    })
-  }
-  componentWillReceiveProps(nextProps){
-    const { tableDetail } = nextProps.data;
-
-    tableDetail.columns = tableDetail.columns || [];
-    tableDetail.partitions = tableDetail.partitions || [];
-
-    if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      tableDetail.lifeDay === -1;
-      this.state.customLifeCycle = tableDetail.lifeDay
-    }
-
-    this.setState({
-      tableDetail: tableDetail
+    },()=>{
+      console.log(tableDetail)
     })
   }
   saveInfo = ()=>{
@@ -110,9 +103,9 @@ export default class EditTable extends Component{
     form.validateFields((err,value)=>{
       console.log(value)
       if(!err){
-        if(value.lifeDay === -1){
-          value.lifeDay = this.state.customLifeCycle;
-        }
+        // if(value.lifeDay === -1){
+        //   value.lifeDay = this.state.customLifeCycle;
+        // }
         console.log(value)
       }
     })
@@ -167,6 +160,7 @@ export default class EditTable extends Component{
         if(o._fid>_fid)
           _fid = o._fid
       })
+      console.log(_fid)
       tableDetail.columns.push({
         _fid: _fid + 1,
         name: '',
@@ -237,8 +231,9 @@ export default class EditTable extends Component{
       return
 
 
+      // console.log(!list[list.indexOf(record)+1].isNew)
     //只可以在新增行中上下移动
-    if((flag === 2 && (!list[list.indexOf(record)+1].isNew)) || (flag === 1 && (!list[list.indexOf(record)-1].isNew))){
+    if((type === 2 && (!list[list.indexOf(record)+1].isNew)) || (type === 1 && (!list[list.indexOf(record)-1].isNew))){
       return;
     }
 
@@ -278,6 +273,12 @@ export default class EditTable extends Component{
 
   handleIndexTypeChange = (e,record)=>{
     record.index_type = e;
+    this.saveDataToStorage();
+  }
+
+  handleLifeDayCusChange = (e)=>{
+    let {tableDetail} = this.state;
+    tableDetail.shortLisyCycle = e.target.value;
     this.saveDataToStorage();
   }
 
@@ -365,19 +366,22 @@ export default class EditTable extends Component{
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={!record.isNew || record.type==='DOUBLE'} defaultChecked={text===1?record.type!=='DOUBLE'?true:false:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          text !== 1? '-':
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释内容',
@@ -385,8 +389,10 @@ export default class EditTable extends Component{
         render: (text,record)=>{
           if(record.isNew){
             return <Input style={{width: 159, height: 26}} defaultValue={text} onChange={(e)=>this.handleFieldCommentChange(e,record)}/>
-          }else
-            return text
+          }else{
+            if(!text) return '-'
+            else return text
+          }
         }
       },{
         title: '操作',
@@ -427,9 +433,9 @@ export default class EditTable extends Component{
       },{
         title: '注释',
         dataIndex: 'comment',
-        // render: (text,record)=>(
-        //   <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
-        // )
+        render: (text,record)=>(
+          text || '-'
+        )
       }
     ]
     return (
@@ -471,7 +477,7 @@ export default class EditTable extends Component{
                 }
                 {
                 getFieldsValue().lifeDay === -1 &&
-                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
+                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={this.handleLifeDayCusChange}/>
                 }
               </span>
             </FormItem>
