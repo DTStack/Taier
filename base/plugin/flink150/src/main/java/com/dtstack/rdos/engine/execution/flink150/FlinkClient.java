@@ -667,6 +667,7 @@ public class FlinkClient extends AbsClient {
         String reqURL;
 
         //从jobhistory读取
+        //TODO 处理application 本身启动失败的情况
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
             reqURL = flinkConfig.getFlinkJobHistory();

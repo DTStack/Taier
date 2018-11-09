@@ -236,7 +236,7 @@ public class WorkNode {
     public boolean stopTaskIfExists(String engineType, String groupName, String jobId, Integer computeType){
         GroupPriorityQueue groupPriorityQueue = priorityQueueMap.get(engineType);
         if(groupPriorityQueue == null){
-            throw new RdosException("not support engine type:" + engineType);
+            return false;
         }
 
         boolean result = groupPriorityQueue.remove(groupName, jobId);
