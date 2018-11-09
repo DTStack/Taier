@@ -98,7 +98,9 @@ class GoOnTask extends Component {
 
     taskReadRangeChange = (value) => {
         this.setState({
-            rangeValue:value
+            rangeValue:value,
+            externalPath:'',
+            checkPoints:[]
         })
         if (!value || value.length === 0) return;
 
