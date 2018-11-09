@@ -81,7 +81,7 @@ class TableDetail extends Component {
             },{
                 title: <span style={{fontSize: 12}}>分区信息</span>,
                 key: '2',
-                content: <PanePartition dataList={this.state.partitionsList} tableDateil={tableDetail}/>
+                content: <PanePartition dataList={this.state.partitionsList || []} tableDateil={tableDetail}/>
             },{
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
