@@ -12,7 +12,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -205,6 +207,7 @@ public class ApplicationMaster extends CompositeService {
                 LOG.info("Canceling container: " + containerId.toString() + " nodeHost: " + containerEntity.getNodeHost());
                 amrmAsync.releaseAssignedContainer(containerId);
                 rmCallbackHandler.removeLaunchFailed(containerEntity.getNodeHost());
+                clearContainerInfo(containerId);
             }
 
             //失败后重试
@@ -373,6 +376,17 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
+    private void clearContainerInfo(ContainerId containerId) {
+        Path cIdPath = Utilities.getRemotePath((YarnConfiguration)conf, containerId.getApplicationAttemptId().getApplicationId(), "containers/" + containerId.toString());
+        try {
+            FileSystem dfs =cIdPath.getFileSystem(conf);
+            if (dfs.exists(cIdPath)) {
+                dfs.delete(cIdPath);
+            }
+        } catch (Exception e){
+            LOG.info(DebugUtil.stackTrace(e));
+        }
+    }
 
     public static void main(String[] args) {
         ApplicationMaster appMaster;
