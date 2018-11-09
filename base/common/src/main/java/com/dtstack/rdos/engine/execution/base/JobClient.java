@@ -303,7 +303,7 @@ public class JobClient extends OrderObject{
     }
 
     public String getGroupName() {
-        return groupName;
+        return groupName + "_" + computeType.name().toLowerCase();
     }
 
     public void setGroupName(String groupName) {

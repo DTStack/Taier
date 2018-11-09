@@ -39,8 +39,9 @@ public class JobStopAction {
 
     public void stopJob(ParamAction paramAction) throws Exception {
 
+        JobClient jobClient = new JobClient(paramAction);
         //在work节点等待队列中查找，状态流转时engineaccept和enginedistribute无法停止
-        if(workNode.stopTaskIfExists(paramAction.getEngineType(), paramAction.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
+        if(workNode.stopTaskIfExists(paramAction.getEngineType(), jobClient.getGroupName(), paramAction.getTaskId(), paramAction.getComputeType())){
             LOG.info("stop job:{} success." + paramAction.getTaskId());
             return;
         }
@@ -54,7 +55,6 @@ public class JobStopAction {
         Integer computeType  = paramAction.getComputeType();
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
 
-        JobClient jobClient = new JobClient(paramAction);
         jobClient.setCallBack((jobStatus)->{
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
             updateJobStatus(jobId, computeType, jobStatus);
