@@ -304,7 +304,7 @@ class CollectionSourceForm extends React.Component {
                             }],
                         })(
                             <Input
-                                disabled={isEdit}
+                                // disabled={isEdit}
                                 placeholder="请输入端口"
                                 style={{ width: "100%" }}
                             />
