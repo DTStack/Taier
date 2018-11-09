@@ -136,7 +136,7 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
         if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
 
         if (res.data.result) {
-            //不存在jobId，则直接返回结果
+            // 直接打印结果
             getDataOver(dispatch, currentTab, res)
             if (index < sqls.length - 1) {
                 //剩余任务，则继续执行
