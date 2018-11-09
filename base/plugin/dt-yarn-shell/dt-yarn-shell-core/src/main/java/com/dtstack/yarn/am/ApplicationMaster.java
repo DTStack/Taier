@@ -296,7 +296,7 @@ public class ApplicationMaster extends CompositeService {
 
     private void clearAMRMRequests() {
         try {
-            Field amrmField = amrmAsync.getClass().getDeclaredField("client");
+            Field amrmField = amrmAsync.getClass().getSuperclass().getDeclaredField("client");
             amrmField.setAccessible(true);
             Object amrm = amrmField.get(amrmAsync);
 
