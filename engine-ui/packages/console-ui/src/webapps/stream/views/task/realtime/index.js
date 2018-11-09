@@ -338,7 +338,7 @@ class TaskIndex extends Component {
 
         return (
             <Row className="task-editor">
-                <header className="toolbar clear">
+                <header className="workbench-toolbar clear">
                     <Col className="left">
                         <span>
                             <Button

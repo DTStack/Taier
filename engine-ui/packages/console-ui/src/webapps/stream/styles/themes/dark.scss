@@ -382,6 +382,7 @@ $fontColor1: #2491F7;
 
     // ================ Custom page styles ================ //
     .toolbar .ant-btn, 
+    .workbench-toolbar .ant-btn,
     .ant-tabs-bar .ant-tabs-tab, {
         background: $color2;
         color: $fontColor;
@@ -417,7 +418,7 @@ $fontColor1: #2491F7;
         }
     }
 
-    .ide-console {
+    .ide-editor .ide-console {
 
         background: $color3;
         border-color: $color3;
@@ -531,7 +532,7 @@ $fontColor1: #2491F7;
             }
         }
 
-        .toolbar {
+        .toolbar, .workbench-toolbar {
             background: $color2;
         }
 

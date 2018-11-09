@@ -211,7 +211,7 @@ class Workbench extends React.Component {
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
 
         return <Row className="m-workbench task-editor">
-            <header className="toolbar clear">
+            <header className="workbench-toolbar clear">
                 <Col className="left">
 
                     {couldEdit && (
