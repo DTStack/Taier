@@ -86,7 +86,9 @@ class AlarmBaseGraph extends React.Component {
     exchangeDate(date, time,joinLine) {
         switch (time) {
             case TIME_TYPE.M10:
-            case TIME_TYPE.H1:
+            case TIME_TYPE.H1:{
+                return utils.formatMinute(parseInt(date));
+            }
             case TIME_TYPE.H6: {
                 return utils.formatHours(parseInt(date));
             }

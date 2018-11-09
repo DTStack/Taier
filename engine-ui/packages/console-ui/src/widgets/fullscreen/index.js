@@ -16,6 +16,13 @@ export default class FullScreenButton extends Component {
     state = {
         isFullScreen: false,
     }
+    /**
+     * 在一定情况下chrome不会触发resize事件，所以手动触发一下resize。
+     */
+    dispatchResizeEvent(){
+        const event=new Event("resize");
+        window.dispatchEvent(event);
+    }
     componentDidMount() {
         const domEle = document.body;
         let callBack = (event) => {
@@ -31,7 +38,7 @@ export default class FullScreenButton extends Component {
             }
             this.setState({
                 isFullScreen: node ? true : false
-            })
+            },this.dispatchResizeEvent)
         }
         if (domEle.requestFullscreen) {
             domEle.onfullscreenchange = callBack;

@@ -5,15 +5,6 @@ import LogInfo from '../../logInfo'
 import { TASK_TYPE, TASK_STATUS } from "../../../../../comm/const";
 import Api from "../../../../../api"
 
-const editorOptions = {
-    mode: 'text',
-    lineNumbers: true,
-    readOnly: true,
-    autofocus: false,
-    indentWithTabs: true,
-    smartIndent: true,
-}
-
 class BaseInfo extends React.Component {
     state = {
         logInfo: ''

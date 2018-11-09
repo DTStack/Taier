@@ -184,7 +184,10 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.databaseId || undefined
               })(
-                  <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 570,marginRight:10}}>
+                  <Select 
+                    placeholder="请选择数据库"
+                    getPopupContainer={triggerNode => triggerNode.parentNode} 
+                    style={{width: 570,marginRight:10}}>
                   {
                     databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>

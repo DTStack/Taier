@@ -45,7 +45,8 @@ class FolderTree extends React.PureComponent {
             return (
                 <span className="tree-node-hover-items">
                     <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
-                        title="SQL查询" 
+                        title="SQL查询"
+                        style={{ width: 15, height: 15 }}
                         onClick={(e) => {
                             e.stopPropagation();
                             onSQLQuery(item);
@@ -74,7 +75,8 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.TABLE:
                 return (
                     <span className="tree-node-hover-items">
-                        <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
+                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                            style={{ width: 15, height: 15 }}
                             title="SQL查询"
                             onClick={(e) => {
                                 e.stopPropagation();

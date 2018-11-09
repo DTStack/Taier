@@ -1,46 +1,55 @@
-  .context-menu {
-        position: fixed;
-        min-width: 120px;
-        max-width: 160px;
-        padding: 10px 0;
-        display: none;
-        z-index: 9999;
-        border: 1px solid rgb(224, 224, 224);
-        background: #fff;
-        box-shadow: 1px 1px 2px rgb(224, 224, 224);     
-        .context-menu-header {
-            height: 25px;
-            line-height: 25px;
-            background: #2491F7;
-            color: #fff;
-            text-indent: 10px;
-            font-size: 12px;
-            display: block;
-            text-align: left;
-        }
+.context-menu {
+    position: fixed;
+    min-width: 120px;
+    max-width: 160px;
+    padding: 10px 0;
+    display: none;
+    z-index: 9999;
+    border: 1px solid rgb(224, 224, 224);
+    background: #fff;
+    box-shadow: 1px 1px 2px rgb(224, 224, 224);     
+    .context-menu-header {
+        height: 25px;
+        line-height: 25px;
+        background: #2491F7;
+        color: #fff;
+        text-indent: 10px;
+        font-size: 12px;
+        display: block;
+        text-align: left;
+    }
 
-        .context-menu-list {
-            margin: 0;
-            padding: 0;
-            .context-list-li {
-                list-style-type: none;
-            }
-            .context-list-a {
-                padding: 0px 10px;
-                display: block;
-                line-height: 25px;
-                font-size: inherit;
-                text-align: left;
-                text-overflow: ellipsis;
-                word-wrap: break-word;
-                overflow: hidden;
-                white-space: nowrap;
-                color: #2491F7;
-                cursor: pointer;
-                text-decoration: none;
-                &:hover {
-                    background: #eee;
-                }
+    .context-menu-list {
+        margin: 0;
+        padding: 0;
+        .context-list-li {
+            list-style-type: none;
+        }
+        .context-list-a {
+            padding: 0px 10px;
+            display: block;
+            line-height: 25px;
+            font-size: inherit;
+            text-align: left;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+            overflow: hidden;
+            white-space: nowrap;
+            color: #2491F7;
+            cursor: pointer;
+            text-decoration: none;
+            &:hover {
+                background: #eee;
             }
         }
     }
+}
+
+.context-menu-mask {
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    z-index: 9998;
+}
