@@ -250,7 +250,7 @@ export function handleSave(){
         else    stopFlag = false;
 
         params.partitions.columns.map(o=>{
-            if((o.name==='' && o.type!=='') || (o.name!=='' && o.type==='')){
+            if(o.name === '' || o.type === ''){
                 notification.error({
                     message: '提示',
                     description: '分区名称与分区类型不可为空'
@@ -331,7 +331,7 @@ export function saveTableInfo(param){
         })
 
         console.log(tableDetail)
-        const {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
+        let {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
         let stopFlag = false;
         columns.map(o=>{
             if((!o.name || o.name === '' || !o.type) && !stopFlag){
@@ -343,6 +343,8 @@ export function saveTableInfo(param){
             }
         })
         if(stopFlag) return;
+
+        lifeDay = lifeDay === -1? tableDetail.shortLisyCycle:lifeDay;
 
         let flag = [];
         columns.map(o=>{
