@@ -5,6 +5,8 @@ import SplitPane from "react-split-pane";
 import { connect } from "react-redux";
 
 import Sidebar from "./sidebar";
+import Default from './realtime/default';
+import TaskIndex from './realtime';
 import SearchTaskModal from "./searchTaskModal";
 import { stopSql, getEditorThemeClassName } from "../../store/modules/editor/editorAction";
 
@@ -18,7 +20,7 @@ const defaultPro = {
 };
 
 function mapStateToProps(state) {
-    return { editor: state.editor };
+    return { editor: state.editor, pages: state.realtimeTask.pages };
 }
 
 @connect(mapStateToProps)
@@ -84,7 +86,7 @@ class Container extends Component {
     }
 
     render() {
-        const { children } = this.props;
+        const { pages } = this.props;
         return (
             <Layout className="dt-dev-task">
                 <SplitPane
@@ -108,7 +110,10 @@ class Container extends Component {
                             spinning={this.state.loading === "loading"}
                         >
                             <div style={{ width: "100%", height: "100%" }}>
-                                {children || "i'm container."}
+                                { 
+                                    pages && pages.length > 0 ? 
+                                    <TaskIndex /> : <Default />
+                                }
                             </div>
                         </Spin>
                     </Content>
