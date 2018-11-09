@@ -81,38 +81,52 @@ export default class EditTable extends Component{
     const { tableDetail } = this.props.data;
     tableDetail.columns = tableDetail.columns || [];
     tableDetail.partitions = tableDetail.partitions || [];
+    console.log(tableDetail.lifeDay)
+    console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
     if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
       this.state.customLifeCycle = tableDetail.lifeDay
-      tableDetail.lifeDay === -1;
+      console.log(this.state.customLifeCycle)
+      tableDetail.lifeDay = -1;
+      console.log(this.state.customLifeCycle)
+      this.setState({
+        short: true
+      })
     }
 
     this.setState({
       tableDetail: tableDetail
+    },()=>{
+      console.log(tableDetail)
     })
   }
   componentWillReceiveProps(nextProps){
-    const { tableDetail } = nextProps.data;
+    // const { tableDetail } = nextProps.data;
 
-    tableDetail.columns = tableDetail.columns || [];
-    tableDetail.partitions = tableDetail.partitions || [];
+    // tableDetail.columns = tableDetail.columns || [];
+    // tableDetail.partitions = tableDetail.partitions || [];
+    // console.log(tableDetail.lifeDay)
+    // console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
 
-    if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      tableDetail.lifeDay === -1;
-      this.state.customLifeCycle = tableDetail.lifeDay
-    }
+    // if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
+      
+    //   this.state.customLifeCycle = tableDetail.lifeDay
+    //   console.log(this.state.customLifeCycle)
+    //   tableDetail.lifeDay === -1;
+    //   console.log(this.state.customLifeCycle)
+    // }
 
-    this.setState({
-      tableDetail: tableDetail
-    })
+    // this.setState({
+    //   tableDetail: tableDetail
+    // })
   }
   saveInfo = ()=>{
     const {form} = this.props;
     form.validateFields((err,value)=>{
       console.log(value)
       if(!err){
-        if(value.lifeDay === -1){
-          value.lifeDay = this.state.customLifeCycle;
-        }
+        // if(value.lifeDay === -1){
+        //   value.lifeDay = this.state.customLifeCycle;
+        // }
         console.log(value)
       }
     })
@@ -281,6 +295,12 @@ export default class EditTable extends Component{
     this.saveDataToStorage();
   }
 
+  handleLifeDayCusChange = (e)=>{
+    let {tableDetail} = this.state;
+    tableDetail.shortLisyCycle = e.target.value;
+    this.saveDataToStorage();
+  }
+
 
   /**
    * 保存输入的值
@@ -377,7 +397,7 @@ export default class EditTable extends Component{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={!record.isNew || record.type==='DOUBLE'} defaultChecked={text===1?record.type!=='DOUBLE'?true:false:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释内容',
@@ -471,7 +491,7 @@ export default class EditTable extends Component{
                 }
                 {
                 getFieldsValue().lifeDay === -1 &&
-                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
+                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={this.handleLifeDayCusChange}/>
                 }
               </span>
             </FormItem>

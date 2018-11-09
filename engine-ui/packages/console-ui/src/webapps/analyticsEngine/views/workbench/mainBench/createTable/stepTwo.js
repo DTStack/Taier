@@ -291,20 +291,26 @@ export default class StepTwo extends Component{
     console.log(e)
     let {partitions} = this.state;
     partitions.partitionType = e;
-    partitions.columns = e === 0?[]:[
-      {
-        _fid: 0,
-        name: '',
-        type: '',
-        comment: '',
-      }
-    ];
+    partitions.columns = [];
     this.setState({
-      partitions: partitions
+      partitions
     },()=>{
-      console.log(this.state.partitions)
+      if(e !== 0){
+        partitions.columns.push({
+          _fid: 0,
+          name: '',
+          type: '',
+          comment: '',
+        })
+      }
+      this.setState({
+        partitions
+      },()=>{
+        console.log(this.state.partitions);
+        this.saveDataToStorage();
+      })
     })
-    this.saveDataToStorage();
+    // this.saveDataToStorage();
   }
   handlePartitionParamChange = (e)=>{
     let {partitions} = this.state;
@@ -444,7 +450,7 @@ export default class StepTwo extends Component{
         dataIndex: 'type',
         render: (text,record)=>(
           <span>
-          <Select getPopupContainer={()=>document.getElementById('form-box')} style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
+          <Select style={{width: record.type === 'DECIMAL'?90:159,marginRight: 5}}  defaultValue={text?text:undefined} onChange={(e)=>this.handleSelectChange(e,record)}>
             {
               field_type.map(o=>{
                 return <Option key={o.value} value={o.value}>{o.name}</Option>
@@ -491,7 +497,7 @@ export default class StepTwo extends Component{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={record.type==='DOUBLE'} defaultChecked={text===1?record.type!=='DOUBLE'?true:false:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',
