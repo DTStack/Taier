@@ -26,8 +26,8 @@ const metricsType = {
     DATA_COLLECTION_BPS: "jlogstash_bps",
     DATA_DISABLE_TPS: "data_discard_tps",
     DATA_DISABLE_COUNT: "data_discard_count",
-
-
+    DATA_COLLECTION_TOTAL_RPS: "jlogstash_record_sum",
+    DATA_COLLECTION_TOTAL_BPS: "jlogstash_byte_sum",
 }
 const defaultLineData = {
     x: [],
@@ -50,6 +50,8 @@ class StreamDetailGraph extends React.Component {
             [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
             [metricsType.DATA_DISABLE_TPS]: defaultLineData,
             [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
+            [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
+            [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
         }
     }
     componentDidMount() {
@@ -77,6 +79,8 @@ class StreamDetailGraph extends React.Component {
                 [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
                 [metricsType.DATA_DISABLE_TPS]: defaultLineData,
                 [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
+                [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
+                [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
             }
         })
     }
@@ -167,6 +171,8 @@ class StreamDetailGraph extends React.Component {
         if (isDataCollection) {
             metricsList.push(metricsType.DATA_COLLECTION_BPS)
             metricsList.push(metricsType.DATA_COLLECTION_RPS)
+            metricsList.push(metricsType.DATA_COLLECTION_TOTAL_BPS)
+            metricsList.push(metricsType.DATA_COLLECTION_TOTAL_RPS)
         } else {
             metricsList.push(metricsType.FAILOVER_RATE)
             metricsList.push(metricsType.DELAY)
@@ -230,7 +236,7 @@ class StreamDetailGraph extends React.Component {
                 </header>
                 <div className="graph-content-box">
                     {isDataCollection ? (
-                        <div style={{ padding: "0px 16px" }}>
+                        <div style={{ padding: "10px 16px" }}>
                             <div className="alarm-graph-row">
                                 <section>
                                     <AlarmBaseGraph
@@ -253,6 +259,29 @@ class StreamDetailGraph extends React.Component {
                                         title="输入/输出BPS" />
                                 </section>
                             </div>
+                            <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_RPS],
+                                                    color: CHARTS_COLOR,
+                                                    legend: ["累计输入RPS","累计输出RPS"]
+                                                }}
+                                                title="累计输入/输出RPS" />
+                                        </section>
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS],
+                                                    color: CHARTS_COLOR,
+                                                    unit:'KB',
+                                                    legend: ["累计输入BPS","累计输出BPS"]
+                                                }}
+                                                title="累计输入/输出BPS" />
+                                        </section>
+                                    </div>
                         </div>
                     ) : (
                             <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
