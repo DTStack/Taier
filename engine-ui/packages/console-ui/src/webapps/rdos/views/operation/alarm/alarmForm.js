@@ -126,7 +126,7 @@ class AlarmForm extends Component {
                             <Select
                               showSearch
                               size='Default'
-                              style={{ width: 126 }}
+                              style={{ width: "200px" }}
                               placeholder="任务任务"
                               optionFilterProp="name"
                             >
