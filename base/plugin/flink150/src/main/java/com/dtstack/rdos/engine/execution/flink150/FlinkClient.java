@@ -158,10 +158,13 @@ public class FlinkClient extends AbsClient {
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
         if (yarnCluster){
             initYarnClient();
-            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
         }
 
         initClient();
+
+        if(yarnCluster){
+            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
+        }
 
         if (yarnCluster && flinkYarnMode != FlinkYarnMode.PER_JOB){
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
