@@ -17,13 +17,18 @@ export default class PanePartition extends Component{
     }
   }
   componentDidMount(){
-    this.getData();
+    // this.getData();
     // this.initData(this.props)
+    
   }
 
   componentWillReceiveProps(nextProps){
     // this.initData(nextProps)
-    this.getData();
+    // this.getData();
+    this.setState({
+      dataList: this.props.dataList,
+      total: this.props.dataList.length
+    })
   }
 
   // initData = (props) => {

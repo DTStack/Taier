@@ -15,12 +15,15 @@ class TableDetail extends Component {
     constructor(props){
         super(props)
         this.state = {
-            previewList: []
+            previewList: [],
+            partitionsList: [],
         }
     }
     handleTabsChange = (e)=>{
         if(e === '4'){
             this.getData();
+        }else if(e === '2'){
+            this.getPartitionsData();
         }
     }
     getData = ()=>{
@@ -42,6 +45,26 @@ class TableDetail extends Component {
         })
     }
 
+    getPartitionsData = ()=>{
+    API.getTablePartiton({
+      tableId: this.props.data.tableDetail.id,
+      pageIndex: 1,
+      pageSize: 10
+    }).then(res=>{
+      if(res.code === 1){
+        this.setState({
+            partitionsList: res.data.data
+        })
+      }else{
+        notification.error({
+          title: '提示',
+          description: res.message
+        })
+      }
+    })
+  }
+
+
     render () {
         const tableDetail = this.props.data.tableDetail || {}
         const patitionsData = tableDetail.partitions || {}
@@ -58,7 +81,7 @@ class TableDetail extends Component {
             },{
                 title: <span style={{fontSize: 12}}>分区信息</span>,
                 key: '2',
-                content: <PanePartition tableDateil={tableDetail}/>
+                content: <PanePartition dataList={this.state.partitionsList || []} tableDateil={tableDetail}/>
             },{
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
