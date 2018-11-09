@@ -11,6 +11,18 @@ public class FlinkPrometheusGatewayConfig {
 
     public static final String DEFAULT_GATEWAY_CLASS = "org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter";
 
+    public static final String PROMGATEWAY_CLASS_KEY = "metrics.reporter.promgateway.class";
+
+    public static final String PROMGATEWAY_HOST_KEY = "metrics.reporter.promgateway.host";
+
+    public static final String PROMGATEWAY_PORT_KEY = "metrics.reporter.promgateway.port";
+
+    public static final String PROMGATEWAY_JOBNAME_KEY = "metrics.reporter.promgateway.jobName";
+
+    public static final String PROMGATEWAY_RANDOMJOBNAMESUFFIX_KEY = "metrics.reporter.promgateway.randomJobNameSuffix";
+
+    public static final String PROMGATEWAY_DELETEONSHUTDOWN_KEY = "metrics.reporter.promgateway.deleteOnShutdown";
+
     private String reporterClass;
 
     private String deleteOnShutdown;

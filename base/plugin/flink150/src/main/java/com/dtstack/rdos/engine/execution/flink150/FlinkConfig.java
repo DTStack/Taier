@@ -63,6 +63,7 @@ public class FlinkConfig {
 
     private String flinkJobHistory;
 
+    private String jobmanagerArchiveFsDir;
 
     public String getFlinkZkAddress() {
         return flinkZkAddress;
@@ -250,5 +251,13 @@ public class FlinkConfig {
 
     public void setFlinkJobHistory(String flinkJobHistory) {
         this.flinkJobHistory = flinkJobHistory;
+    }
+
+    public String getJobmanagerArchiveFsDir() {
+        return jobmanagerArchiveFsDir;
+    }
+
+    public void setJobmanagerArchiveFsDir(String jobmanagerArchiveFsDir) {
+        this.jobmanagerArchiveFsDir = jobmanagerArchiveFsDir;
     }
 }

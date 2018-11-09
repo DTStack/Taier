@@ -115,11 +115,11 @@ public class RdosEngineStreamJob extends DataObject{
         this.execTime = execTime;
     }
 
-    public long getPluginInfoId() {
+    public Long getPluginInfoId() {
         return pluginInfoId;
     }
 
-    public void setPluginInfoId(long pluginInfoId) {
+    public void setPluginInfoId(Long pluginInfoId) {
         this.pluginInfoId = pluginInfoId;
     }
 

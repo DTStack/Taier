@@ -99,34 +99,34 @@ engineTypes:
 #            yarn.resourcemanager.ha.rm-ids: rm1,rm2
 #            yarn.resourcemanager.ha.enabled: true
 
-    -
-        typeName: flink140
-        clusterMode: yarn
-        flinkZkAddress: node01:2181,node02:2181,node03:2181
-        flinkHighAvailabilityStorageDir: /flink140/ha
-        flinkZkNamespace: /flink140
-        flinkPluginRoot: /opt/dtstack/flinkplugin
-        remotePluginRootDir: /opt/dtstack/flinkplugin
-        flinkJarPath: /opt/dtstack/flinkjars/flink-dist_2.11-1.4-SNAPSHOT.jar
-        cluster: default
-        jarTmpDir: ../tmp140
-        flinkYarnMode: legacy
-        hadoopConf:
-            fs.defaultFS: hdfs://ns1
-            dfs.ha.namenodes.ns1: nn1,nn2
-            dfs.namenode.rpc-address.ns1.nn2: node03:9000
-            dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
-            dfs.namenode.rpc-address.ns1.nn1: node02:9000
-            dfs.nameservices: ns1
-            fs.hdfs.impl.disable.cache: true
-            fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem
-        yarnConf:
-            yarn.resourcemanager.address.rm1: node02:8032
-            yarn.resourcemanager.webapp.address.rm2: node03:8088
-            yarn.resourcemanager.webapp.address.rm1: node02:8088
-            yarn.resourcemanager.ha.rm-ids: rm1,rm2
-            yarn.resourcemanager.address.rm2: node03:8032
-            yarn.resourcemanager.ha.enabled: true
+#    -
+#        typeName: flink140
+#        clusterMode: yarn
+#        flinkZkAddress: node01:2181,node02:2181,node03:2181
+#        flinkHighAvailabilityStorageDir: /flink140/ha
+#        flinkZkNamespace: /flink140
+#        flinkPluginRoot: /opt/dtstack/flinkplugin
+#        remotePluginRootDir: /opt/dtstack/flinkplugin
+#        flinkJarPath: /opt/dtstack/flinkjars/flink-dist_2.11-1.4-SNAPSHOT.jar
+#        cluster: default
+#        jarTmpDir: ../tmp140
+#        flinkYarnMode: legacy
+#        hadoopConf:
+#            fs.defaultFS: hdfs://ns1
+#            dfs.ha.namenodes.ns1: nn1,nn2
+#            dfs.namenode.rpc-address.ns1.nn2: node03:9000
+#            dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
+#            dfs.namenode.rpc-address.ns1.nn1: node02:9000
+#            dfs.nameservices: ns1
+#            fs.hdfs.impl.disable.cache: true
+#            fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem
+#        yarnConf:
+#            yarn.resourcemanager.address.rm1: node02:8032
+#            yarn.resourcemanager.webapp.address.rm2: node03:8088
+#            yarn.resourcemanager.webapp.address.rm1: node02:8088
+#            yarn.resourcemanager.ha.rm-ids: rm1,rm2
+#            yarn.resourcemanager.address.rm2: node03:8032
+#            yarn.resourcemanager.ha.enabled: true
 
 
 
