@@ -24,8 +24,8 @@ const metricsType = {
     SOURCE_DIRTY: "source_dirty_data",
     DATA_COLLECTION_RPS: "jlogstash_rps",
     DATA_COLLECTION_BPS: "jlogstash_bps",
-    DATA_DISABLE_TPS:"data_discard_tps",
-    DATA_DISABLE_COUNT:"data_discard_count",
+    DATA_DISABLE_TPS: "data_discard_tps",
+    DATA_DISABLE_COUNT: "data_discard_count",
 
 
 }
@@ -136,11 +136,11 @@ class StreamDetailGraph extends React.Component {
                     y[1] = lineData.map((data) => { return data.jlogstash_output_rps });
                     break;
                 }
-                case metricsType.DATA_DISABLE_TPS:{
+                case metricsType.DATA_DISABLE_TPS: {
                     y[0] = lineData.map((data) => { return data.data_discard_tps });
                     break;
                 }
-                case metricsType.DATA_DISABLE_COUNT:{
+                case metricsType.DATA_DISABLE_COUNT: {
                     y[0] = lineData.map((data) => { return data.data_discard_count });
                     break;
                 }
@@ -184,19 +184,19 @@ class StreamDetailGraph extends React.Component {
                 this.setLineData(res.data)
             }
         }
-        
-            for (let i = 0; i < metricsList.length; i++) {
-                let serverChart = metricsList[i];
-                //间隔时间，防止卡顿
-                setTimeout(()=>{
-                    Api.getTaskMetrics({
-                        taskId: data.id,
-                        timeStr: time,
-                        chartNames: [serverChart]
-                    }).then(successFunc)
-                },100+25*i)
-            }
-        
+
+        for (let i = 0; i < metricsList.length; i++) {
+            let serverChart = metricsList[i];
+            //间隔时间，防止卡顿
+            setTimeout(() => {
+                Api.getTaskMetrics({
+                    taskId: data.id,
+                    timeStr: time,
+                    chartNames: [serverChart]
+                }).then(successFunc)
+            }, 100 + 25 * i)
+        }
+
     }
 
     changeTime(e) {
@@ -211,8 +211,8 @@ class StreamDetailGraph extends React.Component {
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
 
         return (
-            <div>
-                <header style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
+            <div className="pane-graph-box">
+                <header className="graph-header" style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
                     <Button onClick={this.initData.bind(this, null)} tyle="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
                         <RadioGroup
@@ -228,140 +228,142 @@ class StreamDetailGraph extends React.Component {
                         </RadioGroup>
                     </span>
                 </header>
-                {isDataCollection ? (
-                    <div style={{ padding: "0px 16px" }}>
-                        <div className="alarm-graph-row">
-                            <section>
-                                <AlarmBaseGraph
-                                    time={time}
-                                    lineData={{
-                                        ...lineDatas[metricsType.DATA_COLLECTION_RPS],
-                                        color: CHARTS_COLOR,
-                                        legend: ["输入RPS", "输出RPS"]
-                                    }}
-                                    title="输入/输出RPS" />
-                            </section>
-                            <section>
-                                <AlarmBaseGraph
-                                    time={time}
-                                    lineData={{
-                                        ...lineDatas[metricsType.DATA_COLLECTION_BPS],
-                                        color: CHARTS_COLOR,
-                                        legend: ["输入BPS", "输出BPS"],
-                                    }}
-                                    title="输入/输出BPS" />
-                            </section>
+                <div className="graph-content-box">
+                    {isDataCollection ? (
+                        <div style={{ padding: "0px 16px" }}>
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_COLLECTION_RPS],
+                                            color: CHARTS_COLOR,
+                                            legend: ["输入RPS", "输出RPS"]
+                                        }}
+                                        title="输入/输出RPS" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_COLLECTION_BPS],
+                                            color: CHARTS_COLOR,
+                                            legend: ["输入BPS", "输出BPS"],
+                                        }}
+                                        title="输入/输出BPS" />
+                                </section>
+                            </div>
                         </div>
-                    </div>
-                ) : (
-                        <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
-                            <Panel header="OverView" key="OverView">
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.FAILOVER_RATE],
-                                                color: CHARTS_COLOR,
-                                                legend: ["Rate"]
-                                            }}
-                                            title="FailOver Rate" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DELAY],
-                                                color: CHARTS_COLOR,
-                                                legend: ["业务延时"],
-                                                unit: "s"
-                                            }}
-                                            title="Delay" />
-                                    </section>
-                                </div>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                color: CHARTS_COLOR,
-                                                ...lineDatas[metricsType.SOURCE_TPS],
-                                                unit: "bps 条/秒"
-                                            }}
-                                            title="各Source的TPS数据输入" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SINK_OUTPUT_RPS],
-                                                color: CHARTS_COLOR,
-                                                unit: "rps 条/秒"
-                                            }}
-                                            title="各Sink的数据输出" />
-                                    </section>
-                                </div>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_RPS],
-                                                color: CHARTS_COLOR,
-                                                unit: "rps 条/秒"
-                                            }}
-                                            title="各Source的RPS数据输入" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_INPUT_BPS],
-                                                color: CHARTS_COLOR,
-                                                unit: "KB"
-                                            }}
-                                            title="各Source的BPS数据输入" />
-                                    </section>
-                                </div>
+                    ) : (
+                            <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
+                                <Panel header="OverView" key="OverView">
+                                    <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.FAILOVER_RATE],
+                                                    color: CHARTS_COLOR,
+                                                    legend: ["Rate"]
+                                                }}
+                                                title="FailOver Rate" />
+                                        </section>
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.DELAY],
+                                                    color: CHARTS_COLOR,
+                                                    legend: ["业务延时"],
+                                                    unit: "s"
+                                                }}
+                                                title="Delay" />
+                                        </section>
+                                    </div>
+                                    <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    color: CHARTS_COLOR,
+                                                    ...lineDatas[metricsType.SOURCE_TPS],
+                                                    unit: "bps 条/秒"
+                                                }}
+                                                title="各Source的TPS数据输入" />
+                                        </section>
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.SINK_OUTPUT_RPS],
+                                                    color: CHARTS_COLOR,
+                                                    unit: "rps 条/秒"
+                                                }}
+                                                title="各Sink的数据输出" />
+                                        </section>
+                                    </div>
+                                    <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.SOURCE_RPS],
+                                                    color: CHARTS_COLOR,
+                                                    unit: "rps 条/秒"
+                                                }}
+                                                title="各Source的RPS数据输入" />
+                                        </section>
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.SOURCE_INPUT_BPS],
+                                                    color: CHARTS_COLOR,
+                                                    unit: "KB"
+                                                }}
+                                                title="各Source的BPS数据输入" />
+                                        </section>
+                                    </div>
 
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_DIRTY],
-                                                color: CHARTS_COLOR,
-                                            }}
-                                            title="各Source的脏数据" />
-                                    </section>
-                                </div>
-                            </Panel>
-                            <Panel header="WaterMark" key="WaterMark" style={{ marginBottom: "50px" }}>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DATA_DISABLE_TPS],
-                                                color: CHARTS_COLOR,
-                                                legend: ["数据迟到丢弃TPS"]
-                                            }}
-                                            title="数据迟到丢弃TPS" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DATA_DISABLE_COUNT],
-                                                color: CHARTS_COLOR,
-                                                legend: ["数据迟到累计丢弃数"]
-                                            }}
-                                            title="数据迟到累计丢弃数" />
-                                    </section>
-                                </div>
-                            </Panel>
-                        </Collapse>
-                    )}
+                                    <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.SOURCE_DIRTY],
+                                                    color: CHARTS_COLOR,
+                                                }}
+                                                title="各Source的脏数据" />
+                                        </section>
+                                    </div>
+                                </Panel>
+                                <Panel header="WaterMark" key="WaterMark" style={{ marginBottom: "50px" }}>
+                                    <div className="alarm-graph-row">
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.DATA_DISABLE_TPS],
+                                                    color: CHARTS_COLOR,
+                                                    legend: ["数据迟到丢弃TPS"]
+                                                }}
+                                                title="数据迟到丢弃TPS" />
+                                        </section>
+                                        <section>
+                                            <AlarmBaseGraph
+                                                time={time}
+                                                lineData={{
+                                                    ...lineDatas[metricsType.DATA_DISABLE_COUNT],
+                                                    color: CHARTS_COLOR,
+                                                    legend: ["数据迟到累计丢弃数"]
+                                                }}
+                                                title="数据迟到累计丢弃数" />
+                                        </section>
+                                    </div>
+                                </Panel>
+                            </Collapse>
+                        )}
+                </div>
             </div>
         )
     }
