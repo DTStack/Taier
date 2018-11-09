@@ -251,8 +251,9 @@ export default class EditTable extends Component{
       return
 
 
+      // console.log(!list[list.indexOf(record)+1].isNew)
     //只可以在新增行中上下移动
-    if((flag === 2 && (!list[list.indexOf(record)+1].isNew)) || (flag === 1 && (!list[list.indexOf(record)-1].isNew))){
+    if((type === 2 && (!list[list.indexOf(record)+1].isNew)) || (type === 1 && (!list[list.indexOf(record)-1].isNew))){
       return;
     }
 

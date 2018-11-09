@@ -53,7 +53,7 @@ export const blockSize = (
 )
 export const marjorCompactionSize = (
     <div>
-        <p>segments 大小总和低于此阈值的将会被合并，默认为512MB。</p>
+        <p>segment大小总和低于此阈值的将会被合并，默认为512MB。</p>
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
