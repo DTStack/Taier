@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -26,6 +25,7 @@ import org.apache.hadoop.yarn.api.records.LocalResource;
 import org.apache.hadoop.yarn.api.records.LocalResourceType;
 import org.apache.hadoop.yarn.api.records.Priority;
 import org.apache.hadoop.yarn.api.records.Resource;
+import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
@@ -33,6 +33,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 
@@ -56,8 +58,6 @@ public class ApplicationMaster extends CompositeService {
 
     private RMCallbackHandler rmCallbackHandler;
 
-    private ApplicationWebService webService;
-
     final Configuration conf = new DtYarnConfiguration();
 
     final ApplicationContext applicationContext;
@@ -68,7 +68,9 @@ public class ApplicationMaster extends CompositeService {
 
     AppArguments appArguments;
 
-    /** An RPC Service listening the container status */
+    /**
+     * An RPC Service listening the container status
+     */
     ApplicationContainerListener containerListener;
 
 
@@ -173,7 +175,7 @@ public class ApplicationMaster extends CompositeService {
 
         register();
 
-        if (appArguments.exclusive){
+        if (appArguments.exclusive) {
             rmCallbackHandler.startWorkerContainersExclusive();
         }
 
@@ -194,15 +196,15 @@ public class ApplicationMaster extends CompositeService {
             containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId().getHost());
         }
 
-        while(!containerListener.isFinished()) {
+        while (!containerListener.isFinished()) {
             Utilities.sleep(1000);
             List<ContainerEntity> failedEntities = containerListener.getFailedContainerEntities();
 
-            if(failedEntities.isEmpty()) {
+            if (failedEntities.isEmpty()) {
                 continue;
             }
 
-            for(ContainerEntity containerEntity : failedEntities) {
+            for (ContainerEntity containerEntity : failedEntities) {
                 ContainerId containerId = containerEntity.getContainerId().getContainerId();
                 LOG.info("Canceling container: " + containerId.toString() + " nodeHost: " + containerEntity.getNodeHost());
                 amrmAsync.releaseAssignedContainer(containerId);
@@ -215,13 +217,15 @@ public class ApplicationMaster extends CompositeService {
 
             for (ContainerEntity containerEntity : failedEntities) {
                 Container container = acquiredWorkerContainers.remove(0);
+                LOG.warn("Retry Launching worker container " + container.getId()
+                        + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
                 launchContainer(containerLocalResource, workerContainerEnv,
                         workerContainerLaunchCommands, container, containerEntity.getLane());
                 containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId().getHost());
             }
         }
 
-        if(containerListener.isFailed()) {
+        if (containerListener.isFailed()) {
             unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
             return false;
         } else {
@@ -231,13 +235,14 @@ public class ApplicationMaster extends CompositeService {
 
     }
 
-    public List<Container> handleRMCallbackOfContainerRequest(int workerNum){
+    public List<Container> handleRMCallbackOfContainerRequest(int workerNum) {
         rmCallbackHandler.setNeededWorkerContainersCount(workerNum);
         rmCallbackHandler.resetAllocatedWorkerContainerNumber();
         rmCallbackHandler.resetAcquiredWorkerContainers();
 
-        for(int i = 0; i < workerNum; ++i) {
-            amrmAsync.removeContainerRequest(workerContainerRequest);
+        clearAMRMRequests();
+
+        for (int i = 0; i < workerNum; ++i) {
             amrmAsync.addContainerRequest(workerContainerRequest);
         }
 
@@ -261,7 +266,6 @@ public class ApplicationMaster extends CompositeService {
             if (releaseContainers.size() != 0) {
                 for (Container container : releaseContainers) {
                     LOG.info("Releaseing container: " + container.getId().toString());
-                    amrmAsync.removeContainerRequest(workerContainerRequest);
                     amrmAsync.releaseAssignedContainer(container.getId());
                     amrmAsync.addContainerRequest(workerContainerRequest);
                 }
@@ -290,6 +294,39 @@ public class ApplicationMaster extends CompositeService {
         return acquiredWorkerContainers;
     }
 
+    private void clearAMRMRequests() {
+        try {
+            Field amrmField = amrmAsync.getClass().getDeclaredField("client");
+            amrmField.setAccessible(true);
+            Object amrm = amrmField.get(amrmAsync);
+
+            Field remoteRequestsTableField = amrm.getClass().getDeclaredField("remoteRequestsTable");
+            remoteRequestsTableField.setAccessible(true);
+            Map<Priority, Map<String, TreeMap<Resource, Object>>> remoteRequestsTable = (Map) remoteRequestsTableField.get(amrm);
+
+            if (remoteRequestsTable != null) {
+                Map<String, TreeMap<Resource, Object>> remoteRequests = remoteRequestsTable.get(workerContainerRequest.getPriority());
+                if (remoteRequests != null) {
+                    TreeMap<Resource, Object> reqMap = remoteRequests.get("*");
+                    if (reqMap != null) {
+                        Object resourceRequestInfo = reqMap.get(workerContainerRequest.getCapability());
+                        if (resourceRequestInfo != null) {
+                            Field remoteRequestField = resourceRequestInfo.getClass().getDeclaredField("remoteRequest");
+                            remoteRequestField.setAccessible(true);
+                            ResourceRequest resourceRequest = (ResourceRequest) remoteRequestField.get(resourceRequestInfo);
+                            if (resourceRequest != null) {
+                                LOG.info("clearAMRMRequests reset resourceRequest numContainers:" + resourceRequest.getNumContainers() + " to 0");
+                                resourceRequest.setNumContainers(0);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
     private Map<String, LocalResource> buildContainerLocalResource() {
         URI defaultUri = new Path(conf.get("fs.defaultFS")).toUri();
         Map<String, LocalResource> containerLocalResource = new HashMap<>();
@@ -304,7 +341,7 @@ public class ApplicationMaster extends CompositeService {
                             LocalResourceType.FILE));
 
             if (appArguments.appFilesRemoteLocation != null) {
-                String[] xlearningFiles = StringUtils.split(appArguments.appFilesRemoteLocation , ",");
+                String[] xlearningFiles = StringUtils.split(appArguments.appFilesRemoteLocation, ",");
                 for (String file : xlearningFiles) {
                     Path path = new Path(file);
                     containerLocalResource.put(path.getName(),
@@ -377,13 +414,13 @@ public class ApplicationMaster extends CompositeService {
     }
 
     private void clearContainerInfo(ContainerId containerId) {
-        Path cIdPath = Utilities.getRemotePath((YarnConfiguration)conf, containerId.getApplicationAttemptId().getApplicationId(), "containers/" + containerId.toString());
+        Path cIdPath = Utilities.getRemotePath((YarnConfiguration) conf, containerId.getApplicationAttemptId().getApplicationId(), "containers/" + containerId.toString());
         try {
-            FileSystem dfs =cIdPath.getFileSystem(conf);
+            FileSystem dfs = cIdPath.getFileSystem(conf);
             if (dfs.exists(cIdPath)) {
                 dfs.delete(cIdPath);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.info(DebugUtil.stackTrace(e));
         }
     }
@@ -396,7 +433,7 @@ public class ApplicationMaster extends CompositeService {
             boolean tag;
             try {
                 tag = appMaster.run();
-            } catch(Throwable t) {
+            } catch (Throwable t) {
                 tag = false;
                 String stackTrace = DebugUtil.stackTrace(t);
                 appMaster.unregister(FinalApplicationStatus.FAILED, stackTrace);

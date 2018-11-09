@@ -116,11 +116,14 @@ public class ApplicationContainerListener
     }
 
     private int getLaneOf(DtContainerId containerId) {
-        LOG.info("getLaneOf containerId: " + containerId);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getLaneOf containerId: " + containerId);
+        }
         for(int i = 0; i < entities.size(); ++i) {
             ContainerEntity containerEntity = entities.get(i);
-            LOG.info("getLaneOf entities.get(i): " + containerEntity);
-            LOG.info("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
+            }
             if(containerId.equals(containerEntity.getContainerId())) {
                 return containerEntity.getLane();
             }
@@ -149,7 +152,9 @@ public class ApplicationContainerListener
     public HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest) {
         DtContainerStatus currentContainerStatus = heartbeatRequest.getXLearningContainerStatus();
 
-        LOG.info("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
+        if (LOG.isDebugEnabled()){
+            LOG.debug("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
+        }
 
         int lane = getLaneOf(containerId);
         if(lane != -1) {
@@ -157,6 +162,7 @@ public class ApplicationContainerListener
             DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
             oldEntity.setLastBeatTime(System.currentTimeMillis());
             if(oldEntity.getDtContainerStatus() != status) {
+                LOG.info("Received heartbeat container status change from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
                 oldEntity.setDtContainerStatus(status);
                 if(status == DtContainerStatus.TIMEOUT) {
                     failed = true;
