@@ -269,6 +269,7 @@ class RealTimeTaskList extends Component {
                 pathname: location.pathname
             })
         }
+        this.closeSlidePane();
         this.setState({
             current: pagination.current,
             filter: filters.status,

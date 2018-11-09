@@ -467,10 +467,6 @@
         }
        
         .m-scheduling{
-            .ant-collapse-content > .ant-collapse-content-box {
-                padding-top: 16px;
-                padding-bottom: 0;
-            }
             .schedule-form{//改变右侧form表单之间的间距
                 .ant-form-item {
                     font-size: 12px;
@@ -980,10 +976,22 @@
     padding: 0;
 }
 
-.padding-r0 .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
-    padding-right:0px;
-    border-radius: 0px;
-    border-left: 1px solid #e9e9e9;
+.padding-r0 .ant-tabs-vertical {
+
+    &>.ant-tabs-bar {
+        margin-bottom: 1px;
+        border-bottom: 0;
+        border-radius: 0;
+        margin-left: -1px;
+        border-left: none;
+    }
+    
+    &>.ant-tabs-content {
+        padding-right:0px;
+        border-radius: 0px;
+        border-left: 1px solid #e9e9e9;
+        background: #ffffff;
+    }
 }
 
 .clear-offset .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline):not(.ant-btn-icon-only) .anticon{
