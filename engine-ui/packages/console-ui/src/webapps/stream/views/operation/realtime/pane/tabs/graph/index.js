@@ -148,6 +148,16 @@ class StreamDetailGraph extends React.Component {
                     y[0] = lineData.map((data) => { return data.data_discard_count });
                     break;
                 }
+                case metricsType.DATA_COLLECTION_TOTAL_BPS:{
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_byte_sum });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_byte_sum });
+                    break;
+                }
+                case metricsType.DATA_COLLECTION_TOTAL_RPS:{
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_record_sum });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_record_sum });
+                    break;
+                }
             }
             stateLineData[type] = {
                 x,
