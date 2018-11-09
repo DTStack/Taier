@@ -546,7 +546,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分区模式：</span>
-            <Select getPopupContainer={()=>document.getElementById('table-panel')} style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
+            <Select getPopupContainer={e=>e.parentNode} style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
               {
                 partition_mode.map(o=>{
                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
