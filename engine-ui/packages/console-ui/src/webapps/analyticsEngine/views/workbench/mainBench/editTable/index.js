@@ -84,13 +84,12 @@ export default class EditTable extends Component{
     console.log(tableDetail.lifeDay)
     console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
     if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      this.state.customLifeCycle = tableDetail.lifeDay
-      console.log(this.state.customLifeCycle)
-      tableDetail.lifeDay = -1;
-      console.log(this.state.customLifeCycle)
-      this.setState({
-        short: true
-      })
+      tableDetail.shortLisyCycle = tableDetail.lifeDay
+        this.state.customLifeCycle = tableDetail.shortLisyCycle
+        tableDetail.lifeDay = -1;
+        this.setState({
+          short: true
+        })
     }
 
     this.setState({
@@ -98,26 +97,6 @@ export default class EditTable extends Component{
     },()=>{
       console.log(tableDetail)
     })
-  }
-  componentWillReceiveProps(nextProps){
-    // const { tableDetail } = nextProps.data;
-
-    // tableDetail.columns = tableDetail.columns || [];
-    // tableDetail.partitions = tableDetail.partitions || [];
-    // console.log(tableDetail.lifeDay)
-    // console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
-
-    // if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      
-    //   this.state.customLifeCycle = tableDetail.lifeDay
-    //   console.log(this.state.customLifeCycle)
-    //   tableDetail.lifeDay === -1;
-    //   console.log(this.state.customLifeCycle)
-    // }
-
-    // this.setState({
-    //   tableDetail: tableDetail
-    // })
   }
   saveInfo = ()=>{
     const {form} = this.props;
@@ -181,6 +160,7 @@ export default class EditTable extends Component{
         if(o._fid>_fid)
           _fid = o._fid
       })
+      console.log(_fid)
       tableDetail.columns.push({
         _fid: _fid + 1,
         name: '',
@@ -386,18 +366,21 @@ export default class EditTable extends Component{
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
@@ -406,8 +389,10 @@ export default class EditTable extends Component{
         render: (text,record)=>{
           if(record.isNew){
             return <Input style={{width: 159, height: 26}} defaultValue={text} onChange={(e)=>this.handleFieldCommentChange(e,record)}/>
-          }else
-            return text
+          }else{
+            if(!text) return '-'
+            else return text
+          }
         }
       },{
         title: '操作',
@@ -448,9 +433,9 @@ export default class EditTable extends Component{
       },{
         title: '注释',
         dataIndex: 'comment',
-        // render: (text,record)=>(
-        //   <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
-        // )
+        render: (text,record)=>(
+          text || '-'
+        )
       }
     ]
     return (
