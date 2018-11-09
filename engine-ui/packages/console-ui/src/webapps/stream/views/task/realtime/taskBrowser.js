@@ -286,6 +286,7 @@ class TaskBrowser extends Component {
     editorParamsChange = (newVal) => {
         const { currentPage, dispatch } = this.props
         currentPage.taskParams = newVal
+        currentPage.notSynced=true;
         dispatch(BrowserAction.setCurrentPage(currentPage))
     }
 

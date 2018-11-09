@@ -68,7 +68,7 @@ export default class PaneData extends Component{
       let row = [];
       list[item].map((o,i)=>{
         let key = tableCol[i].dataIndex;
-        j[key] = o;
+        j[key] = o && o.toString();
         row.push(j)
       })
       dataList.push(row.pop())

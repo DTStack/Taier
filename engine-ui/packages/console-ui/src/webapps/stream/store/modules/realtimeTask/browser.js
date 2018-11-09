@@ -41,6 +41,9 @@ export function openPage(params) {
         Api.getTask(params).then((res) => {
             if (res.code === 1 && res.data) {
                 dispatch(newPage(res.data));
+                if (location.pathname !== '/realtime/task') {
+                    hashHistory.push('/realtime/task')
+                }
             }
         })
     }
