@@ -318,8 +318,8 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
-            Map<String, Object> startNode = cpList.get(0);
-            Map<String, Object> endNode = cpList.get(cpList.size() - 1);
+            Map<String, Object> endNode = cpList.get(0);
+            Map<String, Object> startNode = cpList.get(cpList.size() - 1);
 
             Long startTime = MathUtil.getLongVal(startNode.get(TRIGGER_TIMESTAMP_KEY));
             Long endTime = MathUtil.getLongVal(endNode.get(TRIGGER_TIMESTAMP_KEY));

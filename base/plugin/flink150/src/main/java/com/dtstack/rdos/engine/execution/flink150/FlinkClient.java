@@ -158,10 +158,13 @@ public class FlinkClient extends AbsClient {
         flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
         if (yarnCluster){
             initYarnClient();
-            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
         }
 
         initClient();
+
+        if(yarnCluster){
+            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
+        }
 
         if (yarnCluster && flinkYarnMode != FlinkYarnMode.PER_JOB){
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
@@ -667,6 +670,7 @@ public class FlinkClient extends AbsClient {
         String reqURL;
 
         //从jobhistory读取
+        //TODO 处理application 本身启动失败的情况
         if(rdosTaskStatus.equals(RdosTaskStatus.FINISHED) || rdosTaskStatus.equals(RdosTaskStatus.CANCELED)
                 || rdosTaskStatus.equals(RdosTaskStatus.FAILED) || rdosTaskStatus.equals(RdosTaskStatus.KILLED)){
             reqURL = flinkConfig.getFlinkJobHistory();
