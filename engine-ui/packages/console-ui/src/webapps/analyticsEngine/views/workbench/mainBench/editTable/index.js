@@ -72,7 +72,7 @@ export default class EditTable extends Component{
   constructor(props){
     super(props)
     this.state = {
-      customLifeCycle: 0,
+      customLifeCycle: '',
       short: false,
       tableDetail: {columns:[]},
     }

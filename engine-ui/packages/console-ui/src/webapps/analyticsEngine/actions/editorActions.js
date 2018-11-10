@@ -135,24 +135,8 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
 
         if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
 
-        if (res.data.jobId) {
-            runningSql[currentTab] = res.data.jobId;
-
-            selectData(dispatch, res.data.jobId, currentTab)
-                .then(
-                    (isSuccess) => {
-                        if (index < sqls.length - 1 && isSuccess) {
-                            //剩余任务，则继续执行
-                            execContinue();
-                        }
-                        if (index >= sqls.length - 1) {
-                            dispatch(removeLoadingTab(currentTab))
-                            resolve(true)
-                        }
-                    }
-                )
-        } else {
-            //不存在jobId，则直接返回结果
+        if (res.data.result) {
+            // 直接打印结果
             getDataOver(dispatch, currentTab, res)
             if (index < sqls.length - 1) {
                 //剩余任务，则继续执行
@@ -161,8 +145,23 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
                 dispatch(removeLoadingTab(currentTab))
                 resolve(true)
             }
+        } else {
+            runningSql[currentTab] = res.data.jobId;
+            selectData(dispatch, res.data.jobId, currentTab)
+            .then(
+                (isSuccess) => {
+                    if (index < sqls.length - 1 && isSuccess) {
+                        //剩余任务，则继续执行
+                        execContinue();
+                    }
+                    if (index >= sqls.length - 1) {
+                        dispatch(removeLoadingTab(currentTab))
+                        resolve(true)
+                    }
+                }
+            )
+                
         }
-       
     }
 }
 

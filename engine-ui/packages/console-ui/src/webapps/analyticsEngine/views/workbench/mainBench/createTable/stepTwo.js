@@ -121,8 +121,8 @@ export default class StepTwo extends Component{
         name: '',
         type: '',
         invert: 1,
-        dictionary: 1,
-        sortColumn: 1,
+        dictionary: 0,
+        sortColumn: 0,
         comment: ''
       }
       this.setState({
@@ -443,7 +443,7 @@ export default class StepTwo extends Component{
         title: '字段名',
         dataIndex: 'name',
         render: (text,record)=>(
-          <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
+          <Input autoFocus style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
@@ -585,7 +585,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分桶数量：</span>
-            <Input style={{width: 100,marginRight: 4}} value={bucketInfo.bucketNumber} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
+            <Input style={{width: 150,marginRight: 4}} value={bucketInfo.bucketNumber} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
           <Table
           columns={this.getTableCol(4)}

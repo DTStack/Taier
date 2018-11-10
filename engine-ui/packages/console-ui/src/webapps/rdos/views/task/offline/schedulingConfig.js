@@ -880,7 +880,7 @@ class SchedulingConfig extends React.Component {
                     !isWorkflowNode &&
                     tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && 
                     <Panel key="2" header="任务间依赖">
-                        {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px"}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
+                        {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px", marginLeft: '12px'}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
                         <Form>
                             <FormItem
                             {...formItemLayout}
@@ -911,7 +911,7 @@ class SchedulingConfig extends React.Component {
                 {
                     !isWorkflowNode &&
                     <Panel key="3" header="跨周期依赖">
-                        <Row>
+                        <Row style={{ marginBottom: 16 }}>
                             <Col span="1" />
                             <Col>
                                 <RadioGroup onChange={ this.setSelfReliance.bind(this) }

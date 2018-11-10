@@ -7,6 +7,7 @@ import PaneData from './paneData';
 import PaneField from './paneField';
 import PaneIndex from './paneIndex';
 import PanePartition from './panePartition';
+import PaneBucket from './paneBucket';
 
 const TabPane = Tabs.TabPane;
 
@@ -27,6 +28,9 @@ class TableDetail extends Component {
         }
     }
     getData = ()=>{
+        this.setState({
+            previewList: []
+        })
         API.getPreviewData({
         tableId: this.props.data.tableDetail.id,
         databaseId: this.props.data.tableDetail.databaseId,
@@ -82,6 +86,10 @@ class TableDetail extends Component {
                 title: <span style={{fontSize: 12}}>分区信息</span>,
                 key: '2',
                 content: <PanePartition dataList={this.state.partitionsList || []} tableDateil={tableDetail}/>
+            },{
+                title: <span style={{fontSize: 12}}>分桶信息</span>,
+                key: '3',
+                content: <PaneBucket data={tableDetail.bucketInfo || {}}></PaneBucket>
             },{
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
@@ -174,7 +182,7 @@ class TableDetail extends Component {
                     <Tabs type="card" onChange={this.handleTabsChange}>
                         {
                             tabsData.map(o=>(
-                                <TabPane tab={o.title} key={o.key}>{o.content}</TabPane>
+                                <TabPane forceRender={true} tab={o.title} key={o.key}>{o.content}</TabPane>
                             ))
                         }
                     </Tabs>

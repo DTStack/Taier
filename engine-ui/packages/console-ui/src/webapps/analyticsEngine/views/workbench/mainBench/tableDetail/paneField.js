@@ -27,10 +27,12 @@ export default class PaneField extends Component{
     },()=>this.initData(this.props))
   }
   componentDidMount(){
+    console.log(this.state.paginationParams)
     this.initData(this.props);
   }
 
   componentWillReceiveProps(nextProps){
+    console.log(this.state.paginationParams)
     this.initData(nextProps);
   }
 
