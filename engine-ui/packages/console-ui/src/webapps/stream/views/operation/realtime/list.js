@@ -158,9 +158,9 @@ class RealTimeTaskList extends Component {
             continue: e.target.value,
         });
     }
-    exchangeOrderKey(key){
-        const orderMap={
-            gmtModified:"gmt_modified"
+    exchangeOrderKey(key) {
+        const orderMap = {
+            gmtModified: "gmt_modified"
         }
         return orderMap[key];
     }
@@ -169,9 +169,9 @@ class RealTimeTaskList extends Component {
         if (!isSilent || typeof isSilent != "boolean") {
             this.setState({ loading: true })
         }
-        const { sorter = {} } = ctx.state;
+        const { sorter = {}, current, pageSize } = ctx.state;
         const reqParams = Object.assign({
-            currentPage: 1,
+            currentPage: current,
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
@@ -486,12 +486,13 @@ class RealTimeTaskList extends Component {
         this.loadCount()
     }
     render() {
-        const { tasks, logInfo, selectTask, overview } = this.state
+        const { tasks, logInfo, selectTask, overview, current } = this.state
         const dataSource = tasks.data || [];
         const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 20,
+            pageSize: 20,
+            current:current
         };
         return (
             <div className="box-1 m-card">
