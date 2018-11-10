@@ -158,7 +158,12 @@ class RealTimeTaskList extends Component {
             continue: e.target.value,
         });
     }
-
+    exchangeOrderKey(key){
+        const orderMap={
+            gmtModified:"gmt_modified"
+        }
+        return orderMap[key];
+    }
     loadTaskList(params, isSilent) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
         if (!isSilent || typeof isSilent != "boolean") {
@@ -171,7 +176,7 @@ class RealTimeTaskList extends Component {
             taskName: this.state.taskName,
             isTimeSortDesc: true,
             statusList: this.state.filter,
-            orderBy: sorter.columnKey,
+            orderBy: this.exchangeOrderKey(sorter.columnKey),
             sort: utils.exchangeOrder(sorter.order)
         }, params)
         clearTimeout(this._timeClock);
