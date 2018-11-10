@@ -443,7 +443,7 @@ export default class StepTwo extends Component{
         title: '字段名',
         dataIndex: 'name',
         render: (text,record)=>(
-          <Input style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
+          <Input autoFocus style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleNameChange(e,record)}/>
         )
       },{
         title: '字段类型',
