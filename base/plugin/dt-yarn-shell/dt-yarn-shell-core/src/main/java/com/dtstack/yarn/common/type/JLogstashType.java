@@ -116,6 +116,5 @@ public class JLogstashType extends AppType {
     @Override
     public void env(List<String> envList) {
         super.env(envList);
-        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
     }
 }

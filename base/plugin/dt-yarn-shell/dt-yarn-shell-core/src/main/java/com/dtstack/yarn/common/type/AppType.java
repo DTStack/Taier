@@ -55,6 +55,8 @@ public abstract class AppType {
 
     public void env(List<String> envList) {
         envList.add("LANG=zh_CN.UTF-8");
+        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
+        envList.add("PATH=" + "./:" + System.getenv("PATH"));
     }
 
 }
