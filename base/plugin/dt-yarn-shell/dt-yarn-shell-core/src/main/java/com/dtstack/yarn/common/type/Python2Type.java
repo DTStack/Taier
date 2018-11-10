@@ -23,6 +23,5 @@ public class Python2Type extends AppType {
     @Override
     public void env(List<String> envList) {
         super.env(envList);
-        envList.add("PATH=" + "./:" + System.getenv("PATH"));
     }
 }

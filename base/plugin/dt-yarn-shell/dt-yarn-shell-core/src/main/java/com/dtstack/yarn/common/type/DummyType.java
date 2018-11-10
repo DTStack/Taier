@@ -13,8 +13,6 @@ public class DummyType extends AppType {
     @Override
     public void env(List<String> envList) {
         super.env(envList);
-        envList.add("CLASSPATH=" + "./:" + System.getenv("CLASSPATH"));
-        envList.add("PATH=" + "./:" + System.getenv("PATH"));
     }
 
 }
