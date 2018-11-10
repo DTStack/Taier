@@ -100,6 +100,11 @@ const utils = {
     formatDateHours: function(timestap) {
         moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm");
+        
+    },
+    formatDayHours: function(timestap) {
+        moment.locale("zh-cn");
+        return moment(timestap).format("MM-DD HH:mm");
     },
     formatHours: function(timestap) {
         moment.locale("zh-cn");
