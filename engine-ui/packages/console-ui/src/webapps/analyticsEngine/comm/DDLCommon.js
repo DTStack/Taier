@@ -14,3 +14,10 @@ export const DDL_ide_placeholder=
     destination String)
     STORED AS TEXTFILE
     lifecycle 10`;
+
+export const DDL_placeholder_anly = 
+`CREATE TABLE IF NOT EXISTS tablename
+( col_name1 data_type COMMENT 'col_comment')
+PARTITIONED BY (col_name2 data_type COMMENT 'col_comment')
+STORED AS carbondata
+LIFECYCLE 90;`

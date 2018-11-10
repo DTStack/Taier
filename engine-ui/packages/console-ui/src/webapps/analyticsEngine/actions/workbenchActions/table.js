@@ -229,6 +229,13 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
+        if(params.partitions.partitionType !== 0 && !params.partitions.partConfig){
+            notification.error({
+                message: '提示',
+                description: params.partitions.partitionType === 1?'分区数量不能为空':params.partitions.partitionType === 2?'分区范围不能为空':'分区名称不能为空'
+            })
+            return;
+        }
         if(!params.bucketInfo.bucketNumber && (params.bucketInfo.infos && params.bucketInfo.infos.length !== 0)){
             notification.error({
                 message: '提示',
