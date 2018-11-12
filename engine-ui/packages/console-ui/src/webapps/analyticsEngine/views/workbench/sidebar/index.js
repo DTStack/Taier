@@ -100,9 +100,7 @@ class Sidebar extends Component {
         const ctx = this;
         const { data, fileType } = treeNode.props;
         return new Promise(async (resolve) => {
-            if (!data.children || data.children.length === 0) {
-                ctx.props.loadCatalogue(data, fileType);
-            }
+            ctx.props.loadCatalogue(data, fileType);
             resolve();
         });
     }
