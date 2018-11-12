@@ -374,8 +374,8 @@ export function saveTableInfo(param){
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
         if(res.code === 1){
             message.success('修改成功')
-            dispatch(handleCancel());
-            dispatch(onEditTable({databaseId: tableDetail.databaseId,id:tableDetail.id, tableName}))
+            // dispatch(handleCancel());
+            dispatch(toTableDetail({databaseId: tableDetail.databaseId,id:tableDetail.id}))
         }else{
             notification.error({
                 message: '提示',
