@@ -429,15 +429,15 @@ public class FlinkClient extends AbsClient {
         String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
-        ClusterClient targetClusterClient;
-        if(!Strings.isNullOrEmpty(applicationId)){
-            targetClusterClient = clusterClientCache.getClusterClient(jobIdentifier);
-        }else{
-            targetClusterClient = client;
-        }
-
-        JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
         try{
+            ClusterClient targetClusterClient;
+            if(!Strings.isNullOrEmpty(applicationId)){
+                targetClusterClient = clusterClientCache.getClusterClient(jobIdentifier);
+            }else{
+                targetClusterClient = client;
+            }
+
+            JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
             targetClusterClient.cancel(jobID);
         }catch (Exception e){
             return JobResult.createErrorResult(e);

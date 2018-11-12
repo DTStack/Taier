@@ -1,8 +1,8 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
-import com.google.common.collect.Maps;
-import org.apache.flink.client.deployment.ClusterRetrieveException;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
@@ -10,10 +10,11 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
- * TODO 添加定时检查ClusterClient 是否可用线程
+ * 用于缓存连接perjob对应application的ClusterClient
  * Date: 2018/11/5
  * Company: www.dtstack.com
  * @author xuchao
@@ -23,8 +24,7 @@ public class ClusterClientCache {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClusterClientCache.class);
 
-    //TODO 修改为定时清理（default除外）
-    public Map<String, ClusterClient> clusterClientCache = Maps.newConcurrentMap();
+    public Cache<String, ClusterClient> clusterClientCache = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
 
     private AbstractYarnClusterDescriptor yarnClusterDescriptor;
 
@@ -37,26 +37,22 @@ public class ClusterClientCache {
         String applicationId = jobIdentifier.getApplicationId();
         String taskId = jobIdentifier.getTaskId();
 
-        ClusterClient clusterClient = clusterClientCache.get(applicationId);
-        if(clusterClient != null){
-            return clusterClient;
-        }
-
-        clusterClient = clusterClientCache.computeIfAbsent(applicationId, key -> {
-            try {
+        ClusterClient clusterClient;
+        try {
+            clusterClient = clusterClientCache.get(applicationId, () -> {
                 yarnClusterDescriptor.getFlinkConfiguration().setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
-                return yarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(key));
-            } catch (ClusterRetrieveException e) {
-                LOG.error("", e);
-                return null;
-            }
-        });
+                return yarnClusterDescriptor.retrieve(ConverterUtils.toApplicationId(applicationId));
+            });
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException("get yarn cluster client exception:", e);
+        }
 
         return clusterClient;
     }
 
     public boolean put(String applicationId, ClusterClient clusterClient){
-        if(clusterClientCache.containsKey(applicationId)){
+        if(clusterClientCache.getIfPresent(applicationId) != null){
             return false;
         }
 
