@@ -71,6 +71,19 @@ const applyCellStyle = (cellState, style) => {
     }
 }
 
+const getTaskBaseData = (task) => {
+    return {
+        id: task.id,
+        name: task.name,
+        type: task.type,
+        taskType: task.taskType,
+        parentId: task.parentId,
+        catalogueType: task.catalogueType,
+        notSynced: task.notSynced,
+        nodePid: task.nodePid,
+    }
+}
+
 @connect(state => {
     const { offlineTask, project, user, editor } = state;
     const { workbench, workflow } = offlineTask;
@@ -280,7 +293,6 @@ class WorkflowEditor extends Component {
                         const fileStatus = res.data && res.data.readWriteLockVO 
                         && res.data.readWriteLockVO.result;
                         if ( res.code === 1 && fileStatus === 0 ) {
-                            console.log('editSucc?', res);
                             loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
                             ctx.updateCellData(cell, task);
                             ctx.updateGraphData();
@@ -328,7 +340,6 @@ class WorkflowEditor extends Component {
 
     appendWorkflowNode = (newNode) => {
         const { data, saveTask, loadTreeNode } = this.props;
-
         this.updateCellData(this._currentNewVertex, newNode);
         const workflow = this.getGraphData();
 
@@ -377,7 +388,7 @@ class WorkflowEditor extends Component {
             const cellState = this.graph.view.getState(cell);
             if (cellState.cell) {
                 cellState.cell.id = cellData.id;
-                cellState.cell.data = cellData;
+                cellState.cell.data = getTaskBaseData(cellData);
                 this.graph.refresh();
             }
         }
@@ -393,7 +404,7 @@ class WorkflowEditor extends Component {
                 if (cell.vertex && cell.data) {
                     const item = tabs.find(i => i.id === cell.data.id)
                     if (item) {
-                        cell.data = item;
+                        cell.data = getTaskBaseData(item);
                         if (item.notSynced) {
                             waitUpdateTabs.push(item);
                         }
