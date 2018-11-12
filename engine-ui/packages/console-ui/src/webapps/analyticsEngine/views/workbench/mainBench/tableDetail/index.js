@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import API from '../../../../api'
-import { Button, Tabs, Row} from 'antd';
+import { Button, Tabs, Row,notification} from 'antd';
 
 import PaneData from './paneData';
 import PaneField from './paneField';
@@ -57,7 +57,7 @@ class TableDetail extends Component {
     }).then(res=>{
       if(res.code === 1){
         this.setState({
-            partitionsList: res.data.data
+            partitionsList: this.props.data.tableDetail.partitionType === 0?res.data.data:res.data
         })
       }else{
         notification.error({
