@@ -235,7 +235,9 @@ class InputOrigin extends Component {
         )
     }
 }
-
+/**
+ * 一组表单
+ */
 const InputForm = Form.create({
     mapPropsToFields(props) {
             const { type, sourceId, topic, table , columns, timeType, timeColumn, offset,columnsText, parallelism } = props.panelColumn[props.index];
