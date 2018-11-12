@@ -6,7 +6,7 @@ import CopyIcon from "main/components/copy-icon";
 
 import Editor from 'widgets/editor';
 
-import { DDL_placeholder } from "../../../../comm/DDLCommon"
+import { DDL_placeholder_anly } from "../../../../comm/DDLCommon"
 import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 
@@ -405,12 +405,12 @@ export default class StepOne extends Component{
         onOk={this.handleDDLCreateTable}
         onCancel={this.handleCancel}
         title={(
-          <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
+          <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder_anly} /></span>
         )}
         maskClosable={false}>
             <Editor
                 style={{ height: "400px" }}
-                placeholder={DDL_placeholder}
+                placeholder={DDL_placeholder_anly}
                 options={{readOnly:false}}
                 language="dtsql"
                 options={{ readOnly: false } }

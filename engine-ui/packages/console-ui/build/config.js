@@ -61,7 +61,7 @@ module.exports = {
                 secure: false,
             },
             "/api/analysis": { // 分析引擎
-                // target: "http://172.16.1.146:9022",// 联调
+                // target: "http://172.16.1.113:9022",// 联调
                 target: "http://172.16.8.105:9022",//测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
