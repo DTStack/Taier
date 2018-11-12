@@ -37,7 +37,13 @@ class DDLModal extends Component {
                         </CopyToClipboard>
                     ]}
                 >
-                    <Editor value={modal.modalData} language="dtsql" options={{readOnly:false}} style={{ height: '400px' }} />
+                    <Editor
+                        sync
+                        value={modal.modalData}
+                        language="dtsql" 
+                        options={{readOnly:false}} 
+                        style={{ height: '400px' }} 
+                    />
                 </Modal>
             </div>
         )

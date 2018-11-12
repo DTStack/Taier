@@ -47,7 +47,7 @@ const editorOptions = {
 class DataMapForm extends Component {
 
     state = {
-        datamapType: this.props.data ? this.props.data.type : DATAMAP_TYPE.PRE_SUM,
+        datamapType: this.props.data && this.props.data.type ? this.props.data.type : DATAMAP_TYPE.PRE_SUM,
     };
 
     onDataMapTypeChange = (e) => {
@@ -61,7 +61,6 @@ class DataMapForm extends Component {
         const { form, data, tableData, onQueryTextChange, isCreate } = this.props;
         const { getFieldDecorator } = form;
 
-        const defaultQueryText = '-- 支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理';
         const config = data.config ? JSON.parse(data.config) : undefined;
 
         editorOptions.readOnly = !isCreate ? true : false;
@@ -74,7 +73,7 @@ class DataMapForm extends Component {
             language="sql"
             options={editorOptions}
             onChange={onQueryTextChange}
-            value={config ? config.selectSql : defaultQueryText}
+            value={config ? config.selectSql : ''}
         />
     
         const tableColumns = tableData ? tableData.columns : [];
@@ -125,7 +124,9 @@ class DataMapForm extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>,
-                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label="主表查询">
+                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -193,7 +194,9 @@ class DataMapForm extends Component {
             case DATAMAP_TYPE.PRE_SUM:
             default: {
                 return (
-                    <FormItem key="selectSql" {...formItemLayout} label="主表查询">
+                    <FormItem key="selectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -261,8 +264,7 @@ class DataMapForm extends Component {
                             },
                             {
                                 pattern: /^[A-Za-z0-9_]+$/,
-                                message:
-                                    "DataMap名称只能由字母与数字、下划线组成"
+                                message: "DataMap名称只能由字母与数字、下划线组成"
                             }
                         ],
                         initialValue: data ? data.name : ""

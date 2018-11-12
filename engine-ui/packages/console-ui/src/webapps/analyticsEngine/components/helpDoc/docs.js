@@ -92,3 +92,9 @@ export const decimalType = (
         <p>type(precision,scale);presicion:数字总长度，最大为38；scale：小数点之后的位数</p>
     </div>
 )
+
+export const selectSQL = (
+    <span>
+        支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理
+    </span>
+)
