@@ -71,6 +71,21 @@ const applyCellStyle = (cellState, style) => {
     }
 }
 
+const getTaskBaseData = (task) => {
+    return {
+        id: task.id,
+        name: task.name,
+        type: task.type,
+        taskType: task.taskType,
+        parentId: task.parentId,
+        catalogueType: task.catalogueType,
+        notSynced: task.notSynced,
+        nodePid: task.nodePid,
+        preSave: task.preSave,
+        submitStatus: task.submitStatus,
+    }
+}
+
 @connect(state => {
     const { offlineTask, project, user, editor } = state;
     const { workbench, workflow } = offlineTask;
@@ -251,7 +266,6 @@ class WorkflowEditor extends Component {
 
     initEditTaskCell = (cell, task) => {
         const ctx = this;
-        const originName = task.name;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
         const { saveTask, loadTreeNode } = this.props;
 
@@ -271,26 +285,23 @@ class WorkflowEditor extends Component {
         }
    
         const editSucc = (evt) => {
+            const originName = task.name;
             if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
-                if (checkNodeName(value)) {
-                    task.name = value;
-                    saveTask(task, true).then(res => {
-                        const fileStatus = res.data && res.data.readWriteLockVO 
-                        && res.data.readWriteLockVO.result;
+                if (checkNodeName(value) && value !== originName) {
+                    const taskData = Object.assign({}, task, {
+                        name: value,
+                    });
+                    saveTask(taskData, true).then(res => {
+                        const fileStatus = res.data && res.data.readWriteLockVO && res.data.readWriteLockVO.result;
                         if ( res.code === 1 && fileStatus === 0 ) {
-                            console.log('editSucc?', res);
                             loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
-                            ctx.updateCellData(cell, task);
+                            ctx.updateCellData(cell, taskData);
                             ctx.updateGraphData();
-                        } else {
-                            editTarget.value = originName;
                         }
                     });
-                } else {
-                    editTarget.value = originName;
-                }
+                } 
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);
             }
@@ -328,7 +339,6 @@ class WorkflowEditor extends Component {
 
     appendWorkflowNode = (newNode) => {
         const { data, saveTask, loadTreeNode } = this.props;
-
         this.updateCellData(this._currentNewVertex, newNode);
         const workflow = this.getGraphData();
 
@@ -377,7 +387,7 @@ class WorkflowEditor extends Component {
             const cellState = this.graph.view.getState(cell);
             if (cellState.cell) {
                 cellState.cell.id = cellData.id;
-                cellState.cell.data = cellData;
+                cellState.cell.data = getTaskBaseData(cellData);
                 this.graph.refresh();
             }
         }
@@ -393,7 +403,7 @@ class WorkflowEditor extends Component {
                 if (cell.vertex && cell.data) {
                     const item = tabs.find(i => i.id === cell.data.id)
                     if (item) {
-                        cell.data = item;
+                        cell.data = getTaskBaseData(item);
                         if (item.notSynced) {
                             waitUpdateTabs.push(item);
                         }

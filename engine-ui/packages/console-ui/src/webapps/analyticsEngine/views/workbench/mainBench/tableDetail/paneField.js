@@ -38,22 +38,22 @@ export default class PaneField extends Component{
 
   initData = (props)=>{
     console.log(props)
-    this.state.columnData = props.data.columnData;
-    this.state.partData = props.data.partData;
+    this.state.columnData = props.data.columnData || [];
+    this.state.partData = props.data.partData || [];
 
     let data = this.state.dataType === 'column'?this.state.columnData:this.state.partData;
     console.log(data)
     if(data && data.length===0){
-      this.paginationParams.total = 0;
+      this.state.paginationParams.total = 0;
       this.setState({
         dataList: [],
-        paginationParams: paginationParams
+        paginationParams: this.state.paginationParams
       })
       return;
     }
 
     this.state.paginationParams.total = data.length || 0;
-    this.state.paginationParams.current = 1;
+    // this.state.paginationParams.current = 1;
 
     this.state.dataList = data.slice(0,this.state.paginationParams.pageSize)
     this.setState({
@@ -121,7 +121,7 @@ console.log(dataList)
             <RadioButton value="partition">分区字段</RadioButton>
           </RadioGroup>
 
-          <span style={{color: 'rgb(204, 204, 204)'}}>共{dataList.length}个字段</span>
+          <span style={{color: 'rgb(204, 204, 204)'}}>共{this.state.paginationParams.total}个字段</span>
         </div>
         <Table
         columns={tableCOl}
