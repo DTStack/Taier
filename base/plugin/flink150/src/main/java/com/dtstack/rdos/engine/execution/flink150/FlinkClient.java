@@ -37,6 +37,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.PackagedProgramUtils;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -163,7 +164,9 @@ public class FlinkClient extends AbsClient {
         initClient();
 
         if(yarnCluster){
-            clusterClientCache = new ClusterClientCache(flinkClientBuilder.getYarnClusterDescriptor());
+            Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
+            AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
+            clusterClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
         }
 
         if (yarnCluster && flinkYarnMode != FlinkYarnMode.PER_JOB){

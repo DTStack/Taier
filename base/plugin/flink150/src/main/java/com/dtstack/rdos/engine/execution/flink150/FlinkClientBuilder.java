@@ -294,7 +294,7 @@ public class FlinkClientBuilder {
         return clusterDescriptor;
     }
 
-    private AbstractYarnClusterDescriptor getClusterDescriptor(
+    public AbstractYarnClusterDescriptor getClusterDescriptor(
             Configuration configuration,
             YarnConfiguration yarnConfiguration,
             String configurationDirectory) {
