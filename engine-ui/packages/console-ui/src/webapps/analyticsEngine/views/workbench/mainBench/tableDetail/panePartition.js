@@ -122,7 +122,7 @@ export default class PanePartition extends Component{
             onChange={this.handleTableChange}></Table> || 
             <span style={{display: 'block',marginLeft:20,marginBottom: 10}}>
               <p>分区模式: {partMode[this.state.partitionParam.partitionType]}</p>
-              {this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:'}{this.state.partitionParam.partitionConfig}
+              {this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:'}{this.state.partitionParam.partConfig}
             </span>
         }
       </div>

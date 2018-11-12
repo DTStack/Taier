@@ -60,6 +60,8 @@ const partition_mode = [
     value: 3
   }
 ]
+//string、char、varchar、timestamp、date
+const bucketType = ['STRING','CHAR','VARCHAR','TIMESTAMP','DATE']
 
 const decimalPrecision = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]
 const decimalScale = [0,1,2,3,4,5,6,7,8,9]
@@ -405,8 +407,8 @@ export default class StepTwo extends Component{
           <Select defaultValue={record.flagIndex} style={{width: 159}} onChange={(e)=>this.handleBucketChange(e,record)}>
             {
               this.state.columns.map(o=>{
-
-                return o.name? <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>:''
+                if(o.name && bucketType.indexOf(o.type) !== -1)
+                  return <Option key={o._fid} value={this.state.columns.indexOf(o)}>{o.name}</Option>
               })
             }
           </Select>
