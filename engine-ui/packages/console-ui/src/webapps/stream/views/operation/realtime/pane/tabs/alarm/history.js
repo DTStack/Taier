@@ -67,7 +67,7 @@ class AlarmHistory extends React.Component {
                 ...this.state.pagination,
                 current: pagination.current,
             }
-        }, this.loadAlarmRules)
+        }, this.loadAlarms)
     }
     changeTimes(times) {
         this.setState({
