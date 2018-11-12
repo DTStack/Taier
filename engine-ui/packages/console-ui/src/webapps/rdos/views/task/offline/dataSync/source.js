@@ -560,7 +560,7 @@ class SourceForm extends React.Component {
                                 mode={supportSubLibrary ? 'tags' : 'combobox'}
                                 showSearch
                                 showArrow={true}
-                                onChange={this.debounceTableSearch.bind(this, sourceMap.type.type)}
+                                onBlur={this.debounceTableSearch.bind(this, sourceMap.type.type)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
@@ -650,7 +650,7 @@ class SourceForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this, null)}
+                                onBlur={this.debounceTableSearch.bind(this, null)}
                                 optionFilterProp="value"
                             >
                                 {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
@@ -777,7 +777,7 @@ class SourceForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
-                                onChange={this.debounceTableSearch.bind(this, null)}
+                                onBlur={this.debounceTableSearch.bind(this, null)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >

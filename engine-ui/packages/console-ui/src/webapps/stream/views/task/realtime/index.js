@@ -86,9 +86,9 @@ class TaskIndex extends Component {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
     
-        currentPage.source = panelColumn;
-        currentPage.sink = outputPanelColumn;
-        currentPage.side = dimensionPanelColumn;
+        // currentPage.source = panelColumn;
+        // currentPage.sink = outputPanelColumn;
+        // currentPage.side = dimensionPanelColumn;
 
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
 
