@@ -41,7 +41,10 @@ class DDLModal extends Component {
                         sync
                         value={modal.modalData}
                         language="dtsql" 
-                        options={{readOnly:false}} 
+                        options={{
+                            readOnly:false
+                        }} 
+                        disabledSyntaxCheck={true}
                         style={{ height: '400px' }} 
                     />
                 </Modal>
