@@ -283,7 +283,7 @@ export function pages(state = defaultPages, action) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState = [...state];
-                const {panelColumn} = source||{};
+                const {panelColumn} = sink||{};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { sink:panelColumn })
                 return newState;
             } else {
@@ -297,7 +297,7 @@ export function pages(state = defaultPages, action) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState = [...state];
-                const {panelColumn} = source||{};
+                const {panelColumn} = side||{};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { side:panelColumn })
                 return newState;
             } else {
@@ -360,7 +360,7 @@ export function currentPage(state = defaultCurPage, action) {
         case browserAction.SET_OUTPUT_DATA: {
             const { sink, taskId } = action.data || {};
             if (taskId == state.id) {
-                const {panelColumn} = source||{};
+                const {panelColumn} = sink||{};
                 const newPage = Object.assign({}, state, { sink:panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
@@ -371,7 +371,7 @@ export function currentPage(state = defaultCurPage, action) {
         case browserAction.SET_DIMESION_DATA: {
             const { side, taskId } = action.data || {};
             if (taskId == state.id) {
-                const {panelColumn} = source||{};
+                const {panelColumn} = side||{};
                 const newPage = Object.assign({}, state, { side:panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
