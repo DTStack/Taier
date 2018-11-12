@@ -3,6 +3,7 @@ import {Table,notification} from 'antd'
 import API from '../../../../api'
 import moment from 'moment'
 
+const partMode = ['标准','Hash','Range','List']
 export default class PanePartition extends Component{
 
   constructor(props){
@@ -14,6 +15,8 @@ export default class PanePartition extends Component{
         pageSize: 10
       },
       dataList: [],
+      partitionParam: {},
+      notStard: false,
     }
   }
   componentDidMount(){
@@ -25,10 +28,19 @@ export default class PanePartition extends Component{
   componentWillReceiveProps(nextProps){
     // this.initData(nextProps)
     // this.getData();
-    this.setState({
-      dataList: this.props.dataList,
-      total: this.props.dataList.length
-    })
+    if(nextProps.tableDetail.partitionType !== 0){
+      this.setState({
+        notStard: true
+      })
+      this.setState({
+        partitionParam: nextProps.dataList
+      })
+    }else{
+      this.setState({
+        dataList: nextProps.dataList,
+        total: nextProps.dataList.length
+      })
+    }
   }
 
   // initData = (props) => {
@@ -46,7 +58,7 @@ export default class PanePartition extends Component{
 
   getData = ()=>{
     API.getTablePartiton({
-      tableId: this.props.tableDateil.id,
+      tableId: this.props.tableDetail.id,
       pageIndex: this.state.paginationParams.current,
       pageSize: this.state.paginationParams.pageSize
     }).then(res=>{
@@ -100,13 +112,19 @@ export default class PanePartition extends Component{
     ]
     return(
       <div className="partition-container">
-        <Table 
-        size="small"
-        columns={tableCol}
-        dataSource={dataList}
-        rowKey="partId"
-        pagination={paginationParams}
-        onChange={this.handleTableChange}></Table>
+        {
+          !this.state.notStard &&  <Table 
+            size="small"
+            columns={tableCol}
+            dataSource={dataList}
+            rowKey="partId"
+            pagination={paginationParams}
+            onChange={this.handleTableChange}></Table> || 
+            <span style={{display: 'block',marginLeft:20,marginBottom: 10}}>
+              <p>分区模式: {partMode[this.state.partitionParam.partitionType]}</p>
+              {this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:'}{this.state.partitionParam.partitionConfig}
+            </span>
+        }
       </div>
     )
   }

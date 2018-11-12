@@ -38,16 +38,16 @@ export default class PaneField extends Component{
 
   initData = (props)=>{
     console.log(props)
-    this.state.columnData = props.data.columnData;
-    this.state.partData = props.data.partData;
+    this.state.columnData = props.data.columnData || [];
+    this.state.partData = props.data.partData || [];
 
     let data = this.state.dataType === 'column'?this.state.columnData:this.state.partData;
     console.log(data)
     if(data && data.length===0){
-      this.paginationParams.total = 0;
+      this.state.paginationParams.total = 0;
       this.setState({
         dataList: [],
-        paginationParams: paginationParams
+        paginationParams: this.state.paginationParams
       })
       return;
     }
