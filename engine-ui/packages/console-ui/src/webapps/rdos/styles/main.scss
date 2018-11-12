@@ -73,7 +73,10 @@ body:-webkit-full-screen {
     top: 0;
     text-align: left;
 }
-
+.ant-form-inline .ant-form-item-with-help.cell-center{
+    margin-bottom: 0px;
+    padding: 10px 0px;
+}
 .CodeMirror,
 .CodeMirror-merge-pane {
     height: inherit !important;
