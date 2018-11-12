@@ -63,6 +63,11 @@ class DataMap extends Component {
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
                    this.reloadDataMapCatalogue();
+                   if (res.data) {
+                       this.props.onGetDataMap({
+                           id: res.data.id
+                       });
+                   }
                 }
             }
             this.setState({ loading: false, })
