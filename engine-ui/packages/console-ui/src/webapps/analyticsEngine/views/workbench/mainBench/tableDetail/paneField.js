@@ -38,6 +38,7 @@ export default class PaneField extends Component{
 
   initData = (props)=>{
     console.log(props)
+    let {paginationParams} = this.state;
     this.state.columnData = props.data.columnData || [];
     this.state.partData = props.data.partData || [];
 
@@ -53,9 +54,13 @@ export default class PaneField extends Component{
     }
 
     this.state.paginationParams.total = data.length || 0;
+    console.log(this.state.paginationParams)
+    console.log((this.state.paginationParams.current-1) * this.state.paginationParams.pageSize)
+    console.log(data)
+    console.log(data.slice(10,10))
     // this.state.paginationParams.current = 1;
 
-    this.state.dataList = data.slice(0,this.state.paginationParams.pageSize)
+    this.state.dataList = data.slice((this.state.paginationParams.current-1) * this.state.paginationParams.pageSize,paginationParams.current * paginationParams.pageSize)
     this.setState({
       dataList: this.state.dataList,
       paginationParams: this.state.paginationParams
