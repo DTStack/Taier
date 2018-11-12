@@ -69,28 +69,28 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String  DEFAULT_LEARNING_PYTHON_VERSION = "3.x";
 
-//    public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
-//            "$HADOOP_CONF_DIR",
-//            "$HADOOP_COMMON_HOME/share/hadoop/common/*",
-//            "$HADOOP_COMMON_HOME/share/hadoop/common/lib/*",
-//            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/*",
-//            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*",
-//            "$HADOOP_YARN_HOME/share/hadoop/yarn/*",
-//            "$HADOOP_YARN_HOME/share/hadoop/yarn/lib/*",
-//            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*",
-//            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*"
-//    };
     public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
             "$HADOOP_CONF_DIR",
-            "$HADOOP_HOME/share/hadoop/common/*",
-            "$HADOOP_HOME/share/hadoop/common/lib/*",
-            "$HADOOP_HOME/share/hadoop/hdfs/*",
-            "$HADOOP_HOME/share/hadoop/hdfs/lib/*",
-            "$HADOOP_HOME/share/hadoop/yarn/*",
-            "$HADOOP_HOME/share/hadoop/yarn/lib/*",
-            "$HADOOP_HOME/share/hadoop/mapreduce/*",
-            "$HADOOP_HOME/share/hadoop/mapreduce/lib/*"
+            "$HADOOP_COMMON_HOME/share/hadoop/common/*",
+            "$HADOOP_COMMON_HOME/share/hadoop/common/lib/*",
+            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/*",
+            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*",
+            "$HADOOP_YARN_HOME/share/hadoop/yarn/*",
+            "$HADOOP_YARN_HOME/share/hadoop/yarn/lib/*",
+            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*",
+            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*"
     };
+//    public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
+//            "$HADOOP_CONF_DIR",
+//            "$HADOOP_HOME/share/hadoop/common/*",
+//            "$HADOOP_HOME/share/hadoop/common/lib/*",
+//            "$HADOOP_HOME/share/hadoop/hdfs/*",
+//            "$HADOOP_HOME/share/hadoop/hdfs/lib/*",
+//            "$HADOOP_HOME/share/hadoop/yarn/*",
+//            "$HADOOP_HOME/share/hadoop/yarn/lib/*",
+//            "$HADOOP_HOME/share/hadoop/mapreduce/*",
+//            "$HADOOP_HOME/share/hadoop/mapreduce/lib/*"
+//    };
 
     /**
      *  Python configuration
