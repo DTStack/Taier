@@ -61,6 +61,7 @@ class CreateDatabaseModal extends Component {
 
     resetModal = () => {
         this.props.resetModal();
+        this.dbForm.props.form.resetFields();
         setTimeout(() => {
             this.setState({
                 databaseData: null,

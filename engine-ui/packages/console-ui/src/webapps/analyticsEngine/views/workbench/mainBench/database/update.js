@@ -54,6 +54,7 @@ class UpdateDatabaseModal extends Component {
 
     resetModal = () => {
         this.props.onCancel();
+        this.dbForm.props.form.resetFields();
         setTimeout(() => {
             this.setState({
                 databaseData: null,

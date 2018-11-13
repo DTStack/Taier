@@ -88,10 +88,10 @@ function selectData(dispatch, jobId, currentTab) {
  * 输出SQL执行结果
  */
 function getDataOver(dispatch, currentTab, res, jobId) {
+    dispatch(output(currentTab, '执行完成!'));
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
-    dispatch(output(currentTab, '执行成功!'))
     if (res.data && res.data.download) {
         dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
     }
@@ -132,13 +132,11 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
         dispatch(removeLoadingTab(currentTab))
     }
     if (res && res.code === 1) {
-
+        // dispatch(output(currentTab, '执行完成'));
         if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
-
         // 直接打印结果
-        if (res.data.result) {
-            getDataOver(dispatch, currentTab, res);
-        }
+        getDataOver(dispatch, currentTab, res, res.data.jobId);
+        
         if (index < sqls.length - 1) {
             //剩余任务，则继续执行
             execContinue();
