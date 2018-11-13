@@ -7,12 +7,6 @@ import { defaultEditorOptions } from "widgets/code-editor/config";
 
 const TabPane = Tabs.TabPane;
 
-const exportStyle = {
-    position: "relative",
-    top: "-45px",
-    height: "30px"
-};
-
 const defaultConsoleTab = "console-log";
 
 class Result extends Component {
@@ -121,9 +115,15 @@ class Console extends Component {
     };
 
     renderTabs(tabs) {
+        
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
                 const title = <span>结果{tab.id?tab.id:(index+1)}</span>;
+                const exportStyle = {
+                    position: "relative",
+                    top: tab.data && tab.data.length > 1 ? "-45px" : "10px",
+                    height: "30px"
+                };
                 return (
                     <TabPane
                         style={{ minHeight: "100%", position: "relative" }}

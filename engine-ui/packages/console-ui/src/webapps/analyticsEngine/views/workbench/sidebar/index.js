@@ -59,6 +59,8 @@ class Sidebar extends Component {
             catalogueContent: 'database',
         })
         this.props.loadCatalogue();
+        // 重新获取所有表
+        this.props.getAllTable();
     }
 
     searchTable = (value) => {

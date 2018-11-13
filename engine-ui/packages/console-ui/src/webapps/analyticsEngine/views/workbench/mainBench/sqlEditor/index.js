@@ -81,6 +81,7 @@ class EditorContainer extends Component {
 
     initTableList() {
         const { tableList } = this.props;
+        console.log('initTableList', tableList)
         if (tableList && tableList.length > 0) {
             const items = tableList.map(table => {
                 return [table.tableName, "表名", "1200", "Field"];
