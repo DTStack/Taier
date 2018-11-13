@@ -697,7 +697,7 @@ class WorkflowEditor extends Component {
 
                 const outEdges = graph.getOutgoingEdges(cell);
                 const inEdges = graph.getIncomingEdges(cell);
-                graph.setCellStyle(`strokeColor=#2491F7;fillColor=#2491F7;`, outEdges.concat(inEdges));
+                graph.setCellStyle(`strokeColor=#2491F7;fillColor=#2491F7;strokeWidth=2;`, outEdges.concat(inEdges));
 
                 selectedCell = cell;
             } else if (cell === undefined) {
