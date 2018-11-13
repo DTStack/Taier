@@ -18,7 +18,7 @@ import {
 
 import Api from "../../../api";
 import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
-import Editor from "main/components/code-editor";
+import Editor from "widgets/code-editor";
 import { switchPartition } from "../../../views/helpDoc/docs";
 
 const Option = Select.Option;
@@ -31,7 +31,17 @@ class OutputOrigin extends Component {
     componentDidMount() {
         this.props.onRef(this);
     }
-
+    componentWillReceiveProps(nextProps) {
+        if (!this.props.isShow && nextProps.isShow) {
+            this.refreshEditor();
+        }
+    }
+    refreshEditor() {
+        if (this._editorRef) {
+            console.log("refresh")
+            this._editorRef.refresh();
+        }
+    }
     checkParams = v => {
         //手动检测table参数
         const { index, panelColumn } = this.props;
@@ -88,8 +98,8 @@ class OutputOrigin extends Component {
     };
 
     editorParamsChange(a, b, c) {
-        const { handleInputChange, index } = this.props;
-        this._syncEditor = false;
+        const { handleInputChange, index, textChange } = this.props;
+        textChange();
         handleInputChange("columnsText", index, b);
         //this.props.editorParamsChange(...arguments);
     }
@@ -306,24 +316,27 @@ class OutputOrigin extends Component {
                             </div>
                         </Col>
                     ) : (
-                        <Col
-                            span="18"
-                            style={{ marginBottom: 20, height: 200 }}
-                        >
-                            <Editor
-                                style={{
-                                    minHeight: 202,
-                                    border: "1px solid #ddd"
-                                }}
-                                key="params-editor"
-                                sync={sync}
-                                placeholder="字段 类型, 比如 id int 一行一个字段"
-                                // options={jsonEditorOptions}
-                                value={panelColumn[index].columnsText}
-                                onChange={this.editorParamsChange.bind(this)}
-                            />
-                        </Col>
-                    )}
+                            <Col
+                                span="18"
+                                style={{ marginBottom: 20, height: 200 }}
+                            >
+                                <Editor
+                                    style={{
+                                        minHeight: 202,
+                                        border: "1px solid #ddd"
+                                    }}
+                                    key="params-editor"
+                                    sync={sync}
+                                    placeholder="字段 类型, 比如 id int 一行一个字段"
+                                    // options={jsonEditorOptions}
+                                    value={panelColumn[index].columnsText}
+                                    onChange={this.editorParamsChange.bind(this)}
+                                    editorRef={(ref) => {
+                                        this._editorRef = ref;
+                                    }}
+                                />
+                            </Col>
+                        )}
                 </Row>
                 {panelColumn[index].type == "1" ? (
                     <FormItem {...formItemLayout} label="主键">
@@ -348,23 +361,23 @@ class OutputOrigin extends Component {
                         )}
                     </FormItem>
                 ) : (
-                    <FormItem {...formItemLayout} label="主键">
-                        {getFieldDecorator("hbasePrimaryKey", {
-                            rules: [{ required: true, message: "请输入主键" }]
-                        })(
-                            <Input
-                                placeholder="请输入主键"
-                                onChange={e =>
-                                    handleInputChange(
-                                        "hbasePrimaryKey",
-                                        index,
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        )}
-                    </FormItem>
-                )}
+                        <FormItem {...formItemLayout} label="主键">
+                            {getFieldDecorator("hbasePrimaryKey", {
+                                rules: [{ required: true, message: "请输入主键" }]
+                            })(
+                                <Input
+                                    placeholder="请输入主键"
+                                    onChange={e =>
+                                        handleInputChange(
+                                            "hbasePrimaryKey",
+                                            index,
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                            )}
+                        </FormItem>
+                    )}
                 <FormItem {...formItemLayout} label="并行度">
                     {getFieldDecorator("parallelism")(
                         <InputNumber
@@ -423,54 +436,6 @@ class OutputOrigin extends Component {
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="缓存超时时间(ms)">
-                    {getFieldDecorator("cacheTTLMs", {
-                        rules: [
-                            {
-                                required: true,
-                                message: "请输入缓存超时时间"
-                            }
-                            // { validator: this.checkConfirm }
-                        ]
-                    })(
-                        <InputNumber
-                            className="number-input"
-                            min={0}
-                            onChange={value =>
-                                handleInputChange(
-                                    "cacheTTLMs",
-                                    index,
-                                    value
-                                )
-                            }
-                        />
-                    )}
-                    </FormItem>,
-                    <FormItem {...formItemLayout} 
-                    label={(
-                        <span >
-                            开启分区&nbsp;
-                            <Tooltip title={switchPartition}>
-                                <Icon type="question-circle-o" /> 
-                            </Tooltip>
-                        </span> )}
-                    >
-                        {getFieldDecorator("partitionedJoin", {
-                            rules: [{ required: true, }]
-                        })(
-                            <Switch 
-                                defaultChecked={false}
-                                onChange={checked =>
-                                    handleInputChange("partitionedJoin", index, checked)
-                                } 
-                            />,
-                        )}
-                    </FormItem>
-                ]) : (
-                    undefined
-                )}
-                {panelColumn[index].cache === "ALL" ? 
-                    (
-                        <FormItem {...formItemLayout} label="缓存超时时间(ms)">
                         {getFieldDecorator("cacheTTLMs", {
                             rules: [
                                 {
@@ -492,8 +457,56 @@ class OutputOrigin extends Component {
                                 }
                             />
                         )}
+                    </FormItem>,
+                    <FormItem {...formItemLayout}
+                        label={(
+                            <span >
+                                开启分区&nbsp;
+                            <Tooltip title={switchPartition}>
+                                    <Icon type="question-circle-o" />
+                                </Tooltip>
+                            </span>)}
+                    >
+                        {getFieldDecorator("partitionedJoin", {
+                            rules: [{ required: true, }]
+                        })(
+                            <Switch
+                                defaultChecked={false}
+                                onChange={checked =>
+                                    handleInputChange("partitionedJoin", index, checked)
+                                }
+                            />,
+                        )}
+                    </FormItem>
+                ]) : (
+                        undefined
+                    )}
+                {panelColumn[index].cache === "ALL" ?
+                    (
+                        <FormItem {...formItemLayout} label="缓存超时时间(ms)">
+                            {getFieldDecorator("cacheTTLMs", {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: "请输入缓存超时时间"
+                                    }
+                                    // { validator: this.checkConfirm }
+                                ]
+                            })(
+                                <InputNumber
+                                    className="number-input"
+                                    min={0}
+                                    onChange={value =>
+                                        handleInputChange(
+                                            "cacheTTLMs",
+                                            index,
+                                            value
+                                        )
+                                    }
+                                />
+                            )}
                         </FormItem>
-                    ) : undefined }
+                    ) : undefined}
             </Row>
         );
     }
@@ -726,6 +739,9 @@ export default class OutputPanel extends Component {
         const oldPage = this.props.currentPage;
         if (currentPage.id !== oldPage.id) {
             this.getCurrentData(currentPage.id, nextProps);
+            this.setState({
+                sync: true
+            })
         }
     }
 
@@ -878,7 +894,6 @@ export default class OutputPanel extends Component {
             panelColumn[index][type] = value;
         }
         if (type === "columnsText") {
-            this._syncEditor = false;
             //this.parseColumnsText(index,value)
         }
         const allParamsType = [
@@ -1092,8 +1107,10 @@ export default class OutputPanel extends Component {
             panelColumn,
             originOptionType,
             tableOptionType,
-            tableColumnOptionType
+            tableColumnOptionType,
+            sync
         } = this.state;
+        const { isShow } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse
@@ -1110,8 +1127,9 @@ export default class OutputPanel extends Component {
                                 className="input-panel"
                             >
                                 <OutputForm
+                                    isShow={(index + 1) == panelActiveKey && isShow}
                                     index={index}
-                                    sync={this._syncEditor}
+                                    sync={sync}
                                     handleInputChange={this.handleInputChange}
                                     panelColumn={panelColumn}
                                     originOptionType={originOptionType}
@@ -1123,6 +1141,11 @@ export default class OutputPanel extends Component {
                                     editorParamsChange={
                                         this.props.editorParamsChange
                                     }
+                                    textChange={() => {
+                                        this.setState({
+                                            sync: false
+                                        })
+                                    }}
                                 />
                             </Panel>
                         );
