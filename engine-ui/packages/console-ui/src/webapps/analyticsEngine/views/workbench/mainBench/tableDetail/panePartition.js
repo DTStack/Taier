@@ -34,6 +34,8 @@ export default class PanePartition extends Component{
       })
       this.setState({
         partitionParam: nextProps.dataList
+      },()=>{
+        console.log(this.state.partitionParam)
       })
     }else{
       this.setState({
@@ -95,6 +97,15 @@ export default class PanePartition extends Component{
   render(){
     // const {partitions} = this.props;
     const {paginationParams, dataList} = this.state;
+    const notStardCol = [
+      {
+        title: '分区模式',
+        dataIndex: 'type',
+      },{
+        title: this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:',
+        dataIndex: 'value'
+      }
+    ]
     const tableCol = [
       {
         title: '分区名',
@@ -120,10 +131,13 @@ export default class PanePartition extends Component{
             rowKey="partId"
             pagination={paginationParams}
             onChange={this.handleTableChange}></Table> || 
-            <span style={{display: 'block',marginLeft:20,marginBottom: 10}}>
-              <p>分区模式: {partMode[this.state.partitionParam.partitionType]}</p>
-              {this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:'}{this.state.partitionParam.partConfig}
-            </span>
+            <Table 
+            size="small"
+            columns={notStardCol}
+            dataSource={[
+              {type: partMode[this.props.tableDetail.partitionType],
+              value: this.state.partitionParam.partConfig}]}
+            rowKey="type"></Table>
         }
       </div>
     )
