@@ -1,8 +1,8 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect } from 'react-router'
+import { Route, IndexRoute } from 'react-router'
 
 import asyncComponent from 'utils/asyncLoad'
-
+import NotFund from 'widgets/notFund'
 
 // 继承主应用的的公共View组件
 import Main from 'main/views'
@@ -42,5 +42,6 @@ export default (
         <Route path="/workbench" component={ Container }>
             <IndexRoute component={ Workbench } />
         </Route>
+        <Route path="/*" component={NotFund} />
     </Route>
 )
