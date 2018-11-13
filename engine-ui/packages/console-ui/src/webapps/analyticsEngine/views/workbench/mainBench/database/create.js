@@ -83,6 +83,7 @@ class CreateDatabaseModal extends Component {
                 okText={databaseData ? '复制' : '确认'}
                 cancelText={databaseData ? '关闭' : '取消'}
                 onOk={this.onSubmit}
+                maskClosable={false}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
             >

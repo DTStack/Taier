@@ -510,6 +510,7 @@
             }
         }
     }
+
     .ant-table-small{
         border-left: none;
         border-right: none;
@@ -527,6 +528,7 @@
     }
     .ant-tabs{
         // height: 36px;
+
         .ant-tabs-content{
             height: auto;
             overflow: hidden;
@@ -537,7 +539,9 @@
                 background-color: #F5F5F5;
                 padding: 0;
             }
-
+            .ant-table-body{
+                overflow: scroll;
+            }
             .ant-table-small {
                 .ant-table-tbody {
                     tr{
@@ -546,6 +550,7 @@
                             padding: 7px 20px;
                             font-size: 12px;
                             color: #333333;
+                            white-space: nowrap;
                         }
                     }
                 }
@@ -558,6 +563,8 @@
                     span{
                         font-size: 12px;
                         font-weight: normal;
+                        white-space: nowrap;
+
                     }
                 }
             }

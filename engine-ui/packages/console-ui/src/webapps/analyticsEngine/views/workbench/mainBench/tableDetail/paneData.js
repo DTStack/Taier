@@ -174,7 +174,7 @@ console.log(dataList)
         <Table 
         size="small"
         columns={tableCol}
-        scroll={{x: 5000}}
+        scroll={true}
         dataSource={dataList}
         rowKey="partId"
         pagination={paginationParams}
