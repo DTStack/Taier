@@ -1295,9 +1295,9 @@ class EditCluster extends React.Component {
                                 // rules: [{
                                 //     message: "请输入learning.python2.path"
                                 // }],
-                                // initialValue: "/root/anaconda3/bin/python2"
+                                // initialValue: "/root/anaconda2/bin/python2"
                             })(
-                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
+                                <Input disabled={isView} placeholder="/root/anaconda2/bin/python2" />
                             )}
                         </FormItem>
                         <FormItem

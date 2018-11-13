@@ -6,6 +6,7 @@
         "baseUrl": ".",
         "paths": {
             "utils/*": ["./src/utils/*"], // 工具文件夹
+            "utils": ["./src/utils"], // 工具文件夹
             "widgets/*": ["./src/widgets/*"], // 工具文件夹
             "consts/*": ["./src/consts/*"], // 工具文件夹
             "funcs/*": ["./src/funcs/*"], // 零碎的公共方法，抽象成工具类的则移至utils目录
