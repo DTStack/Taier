@@ -24,7 +24,6 @@ import {
 import HelpDoc from '../../../helpDoc';
 import Editor from 'widgets/editor';
 
-import { matchTaskParams } from '../../../../comm';
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon";
 
 const FormItem = Form.Item;

@@ -135,6 +135,8 @@ const sourceMap = (state = {}, action) => {
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
             const { sourceId, splitPK, src, table, extTable = {} } = action.payload;
+            if (!src) return state;
+
             const { type } = src;
             const key = action.key;
             const clone = cloneDeep(state);
