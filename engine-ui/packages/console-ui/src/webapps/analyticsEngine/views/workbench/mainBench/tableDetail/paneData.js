@@ -62,11 +62,13 @@ export default class PaneData extends Component{
       })
     })
 
-    list.shift();
-    for(let item in list){
+    // list.shift();
+    let sh = list.slice(1);
+    for(let item in sh){
       let j = {};
       let row = [];
-      list[item].map((o,i)=>{
+      console.log(item)
+      sh[item].map((o,i)=>{
         let key = tableCol[i].dataIndex;
         j[key] = o && o.toString();
         row.push(j)
@@ -172,7 +174,7 @@ console.log(dataList)
         <Table 
         size="small"
         columns={tableCol}
-        scroll={{x: 2000}}
+        scroll={{x: 5000}}
         dataSource={dataList}
         rowKey="partId"
         pagination={paginationParams}

@@ -198,7 +198,7 @@ export function onTableDetail(params){
                 }
             }
             const tableDetail = {
-                id: moment().unix(),
+                id: res.data.id,
                 tabName: `${params.tableName}详情`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
@@ -277,13 +277,13 @@ export function handleSave(){
             params.lifeCycle = params.shortLisyCycle;
             // delete params.shortLisyCycle;
         }
-        params.partConfig = params.partitions.partConfig;
-        params.partitionType = params.partitions.partitionType;
-        params.partitions = params.partitions.columns;
+        // params.partConfig = params.partitions.partConfig;
+        // params.partitionType = params.partitions.partitionType;
+        // params.partitions = params.partitions.columns;
 
 
 
-        const res = await API.createTable(params)
+        const res = await API.createTable({...params,partConfig:params.partitions.partConfig,partitionType:params.partitions.partitionType,partitions:params.partitions.columns})
         if(res.code === 1){
             console.log('保存成功');
             const data = res.data;
@@ -298,11 +298,11 @@ export function handleSave(){
                 payload: data
             })
         }else{
-            params.partitions = {
-                partConfig: params.partConfig,
-                partitionType: params.partitionType,
-                columns: params.partitions
-            }
+            // params.partitions = {
+            //     partConfig: params.partConfig,
+            //     partitionType: params.partitionType,
+            //     columns: params.partitions
+            // }
             notification.error({
                 message: '提示',
                 description: res.message,
@@ -374,8 +374,8 @@ export function saveTableInfo(param){
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
         if(res.code === 1){
             message.success('修改成功')
-            dispatch(handleCancel());
-            dispatch(onEditTable({databaseId: tableDetail.databaseId,id:tableDetail.id, tableName}))
+            // dispatch(handleCancel());
+            dispatch(toTableDetail({databaseId: tableDetail.databaseId,id:tableDetail.id}))
         }else{
             notification.error({
                 message: '提示',

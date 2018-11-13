@@ -34,6 +34,10 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 if (!isExist) {
                     tabs.push(payload);
                 }
+                tabs.map((o,i)=>{
+                    if(o.id === payload.id)
+                        tabs[i] = payload
+                })
                 // TODO 若tabs已存在新传入的payload, 则tabs拷贝多余
                 const newStore = assign({}, state, {
                     currentTab: payload.id,

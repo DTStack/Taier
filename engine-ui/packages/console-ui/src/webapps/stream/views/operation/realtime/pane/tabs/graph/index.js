@@ -229,7 +229,7 @@ class StreamDetailGraph extends React.Component {
         return (
             <div className="pane-graph-box">
                 <header className="graph-header" style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
-                    <Button onClick={this.initData.bind(this, null)} tyle="primary">刷新</Button>
+                    <Button onClick={this.initData.bind(this, null)} type="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
                         <RadioGroup
                             className="no-bd nobackground"
