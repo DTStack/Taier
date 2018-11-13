@@ -591,6 +591,7 @@
         }
     }
     .table-detail-panel{
+        .ant-table td { white-space: nowrap; }
         padding: 0 20px 0 21px;
         margin-top: 27px;
         margin-bottom: 31px;

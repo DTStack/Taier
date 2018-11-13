@@ -404,7 +404,7 @@ export function toTableDetail(params){
                 }
             }
             let newTabData = {
-                id: moment().unix(),
+                id: res.data.id,
                 tabName: `${res.data.tableName}详情`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
