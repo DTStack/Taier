@@ -145,6 +145,7 @@ class OfflineTaskList extends Component {
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
+                res.data.data=res.data.data||[];
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 for(let i=0;i<res.data.data.length;i++){
                     let job=res.data.data[i];

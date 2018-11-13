@@ -198,7 +198,7 @@ export function onTableDetail(params){
                 }
             }
             const tableDetail = {
-                id: moment().unix(),
+                id: res.data.id,
                 tabName: `${params.tableName}详情`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
@@ -229,6 +229,13 @@ export function handleSave(){
                 params = o.tableItem;
             }
         })
+        if(params.partitions.partitionType !== 0 && !params.partitions.partConfig){
+            notification.error({
+                message: '提示',
+                description: params.partitions.partitionType === 1?'分区数量不能为空':params.partitions.partitionType === 2?'分区范围不能为空':'分区名称不能为空'
+            })
+            return;
+        }
         if(!params.bucketInfo.bucketNumber && (params.bucketInfo.infos && params.bucketInfo.infos.length !== 0)){
             notification.error({
                 message: '提示',
@@ -250,7 +257,7 @@ export function handleSave(){
         else    stopFlag = false;
 
         params.partitions.columns.map(o=>{
-            if((o.name==='' && o.type!=='') || (o.name!=='' && o.type==='')){
+            if(o.name === '' || o.type === ''){
                 notification.error({
                     message: '提示',
                     description: '分区名称与分区类型不可为空'
@@ -270,13 +277,13 @@ export function handleSave(){
             params.lifeCycle = params.shortLisyCycle;
             // delete params.shortLisyCycle;
         }
-        params.partConfig = params.partitions.partConfig;
-        params.partitionType = params.partitions.partitionType;
-        params.partitions = params.partitions.columns;
+        // params.partConfig = params.partitions.partConfig;
+        // params.partitionType = params.partitions.partitionType;
+        // params.partitions = params.partitions.columns;
 
 
 
-        const res = await API.createTable(params)
+        const res = await API.createTable({...params,partConfig:params.partitions.partConfig,partitionType:params.partitions.partitionType,partitions:params.partitions.columns})
         if(res.code === 1){
             console.log('保存成功');
             const data = res.data;
@@ -291,11 +298,11 @@ export function handleSave(){
                 payload: data
             })
         }else{
-            params.partitions = {
-                partConfig: params.partConfig,
-                partitionType: params.partitionType,
-                columns: params.partitions
-            }
+            // params.partitions = {
+            //     partConfig: params.partConfig,
+            //     partitionType: params.partitionType,
+            //     columns: params.partitions
+            // }
             notification.error({
                 message: '提示',
                 description: res.message,
@@ -331,10 +338,21 @@ export function saveTableInfo(param){
         })
 
         console.log(tableDetail)
-        const {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
+        let {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
+        let stopFlag = false;
         columns.map(o=>{
-            delete o._fid
+            if((!o.name || o.name === '' || !o.type) && !stopFlag){
+                notification.error({
+                    message: '提示',
+                    description: '字段名称与字段类型不可为空'
+                })
+                stopFlag = true;
+            }
         })
+        if(stopFlag) return;
+
+        lifeDay = lifeDay === -1? tableDetail.shortLisyCycle:lifeDay;
+
         let flag = [];
         columns.map(o=>{
             if(o.isNew){
@@ -344,7 +362,9 @@ export function saveTableInfo(param){
                     invert: o.invert,
                     name: o.name,
                     sortColumn: o.sortColumn,
-                    type: o.type
+                    type: o.type,
+                    precision: o.precision || null,
+                    scale: o.scale || null,
                 })
             }
         })
@@ -354,9 +374,8 @@ export function saveTableInfo(param){
         const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
         if(res.code === 1){
             message.success('修改成功')
-            return dispatch({
-                type: workbenchAction.TABLE_INFO_MOTIFIED
-            })
+            // dispatch(handleCancel());
+            dispatch(toTableDetail({databaseId: tableDetail.databaseId,id:tableDetail.id}))
         }else{
             notification.error({
                 message: '提示',
@@ -385,7 +404,7 @@ export function toTableDetail(params){
                 }
             }
             let newTabData = {
-                id: moment().unix(),
+                id: res.data.id,
                 tabName: `${res.data.tableName}详情`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,

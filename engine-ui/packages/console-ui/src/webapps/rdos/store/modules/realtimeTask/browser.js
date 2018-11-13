@@ -235,7 +235,7 @@ export function pages(state = defaultPages, action) {
                 return newPage.id === item.id
             })
             if (index > -1) {
-                newState[index] = cloneDeep(Object.assign(state[index], newPage))
+                newState[index] = cloneDeep(Object.assign({},state[index], newPage))
             }
             return newState
         }

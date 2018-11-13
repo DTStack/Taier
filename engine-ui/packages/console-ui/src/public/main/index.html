@@ -162,7 +162,6 @@
     <script type="text/javascript" src="/public/main/config/config.js"></script>
     <script>
         if (navigator.serviceWorker!=null) {
-                console.log("main");
                 const version="sw_version_1";
                 navigator.serviceWorker.register("/sw.js")
                 .then(function(registration){

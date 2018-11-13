@@ -6,7 +6,7 @@ import CopyIcon from "main/components/copy-icon";
 
 import Editor from 'widgets/editor';
 
-import { DDL_placeholder } from "../../../../comm/DDLCommon"
+import { DDL_placeholder_anly } from "../../../../comm/DDLCommon"
 import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 
@@ -184,7 +184,10 @@ export default class StepOne extends Component{
                 ],
                 initialValue: formData.databaseId || undefined
               })(
-                  <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 570,marginRight:10}}>
+                  <Select 
+                    placeholder="请选择数据库"
+                    getPopupContainer={triggerNode => triggerNode.parentNode} 
+                    style={{width: 570,marginRight:10}}>
                   {
                     databaseList.map(o=>(
                       <Option key={o.id} value={o.id}>{o.name}</Option>
@@ -212,9 +215,9 @@ export default class StepOne extends Component{
           {...formItemLayout}
           label="描述">
             {
-              getFieldDecorator('desc',{
+              getFieldDecorator('tableDesc',{
                 rules: [],
-                initialValue: formData.desc || undefined
+                initialValue: formData.tableDesc || undefined
               })(
                 <Input.TextArea style={{width: 570,marginRight:10,height: 90 }} placeholder="请输入描述信息"/>
               )
@@ -402,12 +405,12 @@ export default class StepOne extends Component{
         onOk={this.handleDDLCreateTable}
         onCancel={this.handleCancel}
         title={(
-          <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
+          <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder_anly} /></span>
         )}
         maskClosable={false}>
             <Editor
                 style={{ height: "400px" }}
-                placeholder={DDL_placeholder}
+                placeholder={DDL_placeholder_anly}
                 options={{readOnly:false}}
                 language="dtsql"
                 options={{ readOnly: false } }

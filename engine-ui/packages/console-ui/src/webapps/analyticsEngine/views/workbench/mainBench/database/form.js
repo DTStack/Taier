@@ -62,7 +62,7 @@ class DatabaseForm extends Component {
                         ],
                         initialValue: databaseData ? databaseData.name : ""
                     })(<Input
-                        placeholder="请输入数据库名(字母、数字、下划线组成,20个字符以内)"
+                        placeholder="请输入数据库名"
                         autoComplete="off" 
                         disabled={!isCreate} 
                     />)}
@@ -85,7 +85,7 @@ class DatabaseForm extends Component {
                         ],
                         initialValue: databaseData ? databaseData.dbUserName : ""
                     })(<Input 
-                        placeholder="请输入用户名(DBC访问数据库的用户名)"
+                        placeholder="请输入用户名（JDBC访问数据库的用户名）"
                         disabled={!isCreate}
                     />)}
                 </FormItem>
@@ -123,7 +123,7 @@ class DatabaseForm extends Component {
                             }
                         ],
                         initialValue: '',
-                    })(<Input placeholder="请输入用户名(DBC访问数据库的密码" type="password" />)}
+                    })(<Input placeholder="请输入密码（JDBC访问数据库的密码）" type="password" />)}
                 </FormItem>
                 <FormItem {...formItemLayout} label="确认密码" hasFeedback>
                     {getFieldDecorator("confirmPassword", {

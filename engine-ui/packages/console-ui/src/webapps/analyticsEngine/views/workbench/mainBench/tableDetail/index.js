@@ -1,16 +1,73 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import { Button, Tabs, Row} from 'antd';
+import API from '../../../../api'
+import { Button, Tabs, Row,notification} from 'antd';
 
 import PaneData from './paneData';
 import PaneField from './paneField';
 import PaneIndex from './paneIndex';
 import PanePartition from './panePartition';
+import PaneBucket from './paneBucket';
 
 const TabPane = Tabs.TabPane;
 
 
 class TableDetail extends Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            previewList: [],
+            partitionsList: [],
+        }
+    }
+    handleTabsChange = (e)=>{
+        if(e === '4'){
+            this.getData();
+        }else if(e === '2'){
+            this.getPartitionsData();
+        }
+    }
+    getData = ()=>{
+        this.setState({
+            previewList: []
+        })
+        API.getPreviewData({
+        tableId: this.props.data.tableDetail.id,
+        databaseId: this.props.data.tableDetail.databaseId,
+        }).then(res=>{
+        if(res.code === 1){
+            this.state.previewList = res.data;
+            this.setState({
+                previewList: this.state.previewList
+            })
+        }else{
+            notification.error({
+            title: '提示',
+            description: res.message
+            })
+        }
+        })
+    }
+
+    getPartitionsData = ()=>{
+    API.getTablePartiton({
+      tableId: this.props.data.tableDetail.id,
+      pageIndex: 1,
+      pageSize: 10
+    }).then(res=>{
+      if(res.code === 1){
+        this.setState({
+            partitionsList: this.props.data.tableDetail.partitionType === 0?res.data.data:res.data
+        })
+      }else{
+        notification.error({
+          title: '提示',
+          description: res.message
+        })
+      }
+    })
+  }
+
 
     render () {
         const tableDetail = this.props.data.tableDetail || {}
@@ -28,18 +85,23 @@ class TableDetail extends Component {
             },{
                 title: <span style={{fontSize: 12}}>分区信息</span>,
                 key: '2',
-                content: <PanePartition tableDateil={tableDetail}/>
+                content: <PanePartition dataList={this.state.partitionsList || []} tableDetail={tableDetail}/>
+            },{
+                title: <span style={{fontSize: 12}}>分桶信息</span>,
+                key: '3',
+                content: <PaneBucket data={tableDetail.bucketInfo || {}}></PaneBucket>
             },{
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
-                content: <PaneData  tableDateil={tableDetail}/>
+                content: <PaneData data={this.state.previewList}  tableDateil={tableDetail}/>,
+
             }
         ]
         return (
             <div className="table-detail-container pane-wrapper">
                 <Row className="table-detail-panel">
                     <div className="func-box">
-                        <span className="title" style={{fontWeight: 'bold'}}>数据库信息</span>
+                        <span className="title" style={{fontWeight: 'bold'}}>表信息</span>
                         <Button className="btn" type="primary"
                             onClick={() => onGenerateCreateSQL({
                                 tableId: tableDetail.id,
@@ -117,10 +179,10 @@ class TableDetail extends Component {
                 </Row>
                 <Row className="tabs-row" style={{marginBottom: 40}}>
                     <div className="tabs-container">
-                    <Tabs type="card"  >
+                    <Tabs type="card" onChange={this.handleTabsChange}>
                         {
                             tabsData.map(o=>(
-                                <TabPane tab={o.title} key={o.key}>{o.content}</TabPane>
+                                <TabPane forceRender={true} tab={o.title} key={o.key}>{o.content}</TabPane>
                             ))
                         }
                     </Tabs>

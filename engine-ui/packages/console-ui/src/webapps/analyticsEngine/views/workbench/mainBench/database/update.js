@@ -74,6 +74,7 @@ class UpdateDatabaseModal extends Component {
                 okText={databaseData ? '确认复制' : '重置'}
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
+                maskClosable={false}
             >   
                 {
                     databaseData ? 

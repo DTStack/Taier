@@ -20,9 +20,11 @@ export default function mainBench(state = getInitialCachedData(), action) {
     switch (type) {
 
         case workbenchAction.SWITCH_TAB: {
-            return assign({}, state, {
+            const nextStore = assign({}, state, {
                 currentTab: payload,
-            })
+            });
+            localDb.set(workbenchStoreKey, nextStore);
+            return nextStore;
         }
 
         case workbenchAction.OPEN_TAB: {
@@ -32,6 +34,10 @@ export default function mainBench(state = getInitialCachedData(), action) {
                 if (!isExist) {
                     tabs.push(payload);
                 }
+                tabs.map((o,i)=>{
+                    if(o.id === payload.id)
+                        tabs[i] = payload
+                })
                 // TODO 若tabs已存在新传入的payload, 则tabs拷贝多余
                 const newStore = assign({}, state, {
                     currentTab: payload.id,
@@ -128,7 +134,15 @@ export default function mainBench(state = getInitialCachedData(), action) {
         case workbenchAction.TABLE_INFO_MOTIFIED: {
             //保存完成
             console.log('新的表信息已保存')
+            console.log(payload)
             
+            let tabData = {};
+            state.tabs.map(o=>{
+                if(o.id === state.currentTab){
+                    tabData = o;
+                }
+            })
+            tabData.tableDetail = payload;
             const newStore = assign({}, state);
             return newStore;
         }

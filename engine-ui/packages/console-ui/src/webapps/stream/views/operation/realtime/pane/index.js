@@ -58,7 +58,7 @@ class TaskDetailPane extends React.Component {
             paddingBottom: "1px"
         }
         const runCodeView = (
-            <TabPane style={scrollStyle} tab="运行代码" key="runCode">
+            <TabPane style={scrollStyle} tab="属性参数" key="runCode">
                 <RunCode isShow={tabKey == "runCode"} data={data} />
             </TabPane>
         )

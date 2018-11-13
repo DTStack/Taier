@@ -3,6 +3,7 @@ import {Table,notification} from 'antd'
 import API from '../../../../api'
 import moment from 'moment'
 
+const partMode = ['标准','Hash','Range','List']
 export default class PanePartition extends Component{
 
   constructor(props){
@@ -14,16 +15,34 @@ export default class PanePartition extends Component{
         pageSize: 10
       },
       dataList: [],
+      partitionParam: {},
+      notStard: false,
     }
   }
   componentDidMount(){
-    this.getData();
+    // this.getData();
     // this.initData(this.props)
+    
   }
 
   componentWillReceiveProps(nextProps){
     // this.initData(nextProps)
-    this.getData();
+    // this.getData();
+    if(nextProps.tableDetail.partitionType !== 0){
+      this.setState({
+        notStard: true
+      })
+      this.setState({
+        partitionParam: nextProps.dataList
+      },()=>{
+        console.log(this.state.partitionParam)
+      })
+    }else{
+      this.setState({
+        dataList: nextProps.dataList,
+        total: nextProps.dataList.length
+      })
+    }
   }
 
   // initData = (props) => {
@@ -41,7 +60,7 @@ export default class PanePartition extends Component{
 
   getData = ()=>{
     API.getTablePartiton({
-      tableId: this.props.tableDateil.id,
+      tableId: this.props.tableDetail.id,
       pageIndex: this.state.paginationParams.current,
       pageSize: this.state.paginationParams.pageSize
     }).then(res=>{
@@ -78,6 +97,15 @@ export default class PanePartition extends Component{
   render(){
     // const {partitions} = this.props;
     const {paginationParams, dataList} = this.state;
+    const notStardCol = [
+      {
+        title: '分区模式',
+        dataIndex: 'type',
+      },{
+        title: this.props.tableDetail.partitionType === 1?'分区数量：':this.props.tableDetail.partitionType === 2?'范围：':'分区名称:',
+        dataIndex: 'value'
+      }
+    ]
     const tableCol = [
       {
         title: '分区名',
@@ -86,7 +114,7 @@ export default class PanePartition extends Component{
         title: '更新时间',
         dataIndex: 'lastDDLTime',
         render: (text,record)=>{
-          return moment(text).format('YYYY-MM-DD')
+          return moment(record.lastDDLTime * 1000).format('YYYY-MM-DD')
         }
       },{
         title: '存储量',
@@ -95,13 +123,22 @@ export default class PanePartition extends Component{
     ]
     return(
       <div className="partition-container">
-        <Table 
-        size="small"
-        columns={tableCol}
-        dataSource={dataList}
-        rowKey="partId"
-        pagination={paginationParams}
-        onChange={this.handleTableChange}></Table>
+        {
+          !this.state.notStard &&  <Table 
+            size="small"
+            columns={tableCol}
+            dataSource={dataList}
+            rowKey="partId"
+            pagination={paginationParams}
+            onChange={this.handleTableChange}></Table> || 
+            <Table 
+            size="small"
+            columns={notStardCol}
+            dataSource={[
+              {type: partMode[this.props.tableDetail.partitionType],
+              value: this.state.partitionParam.partConfig}]}
+            rowKey="type"></Table>
+        }
       </div>
     )
   }

@@ -53,7 +53,7 @@ export const blockSize = (
 )
 export const marjorCompactionSize = (
     <div>
-        <p>segments 大小总和低于此阈值的将会被合并，默认为512MB。</p>
+        <p>segment大小总和低于此阈值的将会被合并，默认为512MB。</p>
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
@@ -64,14 +64,14 @@ export const autoLoadMerge = (
 )
 export const compactionLevelThreshold = (
     <div>
-        <p>该属性在 minor compaction 时使用，决定要合并多少个 segments。比如：如果将这个属性设置为 2, 3，那么每 2 个 segments 会触发一次 Level 1 的 minor compaction。每 3 个 Level 1 的 compacted segment 将会进一步压缩成新的 segment。
+        <p>该属性在 minor compaction 时使用，决定要合并多少个 segment。比如：如果将这个属性设置为 2, 3，那么每 2 个 segment 会触发一次 Level 1 的 minor compaction。每 3 个 Level 1 的 compacted segment 将会进一步压缩成新的 segment。
 默认值为4,3，2个数字中间用英文逗号隔开。</p>
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
 export const compactionPreserveSegments = (
     <div>
-        <p>如果需要避免一些 segments 被压缩，可以通过设置这个参数。比如设置为2，那么 2 个最新的 segments 总是被排除在压缩之外。默认为0，即没有 segments 被保留。</p>
+        <p>如果需要避免一些 segment 被压缩，可以通过设置这个参数。比如设置为2，那么 2 个最新的 segment 总是被排除在压缩之外。默认为0，即没有 segment 被保留。</p>
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
@@ -83,7 +83,7 @@ export const allowedCompactionDays = (
 )
 export const compressMode = (
     <div>
-        <p>Major：在系统空闲时自动合并segments</p>
+        <p>Major：在系统空闲时自动合并segment</p>
         <p>Minor：在每次插入数据时合并segment</p>
     </div>
 )
@@ -91,4 +91,10 @@ export const decimalType = (
     <div>
         <p>type(precision,scale);presicion:数字总长度，最大为38；scale：小数点之后的位数</p>
     </div>
+)
+
+export const selectSQL = (
+    <span>
+        支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理
+    </span>
 )

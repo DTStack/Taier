@@ -41,7 +41,7 @@ class AlarmHistory extends React.Component {
         const reqParams = {
             ...pagination,
             pageIndex: pagination.current,
-            taskName: data.name,
+            taskId: data.id,
             startTime: times.length ? times[0].valueOf() : undefined,
             endTime: times.length ? times[1].valueOf() : undefined,
         }
@@ -67,7 +67,7 @@ class AlarmHistory extends React.Component {
                 ...this.state.pagination,
                 current: pagination.current,
             }
-        }, this.loadAlarmRules)
+        }, this.loadAlarms)
     }
     changeTimes(times) {
         this.setState({

@@ -173,7 +173,7 @@ class AlarmForm extends Component {
                         })(
                             <Select
                               showSearch
-                              style={{ width: 126 }}
+                              style={{ width: 200 }}
                               placeholder="任务任务"
                               optionFilterProp="name"
                             >
@@ -274,7 +274,7 @@ class AlarmForm extends Component {
                               showSearch
                               mode="multiple"
                               size='Default'
-                              style={{ width: 126 }}
+                              style={{ width: 200 }}
                               placeholder="请选择接收人"
                               optionFilterProp="name"
                             >

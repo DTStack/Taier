@@ -43,7 +43,8 @@ class RealTimeTaskList extends Component {
         goOnTask: '',
         logInfo: '',
         overview: {},
-        taskTypes: []
+        taskTypes: [],
+        sorter: {}
     }
 
     componentDidMount() {
@@ -77,7 +78,7 @@ class RealTimeTaskList extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            if(!this.state.taskTypes||!this.state.taskTypes.length){
+            if (!this.state.taskTypes || !this.state.taskTypes.length) {
                 this.loadTaskTypes();
             }
             this.setState({
@@ -111,7 +112,7 @@ class RealTimeTaskList extends Component {
     searchTask = (query) => {
         this.setState({
             taskName: query,
-        }, ()=>{
+        }, () => {
             this.loadTaskList();
             this.loadCount();
         })
@@ -157,18 +158,26 @@ class RealTimeTaskList extends Component {
             continue: e.target.value,
         });
     }
-
+    exchangeOrderKey(key) {
+        const orderMap = {
+            gmtModified: "gmt_modified"
+        }
+        return orderMap[key];
+    }
     loadTaskList(params, isSilent) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
         if (!isSilent || typeof isSilent != "boolean") {
             this.setState({ loading: true })
         }
+        const { sorter = {}, current, pageSize } = ctx.state;
         const reqParams = Object.assign({
-            currentPage: 1,
+            currentPage: current,
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
-            statusList: this.state.filter
+            statusList: this.state.filter,
+            orderBy: this.exchangeOrderKey(sorter.columnKey),
+            sort: utils.exchangeOrder(sorter.order)
         }, params)
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
@@ -234,7 +243,7 @@ class RealTimeTaskList extends Component {
                     id: task.id,
                 }).then((res) => {
                     if (res.code === 1) {
-                        message.success('任务已执行停止！')
+                        message.success('任务正在停止！')
                         ctx.loadTaskList({ pageIndex: current })
                         ctx.loadCount();
                     }
@@ -258,16 +267,18 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    handleTableChange = (pagination, filters) => {
-        const {location} = this.props.router;
-        if(location.state){
+    handleTableChange = (pagination, filters, sorter) => {
+        const { location } = this.props.router;
+        if (location.state) {
             hashHistory.replace({
-                pathname:location.pathname
+                pathname: location.pathname
             })
         }
+        this.closeSlidePane();
         this.setState({
             current: pagination.current,
-            filter: filters.status
+            filter: filters.status,
+            sorter: sorter
         }, this.loadTaskList.bind(this))
     }
 
@@ -289,7 +300,7 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    openTask= (task) => {
+    openTask = (task) => {
         this.props.dispatch(BrowserAction.openPage({
             id: task.id,
         }))
@@ -332,7 +343,7 @@ class RealTimeTaskList extends Component {
             dataIndex: 'bizDelay',
             key: 'bizDelay',
             width: 150,
-            render(text){
+            render(text) {
                 return `${text}s`
             }
         }, {
@@ -354,7 +365,7 @@ class RealTimeTaskList extends Component {
             key: 'gmtModified',
             width: 150,
             render: text => utils.formatDateTime(text),
-            sorter: (a, b) => a.gmtModified - b.gmtModified,
+            sorter: true
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUserName',
@@ -445,7 +456,7 @@ class RealTimeTaskList extends Component {
             >
                 {recover}
             </Popconfirm>)
-            
+
             /**
              * 在每个按钮之间插入间隔符
              */
@@ -469,18 +480,19 @@ class RealTimeTaskList extends Component {
             goOnTask: ''
         })
     }
-    goOnTaskSuccess=()=>{
+    goOnTaskSuccess = () => {
         this.hideGoOnTask();
         this.loadTaskList()
         this.loadCount()
     }
     render() {
-        const { tasks, logInfo, selectTask, overview } = this.state
+        const { tasks, logInfo, selectTask, overview, current } = this.state
         const dataSource = tasks.data || [];
         const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 20,
+            pageSize: 20,
+            current:current
         };
         return (
             <div className="box-1 m-card">
@@ -501,7 +513,7 @@ class RealTimeTaskList extends Component {
                     }
                     extra={
                         <Tooltip title="刷新数据">
-                            <Icon type="sync" onClick={()=>{
+                            <Icon type="sync" onClick={() => {
                                 this.loadCount();
                                 this.loadTaskList()
                             }}

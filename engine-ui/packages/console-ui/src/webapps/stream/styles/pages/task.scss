@@ -266,13 +266,13 @@
                 flex-grow: 0;
                 flex-shrink: 0;
                 border-bottom: 1px solid #E8E8E8;
-                line-height: 35px;
+                line-height: 32px;
                 text-align: right;
                 font-size: 18px;
                 z-index: 999;
                 background: #ffffff;
                 padding-right: 15px;
-                padding-top:10px;
+                padding-top: 5px;
                 padding-bottom: 5px;
                 
                 .anticon {
@@ -452,7 +452,6 @@
 
 .dt-dev-task .task-editor {
     position: absolute;
-    padding-bottom: 35px;
     background: #f2f3f8;
     top: 0;
     bottom:0;
@@ -467,13 +466,15 @@
     }
 
     .browser-content {
-        height: 100%;
-        width: 100%;
-        position: relative;
+        position: absolute;
         padding-right: 30px;
-        padding-bottom: 30px;
+        padding-bottom: 40px;
         background: #FAFAFA;
+        bottom: 0;
+        top: 0;
+        width: 100%;
         border-top: 1px solid #dddddd;
+
         .browser-tabs {
 
             .ant-tabs-nav-container{
@@ -525,11 +526,8 @@
             font-size: 14px;
         }
        
-        .m-scheduling{
-            .ant-collapse-content > .ant-collapse-content-box {
-                padding-top: 16px;
-                padding-bottom: 0;
-            }
+        .m-scheduling {
+         
             .schedule-form{//改变右侧form表单之间的间距
                 .ant-form-item {
                     font-size: 12px;
@@ -546,8 +544,7 @@
         }
     }
 
-
-    .toolbar {
+    .workbench-toolbar {
 
         width: 100%;
         padding: 6px 20px;
@@ -609,20 +606,23 @@
             border-top: 1px solid #e9e9e9;
             border-bottom: 1px solid #e9e9e9;
         }
-
-        .ant-tabs-bar {
-            margin-bottom: 1px;
-            border-bottom: 0;
-            border-radius: 0px;
-            margin-left: -1px;
-            border-left: none;
-        }
-
-        .ant-tabs-content {
-            height: 0px;
-            min-height: 0px;
-            border-bottom: 0px;
-            background: #fff;
+        .browser-content {
+            &>.ant-tabs {
+                .ant-tabs-bar {
+                    margin-bottom: 1px;
+                    border-bottom: 0;
+                    border-radius: 0px;
+                    margin-left: -1px;
+                    border-left: none;
+                }
+        
+                .ant-tabs-content {
+                    height: 0px;
+                    min-height: 0px;
+                    border-bottom: 0px;
+                    background: #fff;
+                }
+            }
         }
         .m-siderbench {
             width: 30px;
@@ -1022,11 +1022,24 @@
     padding: 0;
 }
 
-.padding-r0 .ant-tabs-vertical.ant-tabs-right > .ant-tabs-content {
-    padding-right:0px;
-    border-radius: 0px;
-    border-left: 1px solid #e9e9e9;
+.padding-r0 .ant-tabs-vertical {
+
+    &>.ant-tabs-bar {
+        margin-bottom: 1px;
+        border-bottom: 0;
+        border-radius: 0;
+        margin-left: -1px;
+        border-left: none;
+    }
+    
+    &>.ant-tabs-content {
+        padding-right:0px;
+        border-radius: 0px;
+        border-left: 1px solid #e9e9e9;
+        background: #ffffff;
+    }
 }
+
 
 .clear-offset .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline):not(.ant-btn-icon-only) .anticon{
     margin-left:0px;

@@ -100,10 +100,19 @@ const utils = {
     formatDateHours: function(timestap) {
         moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm");
+        
+    },
+    formatDayHours: function(timestap) {
+        moment.locale("zh-cn");
+        return moment(timestap).format("MM-DD HH:mm");
     },
     formatHours: function(timestap) {
         moment.locale("zh-cn");
         return moment(timestap).format("HH:mm");
+    },
+    formatMinute: function(timestap) {
+        moment.locale("zh-cn");
+        return moment(timestap).format("HH:mm:ss");
     },
 
     /**
@@ -204,6 +213,9 @@ const utils = {
      * @param {格式化占位符} space
      */
     jsonFormat(text, space) {
+        if(!text){
+            return text
+        }
         try {
             
             const json = JSON.parse(text);

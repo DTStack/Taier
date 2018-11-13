@@ -95,7 +95,7 @@ export default class TaskVersion extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{ marginBottom: 16 }}>
                 <Table
                     className="m-table"
                     rowKey="id"

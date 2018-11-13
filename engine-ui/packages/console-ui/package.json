@@ -4,6 +4,7 @@
   "description": "DTinsight Makes data produce value.",
   "main": "src/app.js",
   "dependencies": {
+    "@types/lodash": "^4.14.118",
     "antd": "2.13.14",
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",

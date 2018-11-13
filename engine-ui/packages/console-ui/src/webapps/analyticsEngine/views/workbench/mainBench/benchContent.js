@@ -53,6 +53,7 @@ class BenchContent extends Component {
                 return <DataMap
                     isCreate={true}
                     loadCatalogue={props.loadCatalogue}
+                    onGetDataMap={props.onGetDataMap}
                     onGenerateCreateSQL={props.onGenerateCreateSQL}
                     data={tabData} 
                 />

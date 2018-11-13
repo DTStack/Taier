@@ -93,7 +93,16 @@ class TaskParams extends React.Component {
             customItems: customArr
         }
     }
+    renderNothing(text){
+        return (
+            <p style={{
+                textAlign:"center",
+                fontSize:"14px",
+                color:"#a1a1a1",
 
+            }}>{text||'无参数'}</p>
+        )
+    }
     render() {
         const {tabData, isPro, couldEdit} = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
@@ -107,13 +116,13 @@ class TaskParams extends React.Component {
                             系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />
                         </span>
                     }>
-                        {formItems.sysItems}
+                        {formItems.sysItems.length?formItems.sysItems:this.renderNothing("无系统参数")}
                     </Panel>
                     <Panel key="2" header={
                         <span>自定义参数配置 <HelpDoc style={{position: 'inherit'}} doc="customParams" />
                         </span>
                     }>
-                        {formItems.customItems}
+                        {formItems.customItems.length?formItems.customItems:this.renderNothing("无自定义参数")}
                     </Panel>
                 </Collapse>
             </Form>

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Row, Table, Button, Input, Form, Select, Icon,Checkbox, message, notification, Modal} from 'antd';
 import API from '../../../../api';
+import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 const confirm = Modal.confirm;
 
@@ -64,12 +65,14 @@ const field_types = [
   }
 ]
 
+const decimalPrecision = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]
+const decimalScale = [0,1,2,3,4,5,6,7,8,9]
 
 export default class EditTable extends Component{
   constructor(props){
     super(props)
     this.state = {
-      customLifeCycle: 0,
+      customLifeCycle: '',
       short: false,
       tableDetail: {columns:[]},
     }
@@ -78,28 +81,21 @@ export default class EditTable extends Component{
     const { tableDetail } = this.props.data;
     tableDetail.columns = tableDetail.columns || [];
     tableDetail.partitions = tableDetail.partitions || [];
+    console.log(tableDetail.lifeDay)
+    console.log([3,7,30,90,365].indexOf(tableDetail.lifeDay))
     if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      this.state.customLifeCycle = tableDetail.lifeDay
-      tableDetail.lifeDay === -1;
+      tableDetail.shortLisyCycle = tableDetail.lifeDay
+        this.state.customLifeCycle = tableDetail.shortLisyCycle
+        tableDetail.lifeDay = -1;
+        this.setState({
+          short: true
+        })
     }
 
     this.setState({
       tableDetail: tableDetail
-    })
-  }
-  componentWillReceiveProps(nextProps){
-    const { tableDetail } = nextProps.data;
-
-    tableDetail.columns = tableDetail.columns || [];
-    tableDetail.partitions = tableDetail.partitions || [];
-
-    if([3,7,30,90,365].indexOf(tableDetail.lifeDay) === -1){
-      tableDetail.lifeDay === -1;
-      this.state.customLifeCycle = tableDetail.lifeDay
-    }
-
-    this.setState({
-      tableDetail: tableDetail
+    },()=>{
+      console.log(tableDetail)
     })
   }
   saveInfo = ()=>{
@@ -107,9 +103,9 @@ export default class EditTable extends Component{
     form.validateFields((err,value)=>{
       console.log(value)
       if(!err){
-        if(value.lifeDay === -1){
-          value.lifeDay = this.state.customLifeCycle;
-        }
+        // if(value.lifeDay === -1){
+        //   value.lifeDay = this.state.customLifeCycle;
+        // }
         console.log(value)
       }
     })
@@ -164,14 +160,15 @@ export default class EditTable extends Component{
         if(o._fid>_fid)
           _fid = o._fid
       })
+      console.log(_fid)
       tableDetail.columns.push({
         _fid: _fid + 1,
         name: '',
         type: '',
         comment: '',
         invert: 1,
-        dictionary: 0,
-        sortColumn: 0,
+        dictionary: 1,
+        sortColumn: 1,
         isNew: true
       })
       this.setState({
@@ -234,8 +231,9 @@ export default class EditTable extends Component{
       return
 
 
+      // console.log(!list[list.indexOf(record)+1].isNew)
     //只可以在新增行中上下移动
-    if((flag === 2 && (!list[list.indexOf(record)+1].isNew)) || (flag === 1 && (!list[list.indexOf(record)-1].isNew))){
+    if((type === 2 && (!list[list.indexOf(record)+1].isNew)) || (type === 1 && (!list[list.indexOf(record)-1].isNew))){
       return;
     }
 
@@ -278,6 +276,12 @@ export default class EditTable extends Component{
     this.saveDataToStorage();
   }
 
+  handleLifeDayCusChange = (e)=>{
+    let {tableDetail} = this.state;
+    tableDetail.shortLisyCycle = e.target.value;
+    this.saveDataToStorage();
+  }
+
 
   /**
    * 保存输入的值
@@ -292,6 +296,17 @@ export default class EditTable extends Component{
       value: tableDetail.partitions
     }])
   }
+
+
+  handleDECIMALSelectChange = (e,record,flag)=>{
+    if(flag === 1){
+      record.precision = e
+    }else{
+      record.scale = e;
+    }
+    this.saveDataToStorage();
+  }
+
 
 
   render(){
@@ -312,11 +327,38 @@ export default class EditTable extends Component{
         dataIndex: 'type',
         render: (text,record)=>{
           if(record.isNew){
-            return <Select getPopupContainer={triggerNode => triggerNode.parentNode} style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
-                {field_types.map(o=>{
-                  return <Option key={o.value} value={o.value}>{o.name}</Option>
-                })}
-              </Select>
+            if(record.type === 'DECIMAL'){
+              return  <span>
+                    <Select  style={{width: 90,marginRight: 5}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+                      {field_types.map(o=>{
+                        return <Option key={o.value} value={o.value}>{o.name}</Option>
+                      })}
+                    </Select>
+                    <span>
+                      <Select style={{width: 50,marginRight: 5}}  defaultValue={record.precision?record.precision:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,1)}>
+                        {
+                          decimalPrecision.map(o=>{
+                            return <Option key={o} value={o}>{o}</Option>
+                          })
+                        }
+                      </Select>
+                      <Select style={{width: 50,marginRight: 5}}  defaultValue={record.scale?record.scale:undefined} onChange={(e)=>this.handleDECIMALSelectChange(e,record,2)}>
+                        {
+                          decimalScale.map(o=>{
+                            return <Option key={o} value={o}>{o}</Option>
+                          })
+                        }
+                      </Select>
+                      <HelpDoc style={relativeStyle} doc="decimalType" />
+                  </span>
+                </span>
+            }else
+            return  <Select style={{width: 159}} defaultValue={text} onChange={(e)=>this.handleFieldTypeChange(e,record)}>
+            {field_types.map(o=>{
+              return <Option key={o.value} value={o.value}>{o.name}</Option>
+            })}
+            </Select>
+            
           }else
             return text
         }
@@ -324,19 +366,22 @@ export default class EditTable extends Component{
         title: '倒排索引',
         dataIndex: 'invert',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleInvert(e,record)}></Checkbox>
         )
       },{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
+          text !== 1? '-':
           <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={!record.isNew} defaultChecked={text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          text !== 1? '-':
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL' || !record.isNew} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释内容',
@@ -344,8 +389,10 @@ export default class EditTable extends Component{
         render: (text,record)=>{
           if(record.isNew){
             return <Input style={{width: 159, height: 26}} defaultValue={text} onChange={(e)=>this.handleFieldCommentChange(e,record)}/>
-          }else
-            return text
+          }else{
+            if(!text) return '-'
+            else return text
+          }
         }
       },{
         title: '操作',
@@ -386,9 +433,9 @@ export default class EditTable extends Component{
       },{
         title: '注释',
         dataIndex: 'comment',
-        // render: (text,record)=>(
-        //   <Input style={{width: 159}}  defaultValue={text} onChange={(e)=>this.handleCommentChange(e,record)}/>
-        // )
+        render: (text,record)=>(
+          text || '-'
+        )
       }
     ]
     return (
@@ -421,7 +468,7 @@ export default class EditTable extends Component{
                     ],
                     initialValue: tableDetail.lifeDay || undefined
                   })(
-                    <Select getPopupContainer={triggerNode => triggerNode.parentNode} onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
+                    <Select  onChange={this.handleSelectChange} style={{width: getFieldsValue().lifeDay === -1?78:430,height: 36}}>
                     {options.map(o=>(
                       <Option key={o.value} value={o.value}>{o.name}</Option>
                     ))}
@@ -430,7 +477,7 @@ export default class EditTable extends Component{
                 }
                 {
                 getFieldsValue().lifeDay === -1 &&
-                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={(e)=>{this.state.customLifeCycle = e}}/>
+                  <Input size="large" style={{width: 340,height: 36, marginLeft: 10}} defaultValue={this.state.customLifeCycle} onChange={this.handleLifeDayCusChange}/>
                 }
               </span>
             </FormItem>
@@ -451,7 +498,7 @@ export default class EditTable extends Component{
           </Form>
         </Row>
 
-        <Row className="panel table-box">
+        <Row className="panel table-box"  id="table-panel">
             <div className="title">字段信息</div>
             <Table
             size="small"
@@ -461,7 +508,7 @@ export default class EditTable extends Component{
             dataSource={tableDetail.columns}
             pagination={false}>
             </Table>
-          <a className="btn" style={{marginTop: 16, display: 'block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
+          <a className="btn" style={{marginTop: 16, display: 'inline-block'}} href="javascript:;" onClick={()=>this.addNewLine(1)}><Icon style={{marginRight: 5}} className="icon" type="plus-circle-o" />添加字段</a>
         </Row>
 
       <Row className="panel table-box">

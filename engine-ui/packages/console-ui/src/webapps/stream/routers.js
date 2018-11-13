@@ -33,7 +33,6 @@ import RoleEdit from './views/project/role/edit'
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
-import Default from './views/task/realtime/default'
 
 // ======= 运维 =======
 import OpeRealTimeList from './views/operation/realtime/list'
@@ -56,7 +55,6 @@ const TaskIndex = asyncComponent(() => import('./views/task/realtime')
 // ======= 运维 =======
 const Operation = asyncComponent(() => import('./views/operation/container')
 .then(module => module.default), { name: 'operationPage' })
-
 
 // ======= 数据源管理 =======
 const DataSourceContainer = asyncComponent(() => import('./views/dataSource/container')
@@ -94,7 +92,7 @@ export default (
                 <Route path="role/edit/:roleId" component={RoleEdit} />
             </Route>
             <Route path="/realtime" component={TaskContainer} onEnter={isSelectedProject}>
-                <IndexRoute component={Default} />
+                <IndexRoute component={TaskIndex} />
                 <Route path="task" component={TaskIndex} />
                 <Route path="task/:tid" component={TaskIndex} />
             </Route>

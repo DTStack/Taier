@@ -76,8 +76,8 @@ class AlarmConfigList extends React.Component {
         const reqForm = {
             ...pagination,
             pageIndex:pagination.current,
-            taskName:data.name,
-            alarmStatus:alarmStatus
+            taskId:data.id,
+            alarmStatus:alarmStatus||undefined
         }
         this.setState({ loading: true })
         Api.getAlarmList(reqForm).then((res) => {

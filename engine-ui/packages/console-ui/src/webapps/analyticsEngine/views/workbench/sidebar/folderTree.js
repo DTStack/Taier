@@ -45,7 +45,8 @@ class FolderTree extends React.PureComponent {
             return (
                 <span className="tree-node-hover-items">
                     <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
-                        title="SQL查询" 
+                        title="SQL查询"
+                        style={{ width: 15, height: 15 }}
                         onClick={(e) => {
                             e.stopPropagation();
                             onSQLQuery(item);
@@ -74,7 +75,8 @@ class FolderTree extends React.PureComponent {
             case CATALOGUE_TYPE.TABLE:
                 return (
                     <span className="tree-node-hover-items">
-                        <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
+                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                            style={{ width: 15, height: 15 }}
                             title="SQL查询"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -103,9 +105,8 @@ class FolderTree extends React.PureComponent {
 
                 const id = `${item.id || item.tableId}`
                 const name = item.name || item.tableName
-                const isLeaf = !item.children;
+                const isLeaf = !item.children || item.children.length === 0;
                 // 用作展示上下文的锚点， 暂时取消
-                // const itemAnchorName = getContextMenuAnchorName(item.type);
                 const className = getItemClassName(item.type);
 
                 const nodeTitle = (
@@ -119,7 +120,6 @@ class FolderTree extends React.PureComponent {
                         </span>
                     </Tooltip>
                 )
-                
                 return (
                     <TreeNode
                         title={nodeTitle}
@@ -143,7 +143,6 @@ class FolderTree extends React.PureComponent {
     }
 
     render() {
-        console.log('expandedKeys:', this.props.expandedKeys)
         return (
             <div className="s-catalogue">
                 <Tree

@@ -102,6 +102,8 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
 
     params.sql = `${sqls[index]}`;
     params.uniqueKey = key;
+    runningSql[currentTab] = key; // 默认的运行 Key
+
     dispatch(output(currentTab, `第${index + 1}条任务开始执行`));
 
     function execContinue() {
@@ -133,34 +135,17 @@ async function exec(dispatch, currentTab, task, params, sqls, index, resolve, re
 
         if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
 
-        if (res.data.jobId) {
-            runningSql[currentTab] = res.data.jobId;
-
-            selectData(dispatch, res.data.jobId, currentTab)
-                .then(
-                    (isSuccess) => {
-                        if (index < sqls.length - 1 && isSuccess) {
-                            //剩余任务，则继续执行
-                            execContinue();
-                        }
-                        if (index >= sqls.length - 1) {
-                            dispatch(removeLoadingTab(currentTab))
-                            resolve(true)
-                        }
-                    }
-                )
-        } else {
-            //不存在jobId，则直接返回结果
-            getDataOver(dispatch, currentTab, res)
-            if (index < sqls.length - 1) {
-                //剩余任务，则继续执行
-                execContinue();
-            } else {
-                dispatch(removeLoadingTab(currentTab))
-                resolve(true)
-            }
+        // 直接打印结果
+        if (res.data.result) {
+            getDataOver(dispatch, currentTab, res);
         }
-       
+        if (index < sqls.length - 1) {
+            //剩余任务，则继续执行
+            execContinue();
+        } else {
+            dispatch(removeLoadingTab(currentTab));
+            resolve(true);
+        }
     }
 }
 
@@ -174,8 +159,6 @@ export function execSql(currentTab, task, params, sqls) {
         })
     }
 }
-
-
 
 //停止sql
 export function stopSql(currentTab, currentTabData, isSilent) {
@@ -199,7 +182,7 @@ export function stopSql(currentTab, currentTabData, isSilent) {
 
         const jobId = runningSql[currentTab];
         if (!jobId) return;
-      
+
         const res = await API.stopExecSQL({
             taskId: currentTabData.id,
             jobId: jobId,

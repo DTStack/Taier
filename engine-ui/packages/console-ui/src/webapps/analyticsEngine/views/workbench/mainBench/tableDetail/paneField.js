@@ -27,33 +27,40 @@ export default class PaneField extends Component{
     },()=>this.initData(this.props))
   }
   componentDidMount(){
+    console.log(this.state.paginationParams)
     this.initData(this.props);
   }
 
   componentWillReceiveProps(nextProps){
+    console.log(this.state.paginationParams)
     this.initData(nextProps);
   }
 
   initData = (props)=>{
     console.log(props)
-    this.state.columnData = props.data.columnData;
-    this.state.partData = props.data.partData;
+    let {paginationParams} = this.state;
+    this.state.columnData = props.data.columnData || [];
+    this.state.partData = props.data.partData || [];
 
     let data = this.state.dataType === 'column'?this.state.columnData:this.state.partData;
     console.log(data)
     if(data && data.length===0){
-      this.paginationParams.total = 0;
+      this.state.paginationParams.total = 0;
       this.setState({
         dataList: [],
-        paginationParams: paginationParams
+        paginationParams: this.state.paginationParams
       })
       return;
     }
 
     this.state.paginationParams.total = data.length || 0;
-    this.state.paginationParams.current = 1;
+    console.log(this.state.paginationParams)
+    console.log((this.state.paginationParams.current-1) * this.state.paginationParams.pageSize)
+    console.log(data)
+    console.log(data.slice(10,10))
+    // this.state.paginationParams.current = 1;
 
-    this.state.dataList = data.slice(0,this.state.paginationParams.pageSize)
+    this.state.dataList = data.slice((this.state.paginationParams.current-1) * this.state.paginationParams.pageSize,paginationParams.current * paginationParams.pageSize)
     this.setState({
       dataList: this.state.dataList,
       paginationParams: this.state.paginationParams
@@ -119,7 +126,7 @@ console.log(dataList)
             <RadioButton value="partition">分区字段</RadioButton>
           </RadioGroup>
 
-          <span style={{color: 'rgb(204, 204, 204)'}}>共{dataList.length}个字段</span>
+          <span style={{color: 'rgb(204, 204, 204)'}}>共{this.state.paginationParams.total}个字段</span>
         </div>
         <Table
         columns={tableCOl}

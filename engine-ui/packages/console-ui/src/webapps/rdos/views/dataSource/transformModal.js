@@ -215,6 +215,7 @@ export default class TransformModal extends Component {
                         label={label}
                         {...formItemLayout} 
                         style={{ flexBasis: '40%' }}
+                        className="cell-center"
                     >
                         {
                             getFieldDecorator(`${type}-${item.id}-left`, {
@@ -248,6 +249,7 @@ export default class TransformModal extends Component {
                     <FormItem 
                         style={{ flexBasis: '40%' }} 
                         {...formItemLayoutWithOutLabel}
+                        className="cell-center"
                     >
                         <div className="flex flex-v-center">
                             {
@@ -289,7 +291,7 @@ export default class TransformModal extends Component {
             } else {
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>
                     <FormItem 
-                        className="left-item"
+                        className="left-item cell-center"
                         {...formItemLayoutWithOutLabel}     
                         style={{ flexBasis: '40%' }}
                     >
@@ -330,6 +332,7 @@ export default class TransformModal extends Component {
                     <FormItem 
                         style={{ flexBasis: '40%' }} 
                         {...formItemLayoutWithOutLabel}
+                        className="cell-center"
                     >
                         <div className="flex flex-v-center">
                             {

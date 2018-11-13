@@ -47,7 +47,7 @@ const editorOptions = {
 class DataMapForm extends Component {
 
     state = {
-        datamapType: this.props.data ? this.props.data.type : DATAMAP_TYPE.PRE_SUM,
+        datamapType: this.props.data && this.props.data.type ? this.props.data.type : DATAMAP_TYPE.PRE_SUM,
     };
 
     onDataMapTypeChange = (e) => {
@@ -58,12 +58,12 @@ class DataMapForm extends Component {
 
     dynamicRender = (timestampColumns) => {
         const { datamapType } = this.state;
-        const { form, data, tableData, onQueryTextChange } = this.props;
+        const { form, data, tableData, onQueryTextChange, isCreate } = this.props;
         const { getFieldDecorator } = form;
 
-        const defaultQueryText = '-- 支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理';
         const config = data.config ? JSON.parse(data.config) : undefined;
 
+        editorOptions.readOnly = !isCreate ? true : false;
         const editorInput = <Editor
             style={{
                 height: '200px',
@@ -73,7 +73,7 @@ class DataMapForm extends Component {
             language="sql"
             options={editorOptions}
             onChange={onQueryTextChange}
-            value={config ? config.selectSql : defaultQueryText}
+            value={config ? config.selectSql : ''}
         />
     
         const tableColumns = tableData ? tableData.columns : [];
@@ -100,7 +100,7 @@ class DataMapForm extends Component {
                             ],
                             initialValue: config ? config.timeColumn : '',
                         })(
-                            <Select placeholder="请选择时间字段">
+                            <Select placeholder="请选择时间字段" disabled={!isCreate}>
                                 {timeColumnsOptionsForSeq}
                             </Select>
                         )}
@@ -115,7 +115,7 @@ class DataMapForm extends Component {
                             ],
                             initialValue: config ? config.timeType : "1",
                         })(
-                            <RadioGroup>
+                            <RadioGroup disabled={!isCreate}>
                                 <Radio value="4">年</Radio>
                                 <Radio value="3">月</Radio>
                                 <Radio value="2">日</Radio>
@@ -124,7 +124,9 @@ class DataMapForm extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>,
-                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label="主表查询">
+                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -152,7 +154,7 @@ class DataMapForm extends Component {
                             ],
                             initialValue: config ? config.columns.split(',') : tableColumns.length > 0 ? [tableColumns[0].name] : [],
                         })(
-                            <Select mode="multiple" placeholder="请选择时间字段"> 
+                            <Select mode="multiple" placeholder="请选择时间字段" disabled={!isCreate}> 
                                 {timeColumnsOptions} 
                             </Select>
                         )}
@@ -162,7 +164,7 @@ class DataMapForm extends Component {
                             rules: [],
                             initialValue: config ? config.bloomSize : 32000,
                         })(
-                            <InputNumber min={32000} style={{width: '100%'}}/>
+                            <InputNumber min={32000} style={{width: '100%'}} disabled={!isCreate}/>
                         )}
                         <HelpDoc doc="bloomSizeSummary" />
                     </FormItem>,
@@ -171,7 +173,7 @@ class DataMapForm extends Component {
                             rules: [],
                             initialValue: config ? config.bloomFP : 1,
                         })(
-                            <InputNumber min={0} max={100} style={{width: '100%'}}/>
+                            <InputNumber min={0} max={100} style={{width: '100%'}} disabled={!isCreate}/>
                         )}
                         <HelpDoc doc="bloomFPPSummary" />
                     </FormItem>,
@@ -180,7 +182,7 @@ class DataMapForm extends Component {
                             rules: [],
                             initialValue: config ? config.bloomConpress : true,
                         })(
-                            <RadioGroup>
+                            <RadioGroup disabled={!isCreate}>
                                 <Radio value={true}>是</Radio>
                                 <Radio value={false}>否</Radio>
                             </RadioGroup>
@@ -192,7 +194,9 @@ class DataMapForm extends Component {
             case DATAMAP_TYPE.PRE_SUM:
             default: {
                 return (
-                    <FormItem key="selectSql" {...formItemLayout} label="主表查询">
+                    <FormItem key="selectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
                         {getFieldDecorator("configJSON.selectSql", {
                             rules: [
                                 {
@@ -260,13 +264,12 @@ class DataMapForm extends Component {
                             },
                             {
                                 pattern: /^[A-Za-z0-9_]+$/,
-                                message:
-                                    "DataMap名称只能由字母与数字、下划线组成"
+                                message: "DataMap名称只能由字母与数字、下划线组成"
                             }
                         ],
                         initialValue: data ? data.name : ""
                     })(
-                        <Input autoComplete="off" placeholder="请输入DataMap名称"/>
+                        <Input autoComplete="off" placeholder="请输入DataMap名称" disabled={!isCreate}/>
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap类型">
