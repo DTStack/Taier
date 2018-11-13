@@ -167,6 +167,10 @@
                         text-indent: 5px;
                         background: inherit;
                     }
+
+                    textarea::-webkit-scrollbar { 
+                        display: none; 
+                    }
                 }
             }
         }
