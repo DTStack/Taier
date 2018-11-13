@@ -36,7 +36,7 @@ class CodeEditor extends Component {
         const instance = this.getCodeMirrorIns()
         const {
             value, onChange, onFocus, cursor,
-            focusOut, cursorActivity,
+            focusOut, cursorActivity,editorRef
         } = this.props
 
         if (!ele) return;
@@ -67,6 +67,9 @@ class CodeEditor extends Component {
                 cursorActivity(value, doc)
             }
         })
+        if(editorRef){
+            editorRef(this.self);
+        }
     }
 
     componentWillReceiveProps(nextProps) {

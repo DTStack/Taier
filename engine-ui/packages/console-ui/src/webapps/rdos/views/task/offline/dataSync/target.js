@@ -654,6 +654,7 @@ class TargetForm extends React.Component {
                             <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
+                                <Option value="parquet">parquet</Option>
                             </Select>
                         )}
                     </FormItem>,
