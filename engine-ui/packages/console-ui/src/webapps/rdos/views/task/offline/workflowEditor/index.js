@@ -38,6 +38,7 @@ const {
     mxGeometry,
     mxUtils,
     mxEvent,
+    mxCellHighlight,
     mxPopupMenu,
     mxDragSource,
     mxPolyline,
@@ -661,6 +662,8 @@ class WorkflowEditor extends Component {
         let selectedCell = null;
         const { openTaskInDev, } = this.props;
 
+        const highlight = new mxCellHighlight(graph, '#2491F7', 1);
+        
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const event = evt.getProperty('event');
 
@@ -694,10 +697,14 @@ class WorkflowEditor extends Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
                 style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
-
+                
                 const outEdges = graph.getOutgoingEdges(cell);
                 const inEdges = graph.getIncomingEdges(cell);
-                graph.setCellStyle(`strokeColor=#2491F7;fillColor=#2491F7;strokeWidth=2;`, outEdges.concat(inEdges));
+                const edges = outEdges.concat(inEdges);
+                edges.forEach((deg) => {
+                    const state = graph.view.getState(deg);
+                    highlight.highlight(state);
+                })
 
                 selectedCell = cell;
             } else if (cell === undefined) {
