@@ -12,30 +12,18 @@ const { RangePicker } = DatePicker;
 class CheckPoint extends React.Component {
 
     state = {
-        pagination: {
-            total: 0,
-            pageSize: 10,
-            current: 1
-        },
         dates: [],
         list: [],
         overview: {}
     }
 
     componentDidMount() {
-        console.log("CheckPoint")
         this.getList();
-        this.getOverview();
     }
     initPage() {
         this.setState({
-            pagination: {
-                total: 0,
-                pageSize: 10,
-                current: 1
-            },
             dates:[],
-            overview:{}
+            overview:{},
         })
     }
     componentWillReceiveProps(nextProps) {
@@ -45,11 +33,10 @@ class CheckPoint extends React.Component {
         ) {
             this.initPage();
             this.getList(nextData);
-            this.getOverview(nextData);
         }
     }
     getList(data) {
-        const { pagination, dates } = this.state;
+        const { dates } = this.state;
         data = data || this.props.data;
 
         this.setState({
@@ -70,46 +57,18 @@ class CheckPoint extends React.Component {
         Api.getCheckPointList({
             taskId: data.id,
             startTime,
-            endTime,
-            currentPage: pagination.current,
-            pageSize: pagination.pageSize
+            endTime
         }).then(
             (res) => {
                 if (res.code == 1) {
                     this.setState({
-                        list: res.data.data,
-                        pagination: {
-                            ...pagination,
-                            total: res.data.totalCount
-                        }
+                        list: res.data.checkpointList,
+                        overview:{...res.data,checkpointList:undefined}
                     })
                 }
                 this.setState({
                     loading: false
                 })
-            }
-        )
-    }
-    getOverview(data) {
-        data = data || this.props.data;
-
-        this.setState({
-            overview: {}
-        })
-
-        if (!data || !data.id) {
-            return;
-        }
-
-        Api.getCheckPointOverview({
-            taskId: data.id
-        }).then(
-            (res) => {
-                if (res.code == 1) {
-                    this.setState({
-                        overview: res.data
-                    })
-                }
             }
         )
     }
@@ -199,17 +158,8 @@ class CheckPoint extends React.Component {
             </div>
         )
     }
-    onTableChange(page, filters, sorter) {
-        const { pagination } = this.state;
-        this.setState({
-            pagination: {
-                ...pagination,
-                current: page.current
-            }
-        }, this.getList.bind(this))
-    }
     render() {
-        const { pagination, list } = this.state;
+        const { list } = this.state;
         return (
             <div style={{ padding: "0px 20px 20px 25px" }}>
                 {this.getTableTitle()}
@@ -220,8 +170,7 @@ class CheckPoint extends React.Component {
                     className="m-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
-                    pagination={pagination}
-                    onChange={this.onTableChange.bind(this)}
+                    pagination={true}
                 />
             </div>
         )
