@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon, Tooltip } from 'antd'
+import { Row, Tabs, Modal, Alert, message, Dropdown, Menu, Icon } from 'antd'
 
 import utils from 'utils'
 import { debounce, cloneDeep } from 'lodash';
@@ -93,9 +93,7 @@ class TaskBrowser extends Component {
                 const title = (<span>
                     <TabIcon tabData={pane} />
                     <SyncBadge notSynced={pane.notSynced} />
-                    <Tooltip title={pane.name}>
-                        <span className="tab-ellipsis">{pane.name}</span>
-                    </Tooltip>
+                    <span title={pane.name} className="tab-ellipsis">{pane.name}</span>
                 </span>)
                 return (
                     <TabPane
@@ -296,10 +294,8 @@ class TaskBrowser extends Component {
 
     render() {
         const {
-            currentPage, pages, router, editor,
+            currentPage, pages, editor,
         } = this.props;
-
-        if (pages.length === 0) router.push('/realtime')
 
         const panels = this.mapPanels(pages)
 
