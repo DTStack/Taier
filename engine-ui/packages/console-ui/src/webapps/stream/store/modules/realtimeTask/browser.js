@@ -260,6 +260,7 @@ export function pages(state = defaultPages, action) {
             if (index > -1) {
                 newState[index] = Object.assign({}, state[index], newPage)
             }
+            localDb.set(pagesKey, newState)
             return newState
         }
         case browserAction.SET_INPUT_DATA: {
@@ -271,6 +272,7 @@ export function pages(state = defaultPages, action) {
                 const newState = [...state];
                 const {panelColumn} = source||{};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { source:panelColumn })
+                localDb.set(pagesKey, newState)
                 return newState;
             } else {
                 return state;
@@ -285,6 +287,7 @@ export function pages(state = defaultPages, action) {
                 const newState = [...state];
                 const {panelColumn} = sink||{};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { sink:panelColumn })
+                localDb.set(pagesKey, newState)
                 return newState;
             } else {
                 return state;
@@ -299,6 +302,7 @@ export function pages(state = defaultPages, action) {
                 const newState = [...state];
                 const {panelColumn} = side||{};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { side:panelColumn })
+                localDb.set(pagesKey, newState)
                 return newState;
             } else {
                 return state;
