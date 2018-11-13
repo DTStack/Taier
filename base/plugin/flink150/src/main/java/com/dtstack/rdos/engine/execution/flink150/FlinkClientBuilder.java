@@ -82,7 +82,7 @@ public class FlinkClientBuilder {
         return builder;
     }
 
-    public ClusterClient create(FlinkConfig flinkConfig){
+    public ClusterClient create(FlinkConfig flinkConfig, Properties flinkExtProp){
 
         String clusterMode = flinkConfig.getClusterMode();
         if(StringUtils.isEmpty(clusterMode)) {
@@ -100,14 +100,14 @@ public class FlinkClientBuilder {
         if(clusterMode.equals( Deploy.standalone.name())) {
             return createStandalone(flinkConfig);
         } else if (clusterMode.equals(Deploy.yarn.name())) {
-            initFLinkConf(flinkConfig);
+            initFLinkConf(flinkConfig, flinkExtProp);
             return createYarnClient(flinkConfig);
         } else {
             throw new RdosException("Unsupported clusterMode: " + clusterMode);
         }
     }
 
-    private void initFLinkConf(FlinkConfig flinkConfig) {
+    private void initFLinkConf(FlinkConfig flinkConfig, Properties extProp) {
         Configuration config = new Configuration();
         //FIXME 浙大环境测试修改,暂时写在这
         config.setString("akka.client.timeout", akka_client_timeout);
@@ -129,12 +129,23 @@ public class FlinkClientBuilder {
         }
 
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
+
+        //FIXME 临时处理填写的flink配置,在console上区分开之后区分出配置信息是engine-flink-plugin,还是flink本身
+        if(extProp != null){
+            extProp.forEach((key, value) -> {
+                if (key.toString().contains(".")) {
+                    config.setString(key.toString(), value.toString());
+                }
+            });
+        }
+
         try {
             FileSystem.initialize(config);
         } catch (Exception e) {
             LOG.error("", e);
             throw new RdosException(e.getMessage());
         }
+
         flinkConfiguration = config;
     }
 

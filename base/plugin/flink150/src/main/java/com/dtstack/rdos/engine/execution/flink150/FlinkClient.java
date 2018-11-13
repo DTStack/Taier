@@ -137,11 +137,14 @@ public class FlinkClient extends AbsClient {
 
     private ClusterClientCache clusterClientCache;
 
+    private Properties flinkExtProp;
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     @Override
     public void init(Properties prop) throws Exception {
 
+        this.flinkExtProp = prop;
         String propStr = PublicUtil.objToString(prop);
         flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
         prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
@@ -187,7 +190,7 @@ public class FlinkClient extends AbsClient {
     }
 
     public void initClient(){
-        client = flinkClientBuilder.create(flinkConfig);
+        client = flinkClientBuilder.create(flinkConfig, flinkExtProp);
         setClientOn(true);
     }
 
