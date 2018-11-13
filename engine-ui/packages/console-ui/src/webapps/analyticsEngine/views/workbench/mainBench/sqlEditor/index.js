@@ -81,7 +81,6 @@ class EditorContainer extends Component {
 
     initTableList() {
         const { tableList } = this.props;
-        console.log('initTableList', tableList)
         if (tableList && tableList.length > 0) {
             const items = tableList.map(table => {
                 return [table.tableName, "表名", "1200", "Field"];
@@ -320,7 +319,7 @@ class EditorContainer extends Component {
     });
 
     render() {
-        const { editor, data, databaseList } = this.props;
+        const { editor, data } = this.props;
 
         const currentTab = data.id;
 

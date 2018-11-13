@@ -410,6 +410,7 @@ export default class StepOne extends Component{
         maskClosable={false}>
             <Editor
                 style={{ height: "400px" }}
+                disabledSyntaxCheck={true}
                 placeholder={DDL_placeholder_anly}
                 options={{readOnly:false}}
                 language="dtsql"

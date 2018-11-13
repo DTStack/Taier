@@ -14,10 +14,10 @@ import {
 
 import ToolBar from './toolbar';
 import FolderTree from './folderTree';
+import commActions from "../../../actions";
 import workbenchActions from '../../../actions/workbenchActions';
 import MyIcon from '../../../components/icon';
 import { CATALOGUE_TYPE } from '../../../consts';
-import { onTableDetail } from '../../../actions/workbenchActions/table';
 
 
 const Search = Input.Search;
@@ -32,7 +32,8 @@ state => {
 },
 dispatch => {
     const actions = bindActionCreators(workbenchActions, dispatch);
-    return actions;
+    const cmActions = bindActionCreators(commActions, dispatch);
+    return Object.assign(actions, cmActions);
 })
 class Sidebar extends Component {
 

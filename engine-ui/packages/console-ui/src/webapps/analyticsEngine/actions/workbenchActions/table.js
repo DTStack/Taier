@@ -282,7 +282,6 @@ export function handleSave(){
         // params.partitions = params.partitions.columns;
 
 
-
         const res = await API.createTable({...params,partConfig:params.partitions.partConfig,partitionType:params.partitions.partitionType,partitions:params.partitions.columns})
         if(res.code === 1){
             console.log('保存成功');
