@@ -661,8 +661,7 @@ class WorkflowEditor extends Component {
         const graph = this.graph;
         let selectedCell = null;
         const { openTaskInDev, } = this.props;
-
-        const highlight = new mxCellHighlight(graph, '#2491F7', 1);
+        let highlightEdges = [];
         
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const event = evt.getProperty('event');
@@ -701,11 +700,12 @@ class WorkflowEditor extends Component {
                 const outEdges = graph.getOutgoingEdges(cell);
                 const inEdges = graph.getIncomingEdges(cell);
                 const edges = outEdges.concat(inEdges);
-                edges.forEach((deg) => {
-                    const state = graph.view.getState(deg);
+                for (let i = 0; i < edges.length; i++) {
+                    const highlight = new mxCellHighlight(graph, '#2491F7', 1);
+                    const state = graph.view.getState(edges[i]);
                     highlight.highlight(state);
-                })
-
+                    highlightEdges.push(highlight);
+                }
                 selectedCell = cell;
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
@@ -721,11 +721,9 @@ class WorkflowEditor extends Component {
                 style[mxConstants.STYLE_STROKECOLOR] = '#C5C5C5';
                 applyCellStyle(cellState, style);
 
-                const outEdges = graph.getOutgoingEdges(selectedCell);
-                const inEdges = graph.getIncomingEdges(selectedCell);
-
-                graph.setCellStyle(`strokeColor=#9EABB2;strokeWidth=1;`, outEdges.concat(inEdges));
-
+                for (let i = 0; i < highlightEdges.length; i++) {
+                    highlightEdges[i].hide();
+                }
                 selectedCell = null;
             }
         };
