@@ -98,7 +98,8 @@ class StreamDetailGraph extends React.Component {
                 case metricsType.SINK_OUTPUT_RPS:
                 case metricsType.SOURCE_TPS:
                 case metricsType.SOURCE_RPS:
-                case metricsType.SOURCE_DIRTY: {
+                case metricsType.SOURCE_DIRTY: 
+                case metricsType.DELAY:{
                     let tmp_map = {};
                     let legend = [];
                     for (let i = 0; i < lineData.length; i++) {
@@ -124,10 +125,6 @@ class StreamDetailGraph extends React.Component {
                 }
                 case metricsType.FAILOVER_RATE: {
                     y[0] = lineData.map((data) => { return data.fail_over_rate });
-                    break;
-                }
-                case metricsType.DELAY: {
-                    y[0] = lineData.map((data) => { return data.biz_time });
                     break;
                 }
                 case metricsType.DATA_COLLECTION_BPS: {
@@ -313,10 +310,9 @@ class StreamDetailGraph extends React.Component {
                                                 lineData={{
                                                     ...lineDatas[metricsType.DELAY],
                                                     color: CHARTS_COLOR,
-                                                    legend: ["业务延时"],
                                                     unit: "s"
                                                 }}
-                                                title="Delay" />
+                                                title="业务延时" />
                                         </section>
                                     </div>
                                     <div className="alarm-graph-row">
