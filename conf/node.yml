@@ -130,24 +130,24 @@ engineTypes:
 
 
 
-    -
-        typeName: flink150
-        clusterMode: yarn
-        flinkZkAddress: node01:2181,node02:2181,node03:2181
-        #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
-        flinkZkNamespace: /flink155_1
-        jarTmpDir: ../tmp150
-        flinkPluginRoot: D:\flinkplugin
-        remotePluginRootDir: /opt/dtstack/150_flinkplugin
-        #新增配置
-        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
-        #new
-        #flinkYarnNewModeMaxSlots: 4
-        #perjob
-        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-        flinkJarPath: D:\flink154
-        flinkJobHistory: http://node01:8082
+#    -
+#        typeName: flink150
+#        clusterMode: yarn
+#        flinkZkAddress: node01:2181,node02:2181,node03:2181
+#        #简化为只配置/flink150/ha
+#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
+#        flinkZkNamespace: /flink155_1
+#        jarTmpDir: ../tmp150
+#        flinkPluginRoot: D:\flinkplugin
+#        remotePluginRootDir: /opt/dtstack/150_flinkplugin
+#        #新增配置
+#        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
+#        #new
+#        #flinkYarnNewModeMaxSlots: 4
+#        #perjob
+#        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+#        flinkJarPath: D:\flink154
+#        flinkJobHistory: http://node01:8082
 
 
     #-
@@ -209,7 +209,6 @@ engineTypes:
         yarn.resourcemanager.recovery.enabled: true
         jlogstash.root: /opt/dtstack/jlogstash
         java.home: /opt/java/bin
-        appMasterJar:  hdfs://ns1/user/dtyarnshell/dt-yarn-shell-core-1.0.0.jar
 #        hadoopConf:
 #            fs.defaultFS: hdfs://ns1
 #            dfs.ha.namenodes.ns1: nn1,nn2

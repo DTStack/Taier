@@ -56,12 +56,15 @@ public class DtYarnShellClient extends AbsClient {
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
         String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
-        if(StringUtils.isNotBlank(hadoopConfDir)) {
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
-            conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
+        if (StringUtils.isBlank(hadoopConfDir)) {
+            hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
+            if(StringUtils.isBlank(hadoopConfDir)) {
+                throw new RdosException("dtyarnshell 插件获取HadoopConfDir路径异常，加载不到配置文件");
+            }
         }
-
+        conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
+        conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
+        conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
         Enumeration enumeration =  prop.propertyNames();
         while(enumeration.hasMoreElements()) {
             String key = (String) enumeration.nextElement();
