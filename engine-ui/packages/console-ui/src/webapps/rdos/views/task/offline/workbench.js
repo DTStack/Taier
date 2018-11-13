@@ -360,7 +360,7 @@ class Workbench extends React.Component {
             return tabs.map((tab) => {
                 let title = (<div>
                     <TabIcon tabData={tab} />
-                    <span className="tab-ellipsis">{<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
+                    <span className="tab-ellipsis" title={tab.name}>{tab.name}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
@@ -368,10 +368,10 @@ class Workbench extends React.Component {
                     title = (<div>
                         <TabIcon tabData={tab} />
                         <span className="tab-ellipsis">
-                            <a className="workflow-name" onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
-                                <Tooltip title={tab.flowName}>{tab.flowName}</Tooltip>
+                            <a className="workflow-name" title={tab.flowName} onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>
+                                {tab.flowName}
                             </a>
-                            <span className="normal-tab">&nbsp;/ {<Tooltip title={tab.name}>{tab.name}</Tooltip>}</span>
+                            <span className="normal-tab" title={tab.name}>&nbsp;/ {tab.name}</span>
                         </span>
                         <SyncBadge className="tab-ellipsis" notSynced={tab.notSynced} />
                     </div>);
