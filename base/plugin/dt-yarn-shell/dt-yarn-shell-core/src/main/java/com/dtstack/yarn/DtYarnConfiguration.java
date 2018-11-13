@@ -1,7 +1,6 @@
 package com.dtstack.yarn;
 
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 public class DtYarnConfiguration extends YarnConfiguration {
@@ -10,12 +9,7 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     private static final String DT_YARN_SITE_XML_FILE = "dt-yarn-default.xml";
 
-    private static String HADOOP_HOME = null;
     static {
-        HADOOP_HOME = System.getenv("HADOOP_HOME");
-        if (StringUtils.isBlank(HADOOP_HOME)) {
-            throw new RuntimeException("请设置环境变量 HADOOP_HOME");
-        }
         YarnConfiguration.addDefaultResource(DT_YARN_DEFAULT_XML_FILE);
         YarnConfiguration.addDefaultResource(DT_YARN_SITE_XML_FILE);
     }
@@ -88,14 +82,14 @@ public class DtYarnConfiguration extends YarnConfiguration {
 //    };
     public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
             "$HADOOP_CONF_DIR",
-        HADOOP_HOME + "/share/hadoop/common/*",
-        HADOOP_HOME + "/share/hadoop/common/lib/*",
-        HADOOP_HOME + "/share/hadoop/hdfs/*",
-        HADOOP_HOME + "/share/hadoop/hdfs/lib/*",
-        HADOOP_HOME + "/share/hadoop/yarn/*",
-        HADOOP_HOME + "/share/hadoop/yarn/lib/*",
-        HADOOP_HOME + "/share/hadoop/mapreduce/*",
-        HADOOP_HOME + "/share/hadoop/mapreduce/lib/*"
+            "$HADOOP_HOME/share/hadoop/common/*",
+            "$HADOOP_HOME/share/hadoop/common/lib/*",
+            "$HADOOP_HOME/share/hadoop/hdfs/*",
+            "$HADOOP_HOME/share/hadoop/hdfs/lib/*",
+            "$HADOOP_HOME/share/hadoop/yarn/*",
+            "$HADOOP_HOME/share/hadoop/yarn/lib/*",
+            "$HADOOP_HOME/share/hadoop/mapreduce/*",
+            "$HADOOP_HOME/share/hadoop/mapreduce/lib/*"
     };
 
     /**
