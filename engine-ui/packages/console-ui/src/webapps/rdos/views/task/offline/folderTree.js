@@ -115,17 +115,22 @@ class FolderTree extends React.Component {
 
                 const isWorkflowNode = data && data.isSubTask === 1; // 工作流子节点
                 const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
+                const isLocked = data && data.readWriteLockVO && !data.readWriteLockVO.getLock; // 任务是否上锁
 
                 if (isWorkflowNode) return [];
 
-                if (type === 'file' || isWorkflow) {
-                    operations = arr.concat([{
-                        txt: '编辑',
-                        cb: this.editTask.bind(this, data)
-                    }, {
-                        txt: '删除',
-                        cb: this.deleteTask.bind(this, data)
-                    }])
+                if ((type === 'file' || isWorkflow)) {
+                    if (isLocked) {
+                        operations = [];
+                    } else {
+                        operations = arr.concat([{
+                            txt: '编辑',
+                            cb: this.editTask.bind(this, data)
+                        }, {
+                            txt: '删除',
+                            cb: this.deleteTask.bind(this, data)
+                        }])
+                    }
                 }
                 else {
                     operations = arr.concat([{
