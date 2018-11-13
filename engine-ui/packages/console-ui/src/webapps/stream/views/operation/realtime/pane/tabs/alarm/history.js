@@ -132,6 +132,7 @@ class AlarmHistory extends React.Component {
                     dataSource={alarmRecords||[]}
                     loading={loading}
                     pagination={pagination}
+                    onChange={this.handleTableChange.bind(this)}
                 />
             </section>
         )

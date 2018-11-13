@@ -182,7 +182,7 @@ class RealTimeTaskList extends Component {
         clearTimeout(this._timeClock);
         Api.getTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                // this.debounceLoadtask(res.data);
+                this.debounceLoadtask(res.data);
                 ctx.setState({ tasks: res.data })
             }
             ctx.setState({ loading: false })
