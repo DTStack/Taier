@@ -97,7 +97,7 @@ export function TaskStatusOverview(props) {
         </span>
         <span className="status_overview_item status_overview_submmitting_font">
             <Circle className="status_overview_submmitting" />&nbsp;
-            未运行 <Tooltip title="包括等待提交、提交中、等待运行3种状态"><Icon style={{color:"#888"}} type="question-circle-o" /></Tooltip>：{data.UNRUNNING}
+            未运行：{data.UNRUNNING} <Tooltip title="包括等待提交、提交中、等待运行3种状态"><Icon style={{color:"#888"}} type="question-circle-o" /></Tooltip>
         </span>
         <span className="status_overview_item status_overview_count_font">
             <Circle className="status_overview_count" />&nbsp;
