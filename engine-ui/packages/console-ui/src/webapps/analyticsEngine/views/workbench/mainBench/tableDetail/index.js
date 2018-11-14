@@ -171,7 +171,7 @@ class TableDetail extends Component {
                                     databaseId: tableDetail.databaseId,
                                 })}
                             >生成建表语句</Button>
-                            <Popover overlayClassName="pop-delete" arrowPointAtCenter content={popDelete}>
+                            <Popover placement="bottom"  overlayClassName="pop-delete" arrowPointAtCenter content={popDelete}>
                             <MyIcon type="more" style={{
                                         fontSize: 18, color: '#333333',
                                         float: 'right',
