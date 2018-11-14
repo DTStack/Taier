@@ -98,10 +98,6 @@ public class ClientExt extends CdhClient {
             }
         }
 
-        if(!dirFile.mkdir()){
-            throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
-        }
-
         //从hdfs下载文件到新创建的目录下
         String hdfsPath = sparkYarnConfig.getConfHdfsPath();
         try {
