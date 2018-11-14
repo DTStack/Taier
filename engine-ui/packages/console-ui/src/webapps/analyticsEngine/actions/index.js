@@ -1,5 +1,4 @@
 import commonActionType from "../consts/commonActionType";
-import { message } from "antd";
 import API from "../api";
 
 const commonActions = {
@@ -9,18 +8,6 @@ const commonActions = {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_USER_LIST,
-                        payload: res.data
-                    });
-                }
-            });
-        };
-    },
-    getAllTable(params) {
-        return dispatch => {
-            API.searchTable({name: ''}).then(res => {
-                if (res.code === 1) {
-                    dispatch({
-                        type: commonActionType.GET_TABLE_LIST,
                         payload: res.data
                     });
                 }
