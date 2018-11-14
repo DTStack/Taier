@@ -185,7 +185,7 @@ class AlarmBaseGraph extends React.Component {
                 data: item,
                 type: "line",
                 smooth: true,
-                showSymbol: false
+                showSymbol: item.length>2?false:true
             }
             if (color[index]) {
                 line.lineStyle = {

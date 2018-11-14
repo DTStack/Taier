@@ -2,7 +2,7 @@ import React from "react"
 import moment from "moment"
 import utils from "utils";
 
-import { Radio, Collapse, Row, Col, Button } from "antd"
+import { Radio, Collapse, Row, Col, Icon } from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
 import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
@@ -98,8 +98,8 @@ class StreamDetailGraph extends React.Component {
                 case metricsType.SINK_OUTPUT_RPS:
                 case metricsType.SOURCE_TPS:
                 case metricsType.SOURCE_RPS:
-                case metricsType.SOURCE_DIRTY: 
-                case metricsType.DELAY:{
+                case metricsType.SOURCE_DIRTY:
+                case metricsType.DELAY: {
                     let tmp_map = {};
                     let legend = [];
                     for (let i = 0; i < lineData.length; i++) {
@@ -145,12 +145,12 @@ class StreamDetailGraph extends React.Component {
                     y[0] = lineData.map((data) => { return data.data_discard_count });
                     break;
                 }
-                case metricsType.DATA_COLLECTION_TOTAL_BPS:{
+                case metricsType.DATA_COLLECTION_TOTAL_BPS: {
                     y[0] = lineData.map((data) => { return data.jlogstash_input_byte_sum });
                     y[1] = lineData.map((data) => { return data.jlogstash_output_byte_sum });
                     break;
                 }
-                case metricsType.DATA_COLLECTION_TOTAL_RPS:{
+                case metricsType.DATA_COLLECTION_TOTAL_RPS: {
                     y[0] = lineData.map((data) => { return data.jlogstash_input_record_sum });
                     y[1] = lineData.map((data) => { return data.jlogstash_output_record_sum });
                     break;
@@ -226,8 +226,12 @@ class StreamDetailGraph extends React.Component {
         return (
             <div className="pane-graph-box">
                 <header className="graph-header" style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
-                    <Button onClick={this.initData.bind(this, null)} type="primary">刷新</Button>
                     <span className="m-radio-group" style={{ float: "right" }}>
+                        <Icon 
+                        onClick={this.initData.bind(this, null)} 
+                        type="reload" 
+                        style={{ color: "#333",marginRight:"20px",cursor: 'pointer', }} 
+                        />
                         <RadioGroup
                             className="no-bd nobackground"
                             onChange={this.changeTime.bind(this)}
@@ -267,28 +271,28 @@ class StreamDetailGraph extends React.Component {
                                 </section>
                             </div>
                             <div className="alarm-graph-row">
-                                        <section>
-                                            <AlarmBaseGraph
-                                                time={time}
-                                                lineData={{
-                                                    ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_RPS],
-                                                    color: CHARTS_COLOR,
-                                                    legend: ["累计输入RPS","累计输出RPS"]
-                                                }}
-                                                title="累计输入/输出RPS" />
-                                        </section>
-                                        <section>
-                                            <AlarmBaseGraph
-                                                time={time}
-                                                lineData={{
-                                                    ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS],
-                                                    color: CHARTS_COLOR,
-                                                    unit:'KB',
-                                                    legend: ["累计输入BPS","累计输出BPS"]
-                                                }}
-                                                title="累计输入/输出BPS" />
-                                        </section>
-                                    </div>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_RPS],
+                                            color: CHARTS_COLOR,
+                                            legend: ["累计输入RPS", "累计输出RPS"]
+                                        }}
+                                        title="累计输入/输出RPS" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS],
+                                            color: CHARTS_COLOR,
+                                            unit: 'KB',
+                                            legend: ["累计输入BPS", "累计输出BPS"]
+                                        }}
+                                        title="累计输入/输出BPS" />
+                                </section>
+                            </div>
                         </div>
                     ) : (
                             <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
