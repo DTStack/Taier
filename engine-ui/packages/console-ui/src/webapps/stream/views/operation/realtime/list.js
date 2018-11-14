@@ -32,7 +32,7 @@ class RealTimeTaskList extends Component {
         tasks: {
             data: [],
         },
-        filter: [],
+        filter: {},
         loading: false,
         continue: false,
         logVisible: false,
@@ -56,7 +56,7 @@ class RealTimeTaskList extends Component {
             this.loadCount();
 
             this.setState({
-                filter: state && state.statusList ? state.statusList : []
+                filter: state && state.statusList ? {status:state.statusList} : {}
             }, () => {
                 this.loadTaskList()
             })
@@ -175,7 +175,8 @@ class RealTimeTaskList extends Component {
             pageSize: 20,
             taskName: this.state.taskName,
             isTimeSortDesc: true,
-            statusList: this.state.filter,
+            statusList: this.state.filter.status,
+            type: this.state.filter.taskType,
             orderBy: this.exchangeOrderKey(sorter.columnKey),
             sort: utils.exchangeOrder(sorter.order)
         }, params)
@@ -277,7 +278,7 @@ class RealTimeTaskList extends Component {
         this.closeSlidePane();
         this.setState({
             current: pagination.current,
-            filter: filters.status,
+            filter: filters,
             sorter: sorter
         }, this.loadTaskList.bind(this))
     }
@@ -336,7 +337,7 @@ class RealTimeTaskList extends Component {
                 return <TaskStatus value={text} />
             },
             filters: taskStatusFilter,
-            filteredValue: filter,
+            filteredValue: filter.status,
             filterMultiple: true,
         }, {
             title: '业务延时',
@@ -354,6 +355,13 @@ class RealTimeTaskList extends Component {
             render: (text) => {
                 return taskTypesMap[text];
             },
+            filters:taskTypes.map((taskType)=>{
+                return {
+                    text:taskType.value,
+                    value:taskType.key
+                }
+            }),
+            filterMultiple:true
         }, {
             title: '责任人',
             dataIndex: 'createUserName',

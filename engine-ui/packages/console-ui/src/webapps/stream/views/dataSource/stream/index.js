@@ -12,8 +12,6 @@ import { Circle } from 'widgets/circle';
 import Api from '../../../api';
 import DataSourceForm from '../form';
 import DataSourceTaskListModal from "../dataSourceTaskListModal"
-import { StreamDataSourceTypeFilter } from '../../../comm/const';
-import { DatabaseType } from '../../../components/status';
 import {ExtTableCell} from "../extDataSourceMsg"
 
 const Search = Input.Search
@@ -145,9 +143,17 @@ class DataSourceManaStream extends Component {
             source:cloneDeep(source),
         })
     }
-
+    getSourceType(type){
+        const {sourceTypes} = this.state;
+        const source = sourceTypes.find((source)=>{
+            return source.value==type
+        })
+        return source?source.name:'';
+    }
     initColumns = () => {
         const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
+        const {sourceTypes} = this.state;
+
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
@@ -158,9 +164,11 @@ class DataSourceManaStream extends Component {
             key: 'type',
             width: '100px',
             render: (text, record) => {
-                return <DatabaseType value={record.type} />
+                return this.getSourceType(text)
             },
-            filters: StreamDataSourceTypeFilter,
+            filters: sourceTypes.map((source)=>{
+                return {...source,text:source.name}
+            }),
             filterMultiple: false,
         },
         {
