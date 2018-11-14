@@ -288,7 +288,7 @@ export function handleSave(){
             console.log('保存成功');
             const data = res.data;
             // 重新加载Table列表
-            dispatch(gloablActions.getAllTable());
+            // dispatch(gloablActions.getAllTable());
             // 重新Reload数据库下的表左侧目录
             dispatch(loadCatalogue({
                 id: data.databaseId,
