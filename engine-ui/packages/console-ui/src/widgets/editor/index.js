@@ -20,6 +20,7 @@ import "./languages/dt-flink/dtflink.contribution.js"
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
+import {jsonEqual} from "./utils";
 
 const provideCompletionItemsMap = {
     dtsql: {
@@ -106,7 +107,9 @@ class Editor extends React.Component {
             this.updateValueWithNoEvent(editorText);
         }
         if (languageConfig !== this.props.languageConfig) {
-            this.updateMonarch(languageConfig, language)
+            if(!jsonEqual(languageConfig,this.props.languageConfig)){
+                this.updateMonarch(languageConfig, language)
+            }
         }
         if (this.props.options !== nextProps.options) {
             this.monacoInstance.updateOptions(nextProps.options)

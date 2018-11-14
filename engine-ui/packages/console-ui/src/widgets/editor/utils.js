@@ -30,3 +30,15 @@ export function commonFileEditDelegator(editor, customKeys={}) {
         }
     }
 }
+
+export function jsonEqual(newJson, oldJson) {
+    if (newJson == oldJson) {
+        return true;
+    }
+    const newStr = JSON.stringify(newJson);
+    const oldStr = JSON.stringify(oldJson);
+    if (newStr == oldStr) {
+        return true;
+    }
+    return false;
+}
