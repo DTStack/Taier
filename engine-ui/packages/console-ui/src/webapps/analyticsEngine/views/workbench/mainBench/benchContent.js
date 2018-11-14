@@ -62,7 +62,6 @@ class BenchContent extends Component {
                 未知类型
             </p>
         }
-
     }
 
     render () {

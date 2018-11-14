@@ -94,7 +94,6 @@ class TableDetail extends Component {
                 title: <span style={{fontSize: 12}}>数据预览</span>,
                 key: '4',
                 content: <PaneData data={this.state.previewList}  tableDateil={tableDetail}/>,
-
             }
         ]
         return (
