@@ -115,20 +115,19 @@ public class ApplicationContainerListener
         }
     }
 
-    private int getLaneOf(DtContainerId containerId) {
+    private ContainerEntity getLaneOf(DtContainerId containerId) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("getLaneOf containerId: " + containerId);
         }
-        for(int i = 0; i < entities.size(); ++i) {
-            ContainerEntity containerEntity = entities.get(i);
+        for(ContainerEntity containerEntity : entities) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("getLaneOf entities.get(i).getContainerId: " + containerEntity.getContainerId().getContainerId());
             }
             if(containerId.equals(containerEntity.getContainerId())) {
-                return containerEntity.getLane();
+                return containerEntity;
             }
         }
-        return -1;
+        return null;
     }
 
     public List<ContainerEntity> getFailedContainerEntities() {
@@ -156,9 +155,8 @@ public class ApplicationContainerListener
             LOG.debug("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
         }
 
-        int lane = getLaneOf(containerId);
-        if(lane != -1) {
-            ContainerEntity oldEntity = entities.get(lane);
+        ContainerEntity oldEntity = getLaneOf(containerId);
+        if(oldEntity != null) {
             DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
             oldEntity.setLastBeatTime(System.currentTimeMillis());
             if(oldEntity.getDtContainerStatus() != status) {
@@ -174,6 +172,8 @@ public class ApplicationContainerListener
                     LOG.error(failedMsg);
                 }
             }
+        } else {
+            LOG.warn("entities: " + entities + ", getLaneOf(containerId:"+containerId+") is not found");
         }
 
         return new HeartbeatResponse(100L);

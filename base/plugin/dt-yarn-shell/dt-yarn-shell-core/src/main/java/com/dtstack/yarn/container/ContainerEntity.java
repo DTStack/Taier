@@ -69,4 +69,15 @@ public class ContainerEntity {
         this.lastBeatTime = lastBeatTime;
     }
 
+    @Override
+    public String toString() {
+        return "ContainerEntity{" +
+                "lane=" + lane +
+                ", containerId=" + containerId +
+                ", dtContainerStatus=" + dtContainerStatus +
+                ", attempts=" + attempts +
+                ", nodeHost='" + nodeHost + '\'' +
+                ", lastBeatTime=" + lastBeatTime +
+                '}';
+    }
 }
