@@ -140,22 +140,33 @@ class DataSourceMana extends Component {
             source:cloneDeep(source),
         })
     }
-
+    getTypeName(type){
+        const { sourceTypes=[] } = this.props;
+        const source=sourceTypes.find((source)=>{
+            return source.value==type
+        })
+        return source?source.name:''
+    }
     initColumns = () => {
         const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
+        const { sourceTypes } = this.props;
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
+            width:"180px"
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
             width: '100px',
             render: (text, record) => {
-                return <DatabaseType value={record.type} />
+                return this.getTypeName(text);
             },
-            filters: DataSourceTypeFilter,
+            filters: sourceTypes.map((source)=>{
+                source.text=source.name;
+                return source;
+            }), 
             filterMultiple: false,
         },
         {

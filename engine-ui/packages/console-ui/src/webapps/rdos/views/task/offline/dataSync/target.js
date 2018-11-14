@@ -100,6 +100,10 @@ class TargetForm extends React.Component {
         })
     }
 
+    /**
+     * 根据数据源id获取数据源信息
+     * @param {*} id 
+     */
     getDataObjById(id) {
         const { dataSourceList } = this.props;
         return dataSourceList.filter(src => {
@@ -146,6 +150,9 @@ class TargetForm extends React.Component {
         } = this.props;
 
         setTimeout(() => {
+            /**
+             * targetMap
+             */
             let values = form.getFieldsValue();
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
@@ -822,7 +829,7 @@ class TargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue: !targetMap.type || !targetMap.type.fieldDelimiter ? ',' : targetMap.type.fieldDelimiter
+                            initialValue: targetMap.type&&typeof targetMap.type.fieldDelimiter !="undefined"?targetMap.type.fieldDelimiter:","
                         })(
                             <Input
                                 placeholder="若不填写，则默认,"
