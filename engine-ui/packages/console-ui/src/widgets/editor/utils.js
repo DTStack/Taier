@@ -9,9 +9,9 @@ const commonEvent = {
  * @param {IStandaloneCodeEditor} editor 编辑器实例
  * @param {Object} customKeys 事件对应的键值对，默认为{find: "find", replace: "replace", commandPane: "commandPane"}
  */
-export function commonFileEditDelegator(editor, customKeys={}) {
+export function commonFileEditDelegator(editor, customKeys = {}) {
     const defaultKeys = { find: "find", replace: "replace", commandPane: "commandPane" };
-    const keys={...defaultKeys,...customKeys};
+    const keys = { ...defaultKeys, ...customKeys };
 
     return function (key) {
         switch (key) {
@@ -29,4 +29,16 @@ export function commonFileEditDelegator(editor, customKeys={}) {
             }
         }
     }
+}
+
+export function jsonEqual(newJson, oldJson) {
+    if (newJson == oldJson) {
+        return true;
+    }
+    const newStr = JSON.stringify(newJson);
+    const oldStr = JSON.stringify(oldJson);
+    if (newStr == oldStr) {
+        return true;
+    }
+    return false;
 }
