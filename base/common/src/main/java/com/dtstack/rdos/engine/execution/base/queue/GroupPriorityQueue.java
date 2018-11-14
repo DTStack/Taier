@@ -37,7 +37,7 @@ public class GroupPriorityQueue {
 
     public boolean remove(String groupName, String jobId){
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
-        if(queue == null){
+        if (queue == null){
             return false;
         }
 
