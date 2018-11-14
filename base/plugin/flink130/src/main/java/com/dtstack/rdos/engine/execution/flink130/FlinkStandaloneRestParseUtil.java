@@ -184,7 +184,14 @@ public class FlinkStandaloneRestParseUtil {
                             if(rd.equals(BigDecimal.ZERO)) {
                                 perfMap.put("speedWrite", 0);
                             } else {
-                                perfMap.put("speedWrite", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+                                BigDecimal numError = new BigDecimal(perfMap.containsKey("numError") ? perfMap.get("numError").toString() : "0");
+                                BigDecimal numRead = new BigDecimal(perfMap.containsKey("numRead") ? perfMap.get("numRead").toString() : "0");
+                                if(numError.equals(numRead)){
+                                    perfMap.put("speedWrite", 0);
+                                    perfMap.put("byteWrite", 0);
+                                } else {
+                                    perfMap.put("speedWrite", br.multiply(BigDecimal.valueOf(1000)).divideToIntegralValue(rd).intValue());
+                                }
                             }
                         } catch(NumberFormatException ex) {
                             perfMap.put("speedWrite", 0);
