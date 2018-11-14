@@ -191,7 +191,7 @@ public class TaskStatusListener implements Runnable{
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, jobIdentifier, pluginInfoStr);
                 }
 
-                if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
                     FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
@@ -216,7 +216,7 @@ public class TaskStatusListener implements Runnable{
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
                 }
 
-                    RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
+                RdosTaskStatus rdosTaskStatus = JobClient.getStatus(engineTypeName, pluginInfoStr, jobIdentifier);
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
@@ -232,7 +232,7 @@ public class TaskStatusListener implements Runnable{
                     dealBatchJobAfterGetStatus(status, taskId, zkTaskId, computeType);
                 }
 
-                if(rdosTaskStatus != null && RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
                     FailedTaskInfo failedTaskInfo = new FailedTaskInfo(rdosBatchJob.getJobId(), jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
@@ -248,7 +248,6 @@ public class TaskStatusListener implements Runnable{
 
         //从engine获取log
         String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-
         updateJobEngineLog(jobId, jobLog, computeType);
     }
 
