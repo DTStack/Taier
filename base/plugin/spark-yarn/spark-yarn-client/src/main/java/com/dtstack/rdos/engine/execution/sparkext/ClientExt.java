@@ -93,13 +93,15 @@ public class ClientExt extends DtClient {
             throw new RdosException(String.format("can not create dir '%s' on engine", dirFile.getParent()));
         }
 
-        //FIXME 是否需要检查文件夹下文件的
         if(dirFile.exists()){
-            return confFileDirName;
-        }
-
-        if(!dirFile.mkdir()){
-            throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
+            File[] files = dirFile.listFiles();
+            if (files != null && files.length > 0){
+                return confFileDirName;
+            }
+        } else {
+            if(!dirFile.mkdir()){
+                throw new RdosException(String.format("can not create dir '%s' on engine", confFileDirName));
+            }
         }
 
         //从hdfs下载文件到新创建的目录下
@@ -110,7 +112,7 @@ public class ClientExt extends DtClient {
             LOG.error("", e);
             try {
                 //下载失败后文件可能没有成功下载或下载不全，直接删除该目录
-                FileUtil.deleteFile(confFileDirName, hadoopConf);
+                FileUtil.deleteFile(confFileDirName);
             } catch (Exception e1) {
                 LOG.error("", e1);
             }

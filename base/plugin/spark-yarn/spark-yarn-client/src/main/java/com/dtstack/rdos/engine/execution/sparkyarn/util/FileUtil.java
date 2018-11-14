@@ -15,15 +15,12 @@ import org.apache.hadoop.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -132,6 +129,28 @@ public class FileUtil {
                     fs.delete(path,false);
                 }
             }
+        }
+    }
+
+    public static void deleteFile(String delpath) {
+        try {
+            File file = new File(delpath);
+            if (!file.isDirectory()) {
+                file.delete();
+            } else if (file.isDirectory()) {
+                String[] filelist = file.list();
+                for (int i = 0; i < filelist.length; i++) {
+                    File delfile = new File(delpath + File.separator + filelist[i]);
+                    if (!delfile.isDirectory()) {
+                        delfile.delete();
+                    } else if (delfile.isDirectory()) {
+                        deleteFile(delpath + File.separator + filelist[i]);
+                    }
+                }
+                file.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
