@@ -3,6 +3,9 @@ import moment from "moment";
  * utils
  */
 /* eslint-disable */
+
+moment.locale("zh-cn");
+
 const utils = {
     /**
      * 获取页面宽度
@@ -89,29 +92,22 @@ const utils = {
     },
 
     formatDateTime: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm:ss");
     },
 
     formatDate: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD");
     },
     formatDateHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm");
-        
     },
     formatDayHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("MM-DD HH:mm");
     },
     formatHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("HH:mm");
     },
     formatMinute: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("HH:mm:ss");
     },
 

@@ -14,6 +14,7 @@ export default class TabIcon extends Component {
                 break;
             }
             case workbenchAction.OPEN_TABLE:
+            case workbenchAction.OPEN_TABLE_EDITOR:
             case workbenchAction.CREATE_TABLE: {
                 iconName = "table.svg";
                 break;
