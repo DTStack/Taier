@@ -223,7 +223,7 @@ class DatabaseDetail extends Component {
         {
             title: '邮箱',
             dataIndex: 'user.email',
-            key: 'email',
+            key: 'email'
         }, {
             title: '手机号',
             dataIndex: 'user.phoneNumber',

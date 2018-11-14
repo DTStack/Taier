@@ -76,14 +76,12 @@ class EditorContainer extends Component {
     }
 
     async initTableList(databaseId) {
-        console.log('initTableList:', databaseId)
         if (databaseId) {
             const res = await API.getTablesByDB({
                 databaseId,
             })
             if (res.code === 1) {
                 const tableList = res.data;
-                console.log('initTableList tableList:', tableList)
                 const items = tableList.map(table => {
                     return [table.tableName, "表名", "1200", "Field"];
                 })
