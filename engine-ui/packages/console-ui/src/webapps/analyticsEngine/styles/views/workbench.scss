@@ -500,6 +500,26 @@
         }
     }
 }
+
+.pop-delete{
+    .ant-popover-inner-content{
+        padding: 0
+    }
+    .ant-menu-item{
+        width: 96px;
+        height: 36px;
+        text-align: center;
+        line-height: 36px;
+        color: rgba(0, 0, 0, 0.65);
+        &:hover{
+            background-color: #e6f7ff !important;
+        }
+    }
+    .ant-menu-item-selected{
+        background-color: white;
+        color: rgba(0, 0, 0, 0.65);
+    }
+}
 .table-detail-container{
     .ant-pagination{
         .ant-pagination-item-active{
