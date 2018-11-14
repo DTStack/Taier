@@ -14,7 +14,6 @@ import {
 
 import ToolBar from './toolbar';
 import FolderTree from './folderTree';
-import commActions from "../../../actions";
 import workbenchActions from '../../../actions/workbenchActions';
 import MyIcon from '../../../components/icon';
 import { CATALOGUE_TYPE } from '../../../consts';
@@ -32,8 +31,7 @@ state => {
 },
 dispatch => {
     const actions = bindActionCreators(workbenchActions, dispatch);
-    const cmActions = bindActionCreators(commActions, dispatch);
-    return Object.assign(actions, cmActions);
+    return actions;
 })
 class Sidebar extends Component {
 
@@ -60,8 +58,6 @@ class Sidebar extends Component {
             catalogueContent: 'database',
         })
         this.props.loadCatalogue();
-        // 重新获取所有表
-        this.props.getAllTable();
     }
 
     searchTable = (value) => {
@@ -111,12 +107,15 @@ class Sidebar extends Component {
     onNodeSelect = (selectedKeys, { node }) => {
 
         const { expandedKeys } = this.state;
-        const { eventKey, fileType } = node.props;
+        const { eventKey, fileType, data } = node.props;
         this.setState({
             selectedKeys, 
         });
 
-        if (fileType === CATALOGUE_TYPE.DATA_MAP ) return false;
+        if (fileType === CATALOGUE_TYPE.DATA_MAP ) {
+            this.props.onGetDataMap({ id: data.id })
+            return false;
+        }
 
         const eventKeyIndex = expandedKeys.indexOf(eventKey);
         this.asynLoadCatalogue(node);

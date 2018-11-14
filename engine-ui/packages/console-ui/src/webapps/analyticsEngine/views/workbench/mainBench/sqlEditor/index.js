@@ -22,13 +22,12 @@ const Option = Select.Option;
 
 @connect(
     state => {
-        const { workbench, editor, common } = state;
+        const { workbench, editor } = state;
         const databaseList = workbench.folderTree.children || [];
         return {
             editor,
             workbench,
             databaseList,
-            tableList: common.tableList,
             currentTab: workbench.mainBench.currentTab,
         };
     },
@@ -65,7 +64,7 @@ class EditorContainer extends Component {
         this.setState({
             selectedDatabase: defaultDBValue,
         })
-        this.initTableList();
+        this.initTableList(defaultDBValue);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -74,21 +73,26 @@ class EditorContainer extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id);
         }
-        if (this.props.tableList !== nextProps.tableList) {
-            this.initTableList();
-        }
     }
 
-    initTableList() {
-        const { tableList } = this.props;
-        if (tableList && tableList.length > 0) {
-            const items = tableList.map(table => {
-                return [table.tableName, "表名", "1200", "Field"];
+    async initTableList(databaseId) {
+        console.log('initTableList:', databaseId)
+        if (databaseId) {
+            const res = await API.getTablesByDB({
+                databaseId,
             })
-            this.setState({
-                tableList: tableList,
-                tableCompleteItems: items,
-            });
+            if (res.code === 1) {
+                const tableList = res.data;
+                console.log('initTableList tableList:', tableList)
+                const items = tableList.map(table => {
+                    return [table.tableName, "表名", "1200", "Field"];
+                })
+                this.setState({
+                    tableList: tableList,
+                    tableCompleteItems: items,
+                });
+
+            }
         }
     }
 
@@ -287,6 +291,8 @@ class EditorContainer extends Component {
     onDatabaseChange = (value) => {
         this.setState({
             selectedDatabase: value,
+        }, () => {
+            this.initTableList(value);
         })
     }
 

@@ -35,7 +35,6 @@ class FormAddUser extends Component {
         let roleOptions = [];
         let initialValue = [];
         if (roles) {
-            console.log('roles:', roles)
             roles.forEach(role => {
                 // 判断哪些角色禁用
                 const disabled = isDisabledRole(MY_APPS.ANALYTICS_ENGINE, role.roleValue, user, myRoles);
@@ -116,6 +115,7 @@ class AddUser extends Component {
             if (!err) {
                 if (onSubmit) {
                     onSubmit(values);
+                    setTimeout(this.onCancel, 0);
                 }
             }
         });
