@@ -264,7 +264,7 @@ export const workbenchActions = (dispatch) => {
         },
 
         /**
-         * 集中处理Data同步中的变量
+         * 集中处理Data同步中的变量,例如${system.date}
          * @param {Object} dataSync 
          */
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
