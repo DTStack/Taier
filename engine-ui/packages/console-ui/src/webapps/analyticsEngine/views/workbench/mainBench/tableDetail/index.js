@@ -252,7 +252,7 @@ class TableDetail extends Component {
                 </Row>
                 <Row className="tabs-row" style={{marginBottom: 40}}>
                     <div className="tabs-container">
-                    <Tabs type="card" onChange={this.handleTabsChange}>
+                    <Tabs tabBarStyle={{height: 36}} tabBarGutter="0" type="card" onChange={this.handleTabsChange}>
                         {
                             tabsData.map(o=>(
                                 <TabPane forceRender={true} tab={o.title} key={o.key}>{o.content}</TabPane>
