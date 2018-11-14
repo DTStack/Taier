@@ -58,10 +58,10 @@ class Keymap extends React.Component{
         super(props);
 
         this.state = {
-            h: 40,
-            w: 230,
-            W: 450,
-            padding: 10,
+            h: 40,//字段一行高度
+            w: 230,//字段的宽度
+            W: 450,//step容器大小
+            padding: 10,//绘制拖拽点左右边距
             rowMap: false,
             nameMap: false,
             keyModalVisible: false,
@@ -87,6 +87,9 @@ class Keymap extends React.Component{
         };
     }
 
+    /**
+     * 获取step容器的大小，最小为450，其他情况为panel大小的5/6;
+     */
     getCanvasW() {
         let w = 450;
         const canvas = document.querySelector('.steps-content')
@@ -98,11 +101,23 @@ class Keymap extends React.Component{
     }
 
     componentDidMount() {
+        /**
+         * step容器
+         */
         this.$canvas = select(this.canvas);
+        /**
+         * 拖动的线
+         */
         this.$activeLine = select('#activeLine');
+        /**
+         * 设置step容器大小
+         */
         this.setState({
             W: this.getCanvasW(),
         })
+        /**
+         * 开始画
+         */
         this.drawSvg();
         this.listenResize();
         this.loadColumnFamily();
@@ -136,6 +151,9 @@ class Keymap extends React.Component{
         this.bindEvents();
     }
 
+    /**
+     * 绘制字段旁边的拖拽点
+     */
     renderDags() {
         const { w, h, W, padding } = this.state;
         const { targetCol, sourceCol, keymap } = this.props;
@@ -165,6 +183,9 @@ class Keymap extends React.Component{
             .attr('class', 'col-dag-r')
             .append('circle')
             .attr('class', 'dag-circle')
+            /**
+             * W-w*2代表绘制区域的宽度
+             */
             .attr('cx', (d, i) => { return (W - w*2 - padding)})
             .attr('cy', (d, i) => h * (i + 1.5))
             .attr('r', 5)
@@ -277,7 +298,14 @@ class Keymap extends React.Component{
         const $dagL = selectAll('.col-dag-l');
 
         let isMouseDown = false;
-        let sourceKey_obj, targetKey_obj;
+        /**
+         *阿珍
+         */
+        let sourceKey_obj;
+        /**
+         * 阿强
+         */
+        let targetKey_obj;
 
         $dagL.on('mousedown', (d, i, nodes) => {
             let sx = padding, sy = (i + 1.5) * h;
@@ -313,8 +341,13 @@ class Keymap extends React.Component{
                     });
                 }
             }
-
+            /**
+             * 阿珍爱上了阿强
+             */
             if(sourceKey_obj && targetKey_obj) {
+                /**
+                 * 存储连线
+                 */
                 addLinkedKeys({
                     source: isRDB(sourceSrcType) ?
                         sourceKey_obj.key : sourceKey_obj,

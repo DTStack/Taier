@@ -333,7 +333,7 @@ class Index extends Component {
                                                                             </Card>
                                                                 </Col >
                                                                 <Col span="12">
-                                                                    <Card className="card-task" style={{ padding: "1.5 0" }}
+                                                                    <Card className="card-task"
                                                                         onClick={() => { this.setRouter('operation', v) }}
                                                                         onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
                                                                         onMouseOut={(e) => { this.handleMouseOut('operation', e) }}

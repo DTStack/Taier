@@ -117,6 +117,20 @@ console.log(dataList)
           text?text:'-'
         )
       }
+    ];
+    const partitionCol = [{
+      title: '字段名称',
+      dataIndex: 'name',
+    },{
+      title: '类型',
+      dataIndex: 'type',
+    },{
+      title: '注释',
+      dataIndex: 'comment',
+      render: (text,record)=>(
+        text?text:'-'
+      )
+    }
     ]
     return(
       <div className="pane-field-container">
@@ -129,7 +143,7 @@ console.log(dataList)
           <span style={{color: 'rgb(204, 204, 204)'}}>共{this.state.paginationParams.total}个字段</span>
         </div>
         <Table
-        columns={tableCOl}
+        columns={this.state.dataType === 'column'?tableCOl:partitionCol}
         size="small"
         dataSource={dataList}
         rowKey="id"
