@@ -23,7 +23,7 @@ import java.util.Map;
  * @ahthor xuchao
  */
 
-public class FlinkStandaloneRestParseUtil {
+public class FlinkRestParseUtil {
 
     /**
      * 数据样例
@@ -62,7 +62,7 @@ public class FlinkStandaloneRestParseUtil {
 
     private final static ObjectMapper objMapper = new ObjectMapper();
 
-    private static Logger logger = LoggerFactory.getLogger(FlinkStandaloneRestParseUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(FlinkRestParseUtil.class);
 
 
     /**

@@ -571,11 +571,11 @@ public class FlinkClient extends AbsClient {
             return yarnLog.toString();
         }
 
-        String exceptPath = String.format(FlinkStandaloneRestParseUtil.EXCEPTION_INFO, jobId);
+        String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
         String except = getMessageByHttp(exceptPath);
-        String jobPath = String.format(FlinkStandaloneRestParseUtil.JOB_INFO, jobId);
+        String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
         String jobInfo = getMessageByHttp(jobPath);
-        String accuPath = String.format(FlinkStandaloneRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+        String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
         String accuInfo = getMessageByHttp(accuPath);
         Map<String,String> retMap = new HashMap<>();
         retMap.put("except", except);
@@ -583,7 +583,7 @@ public class FlinkClient extends AbsClient {
         retMap.put("accuInfo", accuInfo);
 
         try {
-            return FlinkStandaloneRestParseUtil.parseEngineLog(retMap);
+            return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (Throwable e) {
             logger.error("", e);
             try {
@@ -601,8 +601,8 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String slotInfo = getMessageByHttp(FlinkStandaloneRestParseUtil.SLOTS_INFO);
-        FlinkResourceInfo resourceInfo = FlinkStandaloneRestParseUtil.getAvailSlots(slotInfo);
+        String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
+        FlinkResourceInfo resourceInfo = FlinkRestParseUtil.getAvailSlots(slotInfo);
         if(resourceInfo == null){
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();
