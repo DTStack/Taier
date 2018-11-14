@@ -31,6 +31,8 @@ public enum ErrorCode {
     METHOD_FORBIDDEN(50, "该方法禁止被调用"),
     CALL_UNLAWFUL(51, "请求非法"),
 
+    HTTP_CALL_ERROR(60, "http 调用失败"),
+
 
     /***----------------end 公共模块错误码 end ----------------------------------------****/
 

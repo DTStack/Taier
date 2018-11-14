@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import avro.shaded.com.google.common.collect.Sets;
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
@@ -80,6 +81,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.dtstack.rdos.commom.exception.ErrorCode.HTTP_CALL_ERROR;
 import static java.security.AccessController.doPrivileged;
 
 /**
@@ -691,18 +693,18 @@ public class FlinkClient extends AbsClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-        String except = getMessageByHttp(exceptPath, reqURL);
-        String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
-        String jobInfo = getMessageByHttp(jobPath, reqURL);
-        String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
-        String accuInfo = getMessageByHttp(accuPath, reqURL);
-        Map<String,String> retMap = new HashMap<>();
-        retMap.put("except", except);
-        retMap.put("jobInfo", jobInfo);
-        retMap.put("accuInfo", accuInfo);
+        Map<String,String> retMap = Maps.newHashMap();
 
         try {
+            String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
+            String except = getMessageByHttp(exceptPath, reqURL);
+            String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
+            String jobInfo = getMessageByHttp(jobPath, reqURL);
+            String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
+            String accuInfo = getMessageByHttp(accuPath, reqURL);
+            retMap.put("except", except);
+            retMap.put("jobInfo", jobInfo);
+            retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
         } catch (IOException e) {
             logger.error("", e);
@@ -711,6 +713,12 @@ public class FlinkClient extends AbsClient {
             } catch (IOException e1) {
                 return "get engine message error," + e.getMessage();
             }
+        } catch (RdosException e){
+            if(HTTP_CALL_ERROR.equals(e.getErrorCode())){
+                return ExceptionUtil.getTaskLogError();
+            }
+
+            throw e;
         }
     }
 

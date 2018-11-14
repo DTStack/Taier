@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 
+import static com.dtstack.rdos.commom.exception.ErrorCode.HTTP_CALL_ERROR;
+
 /**
  * 
  * Reason: TODO ADD REASON(可选)
@@ -134,9 +136,9 @@ public class PoolHttpClient {
 				logger.warn("request url:{} fail:{}",url,response.getStatusLine().getStatusCode());
 
 				if(response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND){
-					throw new RdosException(HttpStatus.SC_NOT_FOUND + "");
+					throw new RdosException(HttpStatus.SC_NOT_FOUND + "", HTTP_CALL_ERROR);
 				}else if(response.getStatusLine().getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR){
-					throw new RdosException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "");
+					throw new RdosException(HttpStatus.SC_INTERNAL_SERVER_ERROR + "", HTTP_CALL_ERROR);
 				}
 			}
 		} catch (IOException e) {
