@@ -2,7 +2,7 @@ import React from "react"
 import moment from "moment"
 import utils from "utils";
 
-import { Radio, Collapse, Row, Col, Icon } from "antd"
+import { Radio, Collapse, Row, Col, Icon, Tooltip } from "antd"
 
 import AlarmBaseGraph from "./baseGraph";
 import { TIME_TYPE, CHARTS_COLOR } from "../../../../../../comm/const";
@@ -227,11 +227,15 @@ class StreamDetailGraph extends React.Component {
             <div className="pane-graph-box">
                 <header className="graph-header" style={{ padding: "10px 20px 10px 20px", overflow: "hidden" }}>
                     <span className="m-radio-group" style={{ float: "right" }}>
-                        <Icon 
-                        onClick={this.initData.bind(this, null)} 
-                        type="reload" 
-                        style={{ color: "#333",marginRight:"20px",cursor: 'pointer', }} 
-                        />
+                        <Tooltip
+                            title="刷新"
+                        >
+                            <Icon
+                                onClick={this.initData.bind(this, null)}
+                                type="reload"
+                                style={{ color: "#333", marginRight: "20px", cursor: 'pointer', }}
+                            />
+                        </Tooltip>
                         <RadioGroup
                             className="no-bd nobackground"
                             onChange={this.changeTime.bind(this)}
@@ -257,6 +261,7 @@ class StreamDetailGraph extends React.Component {
                                             color: CHARTS_COLOR,
                                             legend: ["输入RPS", "输出RPS"]
                                         }}
+                                        desc="输入/输出数据量，单位是RecordPerSecond。"
                                         title="输入/输出RPS" />
                                 </section>
                                 <section>
@@ -267,6 +272,7 @@ class StreamDetailGraph extends React.Component {
                                             color: CHARTS_COLOR,
                                             legend: ["输入BPS", "输出BPS"],
                                         }}
+                                        desc="输入/输出数据量，单位是BytePerSecond。"
                                         title="输入/输出BPS" />
                                 </section>
                             </div>
@@ -279,6 +285,7 @@ class StreamDetailGraph extends React.Component {
                                             color: CHARTS_COLOR,
                                             legend: ["累计输入RPS", "累计输出RPS"]
                                         }}
+                                        desc="累计输入/输出数据量，单位是RecordPerSecond。"
                                         title="累计输入/输出RPS" />
                                 </section>
                                 <section>
@@ -290,6 +297,7 @@ class StreamDetailGraph extends React.Component {
                                             unit: 'KB',
                                             legend: ["累计输入BPS", "累计输出BPS"]
                                         }}
+                                        desc="累计输入/输出数据量，单位是BytePerSecond。"
                                         title="累计输入/输出BPS" />
                                 </section>
                             </div>
@@ -306,6 +314,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     legend: ["Rate"]
                                                 }}
+                                                desc="当前任务出现Failover（错误或者异常）的频率。计算方法：当前Failover时间点的前一分钟内出现Failover的累计次数/60次。"
                                                 title="FailOver Rate" />
                                         </section>
                                         <section>
@@ -316,6 +325,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     unit: "s"
                                                 }}
+                                                desc="数据中的时间戳与数据进入计算引擎之间的时间差，例如原始数据中的时间戳是2018-01-01 12:12:12，而流计算集群的当前时间为2018-01-01 12:13:12，则业务延迟为1分钟，每个KafkaTopic对应的业务延迟独立显示为不同的曲线。"
                                                 title="业务延时" />
                                         </section>
                                     </div>
@@ -328,6 +338,7 @@ class StreamDetailGraph extends React.Component {
                                                     ...lineDatas[metricsType.SOURCE_TPS],
                                                     unit: "条/秒"
                                                 }}
+                                                desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
                                                 title="各Source的TPS数据输入" />
                                         </section>
                                         <section>
@@ -338,6 +349,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     unit: "条/秒"
                                                 }}
+                                                desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
                                                 title="各Sink的数据输出" />
                                         </section>
                                     </div>
@@ -350,6 +362,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     unit: "rps 条/秒"
                                                 }}
+                                                desc="对流式数据输入（Kafka）进行统计，单位是RPS(Record Per Second)。"
                                                 title="各Source的RPS数据输入" />
                                         </section>
                                         <section>
@@ -360,6 +373,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     unit: "KB"
                                                 }}
+                                                desc="对流式数据输入（Kafka）进行统计，单位是BPS(BytePer Second)。"
                                                 title="各Source的BPS数据输入" />
                                         </section>
                                     </div>
@@ -372,6 +386,7 @@ class StreamDetailGraph extends React.Component {
                                                     ...lineDatas[metricsType.SOURCE_DIRTY],
                                                     color: CHARTS_COLOR,
                                                 }}
+                                                desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
                                                 title="各Source的脏数据" />
                                         </section>
                                     </div>
@@ -386,6 +401,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     legend: ["数据迟到丢弃TPS"]
                                                 }}
+                                                desc="基于事件时间（EventTime）的流任务中，如果element的事件时间迟于允许的最大延迟时间，在窗口相关的操作中，该element将会被丢弃。"
                                                 title="数据迟到丢弃TPS" />
                                         </section>
                                         <section>
@@ -396,6 +412,7 @@ class StreamDetailGraph extends React.Component {
                                                     color: CHARTS_COLOR,
                                                     legend: ["数据迟到累计丢弃数"]
                                                 }}
+                                                desc="数据因迟到被丢弃的累计数量。"
                                                 title="数据迟到累计丢弃数" />
                                         </section>
                                     </div>

@@ -1,5 +1,5 @@
 import React from "react"
-import { Spin, Icon } from "antd";
+import { Spin, Icon, Tooltip } from "antd";
 import moment from "moment";
 import utils from "utils";
 import { cloneDeep } from "lodash";
@@ -17,16 +17,16 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
-function haveData(lineData={}){
-    const { y=[]} = lineData;
+function haveData(lineData = {}) {
+    const { y = [] } = lineData;
 
-    let haveData=false;
-    y.forEach((item)=>{
-        if(item&&item.length){
-            haveData=true;
+    let haveData = false;
+    y.forEach((item) => {
+        if (item && item.length) {
+            haveData = true;
         }
     })
-    if(!haveData){
+    if (!haveData) {
         return false;
     }
     return true;
@@ -35,22 +35,31 @@ class AlarmBaseGraphBox extends React.Component {
     state = {
         key: '' + Math.random()
     }
-    
+
     render() {
         const { key } = this.state;
-        const { title, lineData } = this.props;
+        const { title, lineData, desc } = this.props;
         const { loading } = lineData;
-        const haveLineData=haveData(lineData);
+        const haveLineData = haveData(lineData);
         return (
             <div className="basegraph-size">
                 <div id={key} className="alarm-basegraph-box">
                     <header>
                         {title}
-                        {!loading&&haveLineData?<FullScreen
+                        {desc && (
+                            <Tooltip
+                                title={desc}
+                                overlayClassName="big-tooltip"
+                            >
+                                <Icon style={{ marginLeft: "8px", fontWeight: "normal" }} type="question-circle-o" />
+                            </Tooltip>
+                        )}
+
+                        {!loading && haveLineData ? <FullScreen
                             target={key}
                             fullIcon={<Icon className="alt" type="arrows-alt" />}
                             exitFullIcon={<Icon className="alt" type="shrink" />}
-                            isShowTitle={false} />:null}
+                            isShowTitle={false} /> : null}
                     </header>
                     {loading ?
                         <div className="loading-box">
@@ -58,7 +67,7 @@ class AlarmBaseGraphBox extends React.Component {
                         </div>
                         :
                         <div className="graph-content">
-                            {haveLineData?<AlarmBaseGraph   {...this.props} />:<p className="no-data-text">暂无数据</p>}
+                            {haveLineData ? <AlarmBaseGraph   {...this.props} /> : <p className="no-data-text">暂无数据</p>}
                         </div>
                     }
                 </div>
@@ -83,19 +92,19 @@ class AlarmBaseGraph extends React.Component {
             this.initGraph(nextProps.lineData, nextProps.time)
         }
     }
-    exchangeDate(date, time,joinLine) {
+    exchangeDate(date, time, joinLine) {
         switch (time) {
             case TIME_TYPE.M10:
-            case TIME_TYPE.H1:{
+            case TIME_TYPE.H1: {
                 return utils.formatMinute(parseInt(date));
             }
             case TIME_TYPE.H6:
             case TIME_TYPE.D1: {
                 return utils.formatHours(parseInt(date));
             }
-            
+
             case TIME_TYPE.W1: {
-                if(joinLine){
+                if (joinLine) {
                     return utils.formatDayHours(parseInt(date)).split(" ").join("\n")
                 }
                 return utils.formatDayHours(parseInt(date));
@@ -116,11 +125,11 @@ class AlarmBaseGraph extends React.Component {
         if (loading) {
             return;
         }
-        const { x, y=[], legend, color, unit } = lineData;
+        const { x, y = [], legend, color, unit } = lineData;
         /**
          * 先检验是不是有数据，没数据就不渲染了
          */
-        if(!haveData(lineData)){
+        if (!haveData(lineData)) {
             return;
         }
         /**
@@ -140,15 +149,15 @@ class AlarmBaseGraph extends React.Component {
          * 设置横坐标数值
          */
         options.xAxis[0].data = x
-        options.xAxis[0].axisLabel={
+        options.xAxis[0].axisLabel = {
             ...options.xAxis[0].axisLabel,
-            formatter:(value)=>{
+            formatter: (value) => {
                 return this.exchangeDate(value, time, true)
             }
         }
-        options.xAxis[0].axisPointer={
-            label:{
-                formatter:(params)=>{
+        options.xAxis[0].axisPointer = {
+            label: {
+                formatter: (params) => {
                     return utils.formatDateTime(parseInt(params.value))
                 }
             }
@@ -175,7 +184,7 @@ class AlarmBaseGraph extends React.Component {
         options.grid.left = "20px";
         options.grid.right = "40px";
         options.grid.top = "50px";
-        options.grid.containLabel=true
+        options.grid.containLabel = true
         /**
          * 设置具体的数据
          */
@@ -185,7 +194,7 @@ class AlarmBaseGraph extends React.Component {
                 data: item,
                 type: "line",
                 smooth: true,
-                showSymbol: item.length>2?false:true
+                showSymbol: item.length > 2 ? false : true
             }
             if (color[index]) {
                 line.lineStyle = {
