@@ -360,7 +360,7 @@ class DatabaseDetail extends Component {
                                 <td>创建者</td>
                                 <td>{data.createUserName}</td>
                                 <td>物理存储量</td>
-                                <td>{data.size}</td>
+                                <td>{utils.convertBytes(data.size)}</td>
                             </tr>
                         </tbody>
                     </table>

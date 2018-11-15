@@ -1,19 +1,17 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import API from '../../../../api'
-import { Button, Tabs, Row, notification, Dropdown, Menu, Modal, message, Popover} from 'antd';
+import { Button, Tabs, Row, notification, Menu, Modal, message, Popover} from 'antd';
 import MyIcon from '../../../../components/icon';
 
 import PaneData from './paneData';
 import PaneField from './paneField';
-import PaneIndex from './paneIndex';
 import PanePartition from './panePartition';
 import PaneBucket from './paneBucket';
-import { MenuItem } from 'widgets/context-menu';
+import utils from 'utils';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
-
 
 
 class TableDetail extends Component {
@@ -217,7 +215,10 @@ class TableDetail extends Component {
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
-                            <td>{tableDetail.blockSize || '-'}</td>
+                            <td>{
+                                tableDetail.blockSize ? 
+                                utils.convertBytes(tableDetail.blockSize) : '-'
+                            }</td>
                         </tr>
                         </tbody>
                     </table>

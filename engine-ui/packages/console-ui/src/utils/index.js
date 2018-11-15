@@ -161,21 +161,28 @@ const utils = {
         document.cookie = name + "=" + value + expires + "; path=/";
     },
 
+    // TODO, 可以修改为递归算法
     convertBytes: function(value) {
-        if (value > 1024) {
+        if (value >= 1024) {
             const val0 = (value / 1024).toFixed(2);
 
-            if (val0 > 1024) {
+            if (val0 >= 1024) {
                 // to KB
 
                 const val1 = (val0 / 1024).toFixed(2);
 
-                if (val1 > 1024) {
+                if (val1 >= 1024) {
                     // MB
 
                     const val2 = (val1 / 1024).toFixed(2);
 
-                    return `${val2} GB`;
+                    if (val2 >= 1024) {
+                        const val3 = (val2 / 1024).toFixed(2);
+                        return `${val3} PB`;
+                    } else {
+                        return `${val2} GB`;
+                    }
+
                 } else {
                     return `${val1} MB`;
                 }
