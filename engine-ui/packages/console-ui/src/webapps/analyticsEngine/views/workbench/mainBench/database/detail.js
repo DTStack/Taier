@@ -228,11 +228,11 @@ class DatabaseDetail extends Component {
             title: '手机号',
             dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
+            width: 100,
         }, {
             title: '角色',
             dataIndex: 'roles',
             key: 'roles',
-            width: 120,
             render(roles) {
                 const roleNames = roles.map(role => role && role.roleName)
                 return roleNames.join(',')
@@ -241,13 +241,14 @@ class DatabaseDetail extends Component {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
+            width: 150,
             render(time) {
                 return utils.formatDateTime(time);
             }
         }, {
             title: '操作',
             dataIndex: 'id',
-            width: 100,
+            width: 140,
             key: 'id',
             render: (id, record) => {
                 // active '0：未启用，1：使用中'。 只有为0时，可以修改
@@ -256,18 +257,18 @@ class DatabaseDetail extends Component {
                 return (
                     <span key={id}>
                         <a onClick={() => { this.initEdit(record) }}>
-                            编辑
+                            编辑角色
                         </a>
                         {
                             canRemove ? 
                             <span>
                                 <span className="ant-divider" />
                                 <Popconfirm
-                                    title="确定移除此用户？"
+                                    title="确定移出此用户？"
                                     okText="确定" cancelText="取消"
                                     onConfirm={() => { this.removeUser(record) }}
                                 >
-                                    <a>移除</a>
+                                    <a>移出数据库</a>
                                 </Popconfirm>
                             </span>
                             : ''
@@ -284,7 +285,7 @@ class DatabaseDetail extends Component {
 
     renderDropMenu = () => {
         return (
-            <Dropdown overlay={
+            <Dropdown trigger={['click']} overlay={
                 <Menu onClick={this.onSelectMenu}>
                     <Menu.Item key="RESET">
                         重置密码
@@ -359,7 +360,7 @@ class DatabaseDetail extends Component {
                                 <td>创建者</td>
                                 <td>{data.createUserName}</td>
                                 <td>物理存储量</td>
-                                <td>{data.size}</td>
+                                <td>{utils.convertBytes(data.size)}</td>
                             </tr>
                         </tbody>
                     </table>
