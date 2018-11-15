@@ -69,7 +69,6 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +123,7 @@ public class FlinkClient extends AbsClient {
 
     private SqlPluginInfo sqlPluginInfo;
 
-    private ClusterClient client;
+    private ClusterClient flinkClient;
 
     private Map<String, List<String>> cacheFile = Maps.newConcurrentMap();
 
@@ -174,7 +173,7 @@ public class FlinkClient extends AbsClient {
             clusterClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
         }
 
-        if (yarnCluster && flinkYarnMode != FlinkYarnMode.PER_JOB){
+        if (yarnCluster){
             yarnMonitorES = new ThreadPoolExecutor(1, 1,
                     0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
@@ -192,7 +191,7 @@ public class FlinkClient extends AbsClient {
     }
 
     public void initClient(){
-        client = flinkClientBuilder.create(flinkConfig, flinkExtProp);
+        flinkClient = flinkClientBuilder.create(flinkConfig, flinkExtProp);
         setClientOn(true);
     }
 
@@ -295,7 +294,7 @@ public class FlinkClient extends AbsClient {
             return Pair.create(flinkJobId, applicationId);
         } else {
 
-            JobSubmissionResult result = client.run(program, parallelism);
+            JobSubmissionResult result = flinkClient.run(program, parallelism);
             if (result.isJobExecutionResult()) {
                 logger.info("Program execution finished");
                 JobExecutionResult execResult = result.getJobExecutionResult();
@@ -439,7 +438,7 @@ public class FlinkClient extends AbsClient {
             if(!Strings.isNullOrEmpty(applicationId)){
                 targetClusterClient = clusterClientCache.getClusterClient(jobIdentifier);
             }else{
-                targetClusterClient = client;
+                targetClusterClient = flinkClient;
             }
 
             JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
@@ -472,7 +471,7 @@ public class FlinkClient extends AbsClient {
             return null;
         }
 
-        String reqUrl = getReqUrl(client) + "/jobs/" + jobId;
+        String reqUrl = getReqUrl(flinkClient) + "/jobs/" + jobId;
         String response = null;
         try{
             response = PoolHttpClient.get(reqUrl);
@@ -501,7 +500,7 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             //flink-session被kill的情况下，如果找不到application或appid不对，则为失败
             //其他情况置为not find
-            ApplicationId appId = ((YarnClusterClient) client).getApplicationId();
+            ApplicationId appId = ((YarnClusterClient) flinkClient).getApplicationId();
             ApplicationId yarnAppId = null;
             try {
                 yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor(), flinkConfig);
@@ -581,7 +580,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private String getNewReqUrl(){
-        return client.getWebInterfaceURL();
+        return flinkClient.getWebInterfaceURL();
     }
 
     /**
@@ -615,11 +614,11 @@ public class FlinkClient extends AbsClient {
                 addr = yarnConf.get("yarn.resourcemanager.webapp.address");
             }
 
-            String appId = client.getClusterId().toString();
-            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) client.getClusterId()).getYarnApplicationState();
+            String appId = flinkClient.getClusterId().toString();
+            YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) flinkClient.getClusterId()).getYarnApplicationState();
             if (YarnApplicationState.RUNNING != yarnApplicationState){
                 this.initClient();
-                appId = client.getClusterId().toString();
+                appId = flinkClient.getClusterId().toString();
             }
 
             url = String.format(FLINK_URL_FORMAT, addr, appId);
@@ -633,7 +632,7 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public String getJobMaster(){
-    	String url = getReqUrl(client);
+    	String url = getReqUrl(flinkClient);
     	return url.split("//")[1];
     }
 
@@ -651,7 +650,7 @@ public class FlinkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-        String reqUrl = String.format("%s%s", getReqUrl(client), path);
+        String reqUrl = String.format("%s%s", getReqUrl(flinkClient), path);
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
@@ -686,7 +685,7 @@ public class FlinkClient extends AbsClient {
             if(StringUtils.isNotBlank(applicationId)){
                 currClient = clusterClientCache.getClusterClient(jobIdentifier);
             }else{
-                currClient = client;
+                currClient = flinkClient;
             }
 
             reqURL = currClient.getWebInterfaceURL();
@@ -838,7 +837,7 @@ public class FlinkClient extends AbsClient {
             if(StringUtils.isNotBlank(appId)){
                 currClient = clusterClientCache.getClusterClient(jobIdentifier);
             }else{
-                currClient = client;
+                currClient = flinkClient;
             }
 
             reqURL = currClient.getWebInterfaceURL();
@@ -868,8 +867,8 @@ public class FlinkClient extends AbsClient {
         return isClientOn.get();
     }
 
-    public ClusterClient getClient() {
-        return client;
+    public ClusterClient getFlinkClient() {
+        return flinkClient;
     }
 
 }

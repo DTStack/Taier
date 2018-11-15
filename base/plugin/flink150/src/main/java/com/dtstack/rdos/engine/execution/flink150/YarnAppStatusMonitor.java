@@ -43,7 +43,7 @@ public class YarnAppStatusMonitor implements Runnable{
             if (flinkClient.isClientOn()) {
                 if (yarnClient.isInState(Service.STATE.STARTED)) {
 
-                    applicationId = (ApplicationId) flinkClient.getClient().getClusterId();
+                    applicationId = (ApplicationId) flinkClient.getFlinkClient().getClusterId();
 
                     final ApplicationReport applicationReport;
 
