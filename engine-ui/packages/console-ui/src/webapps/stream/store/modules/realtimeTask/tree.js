@@ -99,7 +99,7 @@ export function realtimeTree(state = {}, action) {
         }
         return removed[0]
     }
-    case browserAction.CLEAR_PAGES:{
+    case treeAction.RESET_TREE:{
         return {};
     }
     default:
