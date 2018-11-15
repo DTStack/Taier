@@ -54,17 +54,11 @@ class EditorContainer extends Component {
     _tableLoading = {};
 
     componentDidMount() {
-        const { databaseList, data } = this.props;
+        const { data, databaseList } = this.props;
         if (data) {
             this.props.getTab(data.id); //初始化console所需的数据结构
         }
-
-        const defaultDBValue = data && data.databaseId ? data.databaseId : 
-        databaseList.length > 0 ? databaseList[0].id : '';
-        this.setState({
-            selectedDatabase: defaultDBValue,
-        })
-        this.initTableList(defaultDBValue);
+        this.initEditorData(data, databaseList);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -73,6 +67,21 @@ class EditorContainer extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id);
         }
+        if (this.props.databaseList !== nextProps.databaseList) {
+            this.initEditorData(current, nextProps.databaseList);
+        }
+    }
+
+    initEditorData = (data, databaseList) => {
+    
+        const defaultDBValue = data && data.databaseId ? data.databaseId : 
+        databaseList.length > 0 ? databaseList[0].id : '';
+
+        console.log('defaultDb:', defaultDBValue);
+        this.setState({
+            selectedDatabase: `${defaultDBValue}`,
+        })
+        this.initTableList(defaultDBValue);
     }
 
     async initTableList(databaseId) {
@@ -297,7 +306,7 @@ class EditorContainer extends Component {
     customToolbar = () => {
         const { databaseList, data } = this.props;
         const dbOptions = databaseList && databaseList.map(opt => (
-            <Option key={`${opt.id}`} value={opt.id}>{opt.name}</Option>
+            <Option key={`${opt.id}`} value={`${opt.id}`}>{opt.name}</Option>
         ))
         
         return (
