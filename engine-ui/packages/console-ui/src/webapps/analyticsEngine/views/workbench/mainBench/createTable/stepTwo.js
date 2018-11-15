@@ -417,7 +417,9 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <span style={{fontSize: 12,width: 159,display:'block'}}>{text}</span>
+          text?
+          <span style={{fontSize: 12,width: 159,display:'block'}}>{text}</span>:
+          '-'
         )
       },{
         title: '注释',

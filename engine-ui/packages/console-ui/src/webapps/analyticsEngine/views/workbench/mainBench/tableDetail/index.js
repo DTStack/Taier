@@ -164,7 +164,7 @@ class TableDetail extends Component {
                     <div className="func-box">
                         <span className="title" style={{fontWeight: 'bold'}}>表信息</span>
                         <span style={{display: 'flex',alignItems: 'center'}}>
-                            <Button className="btn" style={{marginRight: 10}} type="primary"
+                            <Button className="btn" style={{marginRight: 20}} type="primary"
                                 onClick={() => onGenerateCreateSQL({
                                     tableId: tableDetail.id,
                                     databaseId: tableDetail.databaseId,
@@ -232,7 +232,7 @@ class TableDetail extends Component {
                                 <td>MAJOR_COMPACTION_SIZE</td>
                                 <td>{tableDetail.compactionSize}</td>
                                 <td>AUTO_LOAD_MERGE</td>
-                                <td>{tableDetail.autoLoadMerge}</td>
+                                <td>{tableDetail.autoLoadMerge === 1?'true':'false'}</td>
                             </tr>
                             <tr>
                                 <td>COMPACTION_LEVEL_THRESHOLD</td>
