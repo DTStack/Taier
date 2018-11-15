@@ -62,6 +62,8 @@ const partition_mode = [
 ]
 //string、char、varchar、timestamp、date
 const bucketType = ['STRING','CHAR','VARCHAR','TIMESTAMP','DATE']
+const sortColumn = ['String','DATE','TIMESTAMP','SMALLINT','INT','BIGINT','BOOLEAN','CHAR','VARCHAR']
+
 
 const decimalPrecision = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38]
 const decimalScale = [0,1,2,3,4,5,6,7,8,9]
@@ -175,6 +177,12 @@ export default class StepTwo extends Component{
     }else if(e === 'DECIMAL' || e === 'DOUBLE'){
       this.handleSortColumn({target: {checked: false}},record)
     }
+    if(bucketType.indexOf(e) > -1){
+      this.handleBucketChange({target: {checked: false}},record)
+    }
+    if(sortColumn.indexOf(e) > -1){
+      this.handleSortColumn({target: {checked: true}},record)
+    }
     this.saveDataToStorage();
   }
   handleCommentChange = (e,record)=>{
@@ -277,12 +285,13 @@ export default class StepTwo extends Component{
   }
 
   handleBucketChange = (e,record)=>{
-    console.log(e)
-    record.flagIndex = e;
-    const {columns} = this.state;
-    e = columns[e];
-    record.name = e.name;
-    record.type = e.type;
+    // console.log(e)
+    // record.flagIndex = e;
+    // const {columns} = this.state;
+    // e = columns[e];
+    // record.name = e.name;
+    // record.type = e.type;
+    record.isBucket = e.target.checked;
     this.saveDataToStorage();
   }
 
@@ -510,6 +519,12 @@ export default class StepTwo extends Component{
           <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} checked={record.sortColumn || false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
+        title: '是否分桶',
+        dataIndex: 'isBucket',
+        render: (text,record)=>(
+          <Checkbox disabled={bucketType.indexOf(record.type) === -1} checked={record.isBucket || false} onChange={(e)=>this.handleBucketChange(e,record)}></Checkbox>
+        )
+      },{
         title: '注释',
         dataIndex: 'comment',
         render: (text,record)=>(
@@ -597,14 +612,14 @@ export default class StepTwo extends Component{
             <span>分桶数量：</span>
             <Input style={{width: 150,marginRight: 4}} value={bucketInfo.bucketNumber} placeholder="1-1000之间的正整数" onChange={this.handleBarrelDataParamCahnge}/>个
           </div>
-          <Table
+          {/* <Table
           columns={this.getTableCol(4)}
           dataSource={bucketInfo.infos || []}
           rowKey="_fid"
           pagination={false}
           size="small"
           ></Table>
-          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(3)}><Icon className="icon" type="plus-circle-o" />添加分桶字段</a>
+          <a className="btn" href="javascript:;" onClick={()=>this.addNewLine(3)}><Icon className="icon" type="plus-circle-o" />添加分桶字段</a> */}
         </div>
 
         <div className="nav-btn-box">
