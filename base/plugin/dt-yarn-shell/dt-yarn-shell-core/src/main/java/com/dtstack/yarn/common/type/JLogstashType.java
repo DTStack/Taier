@@ -49,20 +49,20 @@ public class JLogstashType extends AppType {
 
 
         LOG.info("Building jlogstash launch command");
-        List<String> appMasterArgs = new ArrayList<>(20);
-        appMasterArgs.add(javaHome + "/java");
-        appMasterArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
-        appMasterArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
-        appMasterArgs.add("-cp " + root + "/jlogstash.jar");
-        appMasterArgs.add("com.dtstack.jlogstash.JlogstashMain");
-        appMasterArgs.add("-l stdout");
-        appMasterArgs.add("-vvv");
-        appMasterArgs.add("-f " + encodedOpts);
-        appMasterArgs.add("-p " + root);
-        appMasterArgs.add("-name " + appName);
+        List<String> jlogstashArgs = new ArrayList<>(20);
+        jlogstashArgs.add(javaHome + "/java");
+        jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
+        jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
+        jlogstashArgs.add("-cp " + root + "/jlogstash.jar");
+        jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
+        jlogstashArgs.add("-l stdout");
+        jlogstashArgs.add("-vvv");
+        jlogstashArgs.add("-f " + encodedOpts);
+        jlogstashArgs.add("-p " + root);
+        jlogstashArgs.add("-name " + appName);
 
         StringBuilder command = new StringBuilder();
-        for (String arg : appMasterArgs) {
+        for (String arg : jlogstashArgs) {
             command.append(arg).append(" ");
         }
 
