@@ -248,7 +248,7 @@ class DatabaseDetail extends Component {
         }, {
             title: '操作',
             dataIndex: 'id',
-            width: 100,
+            width: 140,
             key: 'id',
             render: (id, record) => {
                 // active '0：未启用，1：使用中'。 只有为0时，可以修改
@@ -257,18 +257,18 @@ class DatabaseDetail extends Component {
                 return (
                     <span key={id}>
                         <a onClick={() => { this.initEdit(record) }}>
-                            编辑
+                            编辑角色
                         </a>
                         {
                             canRemove ? 
                             <span>
                                 <span className="ant-divider" />
                                 <Popconfirm
-                                    title="确定移除此用户？"
+                                    title="确定移出此用户？"
                                     okText="确定" cancelText="取消"
                                     onConfirm={() => { this.removeUser(record) }}
                                 >
-                                    <a>移除</a>
+                                    <a>移出数据库</a>
                                 </Popconfirm>
                             </span>
                             : ''
