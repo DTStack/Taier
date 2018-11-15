@@ -197,7 +197,7 @@ class TableDetail extends Component {
                         </tr>
                         <tr>
                             <td>创建时间</td>
-                            <td>{tableDetail.gmtCreate?moment(tableDetail.gmtCreate).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.gmtCreate?moment(tableDetail.gmtCreate).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                             <td>是否分区</td>
                             <td>{tableDetail.hasPartition?'是':'否'}</td>
                         </tr>
@@ -205,19 +205,19 @@ class TableDetail extends Component {
                             <td>表类型</td>
                             <td>{tableDetail.type===0?'内部表':'外部表'}</td>
                             <td>表结构最后变更时间</td>
-                            <td>{tableDetail.lastDdlTime?moment(tableDetail.lastDdlTime).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.lastDdlTime?moment(tableDetail.lastDdlTime).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                         </tr>
                         <tr>
                             <td>描述</td>
                             <td>{tableDetail.tableDesc || '-'}</td>
                             <td>数据最后变更时间</td>
-                            <td>{tableDetail.lastDmlTime?moment(tableDetail.lastDmlTime).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.lastDmlTime?moment(tableDetail.lastDmlTime).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                         </tr>
                         <tr>
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
-                            <td>{tableDetail.blockSize || '-'}</td>
+                            <td>{tableDetail.blockSize || '-'} MB</td>
                         </tr>
                         </tbody>
                     </table>
