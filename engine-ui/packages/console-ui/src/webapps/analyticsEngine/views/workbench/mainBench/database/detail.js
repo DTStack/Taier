@@ -228,11 +228,11 @@ class DatabaseDetail extends Component {
             title: '手机号',
             dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
+            width: 100,
         }, {
             title: '角色',
             dataIndex: 'roles',
             key: 'roles',
-            width: 120,
             render(roles) {
                 const roleNames = roles.map(role => role && role.roleName)
                 return roleNames.join(',')
@@ -241,6 +241,7 @@ class DatabaseDetail extends Component {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
+            width: 150,
             render(time) {
                 return utils.formatDateTime(time);
             }
@@ -284,7 +285,7 @@ class DatabaseDetail extends Component {
 
     renderDropMenu = () => {
         return (
-            <Dropdown overlay={
+            <Dropdown trigger={['click']} overlay={
                 <Menu onClick={this.onSelectMenu}>
                     <Menu.Item key="RESET">
                         重置密码
