@@ -111,6 +111,7 @@ class AlarmForm extends Component {
                 visible={visible}
                 onOk={this.submit}
                 onCancel={this.cancle}
+                maskClosable={false}
                 width={550}
             >
                 <Form>
