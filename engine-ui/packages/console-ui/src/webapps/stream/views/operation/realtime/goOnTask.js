@@ -30,7 +30,6 @@ class GoOnTask extends Component {
         const visible=nextProps.visible;
         const old = this.props.taskId;
         const old_visible=this.props.visible;
-        console.log('taskId:', taskId)
 
         if (visible && old_visible !== visible) {
             this.setState({
