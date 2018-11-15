@@ -9,7 +9,7 @@ export default class PaneData extends Component{
       paginationParams:{
         current: 1,
         total: 0,
-        pageSize: 3
+        pageSize: 10
       },
       dataList: [],
       tableCol: [],

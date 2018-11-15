@@ -571,6 +571,10 @@
                 background-color: #F5F5F5;
                 padding: 0;
             }
+            .ant-table-body{
+                overflow-y: hidden;
+                overflow-x: scroll;
+            }
 
             .ant-table-small {
                 .ant-table-tbody {
