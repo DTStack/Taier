@@ -170,6 +170,11 @@ export default class StepTwo extends Component{
   handleSelectChange = (e,record)=>{
     let {columns, partitions} = this.state;
     record.type = e;
+    if(e === 'TIMESTAMP' || e === 'DATE'){
+      this.handleDictionary({target: {checked: false}},record)
+    }else if(e === 'DECIMAL' || e === 'DOUBLE'){
+      this.handleSortColumn({target: {checked: false}},record)
+    }
     this.saveDataToStorage();
   }
   handleCommentChange = (e,record)=>{
@@ -259,6 +264,7 @@ export default class StepTwo extends Component{
   }
 
   handleDictionary = (e,record)=>{
+    console.log(e)
     record.dictionary = e.target.checked?1:0
     this.saveDataToStorage();
 
@@ -495,13 +501,13 @@ export default class StepTwo extends Component{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
-          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+          <Checkbox disabled={record.type === 'TIMESTAMP' || record.type === 'DATE'} checked={record.dictionary || false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} checked={record.sortColumn || false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',
