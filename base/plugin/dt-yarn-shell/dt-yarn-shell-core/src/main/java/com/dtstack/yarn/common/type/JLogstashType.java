@@ -8,6 +8,7 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,12 +45,30 @@ public class JLogstashType extends AppType {
             throw new RuntimeException(e);
         }
 
-        System.out.println("encodedOpts: " + encodedOpts);
+        LOG.info("encodedOpts: " + encodedOpts);
 
-        String cmd = javaHome + "/java -cp " + root + "/jlogstash.jar com.dtstack.jlogstash.JlogstashMain -l stdout -vvv -f " + encodedOpts + " -p " + root + " -name " + appName;
 
-        System.out.println("my cmd: " + cmd);
-        return cmd;
+        LOG.info("Building jlogstash launch command");
+        List<String> appMasterArgs = new ArrayList<>(20);
+        appMasterArgs.add(javaHome + "/java");
+        appMasterArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
+        appMasterArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
+        appMasterArgs.add("-cp " + root + "/jlogstash.jar");
+        appMasterArgs.add("com.dtstack.jlogstash.JlogstashMain");
+        appMasterArgs.add("-l stdout");
+        appMasterArgs.add("-vvv");
+        appMasterArgs.add("-f " + encodedOpts);
+        appMasterArgs.add("-p " + root);
+        appMasterArgs.add("-name " + appName);
+
+        StringBuilder command = new StringBuilder();
+        for (String arg : appMasterArgs) {
+            command.append(arg).append(" ");
+        }
+
+        LOG.info("Application master launch command: " + command.toString());
+
+        return command.toString();
 
     }
 

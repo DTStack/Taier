@@ -3,6 +3,8 @@ package com.dtstack.yarn.common.type;
 
 import com.dtstack.yarn.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -12,6 +14,8 @@ import java.util.Map;
 public abstract class AppType {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
+
+    protected static final Log LOG = LogFactory.getLog(AppType.class);
 
     public static AppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
