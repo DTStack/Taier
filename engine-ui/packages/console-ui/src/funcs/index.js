@@ -3,7 +3,7 @@ import { notification } from 'antd'
 
 /**
  * 存放一些零碎的公共方法
- */
+*/
 
 // 请求防抖动
 export function debounceEventHander(...args) {
