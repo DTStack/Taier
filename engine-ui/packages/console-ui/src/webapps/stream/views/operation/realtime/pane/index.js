@@ -13,7 +13,7 @@ import RunCode from "./tabs/runCode"
 import HelpDoc from "../../../helpDoc"
 
 
-import { TASK_TYPE } from "../../../../../stream/comm/const";
+import { TASK_TYPE, TASK_STATUS } from "../../../../../stream/comm/const";
 
 
 
@@ -38,10 +38,21 @@ class TaskDetailPane extends React.Component {
             tabKey: activeKey
         })
     }
+    getTaskFlowName(status){
+        switch(status){
+            case TASK_STATUS.RUN_FAILED:
+            case TASK_STATUS.SUBMIT_FAILED:{
+                return '错误日志'
+            }
+            default:{
+                return '数据曲线'
+            }
+        }
+    }
     getTabs() {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType } = data;
+        const { taskType, status } = data;
         const scrollStyle = {
             position: "absolute",
             top: "36px",
@@ -63,7 +74,7 @@ class TaskDetailPane extends React.Component {
             </TabPane>
         )
         const baseInfoView = (
-            <TabPane style={scrollStyleNoPt} tab="基本指标" key="taskFlow">
+            <TabPane style={scrollStyleNoPt} tab={this.getTaskFlowName(status)} key="taskFlow">
                 <BaseInfo isShow={tabKey == "taskFlow"} data={data} />
             </TabPane>
         )

@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import API from '../../../../api'
-import { Button, Tabs, Row,notification} from 'antd';
+import { Button, Tabs, Row, notification, Dropdown, Menu, Modal, message, Popover} from 'antd';
+import MyIcon from '../../../../components/icon';
 
 import PaneData from './paneData';
 import PaneField from './paneField';
 import PaneIndex from './paneIndex';
 import PanePartition from './panePartition';
 import PaneBucket from './paneBucket';
+import { MenuItem } from 'widgets/context-menu';
 
 const TabPane = Tabs.TabPane;
+const confirm = Modal.confirm;
+
 
 
 class TableDetail extends Component {
@@ -68,12 +72,63 @@ class TableDetail extends Component {
     })
   }
 
+  onSelectMenu = ({ key }) => {
+    let self = this;
+
+    const {databaseId, id} = this.props.data.tableDetail;
+        if (key === 'DELETE') {
+            confirm({
+                title: '删除表后无法恢复，确认将其删除？',
+                onOk(){
+                    API.dropTable({databaseId, id}).then(res=>{
+                    if(res.code === 1){
+                        message.success('删除成功');
+                        self.props.closeTab();
+                        self.props.loadCatalogue();
+                    }else{
+                        notification.error({
+                        message: '提示',
+                        description: res.message
+                        })
+                    }
+                    })
+                }
+            })
+        }
+    }
+
+    dropTable = ()=>{
+        let self = this;
+
+        const {databaseId, id} = this.props.data.tableDetail;
+        if (key === 'DELETE') {
+            confirm({
+                title: '删除表后无法恢复，确认将其删除？',
+                onOk(){
+                    API.dropTable({databaseId, id}).then(res=>{
+                    if(res.code === 1){
+                        message.success('删除成功');
+                        self.props.closeTab();
+                        self.props.loadCatalogue();
+                    }else{
+                        notification.error({
+                        message: '提示',
+                        description: res.message
+                        })
+                    }
+                    })
+                }
+            })
+        }
+    }
+
 
     render () {
         const tableDetail = this.props.data.tableDetail || {}
         const patitionsData = tableDetail.partitions || {}
         const indexList = tableDetail.indexes || [];
         const { onGenerateCreateSQL } = this.props;
+
 
         const previewData = tableDetail.previewData || {}
 
@@ -96,17 +151,35 @@ class TableDetail extends Component {
                 content: <PaneData data={this.state.previewList}  tableDateil={tableDetail}/>,
             }
         ]
+        const popDelete = (
+            <div>
+                <Menu onClick={this.onSelectMenu}>
+                    <Menu.Item key="DELETE">删除表</Menu.Item>
+                </Menu>
+            </div>
+        )
         return (
-            <div className="table-detail-container pane-wrapper">
-                <Row className="table-detail-panel">
+            <div className="table-detail-container pane-wrapper" id="table-detail-container">
+                <Row className="table-detail-panel" id="table-detail-panel">
                     <div className="func-box">
                         <span className="title" style={{fontWeight: 'bold'}}>表信息</span>
-                        <Button className="btn" type="primary"
-                            onClick={() => onGenerateCreateSQL({
-                                tableId: tableDetail.id,
-                                databaseId: tableDetail.databaseId,
-                            })}
-                        >生成建表语句</Button>
+                        <span style={{display: 'flex',alignItems: 'center'}}>
+                            <Button className="btn" style={{marginRight: 10}} type="primary"
+                                onClick={() => onGenerateCreateSQL({
+                                    tableId: tableDetail.id,
+                                    databaseId: tableDetail.databaseId,
+                                })}
+                            >生成建表语句</Button>
+                            <Popover placement="bottom"  overlayClassName="pop-delete" arrowPointAtCenter content={popDelete}>
+                            <MyIcon type="more" style={{
+                                        fontSize: 18, color: '#333333',
+                                        float: 'right',
+                                        cursor: 'pointer',
+                                    }}
+                                />
+                            </Popover>
+                        </span>
+
                     </div>
                     <table className="table-info" width="100%" cellPadding="0" cellSpacing="0">
                         <tbody>
@@ -178,7 +251,7 @@ class TableDetail extends Component {
                 </Row>
                 <Row className="tabs-row" style={{marginBottom: 40}}>
                     <div className="tabs-container">
-                    <Tabs type="card" onChange={this.handleTabsChange}>
+                    <Tabs tabBarStyle={{height: 36}} tabBarGutter="0" type="card" onChange={this.handleTabsChange}>
                         {
                             tabsData.map(o=>(
                                 <TabPane forceRender={true} tab={o.title} key={o.key}>{o.content}</TabPane>

@@ -21,6 +21,7 @@ import "./languages/dtlog/dtlog.contribution.js"
 import "./style.scss";
 import whiteTheme from "./theme/whiteTheme";
 import { defaultOptions } from './config';
+import {jsonEqual} from "./utils";
 
 const provideCompletionItemsMap = {
     dtsql: {
@@ -131,7 +132,9 @@ class Editor extends React.Component {
             this.updateValueWithNoEvent(editorText);
         }
         if (languageConfig !== this.props.languageConfig) {
-            this.updateMonarch(languageConfig, language)
+            if(!jsonEqual(languageConfig,this.props.languageConfig)){
+                this.updateMonarch(languageConfig, language)
+            }
         }
         if (this.props.language !== nextProps.language) {
             monaco.editor.setModelLanguage(this.monacoInstance.getModel(), nextProps.language)
@@ -179,6 +182,7 @@ class Editor extends React.Component {
     }
     updateMonarch(config, language) {
         if (config && language) {
+            if(config)
             monaco.languages.setMonarchTokensProvider(language, config);
         }
     }
