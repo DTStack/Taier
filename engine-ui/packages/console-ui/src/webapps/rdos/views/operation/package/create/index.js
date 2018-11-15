@@ -14,7 +14,6 @@ import Api from "../../../../api"
 import { publishType, TASK_TYPE, RESOURCE_TYPE_MAP, PROJECT_TYPE } from "../../../../comm/const"
 import { RDOS_ROLE } from "main/consts";
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
-import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 import AddLinkModal from "./addLinkModal"
 import PublishModal from "../publish/publishModal"
 
@@ -28,15 +27,13 @@ const Search = Input.Search;
     return {
         project: state.project,
         taskTypes: {
-            realtime: state.realtimeTask.comm.taskTypes,
             offline: state.offlineTask.comm.taskTypes
         },
         user:state.user
     }
 }, dispatch => {
     return bindActionCreators({
-        getTaskTypes,
-        realtimeGetTaskTypes
+        getTaskTypes
     }, dispatch);
 })
 class PackageCreate extends React.Component {
@@ -79,7 +76,6 @@ class PackageCreate extends React.Component {
             addLinkModalData: {},
         })
         this.props.getTaskTypes();
-        this.props.realtimeGetTaskTypes();
         this.getTaskList();
         this.getUsers();
     }
