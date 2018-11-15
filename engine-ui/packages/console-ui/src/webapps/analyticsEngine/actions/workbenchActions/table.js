@@ -236,14 +236,8 @@ export function handleSave(){
             })
             return;
         }
-        if(!params.bucketInfo.bucketNumber && (params.bucketInfo.infos && params.bucketInfo.infos.length !== 0)){
-            notification.error({
-                message: '提示',
-                description: '分桶数量不能为空'
-            })
-            return;
-        }
         let stopFlag = false;
+        let bucketList = [];
         params.columns.map(o=>{
             if(!o.name || o.name === '' || !o.type){
                 notification.error({
@@ -252,7 +246,23 @@ export function handleSave(){
                 })
                 stopFlag = true;
             }
+            if(o.isBucket){
+                bucketList.push({
+                    name: o.name,
+                    type: o.type,
+                    comment: ''
+                })
+            }
         })
+
+        if(!params.bucketInfo.bucketNumber && bucketList.length > 0){
+            notification.error({
+                message: '提示',
+                description: '分桶数量不能为空'
+            })
+            return;
+        }
+
         if(stopFlag)    return;
         else    stopFlag = false;
 
@@ -282,7 +292,15 @@ export function handleSave(){
         // params.partitions = params.partitions.columns;
 
 
-        const res = await API.createTable({...params,partConfig:params.partitions.partConfig,partitionType:params.partitions.partitionType,partitions:params.partitions.columns})
+        const res = await API.createTable({...params,
+            partConfig:params.partitions.partConfig,
+            partitionType:params.partitions.partitionType,
+            partitions:params.partitions.columns,
+            bucketInfo: {
+                bucketNumber: params.bucketInfo.bucketNumber,
+                infos: bucketList
+            }
+        })
         if(res.code === 1){
             console.log('保存成功');
             const data = res.data;

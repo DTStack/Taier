@@ -217,8 +217,7 @@ class TableDetail extends Component {
                             <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
                             <td>{
-                                tableDetail.blockSize ? 
-                                utils.convertBytes(tableDetail.blockSize) : '-'
+                                tableDetail.blockSize + ' MB'|| '-'
                             }</td>
                         </tr>
                         </tbody>
