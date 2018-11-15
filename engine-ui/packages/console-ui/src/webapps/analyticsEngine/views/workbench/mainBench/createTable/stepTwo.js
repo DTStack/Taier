@@ -548,7 +548,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分区模式：</span>
-            <Select getPopupContainer={e=>e.parentNode} style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
+            <Select getPopupContainer={e=>e.parentNode} style={{width: 150}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
               {
                 partition_mode.map(o=>{
                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -560,7 +560,7 @@ export default class StepTwo extends Component{
               partitions.partitionType === 1?
               <div className="partitionParam-box" style={{marginBottom: 10}}>
                 <span>分区数量：</span>
-                <Input defaultValue={partitions.partConfig} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
+                <Input defaultValue={partitions.partConfig} style={{width: 200,marginRight: 4}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
               </div> : partitions.partitionType === 2?
               <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
                 <span>范围：</span>
