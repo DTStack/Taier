@@ -8,8 +8,6 @@ import com.dtstack.yarn.common.exceptions.RequestOverLimitException;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -36,6 +34,8 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.hadoop.yarn.util.Records;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
 
-    private static final Log LOG = LogFactory.getLog(Client.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Client.class);
 
     private static final AtomicBoolean REFRESH_APP_MASTER_JAR = new AtomicBoolean(true);
 
@@ -218,13 +218,14 @@ public class Client {
 
 
         /** launch command */
+        LOG.info("Building app launch command");
         String launchCmd = new LaunchCommandBuilder(clientArguments, taskConf).buildCmd();
         if (StringUtils.isNotBlank(launchCmd)) {
             appMasterEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), launchCmd);
         } else {
             throw new IllegalArgumentException("Invalid launch cmd for the application");
         }
-        LOG.info("launch command: " + launchCmd);
+        LOG.info("app launch command: " + launchCmd);
 
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_CONTAINER_MAX_MEMORY.toString(), String.valueOf(newAppResponse.getMaximumResourceCapability().getMemory()));
 

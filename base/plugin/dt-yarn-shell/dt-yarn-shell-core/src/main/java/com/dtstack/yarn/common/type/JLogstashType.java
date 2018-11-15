@@ -45,10 +45,11 @@ public class JLogstashType extends AppType {
             throw new RuntimeException(e);
         }
 
-        LOG.info("encodedOpts: " + encodedOpts);
+        if (buildCmdLog.isDebugEnabled()) {
+            buildCmdLog.debug("encodedOpts: " + encodedOpts);
+            buildCmdLog.debug("Building jlogstash launch command");
+        }
 
-
-        LOG.info("Building jlogstash launch command");
         List<String> jlogstashArgs = new ArrayList<>(20);
         jlogstashArgs.add(javaHome + "/java");
         jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
@@ -65,8 +66,9 @@ public class JLogstashType extends AppType {
         for (String arg : jlogstashArgs) {
             command.append(arg).append(" ");
         }
-
-        LOG.info("Application master launch command: " + command.toString());
+        if (buildCmdLog.isDebugEnabled()){
+            buildCmdLog.debug("jlogstash launch command: " + command.toString());
+        }
 
         return command.toString();
 
@@ -106,7 +108,7 @@ public class JLogstashType extends AppType {
                             if ("Beats".equalsIgnoreCase(inputType)) {
                                 int configPort = MapUtils.getInteger(inputConfig, "port", 6767);
                                 int port = NetUtils.getAvailablePortRange(configPort);
-                                inputConfig.put("port",port);
+                                inputConfig.put("port", port);
 
                                 Map<String, Object> beats = new HashMap<>(1);
                                 beats.put("port", port);
@@ -117,9 +119,9 @@ public class JLogstashType extends AppType {
                 }
                 fStr = objectMapper.writeValueAsString(configs);
             }
-            if (idx!=-1){
-                args[idx] =  URLEncoder.encode(fStr, "UTF-8");
-                cmd = StringUtils.join(args," ");
+            if (idx != -1) {
+                args[idx] = URLEncoder.encode(fStr, "UTF-8");
+                cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -12,17 +12,19 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
 public class ClientArguments {
-    private static final Log LOG = LogFactory.getLog(ClientArguments.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClientArguments.class);
+
     private Options allOptions;
     String appName;
     AppType appType;

@@ -3,10 +3,10 @@ package com.dtstack.yarn.common.type;
 
 import com.dtstack.yarn.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public abstract class AppType {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    protected static final Log LOG = LogFactory.getLog(AppType.class);
+    protected static final Logger buildCmdLog = LoggerFactory.getLogger(AppType.class);
 
     public static AppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
