@@ -8,7 +8,6 @@ import { formItemLayout } from "../../../../../console/consts";
 import Api from "../../../../api"
 import { publishType, TASK_TYPE } from "../../../../comm/const";
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
-import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -18,14 +17,12 @@ const TextArea = Input.TextArea;
     return {
         project:state.project,
         taskTypes: {
-            realtime: state.realtimeTask.comm.taskTypes,
             offline: state.offlineTask.comm.taskTypes
         }
     }
 },dispatch => {
     return bindActionCreators({
-        getTaskTypes,
-        realtimeGetTaskTypes
+        getTaskTypes
     }, dispatch);
 })
 class PublishModal extends React.Component {
@@ -39,7 +36,6 @@ class PublishModal extends React.Component {
     }
     componentDidMount(){
         this.props.getTaskTypes();
-        this.props.realtimeGetTaskTypes();
     }
     getPackageName() {
         const { mode, form, isPublish } = this.props;

@@ -45,13 +45,13 @@ class AlarmBaseGraphBox extends React.Component {
             <div className="basegraph-size">
                 <div id={key} className="alarm-basegraph-box">
                     <header>
-                        {title}
+                        <span className="title">{title}</span>
                         {desc && (
                             <Tooltip
                                 title={desc}
                                 overlayClassName="big-tooltip"
                             >
-                                <Icon style={{ marginLeft: "8px", fontWeight: "normal" }} type="question-circle-o" />
+                                <Icon style={{ marginLeft: "8px" }} type="question-circle-o" />
                             </Tooltip>
                         )}
 

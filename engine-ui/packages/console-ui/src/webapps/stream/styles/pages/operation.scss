@@ -326,8 +326,7 @@
     header{
         padding: 7.5px 0px 8.5px 21px;
         font-size: 14px;
-        font-weight: bold;
-        color: rgba(0,0,0,0.85);
+        color: #333;
         line-height: 24px;
         border-bottom: 1px solid #dddddd;
         position: absolute;
@@ -335,6 +334,9 @@
         left: 0px;
         width: 100%;
         z-index: 1;
+        .title{
+            font-weight: 500;
+        }
     }
     .alt{
         line-height: 24px;
