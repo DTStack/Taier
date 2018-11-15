@@ -43,7 +43,7 @@ module.exports = [
         enable: true,
         apiBase: '/analytics',
         icon: '/public/main/img/icon_3.png',
-        description: 'PB级数据秒级查询',
+        description: '海量数据秒级查询，极速响应能力，帮助企业自由的数据探索',
     },{
         id: 'dataQuality',
         name: '数据质量',

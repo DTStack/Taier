@@ -170,6 +170,11 @@ export default class StepTwo extends Component{
   handleSelectChange = (e,record)=>{
     let {columns, partitions} = this.state;
     record.type = e;
+    if(e === 'TIMESTAMP' || e === 'DATE'){
+      this.handleDictionary({target: {checked: false}},record)
+    }else if(e === 'DECIMAL' || e === 'DOUBLE'){
+      this.handleSortColumn({target: {checked: false}},record)
+    }
     this.saveDataToStorage();
   }
   handleCommentChange = (e,record)=>{
@@ -259,6 +264,7 @@ export default class StepTwo extends Component{
   }
 
   handleDictionary = (e,record)=>{
+    console.log(e)
     record.dictionary = e.target.checked?1:0
     this.saveDataToStorage();
 
@@ -417,7 +423,9 @@ export default class StepTwo extends Component{
         title: '字段类型',
         dataIndex: 'type',
         render: (text,record)=>(
-          <span style={{fontSize: 12,width: 159,display:'block'}}>{text}</span>
+          text?
+          <span style={{fontSize: 12,width: 159,display:'block'}}>{text}</span>:
+          '-'
         )
       },{
         title: '注释',
@@ -493,13 +501,13 @@ export default class StepTwo extends Component{
         title: '字典编码',
         dataIndex: 'dictionary',
         render: (text,record)=>(
-          <Checkbox defaultChecked={text===1?true:false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
+          <Checkbox disabled={record.type === 'TIMESTAMP' || record.type === 'DATE'} checked={record.dictionary || false} onChange={(e)=>this.handleDictionary(e,record)}></Checkbox>
         )
       },{
         title: '多维索引',
         dataIndex: 'sortColumn',
         render: (text,record)=>(
-          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} defaultChecked={(record.type === 'DECIMAL' || record.type === 'DOUBLE')?false:text===1?true:false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
+          <Checkbox disabled={record.type==='DOUBLE' || record.type==='DECIMAL'} checked={record.sortColumn || false} onChange={(e)=>this.handleSortColumn(e,record)}></Checkbox>
         )
       },{
         title: '注释',
@@ -548,7 +556,7 @@ export default class StepTwo extends Component{
           </div>
           <div style={{marginBottom: 10}}>
             <span>分区模式：</span>
-            <Select getPopupContainer={e=>e.parentNode} style={{width: 100}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
+            <Select getPopupContainer={e=>e.parentNode} style={{width: 150}} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
               {
                 partition_mode.map(o=>{
                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
@@ -560,7 +568,7 @@ export default class StepTwo extends Component{
               partitions.partitionType === 1?
               <div className="partitionParam-box" style={{marginBottom: 10}}>
                 <span>分区数量：</span>
-                <Input defaultValue={partitions.partConfig} style={{width: 200}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
+                <Input defaultValue={partitions.partConfig} style={{width: 200,marginRight: 4}} placeholder="1-1000之间的正整数" onChange={this.handlePartitionParamChange}/>个
               </div> : partitions.partitionType === 2?
               <div className="partitionParam-box" style={{marginBottom: 10,display: 'flex'}}>
                 <span>范围：</span>

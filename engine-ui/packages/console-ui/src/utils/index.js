@@ -3,6 +3,9 @@ import moment from "moment";
  * utils
  */
 /* eslint-disable */
+
+moment.locale("zh-cn");
+
 const utils = {
     /**
      * 获取页面宽度
@@ -89,29 +92,22 @@ const utils = {
     },
 
     formatDateTime: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm:ss");
     },
 
     formatDate: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD");
     },
     formatDateHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("YYYY-MM-DD HH:mm");
-        
     },
     formatDayHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("MM-DD HH:mm");
     },
     formatHours: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("HH:mm");
     },
     formatMinute: function(timestap) {
-        moment.locale("zh-cn");
         return moment(timestap).format("HH:mm:ss");
     },
 
@@ -213,11 +209,10 @@ const utils = {
      * @param {格式化占位符} space
      */
     jsonFormat(text, space) {
-        if(!text){
-            return text
+        if (!text) {
+            return text;
         }
         try {
-            
             const json = JSON.parse(text);
             const output = JSON.stringify(json, null, space || 2);
 
@@ -229,33 +224,31 @@ const utils = {
     /**
      * 多函数排序，匹配到0为止
      */
-    sortByCompareFunctions(arr,...compareFunctions){
-        arr.sort(
-            (a,b)=>{
-                let result=0;
-                for(let func of compareFunctions){
-                    result=func(a,b);
-                    if(result!=0){
-                        return result;
-                    }
+    sortByCompareFunctions(arr, ...compareFunctions) {
+        arr.sort((a, b) => {
+            let result = 0;
+            for (let func of compareFunctions) {
+                result = func(a, b);
+                if (result != 0) {
+                    return result;
                 }
-                return result;
             }
-        )
+            return result;
+        });
     },
     /**
      * 转换排序字段
      */
-    exchangeOrder(order){
-        switch(order){
-            case "ascend":{
-                return "asc"
+    exchangeOrder(order) {
+        switch (order) {
+            case "ascend": {
+                return "asc";
             }
-            case "descend":{
-                return "desc"
+            case "descend": {
+                return "desc";
             }
-            default:{
-                return undefined
+            default: {
+                return undefined;
             }
         }
     }

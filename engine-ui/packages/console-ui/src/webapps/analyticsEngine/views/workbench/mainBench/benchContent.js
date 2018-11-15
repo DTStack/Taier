@@ -36,6 +36,8 @@ class BenchContent extends Component {
             case workbenchAction.OPEN_TABLE: {
                 return <TableDetail 
                     data={tabData} 
+                    closeTab={()=>this.props.closeTab(tabData.id)}
+                    loadCatalogue = {this.props.loadCatalogue}
                     onGenerateCreateSQL={props.onGenerateCreateSQL} 
                 />
             }
@@ -62,7 +64,6 @@ class BenchContent extends Component {
                 未知类型
             </p>
         }
-
     }
 
     render () {
