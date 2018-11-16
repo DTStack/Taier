@@ -35,7 +35,7 @@ class TableCreator extends React.Component {
                 lifeDay: 90,
                 location: undefined, // 存在则为外部表
                 columns: [],
-                storedType: 'textfile',
+                storedType: 'orc',
                 subject: '', // 主题域
                 grade: '', // 模型层级
                 partition_keys: []
