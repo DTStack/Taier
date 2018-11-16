@@ -203,7 +203,7 @@ export default class StepOne extends Component{
             {
               getFieldDecorator('tableName',{
                 rules: [
-                  {required: true, message:'表明不可为空'}
+                  {required: true, message:'表名不可为空'}
                 ],
                 initialValue: formData.tableName || undefined
               })(
