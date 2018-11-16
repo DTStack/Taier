@@ -141,7 +141,7 @@ class AlarmForm extends Component {
                             rules: [{
                                 required: true, message: '请您选择所要告警的任务！',
                             }],
-                            initialValue: alarmInfo.taskId || taskName || '',
+                            initialValue: alarmInfo.taskName || taskName || '',
                         })(
                             <Input disabled />
                         )}
