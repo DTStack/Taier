@@ -206,7 +206,7 @@ class AlarmForm extends Component {
                                 rules: [{
                                     required: true, message: '请填写延迟消费数量！',
                                 }],
-                                initialValue: alarmInfo.threshold,
+                                initialValue: alarmInfo.myTrigger==alarmTriggerType.DELAY_COST?alarmInfo.threshold:undefined,
                             })(
                                 <InputNumber precision={0} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费数量" />
                             )}
@@ -222,7 +222,7 @@ class AlarmForm extends Component {
                                 rules: [{
                                     required: true, message: '请填写延迟消费比例！',
                                 }],
-                                initialValue: alarmInfo.threshold,
+                                initialValue: alarmInfo.myTrigger==alarmTriggerType.DELAY_COST_P?alarmInfo.threshold:undefined,
                             })(
                                 <InputNumber min={0} max={100} style={{ width: "calc(100% - 30px )" }} placeholder="请输入延迟消费比例" />
                             )}

@@ -155,8 +155,16 @@
     }
     
 }
+.border-table{
+    .ant-spin-container{
+        border-width: 1px 1px 0px 1px;
+        border-color: #dcdcdc;
+        border-style: solid;
+    }
 
+}
 .m-table {
+    
     &.m-table-showselect{
         .ant-table-thead{
             .ant-table-selection-column>span{

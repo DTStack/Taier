@@ -167,7 +167,7 @@ class CheckPoint extends React.Component {
                     rowKey={(record,index)=>{
                         return index
                     }}
-                    className="m-table"
+                    className="m-table border-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
                     pagination={true}
