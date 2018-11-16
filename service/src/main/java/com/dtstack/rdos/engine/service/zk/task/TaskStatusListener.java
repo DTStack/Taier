@@ -164,14 +164,12 @@ public class TaskStatusListener implements Runnable{
 	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
         RdosEngineStreamJob rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
 
-        boolean normalJob = false;
         if(rdosTask != null){
             String engineTaskId = rdosTask.getEngineTaskId();
             String appId = rdosTask.getApplicationId();
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
 
             if(StringUtils.isNotBlank(engineTaskId)){
-                normalJob = true;
                 String pluginInfoStr = "";
                 if(rdosTask.getPluginInfoId() > 0 ){
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosTask.getPluginInfoId());
@@ -199,9 +197,7 @@ public class TaskStatusListener implements Runnable{
                     addFailedJob(failedTaskInfo);
                 }
             }
-        }
-
-        if (!normalJob){
+        } else {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
             rdosEngineJobCacheDao.deleteJob(taskId);
         }
@@ -210,13 +206,11 @@ public class TaskStatusListener implements Runnable{
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
         RdosEngineBatchJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
 
-        boolean normalJob = false;
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
             JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, null, null);
 
             if(StringUtils.isNotBlank(engineTaskId)){
-                normalJob = true;
                 String pluginInfoStr = "";
                 if(rdosBatchJob.getPluginInfoId() > 0 ){
                     pluginInfoStr = pluginInfoDao.getPluginInfo(rdosBatchJob.getPluginInfoId());
@@ -244,9 +238,7 @@ public class TaskStatusListener implements Runnable{
                     addFailedJob(failedTaskInfo);
                 }
             }
-        }
-
-        if (!normalJob){
+        } else {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
             rdosEngineJobCacheDao.deleteJob(taskId);
         }
