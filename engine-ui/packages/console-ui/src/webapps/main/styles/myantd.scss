@@ -13,6 +13,18 @@
             }
         }
     }
+    .active-no-border{
+        &.ant-tabs{
+            .ant-tabs-nav{
+                .ant-tabs-tab{
+                    &.ant-tabs-tab-active:after{
+                        content:"";
+                        border-bottom: 1px solid #fff;
+                    }
+                }
+            }
+        }
+    }
     .nav-border{
         &.no-bottom-border{
             &.ant-tabs{
@@ -22,6 +34,18 @@
                     }
                     .ant-tabs-tab ~ .ant-tabs-tab{
                         border-bottom: 0px;
+                    }
+                }
+            }
+        }
+        &.no-top-border{
+            &.ant-tabs{
+                .ant-tabs-nav{
+                    .ant-tabs-tab{
+                        border-top: 0px;
+                    }
+                    .ant-tabs-tab ~ .ant-tabs-tab{
+                        border-top: 0px;
                     }
                 }
             }
