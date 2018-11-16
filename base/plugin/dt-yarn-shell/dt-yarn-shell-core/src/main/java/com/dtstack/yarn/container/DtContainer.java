@@ -259,8 +259,12 @@ public class DtContainer {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
                 container.reportSucceededAndExit();
             } else {
-                LOG.error("DtContainer run failed!");
-                container.reportFailedAndExit("");
+                String msg = "";
+                if (container.processLogCollector != null){
+                    msg = container.processLogCollector.getErrorLog();
+                }
+                LOG.error("DtContainer run failed! error:" + msg);
+                container.reportFailedAndExit(msg);
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);

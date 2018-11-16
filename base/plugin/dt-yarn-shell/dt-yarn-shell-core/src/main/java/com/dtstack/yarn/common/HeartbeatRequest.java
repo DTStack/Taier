@@ -89,6 +89,7 @@ public class HeartbeatRequest implements Writable {
     WritableUtils.writeEnum(dataOutput, this.xlearningContainerStatus);
     interResultSavedStatus.write(dataOutput);
     Text.writeString(dataOutput, this.progressLog);
+    Text.writeString(dataOutput, this.errMsg);
     Text.writeString(dataOutput, this.containersStartTime);
     Text.writeString(dataOutput, this.containersFinishTime);
   }
@@ -98,6 +99,7 @@ public class HeartbeatRequest implements Writable {
     this.xlearningContainerStatus = WritableUtils.readEnum(dataInput, DtContainerStatus.class);
     interResultSavedStatus.readFields(dataInput);
     this.progressLog = Text.readString(dataInput);
+    this.errMsg = Text.readString(dataInput);
     this.containersStartTime = Text.readString(dataInput);
     this.containersFinishTime = Text.readString(dataInput);
   }

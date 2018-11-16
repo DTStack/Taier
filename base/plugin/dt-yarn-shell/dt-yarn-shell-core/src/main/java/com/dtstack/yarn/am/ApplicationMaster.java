@@ -8,13 +8,10 @@ import com.dtstack.yarn.container.DtContainer;
 import com.dtstack.yarn.container.DtContainerId;
 import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.service.CompositeService;
@@ -35,9 +32,7 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Records;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -231,9 +226,7 @@ public class ApplicationMaster extends CompositeService {
         }
 
         if (containerListener.isFailed()) {
-            String diagnostics = containerListener.getFailedMsg();
-            diagnostics += getErrorLogs();
-            unregister(FinalApplicationStatus.FAILED, diagnostics);
+            unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
             return false;
         } else {
             unregister(FinalApplicationStatus.SUCCEEDED, "Task is success.");
@@ -430,42 +423,6 @@ public class ApplicationMaster extends CompositeService {
         } catch (Exception e) {
             LOG.info(DebugUtil.stackTrace(e));
         }
-    }
-
-    private String getErrorLogs() {
-        try {
-            String logPath = StringUtils.join(Lists.newArrayList(
-                    conf.get("yarn.nodemanager.remote-app-log-dir", "/tmp/logs"),
-                    System.getProperty("user.name"),
-                    conf.get("yarn.nodemanager.remote-app-log-dir-suffix", "logs"),
-                    containerListener.getEntities().get(0).getContainerId().getContainerId().getApplicationAttemptId().getApplicationId().toString()), "/");
-            Path path = Utilities.getRemotePath((DtYarnConfiguration) conf, logPath);
-            FileSystem dfs = path.getFileSystem(conf);
-            List<String> nodes = new ArrayList<>();
-            for (ContainerEntity containerEntity : containerListener.getEntities()) {
-                nodes.add(containerEntity.getNodeHost() + "_" + containerEntity.getNodePort());
-            }
-            FileStatus[] status = dfs.listStatus(path);
-            StringBuilder logs = new StringBuilder(1000);
-            for (FileStatus file : status) {
-                String fileName = StringUtils.substring(file.getPath().getName(), file.getPath().getName().indexOf("/") + 1);
-                LOG.info("application log path:" + logPath + "/" + fileName);
-                if (!nodes.contains(fileName)) {
-                    continue;
-                }
-                FSDataInputStream inputStream = dfs.open(file.getPath());
-                InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
-                BufferedReader br = new BufferedReader(isr);
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    logs.append("\n").append(line);
-                }
-            }
-            return logs.toString();
-        } catch (Exception e) {
-            LOG.error("{}", e);
-        }
-        return "";
     }
 
     public static void main(String[] args) {

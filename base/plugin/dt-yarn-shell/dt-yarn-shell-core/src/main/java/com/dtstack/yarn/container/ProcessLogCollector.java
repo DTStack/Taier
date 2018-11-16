@@ -15,6 +15,7 @@ public class ProcessLogCollector {
     private static final Log LOG = LogFactory.getLog(ProcessLogCollector.class);
     private final Process process;
     private final ExecutorService executorService;
+    private final StringBuilder errorLog = new StringBuilder(1000);
 
     public ProcessLogCollector(Process process) {
         LOG.info("init");
@@ -32,6 +33,7 @@ public class ProcessLogCollector {
                     while ((stdoutLog = reader.readLine()) != null) {
                         if(error) {
                             LOG.error(stdoutLog);
+                            errorLog.append("\n").append(stdoutLog);
                         } else {
                             LOG.info(stdoutLog);
                         }
@@ -54,4 +56,7 @@ public class ProcessLogCollector {
         executorService.shutdown();
     }
 
+    public String getErrorLog() {
+        return errorLog.toString();
+    }
 }
