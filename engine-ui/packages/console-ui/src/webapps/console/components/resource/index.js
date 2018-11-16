@@ -84,7 +84,7 @@ class Resource extends Component {
                 width: "170px"
             },
             {
-                title: "memory",
+                title: "memory (M)",
                 dataIndex: "memory",
                 render(text, record) {
                     return record.memory;
@@ -92,12 +92,12 @@ class Resource extends Component {
                 width: "150px"
             },
             {
-                title: "usedMemory",
+                title: "usedMemory (M)",
                 dataIndex: "usedMemory",
                 render(text, record) {
                     return record.usedMemory;
                 },
-                width: "150px"
+                width: "160px"
             }
         ]
     }
@@ -109,7 +109,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.freeSlots;
                 },
-                width: "140px"
+                width: "165px"
             },
             {
                 title: "cpuCores",
@@ -117,7 +117,7 @@ class Resource extends Component {
                 render(text, record) {
                     return record.cpuCores;
                 },
-                width: "140px"
+                width: "155px"
             },
             {
                 title: "slotsNumber",
@@ -128,20 +128,20 @@ class Resource extends Component {
                 width: "175px"
             },
             {
-                title: "freeMemory",
+                title: "freeMemory (M)",
                 dataIndex: "freeMemory",
                 render(text, record) {
                     return record.freeMemory;
                 },
-                width: "165px"
+                width: "190px"
             },
             {
-                title: "physicalMemory",
+                title: "physicalMemory (M)",
                 dataIndex: "physicalMemory",
                 render(text, record) {
                     return record.physicalMemory;
                 },
-                width: "215px"
+                width: "240px"
             }
         ]
     }
@@ -157,6 +157,7 @@ class Resource extends Component {
                     visible={this.props.visible}
                     onCancel={this.props.onCancel}
                     onOk={this.props.onCancel}
+                    width="600"
                     className="m-card"
                     footer={[
                         <Button key="submit" type="primary" size="large"  onClick={this.props.onCancel}>
