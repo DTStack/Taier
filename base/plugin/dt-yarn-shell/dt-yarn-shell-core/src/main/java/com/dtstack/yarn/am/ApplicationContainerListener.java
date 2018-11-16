@@ -15,6 +15,7 @@ import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
 import org.apache.hadoop.service.AbstractService;
+import org.apache.hadoop.yarn.api.records.NodeId;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -106,12 +107,12 @@ public class ApplicationContainerListener
     }
 
 
-    public void registerContainer(boolean isNew, int lane, DtContainerId containerId, String nodeHost) {
+    public void registerContainer(boolean isNew, int lane, DtContainerId containerId, NodeId nodeId) {
         if(isNew) {
-            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHost, 1));
+            entities.add(new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeId.getHost(), nodeId.getPort(), 1));
         } else {
             int attempt =  entities.get(lane).getAttempts();
-            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeHost, attempt + 1));
+            entities.set(lane, new ContainerEntity(lane, containerId, DtContainerStatus.UNDEFINED, nodeId.getHost(), nodeId.getPort(), attempt + 1));
         }
     }
 

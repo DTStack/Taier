@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
-import java.util.stream.Collectors;
 
 
 public class ApplicationMaster extends CompositeService {
@@ -199,7 +198,7 @@ public class ApplicationMaster extends CompositeService {
                     + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
             launchContainer(containerLocalResource, workerContainerEnv,
                     workerContainerLaunchCommands, container, i);
-            containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId().getHost());
+            containerListener.registerContainer(true, i++, new DtContainerId(container.getId()), container.getNodeId());
         }
 
         while (!containerListener.isFinished()) {
@@ -227,17 +226,13 @@ public class ApplicationMaster extends CompositeService {
                         + " on " + container.getNodeId().getHost() + ":" + container.getNodeId().getPort());
                 launchContainer(containerLocalResource, workerContainerEnv,
                         workerContainerLaunchCommands, container, containerEntity.getLane());
-                containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId().getHost());
+                containerListener.registerContainer(false, containerEntity.getLane(), new DtContainerId(container.getId()), container.getNodeId());
             }
         }
 
         if (containerListener.isFailed()) {
             String diagnostics = containerListener.getFailedMsg();
-            if (!containerListener.getFailedContainerEntities().isEmpty()) {
-                List<String> containerIds = containerListener.getFailedContainerEntities().stream().map(e -> e.getContainerId().toString()).collect(Collectors.toList());
-                String error = getErrorLogs(containerIds);
-                diagnostics += error;
-            }
+            diagnostics += getErrorLogs();
             unregister(FinalApplicationStatus.FAILED, diagnostics);
             return false;
         } else {
@@ -437,23 +432,30 @@ public class ApplicationMaster extends CompositeService {
         }
     }
 
-    private String getErrorLogs(List<String> containerIds) {
+    private String getErrorLogs() {
         try {
             String logPath = StringUtils.join(Lists.newArrayList(
-                    conf.get("yarn.nodemanager.remote-app-log-dir"),
+                    conf.get("yarn.nodemanager.remote-app-log-dir", "/tmp/logs"),
                     System.getProperty("user.name"),
-                    conf.get("yarn.nodemanager.remote-app-log-dir-suffix"),
-                    applicationAttemptID.getApplicationId().toString()), "/");
-            LOG.info("application log path:" + logPath);
+                    conf.get("yarn.nodemanager.remote-app-log-dir-suffix", "logs"),
+                    containerListener.getEntities().get(0).getContainerId().getContainerId().getApplicationAttemptId().getApplicationId().toString()), "/");
             Path path = Utilities.getRemotePath((DtYarnConfiguration) conf, logPath);
             FileSystem dfs = path.getFileSystem(conf);
-            FileStatus[] status = dfs.listStatus(path, f -> containerIds.contains(f));
+            List<String> nodes = new ArrayList<>();
+            for (ContainerEntity containerEntity : containerListener.getEntities()) {
+                nodes.add(containerEntity.getNodeHost() + "_" + containerEntity.getNodePort());
+            }
+            FileStatus[] status = dfs.listStatus(path);
             StringBuilder logs = new StringBuilder(1000);
             for (FileStatus file : status) {
+                String fileName = StringUtils.substring(file.getPath().getName(), file.getPath().getName().indexOf("/") + 1);
+                LOG.info("application log path:" + logPath + "/" + fileName);
+                if (!nodes.contains(fileName)) {
+                    continue;
+                }
                 FSDataInputStream inputStream = dfs.open(file.getPath());
                 InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
                 BufferedReader br = new BufferedReader(isr);
-                StringBuilder lineString = new StringBuilder();
                 String line = null;
                 while ((line = br.readLine()) != null) {
                     logs.append("\n").append(line);

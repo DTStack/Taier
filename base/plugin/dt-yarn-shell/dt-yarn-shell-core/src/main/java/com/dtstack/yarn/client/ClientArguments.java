@@ -586,7 +586,6 @@ public class ClientArguments {
             exclusive = Boolean.parseBoolean(exclusiveStr);
         }
 
-        LOG.info("Application Master's jar is " + appMasterJar);
     }
 
     private void printUsage(Options opts) {

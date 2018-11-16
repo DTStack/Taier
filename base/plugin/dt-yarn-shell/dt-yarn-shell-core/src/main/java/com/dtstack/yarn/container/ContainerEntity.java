@@ -9,14 +9,16 @@ public class ContainerEntity {
     private DtContainerStatus dtContainerStatus;
     private int attempts;
     private String nodeHost;
+    private int nodePort;
     private Long lastBeatTime;
 
 
-    public ContainerEntity(int lane, DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHost, int attempts) {
+    public ContainerEntity(int lane, DtContainerId containerId, DtContainerStatus dtContainerStatus, String nodeHost, int nodePort, int attempts) {
         this.lane = lane;
         this.containerId = containerId;
         this.dtContainerStatus = dtContainerStatus;
         this.nodeHost = nodeHost;
+        this.nodePort = nodePort;
         this.attempts = attempts;
         this.lastBeatTime = System.currentTimeMillis();
     }
@@ -61,6 +63,14 @@ public class ContainerEntity {
         this.nodeHost = nodeHost;
     }
 
+    public int getNodePort() {
+        return nodePort;
+    }
+
+    public void setNodePort(int nodePort) {
+        this.nodePort = nodePort;
+    }
+
     public Long getLastBeatTime() {
         return lastBeatTime;
     }
@@ -77,6 +87,7 @@ public class ContainerEntity {
                 ", dtContainerStatus=" + dtContainerStatus +
                 ", attempts=" + attempts +
                 ", nodeHost='" + nodeHost + '\'' +
+                ", nodePort=" + nodePort +
                 ", lastBeatTime=" + lastBeatTime +
                 '}';
     }
