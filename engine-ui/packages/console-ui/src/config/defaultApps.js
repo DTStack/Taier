@@ -41,6 +41,7 @@ module.exports = [
         filename: 'analytics.html',
         target: '_self',
         enable: true,
+        disableMessage: true, //禁用消息
         apiBase: '/analytics',
         icon: '/public/main/img/icon_3.png',
         description: '海量数据秒级查询，极速响应能力，帮助企业自由的数据探索',
