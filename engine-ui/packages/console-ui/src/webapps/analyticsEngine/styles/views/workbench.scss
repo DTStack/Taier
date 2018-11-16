@@ -245,10 +245,10 @@
         }
         .ant-form-item{
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
+            // display: flex;
+            // align-items: center;
             .ant-form-item-label{
-                line-height: 17px;
+                line-height: 36px;
             }
         }
         .ant-collapse-content{
@@ -548,6 +548,10 @@
 
         .ant-tabs-bar {
             margin-bottom: 0;
+            .ant-tabs-ink-bar{
+                top: 0;
+                visibility: visible;
+            }
             .ant-tabs-nav-container{
                 height: 36px;
             }

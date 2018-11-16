@@ -133,7 +133,7 @@ class DataDelay extends React.Component {
             <div style={{ padding: "21px 20px 20px 25px" }}>
                 <Table
                     rowKey="topicName"
-                    className="m-table"
+                    className="m-table border-table"
                     columns={this.initDelayListColumns()}
                     dataSource={delayList}
                     pagination={pagination}
