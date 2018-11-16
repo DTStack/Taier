@@ -1,13 +1,15 @@
 import React from 'react';
-import { Button, message, Form, Input,
-    Row, Col, Icon, Select, Radio, Tooltip, InputNumber } from 'antd';
+import {
+    Button, message, Form, Input,
+    Row, Col, Icon, Select, Radio, Tooltip, InputNumber
+} from 'antd';
 import assign from 'object-assign';
 import { isEqual, throttle, range, isObject, isEmpty, cloneDeep } from 'lodash';
 
 import ajax from '../../../api/dataManage'
 
-import { 
-    formItemLayout, 
+import {
+    formItemLayout,
     tableModelRules,
     TABLE_MODEL_RULE,
 } from '../../../comm/const';
@@ -25,22 +27,23 @@ const RadioGroup = Radio.Group;
  * @extends {React.Component}
  */
 export default class BaseForm extends React.Component {
-    
+
     constructor(props) {
         super(props);
 
         const { tableName, tableNameRules, location } = this.props;
-        const tableNamePropArr=tableName?tableName.split("_"):[];
+        const tableNamePropArr = tableName ? tableName.split("_") : [];
 
 
         this.state = {
-            type: location?'2':'1', // 1: 内部表 2:外部表
+            type: location ? '2' : '1', // 1: 内部表 2:外部表
             tableNameArr: cloneDeep(tableNamePropArr),
+            storedType: props.storedType
         };
     }
 
     lifeCycleChange = (value) => {
-        this.props.form.setFieldsValue({'lifeDay': value})
+        this.props.form.setFieldsValue({ 'lifeDay': value })
     }
 
     changeTableName = (value, index, modelType, option) => {
@@ -56,20 +59,20 @@ export default class BaseForm extends React.Component {
         } else if (modelType && modelType === TABLE_MODEL_RULE.SUBJECT) {
             fields.subject = value;
         }
-        
+
         this.props.form.setFieldsValue(fields)
     }
 
     validateDelim(rule, value, callback) {
         value = value.trim();
 
-        if(value[0] === '\\') {
-            if(value.length > 2) {
+        if (value[0] === '\\') {
+            if (value.length > 2) {
                 callback('分隔符长度只能为1（不包括转义字符"\\"）')
             }
         }
         else {
-            if(value.length > 1) {
+            if (value.length > 1) {
                 callback('分隔符长度只能为1')
             }
         }
@@ -89,12 +92,12 @@ export default class BaseForm extends React.Component {
             value ? ajax.checkTableExist({
                 tableName: value
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     // 如果true 则存在
-                    if(res.data) callback('该表已经存在！');
+                    if (res.data) callback('该表已经存在！');
                 }
             })
-            .then(callback) : callback();
+                .then(callback) : callback();
         }
         callback();
     }
@@ -103,22 +106,22 @@ export default class BaseForm extends React.Component {
         value ? ajax.checkHdfsLocExist({
             hdfsUri: 'hdfs://' + value
         }).then(res => {
-            if(res.code === 1) {
-                if(!res.data) callback('此目录不存在');
+            if (res.code === 1) {
+                if (!res.data) callback('此目录不存在');
             }
         })
-        .then(callback) : callback();
+            .then(callback) : callback();
     }
 
     handleChange(e) {
         const type = e.target.value;
 
-        this.setState({type});
+        this.setState({ type });
         type === '1' && this.props.resetLoc();
     }
 
     renderTableRules = () => {
-        const { 
+        const {
             subjectFields, modelLevels, changeRuleValue,
             incrementCounts, freshFrequencies, tableNameRules, tableName
         } = this.props;
@@ -126,7 +129,7 @@ export default class BaseForm extends React.Component {
         const inlineStyle = { width: 100, display: 'inline-block' }
         const renderRules = (rule, index) => {
             let data = [];
-            switch(rule.value) {
+            switch (rule.value) {
                 case TABLE_MODEL_RULE.LEVEL: {
                     data = modelLevels; break;
                 }
@@ -139,10 +142,10 @@ export default class BaseForm extends React.Component {
                 case TABLE_MODEL_RULE.FREQUENCY: {
                     data = freshFrequencies; break;
                 }
-                case TABLE_MODEL_RULE.CUSTOM: 
+                case TABLE_MODEL_RULE.CUSTOM:
                 default: {
                     return (
-                        <Input 
+                        <Input
                             placeholder="自定义"
                             value={tableNameArr[index]}
                             onChange={(e) => this.changeTableName(e.target.value, index)}
@@ -204,28 +207,29 @@ export default class BaseForm extends React.Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        
-        const { 
+
+        const {
             tableName, tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
             subject, tableModelRules
         } = this.props;
 
-        const { type, tableNameArr } = this.state;
+        const { type, tableNameArr, storedType } = this.state;
+        const isShowDelim = storedType == 'textfile';
 
         return <Form>
             <FormItem
                 {...formItemLayout}
                 label="表名"
             >
-                 {getFieldDecorator('tableName', {
+                {getFieldDecorator('tableName', {
                     rules: [{
                         required: true,
                         message: '表名不可为空！'
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
-                    initialValue:tableNameArr.join("_"),
+                    initialValue: tableNameArr.join("_"),
                     validateTrigger: 'onBlur',
                 })(
                     <Input type="hidden" />,
@@ -234,23 +238,11 @@ export default class BaseForm extends React.Component {
             </FormItem>
             <FormItem
                 {...formItemLayout}
-                label="分隔符"
-                hasFeedback
-            >
-                {getFieldDecorator('delim', {
-                    rules: [],
-                    initialValue: delim,
-                })(
-                    <Input placeholder="分隔符" autoComplete="off" />
-                )}
-            </FormItem>
-            <FormItem
-                {...formItemLayout}
                 label="类型"
                 hasFeedback
             >
-                <RadioGroup value={ this.state.type }
-                    onChange={ this.handleChange.bind(this) }
+                <RadioGroup value={this.state.type}
+                    onChange={this.handleChange.bind(this)}
                 >
                     <Radio value={'1'}>内部表</Radio>
                     <Radio value={'2'}>外部表</Radio>
@@ -271,7 +263,7 @@ export default class BaseForm extends React.Component {
                     initialValue: location,
                     validateTrigger: 'onBlur',
                 })(
-                    <Input placeholder="外部表地址"/>,
+                    <Input placeholder="外部表地址" />,
                 )}
             </FormItem>}
             <FormItem
@@ -305,7 +297,7 @@ export default class BaseForm extends React.Component {
                     initialValue: lifeDay || 90
                 })(
                     <LifeCycle
-                        onChange={this.lifeCycleChange} 
+                        onChange={this.lifeCycleChange}
                     />
                 )}
             </FormItem>
@@ -318,14 +310,33 @@ export default class BaseForm extends React.Component {
                     rules: [{
                         required: true, message: '存储格式不可为空！',
                     }],
-                    initialValue: 'textfile',
+                    initialValue: storedType,
                 })(
-                    <Select>
+                    <Select onChange={(value) => {
+                        this.setState({
+                            storedType: value
+                        })
+                    }}>
                         <Option value="textfile">textfile</Option>
                         <Option value="orc">orc</Option>
+                        <Option value="parquet">parquet</Option>
                     </Select>
                 )}
             </FormItem>
+            {isShowDelim && (
+                <FormItem
+                    {...formItemLayout}
+                    label="分隔符"
+                    hasFeedback
+                >
+                    {getFieldDecorator('delim', {
+                        rules: [],
+                        initialValue: delim,
+                    })(
+                        <Input placeholder="分隔符" autoComplete="off" />
+                    )}
+                </FormItem>
+            )}
             <FormItem
                 {...formItemLayout}
                 label="描述"
@@ -343,7 +354,7 @@ export default class BaseForm extends React.Component {
             <FormItem
                 {...formItemLayout}
                 label="主题域"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
                 hasFeedback
             >
                 {getFieldDecorator('subject', {
@@ -356,7 +367,7 @@ export default class BaseForm extends React.Component {
             <FormItem
                 {...formItemLayout}
                 label="模型层级"
-                style={{display: 'none'}}
+                style={{ display: 'none' }}
                 hasFeedback
             >
                 {getFieldDecorator('grade', {

@@ -78,7 +78,7 @@ export default class PaneData extends Component{
 
 
     paginationParams.current = 1;
-    paginationParams.total = list.length;
+    paginationParams.total = list.length-1;
 
 
     this.setState({

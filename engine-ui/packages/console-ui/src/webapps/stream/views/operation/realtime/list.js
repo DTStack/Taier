@@ -110,6 +110,7 @@ class RealTimeTaskList extends Component {
     }
 
     searchTask = (query) => {
+        this.closeSlidePane();
         this.setState({
             taskName: query,
         }, () => {

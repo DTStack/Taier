@@ -185,10 +185,9 @@ class TableDetail extends Component {
                             <td>数据库</td>
                             <td>{tableDetail.dbName || '-'}</td>
                             <td>物理存储量</td>
-                            <td>{tableDetail.tableSize?
-                                utils.convertBytes(tableDetail.tableSize) : '-'}</td>
+                            <td>{tableDetail.tableSize || '-'}</td>
                         </tr>
-                        <tr>
+                        <tr> 
                             <td>创建人</td>
                             <td>{tableDetail.createUserName || '-'}</td>
                             <td>生命周期</td>
