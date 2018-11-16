@@ -170,7 +170,9 @@ class CheckPoint extends React.Component {
                     className="m-table border-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
-                    pagination={true}
+                    pagination={{
+                        pageSize:15
+                    }}
                 />
             </div>
         )

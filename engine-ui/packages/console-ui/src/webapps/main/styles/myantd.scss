@@ -160,6 +160,9 @@
         border-width: 1px 1px 0px 1px;
         border-color: #dcdcdc;
         border-style: solid;
+        .ant-table-placeholder{
+            border-bottom: 1px solid #e9e9e9;
+        }
     }
 
 }
