@@ -31,7 +31,7 @@
 
 ### 打包之前
 
-在开始打包项目前，你需要清楚的是，DTinsight 前端是一个集合了`DTinsight.IDE、DTinsight.Valid、DTinsight.API、DTinsight.Tag、DTinsight.Console`若干应用的项目。考虑到不同客户的需求情况，故设计成根据具体应用需求生成对应的发布文件的方式，也就是说假如你只需要，`DTinsight.IDE` 这一个应用，只需要配置该一个应用即可，打包后生成的代码仅此包含改项目的运行代码。该配置项的文件为：`src/config/base.js` 与`src/config/defaultApps.js`，在 `src/config` 目录下找到这2个配置文件，并找到对应App的启用`（enable）`字段，`true` 表示启用，`false`关闭。
+在开始打包项目前，你需要清楚的是，DTinsight 前端是一个集合了`DTinsight.IDE、DTinsight.Valid、DTinsight.API、DTinsight.Tag、DTinsight.Console、DTinsight.Analytics`若干应用的项目。考虑到不同客户的需求情况，故设计成根据具体应用需求生成对应的发布文件的方式，也就是说假如你只需要，`DTinsight.IDE` 这一个应用，只需要配置该一个应用即可，打包后生成的代码仅此包含改项目的运行代码。该配置项的文件为：`src/config/base.js` 与`src/config/defaultApps.js`，在 `src/config` 目录下找到这2个配置文件，并找到对应App的启用`（enable）`字段，`true` 表示启用，`false`关闭。
 
 ### 打包源码
 
@@ -65,13 +65,21 @@
 ```bash
 | - dist
     | - index.html
-    | - rdos.html
+    | - batch.html
+    | - stream.html
     | - dataQuality.html
+    | - dataApi.html
+    | - dataLabel.html
+    | - console.html
+    | - analytics.html
     | - public
         | - main
             | - config
                 | - config.js
         | - rdos
+            | - config
+                | - config.js
+        | - stream
             | - config
                 | - config.js
         | - dataQuality
@@ -84,6 +92,9 @@
             | - config
                 | - config.js
         | - console
+            | - config
+                | - config.js
+        | - analyticsEngine
             | - config
                 | - config.js
     | - ...
