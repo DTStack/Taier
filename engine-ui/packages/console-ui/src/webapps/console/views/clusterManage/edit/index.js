@@ -76,14 +76,17 @@ class EditCluster extends React.Component {
                     clusterConf = JSON.parse(clusterConf);
                     const flinkData = clusterConf.flinkConf;
                     if (flinkData.hasOwnProperty('gatewayHost')) {
+                        // this.setState({
+                        //     hasFlink: true
+                        // },() => {
+                        //     if(this.state.hasFlink) {
+                        //         this.setState({
+                        //             checked: true
+                        //         })
+                        //     }
+                        // })
                         this.setState({
-                            hasFlink: true
-                        },() => {
-                            if(this.state.hasFlink) {
-                                this.setState({
-                                    checked: true
-                                })
-                            }
+                            checked: true
                         })
                     }
                 }
