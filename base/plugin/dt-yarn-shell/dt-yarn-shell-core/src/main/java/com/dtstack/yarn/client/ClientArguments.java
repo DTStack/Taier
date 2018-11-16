@@ -37,7 +37,7 @@ public class ClientArguments {
     int psVCores;
     int psNum;
     String[] files;
-    Configuration remoteConf;
+//    Configuration remoteConf;
     String[] libJars;
     String launchCmd;
     int priority;
@@ -149,13 +149,13 @@ public class ClientArguments {
         this.files = files;
     }
 
-    public Configuration getRemoteConf() {
-        return remoteConf;
-    }
-
-    public void setRemoteConf(Configuration remoteConf) {
-        this.remoteConf = remoteConf;
-    }
+//    public Configuration getRemoteConf() {
+//        return remoteConf;
+//    }
+//
+//    public void setRemoteConf(Configuration remoteConf) {
+//        this.remoteConf = remoteConf;
+//    }
 
     public String[] getLibJars() {
         return libJars;
@@ -513,16 +513,16 @@ public class ClientArguments {
             files = StringUtils.split(commandLine.getOptionValue(CliOptions.OPT_FILES), ",");
         }
 
-        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {
-            String json = commandLine.getOptionValue(CliOptions.OPT_REMOTE_DFS_CONFIG);
-            Map<String, String> map = new Gson().fromJson(json, Map.class);
-            remoteConf = new Configuration();
-            remoteConf.set("fs.hdfs.impl.disable.cache", "true");
-            remoteConf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                remoteConf.set(entry.getKey(), entry.getValue());
-            }
-        }
+//        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {
+//            String json = commandLine.getOptionValue(CliOptions.OPT_REMOTE_DFS_CONFIG);
+//            Map<String, String> map = new Gson().fromJson(json, Map.class);
+//            remoteConf = new Configuration();
+//            remoteConf.set("fs.hdfs.impl.disable.cache", "true");
+//            remoteConf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
+//            for (Map.Entry<String, String> entry : map.entrySet()) {
+//                remoteConf.set(entry.getKey(), entry.getValue());
+//            }
+//        }
 
         if (commandLine.hasOption("jars")) {
             libJars = StringUtils.split(commandLine.getOptionValue("jars"), ",");
