@@ -63,7 +63,8 @@ export function MenuRight(props) {
         onClick, settingMenus, user,
         apps, app, showHelpSite, helpUrl
     } = props;
-    const isShowExt=!app||!app.disableExt;
+    const isShowExt=!app || (!app.disableExt&&!app.disableMessage) ;
+    const isShowAla = !app || !app.disableMessage
     const extraParms = app ? `?app=${app && app.id}` : '';
 
     const userMenu = (
@@ -121,7 +122,7 @@ export function MenuRight(props) {
                         </Badge> */}
                     </span>
                 </a>}
-                {isShowExt && <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']}>

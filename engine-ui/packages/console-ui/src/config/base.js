@@ -86,4 +86,5 @@ export const aeApp = {
     target: '_blank',
     enable: true,
     apiBase: '/analytics',
+    disableMessage: true, //禁用消息
 }
