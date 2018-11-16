@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -244,17 +245,16 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
         String jobId = jobIdentifier.getEngineJobId();
-
+        Map<String,Object> jobLog = new HashMap<>();
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            String msgInfo = applicationReport.getDiagnostics();
-            return msgInfo;
+            jobLog.put("msg_info", applicationReport.getDiagnostics());
         } catch (Exception e) {
             LOG.error("", e);
-            return e.getMessage();
+            jobLog.put("msg_info", e.getMessage());
         }
+        return gson.toJson(jobLog, Map.class);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
+import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
@@ -28,6 +29,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +48,8 @@ public class LearningClient extends AbsClient {
     private Client client;
 
     private LearningConfiguration conf = new LearningConfiguration();
+
+    private static final Gson gson = new Gson();
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -235,17 +239,16 @@ public class LearningClient extends AbsClient {
 
     @Override
     public String getJobLog(JobIdentifier jobIdentifier) {
-
         String jobId = jobIdentifier.getEngineJobId();
-
+        Map<String,Object> jobLog = new HashMap<>();
         try {
             ApplicationReport applicationReport = client.getApplicationReport(jobId);
-            String msgInfo = applicationReport.getDiagnostics();
-            return msgInfo;
+            jobLog.put("msg_info", applicationReport.getDiagnostics());
         } catch (Exception e) {
             LOG.error("", e);
-            return e.getMessage();
+            jobLog.put("msg_info", e.getMessage());
         }
+        return gson.toJson(jobLog, Map.class);
     }
 
 }

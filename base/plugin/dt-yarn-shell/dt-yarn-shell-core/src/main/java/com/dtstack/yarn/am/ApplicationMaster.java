@@ -8,10 +8,13 @@ import com.dtstack.yarn.container.DtContainer;
 import com.dtstack.yarn.container.DtContainerId;
 import com.dtstack.yarn.util.DebugUtil;
 import com.dtstack.yarn.util.Utilities;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.service.CompositeService;
@@ -32,7 +35,9 @@ import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.util.Records;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -44,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 
 public class ApplicationMaster extends CompositeService {
@@ -226,7 +232,13 @@ public class ApplicationMaster extends CompositeService {
         }
 
         if (containerListener.isFailed()) {
-            unregister(FinalApplicationStatus.FAILED, containerListener.getFailedMsg());
+            String diagnostics = containerListener.getFailedMsg();
+            if (!containerListener.getFailedContainerEntities().isEmpty()) {
+                List<String> containerIds = containerListener.getFailedContainerEntities().stream().map(e -> e.getContainerId().toString()).collect(Collectors.toList());
+                String error = getErrorLogs(containerIds);
+                diagnostics += error;
+            }
+            unregister(FinalApplicationStatus.FAILED, diagnostics);
             return false;
         } else {
             unregister(FinalApplicationStatus.SUCCEEDED, "Task is success.");
@@ -423,6 +435,35 @@ public class ApplicationMaster extends CompositeService {
         } catch (Exception e) {
             LOG.info(DebugUtil.stackTrace(e));
         }
+    }
+
+    private String getErrorLogs(List<String> containerIds) {
+        try {
+            String logPath = StringUtils.join(Lists.newArrayList(
+                    conf.get("yarn.nodemanager.remote-app-log-dir"),
+                    System.getProperty("user.name"),
+                    conf.get("yarn.nodemanager.remote-app-log-dir-suffix"),
+                    applicationAttemptID.getApplicationId().toString()), "/");
+            LOG.info("application log path:" + logPath);
+            Path path = Utilities.getRemotePath((DtYarnConfiguration) conf, logPath);
+            FileSystem dfs = path.getFileSystem(conf);
+            FileStatus[] status = dfs.listStatus(path, f -> containerIds.contains(f));
+            StringBuilder logs = new StringBuilder(1000);
+            for (FileStatus file : status) {
+                FSDataInputStream inputStream = dfs.open(file.getPath());
+                InputStreamReader isr = new InputStreamReader(inputStream, "UTF-8");
+                BufferedReader br = new BufferedReader(isr);
+                StringBuilder lineString = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    logs.append("\n").append(line);
+                }
+            }
+            return logs.toString();
+        } catch (Exception e) {
+            LOG.error("{}", e);
+        }
+        return "";
     }
 
     public static void main(String[] args) {
