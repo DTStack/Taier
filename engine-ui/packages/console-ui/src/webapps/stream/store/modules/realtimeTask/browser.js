@@ -270,8 +270,8 @@ export function pages(state = defaultPages, action) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState = [...state];
-                const {panelColumn} = source||{};
-                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { source:panelColumn })
+                const { panelColumn } = source || {};
+                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { source: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
             } else {
@@ -285,8 +285,8 @@ export function pages(state = defaultPages, action) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState = [...state];
-                const {panelColumn} = sink||{};
-                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { sink:panelColumn })
+                const { panelColumn } = sink || {};
+                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { sink: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
             } else {
@@ -300,8 +300,8 @@ export function pages(state = defaultPages, action) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState = [...state];
-                const {panelColumn} = side||{};
-                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { side:panelColumn })
+                const { panelColumn } = side || {};
+                newState[newPageIndex] = Object.assign({}, state[newPageIndex], { side: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
             } else {
@@ -353,8 +353,8 @@ export function currentPage(state = defaultCurPage, action) {
         case browserAction.SET_INPUT_DATA: {
             const { source, taskId } = action.data || {};
             if (taskId == state.id) {
-                const {panelColumn} = source||{};
-                const newPage = Object.assign({}, state, { source:panelColumn })
+                const { panelColumn } = source || {};
+                const newPage = Object.assign({}, state, { source: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
             } else {
@@ -364,8 +364,8 @@ export function currentPage(state = defaultCurPage, action) {
         case browserAction.SET_OUTPUT_DATA: {
             const { sink, taskId } = action.data || {};
             if (taskId == state.id) {
-                const {panelColumn} = sink||{};
-                const newPage = Object.assign({}, state, { sink:panelColumn })
+                const { panelColumn } = sink || {};
+                const newPage = Object.assign({}, state, { sink: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
             } else {
@@ -375,13 +375,18 @@ export function currentPage(state = defaultCurPage, action) {
         case browserAction.SET_DIMESION_DATA: {
             const { side, taskId } = action.data || {};
             if (taskId == state.id) {
-                const {panelColumn} = side||{};
-                const newPage = Object.assign({}, state, { side:panelColumn })
+                const { panelColumn } = side || {};
+                const newPage = Object.assign({}, state, { side: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
             } else {
                 return state;
             }
+        }
+        case browserAction.CLEAR_PAGES: {
+            const newState = {};
+            localDb.set(key, newState)
+            return newState;
         }
         default:
             return state;
@@ -406,6 +411,9 @@ export function inputData(state = {}, action) {
             return { [taskId]: state[taskId] };
         case browserAction.CLEAR_ALL_INPUT_DATA:
             return {};
+        case browserAction.CLEAR_PAGES: {
+            return {};
+        }
         default:
             return state;
     }
@@ -429,6 +437,9 @@ export function outputData(state = {}, action) {
             return { [taskId]: state[taskId] };
         case browserAction.CLEAR_ALL_OUTPUT_DATA:
             return {};
+        case browserAction.CLEAR_PAGES: {
+            return {};
+        }
         default:
             return state;
     }
@@ -452,6 +463,9 @@ export function dimensionData(state = {}, action) {
             return { [taskId]: state[taskId] };
         case browserAction.CLEAR_ALL_DIMESION_DATA:
             return {};
+        case browserAction.CLEAR_PAGES: {
+            return {};
+        }
         default:
             return state;
     }

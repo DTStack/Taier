@@ -3,7 +3,7 @@ import { cloneDeep, assign } from 'lodash'
 import Api from '../../../api'
 import { replaceTreeNode, removeTreeNode, mergeTreeNodes } from 'funcs'
 
-import { treeAction, } from './actionTypes'
+import { treeAction,browserAction } from './actionTypes'
 
 /* eslint-disable */
 const defaultReqParams = { isGetFile: true, nodePid: 0 }
@@ -98,6 +98,9 @@ export function realtimeTree(state = {}, action) {
             removeTreeNode(removed, action.data)
         }
         return removed[0]
+    }
+    case treeAction.RESET_TREE:{
+        return {};
     }
     default:
         return state

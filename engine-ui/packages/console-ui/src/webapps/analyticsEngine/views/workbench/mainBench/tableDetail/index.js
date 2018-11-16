@@ -1,19 +1,17 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import API from '../../../../api'
-import { Button, Tabs, Row, notification, Dropdown, Menu, Modal, message, Popover} from 'antd';
+import { Button, Tabs, Row, notification, Menu, Modal, message, Popover} from 'antd';
 import MyIcon from '../../../../components/icon';
 
 import PaneData from './paneData';
 import PaneField from './paneField';
-import PaneIndex from './paneIndex';
 import PanePartition from './panePartition';
 import PaneBucket from './paneBucket';
-import { MenuItem } from 'widgets/context-menu';
+import utils from 'utils';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
-
 
 
 class TableDetail extends Component {
@@ -170,7 +168,7 @@ class TableDetail extends Component {
                                     databaseId: tableDetail.databaseId,
                                 })}
                             >生成建表语句</Button>
-                            <Popover placement="bottom"  overlayClassName="pop-delete" arrowPointAtCenter content={popDelete}>
+                            <Popover trigger="click" placement="bottom" overlayClassName="pop-delete" arrowPointAtCenter content={popDelete}>
                             <MyIcon type="more" style={{
                                         fontSize: 18, color: '#333333',
                                         float: 'right',
@@ -187,7 +185,8 @@ class TableDetail extends Component {
                             <td>数据库</td>
                             <td>{tableDetail.dbName || '-'}</td>
                             <td>物理存储量</td>
-                            <td>{tableDetail.tableSize || '-'}</td>
+                            <td>{tableDetail.tableSize?
+                                utils.convertBytes(tableDetail.tableSize) : '-'}</td>
                         </tr>
                         <tr>
                             <td>创建人</td>
@@ -197,7 +196,7 @@ class TableDetail extends Component {
                         </tr>
                         <tr>
                             <td>创建时间</td>
-                            <td>{tableDetail.gmtCreate?moment(tableDetail.gmtCreate).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.gmtCreate?moment(tableDetail.gmtCreate).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                             <td>是否分区</td>
                             <td>{tableDetail.hasPartition?'是':'否'}</td>
                         </tr>
@@ -205,19 +204,21 @@ class TableDetail extends Component {
                             <td>表类型</td>
                             <td>{tableDetail.type===0?'内部表':'外部表'}</td>
                             <td>表结构最后变更时间</td>
-                            <td>{tableDetail.lastDdlTime?moment(tableDetail.lastDdlTime).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.lastDdlTime?moment(tableDetail.lastDdlTime).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                         </tr>
                         <tr>
                             <td>描述</td>
                             <td>{tableDetail.tableDesc || '-'}</td>
                             <td>数据最后变更时间</td>
-                            <td>{tableDetail.lastDmlTime?moment(tableDetail.lastDmlTime).format('YYYY-MM-DD'):'-'}</td>
+                            <td>{tableDetail.lastDmlTime?moment(tableDetail.lastDmlTime).format('YYYY-MM-DD hh:mm:ss'):'-'}</td>
                         </tr>
                         <tr>
                             <td>Sort Scope</td>
                             <td>{tableDetail.sortScope === 0?'LOCAL_SORT':tableDetail.sortScope === 1?'NO_SORT':tableDetail.sortScope === 2?'BATCH_SORT':tableDetail.sortScope === 3?'GLOBAL_SORT':''}</td>
                             <td>Block Size</td>
-                            <td>{tableDetail.blockSize || '-'}</td>
+                            <td>{
+                                tableDetail.blockSize + ' MB'|| '-'
+                            }</td>
                         </tr>
                         </tbody>
                     </table>

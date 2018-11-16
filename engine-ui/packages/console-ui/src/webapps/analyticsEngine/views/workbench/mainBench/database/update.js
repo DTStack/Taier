@@ -87,10 +87,12 @@ class UpdateDatabaseModal extends Component {
                         wrappedComponentRef={(e) => { this.dbForm = e }}
                     />
                 }
-                <Row className="update-warning" style={{ padding: '0 0 26px 60px' }}>
-                    <Icon type="exclamation-circle-o" />&nbsp;
-                    <span>重置数据库密码后，您需要手动修改已有连接才能正常访问数据</span>
-                </Row>
+                {
+                    !databaseData && <Row className="update-warning" style={{ padding: '0 0 26px 60px' }}>
+                        <Icon type="exclamation-circle-o" />&nbsp;
+                        <span>重置数据库密码后，您需要手动修改已有连接才能正常访问数据</span>
+                    </Row>
+                }
             </Modal>
         )
     }

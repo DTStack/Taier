@@ -295,7 +295,7 @@ export default class StepOne extends Component{
                 </Select>
               )
             }
-            <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="sortScope" />
+            <HelpDoc style={relativeStyle} doc="sortScope" />
           </FormItem>
           <FormItem
           {...formItemLayout}
@@ -310,7 +310,7 @@ export default class StepOne extends Component{
                 <Input style={{width: 570,marginRight:10 }}/>
               )
             }
-            <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="blockSize" />
+            <HelpDoc style={relativeStyle} doc="blockSize" />
           </FormItem>
           <Collapse onChange={()=>this.setState({downIcon:!this.state.downIcon})}>
             <Panel  showArrow={false} header={<span>压缩配置&nbsp;<Icon type={this.state.downIcon?"caret-down":"caret-up"}/></span>} key="1">
@@ -327,7 +327,7 @@ export default class StepOne extends Component{
                   </RadioGroup>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="compressMode" />
+              <HelpDoc style={relativeStyle} doc="compressMode" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -339,7 +339,7 @@ export default class StepOne extends Component{
                   <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="marjorCompactionSize" />
+              <HelpDoc style={relativeStyle} doc="marjorCompactionSize" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -354,7 +354,7 @@ export default class StepOne extends Component{
                   </RadioGroup>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="autoLoadMerge" />
+              <HelpDoc style={relativeStyle} doc="autoLoadMerge" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -366,7 +366,7 @@ export default class StepOne extends Component{
                   <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="compactionLevelThreshold" />
+              <HelpDoc style={relativeStyle} doc="compactionLevelThreshold" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -378,7 +378,7 @@ export default class StepOne extends Component{
                   <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="compactionPreserveSegments" />
+              <HelpDoc style={relativeStyle} doc="compactionPreserveSegments" />
               </FormItem>
               <FormItem
               {...formItemLayout}
@@ -390,7 +390,7 @@ export default class StepOne extends Component{
                   <Input style={{width: 570,marginRight:10 }}/>
                 )
               }
-              <HelpDoc style={{...relativeStyle,fontSize: 16}} doc="allowedCompactionDays" />
+              <HelpDoc style={relativeStyle} doc="allowedCompactionDays" />
               </FormItem>
             </Panel>
           </Collapse>

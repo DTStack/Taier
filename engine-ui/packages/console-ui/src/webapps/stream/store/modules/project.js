@@ -4,6 +4,7 @@ import utils from 'utils'
 import Api from '../../api'
 
 import { clearPages } from '../../store/modules/realtimeTask/browser';
+import { treeAction } from './realtimeTask/actionTypes';
 
 
 const projectAction = mc([
@@ -31,6 +32,9 @@ export function getProject(id) {
             utils.setCookie(projectKey, id)
             // 当切换项目时，应当清理任务开发导航中的缓存数据
             dispatch(clearPages());
+            dispatch({
+                type:treeAction.RESET_TREE
+            })
         } 
         Api.getProjectByID({
             projectId: id,
