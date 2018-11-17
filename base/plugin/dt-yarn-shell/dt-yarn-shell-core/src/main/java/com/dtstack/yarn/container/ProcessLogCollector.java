@@ -18,13 +18,14 @@ public class ProcessLogCollector {
     private final StringBuilder errorLog = new StringBuilder(1000);
 
     public ProcessLogCollector(Process process) {
-        LOG.info("init");
+        LOG.info("init start");
         this.process = process;
         this.executorService = Executors.newFixedThreadPool(2);
+        LOG.info("init end");
     }
 
     private void logStream (InputStream inputStream, boolean error) {
-
+        LOG.info("logstream start");
         executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -44,12 +45,14 @@ public class ProcessLogCollector {
                 }
             }
         });
+        LOG.info("logstream end");
     }
 
     public void start() {
-        LOG.info("start");
+        LOG.info("start start");
         logStream(process.getInputStream(), false);
         logStream(process.getErrorStream(), true);
+        LOG.info("start end");
     }
 
     public void stop() {

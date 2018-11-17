@@ -58,12 +58,13 @@ public class DtContainer {
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    private final FileSystem localFs;
+
     private final FileSystem dfs;
 
     private final AppType appType;
 
     private final Map<String,Object> containerInfo;
-
 
     private DtContainer() throws IOException {
         containerInfo = new HashMap<>();
@@ -71,6 +72,8 @@ public class DtContainer {
         this.conf = new DtYarnConfiguration();
 
         this.dfs = FileSystem.get(conf);
+
+        localFs = FileSystem.getLocal(conf);
 
         conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
@@ -85,6 +88,7 @@ public class DtContainer {
         } else {
             appType = new DummyType();
         }
+
     }
 
     private void init() {
@@ -123,8 +127,6 @@ public class DtContainer {
 
     private Boolean run() throws IOException, InterruptedException {
 
-        downloadInputFiles();
-
         Date now = new Date();
         containerStatusNotifier.setContainersStartTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.RUNNING);
@@ -143,6 +145,8 @@ public class DtContainer {
         processLogCollector = new ProcessLogCollector(process);
         processLogCollector.start();
 
+        LOG.info("Executing command end");
+
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -156,7 +160,11 @@ public class DtContainer {
 
         printContainerInfo();
 
+        LOG.info("container_wait_for_begin");
+
         process.waitFor();
+
+        LOG.info("container_wait_for_end");
 
         return process.exitValue() == 0;
 
@@ -164,6 +172,7 @@ public class DtContainer {
 
 
     private void reportFailedAndExit(String msg) {
+        LOG.info("reportFailedAndExit: " + msg);
         if(msg == null || msg.length() == 0) {
             LOG.error("my error msg is: " + msg);
         }
@@ -182,6 +191,7 @@ public class DtContainer {
     }
 
     private void reportSucceededAndExit() {
+        LOG.info("reportSucceededAndExit hyf");
         Date now = new Date();
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.SUCCEEDED);
@@ -195,16 +205,9 @@ public class DtContainer {
         System.exit(0);
     }
 
-    public void downloadInputFiles() throws IOException {
-        List<LocalRemotePath> inputs = Arrays.asList(amClient.getInputSplit(containerId));
-        if(inputs != null) {
-            for(LocalRemotePath input : inputs) {
-                LOG.info("my input: " + input.getDfsLocation() + "##" + input.getLocalLocation());
-            }
-        }
-    }
 
     public void uploadOutputFiles() throws IOException {
+        LOG.info("uploadOutputFiles start");
         List<LocalRemotePath> outputs = Arrays.asList(amClient.getOutputLocation());
         for (LocalRemotePath s : outputs) {
             LOG.info("Output path: " + s.getLocalLocation() + ":" + s.getDfsLocation());
@@ -212,10 +215,8 @@ public class DtContainer {
 
         if (outputs.size() > 0) {
             for (LocalRemotePath outputInfo : outputs) {
-                FileSystem localFs = FileSystem.getLocal(conf);
                 Path localPath = new Path(outputInfo.getLocalLocation());
                 Path remotePath = new Path(outputInfo.getDfsLocation());
-                FileSystem dfs = remotePath.getFileSystem(conf);
                 if (dfs.exists(remotePath)) {
                     LOG.info("Container remote output path " + remotePath + "exists, so we has to delete is first.");
                     dfs.delete(remotePath);
@@ -229,10 +230,9 @@ public class DtContainer {
                     }
                     LOG.info(hostName + "Upload output " + localAbsolutePath + " to remote path " + remotePath + " finished.");
                 }
-                localFs.close();
             }
         }
-
+        LOG.info("uploadOutputFiles start");
     }
 
     private void printContainerInfo() throws IOException {
@@ -272,6 +272,7 @@ public class DtContainer {
                 container.reportFailedAndExit(DebugUtil.stackTrace(e));
             }
         }
+
         Utilities.sleep(3000);
     }
 
