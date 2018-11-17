@@ -218,7 +218,7 @@ public class DtContainer {
                 Path localPath = new Path(outputInfo.getLocalLocation());
                 Path remotePath = new Path(outputInfo.getDfsLocation());
                 if (dfs.exists(remotePath)) {
-                    LOG.info("Container remote output path " + remotePath + "exists, so we has to delete is first.");
+                    LOG.info("Container remote output path " + remotePath + " exists, so we has to delete is first.");
                     dfs.delete(remotePath);
                 }
                 if (localFs.exists(localPath)) {
