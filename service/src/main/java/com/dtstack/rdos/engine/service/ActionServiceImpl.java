@@ -5,7 +5,6 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
-import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
@@ -61,7 +60,7 @@ public class ActionServiceImpl {
      * 接受来自客户端的请求, 并判断节点队列长度。
      * 如在当前节点,则直接处理任务
      */
-    public void start(Map<String, Object> params){
+    public Boolean start(Map<String, Object> params){
         try{
             ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
             checkParam(paramAction);
@@ -72,10 +71,13 @@ public class ActionServiceImpl {
                 //选择节点间队列负载最小的node，做任务分发
                 JobClient jobClient = new JobClient(paramAction);
                 workNode.addStartJob(jobClient);
+                return true;
             }
+            logger.warn("任务 taskId：" + paramAction.getTaskId() + " 不允许被重复提交");
         }catch (Exception e){
             logger.error("", e);
         }
+        return false;
     }
 
     /**

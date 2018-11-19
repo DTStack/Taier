@@ -179,14 +179,15 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
-                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }
+
+                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, jobIdentifier, pluginInfoStr);
                 }
@@ -220,14 +221,15 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
                     Integer status = rdosTaskStatus.getStatus();
-                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }
+
+                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     dealBatchJobAfterGetStatus(status, taskId, zkTaskId, computeType);
                 }
