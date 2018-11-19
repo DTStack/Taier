@@ -43,6 +43,10 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_LEARNING_WORKER_VCORES = 1;
 
+    public static final String LEARNING_APP_MEMORY = "learning.app.memory";
+
+    public static final int DEFAULT_LEARNING_APP_MEMORY = 512;
+
     public static final String DT_WORKER_NUM = "dt.worker.num";
 
     public static final int DEFAULT_DT_WORKER_NUM = 1;

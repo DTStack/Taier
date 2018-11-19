@@ -3,7 +3,6 @@ package com.dtstack.yarn.client;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.JobPriority;
-import com.google.gson.Gson;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -12,13 +11,10 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 
 public class ClientArguments {
@@ -36,6 +32,7 @@ public class ClientArguments {
     int psMemory;
     int psVCores;
     int psNum;
+    int appMem;
     String[] files;
 //    Configuration remoteConf;
     String[] libJars;
@@ -115,6 +112,14 @@ public class ClientArguments {
 
     public void setWorkerNum(int workerNum) {
         this.workerNum = workerNum;
+    }
+
+    public int getAppMem() {
+        return appMem;
+    }
+
+    public void setAppMem(int appMem) {
+        this.appMem = appMem;
     }
 
     public int getPsMemory() {
@@ -330,6 +335,7 @@ public class ClientArguments {
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
         workerVCores = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_VCORES;
         workerNum = DtYarnConfiguration.DEFAULT_DT_WORKER_NUM;
+        appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
         pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
         files = null;
         cacheFiles = "";
@@ -364,6 +370,9 @@ public class ClientArguments {
                 "Amount of vcores to be requested to run worker");
         allOptions.addOption("workerNum", "worker-num", true,
                 "No. of containers on which the worker needs to be executed");
+
+        allOptions.addOption("appMemory", "app-memory", true,
+                "Amount of memory in MB to be requested to run the app");
 
         allOptions.addOption("psMemory", "ps-memory", true,
                 "Amount of memory in MB to be requested to run ps");
@@ -485,6 +494,10 @@ public class ClientArguments {
         if (commandLine.hasOption("worker-num")) {
             String workerNumStr = commandLine.getOptionValue("worker-num");
             workerNum = Integer.parseInt(workerNumStr);
+        }
+
+        if (commandLine.hasOption("app-memory")) {
+            appMem = getNormalizedMem(commandLine.getOptionValue("app-memory"));
         }
 
         if (commandLine.hasOption("priority")) {
