@@ -17,11 +17,7 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
-import { matchTaskParams } from '../../../../comm';
-import {RDB_TYPE_ARRAY} from "../../../../comm/const"
-import {
-    workbenchActions
-} from '../../../../store/modules/offlineTask/offlineAction';
+import {RDB_TYPE_ARRAY} from "../../../../comm/const";
 
 import {
     formItemLayout,
@@ -242,11 +238,18 @@ class SourceForm extends React.Component {
         }
     }
 
+    validateChineseCharacter = (rule, value, callback) => {
+        const reg = /(，|。|；)/; // 中文逗号，句号，分号
+        if (reg.test(value)) {
+            callback('参数中不可包含中文标点符号！')
+        } else {
+            callback();
+        }
+    }
+
     submitForm(event, sourceKey) {
         const {
             form, handleSourceMapChange,
-            targetMap, taskCustomParams,
-            updateDataSyncVariables,
         } = this.props;
 
         this.timerID = setTimeout(() => {
@@ -262,8 +265,6 @@ class SourceForm extends React.Component {
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
-            // 更新数据同步中的变量
-            updateDataSyncVariables(values, targetMap.type, taskCustomParams);
             handleSourceMapChange(srcmap, sourceKey);
         }, 0);
     }
@@ -728,6 +729,24 @@ class SourceForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
+                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [{
+                                validator: this.validateChineseCharacter
+                            }],
+                            initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                placeholder="若不填写，则默认为\001"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
                         label="编码"
                         key="encoding"
                         style={{ display: fileType === 'text' ? 'block' : 'none' }}
@@ -744,24 +763,9 @@ class SourceForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
-                        label="分隔符"
-                        key="fieldDelimiter"
-                    >
-                        {getFieldDecorator('fieldDelimiter', {
-                            rules: [],
-                            initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
-                        })(
-                            <Input
-                                placeholder="若不填写，则默认为\001"
-                                onChange={this.submitForm.bind(this)} />
-                        )}
-                    </FormItem>,
                 ];
                 break;
-            case DATA_SOURCE.HBASE:
+            case DATA_SOURCE.HBASE: {
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -894,6 +898,7 @@ class SourceForm extends React.Component {
                     </FormItem>
                 ]
                 break;
+            }
             case DATA_SOURCE.FTP: {
                 formItem = [
                     <FormItem
@@ -929,6 +934,8 @@ class SourceForm extends React.Component {
                             rules: [{
                                 required: true,
                                 message: '分隔符不可为空！',
+                            }, {
+                                validator: this.validateChineseCharacter
                             }],
                             initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
                         })(
@@ -936,6 +943,7 @@ class SourceForm extends React.Component {
                                 placeholder="默认值为,"
                                 onChange={this.submitForm.bind(this)} />
                         )}
+                        <HelpDoc doc="splitCharacter" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -990,11 +998,9 @@ const mapState = state => {
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
         dataSourceList: dataSync.dataSourceList,
-        taskCustomParams: workbench.taskCustomParams,
     };
 };
 const mapDispatch = (dispatch, ownProps) => {
-    const wbActions = new workbenchActions(dispatch, ownProps);
 
     return {
         addDataSource(key) {
@@ -1068,10 +1074,6 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
-        },
-
-        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
-            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
         },
     }
 };

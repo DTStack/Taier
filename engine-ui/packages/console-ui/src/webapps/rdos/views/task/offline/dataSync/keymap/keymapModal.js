@@ -1,8 +1,6 @@
 import React from 'react';
 import { 
-    Button, Row, Col, Modal, 
-    Form, Select, Input, Tooltip,
-    InputNumber, message, Icon,
+    Modal, Form, Select, Input, InputNumber,
 } from 'antd';
 
 import { 
@@ -13,7 +11,7 @@ import {
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-// hdfs 添加字段表单.
+// 添加字段表单.
 class KeyForm extends React.Component{
 
     shouldComponentUpdate(nextProps) {
@@ -148,6 +146,20 @@ class KeyForm extends React.Component{
                     return [
                         <FormItem
                             {...formItemLayout}
+                            label="字段名"
+                            key="keyName"
+                        >
+                        {getFieldDecorator('key', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: (editField && editField.key) || ''
+                        })(
+                            <Input />
+                        )}
+                        </FormItem>,
+                        <FormItem
+                            {...formItemLayout}
                             label="选择类型"
                             key="type"
                         >
@@ -173,20 +185,6 @@ class KeyForm extends React.Component{
                             </Select>
                         )}
                         </FormItem>,
-                        <FormItem
-                            {...formItemLayout}
-                            label="字段名"
-                            key="keyName"
-                        >
-                        {getFieldDecorator('key', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: (editField && editField.key) || ''
-                        })(
-                            <Input />
-                        )}
-                        </FormItem>
                     ];
                 }
                 case DATA_SOURCE.HBASE: {

@@ -31,8 +31,7 @@ import {
 const confirm = Modal.confirm;
 
 // keyMap模块
-export const keyMapActions = (dispatch) => {
-
+export const keyMapActions = (dispatch, ownProps) => {
     return {
         addLinkedKeys: (params) => {
             dispatch({
@@ -268,33 +267,44 @@ export const workbenchActions = (dispatch) => {
          * @param {Object} dataSync 
          */
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+            console.log('updateDataSyncVariables:', arguments);
             let taskVariables = [];
 
             // SourceMap
             if (sourceMap) {
-                if (sourceMap.where) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.where)
+                if (sourceMap.type && sourceMap.type.where) {
+                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)
                     taskVariables = taskVariables.concat(vbs);
                 }
     
                 // 分区，获取任务自定义参数
-                if (sourceMap.partition) {
-                    const vbs = matchTaskParams(taskCustomParams, sourceMap.partition)
+                if (sourceMap.type && sourceMap.type.partition) {
+                    const vbs = matchTaskParams(taskCustomParams, sourceMap.type.partition)
+                    taskVariables = taskVariables.concat(vbs);
+                }
+
+                // 匹配原表字段中的系统变量
+                if (sourceMap.column && sourceMap.column.length > 0) {
+                    let str = '';
+                    for (let i = 0; i < sourceMap.column.length; i++) {
+                        str += `${sourceMap.column[i].key || sourceMap.column[i].index }`;
+                    }
+                    const vbs = matchTaskParams(taskCustomParams, str);
                     taskVariables = taskVariables.concat(vbs);
                 }
             }
 
             // TagetMap
             // where, 获取任务自定义参数
-            if (targetMap) {
-                const sqlText = `${targetMap.preSql} ${targetMap.postSql}`
+            if (targetMap && targetMap.type) {
+                const sqlText = `${targetMap.type.preSql} ${targetMap.type.postSql}`
                 if (sqlText) {
                     const vbs = matchTaskParams(taskCustomParams, sqlText)
                     taskVariables = taskVariables.concat(vbs);
                 }
     
-                if (targetMap.partition) {
-                    const vbs = matchTaskParams(taskCustomParams, targetMap.partition)
+                if (targetMap.type.partition) {
+                    const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition)
                     taskVariables = taskVariables.concat(vbs);
                 }
             }

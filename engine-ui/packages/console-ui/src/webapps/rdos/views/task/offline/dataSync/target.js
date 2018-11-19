@@ -12,10 +12,6 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import {
-    workbenchActions
-} from '../../../../store/modules/offlineTask/offlineAction';
-
-import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
@@ -144,9 +140,7 @@ class TargetForm extends React.Component {
 
     submitForm = () => {
         const {
-            taskCustomParams, sourceMap,
             form, handleTargetMapChange,
-            updateDataSyncVariables,
         } = this.props;
 
         setTimeout(() => {
@@ -159,9 +153,17 @@ class TargetForm extends React.Component {
             });
 
             // 处理数据同步变量
-            updateDataSyncVariables(sourceMap.type, values, taskCustomParams);
             handleTargetMapChange(srcmap);
         }, 0);
+    }
+
+    validateChineseCharacter = (rule, value, callback) => {
+        const reg = /(，|。|；)/; // 中文逗号，句号，分号
+        if (reg.test(value)) {
+            callback('参数中不可包含中文标点符号！')
+        } else {
+            callback();
+        }
     }
 
     prev(cb) {
@@ -604,37 +606,6 @@ class TargetForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        label="分隔符"
-                        key="fieldDelimiter"
-                    >
-                        {getFieldDecorator('fieldDelimiter', {
-                            rules: [],
-                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
-                        })(
-                            <Input
-                                placeholder="例如: 目标为hive则 分隔符为\001"
-                                onChange={this.submitForm.bind(this)} />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="编码"
-                        key="encoding"
-                    >
-                        {getFieldDecorator('encoding', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
-                        })(
-                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
-                                <Option value="utf-8">utf-8</Option>
-                                <Option value="gbk">gbk</Option>
-                            </Select>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
                         label="文件名"
                         key="fileName"
                     >
@@ -662,6 +633,40 @@ class TargetForm extends React.Component {
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
                                 <Option value="parquet">parquet</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [{
+                                validator: this.validateChineseCharacter
+                            }],
+                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                placeholder="例如: 目标为hive则 分隔符为\001"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                         <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
                             </Select>
                         )}
                     </FormItem>,
@@ -824,17 +829,20 @@ class TargetForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        label="分隔符"
+                        label="列分隔符"
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [],
+                            rules: [{
+                                validator: this.validateChineseCharacter
+                            }],
                             initialValue: targetMap.type&&typeof targetMap.type.fieldDelimiter !="undefined"?targetMap.type.fieldDelimiter:","
                         })(
                             <Input
                                 placeholder="若不填写，则默认,"
                                 onChange={this.submitForm.bind(this)} />
                         )}
+                        <HelpDoc doc="splitCharacter" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -853,7 +861,7 @@ class TargetForm extends React.Component {
                                     覆盖（Insert Overwrite）
                           </Radio>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
-                                    追加新数据
+                                    追加（Insert Into）
                           </Radio>
                             </RadioGroup>
                         )}
@@ -892,13 +900,11 @@ const mapState = state => {
         targetMap: dataSync.targetMap,
         sourceMap: dataSync.sourceMap,
         dataSourceList: dataSync.dataSourceList,
-        taskCustomParams: workbench.taskCustomParams,
         project: state.project
     };
 };
 
 const mapDispatch = (dispatch, ownProps) => {
-    const wbActions = new workbenchActions(dispatch, ownProps);
     return {
         handleSourceChange(src) {
             dispatch({
@@ -942,10 +948,6 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
-        },
-
-        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
-            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
         },
     };
 }
