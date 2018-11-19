@@ -54,8 +54,6 @@ public class DtContainer {
 
     private ContainerStatusNotifier containerStatusNotifier;
 
-    private ProcessLogCollector processLogCollector;
-
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final FileSystem localFs;
@@ -135,15 +133,17 @@ public class DtContainer {
         appType.env(envList);
 
         String[] env = envList.toArray(new String[envList.size()]);
-        String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
-
+        String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
+                + " 2>&1 | tee " + envs.get(ApplicationConstants.Environment.LOG_DIRS.name())
+                + "/" + containerId.toString() + ".log"
+                + " && exit ${PIPESTATUS[0]}";
         command = appType.cmdContainerExtra(command, containerInfo);
+
+        String[] cmd = {"bash", "-c", command};
 
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec(command, env);
-        processLogCollector = new ProcessLogCollector(process);
-        processLogCollector.start();
+        Process process = rt.exec(cmd, env);
 
         LOG.info("Executing command end");
 
@@ -164,7 +164,7 @@ public class DtContainer {
 
         process.waitFor();
 
-        LOG.info("container_wait_for_end");
+        LOG.info("container_wait_for_end exitValue: " + process.exitValue());
 
         return process.exitValue() == 0;
 
@@ -181,24 +181,16 @@ public class DtContainer {
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.FAILED);
 
-        if(processLogCollector != null) {
-            processLogCollector.stop();
-        }
-
         Utilities.sleep(3000);
 
         System.exit(-1);
     }
 
     private void reportSucceededAndExit() {
-        LOG.info("reportSucceededAndExit hyf");
+        LOG.info("reportSucceededAndExit");
         Date now = new Date();
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.SUCCEEDED);
-
-        if(processLogCollector != null) {
-            processLogCollector.stop();
-        }
 
         Utilities.sleep(3000);
 
@@ -259,12 +251,8 @@ public class DtContainer {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
                 container.reportSucceededAndExit();
             } else {
-                String msg = "";
-                if (container.processLogCollector != null){
-                    msg = container.processLogCollector.getErrorLog();
-                }
-                LOG.error("DtContainer run failed! error:" + msg);
-                container.reportFailedAndExit(msg);
+                LOG.error("DtContainer run failed! error");
+                container.reportFailedAndExit("runtime failed");
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
