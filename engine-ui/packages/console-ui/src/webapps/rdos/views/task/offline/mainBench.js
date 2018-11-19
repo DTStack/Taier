@@ -162,7 +162,7 @@ export default class MainBench extends React.Component {
     }
 
     renderBench(tabData) {
-        const { taskCustomParams } = this.props;
+        const { taskCustomParams, saveTab } = this.props;
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
 
         // 任务类型
@@ -188,7 +188,7 @@ export default class MainBench extends React.Component {
                             taskCustomParams={taskCustomParams}
                         />
                     }
-                    return <DataSync key={tabData.id} {...tabData} />
+                    return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
                     return <EditorContainer 
                         taskCustomParams={taskCustomParams}
