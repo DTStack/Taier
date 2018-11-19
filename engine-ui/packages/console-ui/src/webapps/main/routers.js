@@ -39,6 +39,7 @@ export default (
             <Route path="role/add" component={ RoleAdd } />
             <Route path="role/edit/:roleId" component={ RoleEdit } />
         </Route>
+        <Route path="/*" component={NotFund} />
         {/* <Route path="/rdos" onEnter={() => openNewWindow('/rdos.html')}/> */}
         {/* <Route path="/project/:pid" ></Route> */}
         {/* <Redirect from="/*" to="/"/> */}

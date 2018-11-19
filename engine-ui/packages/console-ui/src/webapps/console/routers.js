@@ -54,5 +54,6 @@ export default (
             <Route path="clusterManage" component={ClusterManage} />
             <Route path="clusterManage/editCluster" component={ EditCluster } />
         </Route>
+        <Route path="/*" component={NotFund} />
     </Route>
 )
