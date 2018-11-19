@@ -355,6 +355,22 @@ class AuthMana extends Component {
                 }
             },
             {
+                title: "权限明细",
+                width: 80,
+                key: 'permissionsMore',
+                dataIndex: 'permissionsMore',
+                render(record) {
+                    return <span>
+                        <a onClick={() => {
+                            ctx.setState({
+                                visible: true,
+                                // editRecord: [record],
+                            })
+                        }}>查看</a>
+                    </span>
+                }
+            },
+            {
                 title: '项目名称',
                 key: 'projectName',
                 dataIndex: 'projectName',

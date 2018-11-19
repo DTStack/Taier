@@ -24,6 +24,7 @@ class ApprovelModal extends Component {
         onCancel()
         form.resetFields()
     }
+    
 
     handleResource(type){
         const { table } = this.props;

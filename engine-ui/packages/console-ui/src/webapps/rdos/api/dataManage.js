@@ -158,8 +158,15 @@ export default {
     applyReply(params) {
         return http.post(dataManageReq.ApplY_REPLY, params)
     },
-
-
+    getDdlList(params) {
+        return http.post(dataManageReq.GET_DDL_LIST,params)
+    },
+    getDmlList(params) {
+        return http.post(dataManageReq.GET_DML_LIST,params)
+    },
+    getSimpleColumns(params) {
+        return http.post(dataManageReq.GET_SIMPLE_COLUMNS,params)
+    },
     // =========== 项目表统计 ==================//
     countProjectTable(params) {
         return http.post(dataManageReq.PROJECT_TABLE_COUNT, params)
