@@ -23,7 +23,6 @@ import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -56,6 +55,8 @@ public class DtContainer {
 
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    private final FileSystem localFs;
+
     private final FileSystem dfs;
 
     private final AppType appType;
@@ -68,7 +69,8 @@ public class DtContainer {
 
         this.conf = new DtYarnConfiguration();
 
-        this.dfs = FileSystem.get(conf);
+        dfs = FileSystem.get(conf);
+        localFs = FileSystem.getLocal(conf);
 
         conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
@@ -120,8 +122,6 @@ public class DtContainer {
     }
 
     private Boolean run() throws IOException, InterruptedException {
-
-        downloadInputFiles();
 
         Date now = new Date();
         containerStatusNotifier.setContainersStartTime(now.toString());
@@ -184,14 +184,6 @@ public class DtContainer {
         System.exit(0);
     }
 
-    public void downloadInputFiles() throws IOException {
-        List<LocalRemotePath> inputs = Arrays.asList(amClient.getInputSplit(containerId));
-        if(inputs != null) {
-            for(LocalRemotePath input : inputs) {
-                LOG.info("my input: " + input.getDfsLocation() + "##" + input.getLocalLocation());
-            }
-        }
-    }
 
     public void uploadOutputFiles() throws IOException {
         List<LocalRemotePath> outputs = Arrays.asList(amClient.getOutputLocation());
@@ -201,10 +193,8 @@ public class DtContainer {
 
         if (outputs.size() > 0) {
             for (LocalRemotePath outputInfo : outputs) {
-                FileSystem localFs = FileSystem.getLocal(conf);
                 Path localPath = new Path(outputInfo.getLocalLocation());
                 Path remotePath = new Path(outputInfo.getDfsLocation());
-                FileSystem dfs = remotePath.getFileSystem(conf);
                 if (dfs.exists(remotePath)) {
                     LOG.info("Container remote output path " + remotePath + "exists, so we has to delete is first.");
                     dfs.delete(remotePath);
@@ -218,7 +208,6 @@ public class DtContainer {
                     }
                     LOG.info(hostName + "Upload output " + localAbsolutePath + " to remote path " + remotePath + " finished.");
                 }
-                localFs.close();
             }
         }
 
