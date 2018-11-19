@@ -524,6 +524,9 @@ class FolderTree extends React.Component {
                             getPopupContainer={() => this.selEle}
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
+                            filterTreeNode={(inputValue, treeNode) =>{
+                                return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+                            }}
                         >
                             {this.genetateTreeNode()}
                         </TreeSelect>
