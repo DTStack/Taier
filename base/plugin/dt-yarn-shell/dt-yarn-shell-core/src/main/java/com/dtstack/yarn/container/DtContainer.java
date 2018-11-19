@@ -135,8 +135,7 @@ public class DtContainer {
         String[] env = envList.toArray(new String[envList.size()]);
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
                 + " 2>&1 | tee " + envs.get(ApplicationConstants.Environment.LOG_DIRS.name())
-                + "/" + containerId.toString() + ".log"
-                + " && exit ${PIPESTATUS[0]}";
+                + "/worker.log && exit ${PIPESTATUS[0]}";
         command = appType.cmdContainerExtra(command, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
@@ -252,7 +251,7 @@ public class DtContainer {
                 container.reportSucceededAndExit();
             } else {
                 LOG.error("DtContainer run failed! error");
-                container.reportFailedAndExit("runtime failed");
+                container.reportFailedAndExit("");
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
