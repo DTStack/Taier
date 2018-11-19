@@ -54,8 +54,6 @@ public class DtContainer {
 
     private ContainerStatusNotifier containerStatusNotifier;
 
-    private ProcessLogCollector processLogCollector;
-
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final FileSystem dfs;
@@ -133,15 +131,17 @@ public class DtContainer {
         appType.env(envList);
 
         String[] env = envList.toArray(new String[envList.size()]);
-        String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString());
+        String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
+                + " 2>&1 | tee " + envs.get(ApplicationConstants.Environment.LOG_DIRS.name())
+                + "/worker.log && exit ${PIPESTATUS[0]}";
 
         command = appType.cmdContainerExtra(command, containerInfo);
 
+        String[] cmd = {"bash", "-c", command};
+
         LOG.info("Executing command:" + command);
         Runtime rt = Runtime.getRuntime();
-        Process process = rt.exec(command, env);
-        processLogCollector = new ProcessLogCollector(process);
-        processLogCollector.start();
+        Process process = rt.exec(cmd, env);
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
@@ -171,11 +171,6 @@ public class DtContainer {
         containerStatusNotifier.setContainerErrorMessage(msg);
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.FAILED);
-
-        if(processLogCollector != null) {
-            processLogCollector.stop();
-        }
-
         Utilities.sleep(3000);
 
         System.exit(-1);
@@ -185,13 +180,7 @@ public class DtContainer {
         Date now = new Date();
         containerStatusNotifier.setContainersFinishTime(now.toString());
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.SUCCEEDED);
-
-        if(processLogCollector != null) {
-            processLogCollector.stop();
-        }
-
         Utilities.sleep(3000);
-
         System.exit(0);
     }
 
