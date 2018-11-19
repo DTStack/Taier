@@ -224,13 +224,13 @@ class AdminUser extends Component {
                     ctx.setState({
                         streamProjects: res.data,
                         streamSelectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData.bind(true))
+                    }, this.loadData.bind(this,true))
                 } else if (app == MY_APPS.RDOS) {
                     cookiesProject = utils.getCookie('project_id')
                     ctx.setState({
                         projects: res.data,
                         selectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData.bind(true))
+                    }, this.loadData.bind(this,true))
                 }
             }
         })
