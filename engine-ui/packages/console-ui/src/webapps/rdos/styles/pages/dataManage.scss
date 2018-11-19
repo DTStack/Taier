@@ -345,3 +345,20 @@
 .CodeMirror pre.CodeMirror-placeholder {
     color: rgba(159, 168, 210, 0.48);
 }
+
+// DML DDL样式
+.tablepermission {
+    color: rgba(0, 0, 0, 0.85);
+    margin-left: 26px;
+}
+.content {
+    // border: 1px solid red;
+    overflow: hidden;
+    margin-left: 70px;
+    margin-bottom: 20px;
+    .title {
+        color: #999;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 5px;
+    }
+}
