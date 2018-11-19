@@ -54,7 +54,7 @@ class Header extends Component {
                 left: "80px",
                 top: 0
             }}>
-                DTinsight.Console
+                {window.APP_CONF.prefix}.Console
             </span>
         </span>;
         return <Navigator

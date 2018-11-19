@@ -322,3 +322,15 @@ export function replaceObjectArrayFiledName(data, targetField, replaceName) {
         return item;
     })
 }
+
+/**
+ * 初始化APP_CONF和COMMON_CONF
+ */
+export function initConfig(){
+    const app_conf=window.APP_CONF||{};
+    const common_conf=window.COMMON_CONF||{};
+    window.APP_CONF={
+        ...common_conf,
+        ...app_conf
+    }
+}

@@ -98,7 +98,7 @@ class Header extends Component {
                 left: "80px",
                 top: 0
             }}>
-                DTinsight.API
+                {window.APP_CONF.prefix}.API
             </span>
         </span>;
         return <Navigator 

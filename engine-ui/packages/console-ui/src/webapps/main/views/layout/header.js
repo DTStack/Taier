@@ -35,7 +35,7 @@ class Header extends Component {
                 left: '70px', top: 0,
                 letterSpacing: '1px',
             }}>
-                DTinsight
+                {window.APP_CONF.prefix}
             </span>
         </span>;
         

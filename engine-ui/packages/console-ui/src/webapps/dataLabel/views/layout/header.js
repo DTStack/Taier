@@ -70,7 +70,7 @@ class Header extends Component {
                 left: "80px",
                 top: 0
              }}>
-                DTinsight.Tag
+                {window.APP_CONF.prefix}.Tag
             </span>
         </span>
         return <Navigator

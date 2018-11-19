@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
+import {initConfig} from "funcs";
 import { getInitUser } from '../actions/user'
 import userActions from "../consts/userActions"
 import http from '../api';
