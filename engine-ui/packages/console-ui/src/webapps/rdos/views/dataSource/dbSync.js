@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { 
-    Table, Card, Form, Radio, 
-    Checkbox, Button, Input, Select, 
-    Icon, InputNumber, DatePicker, Tooltip, 
+import {
+    Table, Card, Form, Radio,
+    Checkbox, Button, Input, Select,
+    Icon, InputNumber, DatePicker, Tooltip,
     Alert, Progress, message
 } from 'antd';
 import moment from 'moment';
@@ -65,6 +65,17 @@ export default class DBSync extends Component {
         this.setState({ transformFields: value });
     }
 
+    exchangeIdeTableName(text) {
+        const { transformFields } = this.state;
+        const exchangeArr = transformFields.filter((field) => {
+            return field.convertObject == 1;
+        });
+        for (let i = 0; i < exchangeArr.length; i++) {
+            text = text.replace(new RegExp(exchangeArr[i].convertSrc,"g"),exchangeArr[i].convertDest);
+        }
+        return text;
+    }
+
     // table设置
     initColumns = () => {
         return [{
@@ -77,21 +88,24 @@ export default class DBSync extends Component {
             dataIndex: 'tableName',
             key: 'ideTableName',
             width: '32%',
+            render: (text, record) => {
+                return this.exchangeIdeTableName(text);
+            }
         }, {
             title: '任务状态',
             width: '28%',
             render: (text, record) => {
                 if (record.status) {
-                    return record.status === 1 ? 
-                    <div>
-                        <Icon type="check-circle" style={{ color: 'green', marginRight: 10 }} /> 
-                        成功 
+                    return record.status === 1 ?
+                        <div>
+                            <Icon type="check-circle" style={{ color: 'green', marginRight: 10 }} />
+                            成功
                     </div>
-                    : 
-                    <div>
-                        <Icon type="close-circle" style={{ color: 'red', marginRight: 10 }} />
-                        {record.report}
-                    </div>
+                        :
+                        <div>
+                            <Icon type="close-circle" style={{ color: 'red', marginRight: 10 }} />
+                            {record.report}
+                        </div>
                 }
             },
         }]
@@ -107,15 +121,15 @@ export default class DBSync extends Component {
 
         for (let i = 0; i <= 23; i++) {
             options.push(
-                <Option 
-                    key={i} 
+                <Option
+                    key={i}
                     value={`${i}`}>
-                    {i < 10 ? `0${i} : 00`: `${i} : 00`}
+                    {i < 10 ? `0${i} : 00` : `${i} : 00`}
                 </Option>
             );
         }
 
-        return <Select 
+        return <Select
             style={{ width: 300 }}>
             {options}
         </Select>
@@ -127,15 +141,15 @@ export default class DBSync extends Component {
 
         for (let i = 1; i <= 23; i++) {
             options.push(
-                <Option 
-                    key={i} 
+                <Option
+                    key={i}
                     value={`${i}`}>
                     {`${i} 小时`}
                 </Option>
             );
         }
 
-        return <Select 
+        return <Select
             className="m-r-8"
             defaultValue={'1'}
             style={{ width: 100 }}
@@ -163,7 +177,7 @@ export default class DBSync extends Component {
                 };
             });
 
-            if(!err) {
+            if (!err) {
                 let params = {
                     dataSourceId: routeParams.sourceId,
                     scheduleConf: JSON.stringify({
@@ -230,7 +244,7 @@ export default class DBSync extends Component {
             let res = await Api.publishSyncTask(params),
                 isFail = res.code != 1 || res.data.status != 1,
                 percent = parseInt(((index + 1) / selectedTable.length) * 100);
-           
+
             if (res.code === 1) {
                 let newTableList = [...tableList],
                     curIndex = newTableList.indexOf(newTableList.filter(item => item.tableName === tableName)[0]);
@@ -285,15 +299,15 @@ export default class DBSync extends Component {
 
         return (
             <div className="m-card shadow">
-                <Card 
+                <Card
                     title={<div><GoBack /> {routeParams.sourceName}</div>}
                     extra={false}
-                    noHovering 
+                    noHovering
                     bordered={false}
                 >
                     <Alert message={`注意：生成的同步任务，每天周期运行，产出表只有一级分区为pt，
                         用户需注意数据库负载。产出的目录为 clone_database/${routeParams.sourceName}`} type="info" showIcon />
-                    
+
                     <div className="sync-content">
                         <div className="sync-title">
                             选择要同步的数据表
@@ -305,11 +319,11 @@ export default class DBSync extends Component {
                             </Button>
                         </div>
 
-                        <Table 
+                        <Table
                             bordered
                             rowKey="tableName"
                             className="m-table sync-table select-all-table"
-                            columns={this.initColumns()} 
+                            columns={this.initColumns()}
                             pagination={false}
                             rowSelection={rowSelection}
                             dataSource={tableList}
@@ -321,11 +335,11 @@ export default class DBSync extends Component {
                                 {
                                     getFieldDecorator('beginDate', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '生效日期不能为空'
                                         }],
                                         initialValue: [
-                                            moment('2001-01-01'), 
+                                            moment('2001-01-01'),
                                             moment('2001-01-01').add(120, 'years')
                                         ]
                                     })(
@@ -356,7 +370,7 @@ export default class DBSync extends Component {
                                         rules: [{
                                             required: true,
                                             message: '选择同步方式',
-                                        }], 
+                                        }],
                                         initialValue: 1
                                     })(
                                         <RadioGroup>
@@ -398,7 +412,7 @@ export default class DBSync extends Component {
                                         rules: [{
                                             required: true,
                                             message: '选择并发配置',
-                                        }], 
+                                        }],
                                         initialValue: 1
                                     })(
                                         <RadioGroup>
@@ -427,8 +441,8 @@ export default class DBSync extends Component {
                                                 message: '不可为空',
                                             }],
                                         })(
-                                            <InputNumber 
-                                                min={1} 
+                                            <InputNumber
+                                                min={1}
                                                 step={1}
                                                 precision={0}
                                                 className="m-l-8"
@@ -443,7 +457,7 @@ export default class DBSync extends Component {
                             <FormItem {...formItemLayout} label="是否保存配置">
                                 {
                                     getFieldDecorator('saveConfig', {
-                                        rules: [], 
+                                        rules: [],
                                     })(
                                         <Checkbox onChange={this.onSaveChange}>保存</Checkbox>
                                     )
@@ -452,8 +466,8 @@ export default class DBSync extends Component {
                         </Form>
 
                         <div className="sync-action">
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 loading={loading}
                                 onClick={this.publishTask}>
                                 发布任务
@@ -461,9 +475,9 @@ export default class DBSync extends Component {
                             <span className="m-h-10">
                                 进度
                             </span>
-                            <Progress 
-                                style={{ flexBasis: '30%' }} 
-                                percent={percent} 
+                            <Progress
+                                style={{ flexBasis: '30%' }}
+                                percent={percent}
                             />
                             <span className="m-h-10">
                                 共：{selectedTable.length} 个
@@ -477,7 +491,7 @@ export default class DBSync extends Component {
                         </div>
                     </div>
 
-                    <TransformModal 
+                    <TransformModal
                         visible={visible}
                         transformFields={transformFields}
                         changeTransformFields={this.changeTransformFields}

@@ -4,6 +4,7 @@ export default {
     CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createTable`,
     SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/showTables`,
     GET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTable`,
+    GET_TABLE_BY_NAME: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTableByName`,
     PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getData`,
     SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/alterTable`,
     SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchHiveActionRecord/getRecords`,

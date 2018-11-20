@@ -15,6 +15,7 @@ const getCachedData = () => {
         currentTab: undefined,
         isCurrentTabNew: undefined,
         taskCustomParams: [],
+        showTableTooltip:true
     };
     return initialState;
 }
@@ -373,6 +374,22 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             break;
         }
 
+        case workbenchAction.CLOSE_TABLE_TOOLTIP:{
+            nextState = {
+                ...state,
+                showTableTooltip:false
+            }
+            break;
+        }
+
+        case workbenchAction.OPEN_TABLE_TOOLTIP:{
+            nextState = {
+                ...state,
+                showTableTooltip:true
+            }
+            break;
+        }
+        
         default:
             nextState = state;
             break;

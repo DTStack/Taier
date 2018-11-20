@@ -34,13 +34,32 @@ class IDEEditor extends Component {
         });
     };
 
+    renderEditorPane(){
+        const { editor, editorInstanceRef, extraPane } = this.props;
+        const editorView=<Editor editorInstanceRef={editorInstanceRef} {...editor} />;
+        const extraView=extraPane;
+        if(extraPane){
+            return <div className="editor-pane-box">
+                <div className="editor-view">
+                    {editorView}
+                </div>
+                <div className="extra-view">
+                    {extraView}
+                </div>
+            </div>
+        }else{
+            return editorView;
+        }
+
+    }
+
     render() {
 
-        const { editor, toolbar, console, editorInstanceRef } = this.props;
+        const {  toolbar, console } = this.props;
 
         const { size } = this.state;
 
-        const editorPane = (<Editor editorInstanceRef={editorInstanceRef} {...editor} />);
+        const editorPane = this.renderEditorPane();
 
         return (
             <div className="ide-editor">

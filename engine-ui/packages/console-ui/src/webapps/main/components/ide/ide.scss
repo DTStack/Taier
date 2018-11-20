@@ -26,6 +26,24 @@
         // padding-bottom: 50px;
         top: 36px;
         bottom: 0;
+        .editor-pane-box{
+            width: 100%;
+            position: relative;
+            .editor-view{
+                padding-right: 220px;
+                height: 100%;
+            }
+            .extra-view{
+               position: absolute;
+               top:0px;
+               bottom: 0px;
+               right:0px;
+               width: 220px;
+               border-left: 1px solid #ddd;
+               overflow: auto;
+            }
+        }
+
     }
 
     .ide-toolbar {

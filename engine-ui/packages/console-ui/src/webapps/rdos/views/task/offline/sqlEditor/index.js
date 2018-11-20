@@ -15,6 +15,8 @@ import pureRender from 'utils/pureRender';
 import reqOfflineUrl from "../../../../api/reqOffline";
 import API from '../../../../api';
 import IDEEditor from "main/components/ide";
+import RightButton from "./extraPane/rightButton";
+import ExtraPane from "./extraPane"
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
@@ -248,13 +250,16 @@ class EditorContainer extends Component {
             }
         )
     }
+    getTableList(){
+        const { project, tables } = this.props;
+        const projectId = project.id;
+        return tables[projectId];
+    }
     completeProvider(completeItems, resolve, customCompletionItemsCreater, status = {}, ) {
         const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
         const { funcCompleteItems } = this.state;
-        const { project, tables } = this.props;
-        const projectId=project.id;
-        const tableList=tables[projectId];
-        const tableCompleteItems=this.tableCompleteItems(tableList);
+        const tableList = this.getTableList();
+        const tableCompleteItems = this.tableCompleteItems(tableList);
         console.log(status)
         //初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
@@ -295,8 +300,8 @@ class EditorContainer extends Component {
                             if (context.columnContext && context.columnContext.indexOf(value[0]) > -1) {
                                 defaultItems = defaultItems.concat(
                                     customCompletionItemsCreater(value[1].map(
-                                        (columnName) => {
-                                            return [columnName, value[0], '100', "Variable"]
+                                        (column) => {
+                                            return [column.columnName, value[0], '100', "Variable"]
                                         }
                                     ))
                                 )
@@ -307,8 +312,8 @@ class EditorContainer extends Component {
                                 }
                                 defaultItems = defaultItems.concat(
                                     customCompletionItemsCreater(value[1].map(
-                                        (columnName) => {
-                                            return [columnName, value[0], '1100', "Variable"]
+                                        (column) => {
+                                            return [column.columnName, value[0], '1100', "Variable"]
                                         }
                                     ))
                                 )
@@ -338,12 +343,12 @@ class EditorContainer extends Component {
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }
-        this._tableLoading[tableName] = API.getColumnsOfTable({ tableName })
+        this._tableLoading[tableName] = API.getTableByName({ tableName })
             .then(
                 (res) => {
                     this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        _tableColumns[tableName] = [tableName, res.data];
+                        _tableColumns[tableName] = [tableName, res.data.column];
                         return _tableColumns[tableName];
                     } else {
                         console.log("get table columns error")
@@ -362,19 +367,34 @@ class EditorContainer extends Component {
         for (let location of locations) {
             if (location.type == "table") {
                 for (let identifierChain of location.identifierChain) {
+                    /**
+                     * 去除重复表
+                     */
                     if (tmp_tables[identifierChain.name]) {
                         continue;
                     }
                     tmp_tables[identifierChain.name] = true;
+                    /**
+                     * 获取sql中存在的table
+                     */
                     tables.push(identifierChain.name);
-                    let columns = this.getTableColumns(identifierChain.name);
-                    promiseList.push(columns)
+                    /**
+                     * 获取table的colums
+                     */
+                    let tmp_columns = this.getTableColumns(identifierChain.name);
+                    /**
+                     * 把获取column的接口都放到promiselist里面统一请求
+                     */
+                    promiseList.push(tmp_columns)
                 }
             }
         }
         this.setState({
             tables: tables
         })
+        /**
+         * 开始调用获取column的接口
+         */
         Promise.all(promiseList)
             .then(
                 (values) => {
@@ -400,7 +420,7 @@ class EditorContainer extends Component {
 
     render() {
 
-        const { editor, currentTabData, value, project, user } = this.props;
+        const { editor, currentTabData, value, project, user, showTableTooltip } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -409,7 +429,7 @@ class EditorContainer extends Component {
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode, funcList } = this.state;
+        const { execConfirmVisible, confirmCode, funcList, columns } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
@@ -451,6 +471,7 @@ class EditorContainer extends Component {
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
             },
+            rightCustomButton: <RightButton />
         }
 
         const consoleOpts = {
@@ -467,6 +488,12 @@ class EditorContainer extends Component {
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
+                    extraPane={showTableTooltip ?
+                        <ExtraPane
+                            data={columns}
+                        />
+                        : null
+                    }
                 />
                 <div id="JS_ddl_confirm_modal">
                     <Modal
@@ -523,7 +550,8 @@ export default connect(state => {
         editor: state.editor,
         project: state.project,
         user: state.user,
-        tables: state.offlineTask.comm.tables
+        tables: state.offlineTask.comm.tables,
+        showTableTooltip: state.offlineTask.workbench.showTableTooltip
     }
 }, dispatch => {
     const taskAc = workbenchActions(dispatch);
