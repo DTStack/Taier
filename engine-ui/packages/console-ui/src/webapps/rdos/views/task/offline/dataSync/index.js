@@ -127,9 +127,7 @@ class DataSync extends React.Component {
     }
 
     save() {
-        const { saveJobData, dataSync } = this.props;
-        const formatted = this.generateRqtBody(dataSync);
-        saveJobData(formatted);
+        this.props.saveTab();
     }
 
     /**

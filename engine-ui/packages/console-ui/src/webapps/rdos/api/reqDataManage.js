@@ -59,7 +59,9 @@ export default {
     ADD_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/collect`, // 取消收藏
     CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/cancelCollect`, // 取消收藏
     ApplY_REPLY:`${RDOS_BASE_URL}/batch/batchApply/reply`,//申请处理
-
+    GET_DDL_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDDLOperators`,  //获取DDL
+    GET_DML_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDMLOperators`,  //获取DML
+    GET_SIMPLE_COLUMNS: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getSimpleColumns`,  //获取字段名
     // ===== 项目表数据统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableCount`, // 表总量
     PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/totalSize`, // 表总存储量

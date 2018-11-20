@@ -35,7 +35,7 @@ class Header extends Component {
                 left: "70px",
                 top: 0
             }}>
-                DTinsight.Analytics
+                {window.APP_CONF.prefix}.Analytics
             </span>
         </span>
         return <Navigator 

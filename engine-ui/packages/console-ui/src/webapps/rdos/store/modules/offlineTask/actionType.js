@@ -133,6 +133,7 @@ export const targetMapAction = mc([
     'ADD_BATCH_TARGET_KEYROW',
     'EDIT_TARGET_KEYROW',
     'REMOVE_TARGET_KEYROW',
+    'COPY_TARGET_ROWS_TO_SOURCE',
 ], {prefix: 'offline/dataSync/targetMap/'});
 
 export const keyMapAction = mc([

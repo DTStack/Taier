@@ -266,7 +266,7 @@ class Header extends Component {
                             top: 0
                         }}
                     >
-                        DTinsight.Stream
+                        {window.APP_CONF.prefix}.Stream
                     </span>
                 </div>
                 <div className="menu left" style={{ position: "relative" }}>

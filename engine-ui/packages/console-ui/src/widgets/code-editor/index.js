@@ -9,12 +9,13 @@ import 'codemirror/addon/scroll/simplescrollbars.css'
 import "./style.css"
 
 const codemirror = require('codemirror')
-import {  getLinkMark } from "./utils"
+import { getLinkMark } from "./utils"
 
 // require('codemirror/addon/fold/foldcode')
 // require('codemirror/addon/fold/foldgutter')
 // require('codemirror/addon/fold/brace-fold')
 
+require('codemirror/mode/textile/textile')
 require('codemirror/mode/sql/sql')
 require('codemirror/mode/python/python')
 require('codemirror/mode/javascript/javascript')
@@ -36,7 +37,7 @@ class CodeEditor extends Component {
         const instance = this.getCodeMirrorIns()
         const {
             value, onChange, onFocus, cursor,
-            focusOut, cursorActivity,editorRef
+            focusOut, cursorActivity, editorRef
         } = this.props
 
         if (!ele) return;
@@ -67,7 +68,7 @@ class CodeEditor extends Component {
                 cursorActivity(value, doc)
             }
         })
-        if(editorRef){
+        if (editorRef) {
             editorRef(this.self);
         }
     }
@@ -79,10 +80,28 @@ class CodeEditor extends Component {
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
             if (sync) {
-                if (!value) this.self.setValue('')
-                else this.self.setValue(value)
+                window.ted = this.self;
+                const scrollInfo = this.self.getScrollInfo();
+                /**
+                 * 判断滚动条是不是在底部
+                 */
+                const isInBottom = (scrollInfo.top + scrollInfo.clientHeight) - scrollInfo.height > -10;
+                console.log(isInBottom);
+                if (!value) {
+                    this.self.setValue('')
+                }
+                else {
+                    this.self.setValue(value);
+                }
                 if (cursorAlwaysInEnd) {
-                    this.self.doc.setCursor(this.self.doc.lineCount(), null);
+                    this.self.doc.setCursor(line, null);
+                } else if (!isInBottom) {
+                    /**
+                   * 在底部并且不设置自动滚到底部，则滚到原来位置
+                   */
+                    Promise.resolve().then(()=>{
+                        this.self.scrollTo(scrollInfo.left, scrollInfo.top)
+                    })
                 }
             }
             this.renderTextMark();
@@ -96,7 +115,7 @@ class CodeEditor extends Component {
         const value = this.self.getValue();
         const linkMarks = getLinkMark(value);
         for (let _i = 0; _i < linkMarks.length; _i++) {
-            let mark=linkMarks[_i];
+            let mark = linkMarks[_i];
             this.self.doc.markText(
                 this.self.doc.posFromIndex(mark.start),
                 this.self.doc.posFromIndex(mark.end),

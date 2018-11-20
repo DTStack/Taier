@@ -17,11 +17,9 @@ class Container extends Component {
     render() {
         const { children } = this.props
         return (
-            <Layout >
-                <Content className="inner-container">
-                    { children || "i'm container." }
-                </Content>
-            </Layout>
+            <div className="inner-container">
+                {children || "i'm container."}
+            </div>
         )
     }
 }

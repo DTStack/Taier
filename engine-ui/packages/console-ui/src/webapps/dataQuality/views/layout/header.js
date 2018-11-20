@@ -63,7 +63,7 @@ class Header extends Component {
                 left: "80px",
                 top: 0
             }}>
-                DTinsight.Valid
+                {window.APP_CONF.prefix}.Valid
             </span>
         </span>
         return <Navigator 

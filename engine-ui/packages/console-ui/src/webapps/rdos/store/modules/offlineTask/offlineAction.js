@@ -104,6 +104,18 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
+        /**
+         * 拷贝目标字段到源表
+         */
+        copyTargetRowsToSource(params) {
+            dispatch({
+                type: sourceMapAction.COPY_TARGET_ROWS_TO_SOURCE,
+                payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
         editSourceKeyRow(params) {
             // TODO, 如果需要编辑源列
         },
@@ -150,7 +162,6 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-
         removeTargetKeyRow(target, index) {
             dispatch({
                 type: targetMapAction.REMOVE_TARGET_KEYROW,

@@ -333,6 +333,7 @@ class Workbench extends React.Component {
                         updateCatalogue={this.props.updateCatalogue}
                         loadTreeNode={this.props.loadTreeNode}
                         reloadWorkflowTabNode={this.props.reloadWorkflowTabNode}
+                        saveTab={this.saveTab.bind(this,true)}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>

@@ -139,6 +139,9 @@ class FolderTree extends Component {
                     multiple={multiple}
                     size="large"
                     treeNodeFilterProp="name"
+                    filterTreeNode={(inputValue, treeNode) =>{
+                        return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+                    }}
                     getPopupContainer={() => this.selEle }
                     placeholder={placeholder || '请选择存储位置'}
                     dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}

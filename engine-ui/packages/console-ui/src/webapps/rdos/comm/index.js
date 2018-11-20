@@ -275,6 +275,14 @@ export function isHdfsType(type) {
 }
 
 /**
+ * 是否为FTP类型
+ * @param {*} type
+ */
+export function isFtpType(type) {
+    return DATA_SOURCE.FTP === parseInt(type, 10);
+}
+
+/**
  * 是否属于关系型数据源
  * @param {*} type
  */

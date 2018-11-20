@@ -22,7 +22,7 @@ import {
     DATA_SOURCE,
 } from '../../../../../comm/const';
 
-import { isHdfsType, isRDB } from '../../../../../comm';
+import { isHdfsType, isFtpType, isRDB } from '../../../../../comm';
 
 import KeyMapModal from './keymapModal'
 import BatchModal from './batchModal'
@@ -545,7 +545,7 @@ class Keymap extends React.Component{
                                 </span>
                                 &nbsp;
                                 <span className="col-plugin" onClick={this.importSourceFields}>
-                                    +批量添加
+                                    +文本模式
                                 </span> 
                             </span>;
                         break;
@@ -557,7 +557,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importSourceFields}>
-                                +批量添加
+                                +文本模式
                             </span>
                         </span> : null;
                         break;
@@ -569,7 +569,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importSourceFields}>
-                                +批量添加
+                                +文本模式
                             </span>
                         </span>;
                         break;
@@ -694,7 +694,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                +批量添加
+                                +文本模式
                             </span>
                             <div className="m-col">
                                 rowkey: <Input 
@@ -715,7 +715,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                +批量添加
+                                +文本模式
                             </span>
                         </div>;
                         break;
@@ -727,7 +727,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                +批量添加
+                                +文本模式
                             </span>
                         </div>;
                         break;
@@ -884,10 +884,10 @@ class Keymap extends React.Component{
         } = this.state;
 
         const {
-            targetCol, sourceCol, keymap, 
             sourceSrcType, 
-            navtoStep, targetSrcType, 
+            targetSrcType, 
             addSourceKeyRow,
+            navtoStep, targetCol, sourceCol,
         } = this.props;
 
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
@@ -898,7 +898,7 @@ class Keymap extends React.Component{
                     您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
                 </p>
                 <Row>
-                    <Col span="20">
+                    <Col span="21">
                         <div className="m-keymapbox"
                             ref={ el => this.container = el }
                             style={{
@@ -931,7 +931,7 @@ class Keymap extends React.Component{
                             </svg>
                         </div>
                     </Col>
-                    <Col span="4">
+                    <Col span="3">
                         {!this.props.readonly ? <div className="m-buttons">
                             <Button
                                 type={ this.state.rowMap ? 'primary' : 'default' }
@@ -946,10 +946,18 @@ class Keymap extends React.Component{
                             </Button>
                             <br/>
                             {
-                                isHdfsType(targetSrcType) ? 
+                                isHdfsType(targetSrcType) || isFtpType(targetSrcType) ? 
                                 <Button 
                                     onClick={() => {this.copySourceCols(sourceCol)}}>
                                     拷贝源字段
+                                </Button>
+                                : ''
+                            }
+                            {
+                                isHdfsType(sourceSrcType) || isFtpType(sourceSrcType) ? 
+                                <Button 
+                                    onClick={() => {this.copyTargetCols(targetCol)}}>
+                                    拷贝目标字段
                                 </Button>
                                 : ''
                             }
@@ -1045,28 +1053,61 @@ class Keymap extends React.Component{
         }
     }
 
+    /**
+     * 拷贝源表字段
+     */
     copySourceCols = (sourceKeyRow) => {
-        const { addBatchTargetKeyRow } = this.props;
-        const serverParams = {};
-        sourceKeyRow.forEach((item)=>{
-            serverParams[item.key || item.index] = item.type
-        })
-        Api.convertToHiveColumns({
-            columns: serverParams
-        }).then(
-            (res)=>{
-                if(res.code==1) {
-                    const params=[];
-                    Object.getOwnPropertyNames(res.data).forEach((key)=>{
-                        params.push({
-                            key: key,
-                            type: res.data[key]
-                        })
-                    });
-                    addBatchTargetKeyRow(params)
+        const { 
+            targetSrcType, 
+            addBatchTargetKeyRow
+        } = this.props;
+
+        if (isHdfsType(targetSrcType)) {
+            const serverParams = {};
+            sourceKeyRow.forEach((item)=>{
+                serverParams[item.key || item.index] = item.type
+            })
+            Api.convertToHiveColumns({
+                columns: serverParams
+            }).then(
+                (res) => {
+                    if( res.code == 1 ) {
+                        const params=[];
+                        Object.getOwnPropertyNames(res.data).forEach((key)=>{
+                            params.push({
+                                key: key,
+                                type: res.data[key]
+                            })
+                        });
+                        addBatchTargetKeyRow(params)
+                    }
                 }
-            }
-        )
+            )
+        } else if (sourceKeyRow && sourceKeyRow.length > 0) {
+            const params = sourceKeyRow.map(item => {
+                return {
+                    key: item.key || item.index,
+                    type: 'STRING',
+                }
+            })
+            addBatchTargetKeyRow(params)
+        }
+    }
+
+    /**
+     * 拷贝目标表字段
+     */
+    copyTargetCols = (targetKeyRow) => {
+        const { addBatchSourceKeyRow } = this.props;
+        if (targetKeyRow && targetKeyRow.length > 0) {
+            const params = targetKeyRow.map(item => {
+                return {
+                    index: item.key || item.index,
+                    type: 'STRING',
+                }
+            })
+            addBatchSourceKeyRow(params);
+        }
     }
 
     batchTextChange = (e) => {

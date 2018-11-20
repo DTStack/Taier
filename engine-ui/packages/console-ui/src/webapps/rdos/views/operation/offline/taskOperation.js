@@ -55,7 +55,7 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : utils.getParameterByName("status").split(','),
-        bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date')||0, 'days'), yesterDay],
+        bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date') || 0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
         checkAll: false,
@@ -145,12 +145,12 @@ class OfflineTaskList extends Component {
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
-                res.data.data=res.data.data||[];
+                res.data.data = res.data.data || [];
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
-                for(let i=0;i<res.data.data.length;i++){
-                    let job=res.data.data[i];
-                    if(job.batchTask&&job.batchTask.taskType==TASK_TYPE.WORKFLOW&&!job.children){
-                        job.children=[];
+                for (let i = 0; i < res.data.data.length; i++) {
+                    let job = res.data.data[i];
+                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW && !job.children) {
+                        job.children = [];
                     }
                 }
                 ctx.setState({ tasks: res.data })
@@ -385,7 +385,7 @@ class OfflineTaskList extends Component {
     initTaskColumns = () => {
         const { taskStatus } = this.state;
         const { taskTypeFilter } = this.props;
-     
+
         return [{
             title: '任务名称',
             dataIndex: 'id',
@@ -403,10 +403,19 @@ class OfflineTaskList extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render: (text) => {
-                return <OfflineTaskStatus value={text} />
+            render: (text, record) => {
+                return <span>
+                    <OfflineTaskStatus value={text} />
+                    {record.isDirty ?
+                        <Tooltip
+                            title="部分数据未同步成功，建议检查配置"
+                        >
+                            <Icon type="info-circle-o" style={{ color: "red",marginLeft:"5px" }} />
+                        </Tooltip>
+                        : null}
+                </span>
             },
-            width: "70px",
+            width: "110px",
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
             filteredValue: taskStatus
@@ -495,29 +504,29 @@ class OfflineTaskList extends Component {
         )
     }
 
-    onExpand=(expanded, record)=>{
-        if(expanded){
-            if(record.children&&record.children.length){
-                return ;
+    onExpand = (expanded, record) => {
+        if (expanded) {
+            if (record.children && record.children.length) {
+                return;
             }
-            const {tasks} = this.state;
-            let newTasks=cloneDeep(tasks);
-            const {jobId} =record;
+            const { tasks } = this.state;
+            let newTasks = cloneDeep(tasks);
+            const { jobId } = record;
             Api.getRelatedJobs({
                 jobId
-            }).then((res)=>{
-                if(res.code==1){
-                    newTasks.data.find((task)=>{
-                        if(task.jobId==jobId){
-                            task.children=res.data;
+            }).then((res) => {
+                if (res.code == 1) {
+                    newTasks.data.find((task) => {
+                        if (task.jobId == jobId) {
+                            task.children = res.data;
                         }
                     })
                     this.setState({
-                        tasks:newTasks
+                        tasks: newTasks
                     })
                 }
             })
-        }else{
+        } else {
             console.log("record")
         }
     }
@@ -537,7 +546,7 @@ class OfflineTaskList extends Component {
                     {item.user.userName}
                 </Option>)
             }) : []
-        const isPro=project.projectType==PROJECT_TYPE.PRO;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
@@ -696,7 +705,7 @@ class OfflineTaskList extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px',position: 'fixed', paddingTop: '50px'  }}
+                            style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', position: 'fixed', paddingTop: '50px' }}
                         >
                             <TaskFlowView
                                 isPro={isPro}
