@@ -2,22 +2,21 @@ import React from 'react';
 import { 
     Modal, Input,
 } from 'antd';
+import utils from 'utils';
+
+import { 
+    DATA_SOURCE,
+} from '../../../../../comm/const';
 
 const renderHDFSTypes = () => {
     return <span>
         <b>STRING</b>,
-        <b>VARCHAR</b>,
-        <b>CHAR</b>,
-        <b>TINYINT</b>,
-        <b>SMALLINT</b>,
-        <b>DECIMAL</b>,
-        <br/>
+        <b>BOOLEAN</b>,
+        <b>SHORT</b>,
         <b>INT</b>,
-        <b>BIGINT</b>,
+        <b>LONG</b>,
         <b>FLOAT</b>,
         <b>DOUBLE</b>,
-        <b>TIMESTAMP</b>,
-        <b>DATE</b>
     </span>
 }
 
@@ -26,9 +25,22 @@ export default function BatchModal(props) {
     const { 
         title, desc,
         visible, onOk, 
-        placeholder, value,
+        placeholder, value, columns, sourceType,
         onCancel, onChange, columnFamily,
     } = props
+
+    let initialVal = '';
+    if (sourceType !== DATA_SOURCE.HBASE) {
+        columns && columns.forEach(item => {
+            const field = utils.checkExist(item.index) ? item.index : utils.checkExist(item.key) ? item.key : undefined;
+            if (field !== undefined) initialVal += `${field}:${item.type},\n`;
+        })
+    } else {
+        columns && columns.forEach(item => {
+            const field = utils.checkExist(item.key) ? item.key : undefined;
+            if ( field !== undefined ) initialVal += `${item.cf || '-'}:${field}:${item.type},\n`;
+        })
+    }
 
     return (
         <Modal 
@@ -42,7 +54,7 @@ export default function BatchModal(props) {
                    {desc}
                 </b>
             </p>
-            <p>常用数据类型（type）：
+            <p>常用数据类型（type)：
                 <span style={{color: 'rgb(255, 102, 0)'}}>
                     {renderHDFSTypes()}
                 </span>
@@ -57,7 +69,7 @@ export default function BatchModal(props) {
             <Input 
                 type="textarea"
                 rows={6} 
-                value={value}
+                value={value || initialVal}
                 onChange={onChange}
                 placeholder={placeholder}
             />

@@ -104,6 +104,16 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
+        replaceBatchSourceKeyRow(params) {
+            dispatch({
+                type: sourceMapAction.REPLACE_BATCH_SOURCE_KEYROW,
+                payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+
         /**
          * 拷贝目标字段到源表
          */
@@ -156,6 +166,15 @@ export const keyMapActions = (dispatch, ownProps) => {
         addBatchTargetKeyRow(params) {
             dispatch({
                 type: targetMapAction.ADD_BATCH_TARGET_KEYROW,
+                payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+        replaceBatchTargetKeyRow(params) {
+            dispatch({
+                type: targetMapAction.REPLACE_BATCH_TARGET_KEYROW,
                 payload: params
             });
             dispatch({

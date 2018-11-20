@@ -470,9 +470,11 @@ class Keymap extends React.Component{
                     const name = col ? scrollText(col.key) : '列名/行健'
                     const cf = col ? col.cf : '列族'
                     return <div className="four-cells">
-                        <div className="cell" title={cf}>{ cf }</div>
+                        <div className="cell" title={cf}>{ cf || '-' }</div>
                         <div className="cell" title={name}>{ name }</div>
-                        <div className="cell">{ col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell">
+                            {col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}
+                        </div>
                         <div className="cell">
                             { 
                                 col ? <div>  
@@ -521,7 +523,7 @@ class Keymap extends React.Component{
                         </div>
                         <div className="cell">
                             {
-                                col ? col.type.toUpperCase() : '类型'
+                                col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'
                             }
                         </div>
                     </div>
@@ -620,9 +622,9 @@ class Keymap extends React.Component{
     renderTarget() {
         const { w, h, W, H, padding } = this.state;
         const { 
-            targetCol, sourceCol, readonly, targetMap,
-            targetFileType, removeTargetKeyRow,
             sourceSrcType, targetSrcType, 
+            targetFileType, removeTargetKeyRow,
+            targetCol, sourceCol, readonly, targetMap,
         } = this.props;
 
         const colStyle = {
@@ -696,7 +698,7 @@ class Keymap extends React.Component{
                             <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
                             </span>
-                            <div className="m-col">
+                            <div className="m-col" style={{ padding: '0 10px' }}>
                                 rowkey: <Input 
                                         style={{ width: '160px' }}
                                         defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
@@ -818,10 +820,11 @@ class Keymap extends React.Component{
             sourceColumnFamily, targetColumnFamily
         } = this.state;
         const {
-            sourceSrcType, targetSrcType,
+            sourceSrcType, targetSrcType, sourceCol, targetCol,
         } = this.props;
 
-        let sPlaceholder, sDesc, tPlaceholder, tDesc
+        
+        let sPlaceholder, sDesc, tPlaceholder, tDesc;
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
@@ -844,8 +847,8 @@ class Keymap extends React.Component{
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                tPlaceholder = sPlaceholder
-                tDesc = sDesc
+                tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+                tDesc = 'columnFamily: fieldName: type,'
                 break;
             }
         }
@@ -856,6 +859,8 @@ class Keymap extends React.Component{
                 title="批量添加源表字段"
                 desc={sDesc}
                 columnFamily={sourceColumnFamily}
+                sourceType={sourceSrcType}
+                columns={sourceCol}
                 placeholder={sPlaceholder}
                 visible={batchSourceModal.visible}
                 value={batchSourceModal.batchText}
@@ -868,7 +873,9 @@ class Keymap extends React.Component{
                 title="批量添加目标字段"
                 desc={tDesc}
                 columnFamily={targetColumnFamily}
+                columns={targetCol}
                 placeholder={tPlaceholder}
+                sourceType={targetSrcType}
                 visible={batchModal.visible}
                 value={batchModal.batchText}
                 onOk={this.doBatchImport}
@@ -939,7 +946,7 @@ class Keymap extends React.Component{
                             >{ this.state.rowMap ? '取消同行映射' : '同行映射'}</Button>
                             <br/>
                             <Button
-                                disabled={ isHdfsType(sourceSrcType)}
+                                disabled={ isHdfsType(sourceSrcType) || isFtpType(sourceSrcType)}
                                 type={ this.state.nameMap ? 'primary' : 'default' }
                                 onClick={ this.setNameMap.bind(this) }
                             >{ this.state.nameMap ? '取消同名映射' : '同名映射' }
@@ -1100,9 +1107,9 @@ class Keymap extends React.Component{
     copyTargetCols = (targetKeyRow) => {
         const { addBatchSourceKeyRow } = this.props;
         if (targetKeyRow && targetKeyRow.length > 0) {
-            const params = targetKeyRow.map(item => {
+            const params = targetKeyRow.map((item, index) => {
                 return {
-                    index: item.key || item.index,
+                    index,
                     type: 'STRING',
                 }
             })
@@ -1133,7 +1140,10 @@ class Keymap extends React.Component{
     doBatchImport = () => {
         const { batchModal } = this.state
         const { batchText } = batchModal
-        const { addBatchTargetKeyRow, targetSrcType } = this.props
+        const { 
+            addBatchTargetKeyRow, targetSrcType,
+            replaceBatchTargetKeyRow
+        } = this.props
 
         const str = utils.trim(batchText)
         const arr = str.split(',')
@@ -1183,7 +1193,7 @@ class Keymap extends React.Component{
                 break;
             }
         }
-        addBatchTargetKeyRow(params)
+        replaceBatchTargetKeyRow(params);
         this.hideBatchImportModal()
     }
 
@@ -1225,22 +1235,30 @@ class Keymap extends React.Component{
     doBatchAddSourceFields = () => {
         const { batchSourceModal } = this.state
         const { batchText } = batchSourceModal
-        const { addBatchSourceKeyRow, sourceSrcType, sourceCol } = this.props
+        const { 
+            sourceSrcType, 
+            replaceBatchSourceKeyRow 
+        } = this.props
 
-        const str = utils.trim(batchText)
-        const arr = batchText.split(',')
+        if (!batchText) {
+            this.hideBatchSourceModal();
+            return;
+        }
 
+        const arr = batchText.split(',');
         const params = []
 
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
                 for (let i = 0; i < arr.length; i++ ) {
-                    const item = arr[i]
+                    const item = arr[i].replace(/\n/, '');
                     if (!item) continue;
-                    const map = item.split(':')
-                    const index = parseInt(utils.trim(map[0]), 10)
-                    const type = utils.trim(map[1]);
+                    const map = item.split(':');
+                    console.log('map:', map);
+                    if (map.length < 1) { break; };
+                    const index = parseInt(utils.trim(map[0]), 10);
+                    const type = map[1] ? utils.trim(map[1]).toUpperCase(): null;
                     if (!isNaN(index) && isNumber(index)) {
                         if (hdfsFieldTypes.includes(type) ) {
                             if (!params.find(pa => pa.index === index )) {
@@ -1250,11 +1268,11 @@ class Keymap extends React.Component{
                                 })
                             }
                         } else {
-                            message.error(`字段${index}的数据类型错误！`)
+                            message.error(`索引 ${index} 的数据类型错误！`)
                             return
                         }
                     } else {
-                        message.error(`索引名称应该为整数数字！`)
+                        message.error(`索引名称 ${index} 应该为整数数字！`)
                         return
                     }
                 }
@@ -1262,16 +1280,15 @@ class Keymap extends React.Component{
             }
             case DATA_SOURCE.HBASE: {
 
-                params.push(DefaultRowKey) // 默认插入行健
-
                 for (let i = 0; i < arr.length; i++) {
-                    const item = arr[i]
+                    const item = arr[i].replace(/\n/, '');
                     if (!item) continue;
-                    const map = item.split(':')
 
-                    const cf = utils.trim(map[0])
-                    const name = utils.trim(map[1])
-                    const type = utils.trim(map[2])
+                    const map = item.split(':');
+                    if (map.length < 2) { break; };
+                    const cf = utils.trim(map[0]);
+                    const name = utils.trim(map[1]);
+                    const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
                     if (hdfsFieldTypes.includes(type)) {
                         params.push({
                             cf: cf,
@@ -1286,8 +1303,8 @@ class Keymap extends React.Component{
                 break;
             }
         }
-        addBatchSourceKeyRow(params)
-        this.hideBatchSourceModal()
+        replaceBatchSourceKeyRow(params);
+        this.hideBatchSourceModal();
     }
 
     /**

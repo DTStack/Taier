@@ -53,7 +53,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.index) || ''
                         })(
-                            <InputNumber style={{ width: '100%' }} min={0} />
+                            <InputNumber placeholder="请输入索引值" style={{ width: '100%' }} min={0} />
                         )}
                         </FormItem>,
                         <FormItem
@@ -67,7 +67,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.type) || 'STRING'
                         })(
-                            <Select>
+                            <Select placeholder="请选择类型">
                                 <Option value="STRING">STRING</Option>
                                 <Option value="LONG">LONG</Option>
                                 <Option value="BOOLEAN">BOOLEAN</Option>
@@ -93,7 +93,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.key) || ''
                         })(
-                                <Input style={{ width: '100%' }} disabled={disabledEdit}/>
+                                <Input placeholder="请输入列名" style={{ width: '100%' }} disabled={disabledEdit}/>
                         )}
                         </FormItem>,
                         <FormItem
@@ -105,10 +105,10 @@ class KeyForm extends React.Component{
                                 rules: [{
                                     required: true
                                 }],
-                                initialValue: (editField && editField.cf) || ''
+                                initialValue: (editField && editField.cf) || undefined,
                             })(
-                                <Select placeHolder="请选择列族" disabled={disabledEdit}>
-                                {this.columnFamily(sourceColumnFamily)}
+                                <Select placeholder="请选择列族" disabled={disabledEdit}>
+                                    {this.columnFamily(sourceColumnFamily)}
                                 </Select>
                             )}
                         </FormItem>,
@@ -123,7 +123,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.type) || 'STRING'
                         })(
-                            <Select>
+                            <Select placeholder="请选择类型">
                                 <Option value="STRING">STRING</Option>
                                 <Option value="BOOLEAN">BOOLEAN</Option>
                                 <Option value="SHORT">SHORT</Option>
@@ -155,7 +155,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.key) || ''
                         })(
-                            <Input />
+                            <Input placeholder="请输入字段名"/>
                         )}
                         </FormItem>,
                         <FormItem
@@ -169,7 +169,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.type) || 'STRING'
                         })(
-                            <Select>
+                            <Select placeholder="请选择类型">
                                 <Option value="STRING">STRING</Option>
                                 <Option value="BIGINT">BIGINT</Option>
                                 <Option value="TIMESTAMP">TIMESTAMP</Option>
@@ -199,9 +199,9 @@ class KeyForm extends React.Component{
                                 required: true,
                                 type: 'string'
                             }],
-                            initialValue: (editField && editField.key) || ''
+                            initialValue: (editField && editField.key) || undefined,
                         })(
-                            <Input style={{ width: '100%' }}/>
+                            <Input placeholder="请输入列名" style={{ width: '100%' }}/>
                         )}
                         </FormItem>,
                         <FormItem
@@ -213,10 +213,10 @@ class KeyForm extends React.Component{
                                 rules: [{
                                     required: true
                                 }],
-                                initialValue: (editField && editField.cf) || ''
+                                initialValue: (editField && editField.cf) || undefined,
                             })(
-                                <Select placeHolder="请选择列族">
-                                {this.columnFamily(targetColumnFamily)}
+                                <Select placeholder="请选择列族">
+                                    {this.columnFamily(targetColumnFamily)}
                                 </Select>
                             )}
                         </FormItem>,
@@ -231,7 +231,7 @@ class KeyForm extends React.Component{
                             }],
                             initialValue: (editField && editField.type) || 'STRING'
                         })(
-                            <Select>
+                            <Select placeholder="请选择类型">
                                 <Option value="STRING">STRING</Option>
                                 <Option value="BOOLEAN">BOOLEAN</Option>
                                 <Option value="SHORT">SHORT</Option>
