@@ -28,7 +28,7 @@ class PatchDataList extends Component {
 
     state = {
         loading: false,
-        current: 1 ,
+        current: 1,
         tasks: { data: [] },
 
         // 参数
@@ -93,7 +93,7 @@ class PatchDataList extends Component {
             reqParams.runDay = moment(runDay).unix()
         }
         if (dutyUserId) {
-             reqParams.dutyUserId = dutyUserId
+            reqParams.dutyUserId = dutyUserId
         }
 
         return reqParams
@@ -126,7 +126,7 @@ class PatchDataList extends Component {
         }
         let checkArr = [...checkVals]
         if (value == user.id) {
-            if (checkArr.indexOf('person') === -1 ) {
+            if (checkArr.indexOf('person') === -1) {
                 checkArr.push('person')
             }
         } else {
@@ -147,13 +147,13 @@ class PatchDataList extends Component {
 
         checkedList.forEach(item => {
             if (item === 'person') {
-                conditions.dutyUserId  = `${user.id}`;
+                conditions.dutyUserId = `${user.id}`;
             } else if (item === 'todayUpdate') {
                 conditions.runDay = moment()
-                conditions.dutyUserId  = `${user.id}`;
+                conditions.dutyUserId = `${user.id}`;
             }
         })
-        
+
         // 清理掉责任人信息
         if (!conditions.dutyUserId && dutyUserId === `${user.id}`) {
             conditions.dutyUserId = '';
@@ -173,14 +173,18 @@ class PatchDataList extends Component {
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
             },
-        }, 
+        },
         {
             width: 150,
-            title: '已完成/总实例',
+            title: '成功/已完成/总实例',
             dataIndex: 'doneJobSum',
             key: 'doneJobSum',
             render: (text, record) => {
-                return <span>{record.doneJobSum != record.allJobSum ? <span style={{color:"#f00",fontWeight: 600}}> {record.doneJobSum}</span> : record.doneJobSum }/{record.allJobSum}</span>
+                const isComplete=record.finishedJobSum==record.doneJobSum&&record.doneJobSum==record.allJobSum;
+                const style=isComplete?{}:{color: "#f00"};
+                return <span style={style}>
+                    {record.finishedJobSum}/{record.doneJobSum}/{record.allJobSum}
+                </span>
             },
         },
         {
@@ -189,7 +193,7 @@ class PatchDataList extends Component {
             dataIndex: 'fromDay',
             key: 'fromDay',
             render: (text, record) => {
-                return <span>{ record.fromDay} ~ {record.toDay }</span>
+                return <span>{record.fromDay} ~ {record.toDay}</span>
             },
         }, {
             width: 150,
@@ -228,12 +232,12 @@ class PatchDataList extends Component {
 
         const { projectUsers } = this.props
         const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (
-                <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
-                {item.user.userName}
-            </Option>)
-        }) : []
+            projectUsers.map((item) => {
+                return (
+                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                        {item.user.userName}
+                    </Option>)
+            }) : []
 
 
         const pagination = {
@@ -242,11 +246,11 @@ class PatchDataList extends Component {
             current,
         };
 
-        const title =(
-            <Form 
+        const title = (
+            <Form
                 layout="inline"
-                style={{marginTop: '10px'}}
-                className="m-form-inline" 
+                style={{ marginTop: '10px' }}
+                className="m-form-inline"
             >
                 <FormItem>
                     <Search
@@ -263,7 +267,7 @@ class PatchDataList extends Component {
                         format="YYYY-MM-DD"
                         placeholder="业务日期"
                         style={{ width: '120px' }}
-                        value={bizDay||null}
+                        value={bizDay || null}
                         size="default"
                         onChange={this.onBuisTimeChange}
                     />
@@ -274,7 +278,7 @@ class PatchDataList extends Component {
                         placeholder="运行日期"
                         style={{ width: '120px' }}
                         size="default"
-                        value={runDay||null}
+                        value={runDay || null}
                         disabledDate={this.disabledDate}
                         onChange={this.onRunningTime}
                     />
@@ -310,14 +314,14 @@ class PatchDataList extends Component {
                     bordered={false}
                     loading={false}
                 >
-                    <Table 
+                    <Table
                         rowKey="id"
-                        columns={ this.initTaskColumns() }
+                        columns={this.initTaskColumns()}
                         className="m-table full-screen-table-90"
                         style={{ marginTop: 1 }}
-                        pagination={ pagination }
+                        pagination={pagination}
                         dataSource={tasks.data || []}
-                        onChange={ this.pageChange }
+                        onChange={this.pageChange}
                     />
                 </Card>
             </div>
