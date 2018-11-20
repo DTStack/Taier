@@ -539,43 +539,39 @@ class Keymap extends React.Component{
                     </span>);
                 switch(sourceType) {
                     case DATA_SOURCE.HBASE:
-                        footerContent = <div>
+                        footerContent = <span>
                                 <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
                                     +添加字段
                                 </span>
                                 &nbsp;
                                 <span className="col-plugin" onClick={this.importSourceFields}>
-                                    批量添加
+                                    +批量添加
                                 </span> 
-                            </div>;
+                            </span>;
                         break;
                     case DATA_SOURCE.HDFS: {
                         footerContent = sourceFileType !== 'orc' ? 
-                        <div>
+                        <span>
                             <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            { btnAddConst }
-                            &nbsp;
                             <span className="col-plugin" onClick={this.importSourceFields}>
-                                批量添加
+                                +批量添加
                             </span>
-                        </div> : null;
+                        </span> : null;
                         break;
                     }
                     case DATA_SOURCE.FTP: {
-                        footerContent = <div>
+                        footerContent = <span>
                             <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            { btnAddConst }
-                            &nbsp;
                             <span className="col-plugin" onClick={this.importSourceFields}>
-                                批量添加
+                                +批量添加
                             </span>
-                        </div>;
+                        </span>;
                         break;
                     }
                     default: {
@@ -698,7 +694,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                批量添加
+                                +批量添加
                             </span>
                             <div className="m-col">
                                 rowkey: <Input 
@@ -719,7 +715,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                批量添加
+                                +批量添加
                             </span>
                         </div>;
                         break;
@@ -731,7 +727,7 @@ class Keymap extends React.Component{
                             </span>
                             &nbsp;
                             <span className="col-plugin" onClick={this.importFields}>
-                                批量添加
+                                +批量添加
                             </span>
                         </div>;
                         break;
@@ -829,12 +825,12 @@ class Keymap extends React.Component{
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
-                sPlaceholder = '0: STRING, 1: INTEGER,...'
+                sPlaceholder = '0: STRING,\n1: INTEGER,...'
                 sDesc = 'index: type, index: type'
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                sPlaceholder = 'cf1: field1: STRING, cf1: field2: INTEGER,...'
+                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
                 sDesc = 'columnFamily: fieldName: type,'
                 break;
             }
@@ -843,7 +839,7 @@ class Keymap extends React.Component{
         switch (targetSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
-                tPlaceholder = 'field1: STRING, field2: INTEGER,...'
+                tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
                 tDesc = 'fieldName: type, fieldName: type'
                 break;
             }

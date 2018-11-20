@@ -42,7 +42,7 @@ export default function BatchModal(props) {
                    {desc}
                 </b>
             </p>
-            <p>常用数据类型：
+            <p>常用数据类型（type）：
                 <span style={{color: 'rgb(255, 102, 0)'}}>
                     {renderHDFSTypes()}
                 </span>
