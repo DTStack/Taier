@@ -133,9 +133,10 @@ public class DtContainer {
         appType.env(envList);
 
         String[] env = envList.toArray(new String[envList.size()]);
+        String logDir = envs.get(ApplicationConstants.Environment.LOG_DIRS.name());
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
-                + " 2>&1 | tee " + envs.get(ApplicationConstants.Environment.LOG_DIRS.name())
-                + "/worker.log && exit ${PIPESTATUS[0]}";
+                + " 1>" +logDir
+                + "/dtstdout.log 2>"+logDir+"/dterror.log";
         command = appType.cmdContainerExtra(command, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
