@@ -255,3 +255,106 @@
     font-size: 14px;
     color: #333;
 }
+
+.status_wait_submit{
+    background: #F5A623;
+}
+.status_created{
+    background: #F5A623;
+}
+.status_running{
+    background: #2491F7;
+}
+.status_finished{
+    background: #00A755;
+}
+.status_stoping{
+    background: #F5A623;
+}
+.status_stoped{
+    background: #94A8C6;
+}
+.status_run_fail{
+    background: #EF5350;
+}
+.status_submit_failed{
+    background: #EF5350;
+}
+.status_submitting{
+    background: #F5A623;
+}
+.status_restarting{
+    background: #F5A623;
+}
+.status_killed{
+    background: #94A8C6;
+}
+.status_wait_run{
+    background: #F5A623;
+}
+.status_frozen{
+    background: #94A8C6;
+}
+.status_parent_failed{
+    background: #EF5350;
+}
+
+.status_overview_fail_font{
+    color: #EF5350;
+}
+.status_overview_fail{
+    background: #EF5350;
+}
+.status_overview_running_font{
+    color: #2491F7;
+}
+.status_overview_running{
+    background: #2491F7;
+}
+.status_overview_stoped_font{
+    color: #94A8C6;
+}
+.status_overview_stoped{
+    background: #94A8C6;
+}
+.status_overview_submmitting_font{
+    color: #F5A623;
+}
+.status_overview_submmitting{
+    background: #F5A623;
+}
+.status_overview_wait_submit_font{
+    color: #F5A623;
+}
+.status_overview_wait_submit{
+    background: #F5A623;
+}
+.status_overview_wait_run_font{
+    color: #F5A623;
+}
+.status_overview_wait_run{
+    background: #F5A623;
+}
+.status_overview_finished_font{
+    color: #00A755;
+}
+.status_overview_finished{
+    background: #00A755;
+}
+.status_overview_frozen{
+    background: #94A8C6;
+}
+.status_overview_frozen_font{
+    color: #94A8C6;
+}
+.status_overview_count_font{
+    color: #333333;
+}
+.status_overview_count{
+    background: #333333;
+}
+.status_overview_item{
+    font-weight: normal;
+    font-size: 12px;
+    margin-left: 25px;
+}

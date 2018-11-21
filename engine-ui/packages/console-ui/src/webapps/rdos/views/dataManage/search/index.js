@@ -43,6 +43,7 @@ class SearchTable extends Component {
             },
             ddlList: [],
             dmlList: [],
+            columnNames: [],
         }
     }
 
@@ -120,6 +121,7 @@ class SearchTable extends Component {
         const params = {...applyData};
         params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
         params.resourceId = editRecord.id;
+        params.projectId = editRecord.belongProjectId;
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
@@ -158,10 +160,23 @@ class SearchTable extends Component {
     }
 
     showModal = (record) => {
+        ajax.getSimpleColumns({
+            tableId: record.id,
+            tableName: record.tableName,
+            projectId: record.belongProjectId
+        }).then(res => {
+            if(res.code ===1 ) {
+                console.log(res.data);
+                this.setState({
+                    columnNames: res.data
+                })
+            }
+        })
         this.setState({
             visible: true,
             editRecord: record,
         });
+        console.log(record);
     }
 
 
@@ -274,7 +289,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList, columnNames } = this.state;
         const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
         const projectOptions = allProjects.map(proj => <Option
@@ -364,6 +379,7 @@ class SearchTable extends Component {
                         <TableApplyModal 
                             visible={visible}
                             table={editRecord}
+                            columnNames={columnNames}
                             onOk={this.apply}
                             ddlList={ddlList}
                             dmlList={dmlList}

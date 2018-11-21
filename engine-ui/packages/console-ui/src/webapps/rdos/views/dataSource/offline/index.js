@@ -15,6 +15,7 @@ import Api from '../../../api';
 import DataSourceForm from '../form';
 import DbSyncModal from '../syncModal';
 import { DataSourceTypeFilter, DATA_SOURCE, PROJECT_TYPE } from '../../../comm/const';
+import { isRDB } from '../../../comm';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 import DataSourceTaskListModal from '../dataSourceTaskListModal';
@@ -236,8 +237,12 @@ class DataSourceMana extends Component {
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 const { project } = this.props;
+                /**
+                 * 是否为普通项目（非测试也非生产）
+                 */
                 const isCommon = project.projectType == PROJECT_TYPE.COMMON;
-                const isMysql = record.type === DATA_SOURCE.MYSQL;
+                const isRDBType = isRDB(record.type);
+
                 const isActive = record.active === 1;
                 let menuItem = [];
                 let extAction = null;
@@ -259,7 +264,7 @@ class DataSourceMana extends Component {
                 /**
                  * 假如是mysql，那么整库同步放在最外层
                  */
-                if (isMysql) {
+                if (isRDBType) {
                     extAction = (
                         <span>
                             <Link to={`database/offLineData/db-sync/${record.id}/${record.dataName}`}>

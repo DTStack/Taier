@@ -25,7 +25,7 @@ import {
 } from '../../../comm/const'
 
 import {
-    OfflineTaskStatus, TaskTimeType, TaskType,
+    TaskStatus, TaskTimeType, TaskType,
 } from '../../../components/status'
 
 
@@ -405,12 +405,12 @@ class OfflineTaskList extends Component {
             key: 'status',
             render: (text, record) => {
                 return <span>
-                    <OfflineTaskStatus value={text} />
+                    <TaskStatus value={text} />
                     {record.isDirty ?
                         <Tooltip
                             title="部分数据未同步成功，建议检查配置"
                         >
-                            <Icon type="info-circle-o" style={{ color: "red",marginLeft:"5px" }} />
+                            <Icon type="info-circle-o" style={{ color: "#EF5350", marginLeft: "5px" }} />
                         </Tooltip>
                         : null}
                 </span>
@@ -567,40 +567,40 @@ class OfflineTaskList extends Component {
                 <h1 className="box-title" style={{ lineHeight: '50px' }}>
                     <div style={{ marginTop: '5px' }}>
                         <span className="ope-statistics">
-                            <span style={{ color: "#2E3943" }}>
-                                <Circle style={{ background: '#2E3943' }} />&nbsp;
+                            <span className="status_overview_count_font">
+                                <Circle className="status_overview_count" />&nbsp;
                             任务实例总数: &nbsp;{statistics.ALL || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            <span className="status_overview_wait_submit_font">
+                                <Circle className="status_overview_wait_submit" />&nbsp;
                             等待提交: &nbsp;{statistics.UNSUBMIT || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#2491F7" }}>
-                                <Circle style={{ background: '#2491F7' }} />&nbsp;
+                            <span className="status_overview_submmitting_font">
+                                <Circle className="status_overview_submmitting" />&nbsp;
                             提交中: &nbsp;{statistics.SUBMITTING || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623' }} />&nbsp;
+                            <span className="status_overview_wait_run_font">
+                                <Circle className="status_overview_wait_run" />&nbsp;
                             等待运行: &nbsp;{statistics.WAITENGINE || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#2491F7" }}>
-                                <Circle style={{ background: '#2491F7' }} />&nbsp;
+                            <span className="status_overview_running_font">
+                                <Circle className="status_overview_running" />&nbsp;
                             运行中: &nbsp;{statistics.RUNNING || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#009944" }}>
-                                <Circle style={{ background: '#009944' }} />&nbsp;
+                            <span className="status_overview_finished_font">
+                                <Circle className="status_overview_finished" />&nbsp;
                             成功: &nbsp;{statistics.FINISHED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
+                            <span className="status_overview_stoped_font">
+                                <Circle className="status_overview_stoped" />&nbsp;
                             取消: &nbsp;{statistics.CANCELED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#d62119" }}>
-                                <Circle style={{ background: '#d62119' }} />&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
                             失败: &nbsp;{statistics.FAILED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#26dad2" }}>
-                                <Circle style={{ background: '#26dad2' }} />&nbsp;
+                            <span className="status_overview_frozen_font">
+                                <Circle className="status_overview_frozen" />&nbsp;
                             冻结: &nbsp;{statistics.FROZEN || 0}
                             </span>&nbsp;
                     </span>

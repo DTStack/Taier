@@ -18,64 +18,63 @@ export function ProjectStatus(props) {
     }
 }
 
-// 实时任务
 export function TaskStatus(props) {
     const value = props.value
     switch (value) {
         case TASK_STATUS.RUNNING:
             return <span>
-                <Circle style={{ background: '#2491F7' }} />&nbsp;
+                <Circle className="status_running" />&nbsp;
                     运行中
                 </span>
         case TASK_STATUS.FINISHED:
-            return <span color="green">
-                <Circle style={{ background: '#00A755' }} />&nbsp;
+            return <span>
+                <Circle className="status_finished" />&nbsp;
                 已完成
             </span>
         case TASK_STATUS.STOPED:
             return <span>
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
+                <Circle className="status_stoped" />&nbsp;
                     取消
             </span>
         case TASK_STATUS.RUN_FAILED:
-            return <span color="red">
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
-                失败
+            return <span>
+                <Circle className="status_run_fail" />&nbsp;
+                运行失败
             </span>
         case TASK_STATUS.SUBMITTING:
-            return <span color="green">
-                <Circle style={{ background: '#2491F7' }} />&nbsp;
+            return <span>
+                <Circle className="status_submitting" />&nbsp;
                 提交中
             </span>
         case TASK_STATUS.SUBMIT_FAILED:
-            return <span color="green">
-                <Circle style={{ background: '#501917' }} />&nbsp;
+            return <span>
+                <Circle className="status_submit_failed" />&nbsp;
                 提交失败
             </span>
         case TASK_STATUS.WAIT_RUN:
-            return <span color="green" >
-                <Circle style={{ background: '#F5A623' }} />&nbsp;
+            return <span>
+                <Circle className="status_wait_run" />&nbsp;
                 等待运行
         </span>
         case TASK_STATUS.FROZEN:
             return <span>
-                <Circle style={{ background: '#26DAD2' }} />&nbsp;
+                <Circle className="status_frozen" />&nbsp;
                     冻结
                 </span>
         case TASK_STATUS.KILLED:
             return <span>
-                <Circle style={{ background: '#a43937' }} />&nbsp;
+                <Circle className="status_killed" />&nbsp;
                     已停止
             </span>
         case TASK_STATUS.RESTARTING:
             return <span>
-                <Circle style={{ background: '#3d6b96' }} />&nbsp;
-                    重启中
+                <Circle className="status_restarting" />&nbsp;
+                    重试中
             </span>
         case TASK_STATUS.WAIT_SUBMIT:
         default:
             return <span>
-                <Circle style={{ background: '#d9d9d9' }} />&nbsp;
+                <Circle className="status_wait_submit" />&nbsp;
                 等待提交
             </span>
     }
