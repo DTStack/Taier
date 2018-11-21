@@ -620,7 +620,7 @@ export default {
         return http.post(dataManageReq.GET_TABLE, params)
     },
     getTableByName(params) {
-        return http.post(dataManageReq.GET_TABLES_BY_NAME, params)
+        return http.post(dataManageReq.GET_TABLE_BY_NAME, params)
     },
     getTablesByName(params) {
         return http.post(dataManageReq.GET_TABLES_BY_NAME, params)

@@ -181,7 +181,7 @@ class PatchDataList extends Component {
             key: 'doneJobSum',
             render: (text, record) => {
                 const isComplete=record.finishedJobSum==record.doneJobSum&&record.doneJobSum==record.allJobSum;
-                const style=isComplete?{}:{color: "#f00"};
+                const style=isComplete?{color:"#333333"}:{color: "#EF5350"};
                 return <span style={style}>
                     {record.finishedJobSum}/{record.doneJobSum}/{record.allJobSum}
                 </span>
