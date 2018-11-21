@@ -346,36 +346,22 @@
     color: rgba(159, 168, 210, 0.48);
 }
 
-// DML DDL样式
-// .tablepermission {
-//     color: rgba(0, 0, 0, 0.85);
-//     margin-left: 26px;
-// }
-// .content {
-//     border: 1px solid red;
-//     overflow: hidden;
-//     margin-left: 70px;
-//     margin-bottom: 20px;
-//     // .title {
-//     //     color: #999;
-//     //     border-bottom: 1px solid #ccc;
-//     //     margin-bottom: 5px;
-//     // }
-// }
 
-.tablepermission {
-    color: rgba(0, 0, 0, 0.85);
-    margin-left: 36px;
-    margin-bottom: 25px;
-}
+// DML DDL样式
 .content {
     overflow: hidden;
     // border: 1px solid red;
-    margin-left: 50px;
-    margin-bottom: 30px;
-    margin-top: -20px;
-    .title {
-        border-bottom: 1px solid #e9e9e9;
-        margin-bottom: 5px;
+    // margin-left: 50px;
+    // margin-bottom: 30px;
+    // margin-top: -20px;
+    // .title {
+    //     border-bottom: 1px solid #e9e9e9;
+    //     margin-bottom: 5px;
+    // }
+    .ant-checkbox-wrapper {
+        min-width: 100px;
+        cursor: pointer;
+        font-size: 12px;
+        display: inline-block;
     }
 }
