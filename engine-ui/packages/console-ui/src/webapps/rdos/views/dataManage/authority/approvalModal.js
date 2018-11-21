@@ -46,7 +46,7 @@ class ApprovelModal extends Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         const { visible, agreeApply } = this.props;
-        const title = agreeApply ? '通过申请' : '驳回申请';
+        const title = agreeApply ? '批量通过' : '批量驳回';
         
         return (
             <Modal
