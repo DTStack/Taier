@@ -79,7 +79,6 @@ class IDEEditor extends Component {
                             split="horizontal"
                             minSize={100}
                             maxSize={-77}
-                            style={{ paddingBottom: "30px" }}
                             defaultSize="60%"
                             primary="first"
                             size={size}

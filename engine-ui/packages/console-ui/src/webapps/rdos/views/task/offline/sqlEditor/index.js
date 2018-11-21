@@ -39,7 +39,8 @@ class EditorContainer extends Component {
         funcList: [],
         funcCompleteItems: [],
         tables: [],
-        columns: {}
+        columns: {},
+        extraPaneLoading:false
     }
 
     _tableColumns = {}
@@ -348,7 +349,7 @@ class EditorContainer extends Component {
                 (res) => {
                     this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        _tableColumns[tableName] = [tableName, res.data.column];
+                        _tableColumns[tableName] = [tableName, res.data?res.data.column:[]];
                         return _tableColumns[tableName];
                     } else {
                         console.log("get table columns error")
@@ -357,7 +358,11 @@ class EditorContainer extends Component {
             )
         return this._tableLoading[tableName];
     }
-
+    /**
+     * 每一次语法解析完成之后的触发事件
+     * @param {*} autoComplete 
+     * @param {*} syntax 
+     */
     onSyntaxChange(autoComplete, syntax) {
         const locations = autoComplete.locations;
         let promiseList = [];
@@ -390,7 +395,8 @@ class EditorContainer extends Component {
             }
         }
         this.setState({
-            tables: tables
+            tables: tables,
+            extraPaneLoading:true
         })
         /**
          * 开始调用获取column的接口
@@ -408,7 +414,8 @@ class EditorContainer extends Component {
                         columns[value[0]] = value[1]
                     }
                     this.setState({
-                        columns: columns
+                        columns: columns,
+                        extraPaneLoading:false
                     })
                 }
             )
@@ -429,7 +436,7 @@ class EditorContainer extends Component {
         const data = consoleData && consoleData[currentTab] ?
             consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode, funcList, columns } = this.state;
+        const { execConfirmVisible, confirmCode, funcList, columns, extraPaneLoading } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
@@ -491,6 +498,7 @@ class EditorContainer extends Component {
                     extraPane={showTableTooltip ?
                         <ExtraPane
                             data={columns}
+                            loading={extraPaneLoading}
                         />
                         : null
                     }
