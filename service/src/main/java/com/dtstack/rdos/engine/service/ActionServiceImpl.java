@@ -6,6 +6,7 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.service.db.dao.*;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
@@ -18,6 +19,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,9 +148,14 @@ public class ActionServiceImpl {
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
 
+        List<String> jobIds = new ArrayList<>(paramList.size());
         for(Map<String, Object> param : paramList){
-            ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
-            checkParam(paramAction);
+            String taskId = MapUtils.getString(param,"taskId");
+            jobIds.add(taskId);
+        }
+        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        for(RdosEngineJobCache jobCache : jobCaches){
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
             fillJobClientEngineId(paramAction);
             workNode.addStopJob(paramAction);
         }
