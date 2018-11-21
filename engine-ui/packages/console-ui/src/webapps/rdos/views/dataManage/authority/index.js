@@ -14,7 +14,7 @@ import utils from 'utils';
 
 import ajax from '../../../api/dataManage';
 import ApprovalModal from './approvalModal';
-
+import DetailPermission from './detailPermission';
 const FormItem = Form.Item
 const Option = Select.Option
 const TabPane = Tabs.TabPane
@@ -74,6 +74,7 @@ class AuthMana extends Component {
             selectedRowKeys: [],
             agreeApply: undefined,
             visible: false,
+            isShowPermission: false,
             loading: false,
             rangeTime: startTime&&endTime&&[moment(Number(startTime)),moment(Number(endTime))]||[],
             userList:[],
@@ -88,6 +89,7 @@ class AuthMana extends Component {
                 applyUserId,
                 status: status&&[status]||undefined,
             },
+            permissionParams: {},
         }
     }
 
@@ -152,6 +154,7 @@ class AuthMana extends Component {
         })
     }
 
+    // 批量通过
     approveApply = (params) => {
         delete params.tableName;
         const { visible } = this.state;
@@ -160,6 +163,19 @@ class AuthMana extends Component {
                 message.success('操作成功！')
                 this.setState({
                     visible: false,
+                }, this.search)
+            }
+        })
+    }
+    // 单个审批通过
+    approveApplySingle = (params) => {
+        delete params.tableName;
+        const { isShowPermission } = this.state;
+        ajax.applyReply(params).then(res => {
+            if (res.code === 1) {
+                message.success('操作成功！')
+                this.setState({
+                    isShowPermission: false,
                 }, this.search)
             }
         })
@@ -280,6 +296,71 @@ class AuthMana extends Component {
         }
     }
 
+
+    // 请求数据
+    getPermissionData = (record) => {
+        ajax.getApplyDetail({
+            tableId: record.resourceId,
+            tableName: record.resourceName
+        }).then(res => {
+            if(res.code ===1 ) {
+                console.log(res.data);
+                const data = res.data;
+                const fullDdls = data.fullDdls;
+                const fullDmls = data.fullDmls;
+                const fullColumns = data.fullColumns;
+                const fullDdlsData = fullDdls.map(item => {
+                    return {
+                        label: item.name,
+                        value: item.value,
+                        status: item.status
+                    }
+                });
+                const fullDmlsData = fullDmls.map(item => {
+                    return {
+                        label: item.name,
+                        value: item.value,
+                        status: item.status
+                    }
+                });
+                // 字段名
+                const fullColumnsData = fullColumns.map(item => {
+                    return item.name
+                });
+                const params = {
+                    fullDdlsData,
+                    fullDmlsData,
+                    fullColumnsData,
+                    fullColumns
+                }
+                this.setState({
+                    permissionParams: params
+                })
+            }
+        })
+    }
+   // 通过
+    passClick = (record) => {
+        console.log(record);
+        this.getPermissionData(record);
+        this.setState({
+            isShowPermission: true,
+            agreeApply: true,
+            editRecord: [record],
+        });
+    }
+    // 驳回
+    rejectClick = (record) => {
+        this.getPermissionData(record);
+        this.setState({
+            isShowPermission: true,
+            agreeApply: false,
+            editRecord: [record],
+        });
+    }
+
+
+
     tableFooter = (currentPageData) => {
         const { queryParams } = this.state;
 
@@ -355,22 +436,6 @@ class AuthMana extends Component {
                 }
             },
             {
-                title: "权限明细",
-                width: 80,
-                key: 'permissionsMore',
-                dataIndex: 'permissionsMore',
-                render(record) {
-                    return <span>
-                        <a onClick={() => {
-                            ctx.setState({
-                                visible: true,
-                                // editRecord: [record],
-                            })
-                        }}>查看</a>
-                    </span>
-                }
-            },
-            {
                 title: '项目名称',
                 key: 'projectName',
                 dataIndex: 'projectName',
@@ -435,21 +500,9 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
-                                    <a onClick={() => {
-                                        ctx.setState({
-                                            visible: true,
-                                            agreeApply: true,
-                                            editRecord: [record],
-                                        })
-                                    }}>通过</a>
+                                    <a onClick={() => ctx.passClick(record)}>通过</a>
                                     <span className="ant-divider"></span>
-                                    <a onClick={() => {
-                                        ctx.setState({
-                                            visible: true,
-                                            agreeApply: false,
-                                            editRecord: [record],
-                                        })
-                                    }}>驳回</a>
+                                    <a onClick={() => ctx.rejectClick(record)}>驳回</a>
                                 </span>
                             }
                         }
@@ -493,13 +546,13 @@ class AuthMana extends Component {
                                 return revokeStatus(status);
                             }
                         },
-                        {
-                            title: '申请详情',
-                            key: 'applyReason',
-                            dataIndex: 'applyReason',
-                            width:"100px",
-                            render : text => this.characterProcess(text,"100px"),
-                        },
+                        // {
+                        //     title: '申请详情',
+                        //     key: 'applyReason',
+                        //     dataIndex: 'applyReason',
+                        //     width:"100px",
+                        //     render : text => this.characterProcess(text,"100px"),
+                        // },
                         {
                             title: '操作',
                             key: 'operation',
@@ -507,6 +560,8 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
+                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                    <span className="ant-divider"></span>
                                     {
                                         text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : "撤销"
                                     }
@@ -557,12 +612,21 @@ class AuthMana extends Component {
                             key: 'dealUser',
                             dataIndex: 'dealUser',
                         },
+                        // {
+                        //     title: '审批意见',
+                        //     key: 'reply',
+                        //     dataIndex: 'reply',
+                        //     width:"100px",
+                        //     render : text => this.characterProcess(text,"100px"),
+                        // },
                         {
-                            title: '审批意见',
-                            key: 'reply',
-                            dataIndex: 'reply',
+                            title: '操作',
+                            key: 'operation',
+                            dataIndex: 'applyStatus',
                             width:"100px",
-                            render : text => this.characterProcess(text,"100px"),
+                            render(record) {
+                                return <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                            }
                         }
                     ]
                 )
@@ -599,6 +663,8 @@ class AuthMana extends Component {
                             width: 120,
                             render(text, record) {
                                 return <span>
+                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                    <span className="ant-divider"></span>
                                     <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
                                 </span>
                             }
@@ -759,7 +825,7 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, queryParams, isAdminAbove} = this.state;
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission, permissionParams} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -785,6 +851,21 @@ class AuthMana extends Component {
                                                             })
                                                         }}
                                                     />
+                                                    <DetailPermission
+                                                        visible={isShowPermission}
+                                                        table={editRecord}
+                                                        permissionParams={permissionParams}
+                                                        listType={queryParams.listType}
+                                                        onOk={this.approveApplySingle}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                isShowPermission: false,
+                                                                agreeApply: undefined,
+                                                                editRecord: [],
+                                                            })
+                                                        }}
+                                                    >
+                                                    </DetailPermission>
                                                 </TabPane> 
                     }
                     {    
