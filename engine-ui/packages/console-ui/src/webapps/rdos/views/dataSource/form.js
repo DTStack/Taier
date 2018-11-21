@@ -159,6 +159,8 @@ class BaseForm extends Component {
                 return /jdbc:(\w)+:\/\/(\w)+/;
             case DATA_SOURCE.MYSQL:
                 return /jdbc:mysql:\/\/(\w)+/;
+            case DATA_SOURCE.DB2:
+                return /jdbc:db2:\/\/(\w)+/;
             case DATA_SOURCE.ORACLE:
                 return /jdbc:oracle:thin:@(\/\/)?(\w)+/;
             case DATA_SOURCE.SQLSERVER:
@@ -176,7 +178,6 @@ class BaseForm extends Component {
 
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
-        console.log('renderDynamic', config);
 
         const jdbcRulePattern = {
             pattern: this.getJDBCRule(sourceType),
@@ -607,43 +608,6 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
-            case DATA_SOURCE.KAFKA: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="集群地址"
-                        key="Address"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.address', {
-                            rules: [{
-                                required: true, message: '集群地址不可为空！',
-                            }],
-                            initialValue: config.address || '',
-                        })(
-                            <Input
-                                type="textarea" rows={4}
-                                placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
-                            />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="broker地址"
-                        key="brokerList"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.brokerList', {
-                            initialValue: config.brokerList || '',
-                        })(
-                            <Input
-                                type="textarea" rows={4}
-                                placeholder="Broker地址，例如IP1:Port,IP2:Port,IP3:Port/子目录"
-                            />,
-                        )}
-                    </FormItem>
-                ]
-            }
             case DATA_SOURCE.REDIS: {
                 return [
                     <FormItem
@@ -822,7 +786,7 @@ class BaseForm extends Component {
             }
 
             case DATA_SOURCE.MYSQL:
-            // case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.POSTGRESQL:
             case DATA_SOURCE.ANALYSIS:{

@@ -52,11 +52,11 @@ export function onCreateTable(params) {
                 createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
             }
         }
-        const name = params && params.name ? params.name + ' - ' : '';
+        // const name = params && params.name ? params.name + ' - ' : '';
 
         const newCreateTableTabData = {
             id: moment().unix(),
-            tabName: `${name} 新建表 ${createTableTabIndex + 1}`,
+            tabName: `新建表 ${createTableTabIndex + 1}`,
             createTableTabIndex: createTableTabIndex + 1,
             actionType: workbenchAction.CREATE_TABLE,
             databaseId: params ? params.id : undefined,
@@ -199,7 +199,7 @@ export function onTableDetail(params){
             }
             const tableDetail = {
                 id: res.data.id,
-                tabName: `${params.tableName}详情`,
+                tabName: `详情 ${params.tableName}`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
                 tableDetail:res.data,

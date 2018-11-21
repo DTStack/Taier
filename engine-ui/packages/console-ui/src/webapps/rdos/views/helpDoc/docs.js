@@ -35,6 +35,12 @@ export const hdfsPath = (
     </div>
 )
 
+export const splitCharacter = (
+    <div>
+        配置不可见字符，可通过“\”作为转义字符，例如\001
+    </div>
+)
+
 export const jobSpeedLimit = ( // 作业上限速度
     <div>
         设置作业速率上限，则数据同步作业的总速率将尽可能按照这个上限进行同步，

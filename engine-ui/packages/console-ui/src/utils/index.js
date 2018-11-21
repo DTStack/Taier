@@ -30,7 +30,7 @@ const utils = {
     },
 
     checkExist: function(prop) {
-        return prop !== undefined && prop !== null;
+        return prop !== undefined && prop !== null && prop !== '';
     },
 
     isMacOs: function() {

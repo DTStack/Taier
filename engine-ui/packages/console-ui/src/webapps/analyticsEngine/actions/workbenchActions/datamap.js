@@ -44,7 +44,7 @@ export function onCreateDataMap(params) {
         }
         const defaultCreateDataMapData = {
             id: moment().valueOf(),
-            tabName: `${params.tableName} - 创建DataMap ${createTabIndex + 1}`,
+            tabName: `新建DataMap - ${createTabIndex + 1}`,
             tabIndex: createTabIndex + 1,
             actionType: workbenchAction.CREATE_DATA_MAP,
             tableId: params.id,
@@ -69,7 +69,7 @@ export function onGetDataMap(params) {
             const dataMapData = res.data;
             // 添加Action标记
             dataMapData.actionType = workbenchAction.OPEN_DATA_MAP;
-            dataMapData.tabName = `查看${dataMapData.name}`;
+            dataMapData.tabName = `详情 ${dataMapData.name}`;
             dispatch(openTab(dataMapData));
         } else {
             notification.error({

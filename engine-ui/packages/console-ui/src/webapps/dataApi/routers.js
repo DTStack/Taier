@@ -69,5 +69,6 @@ export default (
             <Route path="mine/:view" component={ MyAPI }></Route>
             <Route path="dataSource" component={ DataSource }></Route>
         </Route>
+        <Route path="/*" component={NotFund} />
     </Route>
 )

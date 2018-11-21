@@ -845,9 +845,17 @@
     }
     .m-keymapbox {
         position: relative;
+
         .pa {
             position: absolute;
         }
+
+        .col-plugin {
+            padding: 10px;
+            padding-right: 0;
+            cursor: pointer;
+        }
+
         .m-col {
             border-bottom: 1px dotted #ccc;
             background: #eee;
@@ -856,7 +864,6 @@
                 background: #ddd;
             }
             &.footer {
-                cursor: pointer;
                 background: #eee;
             }
             .cell {
@@ -926,6 +933,7 @@
     }
     .m-buttons {
         padding-top: 10px;
+        text-align: center;
         button {
             margin-bottom: 5px;
         }
