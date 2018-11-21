@@ -306,7 +306,9 @@
             }
             .tb-info {
                 border-top: 1px solid #dddddd;
-                flex-basis: 100px;
+                flex-basis: 200px;
+                flex-grow: 1;
+                position: relative;
                 .ant-tabs-bar {
                     height: 35px;
                 }
@@ -1055,4 +1057,13 @@
 }
 .click-icon:hover{
     color:#000;
+}
+.g-tableviewer{
+    position: absolute;
+    top:0px;
+    bottom: 0px;
+    width: 100%;
+    .ant-tabs{
+        overflow: auto;
+    }
 }

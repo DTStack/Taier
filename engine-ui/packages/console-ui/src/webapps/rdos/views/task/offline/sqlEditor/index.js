@@ -349,7 +349,7 @@ class EditorContainer extends Component {
                 (res) => {
                     this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        _tableColumns[tableName] = [tableName, res.data?res.data.column:[]];
+                        _tableColumns[tableName] = [tableName, res.data?res.data.column:[],res.data?res.data.table:{}];
                         return _tableColumns[tableName];
                     } else {
                         console.log("get table columns error")

@@ -73,13 +73,19 @@
             color: #9EABB2;
             cursor: pointer;
             &:hover{
-                color:#f5f5f5;
+                color:#dcdcdc;
             }
         }
         .table-name{
             font-size: 14px;
             line-height: 20px;
             font-weight: 500;
+        }
+    }
+    .table-detail-column-box{
+        .table-detail-search{
+            width: 100%;
+            margin-bottom: 12px;
         }
     }
     

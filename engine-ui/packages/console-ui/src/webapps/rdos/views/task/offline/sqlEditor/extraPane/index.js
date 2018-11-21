@@ -2,7 +2,7 @@ import React from "react";
 
 import { Input, Icon, Spin, Popover } from "antd";
 
-import TableDetail from "./tableDetail";
+import TableDetail from "./tableDetail/index.js";
 
 const Search = Input.Search;
 
@@ -18,19 +18,19 @@ class TableTipExtraPane extends React.Component {
             <div className="tablePane-table-title">
                 <Popover
                     trigger="click"
-                    placement="left"
-                    content={<TableDetail 
-                        close={this.closeTableDetail.bind(this)} 
+                    placement="leftBottom"
+                    content={<TableDetail
+                        close={this.closeTableDetail.bind(this)}
                         tableName={tableName}
                         columns={columns}
-                        />}
+                    />}
                     visible={visibleMap[tableName]}
                     onVisibleChange={
                         (value) => {
                             this.setState({
-                                visibleMap:{
+                                visibleMap: {
                                     ...visibleMap,
-                                    [tableName]:value
+                                    [tableName]: value
                                 }
                             })
                         }
@@ -60,7 +60,7 @@ class TableTipExtraPane extends React.Component {
                 <Search
                     className="tablePane-search"
                     placeholder="输入表名搜索"
-                    onSearch={this.search.bind(this)}
+                    onChange={this.search.bind(this)}
                 />
                 {tableAndColumns.map(([table, columns]) => {
                     return this.renderTableItem(table, columns)
@@ -87,20 +87,21 @@ class TableTipExtraPane extends React.Component {
 
     closeTableDetail(tableName) {
         this.setState({
-            visibleMap:{
+            visibleMap: {
                 ...this.state.visibleMap,
-                [tableName]:false
+                [tableName]: false
             }
         })
     }
 
-    search(value) {
+    search(e) {
         this.setState({
-            searchValue: value
+            searchValue: e.target.value
         })
     }
 
     render() {
+        console.log("redner")
         const { loading } = this.props;
         return (
             <div className="tablePane-box">

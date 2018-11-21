@@ -9,6 +9,7 @@ export default class TablePartition extends React.Component {
     state = {
         result: { data: [] },
         current: 1,
+        loading:false
     }
 
     componentDidMount() {
@@ -26,7 +27,13 @@ export default class TablePartition extends React.Component {
             pageIndex: current,
             pageSize: 10,
         }
+        this.setState({
+            loading:true
+        })
         Api.getTablePartition(params).then(res => {
+            this.setState({
+                loading:false
+            })
             if (res.code === 1) {
                 ctx.setState({
                     result: res.data
@@ -61,7 +68,7 @@ export default class TablePartition extends React.Component {
     }
 
     render() {
-        const { result } = this.state
+        const { result, loading } = this.state
         const { pagination } = this.props
         const realPagination = pagination || {
             defaultPageSize: 10,
@@ -76,6 +83,7 @@ export default class TablePartition extends React.Component {
                     columns={this.initClumuns()} 
                     dataSource={result.data || []} 
                     onChange={this.handleTableChange}
+                    loading={loading}
                 />
             </div>
         )
