@@ -84,6 +84,7 @@ const getTaskBaseData = (task) => {
         nodePid: task.nodePid,
         preSave: task.preSave,
         submitStatus: task.submitStatus,
+        version: task.version,
     }
 }
 
@@ -99,7 +100,7 @@ const getTaskBaseData = (task) => {
         currentTab,
         editor,
         taskTypes: offlineTask.comm.taskTypes,
-        project: project
+        project: project,
     }
 }, workbenchActions )
 class WorkflowEditor extends Component {
@@ -123,6 +124,7 @@ class WorkflowEditor extends Component {
         if (cells && cells.length > 0) {
             this.initGraphData(cells);
             this.listenGraphUpdate();
+            this.initGraphView();
         } else {
             this.setState({ showGuidePic: true, });
         }
@@ -194,8 +196,7 @@ class WorkflowEditor extends Component {
         graph.cellsResizable = false;
         graph.setPanning(true);
         graph.setConnectable(true);
-        graph.setTooltips(true)
-        graph.view.setScale(1)
+        graph.setTooltips(true);
         // // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
@@ -232,6 +233,22 @@ class WorkflowEditor extends Component {
         this.initUndoManager();
         this.initContextMenu();
         this.initGraphEvent();
+    }
+
+    /**
+     * 初始化视图
+     */
+    initGraphView = () => {
+        const graph = this.graph;
+        const { data } = this.props;
+        let scale = 1, dx = 0.55, dy = 0.4;
+        if (data.graph) {
+            scale = data.graph.scale;
+            dx = data.graph.translate.x;
+            dy = data.graph.translate.y;
+        }
+        graph.view.setScale(scale);
+        graph.view.setTranslate(dx, dy);
     }
 
     getStyles = () => {
@@ -647,13 +664,18 @@ class WorkflowEditor extends Component {
          } = this.props;
 
         const workflow = this.getGraphData();
+        const view = this.graph.getView();
+        const graph = {
+            translate: view.getTranslate(),
+            scale: view.getScale(),
+        }
         const toUpdateTasks = workflow.filter(item => {
             return item.vertex && item.data && item.data.notSynced === true;
         });
         this.setState({
             showGuidePic: workflow.length > 0 ? false : true,
         })
-        updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks });
+        updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks, graph });
     }
 
     initGraphEvent = () => {
@@ -789,8 +811,6 @@ class WorkflowEditor extends Component {
                     graph.insertEdge(rootCell, item.id, '', source, target)
                 }
             }
-
-            this.layoutCenter();
         }
     }
 

@@ -56,7 +56,7 @@ function TaskInfo(props) {
                     <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
-                    }{couldEdit&&<a onClick={props.modifyTaskOwner}>修改</a>} 
+                    }&nbsp;{couldEdit&&<a onClick={props.modifyTaskOwner}>修改</a>} 
                 </Col>
             </Row>
             <Row>
