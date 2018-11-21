@@ -467,7 +467,7 @@ class Keymap extends React.Component{
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.key) : '列名/行健'
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健'
                     const cf = col ? col.cf : '列族'
                     return <div className="four-cells">
                         <div className="cell" title={cf}>{ cf || '-' }</div>
@@ -518,7 +518,7 @@ class Keymap extends React.Component{
                     return <div>
                         <div className="cell" title={name}>
                             {
-                                col ? scrollText(col.key) : '字段名称'
+                                col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                             }
                         </div>
                         <div className="cell">

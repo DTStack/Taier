@@ -9,6 +9,7 @@ import {
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
+import { singletonNotification } from 'funcs';
 import ajax from '../../../../api';
 import {
     sourceMapAction,
@@ -241,10 +242,9 @@ class SourceForm extends React.Component {
     validateChineseCharacter = (rule, value, callback) => {
         const reg = /(，|。|；)/; // 中文逗号，句号，分号
         if (reg.test(value)) {
-            callback('参数中不可包含中文标点符号！')
-        } else {
-            callback();
+            singletonNotification('提示', '列分隔符参数有包含中文标点符号！', 'warning')
         }
+        callback();
     }
 
     submitForm(event, sourceKey) {
@@ -539,6 +539,7 @@ class SourceForm extends React.Component {
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
 
+            case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:

@@ -276,7 +276,6 @@ class TargetForm extends React.Component {
                             showSearch
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
-                        // disabled={!isCurrentTabNew}
                         >
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
@@ -325,6 +324,7 @@ class TargetForm extends React.Component {
         if (isEmpty(targetMap)) return null;
 
         switch (targetMap.type.type) {
+            case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
