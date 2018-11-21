@@ -32,10 +32,11 @@ class ManageBasicProperties extends Component {
         });
     }
     cancelAndSave() {
-        const { validateFields } = this.props.form;
+        const { validateFields, getFieldsValue } = this.props.form;
+        const params=getFieldsValue();
         validateFields(["APIName"],{},(error,values)=>{
             if(!error){
-                this.props.cancelAndSave({ ...values });
+                this.props.cancelAndSave({ ...params });
             }
         })
         
@@ -256,7 +257,7 @@ class ManageBasicProperties extends Component {
         return (
             <div>
                 <div className="steps-content">
-                    <Form onSubmit={this.handleSubmit}>
+                    <Form>
                         <FormItem
                             {...formItemLayout}
                             label="所属分组"

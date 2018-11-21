@@ -19,7 +19,7 @@ import {
 } from '../../../comm/const'
 
 import {
-    OfflineTaskStatus, TaskType,
+    TaskStatus, TaskType,
 } from '../../../components/status'
 
 
@@ -183,7 +183,7 @@ class PatchDataDetail extends Component {
                 onOk() {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
-                            ctx.setState({ selectedRowKeys: [],selectedRows:[], checkAll: false })
+                            ctx.setState({ selectedRowKeys: [], selectedRows: [], checkAll: false })
                             message.success('已经成功杀死所选任务！')
                             ctx.search()
                         }
@@ -219,7 +219,7 @@ class PatchDataDetail extends Component {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
-                            ctx.setState({ selectedRowKeys: [],selectedRows:[], checkAll: false })
+                            ctx.setState({ selectedRowKeys: [], selectedRows: [], checkAll: false })
                             ctx.search()
                         }
                     })
@@ -279,7 +279,7 @@ class PatchDataDetail extends Component {
             jobStatuses: filters.status,
             taskType: filters.taskType,
             selectedRowKeys: [],
-            selectedRows:[],
+            selectedRows: [],
             execTimeSort: '',//运行时长
             execStartSort: '',//执行开始
             cycSort: '',//计划时间
@@ -381,9 +381,19 @@ class PatchDataDetail extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render: (text) => {
-                return <OfflineTaskStatus value={text} />
+            render: (text,record) => {
+                return <span>
+                    <TaskStatus value={text} />
+                    {record.isDirty ?
+                        <Tooltip
+                            title="部分数据未同步成功，建议检查配置"
+                        >
+                            <Icon type="info-circle-o" style={{ color: "#EF5350", marginLeft: "5px" }} />
+                        </Tooltip>
+                        : null}
+                </span>
             },
+            width:"110px",
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
         }, {
@@ -429,9 +439,9 @@ class PatchDataDetail extends Component {
     }
 
     tableFooter = (currentPageData) => {
-        const selectStatus=this.getSelectRowsStatus();
-        const couldKill=selectStatus.haveRunning&&!selectStatus.haveFail&&!selectStatus.haveNotRun&&!selectStatus.haveFail;
-        const couldReRun=!selectStatus.haveRunning&&(selectStatus.haveFail||selectStatus.haveNotRun||selectStatus.haveFail);
+        const selectStatus = this.getSelectRowsStatus();
+        const couldKill = selectStatus.haveRunning && !selectStatus.haveFail && !selectStatus.haveNotRun && !selectStatus.haveFail;
+        const couldReRun = !selectStatus.haveRunning && (selectStatus.haveFail || selectStatus.haveNotRun || selectStatus.haveFail);
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 22px' }}>
@@ -449,32 +459,32 @@ class PatchDataDetail extends Component {
             </tr>
         )
     }
-    getSelectRowsStatus(){
-        let haveFail,haveNotRun,haveSuccess,haveRunning; 
-        const {selectedRows} = this.state;
-        for(let i =0;i<selectedRows.length;i++){
-            let row=selectedRows[i];
-            switch(row.status){
-                case TASK_STATUS.RUN_FAILED:{
-                    haveFail=true;
+    getSelectRowsStatus() {
+        let haveFail, haveNotRun, haveSuccess, haveRunning;
+        const { selectedRows } = this.state;
+        for (let i = 0; i < selectedRows.length; i++) {
+            let row = selectedRows[i];
+            switch (row.status) {
+                case TASK_STATUS.RUN_FAILED: {
+                    haveFail = true;
                     break;
                 }
-                case TASK_STATUS.RUNNING:{
-                    haveRunning=true;
+                case TASK_STATUS.RUNNING: {
+                    haveRunning = true;
                     break;
                 }
-                case TASK_STATUS.FINISHED:{
-                    haveSuccess=true;
+                case TASK_STATUS.FINISHED: {
+                    haveSuccess = true;
                     break;
                 }
-                default:{
-                    haveNotRun=true;
+                default: {
+                    haveNotRun = true;
                     break;
                 }
             }
         }
         return {
-            haveFail,haveNotRun,haveSuccess,haveRunning
+            haveFail, haveNotRun, haveSuccess, haveRunning
         }
     }
     render() {
@@ -514,42 +524,42 @@ class PatchDataDetail extends Component {
             <div>
                 <h1 className="box-title" style={{ lineHeight: '50px' }}>
                     <div style={{ marginTop: '5px' }}>
-                        <span className="ope-statistics">
-                            <span style={{ color: "#2E3943" }}>
-                                <Circle style={{ background: '#2E3943' }} />&nbsp;
-                            任务实例总数: {statistics.ALL || 0}
+                    <span className="ope-statistics">
+                            <span className="status_overview_count_font">
+                                <Circle className="status_overview_count" />&nbsp;
+                            任务实例总数: &nbsp;{statistics.ALL || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            等待提交: {statistics.UNSUBMIT || 0}
+                            <span className="status_overview_wait_submit_font">
+                                <Circle className="status_overview_wait_submit" />&nbsp;
+                            等待提交: &nbsp;{statistics.UNSUBMIT || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#2491F7" }}>
-                                <Circle style={{ background: '#2491F7' }} />&nbsp;
-                            提交中: {statistics.SUBMITTING || 0}
+                            <span className="status_overview_submmitting_font">
+                                <Circle className="status_overview_submmitting" />&nbsp;
+                            提交中: &nbsp;{statistics.SUBMITTING || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623' }} />&nbsp;
-                            等待运行: {statistics.WAITENGINE || 0}
+                            <span className="status_overview_wait_run_font">
+                                <Circle className="status_overview_wait_run" />&nbsp;
+                            等待运行: &nbsp;{statistics.WAITENGINE || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#2491F7" }}>
-                                <Circle style={{ background: '#2491F7' }} />&nbsp;
-                            运行中: {statistics.RUNNING || 0}
+                            <span className="status_overview_running_font">
+                                <Circle className="status_overview_running" />&nbsp;
+                            运行中: &nbsp;{statistics.RUNNING || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#009944" }}>
-                                <Circle style={{ background: '#009944' }} />&nbsp;
-                            成功: {statistics.FINISHED || 0}
+                            <span className="status_overview_finished_font">
+                                <Circle className="status_overview_finished" />&nbsp;
+                            成功: &nbsp;{statistics.FINISHED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
-                                <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            取消: {statistics.CANCELED || 0}
+                            <span className="status_overview_stoped_font">
+                                <Circle className="status_overview_stoped" />&nbsp;
+                            取消: &nbsp;{statistics.CANCELED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#d62119" }}>
-                                <Circle style={{ background: '#d62119' }} />&nbsp;
-                            失败: {statistics.FAILED || 0}
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            失败: &nbsp;{statistics.FAILED || 0}
                             </span>&nbsp;
-                        <span style={{ color: "#26dad2" }}>
-                                <Circle style={{ background: '#26dad2' }} />&nbsp;
-                            冻结: {statistics.FROZEN || 0}
+                            <span className="status_overview_frozen_font">
+                                <Circle className="status_overview_frozen" />&nbsp;
+                            冻结: &nbsp;{statistics.FROZEN || 0}
                             </span>&nbsp;
                     </span>
                     </div>

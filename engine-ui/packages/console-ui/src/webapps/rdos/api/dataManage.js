@@ -167,6 +167,11 @@ export default {
     getSimpleColumns(params) {
         return http.post(dataManageReq.GET_SIMPLE_COLUMNS,params)
     },
+    getApplyDetail(params) {
+        return http.post(dataManageReq.GET_APPLY_DETAIL,params)
+    },
+
+
     // =========== 项目表统计 ==================//
     countProjectTable(params) {
         return http.post(dataManageReq.PROJECT_TABLE_COUNT, params)

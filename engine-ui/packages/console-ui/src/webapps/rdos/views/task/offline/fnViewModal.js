@@ -67,6 +67,10 @@ class FnViewModal extends React.Component {
                                 <td>{ data.name }</td>
                             </tr>
                             <tr>
+                                <td>类名</td>
+                                <td>{ data.className }</td>
+                            </tr>
+                            <tr>
                                 <td>用途</td>
                                 <td>{ data.purpose }</td>
                             </tr>

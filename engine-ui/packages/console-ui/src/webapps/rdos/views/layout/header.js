@@ -127,12 +127,12 @@ class Header extends Component {
             routes.length > 0 && routes[1] !== "" ? routes[1] : "overview";
         if (
             path &&
-            (path.indexOf("task") > -1 || path.indexOf("offline") > -1|| path.indexOf("realtime") > -1)
+            (path.indexOf("task") > -1 || path.indexOf("offline") > -1 || path.indexOf("realtime") > -1)
         ) {
             this.setState({
                 devPath: pathname
             });
-            path="realtime"
+            path = "realtime"
         }
         if (path !== this.state.current) {
             this.setState({
@@ -160,17 +160,17 @@ class Header extends Component {
             project && project.projectName
                 ? project.projectAlias || project.projectName
                 : "项目选择";
-        let projectTypeText='';
-        let projectTypeIcon=null;
-        switch(project.projectType){
-            case PROJECT_TYPE.TEST:{
-                projectTypeText=" (测试项目)"
-                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/develop.svg" />
+        let projectTypeText = '';
+        let projectTypeIcon = null;
+        switch (project.projectType) {
+            case PROJECT_TYPE.TEST: {
+                projectTypeText = " (测试项目)"
+                projectTypeIcon = <img style={{ verticalAlign: "text-bottom", marginRight: "5px" }} src="/public/rdos/img/icon/develop.svg" />
                 break;
             }
-            case PROJECT_TYPE.PRO:{
-                projectTypeText=" (生产项目)"
-                projectTypeIcon= <img style={{verticalAlign:"text-bottom",marginRight:"5px"}} src="/public/rdos/img/icon/produce.svg" />
+            case PROJECT_TYPE.PRO: {
+                projectTypeText = " (生产项目)"
+                projectTypeIcon = <img style={{ verticalAlign: "text-bottom", marginRight: "5px" }} src="/public/rdos/img/icon/produce.svg" />
                 break;
             }
 
@@ -184,16 +184,16 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width:"170px"
+                    width: "170px"
                 }}
             >
                 {this.getProjectItems()}
             </Menu>
         )
-        
+
         return (
             <SubMenu
-                className="my-menu-item" 
+                className="my-menu-item"
                 title={
                     <Dropdown
                         overlay={menu}
@@ -207,7 +207,7 @@ class Header extends Component {
                             }}
                             className="my-menu-item"
                         >
-                           {projectTypeIcon}
+                            {projectTypeIcon}
                             <span
                                 className="menu-text-ellipsis"
                                 title={projectName}
@@ -216,7 +216,7 @@ class Header extends Component {
                             </span>
                             <span>{projectTypeText}</span>
                             &nbsp;
-                            <Icon style={{fontSize:"12px"}} type="caret-down" />
+                            <Icon style={{ fontSize: "12px" }} type="caret-down" />
                         </span>
                     </Dropdown>
                 }
@@ -260,7 +260,9 @@ class Header extends Component {
         const { current, devPath } = this.state;
         let pathname = router.location.pathname;
 
-        const display = current !== "overview" ? "inline-block" : "none";
+
+        const isIndex = current == "overview" || current == "data-manage";
+        const display = !isIndex ? "inline-block" : "none";
 
         const pid = project && project.id ? project.id : "";
 
@@ -306,6 +308,16 @@ class Header extends Component {
                         >
                             {this.renderProjectType()}
                         </Menu.Item>} */}
+                        {isIndex ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="overview"
+                            >
+                                <a href={`${basePath}/`}>
+                                    项目列表
+                            </a>
+                            </Menu.Item>
+                        ) : null}
                         <Menu.Item
                             className="my-menu-item"
                             key="database"
@@ -329,9 +341,8 @@ class Header extends Component {
                             <a href={`${basePath}/operation`}>运维中心</a>
                         </Menu.Item>
                         <Menu.Item
-                            className="my-menu-item menu_large"
+                            className="my-menu-item"
                             key="data-manage"
-                            style={{ display }}
                         >
                             <a href={`${basePath}/data-manage/assets`}>
                                 数据地图
@@ -374,14 +385,6 @@ class Header extends Component {
                             <Icon type="caret-down" />
                             </span>)}
                         >
-                            <Menu.Item
-                                className="my-menu-item"
-                                key="data-manage"
-                            >
-                                <a href={`${basePath}/data-manage/assets`}>
-                                    数据地图
-                            </a>
-                            </Menu.Item>
                             <Menu.Item
                                 className="my-menu-item no-border"
                                 key="data-model"

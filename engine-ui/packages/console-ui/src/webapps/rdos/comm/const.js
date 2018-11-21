@@ -5,6 +5,7 @@ export const DATA_SOURCE = {
     ORACLE: 2,
     SQLSERVER: 3,
     POSTGRESQL: 4,
+    RDBMS:5,
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
@@ -13,10 +14,7 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14,
-    ADS: 15,
-    BEATS: 16,
-    ANALYSIS:17
+    DB2: 14
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -121,6 +119,7 @@ export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL,
+    DATA_SOURCE.DB2
 ]
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ //支持分库分表的数据库类型r

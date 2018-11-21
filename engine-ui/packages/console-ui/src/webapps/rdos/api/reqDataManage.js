@@ -4,6 +4,7 @@ export default {
     CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createTable`,
     SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/showTables`,
     GET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTable`,
+    GET_TABLE_BY_NAME: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTableByName`,
     PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getData`,
     SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/alterTable`,
     SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchHiveActionRecord/getRecords`,
@@ -62,6 +63,8 @@ export default {
     GET_DDL_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDDLOperators`,  //获取DDL
     GET_DML_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDMLOperators`,  //获取DML
     GET_SIMPLE_COLUMNS: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getSimpleColumns`,  //获取字段名
+    GET_APPLY_DETAIL: `${RDOS_BASE_URL}/batch/batchApply/getApplyDetail`,  //获取字段权限详情
+
     // ===== 项目表数据统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableCount`, // 表总量
     PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/totalSize`, // 表总存储量
