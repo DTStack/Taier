@@ -381,7 +381,7 @@ class Keymap extends React.Component{
 
     initData = () => {
         const { sourceMap, sourceSrcType, addSourceKeyRow } = this.props;
-        if (sourceSrcType === DATA_SOURCE.HBASE) {
+        if (sourceSrcType === DATA_SOURCE.HBASE && sourceMap) {
             if (!sourceMap.column || sourceMap.column.length === 0) {
                 addSourceKeyRow(DefaultRowKey)
             }
@@ -402,7 +402,7 @@ class Keymap extends React.Component{
                 }
             })
         }
-        if (sourceSrcType === DATA_SOURCE.HBASE) {
+        if (sourceSrcType === DATA_SOURCE.HBASE && sourceMap) {
             getColumnFamily({
                 sourceId: sourceMap.sourceId,
                 tableName: sourceMap.type.table,
@@ -413,7 +413,7 @@ class Keymap extends React.Component{
             })
         }
 
-        if (targetSrcType === DATA_SOURCE.HBASE) {
+        if (targetSrcType === DATA_SOURCE.HBASE && targetMap) {
             getColumnFamily({
                 sourceId: targetMap.sourceId,
                 tableName: targetMap.type.table,

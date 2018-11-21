@@ -50,7 +50,8 @@ class DataSync extends React.Component {
         if (
             (sourceMap && oldSource.type !== sourceMap.type) || // source type update
             (targetMap && oldTarget.type !== targetMap.type) || // target type update
-            (sourceMap && oldSource.column !== sourceMap.column) // source columns update
+            (sourceMap && oldSource.column !== sourceMap.column) && // source columns update
+            this.state.currentStep !== 4
         ) {
             this.props.updateDataSyncVariables(
                 nextProps.sourceMap,

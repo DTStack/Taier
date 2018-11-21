@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
-import { cloneDeep, isEqual, isNull } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { message } from 'antd';
+
+import utils from 'utils';
 
 import {
     dataSourceListAction,
@@ -190,13 +192,13 @@ const sourceMap = (state = {}, action) => {
 
             if (clone.column) {
                 let name = '索引值'
-                if (!isNull(colData.index)) {
+                if (utils.checkExist(colData.index)) {
                     column = clone.column.find(o => o.index == colData.index);
-                } else if (!isNull(colData.key)) {
+                } else if (utils.checkExist(colData.key)) {
                     name = '字段名'
                     column = clone.column.find(o => o.key == colData.key);
                 }
-                if (column) {
+                if (utils.checkExist(column)) {
                     message.error(`添加失败：${name}不能重复`);
                 }
                 else {
