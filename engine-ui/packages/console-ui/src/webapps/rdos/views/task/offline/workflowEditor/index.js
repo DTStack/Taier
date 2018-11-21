@@ -241,14 +241,15 @@ class WorkflowEditor extends Component {
     initGraphView = () => {
         const graph = this.graph;
         const { data } = this.props;
-        let scale = 1, dx = 0.55, dy = 0.4;
         if (data.graph) {
-            scale = data.graph.scale;
-            dx = data.graph.translate.x;
-            dy = data.graph.translate.y;
+            const scale = data.graph.scale;
+            const dx = data.graph.translate.x;
+            const dy = data.graph.translate.y;
+            graph.view.setScale(scale);
+            graph.view.setTranslate(dx, dy);
+        } else {
+            this.layoutCenter();
         }
-        graph.view.setScale(scale);
-        graph.view.setTranslate(dx, dy);
     }
 
     getStyles = () => {

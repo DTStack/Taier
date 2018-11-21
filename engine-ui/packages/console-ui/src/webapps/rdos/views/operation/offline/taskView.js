@@ -86,6 +86,8 @@ export default class TaskView extends Component {
         visible: false,
     }
 
+    _view = null; // 存储view信息
+
     initGraph = (id) => {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
@@ -97,14 +99,15 @@ export default class TaskView extends Component {
         this.hideMenu()
         this.loadTaskChidren({
             taskId: id,
-        })
+        });
     }
 
     componentWillReceiveProps(nextProps) {
         const currentTask = this.props.tabData;
         const { tabData, visibleSlidePane, tabKey } = nextProps;
         if (((!currentTask && tabData) || (tabData && tabData.id !== currentTask.id)) && visibleSlidePane) {
-            this.initGraph(tabData.id)
+            this.initGraph(tabData.id);
+            this._view = null;
         }
         if (tabKey && this.props.tabKey !== tabKey && tabKey === 'taskFlow') {
             this.refresh();
@@ -120,7 +123,7 @@ export default class TaskView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ selectedTask: data, data });
-                ctx.doInsertVertex(data)
+                ctx.doInsertVertex(data);
             }
             ctx.setState({ loading: 'success' })
         })
@@ -253,15 +256,6 @@ export default class TaskView extends Component {
                             source: currentNodeData,
                             target: nodeData,
                         };
-
-                        // const isExist = relationTree.findIndex(t => t.source.id === currentNodeData.id &&
-                        //     t.target && t.target.id === nodeData.id);
-                        // if (isExist > -1) {
-                        //     console.log('childNodes isExist:', isExist, relationTree[isExist]);
-                        //     console.log('childNodes isExist:', currentNodeData, nodeData);
-                        //     // relationTree[isExist] = treeItem;
-                        // } else {
-                        // }
                         relationTree.push(treeItem);
                     }
                 }
@@ -382,13 +376,11 @@ export default class TaskView extends Component {
         } else {
             this._originData = data;
         }
-        console.log('originData:', this._originData);
 
         const arrayData = this.preHandGraphTree(this._originData);
-        console.log('mergedData:', arrayData);
-
         this.renderGraph(arrayData);
-        graph.center();
+        // 初始化 view
+        this.initView();
     }
 
     loadEditor = (container) => {
@@ -404,7 +396,6 @@ export default class TaskView extends Component {
 
         graph.setConnectable(true)
         graph.setTooltips(true)
-        graph.view.setScale(1)
         // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
@@ -573,11 +564,34 @@ export default class TaskView extends Component {
                 let data = cell.value;
                 ctx.setState({ selectedTask: data })
             }
-        })
+        });
+    }
+
+    saveViewInfo = () => {
+        const view = this.graph.getView();
+        this._view = {
+            translate: view.getTranslate(),
+            scale: view.getScale(),
+        };
+    }
+
+    initView = () => {
+        const view = this._view;
+        const graph = this.graph;
+        if (view) {
+            const scale = view.scale;
+            const dx = view.translate.x;
+            const dy = view.translate.y;
+            graph.view.setScale(scale);
+            graph.view.setTranslate(dx, dy);
+        } else {
+            graph.center();
+        }
     }
 
     refresh = () => {
-        this.initGraph(this.props.tabData.id)
+        this.saveViewInfo();
+        this.initGraph(this.props.tabData.id);
     }
 
     graphEnable() {
@@ -586,11 +600,11 @@ export default class TaskView extends Component {
     }
 
     zoomIn = () => {
-        this.graph.zoomIn()
+        this.graph.zoomIn();
     }
 
     zoomOut = () => {
-        this.graph.zoomOut()
+        this.graph.zoomOut();
     }
 
     hideMenu = () => {

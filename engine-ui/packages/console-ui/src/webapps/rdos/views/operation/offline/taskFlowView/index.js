@@ -72,6 +72,8 @@ class TaskFlowView extends Component {
         visibleRestart: false,
     }
 
+    _view = null; // 存储view信息
+
     initGraph = (id) => {
         this.Container.innerHTML = ""; // 清理容器内的Dom元素
         this.graph = "";
@@ -89,7 +91,8 @@ class TaskFlowView extends Component {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
-            this.initGraph(taskJob.id)
+            this.initGraph(taskJob.id);
+            this._view = null;
         }
     }
 
@@ -377,8 +380,6 @@ class TaskFlowView extends Component {
         const graph = this.graph;
         const parent = graph.getDefaultParent();
         this._rootCells = [];
-        const cx = (graph.container.clientWidth - VertexSize.width) / 2;
-        const cy = 200;
 
         const arrayData = this.preHandGraphTree(data, nodeType);
         this.renderGraph(arrayData);
@@ -393,9 +394,7 @@ class TaskFlowView extends Component {
                 }
             }
         }
-        // graph.view.setTranslate(cx, cy)
-        // graph.scrollCellToVisible(parent, true);
-        graph.center();
+        this.initView();
     }
 
     initContextMenu = (graph) => {
@@ -571,6 +570,28 @@ class TaskFlowView extends Component {
         }
     }
 
+    saveViewInfo = () => {
+        const view = this.graph.getView();
+        this._view = {
+            translate: view.getTranslate(),
+            scale: view.getScale(),
+        };
+    }
+
+    initView = () => {
+        const view = this._view;
+        const graph = this.graph;
+        if (view) {
+            const scale = view.scale;
+            const dx = view.translate.x;
+            const dy = view.translate.y;
+            graph.view.setScale(scale);
+            graph.view.setTranslate(dx, dy);
+        } else {
+            graph.center();
+        }
+    }
+
     showJobLog = (jobId) => {
         Api.getOfflineTaskLog({ jobId: jobId }).then((res) => {
             if (res.code === 1) {
@@ -585,7 +606,8 @@ class TaskFlowView extends Component {
     }
 
     refresh = () => {
-        this.initGraph(this.props.taskJob.id)
+        this.saveViewInfo();
+        this.initGraph(this.props.taskJob.id);
     }
 
     zoomIn = () => {
