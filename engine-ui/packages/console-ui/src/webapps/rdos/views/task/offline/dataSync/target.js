@@ -4,6 +4,9 @@ import { Form, Input, Select, Button, Radio, Modal, Icon } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
+import { singletonNotification } from 'funcs';
+import Editor from 'widgets/editor';
+
 import ajax from '../../../../api';
 import {
     targetMapAction,
@@ -18,7 +21,6 @@ import {
 } from '../../../../comm/const';
 
 import HelpDoc from '../../../helpDoc';
-import Editor from 'widgets/editor';
 
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon";
 
@@ -157,12 +159,25 @@ class TargetForm extends React.Component {
         }, 0);
     }
 
-    validateChineseCharacter = (rule, value, callback) => {
-        const reg = /(，|。|；)/; // 中文逗号，句号，分号
-        if (reg.test(value)) {
-            callback('参数中不可包含中文标点符号！')
-        } else {
-            callback();
+    validateChineseCharacter = (data) => {
+        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
+        let has = false;
+        let fieldsName = [];
+        if (data.path && reg.test(data.path)) {
+            has = true;
+            fieldsName.push('路径');
+
+        }
+        if (data.fileName && reg.test(data.fileName)) {
+            has = true;
+            fieldsName.push('文件名');
+        }
+        if (data.fieldDelimiter && reg.test(data.fieldDelimiter)) {
+            has = true;
+            fieldsName.push('列分隔符');
+        }
+        if (has) {
+            singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
         }
     }
 
@@ -175,6 +190,7 @@ class TargetForm extends React.Component {
 
         form.validateFields((err, values) => {
             if (!err) {
+                this.validateChineseCharacter(values);
                 cb.call(null, 2);
             }
         })
@@ -642,9 +658,7 @@ class TargetForm extends React.Component {
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [{
-                                validator: this.validateChineseCharacter
-                            }],
+                            rules: [],
                             initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
                         })(
                             <Input
@@ -833,9 +847,7 @@ class TargetForm extends React.Component {
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [{
-                                validator: this.validateChineseCharacter
-                            }],
+                            rules: [],
                             initialValue: targetMap.type&&typeof targetMap.type.fieldDelimiter !="undefined"?targetMap.type.fieldDelimiter:","
                         })(
                             <Input

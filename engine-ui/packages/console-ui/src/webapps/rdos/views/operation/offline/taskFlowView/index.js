@@ -557,9 +557,6 @@ class TaskFlowView extends Component {
                     ctx.setState({ selectedJob: currentNode })
                 }
             })
-
-            graph.addListener(mxEvent.CELLS_MOVED, this.saveViewInfo)
-
         }
     }
 
