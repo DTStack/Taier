@@ -61,7 +61,7 @@ public class BaseVerticle {
 		String rbody = routingContext.getBodyAsString(CODE);
 		Map<String,Object> params = objectMapper.readValue(rbody,Map.class);
 		String path = httpServerRequest.path();
-		logger.warn("receive http request:{}:{}",path,rbody);
+		logger.info("receive http request:{}:{}",path,rbody);
 		String[] paths = path.split("/");
 		if(paths.length < 2){
 			throw new RdosException("请求地址异常", ErrorCode.SERVICE_NOT_EXIST);

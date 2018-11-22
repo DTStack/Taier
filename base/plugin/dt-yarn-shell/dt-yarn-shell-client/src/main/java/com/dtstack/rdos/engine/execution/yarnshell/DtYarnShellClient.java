@@ -176,7 +176,6 @@ public class DtYarnShellClient extends AbsClient {
     }
 
     private JobResult submitPythonJob(JobClient jobClient){
-        LOG.info("LearningClient.submitPythonJob");
         try {
             String[] args = DtYarnShellUtil.buildPythonArgs(jobClient);
             System.out.println(Arrays.asList(args));

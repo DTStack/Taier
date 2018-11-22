@@ -121,7 +121,6 @@ public class Client {
             }
         }
 
-        LOG.info("Requesting a new application from cluster with " + yarnClient.getYarnClusterMetrics().getNumNodeManagers() + " NodeManagers");
         return taskConf;
     }
 
@@ -166,7 +165,7 @@ public class Client {
         if (clientArguments.files != null) {
             StringBuffer appFilesRemotePath = new StringBuffer(1000);
             Path[] xlearningFilesDst = new Path[clientArguments.files.length];
-            LOG.info("Copy xlearning files from local filesystem to remote.");
+            LOG.info("Copy dtyarnshell files from local filesystem to remote.");
             for (int i = 0; i < clientArguments.files.length; i++) {
                 assert (!clientArguments.files[i].isEmpty());
 
