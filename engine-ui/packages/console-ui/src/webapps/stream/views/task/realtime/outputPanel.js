@@ -145,8 +145,6 @@ class OutputOrigin extends Component {
                         ||
                         panelColumn[index].type == DATA_SOURCE.HBASE
                         ||
-                        panelColumn[index].type == DATA_SOURCE.REDIS
-                        ||
                         panelColumn[index].type == DATA_SOURCE.MONGODB ?
                         <FormItem
                             {...formItemLayout}
@@ -165,6 +163,22 @@ class OutputOrigin extends Component {
                                         tableOptionTypes
                                     }
                                 </Select>
+                            )}
+                        </FormItem> : ""
+                }
+                { 
+                        panelColumn[index].type == DATA_SOURCE.REDIS?
+                        <FormItem
+                            {...formItemLayout}
+                            label="表"
+                        >
+                            {getFieldDecorator('table', {
+                                initialValue: "disabled",
+                                rules: [
+                                    { required: true, message: '请输入表名', }
+                                ],
+                            })(
+                                <Input onChange={(v) => { handleInputChange("table", index, v.target.value) }} />
                             )}
                         </FormItem> : ""
                 }
@@ -705,8 +719,6 @@ export default class OutputPanel extends Component {
             if (panelColumn[index].type == DATA_SOURCE.MYSQL
                 ||
                 panelColumn[index].type == DATA_SOURCE.HBASE
-                ||
-                panelColumn[index].type == DATA_SOURCE.REDIS
                 ||
                 panelColumn[index].type == DATA_SOURCE.MONGODB) {
                 this.getTableType(index, value)

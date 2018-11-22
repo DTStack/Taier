@@ -190,26 +190,51 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                <FormItem {...formItemLayout} label="表">
-                    {getFieldDecorator("table", {
-                        rules: [{ required: true, message: "请选择表" }]
-                    })(
-                        <Select
-                            className="right-select"
-                            onChange={v => {
-                                handleInputChange("table", index, v);
-                            }}
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.props.children
-                                    .toLowerCase()
-                                    .indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {tableOptionTypes}
-                        </Select>
-                    )}
-                </FormItem>
+                {(() => {
+                    switch (panelColumn[index].type) {
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="表"
+                                >
+                                    {getFieldDecorator('table', {
+                                        initialValue: "disabled",
+                                        rules: [
+                                            { required: true, message: '请输入表名', }
+                                        ],
+                                    })(
+                                        <Input onChange={(v) => { handleInputChange("table", index, v.target.value) }} />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return (
+                                <FormItem {...formItemLayout} label="表">
+                                    {getFieldDecorator("table", {
+                                        rules: [{ required: true, message: "请选择表" }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange("table", index, v);
+                                            }}
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {tableOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                    }
+                })()}
                 <FormItem {...formItemLayout} label="映射表">
                     {getFieldDecorator("tableName")(
                         <Input
@@ -344,7 +369,7 @@ class OutputOrigin extends Component {
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
-                        case DATA_SOURCE.MYSQL:{
+                        case DATA_SOURCE.MYSQL: {
                             return (
                                 <FormItem {...formItemLayout} label="主键">
                                     {getFieldDecorator("primaryKey", {
@@ -409,7 +434,7 @@ class OutputOrigin extends Component {
                                 </FormItem>
                             )
                         }
-                        default:{
+                        default: {
                             return null;
                         }
                     }
@@ -990,7 +1015,13 @@ export default class OutputPanel extends Component {
                 }
             });
             //this.clearCurrentInfo(type,index,value)
-            this.getTableType(index, value, type);
+            if (panelColumn[index].type == DATA_SOURCE.MYSQL
+                ||
+                panelColumn[index].type == DATA_SOURCE.HBASE
+                ||
+                panelColumn[index].type == DATA_SOURCE.MONGODB) {
+                this.getTableType(index, value, type);
+            }
         } else if (type === "table") {
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
