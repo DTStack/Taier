@@ -9,11 +9,23 @@ export default class TablePartition extends React.Component {
     state = {
         result: { data: [] },
         current: 1,
-        loading:false
+        loading: false
     }
 
     componentDidMount() {
         if (this.props.table) {
+            this.loadPartition();
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { table: old_table } = this.props;
+        const { table } = nextProps;
+        if (
+            table
+            && table.id
+            && (!old_table || old_table.id != table.id)
+        ) {
             this.loadPartition();
         }
     }
@@ -28,11 +40,12 @@ export default class TablePartition extends React.Component {
             pageSize: 10,
         }
         this.setState({
-            loading:true
+            loading: true,
+            result:{}
         })
         Api.getTablePartition(params).then(res => {
             this.setState({
-                loading:false
+                loading: false
             })
             if (res.code === 1) {
                 ctx.setState({
@@ -53,14 +66,14 @@ export default class TablePartition extends React.Component {
             title: '分区名',
             dataIndex: 'name',
             key: 'name'
-        },{
+        }, {
             title: '更新时间',
             dataIndex: 'lastDDLTime',
             key: 'lastDDLTime',
             render: (text) => {
                 return <span>{moment(text).format('YYYY-MM-DD HH:mm:ss')}</span>
             }
-        },{
+        }, {
             title: '存储量',
             dataIndex: 'storeSize',
             key: 'storeSize'
@@ -69,19 +82,19 @@ export default class TablePartition extends React.Component {
 
     render() {
         const { result, loading } = this.state
-        const { pagination } = this.props
+        const { pagination, havaBorder } = this.props
         const realPagination = pagination || {
             defaultPageSize: 10,
         };
         realPagination.total = result.totalCount
         return (
             <div className="box">
-                <Table 
-                    key="table_partition" 
-                    className="m-table"
+                <Table
+                    key="table_partition"
+                    className={`m-table ${havaBorder ? 'border-table' : ''}`}
                     pagination={realPagination}
-                    columns={this.initClumuns()} 
-                    dataSource={result.data || []} 
+                    columns={this.initClumuns()}
+                    dataSource={result.data || []}
                     onChange={this.handleTableChange}
                     loading={loading}
                 />
