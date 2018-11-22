@@ -309,7 +309,7 @@ class WorkflowEditor extends Component {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
-                    const taskData = Object.assign({}, task, {
+                    const taskData = Object.assign({}, getTaskBaseData(task), {
                         name: value,
                     });
                     saveTask(taskData, true).then(res => {

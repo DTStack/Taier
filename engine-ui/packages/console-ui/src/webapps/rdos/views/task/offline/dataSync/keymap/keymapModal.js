@@ -7,6 +7,7 @@ import {
     formItemLayout, 
     DATA_SOURCE, 
 } from '../../../../../comm/const';
+import HelpDoc from '../../../../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -58,7 +59,7 @@ class KeyForm extends React.Component{
                         </FormItem>,
                         <FormItem
                             {...formItemLayout}
-                            label="选择类型"
+                            label="类型"
                             key="type"
                         >
                         {getFieldDecorator('type', {
@@ -114,7 +115,7 @@ class KeyForm extends React.Component{
                         </FormItem>,
                         <FormItem
                             {...formItemLayout}
-                            label="选择类型"    
+                            label="类型"    
                             key="type"
                         >
                         {getFieldDecorator('type', {
@@ -136,7 +137,39 @@ class KeyForm extends React.Component{
                         </FormItem>
                     ];
                 }
-                default: break;
+                default: {
+                    return [
+                        <FormItem
+                            {...formItemLayout}
+                            label="字段名"
+                            key="key"
+                        >
+                        {getFieldDecorator('key', {
+                            rules: [{
+                                required: true,
+                                message: '请按要求填写字段名！',
+                            }],
+                            initialValue: (editField && editField.key) || ''
+                        })(
+                            <Input disabled={true} placeholder="请输入字段名" style={{ width: '100%' }} />
+                        )}
+                        </FormItem>,
+                        <FormItem
+                            {...formItemLayout}
+                            label="类型"
+                            key="type"
+                        >
+                        {getFieldDecorator('type', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: (editField && editField.type) || 'STRING'
+                        })(
+                            <Input disabled={true} />
+                        )}
+                        </FormItem>,
+                    ]
+                }
             }
         }
         else {// 目标表
@@ -251,8 +284,33 @@ class KeyForm extends React.Component{
     }
 
     render() {
+        const { 
+            keyModal,
+        } = this.props;
+        const { getFieldDecorator } = this.props.form;
+
+        const { editField, isReader } = keyModal;
+        // 如果源数据类型为字符串，则支持字符串格式化
+        const canFormat = editField && editField.type && 
+        (editField.type.toUpperCase() === 'STRING' || editField.type.toUpperCase() === 'VARCHAR');
         return <Form>
             { this.renderFormItems() }
+            {
+                canFormat && isReader && 
+                <FormItem
+                    {...formItemLayout}
+                    label="格式化"
+                    key="format"
+                >
+                {getFieldDecorator('format', {
+                    rules: [],
+                    initialValue: (editField && editField.format) || undefined,
+                })(
+                    <Input placeholder="格式化, 例如：YYYY-DD-MM" />
+                )}
+                <HelpDoc doc="stringColumnFormat"/>
+                </FormItem>
+            }
         </Form>
     }
 }
