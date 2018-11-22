@@ -40,8 +40,8 @@ export const DATA_SOURCE_TEXT = {
 
 export const REDIS_TYPE={
     SINGLE:1,
-    CLUSTER:2,
-    SENTINEL:3
+    CLUSTER:3,
+    SENTINEL:2
 }
 
 // 锁类型

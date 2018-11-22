@@ -681,7 +681,6 @@ class BaseForm extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>,
-                    ,
                     <FormItem
                         {...formItemLayout}
                         label="地址"
