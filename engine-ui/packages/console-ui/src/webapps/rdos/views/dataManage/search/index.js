@@ -121,7 +121,6 @@ class SearchTable extends Component {
         const params = {...applyData};
         params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
         params.resourceId = editRecord.id;
-        params.projectId = editRecord.belongProjectId;
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
@@ -278,8 +277,8 @@ class SearchTable extends Component {
                             return <span>授权成功</span>
                         case 2:
                             return <span>等待授权</span>
-                        default: return '-';
-                        // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
+                        // default: return '-';
+                        default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
                     }
                 }
             }

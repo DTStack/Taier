@@ -127,7 +127,7 @@ class DetailPermission extends Component {
         const { visible, agreeApply, table } = this.props;
         // const title = agreeApply ? '通过申请' : '驳回申请';
         
-        const title = (this.props.listType && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
+        const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
         const {permissionParams, arr, currentPage} = this.state;
         const ddlCheck = permissionParams.fullDdls.filter(item => {
             return item.status === true

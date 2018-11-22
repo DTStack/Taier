@@ -439,9 +439,9 @@ class PatchDataDetail extends Component {
     }
 
     tableFooter = (currentPageData) => {
-        const selectStatus = this.getSelectRowsStatus();
-        const couldKill = selectStatus.haveRunning && !selectStatus.haveFail && !selectStatus.haveNotRun && !selectStatus.haveFail;
-        const couldReRun = !selectStatus.haveRunning && (selectStatus.haveFail || selectStatus.haveNotRun || selectStatus.haveFail);
+        const selectStatus=this.getSelectRowsStatus();
+        const couldKill=selectStatus.haveRunning&&!selectStatus.haveFail&&!selectStatus.haveNotRun&&!selectStatus.haveFail;
+        const couldReRun=!selectStatus.haveRunning&&(selectStatus.haveSuccess||selectStatus.haveFail||selectStatus.haveNotRun||selectStatus.haveFail);
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 22px' }}>
