@@ -15,6 +15,7 @@ import {
     formItemLayout,
     tailFormItemLayout,
     DATA_SOURCE,
+    REDIS_TYPE
 } from '../../comm/const';
 import {
     jdbcUrlExample
@@ -26,6 +27,7 @@ import CopyIcon from "main/components/copy-icon";
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
+const TextArea = Input.TextArea;
 
 const defaultConf =
     `{
@@ -56,15 +58,23 @@ class BaseForm extends Component {
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         ftpProtocal: 'ftp',
+        redisType: REDIS_TYPE.SINGLE
     }
 
     componentDidMount() {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
             if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
-                this.setState({ sourceType: sourceData.type, hasHdfsConfig: true })
+                this.setState({
+                    sourceType: sourceData.type,
+                    hasHdfsConfig: true,
+                    redisType: sourceData.dataJson.redisType
+                })
             } else {
-                this.setState({ sourceType: sourceData.type })
+                this.setState({
+                    sourceType: sourceData.type,
+                    redisType: sourceData.dataJson.redisType
+                })
             }
         }
     }
@@ -135,7 +145,13 @@ class BaseForm extends Component {
             ftpProtocal: e.target.value,
         })
     }
-
+    redisTypeChange = (e) => {
+        this.setState({
+            redisType: e.target.value,
+        }, () => {
+            this.props.form.resetFields(["dataJson.hostPort"]);
+        })
+    }
     hadoopConfigChange = (e) => {
         const { hadoopConfig, hasHdfsConfig, hadoopConfigStr } = this.state
         const value = e.target.value.split('//')[1]
@@ -171,7 +187,7 @@ class BaseForm extends Component {
 
     renderDynamic() {
         const { form, sourceData, showUserNameWarning } = this.props;
-        const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
+        const { hasHdfsConfig, sourceType, ftpProtocal, redisType } = this.state;
 
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -606,7 +622,9 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
-            case DATA_SOURCE.KAFKA: {
+            case DATA_SOURCE.KAFKA:
+            case DATA_SOURCE.KAFKA_09:
+            case DATA_SOURCE.KAFKA_10: {
                 return [
                     <FormItem
                         {...formItemLayout}
@@ -647,6 +665,25 @@ class BaseForm extends Component {
                 return [
                     <FormItem
                         {...formItemLayout}
+                        label="模式"
+                        key="redisType"
+                    >
+                        {getFieldDecorator('dataJson.redisType', {
+                            rules: [{
+                                required: true, message: '模式不能为空',
+                            }],
+                            initialValue: config.redisType || redisType,
+                        })(
+                            <RadioGroup onChange={this.redisTypeChange.bind(this)}>
+                                <Radio value={REDIS_TYPE.SINGLE}>单机</Radio>
+                                <Radio value={REDIS_TYPE.CLUSTER}>集群</Radio>
+                                <Radio value={REDIS_TYPE.SENTINEL}>哨兵</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    ,
+                    <FormItem
+                        {...formItemLayout}
                         label="地址"
                         key="hostport"
                         hasFeedback
@@ -657,11 +694,36 @@ class BaseForm extends Component {
                             }],
                             initialValue: config.hostPort || '',
                         })(
-                            <Input
-                                placeholder="Redis地址，例如：IP1:Port，暂不支持集群模式"
+                            <TextArea
+                                placeholder={
+                                    redisType == REDIS_TYPE.SINGLE ?
+                                        "Redis地址，例如：IP1:Port"
+                                        :
+                                        "Redis地址，例如：IP1:Port，多个地址以英文逗号分开"
+                                }
+                                rows={4}
                             />
                         )}
                     </FormItem>,
+                    redisType == REDIS_TYPE.SENTINEL ? (
+                        <FormItem
+                            {...formItemLayout}
+                            label="master名称"
+                            key="masterName"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.masterName', {
+                                rules: [{
+                                    required: true, message: 'master名称不可为空！',
+                                }],
+                                initialValue: config.masterName || '',
+                            })(
+                                <Input
+                                    placeholder="请输入master名称"
+                                />
+                            )}
+                        </FormItem>
+                    ) : null,
                     <FormItem
                         key="database"
                         {...formItemLayout}
@@ -669,9 +731,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.database', {
-                            rules: [{
-                                required: true, message: '数据库不可为空！',
-                            }],
                             initialValue: config.database || '',
                         })(
                             <Input autoComplete="off" />,
