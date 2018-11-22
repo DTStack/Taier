@@ -61,35 +61,10 @@ class EditCluster extends React.Component {
         thirdIptValue: undefined,
         firstOption: "FALSE",
         secondOption: "TRUE",
-        hasFlink: false
+        flinkPrometheus: undefined, //配置Prometheus参数
+        flinkData: undefined, //获取Prometheus参数
     }
-    componentWillMount() {
-        const { location, form } = this.props;
-        const params = location.state || {};
-        if (params.mode == "edit" || params.mode == "view") {
-            Api.getClusterInfo({
-                clusterId: params.cluster.id
-            }).then((res) => {
-                if (res.code == 1) {
-                    const cluster = res.data;
-                    let clusterConf = cluster.clusterConf;
-                    clusterConf = JSON.parse(clusterConf);
-                    const flinkData = clusterConf.flinkConf;
-                    if (flinkData.hasOwnProperty('gatewayHost')) {
-                        this.setState({
-                            hasFlink: true
-                        },() => {
-                            if(this.state.hasFlink) {
-                                this.setState({
-                                    checked: true
-                                })
-                            }
-                        })
-                    }
-                }
-            })
-        }
-    }
+
     componentDidMount() {
         this.getDataList();
         // this.props.getTenantList();
@@ -127,8 +102,16 @@ class EditCluster extends React.Component {
                                 spark_params: extParams.sparkKeys,
                                 learning_params: extParams.learningKeys,
                                 dtyarnshell_params: extParams.dtyarnshellKeys,
-                                extDefaultValue: extParams.default
+                                extDefaultValue: extParams.default,
+                                flinkPrometheus: clusterConf.flinkConf,
+                                flinkData: flinkData
                             })
+                            // 判断是有Prometheus参数
+                            if (flinkData.hasOwnProperty('gatewayHost')) {
+                                this.setState({
+                                    checked: true
+                                })
+                            }
                             form.setFieldsValue({
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
@@ -711,13 +694,25 @@ class EditCluster extends React.Component {
         return params;
     }
 
+    getPrometheusValue = () => {
+        const { flinkPrometheus, flinkData} = this.state;
+        const { form } = this.props;
+        const { mode } = this.props.location.state || {};
+        if( mode == "edit" && flinkData.hasOwnProperty('gatewayHost')) {
+            form.setFieldsValue({
+                'flinkConf.gatewayHost': flinkPrometheus.gatewayHost,
+                'flinkConf.gatewayPort': flinkPrometheus.gatewayPort,
+                'flinkConf.gatewayJobName': flinkPrometheus.gatewayJobName,
+                'flinkConf.deleteOnShutdown': flinkPrometheus.deleteOnShutdown,
+                'flinkConf.randomJobNameSuffix': flinkPrometheus.randomJobNameSuffix,
+            });
+        }
+    }
+
     changeCheckbox(e) {
-        const {checked, flinkData} = this.state;
-        const { location, form } = this.props;
         this.setState({
             checked: e.target.checked
-        })
-        this.getDataList();
+        },()=>{this.getPrometheusValue()})
     }
 
 
@@ -1155,12 +1150,12 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
-                        
+                       
+
                         
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}
-                                // disabled={isView}
                                 onChange={this.changeCheckbox.bind(this)}
                                 disabled={isView}
                             >
