@@ -99,8 +99,7 @@ class ExtraPaneTableDetailColumn extends React.Component {
                     className="m-table border-table"
                     columns={this.initColumns()}
                     dataSource={this.filterColumns()}
-                    pagination={false}
-                    scroll={{y:350}}
+                    pagination={{size:"small"}}
                 />
             </div>
         )

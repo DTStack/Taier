@@ -41,6 +41,7 @@ class ExtraPaneTableDetailPartition extends React.Component {
         return (
             <div>
                 <TablePartition
+                    havaBorder
                     table={{
                         id: this.getTableId()
                     }}

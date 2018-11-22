@@ -62,7 +62,7 @@ class TableTipExtraPane extends React.Component {
                     placeholder="输入表名搜索"
                     onChange={this.search.bind(this)}
                 />
-                {tableAndColumns.map(([table, columns]) => {
+                {this.filterTable(tableAndColumns).map(([table, columns]) => {
                     return this.renderTableItem(table, columns)
                 })}
             </div> : this.renderNone()}
@@ -92,6 +92,16 @@ class TableTipExtraPane extends React.Component {
                 [tableName]: false
             }
         })
+    }
+
+    filterTable(tableAndColumns){
+        const {searchValue} = this.state;
+        if(!searchValue){
+            return tableAndColumns;
+        }
+       return tableAndColumns.filter(([table,columns])=>{
+            return table.indexOf(searchValue)>-1;
+       })
     }
 
     search(e) {
