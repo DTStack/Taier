@@ -13,6 +13,7 @@
             "funcs": ["./src/funcs"], // 工具文件夹
             "public/*": ["./src/public/*"], // 公共资源
             "config/*": ["./src/config/*"], // 数据文件，后期可能替换为借口
+            "main/*": ["./src/webapps/main/*"], // 工具文件夹
           }
     },
     "exclude": [

@@ -13,9 +13,11 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14,
+    KAFKA: 14,//KAFKA_11
     ADS: 15,
     BEATS: 16,
+    KAFKA_10:17,
+    KAFKA_09:18
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -34,6 +36,12 @@ export const DATA_SOURCE_TEXT = {
     14: 'Kafka',
     15: "ADS",
     16: 'BEATS',
+}
+
+export const REDIS_TYPE={
+    SINGLE:1,
+    CLUSTER:2,
+    SENTINEL:3
 }
 
 // 锁类型

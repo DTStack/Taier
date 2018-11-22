@@ -116,7 +116,7 @@ $fontColor1: #2491F7;
     .btn-download,
     .task-editor .CodeMirror-gutters,
     .ant-pagination-next .ant-pagination-item-link {
-        background: $color3 !important;
+        background: $color2 !important;
         color: $fontColor;
         border-color: #5A5A5A;
     }
@@ -626,5 +626,63 @@ $fontColor1: #2491F7;
             }
         }
 
+    }
+    .tablePane-box{
+        color:#f5f5f5;
+        .tablePane-tables-box{
+            .tablePane-notables{
+                color: #666;
+            }
+            .tablePane-table-box{
+                .tablePane-table-title{
+                    background: #4A4A4A;
+                }
+                .tablePane-table-column-box{
+                    .tablePane-table-column{
+                        .table-column-type{
+                            color:#999;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .extraPane-table-detail-box{
+        color: #f5f5f5;
+        background: $color2;
+        .ant-tabs-bar .ant-tabs-tab{
+            background: inherit;
+        }
+        header{
+            .close-icon{
+                float: right;
+                font-size: 18px;
+                color: #dcdcdc;
+                cursor: pointer;
+                &:hover{
+                    color:#f5f5f5;
+                }
+            }
+        }
+    }
+    .ant-popover-inner-content{
+        background: $color2;
+    }
+    .border-table{
+        .ant-spin-container{
+            border-color: $borderColor1;
+            .ant-table-placeholder{
+                border-color: $borderColor1;
+            }
+        }
+    
+    }
+    .ide-editor .ide-content .editor-pane-box{
+        .extra-view{
+            border-color: $color2;
+        }
+    }
+    .ant-tabs-bar{
+        border-color: $borderColor1;
     }
 }
