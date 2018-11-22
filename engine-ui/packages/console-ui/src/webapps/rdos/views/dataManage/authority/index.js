@@ -858,6 +858,7 @@ class AuthMana extends Component {
                                                     />
                                                     <DetailPermission
                                                         visible={isShowPermission}
+                                                        agreeApply={agreeApply}
                                                         table={editRecord}
                                                         applyReason={applyReason}
                                                         reply={reply}
