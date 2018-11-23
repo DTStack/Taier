@@ -1,7 +1,9 @@
 package com.dtstack.rdos.common.config;
 
+import com.dtstack.rdos.common.util.AddressUtil;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 import java.util.List;
@@ -27,8 +29,11 @@ public class ConfigParse {
 
 
     public  static String getLocalAddress(){
-        Object localAddress = configs.get("localAddress");
-        return (String)localAddress;
+        String localAddress = (String)configs.get("localAddress");
+        if(StringUtils.isBlank(localAddress)){
+            localAddress = String.format("%s:%s",AddressUtil.getOneIP(),"8090");
+        }
+        return localAddress;
     }
 
     public static String getNodeZkAddress(){
@@ -97,4 +102,5 @@ public class ConfigParse {
         Object shardSize = configs.get("shardSize");
         return shardSize==null ? 200 : MathUtil.getIntegerVal(shardSize);
     }
+
 }
