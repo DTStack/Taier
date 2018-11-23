@@ -19,11 +19,12 @@ import { debounce } from 'lodash';
 
 import Api from "../../../api";
 import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
-import Editor from "widgets/code-editor";
-import { switchPartition } from "../../../views/helpDoc/docs";
 import { DATA_SOURCE } from "../../../comm/const";
-import { default as CustomParams, generateMapValues, changeCustomParams } from "./sidePanel/customParams";
 import { havaTableList } from "./sidePanel/panelCommonUtil";
+
+import Editor from "widgets/code-editor";
+import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from "./sidePanel/customParams";
+import { switchPartition } from "../../../views/helpDoc/docs";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -594,7 +595,8 @@ const OutputForm = Form.create({
             hbasePrimaryKey,
             cacheTTLMs,
             tableName,
-            primaryKey
+            primaryKey,
+            customParams
         } = props.panelColumn[props.index];
         return {
             type: { value: parseInt(type) },
@@ -608,7 +610,8 @@ const OutputForm = Form.create({
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },
             primaryKey: { value: primaryKey },
-            hbasePrimaryKey: { value: hbasePrimaryKey }
+            hbasePrimaryKey: { value: hbasePrimaryKey },
+            ...generateMapValues(customParams)
         };
     }
 })(OutputOrigin);
@@ -652,6 +655,7 @@ export default class OutputPanel extends Component {
         const { tabTemplate, panelColumn } = this.state;
         side.map((v, index) => {
             tabTemplate.push("OutputForm");
+            initCustomParam(v)
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
             if (havaTableList(v.type)) {

@@ -9,10 +9,12 @@ import { debounce } from 'lodash';
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { DATA_SOURCE } from "../../../comm/const";
+import { havaTableList } from "./sidePanel/panelCommonUtil";
+import { generateAKey } from "utils";
 
 import Editor from 'widgets/code-editor'
-import { default as CustomParams, generateMapValues, changeCustomParams } from "./sidePanel/customParams";
-import { havaTableList } from "./sidePanel/panelCommonUtil";
+import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from "./sidePanel/customParams";
+
 
 
 const Option = Select.Option;
@@ -444,6 +446,7 @@ export default class OutputPanel extends Component {
         const { tabTemplate, panelColumn } = this.state;
         sink.map((v, index) => {
             tabTemplate.push("OutputForm");
+            initCustomParam(v);
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
             if (havaTableList(v.type)) {

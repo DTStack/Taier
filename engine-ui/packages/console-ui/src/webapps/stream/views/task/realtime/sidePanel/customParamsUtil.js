@@ -52,3 +52,13 @@ export function changeCustomParams(panel, value, extParam = {}) {
     }
 }
 
+export function initCustomParam(panel) {
+    const { customParams = [] } = panel;
+    for (let i = 0; i < customParams.length; i++) {
+        let customParam = customParams[i];
+        if (!customParam.id) {
+            customParam.id=utils.generateAKey();
+        }
+    }
+}
+
