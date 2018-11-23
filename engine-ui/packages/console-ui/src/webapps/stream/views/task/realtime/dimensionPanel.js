@@ -22,6 +22,8 @@ import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
 import Editor from "widgets/code-editor";
 import { switchPartition } from "../../../views/helpDoc/docs";
 import { DATA_SOURCE } from "../../../comm/const";
+import { default as CustomParams, generateMapValues, changeCustomParams } from "./sidePanel/customParams";
+import { havaTableList } from "./sidePanel/panelCommonUtil";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -133,6 +135,7 @@ class OutputOrigin extends Component {
             "primaryType",
             panelColumn[index].columns || []
         );
+        const customParams = panelColumn[index].customParams || [];
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -566,6 +569,12 @@ class OutputOrigin extends Component {
                             )}
                         </FormItem>
                     ) : undefined}
+                {panelColumn[index].type == DATA_SOURCE.REDIS && <CustomParams
+                    getFieldDecorator={getFieldDecorator}
+                    formItemLayout={formItemLayout}
+                    customParams={customParams}
+                    onChange={(type, id, value) => { handleInputChange("customParams", index, value, { id, type }) }}
+                />}
             </Row>
         );
     }
@@ -645,9 +654,11 @@ export default class OutputPanel extends Component {
             tabTemplate.push("OutputForm");
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
-            this.getTableType(index, v.sourceId);
-            if (v.type == DATA_SOURCE.MYSQL) {
-                this.getTableColumns(index, v.sourceId, v.table);
+            if (havaTableList(v.type)) {
+                this.getTableType(index, v.sourceId);
+                if (v.type == DATA_SOURCE.MYSQL) {
+                    this.getTableColumns(index, v.sourceId, v.table);
+                }
             }
         });
         this.setOutputData({ tabTemplate, panelColumn });
@@ -711,9 +722,11 @@ export default class OutputPanel extends Component {
             () => {
                 side.map((v, index) => {
                     this.getTypeOriginData(index, v.type);
-                    this.getTableType(index, v.sourceId);
-                    if (v.type == DATA_SOURCE.MYSQL) {
-                        this.getTableColumns(index, v.sourceId, v.table);
+                    if (havaTableList(v.type)) {
+                        this.getTableType(index, v.sourceId);
+                        if (v.type == DATA_SOURCE.MYSQL) {
+                            this.getTableColumns(index, v.sourceId, v.table);
+                        }
                     }
                 });
             }
@@ -949,6 +962,8 @@ export default class OutputPanel extends Component {
             panelColumn[index]["columns"][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]["columns"][value].type = subType;
+        } else if (type == "customParams") {
+            changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
         }
@@ -967,7 +982,8 @@ export default class OutputPanel extends Component {
             "hbasePrimaryKey",
             "cacheTTLMs",
             "tableName",
-            "primaryKey"
+            "primaryKey",
+            "customParams"
         ];
         if (type === "type") {
             originOptionType[index] = [];
@@ -998,7 +1014,7 @@ export default class OutputPanel extends Component {
             panelColumn[index].columns = [];
 
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId") {
+                if (v != "type" && v != "sourceId" && v != "customParams") {
                     if (v == "parallelism") {
                         panelColumn[index][v] = 1;
                     } else if (v == "columns") {
@@ -1015,17 +1031,13 @@ export default class OutputPanel extends Component {
                 }
             });
             //this.clearCurrentInfo(type,index,value)
-            if (panelColumn[index].type == DATA_SOURCE.MYSQL
-                ||
-                panelColumn[index].type == DATA_SOURCE.HBASE
-                ||
-                panelColumn[index].type == DATA_SOURCE.MONGODB) {
+            if (havaTableList(panelColumn[index].type)) {
                 this.getTableType(index, value, type);
             }
         } else if (type === "table") {
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId" && v != "table") {
+                if (v != "type" && v != "sourceId" && v != "table" && v != "customParams") {
                     if (v == "parallelism") {
                         panelColumn[index][v] = 1;
                     } else if (v == "columns") {

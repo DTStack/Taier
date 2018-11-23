@@ -322,12 +322,12 @@ export default class InputPanel extends Component {
 
     parseColumnsText = (index, text = "") => {
         const { timeColumoption, panelColumn } = this.state;
-        const columns = text.split('\n').filter(v => !!v).map(v => {
+        const columns = text.split('\n').filter(Boolean).map(v => {
             let column;
-            if (v.trim().includes(" as ")) {
-                const colVal = v.trim().replace(/\(.*\)/, '').split(" as ");
+            const as_case=/^.*\w.*\s+as\s+(\w+)$/i.exec(v);
+            if (as_case) {
                 return {
-                    column: colVal[1],
+                    column: as_case[1],
                 }
             } else {
                 column = v.trim().split(" ");
