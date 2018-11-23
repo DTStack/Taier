@@ -17,7 +17,8 @@ export const DATA_SOURCE = {
     ADS: 15,
     BEATS: 16,
     KAFKA_10:17,
-    KAFKA_09:18
+    KAFKA_09:18,
+    DB2:19
 }
 
 export const DATA_SOURCE_TEXT = {

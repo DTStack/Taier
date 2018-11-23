@@ -683,6 +683,9 @@ export default class OutputPanel extends Component {
             //this.parseColumnsText(index,value)
         }
         const allParamsType = ["type", "sourceId", "table", "columns", "columnsText", "id", "index", "writePolicy", "esId", "esType", "parallelism", "tableName", "primaryKey", "rowKey"];
+        /**
+         * 这里开始处理改变操作，比如数据源改变要改变重置表名等
+         */
         if (type === "type") {
             originOptionType[index] = [];
             tableOptionType[index] = [];
