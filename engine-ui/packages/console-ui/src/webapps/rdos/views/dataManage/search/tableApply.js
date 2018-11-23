@@ -130,8 +130,8 @@ class TableApply extends Component {
         // }
         const params = {...paramsApply, ...formData}
             form.validateFields((err) => {
-                const {checkedList, checkedDmlList, } = this.state;
-                if (!err && (checkedList.length > 0 || checkedDmlList.length > 0)) {
+                const {checkedList, checkedDmlList, checkedIdsList} = this.state;
+                if (!err && ((checkedList.length + checkedDmlList.length > 0)|| checkedIdsList.length > 0)) {
                         setTimeout(() => { 
                             this.setState({
                                 checkDdlAll: false,
@@ -150,7 +150,7 @@ class TableApply extends Component {
                 else {
                     warning({
                         title: '提示',
-                        content: '您没有选择任何DDL或者DML权限！',
+                        content: '操作权限或者字段权限未选择！',
                     })
                 }
             });
@@ -208,7 +208,7 @@ class TableApply extends Component {
 
                     <FormItem
                         {...formItemLayout1}
-                        label="DDL"
+                        label="DML"
                         style={{marginTop:"-20px"}}
                     >
                         <div className="content">
