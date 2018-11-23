@@ -8,6 +8,9 @@ import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
+
+const warning = Modal.warning
+
 const pageSize = 20;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {

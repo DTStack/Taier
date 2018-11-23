@@ -1075,58 +1075,11 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
                             )}
                         </FormItem>
-                        <FormItem
-                            label="flinkYarnMode"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkYarnMode', {
-                                rules: [{
-                                    required: true,
-                                    message: "flinkYarnMode"
-                                }],
-                                initialValue: "PER_JOB"
-                            })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
-                                    {this.flinkYarnModes(flinkVersion)}
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="jarTmpDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.jarTmpDir', {
-                                initialValue: "../tmp140"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkPluginRoot"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkPluginRoot', {
-                                initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="remotePluginRootDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.remotePluginRootDir', {
-                                initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                       
-
                         
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}
+                                // disabled={isView}
                                 onChange={this.changeCheckbox.bind(this)}
                                 disabled={isView}
                             >
