@@ -572,6 +572,7 @@ export default class StepTwo extends Component{
                 })
               }
             </Select>
+            <HelpDoc style={{...relativeStyle,marginLeft: 5}} doc="partitionTip"/>
           </div>
             {
               partitions.partitionType === 1?
