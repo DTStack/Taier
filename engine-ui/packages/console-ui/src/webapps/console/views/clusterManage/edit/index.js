@@ -1076,7 +1076,6 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                         
-                        
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}

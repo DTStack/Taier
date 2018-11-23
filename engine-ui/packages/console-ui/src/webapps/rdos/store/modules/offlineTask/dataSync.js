@@ -184,6 +184,17 @@ const sourceMap = (state = {}, action) => {
                 copate: copateData
             });
         }
+
+        // 编辑源字段
+        case sourceMapAction.EDIT_SOURCE_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData) {
+                clone.column[colData.index] = colData.value
+            }
+            return clone;
+        }
+
         // 数据源 添加一行字段
         case sourceMapAction.ADD_SOURCE_KEYROW: {
             const colData = action.payload;
@@ -501,6 +512,20 @@ const keymap = (state = { source: [], target: [] }, action) => {
             });
 
             return { source, target };
+        }
+
+        case keyMapAction.EDIT_KEYMAP_SOURCE: {
+            const map = action.payload;
+            const { old, replace } = map
+            const clone = cloneDeep(state);
+            if (map) {
+                const index = clone.source.findIndex((item) => isEqual(item, old))
+                if (index > 0) {
+                    clone.source[index] = replace;
+                    return clone;
+                }
+            }
+            return state;
         }
 
         case keyMapAction.EDIT_KEYMAP_TARGET: {

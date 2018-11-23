@@ -303,14 +303,16 @@ class AuthMana extends Component {
     getPermissionData = (record) => {
         ajax.getApplyDetail({
             tableId: record.resourceId,
-            tableName: record.resourceName
+            tableName: record.resourceName,
+            applyId: record.applyId,
         }).then(res => {
             if(res.code ===1 ) {
                 console.log(res.data);
                 const data = res.data;
                 const fullDdls = data.fullDdls;
                 const fullDmls = data.fullDmls;
-                const fullColumns = data.fullColumns;
+                const fullColumns = data.fullColumnList;
+                // ddl数据转化成checkboxGroup可用数据
                 const fullDdlsData = fullDdls.map(item => {
                     return {
                         label: item.name,
@@ -318,6 +320,13 @@ class AuthMana extends Component {
                         status: item.status
                     }
                 });
+                const ddlCheck = fullDdlsData.filter(item => {
+                    return item.status === true
+                })
+                const ddlCheckArray = ddlCheck.map(item => {
+                    return item.value
+                })
+                // dml数据转化成checkboxGroup可用数据
                 const fullDmlsData = fullDmls.map(item => {
                     return {
                         label: item.name,
@@ -325,15 +334,37 @@ class AuthMana extends Component {
                         status: item.status
                     }
                 });
-                // 字段名
+                const dmlCheck = fullDmlsData.filter(item => {
+                    return item.status === true
+                })
+                const dmlCheckArray = dmlCheck.map(item => {
+                    return item.value
+                })
+                // 字段名数据转化成checkboxGroup可用数据
                 const fullColumnsData = fullColumns.map(item => {
-                    return item.name
+                    return item.column
                 });
+                const fullColumnsCheckArray = fullColumns.filter(item => {
+                    return item.status === true
+                })
+                const ids = fullColumnsCheckArray.map(item => {
+                    return item.column
+                })
+                const total = fullColumnsData.length;
+                // 判断是否全选
+                const ischeckAll = (fullDdlsData.length + fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
+                const idCheckIds = (fullColumns.length == fullColumnsCheckArray.length);
                 const params = {
                     fullDdlsData,
+                    ddlCheckArray,
                     fullDmlsData,
+                    dmlCheckArray,
                     fullColumnsData,
-                    fullColumns
+                    fullColumns,
+                    ids,
+                    total,
+                    ischeckAll,
+                    idCheckIds,
                 }
                 this.setState({
                     permissionParams: params

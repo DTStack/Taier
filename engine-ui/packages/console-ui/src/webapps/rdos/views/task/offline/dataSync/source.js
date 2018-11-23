@@ -239,12 +239,21 @@ class SourceForm extends React.Component {
         }
     }
 
-    validateChineseCharacter = (rule, value, callback) => {
-        const reg = /(，|。|；)/; // 中文逗号，句号，分号
-        if (reg.test(value)) {
-            singletonNotification('提示', '列分隔符参数有包含中文标点符号！', 'warning')
+    validateChineseCharacter = (data) => {
+        const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
+        let has = false;
+        let fieldsName = [];
+        if (data.path && reg.test(data.path)) {
+            has = true;
+            fieldsName.push('路径');
         }
-        callback();
+        if (data.fieldDelimiter && reg.test(data.fieldDelimiter)) {
+            has = true;
+            fieldsName.push('列分隔符');
+        }
+        if (has) {
+            singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
+        }
     }
 
     submitForm(event, sourceKey) {
@@ -254,14 +263,13 @@ class SourceForm extends React.Component {
 
         this.timerID = setTimeout(() => {
             let values = form.getFieldsValue();
-
+           
             // clean no use property
             for (let key in values) {
                 if (values[key] === '') {
                     delete values[key];
                 }
             }
-
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
@@ -278,9 +286,12 @@ class SourceForm extends React.Component {
                 validateFields.push('encoding')
             }
         }
-
+        
         form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
             if (!err) {
+                // 校验中文字符，如果有则发出警告
+                console.log('values:', values);
+                this.validateChineseCharacter(values);
                 cb.call(null, 1);
             }
         })
@@ -684,7 +695,7 @@ class SourceForm extends React.Component {
                 ];
                 break;
             }
-            case DATA_SOURCE.HDFS: // HDFS
+            case DATA_SOURCE.HDFS: { // HDFS
                 formItem = [
                     <FormItem
                         {...formItemLayout}
@@ -699,7 +710,7 @@ class SourceForm extends React.Component {
                                 max: 200,
                                 message: '路径不得超过200个字符！',
                             }, {
-                                validator: this.validatePath
+                                validator: this.validatePath,
                             }],
                             validateTrigger: 'onSubmit',
                             initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
@@ -735,9 +746,7 @@ class SourceForm extends React.Component {
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [{
-                                validator: this.validateChineseCharacter
-                            }],
+                            rules: [],
                             initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
                         })(
                             <Input
@@ -766,6 +775,7 @@ class SourceForm extends React.Component {
                     </FormItem>,
                 ];
                 break;
+            }
             case DATA_SOURCE.HBASE: {
                 formItem = [
                     !selectHack && <FormItem
@@ -927,7 +937,6 @@ class SourceForm extends React.Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
                         label="列分隔符"
                         key="fieldDelimiter"
                     >
@@ -935,8 +944,6 @@ class SourceForm extends React.Component {
                             rules: [{
                                 required: true,
                                 message: '分隔符不可为空！',
-                            }, {
-                                validator: this.validateChineseCharacter
                             }],
                             initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
                         })(
@@ -950,7 +957,6 @@ class SourceForm extends React.Component {
                         {...formItemLayout}
                         label="编码"
                         key="encoding"
-                        style={{ display: fileType === 'text' ? 'block' : 'none' }}
                     >
                         {getFieldDecorator('encoding', {
                             rules: [{
@@ -963,6 +969,24 @@ class SourceForm extends React.Component {
                                 <Option value="utf-8">utf-8</Option>
                                 <Option value="gbk">gbk</Option>
                             </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="是否包含表头"
+                        key="isFirstLineHeader"
+                    >
+                        {getFieldDecorator('isFirstLineHeader', {
+                            rules: [{
+                                required: true,
+                                message: '必须选择一种编码！',
+                            }],
+                            initialValue: !sourceMap.type || !sourceMap.type.isFirstLineHeader ? false : sourceMap.type.isFirstLineHeader
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value={true} style={{ float: 'left' }}>是</Radio>
+                                <Radio value={false} style={{ float: 'left' }}>否</Radio>
+                           </RadioGroup>
                         )}
                     </FormItem>,
                 ]

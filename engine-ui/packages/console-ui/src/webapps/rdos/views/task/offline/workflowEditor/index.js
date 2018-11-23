@@ -85,6 +85,7 @@ const getTaskBaseData = (task) => {
         preSave: task.preSave,
         submitStatus: task.submitStatus,
         version: task.version,
+        readWriteLockVO: task.readWriteLockVO,
     }
 }
 
@@ -309,7 +310,7 @@ class WorkflowEditor extends Component {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
-                    const taskData = Object.assign({}, task, {
+                    const taskData = Object.assign({}, getTaskBaseData(task), {
                         name: value,
                     });
                     saveTask(taskData, true).then(res => {
@@ -519,16 +520,17 @@ class WorkflowEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const model = graph.getModel();
+        const layout2 = new mxHierarchicalLayout(graph, 'north');
+        layout2.disableEdgeStyle = false;
+        layout2.interRankCellSpacing = 40;
+        layout2.intraCellSpacing = 20;
+        layout2.edgeStyle = mxEdgeStyle.TopToBottom;
 
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
             try {
-                const layout2 = new mxHierarchicalLayout(graph, 'north');
-                layout2.disableEdgeStyle = false;
-                layout2.interRankCellSpacing = 40;
-                layout2.intraCellSpacing = 20;
-                layout2.edgeStyle = mxEdgeStyle.TopToBottom;
+                console.log('layout:', layout2);
                 if (change != null) { change(); }
                 layout2.execute(parent);
             } catch (e) {

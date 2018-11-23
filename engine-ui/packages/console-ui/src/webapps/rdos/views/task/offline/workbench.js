@@ -494,6 +494,7 @@ class Workbench extends React.Component {
         const { keymap, sourceMap, targetMap } = clone;
         let { source = [], target = [] } = keymap;
         let serverSource = [], serverTarget = [];
+
         /**
          * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
          */
@@ -507,15 +508,15 @@ class Workbench extends React.Component {
         /**
          * 获取targetMap的顺序
          */
-        const { column:targetColumn = [] } = targetMap;
+        const { column: targetColumn = [] } = targetMap;
         let indexMap = {};//顺序记录表
         let tmp_target = [];//含有映射关系的target数组
         for (let i = 0; i < target.length; i++) {
-            const targetItem=target[i];
-            const sourceItem=source[i];
-            tmp_target[i]={
-                target:targetItem,
-                source:sourceItem,
+            const targetItem = target[i];
+            const sourceItem = source[i];
+            tmp_target[i] = {
+                target: targetItem,
+                source: sourceItem,
             }
         }
         targetColumn.map((item, index) => {
@@ -524,8 +525,8 @@ class Workbench extends React.Component {
 
         tmp_target.sort(
             (a, b) => {
-                const index_a=indexMap[getKey(a.target)];
-                const index_b=indexMap[getKey(b.target)];
+                const index_a = indexMap[getKey(a.target)];
+                const index_b = indexMap[getKey(b.target)];
                 return index_a - index_b;
             }
         )

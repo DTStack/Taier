@@ -38,14 +38,14 @@ class TableApply extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        this.setState({
-            columnNames: nextProps.columnNames,
-            arr: nextProps.columnNames.slice(0,pageSize)
-        })
+        if(this.props.columnNames != nextProps.columnNames) {
+            this.setState({
+                columnNames: nextProps.columnNames,
+                arr: nextProps.columnNames.slice(0,pageSize)
+            })
+        }
     }
 
-    componentDidMount() {
-    }
 
     // 复选框
     changeDdlGroup = (checkedList) => {
@@ -122,23 +122,39 @@ class TableApply extends Component {
             columnNames: checkedIdsList,
             fullColumn: checkIdsAll
         }
-        console.log({...paramsApply, ...formData})
+        // if(!(checkedList&&checkedDmlList)) {
+        //     warning({
+        //         title: '提示',
+        //         content: '您没有选择任何DDL或者DML权限！',
+        //     })
+        // }
         const params = {...paramsApply, ...formData}
-        form.validateFields((err) => {
-            if (!err) {
-                setTimeout(() => { 
-                    this.setState({
-                        checkDdlAll: false,
-                        checkedList: [],   // DDL选中
-                        checkedDmlList: [], // // DML选中
-                        checkIdsAll: false,
-                        checkedIdsList: [],
+            form.validateFields((err) => {
+                const {checkedList, checkedDmlList, checkedIdsList} = this.state;
+                if (!err && ((checkedList.length + checkedDmlList.length > 0)|| checkedIdsList.length > 0)) {
+                        setTimeout(() => { 
+                            this.setState({
+                                checkDdlAll: false,
+                                checkedList: [],   // DDL选中
+                                checkedDmlList: [], // // DML选中
+                                checkIdsAll: false,
+                                checkedIdsList: [],
+                            })
+                            form.resetFields() 
+                        }, 200)
+                        onOk(params)
+                }
+                else if(err) {
+                    
+                }
+                else {
+                    warning({
+                        title: '提示',
+                        content: '操作权限或者字段权限未选择！',
                     })
-                    form.resetFields() 
-                }, 200)
-                onOk(params)
-            }
-        });
+                }
+            });
+        
     }
 
     cancle = () => {
@@ -160,6 +176,7 @@ class TableApply extends Component {
         } = this.state;
         const {currentPage, arr, columnNames} = this.state;
         const total = columnNames.length;
+        console.log(total)
         return (
             <Modal
                 title="申请授权"
@@ -191,7 +208,7 @@ class TableApply extends Component {
 
                     <FormItem
                         {...formItemLayout1}
-                        label="DDL"
+                        label="DML"
                         style={{marginTop:"-20px"}}
                     >
                         <div className="content">

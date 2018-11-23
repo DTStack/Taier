@@ -14,7 +14,7 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    DB2: 14,
+    DB2: 19,
 }
 
 export const DATA_SOURCE_TEXT = {

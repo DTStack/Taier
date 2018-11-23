@@ -193,3 +193,9 @@ export const switchPartition = (
         将上游节点与 JoinTable 节点的数据传输改成按 key 分区。这样通常可以缩小单个节点的 key 个数，提高缓存的命中率
     </span>
 );
+
+export const stringColumnFormat = (
+    <span>
+        如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则
+    </span>
+)
