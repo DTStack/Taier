@@ -40,7 +40,14 @@ const DefaultRowKey = { // HBase默认行健
  * @param {*} target 
  */
 function isFieldMatch(source, target) {
+    /**
+     * TODO
+     * 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
+     */
     if (isObject(source) && isObject(target)) {
+        // const sourceVal =  source.key || source.index;
+        // const tagetVal = target.key || target.index;
+        // return sourceVal === tagetVal;
         return isEqual(source, target);
     } else if(isObject(source) && !isObject(target) ) {
         const sourceVal = source.key || source.index
@@ -146,7 +153,7 @@ class Keymap extends React.Component{
      */
     renderDags() {
         const { w, h, W, padding } = this.state;
-        const { targetCol, sourceCol, keymap } = this.props;
+        const { targetCol, sourceCol } = this.props;
 
         this.$canvas.append('g')
             .attr('class', 'dl')
@@ -187,9 +194,7 @@ class Keymap extends React.Component{
     renderLines() {
         const { w, h, W, padding } = this.state;
         const { 
-            keymap, 
-            sourceSrcType,
-            targetSrcType,  
+            keymap,
         } = this.props;
         const { source, target } = keymap;
         const $dagL = selectAll('.col-dag-l');
@@ -203,26 +208,13 @@ class Keymap extends React.Component{
          * @return {boolean} isMatch
          */
         const matchKeymapToColumn_s = (columnItem, keymapItem) => {
-            let isMatch = false;
-            if (isRDB(sourceSrcType)) {// sql/oracle/sqlserver
-                isMatch = columnItem.key === keymapItem;
-            } else {
-                // isMatch = isEqual(columnItem, keymapItem);
-                isMatch = isFieldMatch(columnItem, keymapItem);
-            }
-            return isMatch;
+            return isFieldMatch(columnItem, keymapItem);
         };
 
         const matchKeymapToColumn_t = (columnItem, keymapItem) => {
-            let isMatch = false;
-            if (isRDB(targetSrcType)) { // sql/oracle/sqlserver/hive
-                isMatch = columnItem.key === keymapItem;
-            } else {
-                // isMatch = isEqual(columnItem, keymapItem);
-                isMatch = isFieldMatch(columnItem, keymapItem)
-            }
-            return isMatch;
+            return isFieldMatch(columnItem, keymapItem);
         }
+
 
         /**
          * source中的元素 key_obj 类型：
@@ -339,10 +331,8 @@ class Keymap extends React.Component{
                  * 存储连线
                  */
                 addLinkedKeys({
-                    source: isRDB(sourceSrcType) ?
-                        sourceKey_obj.key : sourceKey_obj,
-                    target: isRDB(targetSrcType) ?
-                        targetKey_obj.key : targetKey_obj
+                    source: sourceKey_obj,
+                    target: targetKey_obj,
                 });
                 this.resetActiveLine();
             }
@@ -472,7 +462,7 @@ class Keymap extends React.Component{
 
             switch(sourceType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '索引位';
+                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key ) : '索引位';
 
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -480,12 +470,12 @@ class Keymap extends React.Component{
                         { 
                             sourceFileType !== 'orc' ? <div className="cell">
                             { col ? cellOperation(removeOption, editOption) : '操作' }
-                            </div> : '' 
+                            </div> : ''
                         }
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健'
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
                     const cf = col ? col.cf : '列族';
 
                     // 仅允许常量删除操作
@@ -505,9 +495,9 @@ class Keymap extends React.Component{
                 case DATA_SOURCE.HIVE: {
                     const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
                     // 仅允许常量删除操作
-                    const opt = col.value ? cellOperation(removeOption, editOption) : 
+                    const opt = col && col.value ? cellOperation(removeOption, editOption) : 
                     cellOperation(null, editOption);
-                    
+
                     return <div>
                         <div className="cell">{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
@@ -517,7 +507,7 @@ class Keymap extends React.Component{
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '字段序号' 
+                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'`: col.key ) : '字段序号';
                     return <div>
                         <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
@@ -1125,7 +1115,7 @@ class Keymap extends React.Component{
         if (targetKeyRow && targetKeyRow.length > 0) {
             const params = targetKeyRow.map((item, index) => {
                 return {
-                    index,
+                    key: index,
                     type: 'STRING',
                 }
             })
@@ -1157,7 +1147,7 @@ class Keymap extends React.Component{
         const { batchModal } = this.state
         const { batchText } = batchModal
         const { 
-            addBatchTargetKeyRow, targetSrcType,
+            targetSrcType,
             replaceBatchTargetKeyRow
         } = this.props
 
@@ -1271,24 +1261,23 @@ class Keymap extends React.Component{
                     const item = arr[i].replace(/\n/, '');
                     if (!item) continue;
                     const map = item.split(':');
-                    console.log('map:', map);
                     if (map.length < 1) { break; };
-                    const index = parseInt(utils.trim(map[0]), 10);
+                    const key = parseInt(utils.trim(map[0]), 10);
                     const type = map[1] ? utils.trim(map[1]).toUpperCase(): null;
-                    if (!isNaN(index) && isNumber(index)) {
+                    if (!isNaN(key) && isNumber(key)) {
                         if (hdfsFieldTypes.includes(type) ) {
-                            if (!params.find(pa => pa.index === index )) {
+                            if (!params.find(pa => pa.key === key )) {
                                 params.push({
-                                    index: index,
+                                    key: key,
                                     type,
                                 })
                             }
                         } else {
-                            message.error(`索引 ${index} 的数据类型错误！`)
+                            message.error(`索引 ${key} 的数据类型错误！`)
                             return
                         }
                     } else {
-                        message.error(`索引名称 ${index} 应该为整数数字！`)
+                        message.error(`索引名称 ${key} 应该为整数数字！`)
                         return
                     }
                 }
@@ -1334,24 +1323,24 @@ class Keymap extends React.Component{
             targetSrcType,
         } = this.props;
 
-        const convertColumn2Keymap_s = (column) => {
-            if (isRDB(sourceSrcType)) {
-                column = column.map(o => o.key);
-            }
-            return column;
-        }
+        // const convertColumn2Keymap_s = (column) => {
+        //     if (isRDB(sourceSrcType)) {
+        //         column = column.map(o => o.key);
+        //     }
+        //     return column;
+        // }
 
-        const convertColumn2Keymap_t = (column) => {
-            if (isRDB(targetSrcType)) {
-                column = column.map(o => o.key);
-            }
-            return column;
-        }
+        // const convertColumn2Keymap_t = (column) => {
+        //     if (isRDB(targetSrcType)) {
+        //         column = column.map(o => o.key);
+        //     }
+        //     return column;
+        // }
 
         if(!rowMap) {
             this.props.setRowMap({
-                sourceCol: convertColumn2Keymap_s(sourceCol),
-                targetCol: convertColumn2Keymap_t(targetCol)
+                sourceCol: sourceCol, // convertColumn2Keymap_s(sourceCol),
+                targetCol: targetCol, //convertColumn2Keymap_t(targetCol)
             });
         }
         else{
