@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, Checkbox, Pagination } from 'antd'
+import { Form, Input, Modal, Button, Checkbox, Pagination } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
@@ -121,6 +121,14 @@ class DetailPermission extends Component {
                 onOk={this.props.listType == 0 ? this.submit : this.cancle}
                 onCancel={this.cancle}
                 width="750px"
+                footer={
+                    this.props.listType == 0 ? [
+                        <Button  size="large" onClick={this.cancle}>取消</Button>,
+                        <Button  type="primary" size="large" onClick={this.submit}>
+                          确定
+                        </Button>
+                    ] : <Button type="primary" size="large" onClick={this.cancle}>关闭</Button>
+                }
             >
                 <Form>
                     <FormItem
