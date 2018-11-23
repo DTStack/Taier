@@ -53,7 +53,7 @@ export const blockSize = (
 )
 export const marjorCompactionSize = (
     <div>
-        <p>segment大小总和低于此阈值的将会被合并，默认为512MB。</p>
+        <p>segment大小总和低于此阈值的将会被合并，默认为1024MB。</p>
         <p>segment：每次将数据插入表时，会产生一个segment。</p>
     </div>
 )
@@ -96,5 +96,25 @@ export const decimalType = (
 export const selectSQL = (
     <span>
         支持对字段进行SUM、AVG、MAX、MIN、COUNT函数的预聚合处理
+    </span>
+)
+
+export const partitionTip = (
+    <span>
+        <p>
+            设置分区的目的是提高数据查询速度，有4种分区模式可供选择，需根据数据的实际情况配置，配置的目标是使得整张表的数据较为均匀的分布在每个分区中
+        </p>
+        <p>
+            1、标准：无特殊规则，
+        </p>
+        <p>
+            2、Hash：哈希分区，按照默认的哈希规则将数据散落在N个分区中。当分区字段的值较为均匀时可采用此模式；需指定分区数量N。
+        </p>
+        <p>
+            3、Range：范围分区，当数据在几个范围内较为均匀时可采用此模式，例如可设置：“ 2017-01-01, 2017-02-01”，系统将2017-01-10的数据放在对应的分区中；需指定每个分区的范围区间。
+        </p>
+        <p>
+            4、List：列表分区，系统将数据放在对应的分区中，需指定每个分区名。
+        </p>
     </span>
 )

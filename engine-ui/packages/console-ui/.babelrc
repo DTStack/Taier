@@ -1,18 +1,18 @@
 {
     "presets": [
         [
-            "es2015",
+            "@babel/preset-env",
             {
                 "modules": false
             }
         ],
-        "stage-0",
-        "react"
+        "@babel/preset-react"
     ],
     "plugins": [
         ["import", { "libraryName": "antd", "style": true }],
-        "transform-runtime",
-        "transform-decorators-legacy"
-        // "react-hot-loader/babel" // 开启 React 代码的模块热替换(HMR)
+        "@babel/transform-runtime",
+        ["@babel/plugin-proposal-decorators",{"legacy": true}],
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-proposal-class-properties"
     ]
 }

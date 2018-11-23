@@ -51,12 +51,6 @@ const field_types = [
     name: 'STRING',
     value: 'STRING',
   },{
-    name: 'CHAR',
-    value: 'CHAR',
-  },{
-    name: 'VARCHAR',
-    value: 'VARCHAR',
-  },{
     name: 'BOOLEAN',
     value: 'BOOLEAN',
   },{
