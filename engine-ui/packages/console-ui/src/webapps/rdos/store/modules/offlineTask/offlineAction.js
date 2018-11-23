@@ -127,7 +127,13 @@ export const keyMapActions = (dispatch, ownProps) => {
             });
         },
         editSourceKeyRow(params) {
-            // TODO, 如果需要编辑源列
+            dispatch({
+                type: sourceMapAction.EDIT_SOURCE_KEYROW,
+                payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
         },
         removeSourceKeyRow(source, index) {
             dispatch({
@@ -146,6 +152,12 @@ export const keyMapActions = (dispatch, ownProps) => {
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+        editKeyMapSource(params) {
+            dispatch({
+                type: keyMapAction.EDIT_KEYMAP_SOURCE,
+                payload: params
             });
         },
         editKeyMapTarget(params) {

@@ -4,6 +4,8 @@ import localDb from 'utils/localDb'
 import utils from 'utils'
 import Api from './api'
 
+import { singletonNotification } from 'funcs';
+
 const maxHeightStyle = {
     maxHeight: "500px",
     overflowY: "auto"
@@ -50,11 +52,12 @@ export function authAfterFormated(response) {
             // 通过判断dom数量，限制通知数量
             const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
             if (notifyMsgs.length === 0) {
-                notification['error']({
-                    message: '权限通知',
-                    description: response.message,
-                    style: maxHeightStyle
-                });
+                singletonNotification(
+                    '权限通知', 
+                    response.message, 
+                    'error', 
+                    maxHeightStyle,
+                );
             }
             return Promise.reject(response);
         }
@@ -62,11 +65,12 @@ export function authAfterFormated(response) {
             hashHistory.push('/');
         default:
             if (response.message) {
-                notification['error']({
-                    message: '异常',
-                    description: response.message,
-                    style: { ...maxHeightStyle, wordBreak: "break-all" }
-                });
+                singletonNotification(
+                    '异常', 
+                    response.message, 
+                    'error', 
+                    { ...maxHeightStyle, wordBreak: "break-all" },
+                );
             }
             return response
     }

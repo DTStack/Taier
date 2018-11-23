@@ -447,60 +447,72 @@ class Keymap extends React.Component{
 
         const renderTableRow = (sourceType, col, i) => {
 
-            const removeOperation = <div className="remove-cell"
+            const removeOption = <div className="remove-cell"
                 onClick={() => removeSourceKeyRow(col, i)}>
                 <Tooltip title="删除当前列">
                     <Icon type="minus" />
                 </Tooltip>
             </div>
+
+            const editOption = <div className="edit-cell" onClick={
+                    () => { this.initEditKeyRow(true, sourceType, null, col, i) }
+                }>
+                <Tooltip title="编辑当前列">
+                    <Icon type="edit" />
+                </Tooltip>
+            </div>
+
+            const cellOperation = (remove, edit) => <div>
+                {remove}
+                {edit}
+            </div>
+
+            const typeValue = col ? col.value ? `常量` : `${col.type.toUpperCase()}${col.format ? `(${col.format})` : ''}` : '';
+            const type = col ? scrollText(typeValue) : '类型';
+
             switch(sourceType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '索引位' 
+                    const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '索引位';
+
                     return <div>
                         <div className="cell" title={name}>{name}</div>
-                        <div className="cell">{col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}</div>
+                        <div className="cell" title={typeValue}>{type}</div>
                         { 
                             sourceFileType !== 'orc' ? <div className="cell">
-                            { col ? removeOperation : '操作' }
+                            { col ? cellOperation(removeOption, editOption) : '操作' }
                             </div> : '' 
                         }
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
                     const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健'
-                    const cf = col ? col.cf : '列族'
+                    const cf = col ? col.cf : '列族';
+
+                    // 仅允许常量删除操作
+                    const opt = col.key === 'rowkey' ? cellOperation(null, editOption) :
+                    cellOperation(removeOption, editOption);
+
                     return <div className="four-cells">
                         <div className="cell" title={cf}>{ cf || '-' }</div>
                         <div className="cell" title={name}>{ name }</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
-                            {col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}
-                        </div>
-                        <div className="cell">
-                            { 
-                                col ? <div>  
-                                    {col.key === 'rowkey' ? '' : removeOperation }
-                                    <div className="edit-cell" onClick={
-                                            () => { this.initEditKeyRow(true, sourceType, null, col, i) }
-                                        }>
-                                        <Tooltip title="编辑当前列">
-                                            <Icon type="edit" />
-                                        </Tooltip>
-                                    </div>
-                                </div> : '操作'
-                            }   
+                            { col ? opt : '操作' }
                         </div>
                     </div>
                 }
                 case DATA_SOURCE.MAXCOMPUTE:
                 case DATA_SOURCE.HIVE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
+                    // 仅允许常量删除操作
+                    const opt = col.value ? cellOperation(removeOption, editOption) : 
+                    cellOperation(null, editOption);
+                    
                     return <div>
                         <div className="cell">{name}</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
-                            {col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}
-                        </div>
-                        <div className="cell">
-                            {col ? (col.value ? removeOperation : '' ) : '操作'}
+                            {col ? opt : '操作'}
                         </div>
                     </div>
                 }
@@ -508,23 +520,25 @@ class Keymap extends React.Component{
                     const name = col ? scrollText(col.index !== undefined ? col.index : `'${col.key}'`) : '字段序号' 
                     return <div>
                         <div className="cell" title={name}>{name}</div>
-                        <div className="cell">{col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
-                            {col ? removeOperation : '操作'}
+                            {col ? cellOperation(removeOption, editOption) : '操作'}
                         </div>
                     </div>
                 }
                 default: {
+                    const canFormat = col && col.type && 
+                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR' );
+                    const opt = canFormat ? cellOperation(null, editOption) : '';
                     return <div>
                         <div className="cell" title={name}>
                             {
                                 col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                             }
                         </div>
+                        <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
-                            {
-                                col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'
-                            }
+                            {col ? opt : '操作'}
                         </div>
                     </div>
                 }
@@ -798,6 +812,8 @@ class Keymap extends React.Component{
                 title = '修改HBase字段';
             } else if(dataType === DATA_SOURCE.FTP) {
                 title = '添加FTP字段';
+            } else {
+                title = '修改字段';
             }
         }
 
@@ -1429,13 +1445,24 @@ class Keymap extends React.Component{
             editTargetKeyRow,
             editKeyMapTarget,
             removeKeyMap,
+            editKeyMapSource,
         } = this.props;
         const { keyModal } = this.state;
         const { isReader, position, source, editField } = keyModal;
         if (formData) {
 
             if(isReader) {
-                editSourceKeyRow(formData);
+                editSourceKeyRow({
+                    index: position,
+                    value: formData,
+                });
+                editKeyMapSource({
+                    old: editField,
+                    replace: formData,
+                })
+                removeKeyMap({
+                    source: editField,
+                })
             }
             else {
                 editTargetKeyRow({

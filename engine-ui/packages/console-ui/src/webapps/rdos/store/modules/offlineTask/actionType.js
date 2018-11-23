@@ -126,6 +126,7 @@ export const sourceMapAction = mc([
     'REPLACE_BATCH_SOURCE_KEYROW',
     'DATA_SOURCE_ADD',
     'DATA_SOURCE_DELETE',
+    'EDIT_SOURCE_KEYROW',
 ], {prefix: 'offline/dataSync/sourceMap/'});
 
 export const targetMapAction = mc([
@@ -147,6 +148,7 @@ export const keyMapAction = mc([
     'SET_NAME_MAP',
     'RESET_LINKED_KEYS',
     'EDIT_KEYMAP_TARGET',
+    'EDIT_KEYMAP_SOURCE',
     'REMOVE_KEYMAP',
 ], {prefix: 'offline/dataSync/keyMap/'});
 
