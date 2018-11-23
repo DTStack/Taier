@@ -73,5 +73,6 @@ export default (
             <Route path="tagConfig/tagLog/:id" component={ TagLog }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
+        <Route path="/*" component={NotFund} />
     </Route>
 )

@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
 import { Form, Input, Modal, InputNumber, Checkbox, Pagination } from 'antd'
 
-// import { formItemLayout } from '../../../comm/const'
+import { formItemLayout } from '../../../comm/const'
 import ajax from '../../../api/dataManage';
 
 import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
+
+const warning = Modal.warning
+
 const pageSize = 20;
-export const formItemLayout1 = { // 表单正常布局
+const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
         sm: { span: 4 },
@@ -123,7 +126,16 @@ class TableApply extends Component {
         const params = {...paramsApply, ...formData}
         form.validateFields((err) => {
             if (!err) {
-                setTimeout(() => { form.resetFields() }, 200)
+                setTimeout(() => { 
+                    this.setState({
+                        checkDdlAll: false,
+                        checkedList: [],   // DDL选中
+                        checkedDmlList: [], // // DML选中
+                        checkIdsAll: false,
+                        checkedIdsList: [],
+                    })
+                    form.resetFields() 
+                }, 200)
                 onOk(params)
             }
         });
@@ -138,7 +150,6 @@ class TableApply extends Component {
             checkedList: [],
             checkedDmlList: []
         })
-        
     }
 
     render() {
@@ -155,7 +166,7 @@ class TableApply extends Component {
                 visible={visible}
                 onOk={this.submit}
                 onCancel={this.cancle}
-                width="600"
+                width="750px"
             >
                 <Form>
                     <FormItem
@@ -168,38 +179,60 @@ class TableApply extends Component {
                     </FormItem>
 
                     {/* 表段权限 */}
-                    <div className="content">
-                        <p className="title">DDL</p>
-                        <CheckboxGroup options={ddlList} value={checkedList} onChange={this.changeDdlGroup}></CheckboxGroup>
-                    </div>
+                    <FormItem
+                        {...formItemLayout1}
+                        label="DDL"
+                        style={{marginTop:"-20px"}}
+                    >
+                        <div className="content">
+                            <CheckboxGroup options={ddlList} value={checkedList} onChange={this.changeDdlGroup}></CheckboxGroup>
+                        </div>
+                    </FormItem>
 
-                    <div className="content">
-                        <p className="title">DML</p>
-                        <CheckboxGroup options={dmlList} value={checkedDmlList} onChange={this.changeDmlGroup}></CheckboxGroup>
-                    </div>
-
+                    <FormItem
+                        {...formItemLayout1}
+                        label="DDL"
+                        style={{marginTop:"-20px"}}
+                    >
+                        <div className="content">
+                            <CheckboxGroup options={dmlList} value={checkedDmlList} onChange={this.changeDmlGroup}></CheckboxGroup>
+                        </div>
+                    </FormItem>
 
                     {/* 字段权限 */}
-                    <div className="tablepermission">
-                        字段权限：
+                    <FormItem
+                        {...formItemLayout1}
+                        label="字段权限"
+                        style={{background: "#FAFAFA"}}
+                    >
                         <Checkbox checked={checkIdsAll} onChange={this.onCheckIdsAll}>All(包括新增字段)</Checkbox>
-                    </div>
-                    <div className="content">
-                        <div>
+                        <div className="content">
                             <CheckboxGroup options={arr} value={checkedIdsList} onChange={this.changeIdsGroup}></CheckboxGroup>
                         </div>
-                    </div>
-
-                    <div style={{marginBottom:"20px"}}>
-                        <Pagination
+                        {/* 控制字段名分页 */}
+                        {total > 0 ? <Pagination
                             size="small"
                             total={total}
                             pageSize={pageSize}
                             current={currentPage}
                             onChange={this.onChangePage}
-                        />
-                    </div>
+                            style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
+                        /> : ""}
+                    </FormItem>
 
+                    {/* 控制字段名分页 */}
+                    {/* <FormItem
+                        {...formItemLayout1}
+                        style={{marginLeft:"70%"}}
+                    >
+                        <Pagination
+                            // size="small"
+                            total={total}
+                            pageSize={pageSize}
+                            current={currentPage}
+                            onChange={this.onChangePage}
+                        />
+                    </FormItem> */}
 
                     <FormItem
                         {...formItemLayout1}
@@ -213,7 +246,7 @@ class TableApply extends Component {
                                 }
                             ],
                         })(
-                            <InputNumber min={1} placeholder="请输入申请时长（天）" style={{width: "100%"}}/>,
+                            <InputNumber min={1} placeholder="请输入申请时长（天）" style={{width: "80%"}}/>,
                         )}
                     </FormItem>
                     <FormItem
@@ -229,7 +262,7 @@ class TableApply extends Component {
                                 required: true, message: '必须填写申请理由',
                               }],
                         })(
-                            <Input type="textarea" rows={4} placeholder="请输入申请理由" />,
+                            <Input type="textarea" rows={4} placeholder="请输入申请理由" style={{width: "80%"}}/>,
                         )}
                     </FormItem>
                 </Form>

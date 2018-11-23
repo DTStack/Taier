@@ -3,6 +3,8 @@ import assign from 'object-assign';
 import { cloneDeep, isEqual } from 'lodash';
 import { message } from 'antd';
 
+import utils from 'utils';
+
 import {
     dataSourceListAction,
     sourceMapAction,
@@ -190,13 +192,13 @@ const sourceMap = (state = {}, action) => {
 
             if (clone.column) {
                 let name = '索引值'
-                if (colData.index) {
-                    column = clone.column.find(o => o.index === colData.index);
-                } else if (colData.key) {
+                if (utils.checkExist(colData.index)) {
+                    column = clone.column.find(o => o.index == colData.index);
+                } else if (utils.checkExist(colData.key)) {
                     name = '字段名'
-                    column = clone.column.find(o => o.key === colData.key);
+                    column = clone.column.find(o => o.key == colData.key);
                 }
-                if (column) {
+                if (utils.checkExist(column)) {
                     message.error(`添加失败：${name}不能重复`);
                 }
                 else {
@@ -205,6 +207,15 @@ const sourceMap = (state = {}, action) => {
             }
             else {
                 clone.column = [colData];
+            }
+            return clone;
+        }
+
+        case sourceMapAction.REPLACE_BATCH_SOURCE_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData && colData.length > 0) {
+                clone.column = colData;
             }
             return clone;
         }
@@ -321,7 +332,7 @@ const targetMap = (state = {}, action) => {
             let column;
 
             if (clone.column) {
-                column = clone.column.find(o => o.key === colData.key);
+                column = clone.column.find(o => o.key == colData.key);
                 if (column) {
                     message.error('添加失败：字段名不能重复');
                 }
@@ -333,6 +344,16 @@ const targetMap = (state = {}, action) => {
                 clone.column = [colData];
             }
 
+            return clone;
+        }
+
+        // 替换所有的字段
+        case targetMapAction.REPLACE_BATCH_TARGET_KEYROW: {
+            const colData = action.payload;
+            const clone = cloneDeep(state);
+            if (colData && colData.length > 0) {
+                clone.column = colData;
+            }
             return clone;
         }
 

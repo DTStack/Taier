@@ -15,11 +15,13 @@ import {
     Tooltip,
     InputNumber
 } from "antd";
+import { debounce } from 'lodash';
 
 import Api from "../../../api";
 import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
 import Editor from "widgets/code-editor";
 import { switchPartition } from "../../../views/helpDoc/docs";
+import { DATA_SOURCE } from "../../../comm/const";
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -95,7 +97,7 @@ class OutputOrigin extends Component {
             default:
                 return null;
         }
-    };
+    }
 
     editorParamsChange(a, b, c) {
         const { handleInputChange, index, textChange } = this.props;
@@ -103,7 +105,7 @@ class OutputOrigin extends Component {
         handleInputChange("columnsText", index, b);
         //this.props.editorParamsChange(...arguments);
     }
-
+    debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
     render() {
         const {
             handleInputChange,
@@ -159,8 +161,10 @@ class OutputOrigin extends Component {
                                     .indexOf(input.toLowerCase()) >= 0
                             }
                         >
-                            <Option value="1">MySQL</Option>
-                            <Option value="8">HBase</Option>
+                            <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
+                            <Option value={DATA_SOURCE.HBASE}>HBase</Option>
+                            <Option value={DATA_SOURCE.REDIS}>Redis</Option>
+                            <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
                             {/* <Option value="11">ElasticSearch</Option> */}
                         </Select>
                     )}
@@ -186,26 +190,51 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                <FormItem {...formItemLayout} label="表">
-                    {getFieldDecorator("table", {
-                        rules: [{ required: true, message: "请选择表" }]
-                    })(
-                        <Select
-                            className="right-select"
-                            onChange={v => {
-                                handleInputChange("table", index, v);
-                            }}
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.props.children
-                                    .toLowerCase()
-                                    .indexOf(input.toLowerCase()) >= 0
-                            }
-                        >
-                            {tableOptionTypes}
-                        </Select>
-                    )}
-                </FormItem>
+                {(() => {
+                    switch (panelColumn[index].type) {
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="表"
+                                >
+                                    {getFieldDecorator('table', {
+                                        initialValue: "disabled",
+                                        rules: [
+                                            { required: true, message: '请输入表名', }
+                                        ],
+                                    })(
+                                        <Input onChange={(v) => { handleInputChange("table", index, v.target.value) }} />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return (
+                                <FormItem {...formItemLayout} label="表">
+                                    {getFieldDecorator("table", {
+                                        rules: [{ required: true, message: "请选择表" }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange("table", index, v);
+                                            }}
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {tableOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                    }
+                })()}
                 <FormItem {...formItemLayout} label="映射表">
                     {getFieldDecorator("tableName")(
                         <Input
@@ -224,7 +253,7 @@ class OutputOrigin extends Component {
                     <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                         <label>字段</label>
                     </div>
-                    {panelColumn[index].type == "1" ? (
+                    {panelColumn[index].type == DATA_SOURCE.MYSQL ? (
                         <Col
                             span="18"
                             className="bd"
@@ -330,7 +359,7 @@ class OutputOrigin extends Component {
                                     placeholder="字段 类型, 比如 id int 一行一个字段"
                                     // options={jsonEditorOptions}
                                     value={panelColumn[index].columnsText}
-                                    onChange={this.editorParamsChange.bind(this)}
+                                    onChange={this.debounceEditorChange.bind(this)}
                                     editorRef={(ref) => {
                                         this._editorRef = ref;
                                     }}
@@ -338,46 +367,78 @@ class OutputOrigin extends Component {
                             </Col>
                         )}
                 </Row>
-                {panelColumn[index].type == "1" ? (
-                    <FormItem {...formItemLayout} label="主键">
-                        {getFieldDecorator("primaryKey", {
-                            rules: [{ required: true, message: "请选择主键" }]
-                        })(
-                            <Select
-                                className="right-select"
-                                onChange={v => {
-                                    handleInputChange("primaryKey", index, v);
-                                }}
-                                mode="multiple"
-                                showSearch
-                                filterOption={(input, option) =>
-                                    option.props.children
-                                        .toLowerCase()
-                                        .indexOf(input.toLowerCase()) >= 0
-                                }
-                            >
-                                {primaryKeyOptionTypes}
-                            </Select>
-                        )}
-                    </FormItem>
-                ) : (
-                        <FormItem {...formItemLayout} label="主键">
-                            {getFieldDecorator("hbasePrimaryKey", {
-                                rules: [{ required: true, message: "请输入主键" }]
-                            })(
-                                <Input
-                                    placeholder="请输入主键"
-                                    onChange={e =>
-                                        handleInputChange(
-                                            "hbasePrimaryKey",
-                                            index,
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                            )}
-                        </FormItem>
-                    )}
+                {(() => {
+                    switch (panelColumn[index].type) {
+                        case DATA_SOURCE.MYSQL: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange("primaryKey", index, v);
+                                            }}
+                                            mode="multiple"
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {primaryKeyOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.MONGODB: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "primaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.HBASE: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("hbasePrimaryKey", {
+                                        rules: [{ required: true, message: "请输入主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "hbasePrimaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return null;
+                        }
+                    }
+                })()}
                 <FormItem {...formItemLayout} label="并行度">
                     {getFieldDecorator("parallelism")(
                         <InputNumber
@@ -467,9 +528,7 @@ class OutputOrigin extends Component {
                                 </Tooltip>
                             </span>)}
                     >
-                        {getFieldDecorator("partitionedJoin", {
-                            rules: [{ required: true, }]
-                        })(
+                        {getFieldDecorator("partitionedJoin", {})(
                             <Switch
                                 defaultChecked={false}
                                 onChange={checked =>
@@ -529,7 +588,7 @@ const OutputForm = Form.create({
             primaryKey
         } = props.panelColumn[props.index];
         return {
-            type: { value: type },
+            type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             table: { value: table },
             tableName: { value: tableName },
@@ -583,11 +642,11 @@ export default class OutputPanel extends Component {
     currentInitData = side => {
         const { tabTemplate, panelColumn } = this.state;
         side.map((v, index) => {
-            tabTemplate.push(OutputForm);
+            tabTemplate.push("OutputForm");
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
             this.getTableType(index, v.sourceId);
-            if (v.type == "1") {
+            if (v.type == DATA_SOURCE.MYSQL) {
                 this.getTableColumns(index, v.sourceId, v.table);
             }
         });
@@ -620,7 +679,7 @@ export default class OutputPanel extends Component {
         const tableOptionType = [];
         const tableColumnOptionType = [];
         side.map(v => {
-            tabTemplate.push(OutputForm);
+            tabTemplate.push("OutputForm");
             panelColumn.push(v);
         });
         dispatch(
@@ -653,7 +712,7 @@ export default class OutputPanel extends Component {
                 side.map((v, index) => {
                     this.getTypeOriginData(index, v.type);
                     this.getTableType(index, v.sourceId);
-                    if (v.type == "1") {
+                    if (v.type == DATA_SOURCE.MYSQL) {
                         this.getTableColumns(index, v.sourceId, v.table);
                     }
                 });
@@ -747,7 +806,7 @@ export default class OutputPanel extends Component {
 
     changeInputTabs = (type, index) => {
         const inputData = {
-            type: "1",
+            type: DATA_SOURCE.MYSQL,
             columns: [],
             sourceId: undefined,
             table: undefined,
@@ -771,7 +830,7 @@ export default class OutputPanel extends Component {
             tableColumnOptionType
         } = this.state;
         if (type === "add") {
-            tabTemplate.push(OutputForm);
+            tabTemplate.push("OutputForm");
             panelColumn.push(inputData);
             this.getTypeOriginData("add", inputData.type);
             this.getTableType("add", inputData.table);
@@ -956,7 +1015,13 @@ export default class OutputPanel extends Component {
                 }
             });
             //this.clearCurrentInfo(type,index,value)
-            this.getTableType(index, value, type);
+            if (panelColumn[index].type == DATA_SOURCE.MYSQL
+                ||
+                panelColumn[index].type == DATA_SOURCE.HBASE
+                ||
+                panelColumn[index].type == DATA_SOURCE.MONGODB) {
+                this.getTableType(index, value, type);
+            }
         } else if (type === "table") {
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
@@ -977,7 +1042,7 @@ export default class OutputPanel extends Component {
                 }
             });
             const { sourceId } = panelColumn[index];
-            if (panelColumn[index].type == "1") {
+            if (panelColumn[index].type == DATA_SOURCE.MYSQL) {
                 this.getTableColumns(index, sourceId, value);
             }
         }
@@ -1127,7 +1192,7 @@ export default class OutputPanel extends Component {
                                 className="input-panel"
                             >
                                 <OutputForm
-                                    isShow={(index + 1) == panelActiveKey && isShow}
+                                    isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                     index={index}
                                     sync={sync}
                                     handleInputChange={this.handleInputChange}

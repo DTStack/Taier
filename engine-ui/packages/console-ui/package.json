@@ -1,7 +1,7 @@
 {
   "name": "data-stack-web",
-  "version": "3.1.0-beta",
-  "description": "DTinsight Makes data produce value.",
+  "version": "3.0.0",
+  "description": "Makes data valuable.",
   "main": "src/app.js",
   "dependencies": {
     "@types/lodash": "^4.14.118",

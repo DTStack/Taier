@@ -1,4 +1,5 @@
 @import '../const.scss';
+@import './tablePane.scss';
 .dt-dev-task {
 
     .ant-layout-sider {
@@ -305,7 +306,9 @@
             }
             .tb-info {
                 border-top: 1px solid #dddddd;
-                flex-basis: 100px;
+                flex-basis: 200px;
+                flex-grow: 1;
+                position: relative;
                 .ant-tabs-bar {
                     height: 35px;
                 }
@@ -408,9 +411,8 @@
     .browser-content {
         position: absolute;
         padding-right: 30px;
-        padding-bottom: 40px;
         background: #FAFAFA;
-        bottom: 0;
+        bottom: 40px;
         top: 0;
         width: 100%;
         border-top: 1px solid #dddddd;
@@ -600,7 +602,7 @@
             
         }
         .editor-container {
-            height: 100%;
+            height: calc(100% - 30px);
             border: 1px solid #e9e9e9;
             border-radius: 4px;
             border-top-left-radius: 0;
@@ -843,9 +845,17 @@
     }
     .m-keymapbox {
         position: relative;
+
         .pa {
             position: absolute;
         }
+
+        .col-plugin {
+            padding: 10px;
+            padding-right: 0;
+            cursor: pointer;
+        }
+
         .m-col {
             border-bottom: 1px dotted #ccc;
             background: #eee;
@@ -854,7 +864,6 @@
                 background: #ddd;
             }
             &.footer {
-                cursor: pointer;
                 background: #eee;
             }
             .cell {
@@ -924,6 +933,7 @@
     }
     .m-buttons {
         padding-top: 10px;
+        text-align: center;
         button {
             margin-bottom: 5px;
         }
@@ -1055,4 +1065,13 @@
 }
 .click-icon:hover{
     color:#000;
+}
+.g-tableviewer{
+    position: absolute;
+    top:0px;
+    bottom: 0px;
+    width: 100%;
+    .ant-tabs{
+        overflow: auto;
+    }
 }

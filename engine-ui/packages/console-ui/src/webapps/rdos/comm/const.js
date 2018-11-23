@@ -14,7 +14,7 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    DB2: 14
+    DB2: 14,
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -30,8 +30,7 @@ export const DATA_SOURCE_TEXT = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'Kafka',
-    17: '分析引擎'
+    14: 'DB2',
 }
 
 // 锁类型
@@ -114,7 +113,7 @@ export const PROJECT_ROLE = { // 项目角色
     VISITOR: 4, // 访客
 }
 
-export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
+export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,

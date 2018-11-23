@@ -15,7 +15,7 @@ export const onGetDB = function(params) {
             const database = res.data;
             // 添加Action标记
             database.actionType = workbenchAction.OPEN_DATABASE;
-            database.tabName = `详情${database.name}`;
+            database.tabName = `详情 ${database.name}`;
             dispatch(openTab(database));
         } else {
             notification.error({

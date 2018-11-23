@@ -61,38 +61,10 @@ class EditCluster extends React.Component {
         thirdIptValue: undefined,
         firstOption: "FALSE",
         secondOption: "TRUE",
-        hasFlink: false
+        flinkPrometheus: undefined, //配置Prometheus参数
+        flinkData: undefined, //获取Prometheus参数
     }
-    componentWillMount() {
-        const { location, form } = this.props;
-        const params = location.state || {};
-        if (params.mode == "edit" || params.mode == "view") {
-            Api.getClusterInfo({
-                clusterId: params.cluster.id
-            }).then((res) => {
-                if (res.code == 1) {
-                    const cluster = res.data;
-                    let clusterConf = cluster.clusterConf;
-                    clusterConf = JSON.parse(clusterConf);
-                    const flinkData = clusterConf.flinkConf;
-                    if (flinkData.hasOwnProperty('gatewayHost')) {
-                        // this.setState({
-                        //     hasFlink: true
-                        // },() => {
-                        //     if(this.state.hasFlink) {
-                        //         this.setState({
-                        //             checked: true
-                        //         })
-                        //     }
-                        // })
-                        this.setState({
-                            checked: true
-                        })
-                    }
-                }
-            })
-        }
-    }
+
     componentDidMount() {
         this.getDataList();
         // this.props.getTenantList();
@@ -130,8 +102,16 @@ class EditCluster extends React.Component {
                                 spark_params: extParams.sparkKeys,
                                 learning_params: extParams.learningKeys,
                                 dtyarnshell_params: extParams.dtyarnshellKeys,
-                                extDefaultValue: extParams.default
+                                extDefaultValue: extParams.default,
+                                flinkPrometheus: clusterConf.flinkConf,
+                                flinkData: flinkData
                             })
+                            // 判断是有Prometheus参数
+                            if (flinkData.hasOwnProperty('gatewayHost')) {
+                                this.setState({
+                                    checked: true
+                                })
+                            }
                             form.setFieldsValue({
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
@@ -163,7 +143,7 @@ class EditCluster extends React.Component {
         let notExtKeys_flink = ["typeName", "flinkZkAddress",
             "flinkHighAvailabilityStorageDir", "flinkZkNamespace", "flinkYarnMode","reporterClass",
             "gatewayHost", "gatewayPort", "gatewayJobName", "deleteOnShutdown", "randomJobNameSuffix",
-            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode"];
+            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode", "flinkJarPath", "flinkJobHistory"];
         let notExtKeys_spark = ["typeName", "sparkYarnArchive",
             "sparkSqlProxyPath", "sparkPythonExtLibPath"];
         // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path", 
@@ -714,20 +694,32 @@ class EditCluster extends React.Component {
         return params;
     }
 
+    getPrometheusValue = () => {
+        const { flinkPrometheus, flinkData} = this.state;
+        const { form } = this.props;
+        const { mode } = this.props.location.state || {};
+        if( mode == "edit" && flinkData.hasOwnProperty('gatewayHost')) {
+            form.setFieldsValue({
+                'flinkConf.gatewayHost': flinkPrometheus.gatewayHost,
+                'flinkConf.gatewayPort': flinkPrometheus.gatewayPort,
+                'flinkConf.gatewayJobName': flinkPrometheus.gatewayJobName,
+                'flinkConf.deleteOnShutdown': flinkPrometheus.deleteOnShutdown,
+                'flinkConf.randomJobNameSuffix': flinkPrometheus.randomJobNameSuffix,
+            });
+        }
+    }
+
     changeCheckbox(e) {
-        const {checked, flinkData} = this.state;
-        const { location, form } = this.props;
         this.setState({
             checked: e.target.checked
-        })
-        this.getDataList();
+        },()=>{this.getPrometheusValue()})
     }
 
 
     flinkYarnModes(flinkVersion) {
         const flinkYarnMode14 = ["PER_JOB","LEGACY"];
         const flinkYarnMode15 = ["PER_JOB","LEGACY","NEW"];
-        // console.log(flinkVersion)  // finlk140
+        console.log(flinkVersion)  // finlk140
         if(flinkVersion == "flink140") {
             return flinkYarnMode14.map((item,index) => {
                 return <Option value={item}>{item}</Option>
@@ -736,11 +728,12 @@ class EditCluster extends React.Component {
             return flinkYarnMode15.map((item,index) => {
                 return <Option value={item}>{item}</Option>
             })
-        } else {
-            return flinkYarnMode14.map((item,index) => {
-                return <Option value={item}>{item}</Option>
-            })
-        }
+        } 
+        // else {
+        //     return flinkYarnMode14.map((item,index) => {
+        //         return <Option value={item}>{item}</Option>
+        //     })
+        // }
     }
 
     // 获取每项Input的值
@@ -780,8 +773,10 @@ class EditCluster extends React.Component {
         const isNew= !(mode=="view"||mode=="edit");
         const columns = this.initColumns();
         // 获取flink版本
-        const flinkVersion = getFieldValue("flinkConf.typeName");
+        const flinkVersion = getFieldValue("flinkConf.typeName") || "flink140";
         const {firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption} = this.state;
+        // 获取flinkYarnMode
+        const flinkYarnMode = getFieldValue("flinkConf.flinkYarnMode") || "PER_JOB"
         // const havedata = this.getFieldValue()
         return (
             <div className="contentBox">
@@ -806,8 +801,8 @@ class EditCluster extends React.Component {
                             })(
                                 <Input disabled={!isNew} placeholder="请输入集群标识" style={{ width: "40%" }} />
                             )}
-                            <span style={{ marginLeft: "30px" }}>节点数：{nodeNumber || '--'} </span>
-                            <span style={{ marginLeft: "10px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
+                            <span style={{ marginLeft: "20px" }}>节点数：{nodeNumber || '--'} </span>
+                            <span style={{ marginLeft: "5px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
                         </FormItem>
                         {/* <FormItem
                             label="绑定租户"
@@ -1036,42 +1031,10 @@ class EditCluster extends React.Component {
                             </Row>
                         )}
                     </div>
+
+
                     <p className="config-title">Flink</p>
                     <div className="config-content" style={{ width: "680px" }}>
-                        <FormItem
-                            label="版本选择"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.typeName', {
-                                rules: [{
-                                    required: true,
-                                    message: "请选择flink版本"
-                                }],
-                                initialValue: "flink140"
-                            })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
-                                    <Option value="flink140">1.4</Option>
-                                    <Option value="flink150">1.5</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="clusterMode"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.clusterMode', {
-                                rules: [{
-                                    required: true,
-                                    message: "请选择clusterMode"
-                                }],
-                                initialValue: "yarn"
-                            })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
-                                    <Option value="standalone">standalone</Option>
-                                    <Option value="yarn">yarn</Option>
-                                </Select>
-                            )}
-                        </FormItem>
                         <FormItem
                             label="flinkZkAddress"
                             {...formItemLayout}
@@ -1110,52 +1073,6 @@ class EditCluster extends React.Component {
                                 }]
                             })(
                                 <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkYarnMode"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkYarnMode', {
-                                rules: [{
-                                    required: true,
-                                    message: "flinkYarnMode"
-                                }],
-                                initialValue: "PER_JOB"
-                            })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
-                                    {this.flinkYarnModes(flinkVersion)}
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="jarTmpDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.jarTmpDir', {
-                                initialValue: "../tmp140"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkPluginRoot"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkPluginRoot', {
-                                initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="remotePluginRootDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.remotePluginRootDir', {
-                                initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
                             )}
                         </FormItem>
                         
@@ -1272,8 +1189,122 @@ class EditCluster extends React.Component {
                         )}
                     </div>
 
+                    
+                    <p className="config-title">Flink Engine</p>
+                    <div className="config-content" style={{ width: "680px" }}>
+                        <FormItem
+                            label="版本选择"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.typeName', {
+                                rules: [{
+                                    required: true,
+                                    message: "请选择flink版本"
+                                }],
+                                initialValue: "flink140"
+                            })(
+                                <Select disabled={isView} style={{ width: "100px" }}>
+                                    <Option value="flink140">1.4</Option>
+                                    <Option value="flink150">1.5</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="clusterMode"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.clusterMode', {
+                                rules: [{
+                                    required: true,
+                                    message: "请选择clusterMode"
+                                }],
+                                initialValue: "yarn"
+                            })(
+                                <Select disabled={isView} style={{ width: "100px" }}>
+                                    <Option value="standalone">standalone</Option>
+                                    <Option value="yarn">yarn</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="flinkYarnMode"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkYarnMode', {
+                                rules: [{
+                                    required: true,
+                                    message: "flinkYarnMode"
+                                }],
+                                initialValue: "PER_JOB"
+                            })(
+                                <Select disabled={isView} style={{ width: "100px" }}>
+                                    {this.flinkYarnModes(flinkVersion)}
+                                </Select>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="jarTmpDir"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.jarTmpDir', {
+                                initialValue: "../tmp140"
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="flinkPluginRoot"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkPluginRoot', {
+                                initialValue: "/opt/dtstack/flinkplugin"
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="remotePluginRootDir"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.remotePluginRootDir', {
+                                initialValue: "/opt/dtstack/flinkplugin"
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
 
+                        {flinkYarnMode == "PER_JOB" ? <FormItem
+                                label="flinkJarPath"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.flinkJarPath', {
+                                    rules: [{
+                                        required: true,
+                                        message: "请输入flinkJarPath"
+                                    }],
+                                    // initialValue: "/opt/dtstack/flinkplugin"
+                                })(
+                                    <Input disabled={isView} />
+                                )}
+                            </FormItem> : null } 
 
+                        <FormItem
+                            label="flinkJobHistory"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkJobHistory', {
+                                rules: [{
+                                    required: true,
+                                    message: "请输入flinkJobHistory"
+                                }],
+                                // initialValue: "/opt/dtstack/flinkplugin"
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                    </div>
+
+                    
                     {/* Learning */}
                     <p className="config-title">Learning</p>
                     <div className="config-content" style={{ width: "680px"}}>

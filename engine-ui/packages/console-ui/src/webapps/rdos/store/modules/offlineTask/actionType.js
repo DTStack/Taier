@@ -123,6 +123,7 @@ export const sourceMapAction = mc([
     'ADD_SOURCE_KEYROW',
     'REMOVE_SOURCE_KEYROW',
     'ADD_BATCH_SOURCE_KEYROW',
+    'REPLACE_BATCH_SOURCE_KEYROW',
     'DATA_SOURCE_ADD',
     'DATA_SOURCE_DELETE',
 ], {prefix: 'offline/dataSync/sourceMap/'});
@@ -133,8 +134,10 @@ export const targetMapAction = mc([
     'TARGET_TABLE_COLUMN_CHANGE',
     'ADD_TARGET_KEYROW',
     'ADD_BATCH_TARGET_KEYROW',
+    'REPLACE_BATCH_TARGET_KEYROW',
     'EDIT_TARGET_KEYROW',
     'REMOVE_TARGET_KEYROW',
+    'COPY_TARGET_ROWS_TO_SOURCE',
 ], {prefix: 'offline/dataSync/targetMap/'});
 
 export const keyMapAction = mc([

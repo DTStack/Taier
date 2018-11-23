@@ -11,6 +11,7 @@ src/app/.idea/
 .history
 npm-error.log
 npm-debug.log
+debug.log
 yarn-error.log
 build/config
 package-lock.json

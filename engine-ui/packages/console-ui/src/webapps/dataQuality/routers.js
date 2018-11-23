@@ -61,5 +61,6 @@ export default (
             <Route path="dataCheck/report/:verifyRecordId" component={ DataCheckReport }></Route>
             <Route path="dataSource" component={ DataSourceIndex }></Route>
         </Route>
+        <Route path="/*" component={NotFund} />
     </Route>
 )

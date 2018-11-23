@@ -9,6 +9,7 @@ import {
 
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
+import Resize from 'widgets/resize';
 
 import { 
     keyMapActions 
@@ -21,7 +22,7 @@ import {
     DATA_SOURCE,
 } from '../../../../../comm/const';
 
-import { isHdfsType, isRDB } from '../../../../../comm';
+import { isHdfsType, isFtpType, isRDB } from '../../../../../comm';
 
 import KeyMapModal from './keymapModal'
 import BatchModal from './batchModal'
@@ -119,30 +120,19 @@ class Keymap extends React.Component{
          * 开始画
          */
         this.drawSvg();
-        this.listenResize();
         this.loadColumnFamily();
         this.initData();
+    }
+
+    componentDidUpdate() {
+        this.$canvas.selectAll('.dl, .dr, .lines').remove();
+        this.drawSvg();
     }
 
     resize = () => {
         this.setState({
             W: this.getCanvasW()
         })
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.resize, false);
-    }
-
-    listenResize() {
-        if(window.addEventListener) {
-            window.addEventListener('resize', this.resize, false);
-        }
-    }
-
-    componentDidUpdate() {
-        this.$canvas.selectAll('.dl, .dr, .lines').remove();
-        this.drawSvg();
     }
 
     drawSvg() {
@@ -391,7 +381,7 @@ class Keymap extends React.Component{
 
     initData = () => {
         const { sourceMap, sourceSrcType, addSourceKeyRow } = this.props;
-        if (sourceSrcType === DATA_SOURCE.HBASE) {
+        if (sourceSrcType === DATA_SOURCE.HBASE && sourceMap) {
             if (!sourceMap.column || sourceMap.column.length === 0) {
                 addSourceKeyRow(DefaultRowKey)
             }
@@ -412,7 +402,7 @@ class Keymap extends React.Component{
                 }
             })
         }
-        if (sourceSrcType === DATA_SOURCE.HBASE) {
+        if (sourceSrcType === DATA_SOURCE.HBASE && sourceMap) {
             getColumnFamily({
                 sourceId: sourceMap.sourceId,
                 tableName: sourceMap.type.table,
@@ -423,7 +413,7 @@ class Keymap extends React.Component{
             })
         }
 
-        if (targetSrcType === DATA_SOURCE.HBASE) {
+        if (targetSrcType === DATA_SOURCE.HBASE && targetMap) {
             getColumnFamily({
                 sourceId: targetMap.sourceId,
                 tableName: targetMap.type.table,
@@ -477,12 +467,14 @@ class Keymap extends React.Component{
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.key) : '列名/行健'
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健'
                     const cf = col ? col.cf : '列族'
                     return <div className="four-cells">
-                        <div className="cell" title={cf}>{ cf }</div>
+                        <div className="cell" title={cf}>{ cf || '-' }</div>
                         <div className="cell" title={name}>{ name }</div>
-                        <div className="cell">{ col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell">
+                            {col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'}
+                        </div>
                         <div className="cell">
                             { 
                                 col ? <div>  
@@ -526,12 +518,12 @@ class Keymap extends React.Component{
                     return <div>
                         <div className="cell" title={name}>
                             {
-                                col ? scrollText(col.key) : '字段名称'
+                                col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                             }
                         </div>
                         <div className="cell">
                             {
-                                col ? col.type.toUpperCase() : '类型'
+                                col ? (col.value ? '常量' : col.type.toUpperCase()) : '类型'
                             }
                         </div>
                     </div>
@@ -541,65 +533,55 @@ class Keymap extends React.Component{
 
         const renderTableFooter = (sourceType) => {
             if (!readonly) {
-                let footerContent = ''
-                const btnAddConst = <span onClick={
+                let footerContent = '';
+                const btnAddConst = (<span className="col-plugin" onClick={
                         () => {this.setState({ visibleConst: true })
                     }}>
                         +添加常量
-                    </span>
+                    </span>);
                 switch(sourceType) {
-                    case DATA_SOURCE.MAXCOMPUTE:
-                    case DATA_SOURCE.HIVE:
-                        footerContent = <div>
-                            { btnAddConst }
-                        </div>
-                        break;
                     case DATA_SOURCE.HBASE:
-                        footerContent = <div>
-                                <span onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
+                        footerContent = <span>
+                                <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
                                     +添加字段
                                 </span>
                                 &nbsp;
-                                <span onClick={this.importSourceFields}>
-                                    批量添加
+                                <span className="col-plugin" onClick={this.importSourceFields}>
+                                    +文本模式
                                 </span> 
-                            </div>;
+                            </span>;
                         break;
                     case DATA_SOURCE.HDFS: {
                         footerContent = sourceFileType !== 'orc' ? 
-                        <div>
-                            <span onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
+                        <span>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            { btnAddConst }
-                            &nbsp;
-                            <span onClick={this.importSourceFields}>
-                                批量添加
+                            <span className="col-plugin" onClick={this.importSourceFields}>
+                                +文本模式
                             </span>
-                        </div> : null;
+                        </span> : null;
                         break;
                     }
                     case DATA_SOURCE.FTP: {
-                        footerContent = <div>
-                            <span onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
+                        footerContent = <span>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            { btnAddConst }
-                            &nbsp;
-                            <span onClick={this.importSourceFields}>
-                                批量添加
+                            <span className="col-plugin" onClick={this.importSourceFields}>
+                                +文本模式
                             </span>
-                        </div>;
+                        </span>;
                         break;
                     }
                     default: {
-                        footerContent = null; break;
+                        footerContent = null ; break;
                     }
                 }
                 return (
-                    footerContent?<div className="m-col footer pa" 
+                    <div className="m-col pa" 
                         style={{
                             left: padding,
                             top: padding + (h * (sourceCol.length + 1)),
@@ -608,7 +590,8 @@ class Keymap extends React.Component{
                         }}
                     >
                         { footerContent }
-                    </div>:null
+                        { btnAddConst }
+                    </div>
                 )
             }
             return ''
@@ -639,9 +622,9 @@ class Keymap extends React.Component{
     renderTarget() {
         const { w, h, W, H, padding } = this.state;
         const { 
-            targetCol, sourceCol, readonly, targetMap,
-            targetFileType, removeTargetKeyRow,
             sourceSrcType, targetSrcType, 
+            targetFileType, removeTargetKeyRow,
+            targetCol, sourceCol, readonly, targetMap,
         } = this.props;
 
         const colStyle = {
@@ -708,14 +691,14 @@ class Keymap extends React.Component{
                 switch(targetType) {
                     case DATA_SOURCE.HBASE:
                         footerContent = <div>
-                            <span onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
+                            <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
                                 +添加字段
                             </span>
                             &nbsp;
-                            <span onClick={this.importFields}>
-                                批量添加
+                            <span className="col-plugin" onClick={this.importFields}>
+                                +文本模式
                             </span>
-                            <div className="m-col">
+                            <div className="m-col" style={{ padding: '0 10px' }}>
                                 rowkey: <Input 
                                         style={{ width: '160px' }}
                                         defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
@@ -729,24 +712,24 @@ class Keymap extends React.Component{
                         break;
                     case DATA_SOURCE.HDFS: {
                         footerContent = <div>
-                            <span onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            <span onClick={this.importFields}>
-                                批量添加
+                            <span className="col-plugin" onClick={this.importFields}>
+                                +文本模式
                             </span>
                         </div>;
                         break;
                     }
                     case DATA_SOURCE.FTP: {
                         footerContent = <div>
-                            <span onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
                             </span>
                             &nbsp;
-                            <span onClick={this.importFields}>
-                                批量添加
+                            <span className="col-plugin" onClick={this.importFields}>
+                                +文本模式
                             </span>
                         </div>;
                         break;
@@ -837,19 +820,20 @@ class Keymap extends React.Component{
             sourceColumnFamily, targetColumnFamily
         } = this.state;
         const {
-            sourceSrcType, targetSrcType,
+            sourceSrcType, targetSrcType, sourceCol, targetCol,
         } = this.props;
 
-        let sPlaceholder, sDesc, tPlaceholder, tDesc
+        
+        let sPlaceholder, sDesc, tPlaceholder, tDesc;
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
-                sPlaceholder = '0: STRING, 1: INTEGER,...'
+                sPlaceholder = '0: STRING,\n1: INTEGER,...'
                 sDesc = 'index: type, index: type'
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                sPlaceholder = 'cf1: field1: STRING, cf1: field2: INTEGER,...'
+                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
                 sDesc = 'columnFamily: fieldName: type,'
                 break;
             }
@@ -858,13 +842,13 @@ class Keymap extends React.Component{
         switch (targetSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
-                tPlaceholder = 'field1: STRING, field2: INTEGER,...'
+                tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
                 tDesc = 'fieldName: type, fieldName: type'
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                tPlaceholder = sPlaceholder
-                tDesc = sDesc
+                tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+                tDesc = 'columnFamily: fieldName: type,'
                 break;
             }
         }
@@ -875,6 +859,8 @@ class Keymap extends React.Component{
                 title="批量添加源表字段"
                 desc={sDesc}
                 columnFamily={sourceColumnFamily}
+                sourceType={sourceSrcType}
+                columns={sourceCol}
                 placeholder={sPlaceholder}
                 visible={batchSourceModal.visible}
                 value={batchSourceModal.batchText}
@@ -887,7 +873,9 @@ class Keymap extends React.Component{
                 title="批量添加目标字段"
                 desc={tDesc}
                 columnFamily={targetColumnFamily}
+                columns={targetCol}
                 placeholder={tPlaceholder}
+                sourceType={targetSrcType}
                 visible={batchModal.visible}
                 value={batchModal.batchText}
                 onOk={this.doBatchImport}
@@ -903,90 +891,100 @@ class Keymap extends React.Component{
         } = this.state;
 
         const {
-            targetCol, sourceCol, keymap, 
             sourceSrcType, 
-            navtoStep, targetSrcType, 
+            targetSrcType, 
             addSourceKeyRow,
+            navtoStep, targetCol, sourceCol,
         } = this.props;
 
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
 
-        return <div>
-            <p style={{ fontSize: 12, color: '#ccc', marginTop: -20 }}>
-                您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
-            </p>
-            <Row>
-                <Col span="20">
-                    <div className="m-keymapbox"
-                        ref={ el => this.container = el }
-                        style={{
-                            width: W,
-                            minHeight: H + 20
-                        }}
-                    >
-                        { this.renderSource() }
-                        { this.renderTarget() }
-                        <svg
-                            ref={ el => this.canvas = el }
-                            width={ W > w*2 ? W - w*2 : 0 }
-                            height={ H }
-                            className="pa m-keymapcanvas"
-                            style={{ left: w , top: padding }}
+        return <Resize onResize={this.resize}>
+            <div style={{ margin: '0 20' }}>
+                <p style={{ fontSize: 12, color: '#ccc', marginTop: -20 }}>
+                    您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
+                </p>
+                <Row>
+                    <Col span="21">
+                        <div className="m-keymapbox"
+                            ref={ el => this.container = el }
+                            style={{
+                                width: W,
+                                minHeight: H + 20
+                            }}
                         >
-                            <defs>
-                                <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
-                                    <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
-                                </marker>
-                            </defs>
-                            <g>
-                                <line id="activeLine"
-                                    x1="-10" y1="-10" x2="-10" y2="-10"
-                                    stroke="#2491F7"
-                                    strokeWidth="2"
-                                    markerEnd="url(#arrow)"
-                                />
-                            </g>
-                        </svg>
-                    </div>
-                </Col>
-                <Col span="4">
-                    {!this.props.readonly ? <div className="m-buttons">
-                        <Button
-                            type={ this.state.rowMap ? 'primary' : 'default' }
-                            onClick={ this.setRowMap.bind(this) }
-                        >{ this.state.rowMap ? '取消同行映射' : '同行映射'}</Button>
-                        <br/>
-                        <Button
-                            disabled={ isHdfsType(sourceSrcType)}
-                            type={ this.state.nameMap ? 'primary' : 'default' }
-                            onClick={ this.setNameMap.bind(this) }
-                        >{ this.state.nameMap ? '取消同名映射' : '同名映射' }
-                        </Button>
-                        <br/>
-                        {
-                            isHdfsType(targetSrcType) ? 
-                            <Button 
-                                onClick={() => {this.copySourceCols(sourceCol)}}>
-                                拷贝源字段
+                            { this.renderSource() }
+                            { this.renderTarget() }
+                            <svg
+                                ref={ el => this.canvas = el }
+                                width={ W > w*2 ? W - w*2 : 0 }
+                                height={ H }
+                                className="pa m-keymapcanvas"
+                                style={{ left: w , top: padding }}
+                            >
+                                <defs>
+                                    <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
+                                        <path d="M2,3 L9,6 L2,9 L2,6 L2,3" style={{ fill: '#2491F7' }}></path>
+                                    </marker>
+                                </defs>
+                                <g>
+                                    <line id="activeLine"
+                                        x1="-10" y1="-10" x2="-10" y2="-10"
+                                        stroke="#2491F7"
+                                        strokeWidth="2"
+                                        markerEnd="url(#arrow)"
+                                    />
+                                </g>
+                            </svg>
+                        </div>
+                    </Col>
+                    <Col span="3">
+                        {!this.props.readonly ? <div className="m-buttons">
+                            <Button
+                                type={ this.state.rowMap ? 'primary' : 'default' }
+                                onClick={ this.setRowMap.bind(this) }
+                            >{ this.state.rowMap ? '取消同行映射' : '同行映射'}</Button>
+                            <br/>
+                            <Button
+                                disabled={ isHdfsType(sourceSrcType) || isFtpType(sourceSrcType)}
+                                type={ this.state.nameMap ? 'primary' : 'default' }
+                                onClick={ this.setNameMap.bind(this) }
+                            >{ this.state.nameMap ? '取消同名映射' : '同名映射' }
                             </Button>
-                            : ''
+                            <br/>
+                            {
+                                isHdfsType(targetSrcType) || isFtpType(targetSrcType) ? 
+                                <Button 
+                                    onClick={() => {this.copySourceCols(sourceCol)}}>
+                                    拷贝源字段
+                                </Button>
+                                : ''
+                            }
+                            {
+                                isHdfsType(sourceSrcType) || isFtpType(sourceSrcType) ? 
+                                <Button 
+                                    onClick={() => {this.copyTargetCols(targetCol)}}>
+                                    拷贝目标字段
+                                </Button>
+                                : ''
+                            }
+                        </div> : null
                         }
-                    </div> : null
-                    }
-                </Col>
-            </Row>
-            { this.renderKeyModal() }
-            { this.renderBatchModal() }
-            <ConstModal
-                visible={visibleConst}
-                onOk={addSourceKeyRow}
-                onCancel={() => { this.setState({ visibleConst: false })}}
-            />
-            {!this.props.readonly && <div className="steps-action" style={{ marginTop: 80 }}>
-                <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
-                <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
-            </div>}
-        </div>
+                    </Col>
+                </Row>
+                { this.renderKeyModal() }
+                { this.renderBatchModal() }
+                <ConstModal
+                    visible={visibleConst}
+                    onOk={addSourceKeyRow}
+                    onCancel={() => { this.setState({ visibleConst: false })}}
+                />
+                {!this.props.readonly && <div className="steps-action" style={{ marginTop: 80 }}>
+                    <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
+                    <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
+                </div>}
+            </div>
+        </Resize>
     }
 
     prev(cb) {
@@ -1062,29 +1060,61 @@ class Keymap extends React.Component{
         }
     }
 
+    /**
+     * 拷贝源表字段
+     */
     copySourceCols = (sourceKeyRow) => {
-        const { addBatchTargetKeyRow } = this.props
-        const serverParams={}
-        sourceKeyRow.forEach((item)=>{
-            serverParams[item.key||item.index]=item.type
-        })
-        Api.convertToHiveColumns({
-            columns:serverParams
-        }).then(
-            (res)=>{
-                if(res.code==1){
-                    const params=[];
-                    Object.getOwnPropertyNames(res.data).forEach((key)=>{
-                        params.push({
-                            key:key,
-                            type:res.data[key]
-                        })
-                    });
-                    addBatchTargetKeyRow(params)
+        const { 
+            targetSrcType, 
+            addBatchTargetKeyRow
+        } = this.props;
+
+        if (isHdfsType(targetSrcType)) {
+            const serverParams = {};
+            sourceKeyRow.forEach((item)=>{
+                serverParams[item.key || item.index] = item.type
+            })
+            Api.convertToHiveColumns({
+                columns: serverParams
+            }).then(
+                (res) => {
+                    if( res.code == 1 ) {
+                        const params=[];
+                        Object.getOwnPropertyNames(res.data).forEach((key)=>{
+                            params.push({
+                                key: key,
+                                type: res.data[key]
+                            })
+                        });
+                        addBatchTargetKeyRow(params)
+                    }
                 }
-            }
-        )
-        
+            )
+        } else if (sourceKeyRow && sourceKeyRow.length > 0) {
+            const params = sourceKeyRow.map(item => {
+                return {
+                    key: item.key || item.index,
+                    type: 'STRING',
+                }
+            })
+            addBatchTargetKeyRow(params)
+        }
+    }
+
+    /**
+     * 拷贝目标表字段
+     */
+    copyTargetCols = (targetKeyRow) => {
+        const { addBatchSourceKeyRow } = this.props;
+        if (targetKeyRow && targetKeyRow.length > 0) {
+            const params = targetKeyRow.map((item, index) => {
+                return {
+                    index,
+                    type: 'STRING',
+                }
+            })
+            addBatchSourceKeyRow(params);
+        }
     }
 
     batchTextChange = (e) => {
@@ -1110,7 +1140,10 @@ class Keymap extends React.Component{
     doBatchImport = () => {
         const { batchModal } = this.state
         const { batchText } = batchModal
-        const { addBatchTargetKeyRow, targetSrcType } = this.props
+        const { 
+            addBatchTargetKeyRow, targetSrcType,
+            replaceBatchTargetKeyRow
+        } = this.props
 
         const str = utils.trim(batchText)
         const arr = str.split(',')
@@ -1160,7 +1193,7 @@ class Keymap extends React.Component{
                 break;
             }
         }
-        addBatchTargetKeyRow(params)
+        replaceBatchTargetKeyRow(params);
         this.hideBatchImportModal()
     }
 
@@ -1202,22 +1235,30 @@ class Keymap extends React.Component{
     doBatchAddSourceFields = () => {
         const { batchSourceModal } = this.state
         const { batchText } = batchSourceModal
-        const { addBatchSourceKeyRow, sourceSrcType, sourceCol } = this.props
+        const { 
+            sourceSrcType, 
+            replaceBatchSourceKeyRow 
+        } = this.props
 
-        const str = utils.trim(batchText)
-        const arr = batchText.split(',')
+        if (!batchText) {
+            this.hideBatchSourceModal();
+            return;
+        }
 
+        const arr = batchText.split(',');
         const params = []
 
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
                 for (let i = 0; i < arr.length; i++ ) {
-                    const item = arr[i]
+                    const item = arr[i].replace(/\n/, '');
                     if (!item) continue;
-                    const map = item.split(':')
-                    const index = parseInt(utils.trim(map[0]), 10)
-                    const type = utils.trim(map[1]);
+                    const map = item.split(':');
+                    console.log('map:', map);
+                    if (map.length < 1) { break; };
+                    const index = parseInt(utils.trim(map[0]), 10);
+                    const type = map[1] ? utils.trim(map[1]).toUpperCase(): null;
                     if (!isNaN(index) && isNumber(index)) {
                         if (hdfsFieldTypes.includes(type) ) {
                             if (!params.find(pa => pa.index === index )) {
@@ -1227,11 +1268,11 @@ class Keymap extends React.Component{
                                 })
                             }
                         } else {
-                            message.error(`字段${index}的数据类型错误！`)
+                            message.error(`索引 ${index} 的数据类型错误！`)
                             return
                         }
                     } else {
-                        message.error(`索引名称应该为整数数字！`)
+                        message.error(`索引名称 ${index} 应该为整数数字！`)
                         return
                     }
                 }
@@ -1239,16 +1280,15 @@ class Keymap extends React.Component{
             }
             case DATA_SOURCE.HBASE: {
 
-                params.push(DefaultRowKey) // 默认插入行健
-
                 for (let i = 0; i < arr.length; i++) {
-                    const item = arr[i]
+                    const item = arr[i].replace(/\n/, '');
                     if (!item) continue;
-                    const map = item.split(':')
 
-                    const cf = utils.trim(map[0])
-                    const name = utils.trim(map[1])
-                    const type = utils.trim(map[2])
+                    const map = item.split(':');
+                    if (map.length < 2) { break; };
+                    const cf = utils.trim(map[0]);
+                    const name = utils.trim(map[1]);
+                    const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
                     if (hdfsFieldTypes.includes(type)) {
                         params.push({
                             cf: cf,
@@ -1263,8 +1303,8 @@ class Keymap extends React.Component{
                 break;
             }
         }
-        addBatchSourceKeyRow(params)
-        this.hideBatchSourceModal()
+        replaceBatchSourceKeyRow(params);
+        this.hideBatchSourceModal();
     }
 
     /**
@@ -1424,14 +1464,11 @@ class Keymap extends React.Component{
             },
         });
     }
-
 }
 
 const mapState = state => {
     const { dataSync } = state.offlineTask;
     return {
-        sourceMap: dataSync.sourceMap,
-        targetMap: dataSync.targetMap,
         targetCol: dataSync.targetMap.column || [],
         targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type,  // 目标数据源类型
         targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type.fileType,

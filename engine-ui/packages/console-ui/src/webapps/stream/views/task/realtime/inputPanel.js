@@ -170,11 +170,10 @@ class InputOrigin extends Component {
                             <Editor
                                 style={{ minHeight: 202 }}
                                 className="bd"
-                                key="params-editor"
                                 sync={sync}
                                 placeholder="字段 类型, 比如 id int 一行一个字段"
                                 value={panelColumn[index].columnsText}
-                                onChange={this.editorParamsChange.bind(this)}
+                                onChange={this.debounceEditorChange.bind(this)}
                                 editorRef={(ref) => {
                                     this._editorRef = ref;
                                 }}
@@ -308,7 +307,7 @@ export default class InputPanel extends Component {
     currentInitData = (source) => {
         const { tabTemplate, panelColumn } = this.state;
         source.map((v, index) => {
-            tabTemplate.push(InputForm);
+            tabTemplate.push("InputForm");
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
             this.parseColumnsText(index, v.columnsText);
@@ -430,7 +429,7 @@ export default class InputPanel extends Component {
         const originOptionType = [];
         const topicOptionType = [];
         source.map(v => {
-            tabTemplate.push(InputForm);
+            tabTemplate.push("InputForm");
             panelColumn.push(v);
         })
         dispatch(BrowserAction.setInputData({
@@ -462,11 +461,6 @@ export default class InputPanel extends Component {
                 sync: true
             })
         }
-        if (!this.props.isShow && nextProps.isShow) {
-            if(this._editorRef){
-                this._editorRef.refresh();
-            }
-        }
     }
     changeInputTabs = (type, index) => {
         const inputData = {
@@ -486,7 +480,7 @@ export default class InputPanel extends Component {
 
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType, topicOptionType } = this.state;
         if (type === "add") {
-            tabTemplate.push(InputForm);
+            tabTemplate.push("InputForm");
             panelColumn.push(inputData);
             this.getTypeOriginData("add", inputData.type);
             this.getTopicType("add", inputData.topic)
@@ -706,9 +700,9 @@ export default class InputPanel extends Component {
                             return (
                                 <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
                                     <InputForm
-                                        isShow={(index + 1) == panelActiveKey && isShow}
+                                        isShow={panelActiveKey.indexOf(index + 1+'')>-1 && isShow}
                                         sync={sync}
-                                        index={index} key={index + 1}
+                                        index={index}
                                         handleInputChange={this.handleInputChange}
                                         panelColumn={panelColumn}
                                         onRef={this.recordForm}

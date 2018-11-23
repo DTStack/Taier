@@ -45,6 +45,14 @@ class Header extends Component {
     }
 
     handleClick = e => {
+        /**
+         * 数据地图特殊处理,当在项目里面点击数据地图，则打开新窗口
+         */
+        const isDataMap = e.key == "data-manage";
+        const isIndex = this.isIndex();
+        if (!isIndex && isDataMap) {
+            return;
+        }
         this.setState({ current: e.key });
     };
 
@@ -255,13 +263,18 @@ class Header extends Component {
             }
         }
     }
+    isIndex() {
+        const { current } = this.state;
+        const isIndex = current == "overview" || current == "data-manage";
+        return isIndex;
+    }
     render() {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
         let pathname = router.location.pathname;
 
 
-        const isIndex = current == "overview" || current == "data-manage";
+        const isIndex = this.isIndex();
         const display = !isIndex ? "inline-block" : "none";
 
         const pid = project && project.id ? project.id : "";
@@ -344,7 +357,7 @@ class Header extends Component {
                             className="my-menu-item"
                             key="data-manage"
                         >
-                            <a href={`${basePath}/data-manage/assets`}>
+                            <a href={`${basePath}/data-manage/assets`} target={isIndex ? "_self" : "_blank"}>
                                 数据地图
                             </a>
                         </Menu.Item>

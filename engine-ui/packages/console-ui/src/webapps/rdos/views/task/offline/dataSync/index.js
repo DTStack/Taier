@@ -15,7 +15,10 @@ import {
     dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
-import { PROJECT_TYPE } from "../../../../comm/const"
+import {
+    workbenchActions
+} from '../../../../store/modules/offlineTask/offlineAction';
+
 import { isProjectCouldEdit } from "../../../../comm"
 
 const Step = Steps.Step;
@@ -37,6 +40,25 @@ class DataSync extends React.Component {
         this.getJobData({ taskId: id });
         this.props.setTabId(id);
         this.props.getDataSource();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        // 如果列发生变化，则检测更新系统变量
+        const oldSource = this.props.sourceMap;
+        const oldTarget = this.props.targetMap;
+        const { sourceMap, targetMap } = nextProps;
+        if (
+            (sourceMap && oldSource.type !== sourceMap.type) || // source type update
+            (targetMap && oldTarget.type !== targetMap.type) || // target type update
+            (sourceMap && oldSource.column !== sourceMap.column) && // source columns update
+            this.state.currentStep !== 4
+        ) {
+            this.props.updateDataSyncVariables(
+                nextProps.sourceMap,
+                nextProps.targetMap,
+                nextProps.taskCustomParams
+            )
+        }
     }
 
     getJobData = (params) => {
@@ -179,7 +201,10 @@ class DataSync extends React.Component {
     }
     render() {
         const { currentStep, loading } = this.state;
-        const { readWriteLockVO, notSynced, user, project } = this.props;
+        const { 
+            readWriteLockVO, notSynced, user, project,
+            sourceMap, targetMap,
+        } = this.props;
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
         const couldEdit = isProjectCouldEdit(project, user);
 
@@ -201,6 +226,8 @@ class DataSync extends React.Component {
             {
                 title: '字段映射', content: <DataSyncKeymap
                     currentStep={currentStep}
+                    sourceMap={sourceMap}
+                    targetMap={targetMap}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
@@ -234,17 +261,22 @@ class DataSync extends React.Component {
 }
 
 const mapState = (state) => {
-    const currentTab = state.offlineTask.workbench.currentTab
+    const { workbench, dataSync } = state.offlineTask;
     return {
-        dataSync: state.offlineTask.dataSync,
-        tabs: state.offlineTask.workbench.tabs,
-        currentTab: currentTab,
         user: state.user,
-        project: state.project
+        project: state.project,
+        tabs: workbench.tabs,
+        dataSync: dataSync,
+        sourceMap: dataSync.sourceMap,
+        targetMap: dataSync.targetMap,
+        currentTab: workbench.currentTab,
+        taskCustomParams: workbench.taskCustomParams,
     }
 };
 
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch, ownProps) => {
+    const wbActions = new workbenchActions(dispatch, ownProps);
+
     return {
         getDataSource: () => {
             ajax.getOfflineDataSource()
@@ -315,6 +347,9 @@ const mapDispatch = dispatch => {
                         })
                     }
                 })
+        },
+        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
         },
     }
 }

@@ -1,0 +1,92 @@
+.tablePane-box{
+    padding: 12px;
+    color:#333;
+    .tablePane-loading{
+        text-align: center;
+        margin-top: 20px;
+    }
+    .tablePane-header{
+        font-size: 13px;
+        line-height: 18px;
+        font-weight: bold;
+    }
+    .tablePane-tables-box{
+        margin-top:9px;
+        .tablePane-search{
+            width:100%;
+        }
+        .tablePane-notables{
+            font-style: italic;
+            color: #666;
+            font-size: 12px;
+        }
+        .tablePane-table-box{
+            margin-top: 12px;
+            margin-bottom: 4px;
+            .tablePane-table-title{
+                background: #f7f7f7;
+                padding: 5px 5px 5px 0px;
+                .tablePnae-table-title-icon{
+                    height: 15px;
+                    vertical-align: middle;
+                    margin-left: 2px;
+                    margin-right: 2px;
+                    cursor: pointer;
+                }
+                .tablePnae-table-title-name{
+                    display: inline-block;
+                    line-height: 17px;
+                    vertical-align: middle;
+                }
+            }
+            .tablePane-table-column-box{
+                margin-top: 4px;
+                .tablePane-table-column{
+                    line-height: 17px;
+                    padding: 4px 4px 4px 20px;
+                    .table-column-name{
+                        width:90px;
+                        padding-right: 5px;
+                        display: inline-block;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        vertical-align: middle;
+                    }
+                    .table-column-type{
+                        color:#999;
+                        display: inline-block;
+                        vertical-align: middle;
+                    }
+                }
+            }
+        }
+    }
+}
+.extraPane-table-detail-box{
+    width:370px;
+    color: #333;
+    header{
+        overflow: hidden;
+        .close-icon{
+            float: right;
+            font-size: 18px;
+            color: #9EABB2;
+            cursor: pointer;
+            &:hover{
+                color:#dcdcdc;
+            }
+        }
+        .table-name{
+            font-size: 14px;
+            line-height: 20px;
+            font-weight: 500;
+        }
+    }
+    .table-detail-column-box{
+        .table-detail-search{
+            width: 100%;
+            margin-bottom: 12px;
+        }
+    }
+    
+}
