@@ -85,6 +85,7 @@ const getTaskBaseData = (task) => {
         preSave: task.preSave,
         submitStatus: task.submitStatus,
         version: task.version,
+        readWriteLockVO: task.readWriteLockVO,
     }
 }
 

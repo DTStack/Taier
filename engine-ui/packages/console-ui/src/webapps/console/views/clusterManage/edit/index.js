@@ -1075,9 +1075,6 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
                             )}
                         </FormItem>
-<<<<<<< HEAD
-                        
-=======
                         <FormItem
                             label="flinkYarnMode"
                             {...formItemLayout}
@@ -1126,7 +1123,6 @@ class EditCluster extends React.Component {
                         </FormItem>
                        
 
->>>>>>> 5e6e6e864866d0f8fb2c165b0e0cd0fdc97dd5cc
                         
                         <div className="checkboxStyle">
                             <Checkbox
