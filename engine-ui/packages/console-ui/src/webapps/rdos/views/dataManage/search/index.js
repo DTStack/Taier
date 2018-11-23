@@ -277,8 +277,8 @@ class SearchTable extends Component {
                             return <span>授权成功</span>
                         case 2:
                             return <span>等待授权</span>
-                        // default: return '-';
-                        default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
+                        default: return '-';
+                        // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
                     }
                 }
             }

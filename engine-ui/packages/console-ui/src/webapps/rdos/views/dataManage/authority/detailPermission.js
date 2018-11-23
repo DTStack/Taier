@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, Checkbox, Pagination } from 'antd'
+import { Form, Input, Modal, Button, Checkbox, Pagination } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
 const FormItem = Form.Item;
 
 const CheckboxGroup = Checkbox.Group;
-const pageSize = 1;
+const pageSize =20;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
@@ -23,63 +23,30 @@ class DetailPermission extends Component {
     state = {
         currentPage: 1,
         arr: [],
-        permissionParams: {
-            "fullDdls":[
-                {
-                    "label":"insert into",
-                    "value":"1",
-                    "status":true
-                },
-                {
-                    "label":"inser",
-                    "value":"2",
-                    "status":false
-                }
-            ],
-            "fullDmls":[
-                {
-                    "label":"insert into",
-                    "value":"1",
-                    "status":true
-                },
-                {
-                    "label":"inser",
-                    "value":"2",
-                    "status":false
-                }
-            ],
-            "fullColumns":[
-                {
-                    "name":"aaa",
-                    "status":true
-                },
-                {
-                    "name":"bbb",
-                    "status":false
-                }
-            ]
-        },
+        // permissionParams: undefined,
     }
 
     componentWillReceiveProps(nextProps) {
-        // this.setState({
-        //     columnNames: nextProps.columnNames,
-        //     arr: nextProps.columnNames.slice(0,pageSize)
-        // })
-        // this.setState({
-        //     tableResource: nextProps.table[0]
-        // })
-        // console.log("===============")
-        // console.log(nextProps.table)
+        const firstArr = nextProps.permissionParams;
+        if(this.props.permissionParams != nextProps.permissionParams) {
+            this.setState({
+                arr: firstArr.fullColumnsData.slice(0,pageSize)
+            })
+        }
+        
     }
-
     submit = (e) => {
         e.preventDefault()
         const { onOk, form } = this.props
         const formData = form.getFieldsValue()
         form.validateFields((err) => {
             if (!err) {
-                setTimeout(() => { form.resetFields() }, 200)
+                setTimeout(() => { 
+                    this.setState({
+                        currentPage: 1
+                    })
+                    form.resetFields() 
+                }, 200)
                 onOk(formData)
             }
         });
@@ -89,6 +56,9 @@ class DetailPermission extends Component {
         const { onCancel, form } = this.props
         onCancel()
         form.resetFields()
+        this.setState({
+            currentPage: 1
+        })
     }
     
 
@@ -108,54 +78,41 @@ class DetailPermission extends Component {
         return data
     }
 
-     // 改变页码
-     onChangePage = (currentPage, pageSize) => {
-        const {permissionParams} = this.state;
-        const fullColumnsCheck = permissionParams.fullColumns.map(item => {
-            return item.name
-        });
-        const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
-        this.setState({
-            currentPage,
-            arr
-        })
-        console.log(currentPage)
-    }
-
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { visible, agreeApply, table } = this.props;
+        const { visible, agreeApply, table, permissionParams} = this.props;
         // const title = agreeApply ? '通过申请' : '驳回申请';
         
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
-        const {permissionParams, arr, currentPage} = this.state;
-        const ddlCheck = permissionParams.fullDdls.filter(item => {
-            return item.status === true
-        })
-        const ddlCheckArray = ddlCheck.map(item => {
-            return item.value
-        })
+        // const {permissionParams} = this.state;
+        const { arr, currentPage} = this.state;
+        // const ddlCheck = permissionParams.fullDdlsData.filter(item => {
+        //     return item.status === true
+        // })
+        // console.log(this.props.permissionParams);
+        // const ddlCheckArray = ddlCheck.map(item => {
+        //     return item.value
+        // })
+        // const dmlCheck = permissionParams.fullDmlsData.filter(item => {
+        //     return item.status === true
+        // })
+        // const dmlCheckArray = dmlCheck.map(item => {
+        //     return item.value
+        // })
 
-        const dmlCheck = permissionParams.fullDmls.filter(item => {
-            return item.status === true
-        })
-        const dmlCheckArray = dmlCheck.map(item => {
-            return item.value
-        })
+        // const fullColumnsCheck = permissionParams.fullColumnsData;
+        // const fullColumnsCheckArray = permissionParams.fullColumns.filter(item => {
+        //     return item.status === true
+        // })
+        // const ids = fullColumnsCheckArray.map(item => {
+        //     return item.column
+        // })
+        // const total = fullColumnsCheck.length;
+        // // 判断是否全选
+        // const ischeckAll = (permissionParams.fullDdlsData.length + permissionParams.fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
+        // const idCheckIds = (permissionParams.fullColumns.length == fullColumnsCheckArray.length);
+        // console.log("++++++++++");
 
-        const fullColumnsCheck = permissionParams.fullColumns.map(item => {
-            return item.name
-        });
-        const fullColumnsCheckArray = permissionParams.fullColumns.filter(item => {
-            return item.status === true
-        })
-        const ids = fullColumnsCheckArray.map(item => {
-            return item.name
-        })
-        const total = fullColumnsCheck.length;
-        // 判断是否全选
-        const ischeckAll = (permissionParams.fullDdls.length + permissionParams.fullDmls.length) == (ddlCheck.length + dmlCheck.length);
-        const idCheckIds = (permissionParams.fullColumns.length == fullColumnsCheckArray.length);
         return (
             <Modal
                 title={title}
@@ -164,6 +121,14 @@ class DetailPermission extends Component {
                 onOk={this.props.listType == 0 ? this.submit : this.cancle}
                 onCancel={this.cancle}
                 width="750px"
+                footer={
+                    this.props.listType == 0 ? [
+                        <Button  size="large" onClick={this.cancle}>取消</Button>,
+                        <Button  type="primary" size="large" onClick={this.submit}>
+                          确定
+                        </Button>
+                    ] : <Button type="primary" size="large" onClick={this.cancle}>关闭</Button>
+                }
             >
                 <Form>
                     <FormItem
@@ -177,7 +142,7 @@ class DetailPermission extends Component {
                             <span style={{marginRight: "10px"}}>{ this.handleResource('resourceName') }</span>
                            
                         )}
-                        <Checkbox disabled checked={ischeckAll}>All</Checkbox>
+                        <Checkbox disabled checked={permissionParams.ischeckAll}>All</Checkbox>
                     </FormItem>
 
                      {/* 表段权限 */}
@@ -187,7 +152,7 @@ class DetailPermission extends Component {
                         style={{marginLeft:"20px",marginTop:"-20px"}}
                     >
                         <div className="content">
-                            <CheckboxGroup options={permissionParams.fullDdls} value={ddlCheckArray} disabled></CheckboxGroup>
+                            <CheckboxGroup options={permissionParams.fullDdlsData} value={permissionParams.ddlCheckArray} disabled></CheckboxGroup>
                         </div>
                     </FormItem>
                     <FormItem
@@ -196,7 +161,7 @@ class DetailPermission extends Component {
                         style={{marginLeft:"20px",marginTop:"-20px"}}
                     >
                         <div className="content">
-                            <CheckboxGroup options={permissionParams.fullDmls} value={dmlCheckArray} disabled ></CheckboxGroup>
+                            <CheckboxGroup options={permissionParams.fullDmlsData} value={permissionParams.dmlCheckArray} disabled ></CheckboxGroup>
                         </div>
                     </FormItem>
 
@@ -206,19 +171,27 @@ class DetailPermission extends Component {
                         label="字段权限"
                         style={{background: "#FAFAFA"}}
                     >
-                        <Checkbox disabled checked={idCheckIds}>All(包括新增字段)</Checkbox>
+                        <Checkbox disabled checked={permissionParams.idCheckIds}>All(包括新增字段)</Checkbox>
                         <div className="content">
                             <div>
-                                <CheckboxGroup options={arr} value={ids} disabled></CheckboxGroup>
+                                <CheckboxGroup options={arr} value={permissionParams.ids} disabled></CheckboxGroup>
                             </div>
                         </div>
                         {/* 控制字段名分页 */}
-                        {total > 0 ? <Pagination
+                        {permissionParams.total > 0 ? <Pagination
                             size="small"
-                            total={total}
+                            total={permissionParams.total}
                             pageSize={pageSize}
                             current={currentPage}
-                            onChange={this.onChangePage}
+                            onChange={(currentPage,pageSize) => {
+                                const fullColumnsCheck = permissionParams.fullColumnsData;
+                                const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
+                                this.setState({
+                                    currentPage,
+                                    arr
+                                })
+                                console.log(currentPage)
+                            }}
                             style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
                         /> : ""}
                     </FormItem>

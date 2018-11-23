@@ -32,12 +32,6 @@ const field_type = [
     name: 'STRING',
     value: 'STRING',
   },{
-    name: 'CHAR',
-    value: 'CHAR',
-  },{
-    name: 'VARCHAR',
-    value: 'VARCHAR',
-  },{
     name: 'BOOLEAN',
     value: 'BOOLEAN',
   },{
@@ -578,6 +572,7 @@ export default class StepTwo extends Component{
                 })
               }
             </Select>
+            <HelpDoc style={{...relativeStyle,marginLeft: 5}} doc="partitionTip"/>
           </div>
             {
               partitions.partitionType === 1?
