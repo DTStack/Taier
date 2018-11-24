@@ -516,11 +516,16 @@ class OfflineTaskList extends Component {
                 jobId
             }).then((res) => {
                 if (res.code == 1) {
-                    newTasks.data.find((task) => {
-                        if (task.jobId == jobId) {
-                            task.children = res.data;
-                        }
-                    })
+                    const index=newTasks.data.findIndex((task) => {
+                        return task.jobId == jobId
+                    });
+                    if(index||index==0){
+                        newTasks.data[index]={
+                            ...res.data,
+                            children:res.data.relatedJobs,
+                            relatedJobs:undefined
+                        };
+                    }
                     this.setState({
                         tasks: newTasks
                     })
