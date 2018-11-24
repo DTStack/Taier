@@ -1,2 +1,0 @@
-[1121/151014.243:WARNING:minidump_to_upload_parameters.cc(66)] duplicate annotation name metrics_client_id, discarding value ad29271489f244479b417e770b5337af
-[1121/151041.691:ERROR:http_transport_win.cc(273)] WinHttpSendRequest: 与服务器的连接意外终止 (0x2efe)
