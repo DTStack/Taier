@@ -13,6 +13,7 @@ import io.vertx.core.Future;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 
@@ -23,12 +24,13 @@ public class ServerVerticle extends AbstractVerticle{
 	
 	private static String host = "0.0.0.0";
 	
-	private static int port;
+	private static int port = 8090;
 	
 	public static void setHostPort(Map<String, Object> nodeConfig){
 		String localAddress = ConfigParse.getLocalAddress();
-		host = (String) HttpCommon.getUrlPort(localAddress)[0];
-		port  = (Integer) HttpCommon.getUrlPort(localAddress)[1];
+        if(StringUtils.isNotBlank(localAddress)){
+            port  = (Integer) HttpCommon.getUrlPort(localAddress)[1];
+        }
 	}
 	
 	
