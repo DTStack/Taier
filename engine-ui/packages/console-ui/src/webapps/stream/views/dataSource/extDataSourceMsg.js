@@ -54,6 +54,12 @@ const showMapArr = {
     ],
     [DATA_SOURCE.KAFKA]: [
         ['address', '集群地址']
+    ],
+    [DATA_SOURCE.KAFKA_09]: [
+        ['address', '集群地址']
+    ],
+    [DATA_SOURCE.KAFKA_09]: [
+        ['address', '集群地址']
     ]
 }
 
