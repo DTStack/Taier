@@ -10,6 +10,7 @@ export const commAction = mc([
 export const modalAction = mc([
     'TOGGLE_CREATE_TASK',
     'TOGGLE_EDIT_TASK',
+    'TOGGLE_CLONE_TASK',
     'TOGGLE_UPLOAD',
     'TOGGLE_CREATE_FOLDER',
     'TOGGLE_CREATE_FN',
@@ -25,6 +26,7 @@ export const modalAction = mc([
 ], {prefix: 'offline/modal/'});
 
 export const workflowAction = mc([
+    'CLONE',
     'UPDATE',
     'RESET',
 ], {prefix: 'offline/workflow/'});

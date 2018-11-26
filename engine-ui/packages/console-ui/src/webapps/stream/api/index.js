@@ -162,6 +162,9 @@ export default {
     deleteTask(params) {
         return http.post(req.DELETE_TASK, params)
     },
+    cloneTask(params) {
+        return http.post(req.CLONE_TASK, params)
+    },
     taskStatistics(params) {
         return http.post(req.TASK_STATISTICS,params)
     },

@@ -7,6 +7,7 @@ import {
 const initModalState = {
     createTask: false,
     editTask: false,
+    cloneTask: false,
     upload: false,
     createFolder: false,
     createScript: false,
@@ -28,7 +29,11 @@ export const modalShowReducer = (state = initModalState, action) => {
             return assign({}, state, {
                 createTask: !state.createTask,
             });
-
+        
+        case modalAction.TOGGLE_CLONE_TASK:
+            return assign({}, state, {
+                cloneTask: !state.cloneTask,
+            });
         case modalAction.TOGGLE_CREATE_SCRIPT:
             return assign({}, state, {
                 createScript: !state.createScript

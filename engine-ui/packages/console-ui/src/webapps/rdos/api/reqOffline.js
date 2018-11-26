@@ -12,6 +12,7 @@ export default {
     FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/batch/batchTask/forceUpdate`, // 强制更新
     GET_TASK: `${RDOS_BASE_URL}/batch/batchTask/getTaskById`, // 获取任务通过任务ID
     DELETE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`, // 删除任务
+    CLONE_TASK: `${RDOS_BASE_URL}/batch/batchTask/cloneTask`, // 克隆任务
     QUERY_CATA_TASK: `${RDOS_BASE_URL}/batch/batchTask/getLogsByTaskId`, // 任务,目录关键字搜索
     GET_TASKS_BY_PROJECT_ID: `${RDOS_BASE_URL}/batch/batchTask/getTasksByProjectId`, // 根据项目id获取任务列表
     GET_TASKS_BY_NAME: `${RDOS_BASE_URL}/batch/batchTask/getTasksByName`, // 根据项目id，任务名 获取任务列表

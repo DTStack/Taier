@@ -381,6 +381,19 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
+        // 确定克隆
+        confirmClone(data) {
+            return ajax.cloneTask(data)
+            .then(res => {
+                if(res.code == 1) {
+                    dispatch({
+                        type: workflowAction.CLONE,
+                    })
+                    return true;
+                }
+            })
+        },
+
         saveTask(task, noMsg) {
             console.log('saveTask:', task)
             // 删除不必要的字段
@@ -877,6 +890,13 @@ export const workbenchActions = (dispatch) => {
         toggleCreateTask: function (data) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK,
+                payload: data,
+            });
+        },
+        // 克隆任务
+        toggleCloneTask: function (data) {
+            dispatch({
+                type: modalAction.TOGGLE_CLONE_TASK,
                 payload: data,
             });
         },
