@@ -44,15 +44,15 @@ class KeyForm extends React.Component{
                         <FormItem
                             {...formItemLayout}
                             label="索引值"
-                            key="index"
+                            key="key"
                         >
-                        {getFieldDecorator('index', {
+                        {getFieldDecorator('key', {
                             rules: [{
                                 required: true,
                                 type: 'integer',
                                 message: '请按要求填写索引值！',
                             }],
-                            initialValue: (editField && editField.index) || ''
+                            initialValue: (editField && (editField.key || editField.index)) || ''
                         })(
                             <InputNumber placeholder="请输入索引值" style={{ width: '100%' }} min={0} />
                         )}
