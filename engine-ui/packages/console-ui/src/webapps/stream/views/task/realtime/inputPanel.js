@@ -7,7 +7,7 @@ import { debounce } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import {DATA_SOURCE_TEXT, DATA_SOURCE} from '../../../comm/const'
+import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 
 import Editor from 'widgets/code-editor'
 
@@ -220,9 +220,9 @@ class InputOrigin extends Component {
                             <FormItem
                                 {...formItemLayout}
                                 label={(
-                                    <span >
-                                        偏移量(ms)
-                                        <Tooltip title="watermark值与event time值的偏移量">
+                                    <span style={{lineHeight: 1}} >
+                                        <span style={{paddingRight:"5px"}}>最大延迟时间</span><br/>(ms)
+                                            <Tooltip title="watermark值与event time值的最大延迟时间">
                                             <Icon type="question-circle-o" />
                                         </Tooltip>
                                     </span>
@@ -230,7 +230,7 @@ class InputOrigin extends Component {
                             >
                                 {getFieldDecorator('offset', {
                                     rules: [
-                                        { required: true, message: '请输入时间偏移量' },
+                                        { required: true, message: '请输入最大延迟时间' },
                                     ],
                                 })(
                                     <InputNumber className="number-input" min={0} onChange={value => handleInputChange('offset', index, value)} />
@@ -327,7 +327,7 @@ export default class InputPanel extends Component {
         const { timeColumoption, panelColumn } = this.state;
         const columns = text.split('\n').filter(Boolean).map(v => {
             let column;
-            const as_case=/^.*\w.*\s+as\s+(\w+)$/i.exec(v);
+            const as_case = /^.*\w.*\s+as\s+(\w+)$/i.exec(v);
             if (as_case) {
                 return {
                     column: as_case[1],
@@ -703,7 +703,7 @@ export default class InputPanel extends Component {
                             return (
                                 <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
                                     <InputForm
-                                        isShow={panelActiveKey.indexOf(index + 1+'')>-1 && isShow}
+                                        isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                         sync={sync}
                                         index={index}
                                         handleInputChange={this.handleInputChange}
