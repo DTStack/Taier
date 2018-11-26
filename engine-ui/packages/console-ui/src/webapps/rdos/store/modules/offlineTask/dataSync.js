@@ -504,10 +504,10 @@ const keymap = (state = { source: [], target: [] }, action) => {
                 let idx = targetNameCol.indexOf(name);
 
                 if (idx !== -1) {
-                    const sourceName = isRDB(sourceSrcType) ? o.key : o;
-                    const targetName = isRDB(targetSrcType) ? name : targetCol[idx]
-                    source.push(sourceName);
-                    target.push(targetName);
+                    // const sourceName = isRDB(sourceSrcType) ? o.key : o;
+                    // const targetName = isRDB(targetSrcType) ? name : targetCol[idx]
+                    source.push(o);
+                    target.push(targetCol[idx]);
                 }
             });
 
