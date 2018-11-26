@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash';
 
 import DataSyncSource from './source';
 import DataSyncTarget from './target';
@@ -44,21 +44,26 @@ class DataSync extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         // 如果列发生变化，则检测更新系统变量
-        const oldSource = this.props.sourceMap;
-        const oldTarget = this.props.targetMap;
-        const { sourceMap, targetMap } = nextProps;
-        if (
-            (sourceMap && oldSource.type !== sourceMap.type) || // source type update
-            (targetMap && oldTarget.type !== targetMap.type) || // target type update
-            (sourceMap && oldSource.column !== sourceMap.column) && // source columns update
-            this.state.currentStep !== 4
-        ) {
+        if (this.onVariablesChange(this.props, nextProps)) {
             this.props.updateDataSyncVariables(
                 nextProps.sourceMap,
                 nextProps.targetMap,
                 nextProps.taskCustomParams
             )
         }
+    }
+
+    onVariablesChange = (oldProps, nextProps) => {
+        const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
+        const { sourceMap, targetMap } = nextProps;
+        const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
+        const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
+
+        return (sourceMap && sourceMap.type && oldSource.type.where !== sourceMap.type.where) || // source type update
+        (sourceMap && sourceMap.type && oldSource.type.partition !== sourceMap.type.partition) || // source type update
+        (targetMap && targetMap.type && oldTarget.type.partition !== targetMap.type.partition) || // target type update
+        (oldSQL !== newSQL) || // target type update
+        (sourceMap && oldSource.column !== sourceMap.column) // source columns update
     }
 
     getJobData = (params) => {
@@ -267,6 +272,7 @@ const mapState = (state) => {
         project: state.project,
         tabs: workbench.tabs,
         dataSync: dataSync,
+        isCurrentTabNew: workbench.isCurrentTabNew,
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
         currentTab: workbench.currentTab,
