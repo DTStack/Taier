@@ -6,8 +6,9 @@ import {
 import { debounce } from 'lodash';
 
 import Api from '../../../api';
-
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import {DATA_SOURCE_TEXT, DATA_SOURCE} from '../../../comm/const'
+
 import Editor from 'widgets/code-editor'
 
 
@@ -107,7 +108,9 @@ class InputOrigin extends Component {
                             <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange("type", index, v) }}
                                 showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
-                                <Option value="14">Kafka</Option>
+                                <Option value={DATA_SOURCE.KAFKA}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA_10}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_10]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA_09}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_09]}</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -254,7 +257,7 @@ const InputForm = Form.create({
     mapPropsToFields(props) {
         const { type, sourceId, topic, table, columns, timeType, timeColumn, offset, columnsText, parallelism } = props.panelColumn[props.index];
         return {
-            type: { value: type },
+            type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             topic: { value: topic },
             table: { value: table },
@@ -464,7 +467,7 @@ export default class InputPanel extends Component {
     }
     changeInputTabs = (type, index) => {
         const inputData = {
-            type: "14",
+            type: DATA_SOURCE.KAFKA,
             sourceId: undefined,
             topic: undefined,
             table: undefined,

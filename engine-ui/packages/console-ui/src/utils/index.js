@@ -214,7 +214,7 @@ const utils = {
             return second;
         }
         _formatSecond(_formatMinute(_formatHour(time)))
-        return `${hour?hour+'h':''}${minute?minute+'m':''}${second?second+'s':''}`
+        return `${hour?hour+'h':''}${minute?minute+'m':''}${second?second+'s':''}`||"0s"
     },
     //千位分割
     toQfw: function(str) {
