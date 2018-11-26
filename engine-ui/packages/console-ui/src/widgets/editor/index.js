@@ -113,13 +113,13 @@ class Editor extends React.Component {
             /**
              * 每个函数的补全函数都由该组件统一代理
              */
-            language.register(this.providerProxy);
+            language.register(this.providerProxy,this.monacoInstance);
         }
     }
     disposeProviderProxy() {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
         for (let [type, language] of keyAndValues) {
-            language.dispose();
+            language.dispose(this.monacoInstance);
         }
     }
     componentWillReceiveProps(nextProps) {
@@ -152,8 +152,8 @@ class Editor extends React.Component {
     }
 
     componentWillUnmount() {
-        this.destroyMonaco();
         this.disposeProviderProxy();
+        this.destroyMonaco();
     }
     /**
      * 提供下载链接。ps:不是很好用，屏蔽了
