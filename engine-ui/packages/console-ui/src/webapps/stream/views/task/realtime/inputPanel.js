@@ -222,7 +222,7 @@ class InputOrigin extends Component {
                                 label={(
                                     <span style={{lineHeight: 1}} >
                                         <span style={{paddingRight:"5px"}}>最大延迟时间</span><br/>(ms)
-                                            <Tooltip title="watermark值与event time值的最大延迟时间">
+                                            <Tooltip title="当event time超过最大延迟时间时，系统自动丢弃此条数据">
                                             <Icon type="question-circle-o" />
                                         </Tooltip>
                                     </span>
