@@ -22,17 +22,17 @@ class InputOrigin extends Component {
     componentDidMount() {
         this.props.onRef(this);
     }
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.isShow && nextProps.isShow) {
-            this.refreshEditor();
-        }
-    }
     refreshEditor() {
         if (this._editorRef) {
             console.log("refresh")
             this._editorRef.refresh();
         }
     }
+    // componentDidUpdate() {
+    //     if (this.props.isShow) {
+    //         this.refreshEditor();
+    //     }
+    // }
     checkParams = () => {
         //手动检测table参数
         const { index, panelColumn } = this.props;
@@ -68,7 +68,7 @@ class InputOrigin extends Component {
     }
 
     editorParamsChange(a, b, c) {
-        const { handleInputChange, textChange, index, } = this.props;
+        const { handleInputChange, textChange, index, isShow } = this.props;
         textChange();
         handleInputChange("columnsText", index, b);
     }
@@ -76,7 +76,7 @@ class InputOrigin extends Component {
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
     render() {
-        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [] } = this.props;
+        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [], isShow } = this.props;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
 
@@ -170,17 +170,19 @@ class InputOrigin extends Component {
                             <label>字段</label>
                         </div>
                         <Col span="18" style={{ marginBottom: 20, height: 202 }}>
-                            <Editor
-                                style={{ minHeight: 202 }}
-                                className="bd"
-                                sync={sync}
-                                placeholder="字段 类型, 比如 id int 一行一个字段"
-                                value={panelColumn[index].columnsText}
-                                onChange={this.debounceEditorChange.bind(this)}
-                                editorRef={(ref) => {
-                                    this._editorRef = ref;
-                                }}
-                            />
+                            {isShow && (
+                                <Editor
+                                    style={{ minHeight: 202 }}
+                                    className="bd"
+                                    sync={sync}
+                                    placeholder="字段 类型, 比如 id int 一行一个字段"
+                                    value={panelColumn[index].columnsText}
+                                    onChange={this.debounceEditorChange.bind(this)}
+                                    editorRef={(ref) => {
+                                        this._editorRef = ref;
+                                    }}
+                                />
+                            )}
                         </Col>
                     </Row>
                     <FormItem
@@ -220,8 +222,8 @@ class InputOrigin extends Component {
                             <FormItem
                                 {...formItemLayout}
                                 label={(
-                                    <span style={{lineHeight: 1}} >
-                                        <span style={{paddingRight:"5px"}}>最大延迟时间</span><br/>(ms)
+                                    <span style={{ lineHeight: 1 }} >
+                                        <span style={{ paddingRight: "5px" }}>最大延迟时间</span><br />(ms)
                                             <Tooltip title="当event time超过最大延迟时间时，系统自动丢弃此条数据">
                                             <Icon type="question-circle-o" />
                                         </Tooltip>
