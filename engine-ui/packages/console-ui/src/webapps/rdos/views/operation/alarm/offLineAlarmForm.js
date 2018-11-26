@@ -146,7 +146,6 @@ class AlarmForm extends Component {
                     <FormItem
                       {...formItemLayout}
                       label="告警规则名称"
-                      hasFeedback
                     >
                         {getFieldDecorator('name', {
                             rules: [{
@@ -163,7 +162,6 @@ class AlarmForm extends Component {
                     <FormItem
                       {...formItemLayout}
                       label="任务名称"
-                      hasFeedback
                     >
                         {getFieldDecorator('taskId', {
                             rules: [{
@@ -173,7 +171,7 @@ class AlarmForm extends Component {
                         })(
                             <Select
                               showSearch
-                              style={{ width: 200 }}
+                              style={{ width: "100%" }}
                               placeholder="任务任务"
                               optionFilterProp="name"
                             >
@@ -233,21 +231,19 @@ class AlarmForm extends Component {
                         {...formItemLayout}
                         label="定时时长"
                         style={{ display: myTrigger === 4 ? 'block': 'none' }}
-                        hasFeedback
                         >
                             {getFieldDecorator('uncompleteTime', {
                                 rules: [{
                                     required: true, message: '请您设置任务的定时时长！',
                                 }],
                             })(
-                                <TimePicker format={'HH:mm'} style={{ width: 200 }} />
+                                <TimePicker format={'HH:mm'} style={{ width: "100%" }} />
                             )}
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
                         style={{ display: myTrigger === 5 ? 'block': 'none' }}
                         label="运行时长"
-                        hasFeedback
                         >
                             {getFieldDecorator('runTime', { // 换算成秒
                                 rules: [{
@@ -274,7 +270,7 @@ class AlarmForm extends Component {
                               showSearch
                               mode="multiple"
                               size='Default'
-                              style={{ width: 200 }}
+                              style={{ width: "100%" }}
                               placeholder="请选择接收人"
                               optionFilterProp="name"
                             >

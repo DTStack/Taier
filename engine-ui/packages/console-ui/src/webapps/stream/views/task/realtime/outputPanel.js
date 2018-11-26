@@ -4,13 +4,17 @@ import {
     message, Select, Collapse, Button, Radio, Popover,
     Form, InputNumber
 } from 'antd'
-
 import { debounce } from 'lodash';
 
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import Editor from 'widgets/code-editor'
 import { DATA_SOURCE } from "../../../comm/const";
+import { havaTableList } from "./sidePanel/panelCommonUtil";
+import { generateAKey } from "utils";
+
+import Editor from 'widgets/code-editor'
+import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from "./sidePanel/customParams";
+
 
 
 const Option = Select.Option;
@@ -74,6 +78,7 @@ class OutputOrigin extends Component {
         }
     }
 
+
     editorParamsChange(a, b, c) {
         const { handleInputChange, index, textChange } = this.props;
         textChange();
@@ -89,6 +94,7 @@ class OutputOrigin extends Component {
         const tableOptionTypes = this.originOption('currencyType', tableOptionType[index] || []);
         const tableColumnOptionTypes = this.originOption('columnType', tableColumnOptionType[index] || []);
         const primaryKeyOptionTypes = this.originOption('primaryType', panelColumn[index].columns || []);
+        const customParams = panelColumn[index].customParams || [];
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
@@ -140,34 +146,29 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                {
-                    panelColumn[index].type == DATA_SOURCE.MYSQL
-                        ||
-                        panelColumn[index].type == DATA_SOURCE.HBASE
-                        ||
-                        panelColumn[index].type == DATA_SOURCE.MONGODB ?
-                        <FormItem
-                            {...formItemLayout}
-                            label="表"
-                        >
-                            {getFieldDecorator('table', {
-                                initialValue: "disabled",
-                                rules: [
-                                    { required: true, message: '请选择表', }
-                                ],
-                            })(
-                                <Select className="right-select" onChange={(v) => { handleInputChange("table", index, v) }}
-                                    showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                >
-                                    {
-                                        tableOptionTypes
-                                    }
-                                </Select>
-                            )}
-                        </FormItem> : ""
+                {havaTableList(panelColumn[index].type) ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="表"
+                    >
+                        {getFieldDecorator('table', {
+                            initialValue: "disabled",
+                            rules: [
+                                { required: true, message: '请选择表', }
+                            ],
+                        })(
+                            <Select className="right-select" onChange={(v) => { handleInputChange("table", index, v) }}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {
+                                    tableOptionTypes
+                                }
+                            </Select>
+                        )}
+                    </FormItem> : ""
                 }
-                { 
-                        panelColumn[index].type == DATA_SOURCE.REDIS?
+                {
+                    panelColumn[index].type == DATA_SOURCE.REDIS ?
                         <FormItem
                             {...formItemLayout}
                             label="表"
@@ -182,19 +183,19 @@ class OutputOrigin extends Component {
                             )}
                         </FormItem> : ""
                 }
-                {panelColumn[index].type == DATA_SOURCE.REDIS ? 
-                <FormItem
-                    {...formItemLayout}
-                    label="主键"
-                >
-                    {getFieldDecorator('primaryKey', {
-                        rules: [
-                            { required: true, message: '请输入主键', }
-                        ],
-                    })(
-                        <Input placeholder="结果表主键，多个字段用英文逗号隔开" onChange={e => handleInputChange('primaryKey', index, e.target.value)} />
-                    )}
-                </FormItem> : ""
+                {panelColumn[index].type == DATA_SOURCE.REDIS ?
+                    <FormItem
+                        {...formItemLayout}
+                        label="主键"
+                    >
+                        {getFieldDecorator('primaryKey', {
+                            rules: [
+                                { required: true, message: '请输入主键', }
+                            ],
+                        })(
+                            <Input placeholder="结果表主键，多个字段用英文逗号隔开" onChange={e => handleInputChange('primaryKey', index, e.target.value)} />
+                        )}
+                    </FormItem> : ""
                 }
                 {
                     panelColumn[index].type == DATA_SOURCE.ES ?
@@ -320,10 +321,10 @@ class OutputOrigin extends Component {
                                     style={{ minHeight: 202, border: "1px solid #ddd" }}
                                     sync={sync}
                                     placeholder={
-                                        DATA_SOURCE.REDIS==panelColumn[index].type?
-                                    "一行一个字段，无需字段类型，比如：\nid\nname"
-                                    :
-                                    "字段 类型, 比如 id int 一行一个字段"}
+                                        DATA_SOURCE.REDIS == panelColumn[index].type ?
+                                            "一行一个字段，无需字段类型，比如：\nid\nname"
+                                            :
+                                            "字段 类型, 比如 id int 一行一个字段"}
                                     value={panelColumn[index].columnsText}
                                     onChange={this.debounceEditorChange.bind(this)}
                                     editorRef={(ref) => {
@@ -358,6 +359,12 @@ class OutputOrigin extends Component {
                         <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism', index, value)} />
                     )}
                 </FormItem>
+                {panelColumn[index].type == DATA_SOURCE.REDIS && <CustomParams
+                    getFieldDecorator={getFieldDecorator}
+                    formItemLayout={formItemLayout}
+                    customParams={customParams}
+                    onChange={(type, id, value) => { handleInputChange("customParams", index, value, { id, type }) }}
+                />}
             </Row>
         )
     }
@@ -365,7 +372,16 @@ class OutputOrigin extends Component {
 
 const OutputForm = Form.create({
     mapPropsToFields(props) {
-        const { type, sourceId, table, columns, columnsText, id, index, writePolicy, esId, esType, parallelism, tableName, primaryKey, rowKey } = props.panelColumn[props.index];
+        const {
+            type, sourceId,
+            table, columns,
+            columnsText, id,
+            index, writePolicy,
+            esId, esType,
+            parallelism, tableName,
+            primaryKey, rowKey,
+            customParams
+        } = props.panelColumn[props.index];
         return {
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
@@ -381,6 +397,7 @@ const OutputForm = Form.create({
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
             rowKey: { value: rowKey },
+            ...generateMapValues(customParams)
         }
     }
 })(OutputOrigin);
@@ -418,6 +435,9 @@ export default class OutputPanel extends Component {
     componentDidMount() {
         const { sink } = this.props.currentPage;
         if (sink && sink.length > 0) {
+            /**
+             * 初始化
+             */
             this.currentInitData(sink)
         }
     }
@@ -426,9 +446,10 @@ export default class OutputPanel extends Component {
         const { tabTemplate, panelColumn } = this.state;
         sink.map((v, index) => {
             tabTemplate.push("OutputForm");
+            initCustomParam(v);
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
-            if (v.type == DATA_SOURCE.MYSQL || v.type == DATA_SOURCE.HBASE) {
+            if (havaTableList(v.type)) {
                 this.getTableType(index, v.sourceId)
                 if (v.type == DATA_SOURCE.MYSQL) {
                     this.getTableColumns(index, v.sourceId, v.table)
@@ -473,9 +494,9 @@ export default class OutputPanel extends Component {
         }, () => {
             sink.map((v, index) => {
                 this.getTypeOriginData(index, v.type)
-                if (v.type == '1' || v.type == "8") {
+                if (havaTableList(v.type)) {
                     this.getTableType(index, v.sourceId)
-                    if (v.type == '1') {
+                    if (v.type == DATA_SOURCE.MYSQL) {
                         this.getTableColumns(index, v.sourceId, v.table)
                     }
                 }
@@ -483,6 +504,9 @@ export default class OutputPanel extends Component {
         })
     }
 
+    /**
+     * 获取数据源列表
+     */
     getTypeOriginData = (index, type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({ type }).then(v => {
@@ -506,6 +530,9 @@ export default class OutputPanel extends Component {
         })
     }
 
+    /**
+     * 获取表列表
+     */
     getTableType = (index, sourceId) => {
         const { tableOptionType } = this.state;
         if (sourceId) {
@@ -541,8 +568,14 @@ export default class OutputPanel extends Component {
         }
     }
 
+    /**
+     * 获取表字段列表
+     */
     getTableColumns = (index, sourceId, tableName) => {
         const { tableColumnOptionType } = this.state;
+        if (!sourceId || !tableName) {
+            return;
+        }
         Api.getStreamTableColumn({ sourceId, tableName }).then(v => {
             if (v.code === 1) {
                 tableColumnOptionType[index] = v.data;
@@ -664,7 +697,7 @@ export default class OutputPanel extends Component {
         })
     }
 
-    handleInputChange = (type, index, value, subValue) => {//监听数据改变
+    handleInputChange = (/**改变的属性 */type, /**改变的panel序号 */index, value, subValue) => {//监听数据改变
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if (type === 'columns') {
             panelColumn[index][type].push(value);
@@ -676,13 +709,22 @@ export default class OutputPanel extends Component {
             panelColumn[index]["columns"][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]["columns"][value].type = subType;
+        } else if (type == "customParams") {
+            changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
         }
         if (type === "columnsText") {
             //this.parseColumnsText(index,value)
         }
-        const allParamsType = ["type", "sourceId", "table", "columns", "columnsText", "id", "index", "writePolicy", "esId", "esType", "parallelism", "tableName", "primaryKey", "rowKey"];
+        const allParamsType = [
+            "type", "sourceId",
+            "table", "columns",
+            "columnsText", "id",
+            "index", "writePolicy",
+            "esId", "esType",
+            "parallelism", "tableName",
+            "primaryKey", "rowKey", "customParams"];
         /**
          * 这里开始处理改变操作，比如数据源改变要改变重置表名等
          */
@@ -707,7 +749,7 @@ export default class OutputPanel extends Component {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v !== "type" && v != "sourceId") {
+                if (v !== "type" && v != "sourceId" && v != "customParams") {
                     if (v == "columns") {
                         panelColumn[index][v] = [];
                     } else if (v == "parallelism") {
@@ -719,11 +761,7 @@ export default class OutputPanel extends Component {
 
                 }
             })
-            if (panelColumn[index].type == DATA_SOURCE.MYSQL
-                ||
-                panelColumn[index].type == DATA_SOURCE.HBASE
-                ||
-                panelColumn[index].type == DATA_SOURCE.MONGODB) {
+            if (havaTableList(panelColumn[index].type)) {
                 this.getTableType(index, value)
             }
         } else if (type === "table") {
@@ -731,7 +769,7 @@ export default class OutputPanel extends Component {
             const { sourceId } = panelColumn[index];
             panelColumn[index].columns = [];
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId" && v != "table") {
+                if (v != "type" && v != "sourceId" && v != "table" && v != "customParams") {
                     if (v == "columns") {
                         panelColumn[index][v] = [];
                     } else if (v == "parallelism") {

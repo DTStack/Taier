@@ -248,7 +248,7 @@ class CollectionSourceForm extends React.Component {
                             }]
                         })(
                             <RadioGroup disabled={isEdit || !isCollectTypeEdit}>
-                                <Radio value={collect_type.ALL}>全部</Radio>
+                                <Radio value={collect_type.ALL}>从任务运行时开始</Radio>
                                 <Radio value={collect_type.TIME}>按时间选择</Radio>
                                 <Radio value={collect_type.FILE}>按文件选择</Radio>
                             </RadioGroup>

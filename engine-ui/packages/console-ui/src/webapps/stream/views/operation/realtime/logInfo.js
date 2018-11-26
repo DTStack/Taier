@@ -21,20 +21,20 @@ function wrappTitle(title) {
 }
 
 export default function LogInfo(props) {
-    const log= props.log||{};
-    let engineLog={};
-    try{
-        engineLog= log.engineLog ? JSON.parse(log.engineLog):{}
-    }catch(e){
-            engineLog={
-                "all-exceptions":[{exception:log.engineLog}]
-            }
-        console.log("engineLog is not a json\n",e)
+    const log = props.log || {};
+    let engineLog = {};
+    try {
+        engineLog = log.engineLog ? JSON.parse(log.engineLog) : {}
+    } catch (e) {
+        engineLog = {
+            "all-exceptions": [{ exception: log.engineLog }]
+        }
+        console.log("engineLog is not a json\n", e)
     }
-    const logStyle = Object.assign(editorStyle, {
+    const logStyle = Object.assign({}, editorStyle, {
         height: props.height,
     });
-    
+
     const errors = engineLog['all-exceptions'] || ''
     let engineLogs = isArray(errors) && errors.length > 0 ? errors.map(item => {
         return `${item.exception} \n`
@@ -57,7 +57,7 @@ export default function LogInfo(props) {
     return (
         <div>
             <Row style={logStyle}>
-                <Editor sync value={logText} options={editorOptions}/>
+                <Editor sync value={logText} options={editorOptions} />
             </Row>
         </div>
     )

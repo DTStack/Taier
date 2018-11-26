@@ -49,12 +49,9 @@ class BaseInfo extends React.Component {
          * 因为Editor和echarts绘图的时候会计算当前dom大小
          * 不显示的时候大小为0，会造成显示错误
          */
-        /**
-         * 不需要renturn null，因为已经触发了重新渲染
-         */
-        // if(!isShow){
-        //     return null;
-        // }
+        if(!isShow){
+            return null;
+        }
         switch (status) {
             case TASK_STATUS.RUN_FAILED:
             case TASK_STATUS.SUBMIT_FAILED: {

@@ -98,7 +98,6 @@ class AlarmForm extends Component {
                     <FormItem
                       {...formItemLayout}
                       label="告警规则名称"
-                      hasFeedback
                     >
                         {getFieldDecorator('name', {
                             rules: [{
@@ -115,7 +114,6 @@ class AlarmForm extends Component {
                     <FormItem
                       {...formItemLayout}
                       label="任务名称"
-                      hasFeedback
                     >
                         {getFieldDecorator('taskId', {
                             rules: [{
@@ -126,7 +124,7 @@ class AlarmForm extends Component {
                             <Select
                               showSearch
                               size='Default'
-                              style={{ width: "200px" }}
+                              style={{ width: "100%" }}
                               placeholder="任务任务"
                               optionFilterProp="name"
                             >
@@ -183,7 +181,6 @@ class AlarmForm extends Component {
                     <FormItem
                       {...formItemLayout}
                       label="接收人"
-                      hasFeedback
                     >
                         {getFieldDecorator('receiveUsers', {
                             rules: [{
@@ -194,7 +191,7 @@ class AlarmForm extends Component {
                             <Select
                               showSearch
                               mode="multiple"
-                              style={{ width: 200 }}
+                              style={{ width: "100%" }}
                               placeholder="请选择接收人"
                               optionFilterProp="name"
                             >

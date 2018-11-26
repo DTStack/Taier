@@ -258,6 +258,12 @@ const utils = {
                 return undefined;
             }
         }
+    },
+    /**
+     * 生成一个key
+     */
+    generateAKey(){
+        return ''+new Date().getTime()+~~(Math.random()*1000000)
     }
 };
 
