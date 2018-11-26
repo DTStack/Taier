@@ -251,6 +251,7 @@ class BaseForm extends Component {
                 }
                 return formItems;
             }
+            case DATA_SOURCE.CARBONDATA:
             case DATA_SOURCE.HIVE: {
                 const formItems = [
                     <FormItem
@@ -788,8 +789,7 @@ class BaseForm extends Component {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
-            case DATA_SOURCE.POSTGRESQL:
-            case DATA_SOURCE.ANALYSIS:{
+            case DATA_SOURCE.POSTGRESQL:{
                 return [
                     <FormItem
                         {...formItemLayout}

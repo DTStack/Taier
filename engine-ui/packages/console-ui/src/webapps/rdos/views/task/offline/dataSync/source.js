@@ -120,7 +120,10 @@ class SourceForm extends React.Component {
         const { sourceMap } = this.props
 
         if (sourceMap.type &&
-            (sourceMap.type.type === DATA_SOURCE.HBASE)
+            (
+                sourceMap.type.type === DATA_SOURCE.HBASE ||
+                sourceMap.type.type === DATA_SOURCE.CARBONDATA
+            )
         ) {
             return;
         }
@@ -554,8 +557,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
-            case DATA_SOURCE.POSTGRESQL:
-            case DATA_SOURCE.ANALYSIS: {
+            case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
                     !selectHack ? <FormItem
                         {...formItemLayout}
@@ -642,6 +644,71 @@ class SourceForm extends React.Component {
                         )}
                         <HelpDoc doc="selectKey" />
                     </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.CARBONDATA: {
+                formItem = [
+                    !selectHack ? <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '数据源表为必选项！'
+                            }],
+                            initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary ? sourceMap.sourceList[0].tables : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                mode={supportSubLibrary ? 'tags' : 'combobox'}
+                                showSearch
+                                showArrow={true}
+                                onBlur={this.debounceTableSearch.bind(this, sourceMap.type.type)}
+                                optionFilterProp="value"
+                            >
+                                {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
+                                    return <Option key={`rdb-${table}`} value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                        {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>}
+                    </FormItem> : null,
+                    ...this.renderExtDataSource(),
+                    supportSubLibrary && <Row className="form-item-follow-text">
+                        <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
+                    </Row>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据过滤"
+                        key="where"
+                    >
+                        {getFieldDecorator('where', {
+                            rules: [{
+                                max: 1000,
+                                message: '过滤语句不可超过1000个字符!',
+                            }],
+                            initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.where
+                        })(
+                            <Input
+                                type="textarea"
+                                placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
+                                onChange={this.submitForm.bind(this)}
+                            ></Input>,
+                        )}
+                        <HelpDoc doc="dataFilterDoc" />
+                    </FormItem>,
+                    haveChineseQuote && <Row className="form-item-follow-text">
+                        <Col style={{ textAlign: "left" }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}>
+                            <p className="warning-color">当前输入含有中文引号</p>
+                        </Col>
+                    </Row>,
                 ];
                 break;
             }
