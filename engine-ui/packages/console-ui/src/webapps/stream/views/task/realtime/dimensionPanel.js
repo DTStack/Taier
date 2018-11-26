@@ -202,7 +202,7 @@ class OutputOrigin extends Component {
                                     {...formItemLayout}
                                     label="表"
                                 >
-                                    {getFieldDecorator('table', {
+                                    {getFieldDecorator('table-input', {
                                         initialValue: "disabled",
                                         rules: [
                                             { required: true, message: '请输入表名', }
@@ -401,7 +401,7 @@ class OutputOrigin extends Component {
                         case DATA_SOURCE.MONGODB: {
                             return (
                                 <FormItem {...formItemLayout} label="主键">
-                                    {getFieldDecorator("primaryKey", {
+                                    {getFieldDecorator("primaryKey-input", {
                                         rules: [{ required: true, message: "请选择主键" }]
                                     })(
                                         <Input
@@ -602,6 +602,7 @@ const OutputForm = Form.create({
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             table: { value: table },
+            "table-input": { value: table },
             tableName: { value: tableName },
             columns: { value: columns },
             parallelism: { value: parallelism },
@@ -610,6 +611,7 @@ const OutputForm = Form.create({
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },
             primaryKey: { value: primaryKey },
+            "primaryKey-input": { value: primaryKey },
             hbasePrimaryKey: { value: hbasePrimaryKey },
             ...generateMapValues(customParams)
         };
