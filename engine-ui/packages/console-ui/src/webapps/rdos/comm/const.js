@@ -15,6 +15,7 @@ export const DATA_SOURCE = {
     REDIS: 12,
     MONGODB: 13,
     DB2: 19,
+    CARBONDATA: 20,
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -30,7 +31,8 @@ export const DATA_SOURCE_TEXT = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'DB2',
+    19: 'DB2',
+    20: 'CarbonData'
 }
 
 // 锁类型

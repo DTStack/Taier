@@ -433,7 +433,7 @@ class TargetForm extends React.Component {
                 ];
                 break;
             }
-            case DATA_SOURCE.ANALYSIS: {
+            case DATA_SOURCE.CARBONDATA: {
                 formItem = [
                     !selectHack && <FormItem
                         {...formItemLayout}
@@ -451,7 +451,6 @@ class TargetForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
-                                // disabled={ !isCurrentTabNew }
                                 optionFilterProp="value"
                                 onChange={this.debounceTableSearch.bind(this)}
                             >
@@ -463,38 +462,6 @@ class TargetForm extends React.Component {
                                     </Option>
                                 })}
                             </Select>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="导入前准备语句"
-                        key="preSql"
-                    >
-                        {getFieldDecorator('preSql', {
-                            rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
-                        })(
-                            <Input
-                                onChange={this.submitForm.bind(this)}
-                                placeholder="请输入导入数据前执行的SQL脚本"
-                                type="textarea"
-                            ></Input>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="导入后准备语句"
-                        key="postSql"
-                    >
-                        {getFieldDecorator('postSql', {
-                            rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
-                        })(
-                            <Input
-                                onChange={this.submitForm.bind(this)}
-                                placeholder="请输入导入数据后执行的SQL脚本"
-                                type="textarea"
-                            ></Input>
                         )}
                     </FormItem>,
                     <FormItem

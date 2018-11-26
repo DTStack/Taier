@@ -43,7 +43,7 @@ class TableTipExtraPane extends React.Component {
             <div className="tablePane-table-column-box">
                 {columns.map((column) => {
                     return <div className="tablePane-table-column">
-                        <span className="table-column-name">{column.columnName}</span>
+                        <span className="table-column-name" title={column.columnName}>{column.columnName}</span>
                         <span className="table-column-type">{column.columnType}</span>
                     </div>
                 })}

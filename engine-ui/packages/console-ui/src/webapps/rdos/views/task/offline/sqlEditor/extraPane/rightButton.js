@@ -7,7 +7,8 @@ import {
 
 @connect(state=>{
     return {
-        showTableTooltip:state.offlineTask.workbench.showTableTooltip
+        showTableTooltip:state.offlineTask.workbench.showTableTooltip,
+        theme:state.editor.options.theme
     }
 })
 class TableTipButton extends React.Component {
@@ -18,8 +19,27 @@ class TableTipButton extends React.Component {
         })
     }
     render() {
+        const {theme, showTableTooltip} = this.props;
+        const src={
+            open:"/public/rdos/img/tip-active.svg",
+            close:"/public/rdos/img/tip.svg",
+            dark_close:"/public/rdos/img/theme-dark/tip.svg"
+        }
+        let url=src.close;
+        
+        if(theme!="vs"){
+            url=src.dark_close;
+        }
+        if(showTableTooltip){
+            url=src.open;
+        }
         return (
-            <img onClick={this.changeTableTipVisible.bind(this)} className="pointer" style={{marginTop:"4px",height:"20px"}} src="/public/rdos/img/tip.svg" />
+            <img 
+            onClick={this.changeTableTipVisible.bind(this)} 
+            className="pointer" 
+            style={{marginTop:"4px",height:"20px"}} 
+            src={url}
+             />
         )
     }
 }

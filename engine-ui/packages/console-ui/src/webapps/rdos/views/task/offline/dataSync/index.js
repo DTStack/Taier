@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash';
 
 import DataSyncSource from './source';
 import DataSyncTarget from './target';
@@ -44,21 +44,42 @@ class DataSync extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         // 如果列发生变化，则检测更新系统变量
-        const oldSource = this.props.sourceMap;
-        const oldTarget = this.props.targetMap;
-        const { sourceMap, targetMap } = nextProps;
-        if (
-            (sourceMap && oldSource.type !== sourceMap.type) || // source type update
-            (targetMap && oldTarget.type !== targetMap.type) || // target type update
-            (sourceMap && oldSource.column !== sourceMap.column) && // source columns update
-            this.state.currentStep !== 4
-        ) {
+        if (this.onVariablesChange(this.props, nextProps)) {
             this.props.updateDataSyncVariables(
                 nextProps.sourceMap,
                 nextProps.targetMap,
                 nextProps.taskCustomParams
             )
         }
+    }
+
+    onVariablesChange = (oldProps, nextProps) => {
+        const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
+        const { sourceMap, targetMap } = nextProps;
+
+        const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
+        const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
+
+        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where && oldSource.type.where && oldSource.type.where !== sourceMap.type.where;
+        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && oldSource.type.partition && sourceMap.type.partition && oldSource.type.partition !== sourceMap.type.partition;
+        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && oldTarget.type.partition && targetMap.type.partition && oldTarget.type.partition !== targetMap.type.partition;
+        const isSQLChange = oldSQL !== undefined && newSQL!== undefined && oldSQL !== newSQL;
+        const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
+
+        // Output test conditions
+        // console.log('old', oldSource, oldTarget);
+        // console.log('new', sourceMap, targetMap);
+        // console.log('isWhereChange', isWhereChange);
+        // console.log('isSourceParitionChange', isSourceParitionChange);
+        // console.log('isTargetPartitionChange', isTargetPartitionChange);
+        // console.log('isSQLChange', isSQLChange);
+        // console.log('isSourceColumnChange', isSourceColumnChange);
+
+        return isWhereChange || // source type update
+        isSourceParitionChange || // source type update
+        isTargetPartitionChange || // target type update
+        isSQLChange || // target type update
+        isSourceColumnChange // source columns update
     }
 
     getJobData = (params) => {
@@ -267,6 +288,7 @@ const mapState = (state) => {
         project: state.project,
         tabs: workbench.tabs,
         dataSync: dataSync,
+        isCurrentTabNew: workbench.isCurrentTabNew,
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
         currentTab: workbench.currentTab,
