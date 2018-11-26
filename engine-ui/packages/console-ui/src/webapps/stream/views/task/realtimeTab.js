@@ -23,6 +23,8 @@ import * as ResAction from '../../store/modules/realtimeTask/res'
 import { modalAction } from '../../store/modules/realtimeTask/actionTypes'
 
 import TaskFormModal from './realtime/taskForm'
+// 克隆任务
+import CloneTaskForm from './realtime/cloneTaskForm'
 import CataFormModal from './realtime/cataForm'
 import ResInfoModal from './realtime/resInfo'
 import ResForm from './realtime/resForm'
@@ -198,6 +200,31 @@ class RealTimeTabPane extends Component {
             if (res.code === 1) {
                 ctx.setState({ taskInfo: res.data })
                 this.doAction(modalAction.EDIT_TASK_VISIBLE)
+            }
+        })
+    }
+
+    cloneTask = () => {
+        const ctx = this
+        const task = this.state.activeNode
+        Api.getTask({ id: task.id }).then((res) => {
+            if (res.code === 1) {
+                ctx.setState({ taskInfo: res.data })
+                this.doAction(modalAction.ADD_TASK_CLONE_VISIBLE)
+            }
+        })
+    }
+
+    confirmClone = (task) => {
+        const { dispatch, } = this.props
+        Api.cloneTask(task).then(res => {
+            if (res.code === 1) {
+                message.success('任务克隆成功！')
+                this.closeModal()
+                dispatch(TreeAction.getRealtimeTree({
+                    id: task.nodePid,
+                    catalogueType: MENU_TYPE.TASK_DEV
+                }))
             }
         })
     }
@@ -761,6 +788,7 @@ class RealTimeTabPane extends Component {
 
         const disableEdit = activeNode && activeNode.level === 1 ? 'none' : 'block'
         const visibleTask = modal.indexOf('TASK_VISIBLE') > -1
+        const visibleCloneTask = modal.indexOf('TASK_CLONE_VISIBLE') > -1
         const visibleCata = modal.indexOf('CATA_VISIBLE') > -1
 
         return (
@@ -783,6 +811,18 @@ class RealTimeTabPane extends Component {
                     visible={visibleTask}
                     ayncTree={this.loadTreeData}
                     handOk={this.createOrUpdateTask}
+                    handCancel={this.closeModal}
+                />
+
+                <CloneTaskForm
+                    taskTypes={taskTypes}
+                    taskRoot={taskTree}
+                    operation={modal}
+                    resRoot={resourceTree}
+                    taskInfo={taskInfo}
+                    visible={visibleCloneTask}
+                    ayncTree={this.loadTreeData}
+                    handOk={this.confirmClone}
                     handCancel={this.closeModal}
                 />
 
@@ -883,6 +923,7 @@ class RealTimeTabPane extends Component {
 
                     <ContextMenu targetClassName="task-item">
                         <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
+                        <MenuItem onClick={this.cloneTask}>克隆</MenuItem>
                         <Popconfirm
                             title="确定删除这个任务吗?"
                             onConfirm={this.deleteTask}

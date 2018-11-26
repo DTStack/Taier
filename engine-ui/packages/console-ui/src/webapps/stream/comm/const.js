@@ -34,9 +34,11 @@ export const DATA_SOURCE_TEXT = {
     11: 'ElasticSearch',
     12: 'Redis',
     13: 'MongoDB',
-    14: 'Kafka',
+    14: 'KAFKA_11',
     15: "ADS",
     16: 'BEATS',
+    17: 'KAFKA_10',
+    18: 'KAFKA_09'
 }
 
 export const REDIS_TYPE={

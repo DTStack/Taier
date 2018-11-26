@@ -6,8 +6,9 @@ import {
 import { debounce } from 'lodash';
 
 import Api from '../../../api';
-
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
+import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
+
 import Editor from 'widgets/code-editor'
 
 
@@ -21,17 +22,17 @@ class InputOrigin extends Component {
     componentDidMount() {
         this.props.onRef(this);
     }
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.isShow && nextProps.isShow) {
-            this.refreshEditor();
-        }
-    }
     refreshEditor() {
         if (this._editorRef) {
             console.log("refresh")
             this._editorRef.refresh();
         }
     }
+    // componentDidUpdate() {
+    //     if (this.props.isShow) {
+    //         this.refreshEditor();
+    //     }
+    // }
     checkParams = () => {
         //手动检测table参数
         const { index, panelColumn } = this.props;
@@ -67,7 +68,7 @@ class InputOrigin extends Component {
     }
 
     editorParamsChange(a, b, c) {
-        const { handleInputChange, textChange, index, } = this.props;
+        const { handleInputChange, textChange, index, isShow } = this.props;
         textChange();
         handleInputChange("columnsText", index, b);
     }
@@ -75,7 +76,7 @@ class InputOrigin extends Component {
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
     render() {
-        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [] } = this.props;
+        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [], isShow } = this.props;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
 
@@ -107,7 +108,9 @@ class InputOrigin extends Component {
                             <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange("type", index, v) }}
                                 showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
-                                <Option value="14">Kafka</Option>
+                                <Option value={DATA_SOURCE.KAFKA}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA_10}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_10]}</Option>
+                                <Option value={DATA_SOURCE.KAFKA_09}>{DATA_SOURCE_TEXT[DATA_SOURCE.KAFKA_09]}</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -167,17 +170,19 @@ class InputOrigin extends Component {
                             <label>字段</label>
                         </div>
                         <Col span="18" style={{ marginBottom: 20, height: 202 }}>
-                            <Editor
-                                style={{ minHeight: 202 }}
-                                className="bd"
-                                sync={sync}
-                                placeholder="字段 类型, 比如 id int 一行一个字段"
-                                value={panelColumn[index].columnsText}
-                                onChange={this.debounceEditorChange.bind(this)}
-                                editorRef={(ref) => {
-                                    this._editorRef = ref;
-                                }}
-                            />
+                            {isShow && (
+                                <Editor
+                                    style={{ minHeight: 202 }}
+                                    className="bd"
+                                    sync={sync}
+                                    placeholder="字段 类型, 比如 id int 一行一个字段"
+                                    value={panelColumn[index].columnsText}
+                                    onChange={this.debounceEditorChange.bind(this)}
+                                    editorRef={(ref) => {
+                                        this._editorRef = ref;
+                                    }}
+                                />
+                            )}
                         </Col>
                     </Row>
                     <FormItem
@@ -217,9 +222,9 @@ class InputOrigin extends Component {
                             <FormItem
                                 {...formItemLayout}
                                 label={(
-                                    <span >
-                                        偏移量(ms)
-                                        <Tooltip title="watermark值与event time值的偏移量">
+                                    <span style={{ lineHeight: 1 }} >
+                                        <span style={{ paddingRight: "5px" }}>最大延迟时间</span><br />(ms)
+                                            <Tooltip title="当event time超过最大延迟时间时，系统自动丢弃此条数据">
                                             <Icon type="question-circle-o" />
                                         </Tooltip>
                                     </span>
@@ -227,7 +232,7 @@ class InputOrigin extends Component {
                             >
                                 {getFieldDecorator('offset', {
                                     rules: [
-                                        { required: true, message: '请输入时间偏移量' },
+                                        { required: true, message: '请输入最大延迟时间' },
                                     ],
                                 })(
                                     <InputNumber className="number-input" min={0} onChange={value => handleInputChange('offset', index, value)} />
@@ -254,7 +259,7 @@ const InputForm = Form.create({
     mapPropsToFields(props) {
         const { type, sourceId, topic, table, columns, timeType, timeColumn, offset, columnsText, parallelism } = props.panelColumn[props.index];
         return {
-            type: { value: type },
+            type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             topic: { value: topic },
             table: { value: table },
@@ -324,7 +329,7 @@ export default class InputPanel extends Component {
         const { timeColumoption, panelColumn } = this.state;
         const columns = text.split('\n').filter(Boolean).map(v => {
             let column;
-            const as_case=/^.*\w.*\s+as\s+(\w+)$/i.exec(v);
+            const as_case = /^.*\w.*\s+as\s+(\w+)$/i.exec(v);
             if (as_case) {
                 return {
                     column: as_case[1],
@@ -464,7 +469,7 @@ export default class InputPanel extends Component {
     }
     changeInputTabs = (type, index) => {
         const inputData = {
-            type: "14",
+            type: DATA_SOURCE.KAFKA,
             sourceId: undefined,
             topic: undefined,
             table: undefined,
@@ -700,7 +705,7 @@ export default class InputPanel extends Component {
                             return (
                                 <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
                                     <InputForm
-                                        isShow={panelActiveKey.indexOf(index + 1+'')>-1 && isShow}
+                                        isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                         sync={sync}
                                         index={index}
                                         handleInputChange={this.handleInputChange}

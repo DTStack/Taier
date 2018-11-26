@@ -346,7 +346,7 @@ class RealTimeTaskList extends Component {
             key: 'bizDelay',
             width: 150,
             render(text) {
-                return `${text}s`
+                return utils.formatTime(text);
             }
         }, {
             title: '任务类型',

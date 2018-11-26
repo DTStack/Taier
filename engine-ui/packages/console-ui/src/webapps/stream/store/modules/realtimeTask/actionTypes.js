@@ -29,7 +29,7 @@ export const browserAction = mc([
 export const modalAction = mc([
     'ADD_TASK_VISIBLE',
     'ADD_RES_VISIBLE',
-    
+    'ADD_TASK_CLONE_VISIBLE',
     'EDIT_TASK_VISIBLE',
     'ADD_TASK_CATA_VISIBLE',
     'EDIT_TASK_CATA_VISIBLE',
