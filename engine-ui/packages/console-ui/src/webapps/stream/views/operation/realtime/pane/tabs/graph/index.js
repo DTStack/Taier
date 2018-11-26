@@ -34,25 +34,26 @@ const defaultLineData = {
     y: [[]],
     loading: true
 }
+const defaultData = {
+    [metricsType.FAILOVER_RATE]: defaultLineData,
+    [metricsType.DELAY]: defaultLineData,
+    [metricsType.SOURCE_TPS]: defaultLineData,
+    [metricsType.SINK_OUTPUT_RPS]: defaultLineData,
+    [metricsType.SOURCE_RPS]: defaultLineData,
+    [metricsType.SOURCE_INPUT_BPS]: defaultLineData,
+    [metricsType.SOURCE_DIRTY]: defaultLineData,
+    [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
+    [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
+    [metricsType.DATA_DISABLE_TPS]: defaultLineData,
+    [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
+    [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
+    [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
+}
 class StreamDetailGraph extends React.Component {
 
     state = {
         time: defaultTimeValue,
-        lineDatas: {
-            [metricsType.FAILOVER_RATE]: defaultLineData,
-            [metricsType.DELAY]: defaultLineData,
-            [metricsType.SOURCE_TPS]: defaultLineData,
-            [metricsType.SINK_OUTPUT_RPS]: defaultLineData,
-            [metricsType.SOURCE_RPS]: defaultLineData,
-            [metricsType.SOURCE_INPUT_BPS]: defaultLineData,
-            [metricsType.SOURCE_DIRTY]: defaultLineData,
-            [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
-            [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
-            [metricsType.DATA_DISABLE_TPS]: defaultLineData,
-            [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
-            [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
-            [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
-        }
+        lineDatas: defaultData
     }
     componentDidMount() {
         this.initData();
@@ -67,21 +68,7 @@ class StreamDetailGraph extends React.Component {
     }
     clear() {
         this.setState({
-            lineDatas: {
-                [metricsType.FAILOVER_RATE]: defaultLineData,
-                [metricsType.DELAY]: defaultLineData,
-                [metricsType.SOURCE_TPS]: defaultLineData,
-                [metricsType.SINK_OUTPUT_RPS]: defaultLineData,
-                [metricsType.SOURCE_RPS]: defaultLineData,
-                [metricsType.SOURCE_INPUT_BPS]: defaultLineData,
-                [metricsType.SOURCE_DIRTY]: defaultLineData,
-                [metricsType.DATA_COLLECTION_RPS]: defaultLineData,
-                [metricsType.DATA_COLLECTION_BPS]: defaultLineData,
-                [metricsType.DATA_DISABLE_TPS]: defaultLineData,
-                [metricsType.DATA_DISABLE_COUNT]: defaultLineData,
-                [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
-                [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData,
-            }
+            lineDatas: defaultData
         })
     }
     setLineData(data = []) {

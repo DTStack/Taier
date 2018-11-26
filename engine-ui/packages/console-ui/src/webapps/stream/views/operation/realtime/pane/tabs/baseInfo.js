@@ -16,7 +16,7 @@ class BaseInfo extends React.Component {
     componentWillReceiveProps(nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
-        if (data.id != nextData.id
+        if (data.id != nextData.id||data.status!=nextData.status
         ) {
             this.getLog(nextData);
         }

@@ -193,6 +193,29 @@ const utils = {
             return `${value} B`;
         }
     },
+    /**
+     * 时间转换 3661s--->1小时1分钟1秒
+     */
+    formatTime(time=0){
+        let second=0;
+        let minute=0;
+        let hour=0;
+        
+        function _formatHour(time){
+            hour = Math.floor(time/3600);
+            return time-hour*3600;
+        }
+        function _formatMinute(time){
+            minute = Math.floor(time/60);
+            return time-minute*60;
+        }
+        function _formatSecond(time){
+            second =  time;
+            return second;
+        }
+        _formatSecond(_formatMinute(_formatHour(time)))
+        return `${hour?hour+'h':''}${minute?minute+'m':''}${second?second+'s':''}`
+    },
     //千位分割
     toQfw: function(str) {
         if (!str) {

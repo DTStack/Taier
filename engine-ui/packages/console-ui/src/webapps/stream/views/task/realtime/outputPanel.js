@@ -173,7 +173,7 @@ class OutputOrigin extends Component {
                             {...formItemLayout}
                             label="表"
                         >
-                            {getFieldDecorator('table', {
+                            {getFieldDecorator('table-input', {
                                 initialValue: "disabled",
                                 rules: [
                                     { required: true, message: '请输入表名', }
@@ -188,7 +188,7 @@ class OutputOrigin extends Component {
                         {...formItemLayout}
                         label="主键"
                     >
-                        {getFieldDecorator('primaryKey', {
+                        {getFieldDecorator('primaryKey-input', {
                             rules: [
                                 { required: true, message: '请输入主键', }
                             ],
@@ -386,6 +386,7 @@ const OutputForm = Form.create({
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             table: { value: table },
+            "table-input": { value: table },
             columns: { value: columns },
             columnsText: { value: columnsText },
             id: { value: id },
@@ -396,6 +397,7 @@ const OutputForm = Form.create({
             parallelism: { value: parallelism },
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
+            "primaryKey-input": { value: primaryKey },
             rowKey: { value: rowKey },
             ...generateMapValues(customParams)
         }

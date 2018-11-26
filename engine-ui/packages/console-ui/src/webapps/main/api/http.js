@@ -42,7 +42,9 @@ class Http {
             }, 300)
             return response.json()
         })
-        .then(authAfterFormated)
+        .then((response)=>{
+            return authAfterFormated(response,extOption);
+        })
         .catch( err => { 
             if(extOption.isSilent){
                 return err;

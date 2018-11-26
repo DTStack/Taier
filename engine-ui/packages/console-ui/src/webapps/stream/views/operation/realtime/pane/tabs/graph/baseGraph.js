@@ -144,7 +144,21 @@ class AlarmBaseGraph extends React.Component {
         /**
          * 设置纵坐标名称
          */
-        options.yAxis[0].name = unit;
+        if (unit == "s") {
+            options.yAxis[0].name = "";
+            options.yAxis[0].axisLabel.formatter = (value) => {
+                return utils.formatTime(value);
+            }
+            options.yAxis[0].axisPointer={
+                label:{
+                    formatter : (params) => {
+                        return utils.formatTime(params.value);
+                    }
+                }
+            }
+        } else {
+            options.yAxis[0].name = unit;
+        }
         /**
          * 设置横坐标数值
          */
