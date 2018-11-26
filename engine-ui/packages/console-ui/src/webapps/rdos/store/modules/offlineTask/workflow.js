@@ -19,6 +19,8 @@ export const workflowReducer = (state = initState, action) => {
             return assign({}, state, action.payload);
         case workflowAction.RESET:
             return initState;
+        case workflowAction.CLONE:
+            return initState;
         default:
             return state;
     }

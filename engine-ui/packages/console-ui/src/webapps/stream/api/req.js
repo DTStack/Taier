@@ -54,6 +54,7 @@
      SEARCH_TASKS_BY_NAME: `${STREAM_BASE_URL}/streamTask/searchTaskByName`, // 按名称搜索任务
      SORT_TASKS: `${STREAM_BASE_URL}/streamTask/changeTaskOrder`, // 任务列表时间排序
      DELETE_TASK: `${STREAM_BASE_URL}/streamTask/deleteTask`, // 删除项目
+     CLONE_TASK: `${STREAM_BASE_URL}/streamTask/cloneTask`, // 克隆任务
      TASK_STATISTICS: `${STREAM_BASE_URL}/streamTask/getStatusCount`, // 实时任务个状态数量统计
      GET_TASK_LOG: `${STREAM_BASE_URL}/streamServerLog/getLogsByTaskId`, // 获取任务告警日志
      GLOBAL_SEARCH_TASK: `${STREAM_BASE_URL}/streamTask/globalSearch`, // 全局搜索任务

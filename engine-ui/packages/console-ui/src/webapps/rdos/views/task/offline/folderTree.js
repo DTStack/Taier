@@ -127,6 +127,9 @@ class FolderTree extends React.Component {
                             txt: '编辑',
                             cb: this.editTask.bind(this, data)
                         }, {
+                            txt: '克隆',
+                            cb: this.cloneTask.bind(this, data)
+                        }, {
                             txt: '删除',
                             cb: this.deleteTask.bind(this, data)
                         }])
@@ -316,6 +319,26 @@ class FolderTree extends React.Component {
                     this.props.toggleCreateTask();
                 }
             })
+            console.log(data)
+    }
+
+    // 克隆任务
+    cloneTask(data) {
+        this.setState({
+            visible: true,
+        })
+        ajax.getOfflineTaskByID({
+            id: data.id,
+            lockVersion: data.readWriteLockVO.version
+        })
+            .then(res => {
+                if (res.code === 1) {
+                   
+                    this.props.setModalDefault(res.data);
+                    this.props.toggleCloneTask();
+                }
+            })
+        console.log(data);
     }
 
     deleteTask(data) {
@@ -440,7 +463,7 @@ class FolderTree extends React.Component {
 
         const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
         const treeType = type;
-
+        
         const loop = (data) => {
             const { createUser, id, name, type, taskType, resourceType } = data;
 

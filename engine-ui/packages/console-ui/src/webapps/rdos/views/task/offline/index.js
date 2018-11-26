@@ -10,9 +10,11 @@ import FnViewModal from './fnViewModal';
 import ResViewModal from './resViewModal';
 import ScriptModal from './scriptModal';
 
+import CloneTaskModal from './cloneTaskModal';
 export default class Offline extends React.Component {
     render() {
         return <div>
+            <CloneTaskModal></CloneTaskModal>
             <TaskModal />
             <UploadModal />
             <FolderModal />
