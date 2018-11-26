@@ -479,7 +479,7 @@ class Keymap extends React.Component{
                     const cf = col ? col.cf : '列族';
 
                     // 仅允许常量删除操作
-                    const opt = col.key === 'rowkey' ? cellOperation(null, editOption) :
+                    const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption) :
                     cellOperation(removeOption, editOption);
 
                     return <div className="four-cells">
@@ -681,9 +681,10 @@ class Keymap extends React.Component{
                     </div> 
                 }
                 default: {
+                    const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
                     return <div>
                         <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型'}</div>
+                        <div className="cell">{ typeText }</div>
                     </div>
                 }
             }
@@ -998,13 +999,28 @@ class Keymap extends React.Component{
     }
 
     next(cb) {
-        const { keymap, targetSrcType } = this.props;
+        const { keymap, targetSrcType, targetCol } = this.props;
         const { source, target } = keymap;
 
         if(source.length === 0 && target.length === 0) {
             message.error('尚未配置数据同步的字段映射！');
             return;
         }
+
+        const isCarbonDataCheckPartition = () => {
+            if (targetSrcType === DATA_SOURCE.CARBONDATA) {
+                const hasPartiton = targetCol.find(col => col.isPart);
+                const keymapPartition = target.find(col => col.isPart);
+                if (hasPartiton && !keymapPartition) {
+                    message.error('目标字段中的分区字段必须添加映射！');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 如果Carbondata作为目标数据源，且目标字段中有分区字段，分区字段必须添加映射，否则error
+        if (!isCarbonDataCheckPartition()) return false;;
 
         // 针对Hbase增加keyrow检验项
         if (targetSrcType === DATA_SOURCE.HBASE) {

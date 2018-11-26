@@ -10,6 +10,6 @@ export const jdbcUrlExample = {
         "jdbc:jtds:sqlserver://host:port;DatabaseName=dbName",
     [DATA_SOURCE.POSTGRESQL]: "jdbc:postgresql://host:port/database",
     [DATA_SOURCE.HIVE]: "jdbc:hive2://host:port/dbName",
-    [DATA_SOURCE.ANALYSIS]: "jdbc:hive2://host:port/dbName",
+    [DATA_SOURCE.CARBONDATA]: "jdbc:hive2://host:port/dbName",
     [DATA_SOURCE.DB2]: "jdbc:db2://host:port/dbName"
 };

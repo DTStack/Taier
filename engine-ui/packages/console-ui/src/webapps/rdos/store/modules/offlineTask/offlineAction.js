@@ -311,7 +311,7 @@ export const workbenchActions = (dispatch) => {
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
             let taskVariables = [];
 
-            // SourceMap
+            // SourceMapupdateDataSyncVariables
             if (sourceMap) {
                 if (sourceMap.type && sourceMap.type.where) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)
@@ -391,6 +391,19 @@ export const workbenchActions = (dispatch) => {
                     return true;
                 }
             });
+        },
+
+        // 确定克隆
+        confirmClone(data) {
+            return ajax.cloneTask(data)
+            .then(res => {
+                if(res.code == 1) {
+                    dispatch({
+                        type: workflowAction.CLONE,
+                    })
+                    return true;
+                }
+            })
         },
 
         saveTask(task, noMsg) {
@@ -889,6 +902,13 @@ export const workbenchActions = (dispatch) => {
         toggleCreateTask: function (data) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK,
+                payload: data,
+            });
+        },
+        // 克隆任务
+        toggleCloneTask: function (data) {
+            dispatch({
+                type: modalAction.TOGGLE_CLONE_TASK,
                 payload: data,
             });
         },
