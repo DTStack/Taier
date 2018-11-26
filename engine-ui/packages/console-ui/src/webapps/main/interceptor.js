@@ -19,7 +19,7 @@ export function authBeforeFormate(response) {
     }
 }
 
-export function authAfterFormated(response) {
+export function authAfterFormated(response,extOptions={}) {
     switch (response.code) {
     case 1:
         return response;
@@ -29,7 +29,7 @@ export function authAfterFormated(response) {
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
         // window.location.href = "/"
     default:
-        if (response.message) {
+        if (response.message&&!extOptions.isSilent) {
             message.error(response.message, 3) // 异常消息默认显示5s
         }
         return response
