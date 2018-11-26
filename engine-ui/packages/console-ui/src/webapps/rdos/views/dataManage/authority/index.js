@@ -63,7 +63,7 @@ class AuthMana extends Component {
 
     constructor(props) {
         super(props);
-        const isAdminAbove = this.props.user&&this.props.user.isAdminAbove || 0;
+        const isAdminAbove = this.props.user && this.props.user.isAdminAbove || 0;
         const isPermission = isAdminAbove==0 ? "1" : "0";
         const { listType, pageIndex, resourceName, startTime, endTime ,belongProjectId, applyUserId, status } = this.props.location.query;
         this.state = {

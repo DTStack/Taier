@@ -311,7 +311,7 @@ export const workbenchActions = (dispatch) => {
         updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
             let taskVariables = [];
 
-            // SourceMap
+            // SourceMapupdateDataSyncVariables
             if (sourceMap) {
                 if (sourceMap.type && sourceMap.type.where) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)

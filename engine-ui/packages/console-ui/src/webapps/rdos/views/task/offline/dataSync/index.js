@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 
 import DataSyncSource from './source';
 import DataSyncTarget from './target';
@@ -56,14 +56,30 @@ class DataSync extends React.Component {
     onVariablesChange = (oldProps, nextProps) => {
         const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
         const { sourceMap, targetMap } = nextProps;
+
         const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
         const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
 
-        return (sourceMap && sourceMap.type && oldSource.type.where !== sourceMap.type.where) || // source type update
-        (sourceMap && sourceMap.type && oldSource.type.partition !== sourceMap.type.partition) || // source type update
-        (targetMap && targetMap.type && oldTarget.type.partition !== targetMap.type.partition) || // target type update
-        (oldSQL !== newSQL) || // target type update
-        (sourceMap && oldSource.column !== sourceMap.column) // source columns update
+        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where && oldSource.type.where && oldSource.type.where !== sourceMap.type.where;
+        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && oldSource.type.partition && sourceMap.type.partition && oldSource.type.partition !== sourceMap.type.partition;
+        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && oldTarget.type.partition && targetMap.type.partition && oldTarget.type.partition !== targetMap.type.partition;
+        const isSQLChange = oldSQL !== undefined && newSQL!== undefined && oldSQL !== newSQL;
+        const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
+
+        // Output test conditions
+        // console.log('old', oldSource, oldTarget);
+        // console.log('new', sourceMap, targetMap);
+        // console.log('isWhereChange', isWhereChange);
+        // console.log('isSourceParitionChange', isSourceParitionChange);
+        // console.log('isTargetPartitionChange', isTargetPartitionChange);
+        // console.log('isSQLChange', isSQLChange);
+        // console.log('isSourceColumnChange', isSourceColumnChange);
+
+        return isWhereChange || // source type update
+        isSourceParitionChange || // source type update
+        isTargetPartitionChange || // target type update
+        isSQLChange || // target type update
+        isSourceColumnChange // source columns update
     }
 
     getJobData = (params) => {

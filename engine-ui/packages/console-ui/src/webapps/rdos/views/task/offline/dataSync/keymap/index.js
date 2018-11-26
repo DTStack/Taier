@@ -479,7 +479,7 @@ class Keymap extends React.Component{
                     const cf = col ? col.cf : '列族';
 
                     // 仅允许常量删除操作
-                    const opt = col.key === 'rowkey' ? cellOperation(null, editOption) :
+                    const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption) :
                     cellOperation(removeOption, editOption);
 
                     return <div className="four-cells">

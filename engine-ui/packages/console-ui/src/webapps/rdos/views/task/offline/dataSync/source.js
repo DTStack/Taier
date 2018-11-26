@@ -736,7 +736,6 @@ class SourceForm extends React.Component {
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
                                 <Option value="parquet">parquet</Option>
-                                <Option value="carbondata">Carbondata</Option>
                             </Select>
                         )}
                     </FormItem>,
