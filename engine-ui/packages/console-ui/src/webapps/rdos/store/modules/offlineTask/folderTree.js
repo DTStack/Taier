@@ -7,7 +7,7 @@ import {
     fnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
-    tableTreeAction,
+    tableTreeAction
 } from './actionType';
 
 import { replaceTreeNode, mergeTreeNodes } from 'funcs'
@@ -19,22 +19,21 @@ import { replaceTreeNode, mergeTreeNodes } from 'funcs'
  * @param {any} state
  * @returns immutable state
  */
-function loadFolderContent(action, state) {
+function loadFolderContent (action, state) {
     const data = action.payload;
     const id = data.id;
     const level = data.level;
     let clone = cloneDeep(state);
     let loop = (arr) => {
         arr.forEach((node, i) => {
-            if( node.id === id && 
+            if (node.id === id &&
                 node.level === level &&
                 (node.type === 'folder' ||
                 node.type === 'flow')
             ) {
                 node.children = data.children;
                 node._hasLoaded = true;
-            }
-            else{
+            } else {
                 loop(node.children || []);
             }
         });
@@ -44,8 +43,8 @@ function loadFolderContent(action, state) {
     return clone;
 }
 
-function sortByName(arr) {
-    arr.sort(function(a, b) {
+function sortByName (arr) {
+    arr.sort(function (a, b) {
         return a.name.localeCompare(b.name);
     })
 }
@@ -57,19 +56,19 @@ function sortByName(arr) {
  * @param {any} state
  * @returns immutable state
  */
-function addFolderChild(action, state) {
+function addFolderChild (action, state) {
     const data = action.payload;
     const { parentId } = data;
 
     let clone = cloneDeep(state);
     let loop = (arr) => {
         arr.forEach((node, i) => {
-            if(node.id === parentId) {
-                if(node.children === null||node.children === undefined) node.children = [];
+            if (node.id === parentId) {
+                if (node.children === null || node.children === undefined) node.children = [];
                 let fileIndex = 0;
 
-                for(let i = 0; i <= node.children.length - 1; i++) {
-                    if(node.children[i].type === 'file') {
+                for (let i = 0; i <= node.children.length - 1; i++) {
+                    if (node.children[i].type === 'file') {
                         fileIndex = i;
                         break;
                     }
@@ -77,8 +76,7 @@ function addFolderChild(action, state) {
                 node.children.splice(fileIndex, 0, data);
                 // Sort children by name
                 sortByName(node.children);
-            }
-            else{
+            } else {
                 loop(node.children || []);
             }
         });
@@ -88,18 +86,17 @@ function addFolderChild(action, state) {
     return clone;
 }
 
-function deleteFolderChild(action, state) {
+function deleteFolderChild (action, state) {
     const { id, parentId } = action.payload;
     let clone = cloneDeep(state);
     let loop = (arr) => {
         arr.forEach((node, i) => {
-            if(node.id === parentId) {
-                if(node.children === null) node.children = [];
+            if (node.id === parentId) {
+                if (node.children === null) node.children = [];
                 node.children = node.children.filter(o => {
                     return o.id !== id;
                 });
-            }
-            else {
+            } else {
                 loop(node.children || []);
             }
         });
@@ -119,196 +116,196 @@ export const clearTreeData = (dispatch) => {
 }
 
 export const taskTreeReducer = (state = {}, action) => {
-    switch(action.type) {
-        case taskTreeAction.RESET_TASK_TREE:
-            return assign({}, action.payload);
+    switch (action.type) {
+    case taskTreeAction.RESET_TASK_TREE:
+        return assign({}, action.payload);
 
-        case taskTreeAction.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case taskTreeAction.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case taskTreeAction.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case taskTreeAction.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case taskTreeAction.DEL_OFFLINE_TASK: {
-            return deleteFolderChild(action, state);
-        }
+    case taskTreeAction.DEL_OFFLINE_TASK: {
+        return deleteFolderChild(action, state);
+    }
 
-        case taskTreeAction.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case taskTreeAction.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        case taskTreeAction.EDIT_FOLDER_CHILD: {
-            let payload = assign({}, action.payload, {parentId: action.payload.originPid});
-            return addFolderChild(action, deleteFolderChild({payload: payload}, state));
-        }
-        case taskTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
-            const updated = cloneDeep(state)
-            replaceTreeNode(updated, action.payload)
-            return updated;
-        }
-        case taskTreeAction.MERGE_FOLDER_CONTENT: {
-            const origin = action.payload;
-            if (origin) return origin;
-        }
-        default:
-            return state;
+    case taskTreeAction.EDIT_FOLDER_CHILD: {
+        let payload = assign({}, action.payload, { parentId: action.payload.originPid });
+        return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+    }
+    case taskTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
+        const updated = cloneDeep(state)
+        replaceTreeNode(updated, action.payload)
+        return updated;
+    }
+    case taskTreeAction.MERGE_FOLDER_CONTENT: {
+        const origin = action.payload;
+        if (origin) return origin;
+    }
+    default:
+        return state;
     }
 };
 
 export const resourceTreeReducer = (state = {}, action) => {
-    switch(action.type) {
-        case resTreeAction.RESET_RES_TREE:
-            return assign({}, action.payload);
+    switch (action.type) {
+    case resTreeAction.RESET_RES_TREE:
+        return assign({}, action.payload);
 
-        case resTreeAction.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case resTreeAction.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case resTreeAction.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case resTreeAction.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case resTreeAction.DEL_OFFLINE_RES: {
-            return deleteFolderChild(action, state);
-        }
+    case resTreeAction.DEL_OFFLINE_RES: {
+        return deleteFolderChild(action, state);
+    }
 
-        case resTreeAction.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case resTreeAction.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        case resTreeAction.EDIT_FOLDER_CHILD: {
-            let payload = assign({}, action.payload, {parentId: action.payload.originPid});
-            return addFolderChild(action, deleteFolderChild({payload: payload}, state));
-        }
-        default:
-            return state;
+    case resTreeAction.EDIT_FOLDER_CHILD: {
+        let payload = assign({}, action.payload, { parentId: action.payload.originPid });
+        return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+    }
+    default:
+        return state;
     }
 };
 
 export const functionTreeReducer = (state = {}, action) => {
-    switch(action.type) {
-        case fnTreeAction.RESET_FUC_TREE:
-            return assign({}, state, action.payload);
+    switch (action.type) {
+    case fnTreeAction.RESET_FUC_TREE:
+        return assign({}, state, action.payload);
 
-        case fnTreeAction.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case fnTreeAction.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case fnTreeAction.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case fnTreeAction.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case fnTreeAction.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case fnTreeAction.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        case fnTreeAction.DEL_OFFLINE_FN: {
-            return deleteFolderChild(action, state);
-        }
+    case fnTreeAction.DEL_OFFLINE_FN: {
+        return deleteFolderChild(action, state);
+    }
 
-        case fnTreeAction.EDIT_FOLDER_CHILD: {
-            let payload = assign({}, action.payload, {parentId: action.payload.originPid});
-            return addFolderChild(action, deleteFolderChild({payload: payload}, state));
-        }
+    case fnTreeAction.EDIT_FOLDER_CHILD: {
+        let payload = assign({}, action.payload, { parentId: action.payload.originPid });
+        return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+    }
 
-        default:
-            return state;
+    default:
+        return state;
     }
 };
 
 export const sysFunctionTreeReducer = (state = {}, action) => {
-    switch(action.type) {
-        case sysFnTreeActon.RESET_SYSFUC_TREE:
-            return assign({}, state, action.payload);
+    switch (action.type) {
+    case sysFnTreeActon.RESET_SYSFUC_TREE:
+        return assign({}, state, action.payload);
 
-        case sysFnTreeActon.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case sysFnTreeActon.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case sysFnTreeActon.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case sysFnTreeActon.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case sysFnTreeActon.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case sysFnTreeActon.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        default:
-            return state;
+    default:
+        return state;
     }
 };
 
 export const scriptTreeReducer = (state = {}, action) => {
     switch (action.type) {
-        case scriptTreeAction.RESET_SCRIPT_TREE:
-            return assign({}, action.payload);
+    case scriptTreeAction.RESET_SCRIPT_TREE:
+        return assign({}, action.payload);
 
-        case scriptTreeAction.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case scriptTreeAction.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case scriptTreeAction.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case scriptTreeAction.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case scriptTreeAction.DEL_SCRIPT: {
-            return deleteFolderChild(action, state);
-        }
+    case scriptTreeAction.DEL_SCRIPT: {
+        return deleteFolderChild(action, state);
+    }
 
-        case scriptTreeAction.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case scriptTreeAction.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        case scriptTreeAction.EDIT_FOLDER_CHILD: {
-            let payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
-        }
+    case scriptTreeAction.EDIT_FOLDER_CHILD: {
+        let payload = assign({}, action.payload, { parentId: action.payload.originPid });
+        return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+    }
 
-        case scriptTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
-            const updated = cloneDeep(state)
-            replaceTreeNode(updated, action.payload)
-            return updated;
-        }
+    case scriptTreeAction.EDIT_FOLDER_CHILD_FIELDS: {
+        const updated = cloneDeep(state)
+        replaceTreeNode(updated, action.payload)
+        return updated;
+    }
 
-        case scriptTreeAction.MERGE_FOLDER_CONTENT: {
-            const origin = action.payload;
-            if (origin) return origin;
-        }
+    case scriptTreeAction.MERGE_FOLDER_CONTENT: {
+        const origin = action.payload;
+        if (origin) return origin;
+    }
 
-        default:
-            return state;
+    default:
+        return state;
     }
 };
 
 export const tableTreeReducer = (state = {}, action) => {
     switch (action.type) {
-        case tableTreeAction.RESET_TABLE_TREE:
-            return assign({}, action.payload);
+    case tableTreeAction.RESET_TABLE_TREE:
+        return assign({}, action.payload);
 
-        case tableTreeAction.LOAD_FOLDER_CONTENT: {
-            return loadFolderContent(action, state);
-        }
+    case tableTreeAction.LOAD_FOLDER_CONTENT: {
+        return loadFolderContent(action, state);
+    }
 
-        case tableTreeAction.ADD_FOLDER_CHILD: {
-            return addFolderChild(action, state);
-        }
+    case tableTreeAction.ADD_FOLDER_CHILD: {
+        return addFolderChild(action, state);
+    }
 
-        case tableTreeAction.DEL_TABLE: {
-            return deleteFolderChild(action, state);
-        }
+    case tableTreeAction.DEL_TABLE: {
+        return deleteFolderChild(action, state);
+    }
 
-        case tableTreeAction.DEL_OFFLINE_FOLDER: {
-            return deleteFolderChild(action, state);
-        }
+    case tableTreeAction.DEL_OFFLINE_FOLDER: {
+        return deleteFolderChild(action, state);
+    }
 
-        case tableTreeAction.EDIT_FOLDER_CHILD: {
-            let payload = assign({}, action.payload, { parentId: action.payload.originPid });
-            return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
-        }
+    case tableTreeAction.EDIT_FOLDER_CHILD: {
+        let payload = assign({}, action.payload, { parentId: action.payload.originPid });
+        return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+    }
 
-        default:
-            return state;
+    default:
+        return state;
     }
 };

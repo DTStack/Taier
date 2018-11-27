@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Row, Col } from "antd";
-import { isEmpty } from "lodash";
-import utils from "utils";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Row, Col } from 'antd';
+import { isEmpty } from 'lodash';
+import utils from 'utils';
 
-import { workbenchActions } from "../../../store/modules/offlineTask/offlineAction";
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
-import Workbench from "./workbench";
-import { isProjectCouldEdit } from "../../../comm";
+import Workbench from './workbench';
+import { isProjectCouldEdit } from '../../../comm';
 
 class Default extends Component {
-    componentDidMount() {
-        const taskId = utils.getParameterByName("taskId");
+    componentDidMount () {
+        const taskId = utils.getParameterByName('taskId');
         if (taskId) {
             this.props.openTaskInDev(+taskId);
         }
     }
-    render() {
+    render () {
         const {
             workbench,
             scriptTree,
@@ -28,7 +28,7 @@ class Default extends Component {
             project
         } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
-        const themeDark = editor.options.theme !== "vs" ? true : undefined;
+        const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const iconBaseUrl = themeDark ? '/public/rdos/img/theme-dark' : '/public/rdos/img';
 
         return workbench.tabs.length ? (
@@ -37,7 +37,7 @@ class Default extends Component {
             couldEdit && (
                 <Row
                     className="box-card txt-left"
-                    style={{ paddingTop: "30px" }}
+                    style={{ paddingTop: '30px' }}
                 >
                     <Col className="operation-card">
                         <div

@@ -1,41 +1,37 @@
 import React, { Component } from 'react'
-import { Alert, Card, Col, Row, Table, Radio,Tabs } from 'antd';
+import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
 
-
-import TopCallFunc from "./topCallFunc";
-import HaveNoApi from "./haveNoApi"
-import OverView from "./overView"
-import TopFail from "./topFail"
-
-
+import TopCallFunc from './topCallFunc';
+import HaveNoApi from './haveNoApi'
+import OverView from './overView'
+import TopFail from './topFail'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 class UserDashboard extends Component {
     state={
-        nowView:"callTop"
+        nowView: 'callTop'
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.chooseUserDate(10, {
             target: {
                 value: this.props.dashBoard.userDate
             }
         })
     }
-    topViewChange(key){
+    topViewChange (key) {
         this.setState({
             nowView: key
         })
     }
-    getDateChoose() {
+    getDateChoose () {
         return this.props.dashBoard.userDate || '1';
     }
 
-    isApiExist() {
+    isApiExist () {
         return true;
     }
-
 
     getView = () => {
         if (this.isApiExist()) {
@@ -43,7 +39,6 @@ class UserDashboard extends Component {
         }
         return <HaveNoApi></HaveNoApi>
     }
-
 
     getMainView = () => {
         const userOverview = this.props.dashBoard.userOverview[this.getDateChoose()];
@@ -55,7 +50,7 @@ class UserDashboard extends Component {
                         defaultValue={this.getDateChoose()}
                         className="no-bd nobackground"
                         onChange={this.props.chooseUserDate.bind(this, 10)}
-                        style={{ marginTop: '8.5px', float: "right" }}
+                        style={{ marginTop: '8.5px', float: 'right' }}
                     >
                         <RadioButton value='1'>最近24小时</RadioButton>
                         <RadioButton value='7'>最近7天</RadioButton>
@@ -69,7 +64,7 @@ class UserDashboard extends Component {
                         </Col>
                         <Col span={8} className="m-card-small  m-tabs noheight">
                             <Tabs
-                                style={{borderTop:"1px #dcdcdc solid"}}
+                                style={{ borderTop: '1px #dcdcdc solid' }}
                                 defaultActiveKey={this.state.nowView}
                                 onChange={this.topViewChange.bind(this)}
                                 className="shadow"
@@ -92,7 +87,7 @@ class UserDashboard extends Component {
                                 title="订购情况"
                                 className="shadow"
                             >
-                                <Row  className="m-count height-101" justify="space-around" type="flex">
+                                <Row className="m-count height-101" justify="space-around" type="flex">
                                     <Col span={8} >
                                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
                                             <span className="m-count-title ">审批中</span>
@@ -116,13 +111,12 @@ class UserDashboard extends Component {
                         </Col>
                     </Row>
 
-
                 </div>
             </div>
         )
     }
 
-    render() {
+    render () {
         return (
             <div>
                 {this.getView()}

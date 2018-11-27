@@ -1,19 +1,18 @@
 import React, { Component } from 'react'
-import { Row, Col, Table } from "antd"
-import moment from "moment";
+import { Row, Col, Table } from 'antd'
+import moment from 'moment';
 
-import { API_USER_STATUS,API_METHOD ,API_METHOD_key} from "../../consts";
+import { API_USER_STATUS, API_METHOD, API_METHOD_key } from '../../consts';
 
 class Content extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
 
     }
 
-    getRequestDataSource() {
+    getRequestDataSource () {
         return this.getValue('reqParam') || [];
     }
-    getRequestColumns() {
+    getRequestColumns () {
         return [{
             title: '参数名',
             dataIndex: 'paramName',
@@ -29,7 +28,7 @@ class Content extends Component {
             dataIndex: 'required',
             key: 'required',
             width: 60,
-            render(text) {
+            render (text) {
                 if (text) {
                     return '是'
                 }
@@ -39,7 +38,7 @@ class Content extends Component {
             title: '说明',
             dataIndex: 'desc',
             key: 'desc',
-            render(text) {
+            render (text) {
                 if (text && text.length > 10) {
                     return <span title={text}>text</span>
                 } else {
@@ -48,10 +47,10 @@ class Content extends Component {
             }
         }];
     }
-    getResponseDataSource() {
+    getResponseDataSource () {
         return this.getValue('respParam') || [];
     }
-    getResponseColumns() {
+    getResponseColumns () {
         return [{
             title: '参数名',
             dataIndex: 'paramName',
@@ -67,7 +66,7 @@ class Content extends Component {
             dataIndex: 'required',
             key: 'required',
             width: 60,
-            render(text) {
+            render (text) {
                 if (text) {
                     return '是'
                 }
@@ -77,7 +76,7 @@ class Content extends Component {
             title: '说明',
             dataIndex: 'desc',
             key: 'desc',
-            render(text) {
+            render (text) {
                 if (text && text.length > 10) {
                     return <span title={text}>text</span>
                 } else {
@@ -87,7 +86,7 @@ class Content extends Component {
 
         }];
     }
-    getValue(key) {
+    getValue (key) {
         const { apiMarket, apiId } = this.props;
         const api = apiMarket && apiMarket.api && apiMarket.api[apiId];
 
@@ -97,7 +96,7 @@ class Content extends Component {
             return null;
         }
     }
-    getValueCallInfo(key) {
+    getValueCallInfo (key) {
         const { apiMarket, apiId } = this.props;
         const api = apiMarket && apiMarket.api && apiMarket.apiCallInfo[apiId];
 
@@ -107,23 +106,23 @@ class Content extends Component {
             return null;
         }
     }
-    render() {
+    render () {
         const status = this.getValueCallInfo('applyStatus');
         const { callUrl, callLimit, beginTime, endTime, mode, showRecord, showMarketInfo, showUserInfo } = this.props;
         const isShowUrl = status != API_USER_STATUS.STOPPED && callUrl;
         const showExt = mode == 'manage';
-        const isGET=this.getValue('reqMethod')==API_METHOD.GET
-        let reqJson=this.getValue('reqJson');
+        const isGET = this.getValue('reqMethod') == API_METHOD.GET
+        let reqJson = this.getValue('reqJson');
 
-        if(isGET){
-            reqJson=Object.entries(reqJson).map(
-                ([key,value])=>{
+        if (isGET) {
+            reqJson = Object.entries(reqJson).map(
+                ([key, value]) => {
                     return `${key}=${value}`
                 }
-            ).join("&")
-            reqJson=reqJson?('?'+reqJson):"无"
-        }else{
-            reqJson=JSON.stringify(reqJson, null, "    \r")
+            ).join('&')
+            reqJson = reqJson ? ('?' + reqJson) : '无'
+        } else {
+            reqJson = JSON.stringify(reqJson, null, '    \r')
         }
         return (
             <div>
@@ -137,7 +136,7 @@ class Content extends Component {
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
                             <p data-title="申请调用次数：" className="pseudo-title p-line">{callLimit == -1 ? '无限制' : callLimit}</p>
-                            <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${new moment(beginTime).format("YYYY-MM-DD")} ~ ${new moment(endTime).format("YYYY-MM-DD")}` : '无限制'}</p>
+                            <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${new moment(beginTime).format('YYYY-MM-DD')} ~ ${new moment(endTime).format('YYYY-MM-DD')}` : '无限制'}</p>
                         </div>
                         }
 
@@ -146,7 +145,7 @@ class Content extends Component {
                         {showExt && (
                             <div>
                                 <p data-title="最近修改人：" className="pseudo-title p-line">{showRecord.modifyUser}</p>
-                                <p data-title="最近修改时间：" className="pseudo-title p-line">{new moment(showRecord.gmtModified).format("YYYY-MM-DD HH:mm:ss")}</p>
+                                <p data-title="最近修改时间：" className="pseudo-title p-line">{new moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
                             </div>
                         )}
                     </div>
@@ -189,9 +188,9 @@ class Content extends Component {
                 <Row gutter={30} style={{ marginTop: 19.3 }}>
                     <Col span={11}>
                         <section>
-                            <h1 className="title-border-l-blue">请求{isGET?'URL':'JSON'}样例</h1>
+                            <h1 className="title-border-l-blue">请求{isGET ? 'URL' : 'JSON'}样例</h1>
                             <div style={{ marginTop: 18 }}>
-                                <pre style={{ maxHeight: "150px", overflow: "auto" }}>
+                                <pre style={{ maxHeight: '150px', overflow: 'auto' }}>
                                     {reqJson}
                                 </pre>
                             </div>
@@ -201,8 +200,8 @@ class Content extends Component {
                         <section>
                             <h1 className="title-border-l-blue">返回JSON样例</h1>
                             <div style={{ marginTop: 18 }}>
-                                <pre style={{ maxHeight: "150px", overflow: "auto" }}>
-                                    {this.getValue('respJson') ? JSON.stringify(this.getValue('respJson'), null, "    \r") : "暂无返回样例"}
+                                <pre style={{ maxHeight: '150px', overflow: 'auto' }}>
+                                    {this.getValue('respJson') ? JSON.stringify(this.getValue('respJson'), null, '    \r') : '暂无返回样例'}
                                 </pre>
                             </div>
                         </section>

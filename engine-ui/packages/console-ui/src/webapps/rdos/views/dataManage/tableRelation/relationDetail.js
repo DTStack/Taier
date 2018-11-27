@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Row, Table, Pagination, Modal } from 'antd'
 
-
 import CommApi from '../../../api';
 import Editor from 'main/components/code-editor'
 import { TaskType, ScriptType } from '../../../components/status'
@@ -10,18 +9,18 @@ import { TASK_TYPE } from '../../../comm/const'
 
 import {
     workbenchActions
-} from '../../../store/modules/offlineTask/offlineAction' 
+} from '../../../store/modules/offlineTask/offlineAction'
 
 const titleStyle = {
     height: '28px',
     display: 'block',
     lineHeight: '28px',
-    textIndent: '5px',
+    textIndent: '5px'
 }
 
-function renderLevel(level) {
+function renderLevel (level) {
     if (level === -1) {
-        return <span style={{color: 'rgb(236, 105, 65);'}}>环形血缘</span>
+        return <span style={{ color: 'rgb(236, 105, 65);' }}>环形血缘</span>
     }
     return level
 }
@@ -35,12 +34,11 @@ function renderLevel(level) {
     }
 })
 class RelationDetail extends React.Component {
-
     state = {
         current: 1,
         pageSize: 5,
         visibleRecord: false,
-        recordInfo: {},
+        recordInfo: {}
     }
 
     showRecord = (item) => {
@@ -50,7 +48,7 @@ class RelationDetail extends React.Component {
             CommApi.getOfflineTaskDetail({
                 id: item.relationId
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     if (item.taskType === TASK_TYPE.SQL) {
                         this.setState({
                             recordInfo: res.data,
@@ -63,7 +61,7 @@ class RelationDetail extends React.Component {
             });
         } else { // 脚本
             CommApi.getScriptById({
-                id: item.relationId,
+                id: item.relationId
             }).then(res => {
                 if (res.code === 1) {
                     this.setState({
@@ -82,17 +80,17 @@ class RelationDetail extends React.Component {
             key: 'name',
             render: (text, record) => {
                 // 是否有权限 0-否，1-是
-                return record.isPermissioned === 1 ? 
-                <a onClick={this.showRecord.bind(this, record)}>{text}</a> : text;
+                return record.isPermissioned === 1
+                    ? <a onClick={this.showRecord.bind(this, record)}>{text}</a> : text;
             }
-        },{
+        }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
             render: (text, record) => {
-                return record.taskType === -1 ? 
-                <ScriptType value={record.scriptType} /> : 
-                <TaskType value={record.taskType} />
+                return record.taskType === -1
+                    ? <ScriptType value={record.scriptType} />
+                    : <TaskType value={record.taskType} />
             }
         }, {
             title: '项目',
@@ -111,20 +109,20 @@ class RelationDetail extends React.Component {
         })
         this.props.loadRelTasks({
             tableId: this.props.data.tableId,
-            pageIndex: page,
+            pageIndex: page
         })
     }
 
-    render() {
+    render () {
         const { data, relationTasks } = this.props
         const { recordInfo, visibleRecord } = this.state
         const tdStyle = {
-            width: '100px',
+            width: '100px'
         }
         return (
-            <div className="task-floating-window rel-table-info ant-table" style={{top: "600px"}}>
+            <div className="task-floating-window rel-table-info ant-table" style={{ top: '600px' }}>
                 <div>
-                    <Row className="tb-wrapper" style={{borderBottom: 0}}>
+                    <Row className="tb-wrapper" style={{ borderBottom: 0 }}>
                         <table>
                             <tbody className="ant-table-tbody" >
                                 <tr>
@@ -160,7 +158,7 @@ class RelationDetail extends React.Component {
                             </tbody>
                         </table>
                     </Row>
-                    <Row className="tb-wrapper" style={{marginTop: '20px', height: '200px' }}>
+                    <Row className="tb-wrapper" style={{ marginTop: '20px', height: '200px' }}>
                         <Table
                             columns={this.initialCols()}
                             rowKey="relationId"
@@ -171,7 +169,7 @@ class RelationDetail extends React.Component {
                     </Row>
                     <Pagination
                         className="txt-right"
-                        style={{ margin: '20px 5px 5px'}}
+                        style={{ margin: '20px 5px 5px' }}
                         pageSize={this.state.pageSize}
                         onChange={this.pageChange}
                         current={this.state.current}
@@ -185,10 +183,10 @@ class RelationDetail extends React.Component {
                     onCancel={() => { this.setState({ visibleRecord: false, recordInfo: {} }) }}
                     footer={null}
                 >
-                    <Editor 
+                    <Editor
                         sync={true}
                         value={recordInfo.sqlText || recordInfo.scriptText }
-                        style={{height: '600px'}}
+                        style={{ height: '600px' }}
                     />
                 </Modal>
             </div>
@@ -196,4 +194,4 @@ class RelationDetail extends React.Component {
     }
 }
 
-export default RelationDetail 
+export default RelationDetail

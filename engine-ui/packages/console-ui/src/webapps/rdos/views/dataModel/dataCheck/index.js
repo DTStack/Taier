@@ -9,12 +9,11 @@ import ModelCheck from './modelCheck';
 const TabPane = Tabs.TabPane;
 
 class DMCheckCenter extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         const { currentTab } = this.props.location.query;
         this.state = {
-            currentTab: currentTab || '1',
+            currentTab: currentTab || '1'
         }
     }
 
@@ -24,19 +23,19 @@ class DMCheckCenter extends Component {
         const pathQuery = { currentTab: value };
         hashHistory.push({
             pathname,
-            query: Object.assign(query,pathQuery),
+            query: Object.assign(query, pathQuery)
         })
         this.setState({
-            currentTab: value,
+            currentTab: value
         })
     }
 
-    render() {
+    render () {
         return (
             <div className="box-1 m-tabs data-check">
-                <Tabs 
+                <Tabs
                     animated={false}
-                    style={{height: 'auto',minHeight: "calc(100% - 40px)"}}
+                    style={{ height: 'auto', minHeight: 'calc(100% - 40px)' }}
                     onChange={this.changeTabs}
                     activeKey={this.state.currentTab}
                 >
@@ -54,5 +53,5 @@ class DMCheckCenter extends Component {
 
 export default connect(state => ({
     project: state.project,
-    user:state.user
+    user: state.user
 }), null)(DMCheckCenter);

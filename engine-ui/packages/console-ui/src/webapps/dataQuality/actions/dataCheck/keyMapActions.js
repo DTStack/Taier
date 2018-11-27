@@ -2,7 +2,6 @@ import { keyMapActionType } from '../../consts/keyMapActionType';
 
 // keyMap模块
 export const keyMapActions = (dispatch) => {
-
     return {
         addLinkedKeys: (params) => {
             dispatch({
@@ -38,6 +37,6 @@ export const keyMapActions = (dispatch) => {
             dispatch({
                 type: keyMapActionType.RESET_LINKED_KEYS
             });
-        },
+        }
     }
 };

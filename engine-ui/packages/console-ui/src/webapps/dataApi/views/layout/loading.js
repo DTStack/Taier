@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
 
-
-
 export default class GlobalLoading extends Component {
-    render() {
+    render () {
         return (
-            <div className="laoding-wrapper" style={{zIndex:2005,position:"fixed"}}>
+            <div className="laoding-wrapper" style={{ zIndex: 2005, position: 'fixed' }}>
                 <div className="loading-center">
                     <h1 className="loading-title">{window.APP_CONF.prefix} API</h1>
                     <div className="bouncywrap">

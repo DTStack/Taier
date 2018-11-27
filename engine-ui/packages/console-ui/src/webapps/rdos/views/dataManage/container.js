@@ -10,15 +10,15 @@ import actions from '../../store/modules/dataManage/actionCreator';
 const { Sider, Content } = Layout;
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-    componentWillReceiveProps(nextProps) {
-        if(this.props.project && nextProps.project !== this.props.project) {
+    componentWillReceiveProps (nextProps) {
+        if (this.props.project && nextProps.project !== this.props.project) {
             // if(window.location.pathname !== '/data-manage/table') {
             //     this.props.router.push('/data-manage/table')
             // }
@@ -30,7 +30,7 @@ class Container extends Component {
         }
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-datamanagement g-datamanage">
@@ -38,7 +38,7 @@ class Container extends Component {
                     <Sidebar {...this.props} />
                 </Sider>
                 <Content style={{ position: 'relative' }}>
-                    { children || "概览" }
+                    { children || '概览' }
                 </Content>
             </Layout>
         )
@@ -49,7 +49,7 @@ Container.defaultProps = defaultPro
 export default connect(state => ({
     project: state.project.id
 }), dispatch => ({
-    searchTable(params) {
+    searchTable (params) {
         dispatch(actions.searchTable(params));
     }
 }))(Container);

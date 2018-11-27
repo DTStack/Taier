@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
 
-import { Input, Icon, Spin, Popover } from "antd";
+import { Input, Icon, Spin, Popover } from 'antd';
 
-import TableDetail from "./tableDetail/index.js";
+import TableDetail from './tableDetail/index.js';
 
 const Search = Input.Search;
 
@@ -12,7 +12,7 @@ class TableTipExtraPane extends React.Component {
         visibleMap: {}
     }
 
-    renderTableItem(tableName, columns) {
+    renderTableItem (tableName, columns) {
         const { visibleMap } = this.state;
         return <section className="tablePane-table-box">
             <div className="tablePane-table-title">
@@ -51,7 +51,7 @@ class TableTipExtraPane extends React.Component {
         </section>
     }
 
-    renderTables() {
+    renderTables () {
         const { data } = this.props;
         const tableAndColumns = Object.entries(data);
 
@@ -69,7 +69,7 @@ class TableTipExtraPane extends React.Component {
         </div>
     }
 
-    renderNone() {
+    renderNone () {
         return (
             <div className="tablePane-notables">
                 暂无表...
@@ -77,7 +77,7 @@ class TableTipExtraPane extends React.Component {
         )
     }
 
-    renderLoading() {
+    renderLoading () {
         return (
             <div className="tablePane-loading">
                 <Spin />
@@ -85,7 +85,7 @@ class TableTipExtraPane extends React.Component {
         )
     }
 
-    closeTableDetail(tableName) {
+    closeTableDetail (tableName) {
         this.setState({
             visibleMap: {
                 ...this.state.visibleMap,
@@ -94,24 +94,24 @@ class TableTipExtraPane extends React.Component {
         })
     }
 
-    filterTable(tableAndColumns){
-        const {searchValue} = this.state;
-        if(!searchValue){
+    filterTable (tableAndColumns) {
+        const { searchValue } = this.state;
+        if (!searchValue) {
             return tableAndColumns;
         }
-       return tableAndColumns.filter(([table,columns])=>{
-            return table.indexOf(searchValue)>-1;
-       })
+        return tableAndColumns.filter(([table, columns]) => {
+            return table.indexOf(searchValue) > -1;
+        })
     }
 
-    search(e) {
+    search (e) {
         this.setState({
             searchValue: e.target.value
         })
     }
 
-    render() {
-        console.log("redner")
+    render () {
+        console.log('redner')
         const { loading } = this.props;
         return (
             <div className="tablePane-box">

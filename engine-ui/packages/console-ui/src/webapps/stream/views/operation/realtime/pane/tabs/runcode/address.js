@@ -1,18 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { Table } from "antd";
+import { Table } from 'antd';
 
-import Api from "../../../../../../api"
-
+import Api from '../../../../../../api'
 
 class RunCodeAddess extends React.Component {
     state = {
         data: []
     }
-    componentDidMount() {
+    componentDidMount () {
         this.initAddress(this.props.taskId);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { taskId } = nextProps;
         const { taskId: old_taskId } = this.props;
 
@@ -20,7 +19,7 @@ class RunCodeAddess extends React.Component {
             this.initAddress(taskId);
         }
     }
-    initAddress(id) {
+    initAddress (id) {
         if (id) {
             Api.getContainerInfos({
                 taskId: id
@@ -33,35 +32,35 @@ class RunCodeAddess extends React.Component {
             })
         }
     }
-    initColumns() {
+    initColumns () {
         return [
             {
-                dataIndex: "host",
-                title: "主机名",
-                width:200
+                dataIndex: 'host',
+                title: '主机名',
+                width: 200
             },
             {
-                dataIndex: "ip",
-                title: "IP",
-                width:200
+                dataIndex: 'ip',
+                title: 'IP',
+                width: 200
             },
             {
-                dataIndex: "port",
-                title: "端口",
-                width:200
+                dataIndex: 'port',
+                title: '端口',
+                width: 200
             }
         ]
     }
-    render() {
+    render () {
         const { style } = this.props;
         const { data } = this.state;
 
         return (
             <div style={{
                 ...style,
-                paddingLeft:"20px",
-                paddingRight:"20px"
-                }}
+                paddingLeft: '20px',
+                paddingRight: '20px'
+            }}
             >
                 <Table
                     className="m-table"
@@ -69,7 +68,7 @@ class RunCodeAddess extends React.Component {
                     columns={this.initColumns()}
                     dataSource={data}
                     pagination={false}
-                    scroll={{y:500}}
+                    scroll={{ y: 500 }}
                 />
             </div>
         )

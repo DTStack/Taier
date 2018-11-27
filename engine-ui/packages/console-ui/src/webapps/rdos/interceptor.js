@@ -7,8 +7,8 @@ import Api from './api'
 import { singletonNotification } from 'funcs';
 
 const maxHeightStyle = {
-    maxHeight: "500px",
-    overflowY: "auto"
+    maxHeight: '500px',
+    overflowY: 'auto'
 }
 
 /* eslint-disable */

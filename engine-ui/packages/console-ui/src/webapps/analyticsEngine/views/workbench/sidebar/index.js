@@ -9,7 +9,7 @@ import CopyUtils from 'utils/copy';
 
 import {
     ContextMenu,
-    MenuItem,
+    MenuItem
 } from 'widgets/context-menu';
 
 import ToolBar from './toolbar';
@@ -18,24 +18,22 @@ import workbenchActions from '../../../actions/workbenchActions';
 import MyIcon from '../../../components/icon';
 import { CATALOGUE_TYPE } from '../../../consts';
 
-
 const Search = Input.Search;
 
 @connect(
-state => {
-    const { folderTree } = state.workbench;
-    return {
-        routing: state.routing,
-        folderTree,
-    }
-},
-dispatch => {
-    const actions = bindActionCreators(workbenchActions, dispatch);
-    return actions;
-})
+    state => {
+        const { folderTree } = state.workbench;
+        return {
+            routing: state.routing,
+            folderTree
+        }
+    },
+    dispatch => {
+        const actions = bindActionCreators(workbenchActions, dispatch);
+        return actions;
+    })
 class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
     }
 
@@ -43,10 +41,10 @@ class Sidebar extends Component {
         activeNode: null,
         expandedKeys: [],
         selectedKeys: [],
-        catalogueContent: 'database',
+        catalogueContent: 'database'
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.loadCatalogue();
     }
 
@@ -55,25 +53,24 @@ class Sidebar extends Component {
             activeNode: null,
             expandedKeys: [],
             selectedKeys: [],
-            catalogueContent: 'database',
+            catalogueContent: 'database'
         })
         this.props.loadCatalogue();
     }
 
     searchTable = (value) => {
-
         const query = utils.trim(value);
         this.setState({
-            catalogueContent: 'search',
+            catalogueContent: 'search'
         })
 
         if (!query) {
             this.refresh();
             return;
         };
-     
+
         this.props.loadCatalogue({
-            tableName: query,
+            tableName: query
         }, CATALOGUE_TYPE.SEARCH_TABLE);
     }
 
@@ -105,14 +102,13 @@ class Sidebar extends Component {
     }
 
     onNodeSelect = (selectedKeys, { node }) => {
-
         const { expandedKeys } = this.state;
         const { eventKey, fileType, data } = node.props;
         this.setState({
-            selectedKeys, 
+            selectedKeys
         });
 
-        if (fileType === CATALOGUE_TYPE.DATA_MAP ) {
+        if (fileType === CATALOGUE_TYPE.DATA_MAP) {
             this.props.onGetDataMap({ id: data.id })
             return false;
         }
@@ -135,12 +131,11 @@ class Sidebar extends Component {
             keys = union(this.state.expandedKeys, keys)
         }
         this.setState({
-            expandedKeys: keys,
+            expandedKeys: keys
         })
     }
 
     renderFolderContent = () => {
-
         const {
             onGetDB,
             folderTree,
@@ -184,18 +179,18 @@ class Sidebar extends Component {
             if (catalogueContent === 'database') {
                 return (
                     <p style={{
-                        padding: '86px 36px', 
-                        fontSize: '14px', 
+                        padding: '86px 36px',
+                        fontSize: '14px',
                         color: '#666666',
-                        letterSpacing: 0,
+                        letterSpacing: 0
                     }}>
                         &nbsp;点击上方&nbsp;
-                            <MyIcon
-                                title="创建数据库"
-                                onClick={onCreateDB}
-                                type="btn_add_database"
-                                style={{cursor: 'pointer'}}
-                            />&nbsp;
+                        <MyIcon
+                            title="创建数据库"
+                            onClick={onCreateDB}
+                            type="btn_add_database"
+                            style={{ cursor: 'pointer' }}
+                        />&nbsp;
                             新建数据库或联系管理员获取访问权限
                     </p>
                 )
@@ -210,8 +205,7 @@ class Sidebar extends Component {
         }
     }
 
-    render() {
-
+    render () {
         const { activeNode } = this.state;
 
         const {
@@ -223,7 +217,7 @@ class Sidebar extends Component {
             onCreateDataMap,
             onGenerateCreateSQL,
             onEditTable,
-            onTableDetail,
+            onTableDetail
         } = this.props;
 
         return (
@@ -232,26 +226,26 @@ class Sidebar extends Component {
                     onRefresh={this.refresh}
                     onCreateDB={() => onCreateDB()}
                     onSQLQuery={() => onSQLQuery()}
-                    onEditTable = {()=> onEditTable()}
+                    onEditTable = {() => onEditTable()}
                     onCreateTable={() => onCreateTable()}
-                    onTableDetail={()=> onTableDetail()}
+                    onTableDetail={() => onTableDetail()}
                 />
                 {
                     this.renderFolderContent()
                 }
                 <ContextMenu targetClassName="anchor-database">
-                    <MenuItem onClick={()=>onCreateTable(activeNode)}>新建表</MenuItem>
+                    <MenuItem onClick={() => onCreateTable(activeNode)}>新建表</MenuItem>
                     <MenuItem onClick={() => onGetDB({ databaseId: activeNode.id })}>
                         查看详情
                     </MenuItem>
                 </ContextMenu>
                 <ContextMenu targetClassName="anchor-table">
                     <MenuItem onClick={() => onSQLQuery(activeNode) }>查询</MenuItem>
-                    <MenuItem onClick={()=> onEditTable(activeNode)}>编辑表</MenuItem>
-                    <MenuItem onClick={()=> onTableDetail(activeNode)}>表详情</MenuItem>
+                    <MenuItem onClick={() => onEditTable(activeNode)}>编辑表</MenuItem>
+                    <MenuItem onClick={() => onTableDetail(activeNode)}>表详情</MenuItem>
                     <MenuItem onClick={() => onGenerateCreateSQL({
                         tableId: activeNode.id,
-                        databaseId: activeNode.databaseId,
+                        databaseId: activeNode.databaseId
                     })}>
                         显示建表DDL
                     </MenuItem>

@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table, message} from "antd";
+import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table, message } from 'antd';
 import { cloneDeep } from 'lodash';
 
 const TextArea = Input.TextArea;
@@ -12,7 +12,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    
+
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -20,24 +20,24 @@ class OutputParams extends Component {
     state = {
         loading: false,
         tableColumns: [],
-        dataSource: [],
+        dataSource: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         // this.getTableColumns();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (nextProps.addOutputsignal && !this.props.addOutputsignal) {
             this.addOutput(nextProps.inputToOutputData);
         }
-        //input参数不等，添加新的值
-        if (nextProps.initValue!=this.props.initValue) {
+        // input参数不等，添加新的值
+        if (nextProps.initValue != this.props.initValue) {
             this.initDataSource(nextProps.initValue);
         }
     }
 
-    initDataSource(initValue){
+    initDataSource (initValue) {
         let data = initValue;
         if (!initValue) {
             data = [];
@@ -51,24 +51,23 @@ class OutputParams extends Component {
         });
     }
 
-    //通知父组件最新的值
-    backMsg(table) {
+    // 通知父组件最新的值
+    backMsg (table) {
         let arr = [];
         for (let i in table) {
             let item = table[i];
-            if (item.tmp) {//假如存在回滚数据，则返回tmp
+            if (item.tmp) { // 假如存在回滚数据，则返回tmp
                 arr.push(item.tmp)
-            } else if (!item.isEdit) {//不存在回滚，并且不处于编辑状态，则返回item
-                
+            } else if (!item.isEdit) { // 不存在回滚，并且不处于编辑状态，则返回item
                 arr.push(item);
-            } 
+            }
         }
         this.props.outputParamsChange(arr);
     }
 
-    addOutput(inputToOutputData){
+    addOutput (inputToOutputData) {
         const table = cloneDeep(this.state.dataSource);
-        let dic={
+        let dic = {
             key: Math.random(),
             fieldName: '',
             paramType: '',
@@ -79,27 +78,27 @@ class OutputParams extends Component {
             isEdit: true
         }
 
-        if(inputToOutputData){
+        if (inputToOutputData) {
             console.log(inputToOutputData)
-            
-            dic.fieldName=inputToOutputData.fieldName;
-            dic.paramType=inputToOutputData.paramType;
-            dic.paramName=inputToOutputData.paramName;
-            dic.operator=inputToOutputData.operator;
-            dic.required=inputToOutputData.required;
-            dic.desc=inputToOutputData.desc;
+
+            dic.fieldName = inputToOutputData.fieldName;
+            dic.paramType = inputToOutputData.paramType;
+            dic.paramName = inputToOutputData.paramName;
+            dic.operator = inputToOutputData.operator;
+            dic.required = inputToOutputData.required;
+            dic.desc = inputToOutputData.desc;
         }
         table.unshift(dic);
-        
+
         this.setState({
             dataSource: table
         }
-            , () => {
-                this.props.changeAddoutputOverSignal();
-            })
+        , () => {
+            this.props.changeAddoutputOverSignal();
+        })
     }
 
-    getTableColumns() {
+    getTableColumns () {
         this.props.tablecolumn(this.props.dataSourceId, this.props.tableId)
             .then(
                 (res) => {
@@ -112,117 +111,115 @@ class OutputParams extends Component {
             )
     }
 
-    getColumnsView() {
+    getColumnsView () {
         const { sourceColumn } = this.props.dataSource;
         return sourceColumn.map(
             (item) => {
-                return (<Option title={item.key} key={item.key} value={item.type + "@@" + item.key}>{item.key}</Option>)
+                return (<Option title={item.key} key={item.key} value={item.type + '@@' + item.key}>{item.key}</Option>)
             }
         )
     }
 
-    //字段改变
-    changeTableParam(index, key) {
-        key = key.split("@@");
+    // 字段改变
+    changeTableParam (index, key) {
+        key = key.split('@@');
         if (!key) {
             return;
         }
         const table = cloneDeep(this.state.dataSource);
         table[index].paramType = key[0];
         table[index].fieldName = key[1];
-        
+
         this.setState({
             dataSource: table
         })
     }
-    //选择框改变
-    setRequired(index,e){
+    // 选择框改变
+    setRequired (index, e) {
         const table = cloneDeep(this.state.dataSource);
         table[index].required = e.target.checked
         this.setState({
             dataSource: table
         })
     }
-    //编辑说明
-    textAreaChange(index,e){
-        const value=e.target.value;
-       
+    // 编辑说明
+    textAreaChange (index, e) {
+        const value = e.target.value;
+
         const table = cloneDeep(this.state.dataSource);
         table[index].desc = value
         this.setState({
             dataSource: table
         })
     }
-    //参数名
-    paramNameChange(index,e){
-        const value=e.target.value;
-       
+    // 参数名
+    paramNameChange (index, e) {
+        const value = e.target.value;
+
         const table = cloneDeep(this.state.dataSource);
         table[index].paramName = value
         this.setState({
             dataSource: table
         })
     }
-    //编辑操作符
-    operatorsChange(index,value){
+    // 编辑操作符
+    operatorsChange (index, value) {
         const table = cloneDeep(this.state.dataSource);
         table[index].operator = value
         this.setState({
             dataSource: table
         })
     }
-    //验证数据合法性
-    checkInfo(index,isTmp){
+    // 验证数据合法性
+    checkInfo (index, isTmp) {
         const table = cloneDeep(this.state.dataSource);
-        let checkItem=table[index];
-        if(isTmp){
-            checkItem=checkItem.tmp;
+        let checkItem = table[index];
+        if (isTmp) {
+            checkItem = checkItem.tmp;
         }
-        if(!checkItem.fieldName){
-            message.error("请选择字段");
+        if (!checkItem.fieldName) {
+            message.error('请选择字段');
             return false;
         }
         if (!checkItem.paramName) {
-            message.error("请填写参数名");
+            message.error('请填写参数名');
             return false;
         }
-        if(!this.checkVal(checkItem)){
+        if (!this.checkVal(checkItem)) {
             return false;
         }
-        for(let i in table){
-            if(i==index){
+        for (let i in table) {
+            if (i == index) {
                 continue;
             }
-            if(table[i].fieldName==checkItem.fieldName){
-                if(isTmp){
-                    message.error("原数据与现有数据重复，请修改保存");
-                    
-                }else{
-                    message.error("不能设置相同字段")
+            if (table[i].fieldName == checkItem.fieldName) {
+                if (isTmp) {
+                    message.error('原数据与现有数据重复，请修改保存');
+                } else {
+                    message.error('不能设置相同字段')
                 }
-                
+
                 return false;
             }
         }
         return true;
     }
-    checkVal(item){
-        if(item.desc&&item.desc.length>200){
-            message.error("说明不得大于200字符")
+    checkVal (item) {
+        if (item.desc && item.desc.length > 200) {
+            message.error('说明不得大于200字符')
             return false;
         }
-        if(item.paramName&&item.paramName.length>16){
-            message.error("参数名不得大于16字符")
+        if (item.paramName && item.paramName.length > 16) {
+            message.error('参数名不得大于16字符')
             return false;
         }
 
         return true;
     }
-    //保存信息
-    saveInfo(index) {
-        
+    // 保存信息
+    saveInfo (index) {
         const table = cloneDeep(this.state.dataSource);
-        if(!this.checkInfo(index)){
+        if (!this.checkInfo(index)) {
             return;
         }
         table[index].isEdit = false;
@@ -234,17 +231,17 @@ class OutputParams extends Component {
             dataSource: table
         })
     }
-    //取消保存，假如是已有信息，则回滚，新增的则直接删除
-    cancelSave(index) {
+    // 取消保存，假如是已有信息，则回滚，新增的则直接删除
+    cancelSave (index) {
         const table = cloneDeep(this.state.dataSource);
 
         if (table[index].tmp) {
-            //回滚时候，需要确认不会重复
-            if(!this.checkInfo(index,true)){
+            // 回滚时候，需要确认不会重复
+            if (!this.checkInfo(index, true)) {
                 return;
             }
             table[index] = cloneDeep(table[index].tmp);
-            table[index].isEdit=false;
+            table[index].isEdit = false;
         } else {
             table.splice(index, 1);
         }
@@ -252,19 +249,19 @@ class OutputParams extends Component {
             dataSource: table
         })
     }
-    //编辑操作
-    editInfo(index) {
+    // 编辑操作
+    editInfo (index) {
         const table = cloneDeep(this.state.dataSource);
 
         table[index].tmp = cloneDeep(table[index]);
-        table[index].isEdit=true;
+        table[index].isEdit = true;
 
         this.setState({
             dataSource: table
         })
     }
-    //删除
-    removeInfo(index){
+    // 删除
+    removeInfo (index) {
         const table = cloneDeep(this.state.dataSource);
         table.splice(index, 1);
         this.backMsg(table);
@@ -273,60 +270,56 @@ class OutputParams extends Component {
         })
     }
 
-    initColumns() {
-
+    initColumns () {
         return [{
             title: '字段',
             dataIndex: 'fieldName',
             key: 'fieldName',
-            width: "200px",
+            width: '200px',
             render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
-                        <Select showSearch defaultValue={record.paramType?(record.paramType+"@@"+record.paramType):null} onChange={this.changeTableParam.bind(this, index)} style={{ width: "100%" }} >
+                        <Select showSearch defaultValue={record.paramType ? (record.paramType + '@@' + record.paramType) : null} onChange={this.changeTableParam.bind(this, index)} style={{ width: '100%' }} >
                             {this.getColumnsView()}
 
                         </Select>
                     )
                 }
                 return record.fieldName;
-
             }
 
         }, {
             title: '参数名',
             dataIndex: 'paramName',
             key: 'paramName',
-            width: "100px",
-            render:(text, record,index)=> {
+            width: '100px',
+            render: (text, record, index) => {
                 if (record.isEdit) {
                     return (
-                        <Input onBlur={this.paramNameChange.bind(this,index)} defaultValue={record.paramName} />
+                        <Input onBlur={this.paramNameChange.bind(this, index)} defaultValue={record.paramName} />
                     )
                 }
                 return record.paramName;
-
             }
         }, {
             title: '数据类型',
             dataIndex: 'paramType',
             key: 'paramType',
-            render(text, record) {
-                return record.paramType || "";
+            render (text, record) {
+                return record.paramType || '';
             }
 
-        }, 
-        
+        },
+
         {
             title: '说明',
             dataIndex: 'desc',
             key: 'desc',
-            render:(text, record,index)=>{
+            render: (text, record, index) => {
                 if (record.isEdit) {
-                    return (<TextArea onBlur={this.textAreaChange.bind(this,index)} defaultValue={record.desc} />)
+                    return (<TextArea onBlur={this.textAreaChange.bind(this, index)} defaultValue={record.desc} />)
                 }
                 return (<TextArea key="textareadisabled" defaultValue={record.desc} disabled />)
-
             }
         },
         {
@@ -350,12 +343,11 @@ class OutputParams extends Component {
                         <a onClick={this.removeInfo.bind(this, index)}>删除</a>
                     </div>
                 )
-
             }
         }];
     }
 
-    render() {
+    render () {
         return (
             <Table
                 className="m-table monitor-table"

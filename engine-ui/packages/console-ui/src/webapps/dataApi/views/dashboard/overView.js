@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { Card, Col, Row, Table } from 'antd';
-import { cloneDeep } from "lodash"
+import { cloneDeep } from 'lodash'
 import Resize from 'widgets/resize';
 import { doubleLineAreaChartOptions } from '../../consts';
-import utils from "utils"
+import utils from 'utils'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -18,7 +18,7 @@ class TopCall extends Component {
     state = {
 
     }
-    componentDidMount() {
+    componentDidMount () {
         const data = this.props.chartData || [];
 
         this.initLineChart(data);
@@ -27,37 +27,32 @@ class TopCall extends Component {
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.initLineChart(nextProps.chartData)
         }
     }
-    initLineChart(chartData) {
- 
-
+    initLineChart (chartData) {
         let callCountDate = [];
         let failCountDate = [];
         let times = [];
-
-
 
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
             if (this.props.date) {
                 switch (this.props.date) {
-                    case "1":
-                        times.push(utils.formatHours(chartData[i].time));
-                        break;
-                    case "7":
-                        times.push(utils.formatDateHours(chartData[i].time));
-                        break;
-                    case "30":
-                        times.push(utils.formatDate(chartData[i].time));
-                        break;
+                case '1':
+                    times.push(utils.formatHours(chartData[i].time));
+                    break;
+                case '7':
+                    times.push(utils.formatDateHours(chartData[i].time));
+                    break;
+                case '30':
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
                 }
             }
-
         }
 
         let myChart = echarts.init(document.getElementById('CallGraph'));
@@ -65,9 +60,9 @@ class TopCall extends Component {
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
-                let unit = "次"
-                if (params[i].seriesName == "失败率") {
-                    unit = "%"
+                let unit = '次'
+                if (params[i].seriesName == '失败率') {
+                    unit = '%'
                 }
                 relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' + params[i].seriesName + ' : ' + params[i].value + unit;
             }
@@ -75,7 +70,7 @@ class TopCall extends Component {
         }
         option.series = [{
 
-            name: "调用次数",
+            name: '调用次数',
             data: callCountDate,
             type: 'line',
             smooth: true,
@@ -86,7 +81,7 @@ class TopCall extends Component {
             }
         }, {
 
-            name: "失败率",
+            name: '失败率',
             data: failCountDate,
             type: 'line',
             smooth: true,
@@ -95,7 +90,7 @@ class TopCall extends Component {
                 normal: {
                     color: 'rgba(244,67,54,0.9)'
                 }
-            },
+            }
         }];
 
         option.xAxis[0].data = times;
@@ -105,14 +100,14 @@ class TopCall extends Component {
         myChart.setOption(option);
         this.setState({ lineChart: myChart })
     }
-    render() {
+    render () {
         return (
 
             <Card
                 noHovering
                 className="shadow"
             >
-                <Row style={{width:"100%"}} gutter={130} className="m-count padding-l20 height-101">
+                <Row style={{ width: '100%' }} gutter={130} className="m-count padding-l20 height-101">
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">累计调用</span>
@@ -125,8 +120,8 @@ class TopCall extends Component {
                             <span className="m-count-content font-red text-left">{this.props.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
-                    {this.props.userView ? null :
-                        (
+                    {this.props.userView ? null
+                        : (
                             <Col span={6}>
                                 <section className="m-count-section margin-t20" style={{ width: 150 }}>
                                     <span className="m-count-title text-left">接口总数</span>
@@ -140,7 +135,6 @@ class TopCall extends Component {
                 </Resize>
 
             </Card>
-
 
         )
     }

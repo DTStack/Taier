@@ -1,26 +1,26 @@
-import React from "react";
+import React from 'react';
 
-import {Card, Button} from "antd";
+import { Card, Button } from 'antd';
 
-import Source from "./collectionSource"
-import Target from "./collectionTarget"
+import Source from './collectionSource'
+import Target from './collectionTarget'
 
-function Mask() {
+function Mask () {
     return <div className="mask-lock-layer" />
 }
 
 class CollectionComplete extends React.Component {
-    navtoStep(step){
+    navtoStep (step) {
         this.props.navtoStep(step)
     }
-    prev() {
+    prev () {
         this.props.navtoStep(1)
     }
-    save(){
+    save () {
         this.props.saveJob();
     }
-    render() {
-        const {currentPage, collectionData}=this.props;
+    render () {
+        const { currentPage, collectionData } = this.props;
         return (
             <div className="g-step5">
                 <div className="m-preview"
@@ -28,7 +28,7 @@ class CollectionComplete extends React.Component {
                 >
                     <Card bordered={false}
                         style={{ marginBottom: 10 }}
-                        title={<div style={{textAlign:"center"}}>选择来源</div>}
+                        title={<div style={{ textAlign: 'center' }}>选择来源</div>}
                         extra={<a href="javascript:void(0)"
                             onClick={() => this.navtoStep(0)}>修改</a>
                         }
@@ -38,7 +38,7 @@ class CollectionComplete extends React.Component {
                     </Card>
                     <Card bordered={false}
                         style={{ marginBottom: 10 }}
-                        title={<div style={{textAlign:"center"}}>选择目标</div>}
+                        title={<div style={{ textAlign: 'center' }}>选择目标</div>}
                         extra={<a href="javascript:void(0)"
                             onClick={() => this.navtoStep(1)}>修改</a>
                         }
@@ -49,7 +49,7 @@ class CollectionComplete extends React.Component {
                 </div>
                 <div className="steps-action">
                     <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
-                    <Button type="primary"  disabled={!currentPage.notSynced} onClick={() => this.save()}>保存</Button>
+                    <Button type="primary" disabled={!currentPage.notSynced} onClick={() => this.save()}>保存</Button>
                 </div>
             </div>
         )

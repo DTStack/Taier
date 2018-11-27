@@ -4,33 +4,33 @@
 import { combineReducers } from 'redux';
 
 import {
-    commAction,
+    commAction
 } from './actionTypes';
 
 import Api from '../../../api';
 
 const taskTypes = (state = [], action) => {
     switch (action.type) {
-        case commAction.GET_TASK_TYPES: {
-            return action.payload;
-        }
-        default: return state;
+    case commAction.GET_TASK_TYPES: {
+        return action.payload;
+    }
+    default: return state;
     }
 }
 
 const taskTypeFilter = (state = [], action) => {
     switch (action.type) {
-        case commAction.GET_TASK_TYPE_FILTER: {
-            return action.payload;
-        }
+    case commAction.GET_TASK_TYPE_FILTER: {
+        return action.payload;
+    }
 
-        default: return state;
+    default: return state;
     }
 }
 
 export const commReducer = combineReducers({
     taskTypes,
-    taskTypeFilter,
+    taskTypeFilter
 });
 
 /**
@@ -38,7 +38,6 @@ export const commReducer = combineReducers({
  */
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
-
         const currentState = getState();
         const { realtimeTask } = currentState;
         if (realtimeTask.comm.taskTypes && realtimeTask.comm.taskTypes.length > 0) {
@@ -52,18 +51,18 @@ export const getTaskTypes = () => {
                     return {
                         value: type.key,
                         id: type.key,
-                        text: type.value,
+                        text: type.value
                     }
                 });
 
                 dispatch({
                     type: commAction.GET_TASK_TYPES,
-                    payload: taskTypes || [],
+                    payload: taskTypes || []
                 })
 
                 dispatch({
                     type: commAction.GET_TASK_TYPE_FILTER,
-                    payload: realtimeTaskTypeFilter || [],
+                    payload: realtimeTaskTypeFilter || []
                 })
             }
         })

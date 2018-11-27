@@ -12,10 +12,10 @@ import { updateApp } from 'main/actions/app'
 import { consoleApp } from 'config/base'
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 const mapStateToProps = state => {
     const { common } = state;
@@ -25,24 +25,24 @@ const mapStateToProps = state => {
     mapStateToProps
 )
 class Main extends Component {
-    componentWillMount(){
+    componentWillMount () {
         const { dispatch } = this.props;
     }
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props;
         // dispatch(UserAction.getUser())
         dispatch(updateApp(consoleApp));
     }
 
-    render() {
+    render () {
         let { children } = this.props
-        let header=<Header />
+        let header = <Header />
         return (
             <div className="main">
-            
+
                 {header}
                 <div className="container overflow-x-hidden">
-                    { children || "加载中...." }
+                    { children || '加载中....' }
                 </div>
             </div>
         )

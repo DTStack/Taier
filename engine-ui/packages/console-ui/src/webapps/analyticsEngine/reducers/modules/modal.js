@@ -2,7 +2,7 @@ import modalAction from '../../consts/modalActionType';
 
 const defaultModalData = {
     visibleModal: '', // visible modal
-    modalData: '', // modal数据
+    modalData: '' // modal数据
 }
 
 const modalReducer = (state = defaultModalData, action) => {

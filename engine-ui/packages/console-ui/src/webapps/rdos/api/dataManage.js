@@ -4,188 +4,187 @@ import dataManageReq from './reqDataManage';
 export default {
 
     // ============== dataManage 数据管理 ==================
-    createTable(params) {
+    createTable (params) {
         return http.post(dataManageReq.CREATE_TABLE, params)
     },
-    searchTable(params) {
+    searchTable (params) {
         return http.post(dataManageReq.SEARCH_TABLE, params)
     },
-    queryTable(params) {
+    queryTable (params) {
         return http.post(dataManageReq.QUERY_TABLE, params)
     },
-    newSearchTable(params) {
+    newSearchTable (params) {
         return http.post(dataManageReq.NEW_SEARCH_TABLE, params)
     },
-    getTable(params) {
+    getTable (params) {
         return http.post(dataManageReq.GET_TABLE, params)
     },
-    getTablesByName(params) {
+    getTablesByName (params) {
         return http.post(dataManageReq.GET_TABLES_BY_NAME, params)
     },
-    previewTable(params) {
+    previewTable (params) {
         return http.post(dataManageReq.PREVIEW_TABLE, params)
     },
-    saveTable(params) {
+    saveTable (params) {
         return http.post(dataManageReq.SAVE_TABLE, params)
     },
-    searchLog(params) {
+    searchLog (params) {
         return http.post(dataManageReq.SEARCH_LOG, params)
     },
-    getProjectUsersData(params) {
+    getProjectUsersData (params) {
         return http.post(req.GET_PROJECT_USERS, params)
     },
-    getCreateTableCode(params) {
+    getCreateTableCode (params) {
         return http.post(dataManageReq.GET_CREATE_CODE, params)
     },
-    dropTable(params) {
+    dropTable (params) {
         return http.post(dataManageReq.DROP_TABLE, params)
     },
-    createDdlTable(params) {
+    createDdlTable (params) {
         return http.post(dataManageReq.DDL_CREATE_TABLE, params)
     },
-    uploadTableData(params) {
+    uploadTableData (params) {
         return http.post(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
-    checkTableExist(params) {
+    checkTableExist (params) {
         return http.post(dataManageReq.CHECK_TABLE_EXIST, params)
     },
-    checkHdfsLocExist(params) {
+    checkHdfsLocExist (params) {
         return http.post(dataManageReq.CHECK_HDFSLOC_EXIST, params)
     },
-    getTablePartition(params) {
+    getTablePartition (params) {
         return http.post(dataManageReq.GET_TABLE_PARTITION, params)
     },
-    checkTablePartition(params) {
+    checkTablePartition (params) {
         return http.post(dataManageReq.CHECK_TABLE_PARTITION, params)
     },
-    importLocalData(params) {// 导入本地数据
+    importLocalData (params) { // 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
-    applyTable(params) {
+    applyTable (params) {
         return http.post(dataManageReq.APPLY_TABLE, params)
     },
-    getUsersInTenant(params){
+    getUsersInTenant (params) {
         return http.post(dataManageReq.GET_USERS_IN_TENANT, params)
     },
     // =========== 血缘关系 ==================//
-    getTableRelTree(params) {
+    getTableRelTree (params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)
     },
-    getRelTableInfo(params) {
+    getRelTableInfo (params) {
         return http.post(dataManageReq.GET_REL_TABLE_INFO, params)
     },
-    getParentRelTable(params) {
+    getParentRelTable (params) {
         return http.post(dataManageReq.GET_PARENT_REL_TABLES, params)
     },
-    getChildRelTables(params) {
+    getChildRelTables (params) {
         return http.post(dataManageReq.GET_CHILD_REL_TABLES, params)
     },
-    getRelTableTasks(params) {
+    getRelTableTasks (params) {
         return http.post(dataManageReq.GET_REL_TABLE_TASKS, params)
     },
-    getRelTableColumns(params) {
+    getRelTableColumns (params) {
         return http.post(dataManageReq.GET_REL_TABLE_COLUMNS, params)
     },
-    getRelTableUpDownColumns(params) {
+    getRelTableUpDownColumns (params) {
         return http.post(dataManageReq.GET_REL_TABLE_UP_DOWN_COLUMNS, params)
     },
 
     // =========== 类目管理 ==================//
-    getDataCatalogues(params) {
+    getDataCatalogues (params) {
         return http.post(dataManageReq.GET_TABLE_CATALOGUE, params)
     },
-    addDataCatalogue(params) {
+    addDataCatalogue (params) {
         return http.post(dataManageReq.ADD_TABLE_CATALOGUE, params)
     },
-    delDataCatalogue(params) {
+    delDataCatalogue (params) {
         return http.post(dataManageReq.DEL_TABLE_CATALOGUE, params)
     },
-    updateDataCatalogue(params) {
+    updateDataCatalogue (params) {
         return http.post(dataManageReq.UPDATE_TABLE_CATALOGUE, params)
     },
-    addTableToCatalogue(params) {
+    addTableToCatalogue (params) {
         return http.post(dataManageReq.ADD_TABLE_TO_CATALOGUE, params)
     },
-    delTableInCatalogue(params) {
+    delTableInCatalogue (params) {
         return http.post(dataManageReq.DEL_TABLE_IN_CATALOGUE, params)
     },
-    addMark(params){
-        return http.post(dataManageReq.ADD_MARK, params)        
+    addMark (params) {
+        return http.post(dataManageReq.ADD_MARK, params)
     },
-    cancelMark(params){
-        return http.post(dataManageReq.CANCEL_MARK, params)        
+    cancelMark (params) {
+        return http.post(dataManageReq.CANCEL_MARK, params)
     },
-    
+
     // =========== 脏数据 ==================//
-    getDirtyDataTrend(params) {
+    getDirtyDataTrend (params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_TREND, params)
     },
-    top30DirtyData(params) {
+    top30DirtyData (params) {
         return http.post(dataManageReq.TOP30_DIRTY_DATA, params)
     },
-    getDirtyDataTables(params) {
+    getDirtyDataTables (params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_TABLES, params)
     },
-    getPubSyncTask(params) {// 导入本地数据
+    getPubSyncTask (params) { // 导入本地数据
         return http.post(dataManageReq.GET_PUB_SYNC_TASK, params)
     },
-    getDirtyDataTableInfo(params) {
+    getDirtyDataTableInfo (params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_TABLE_INFO, params)
     },
-    getDirtyDataTableOverview(params) {
+    getDirtyDataTableOverview (params) {
         return http.post(dataManageReq.GET_DIRTY_TABLE_OVERVIEW, params)
     },
-    countDirtyData(params) {
+    countDirtyData (params) {
         return http.post(dataManageReq.COUNT_DIRTY_DATA, params)
     },
-    getDirtyDataAnalytics(params) {
+    getDirtyDataAnalytics (params) {
         return http.post(dataManageReq.GET_DIRTY_DATA_ANALYTICS, params)
     },
 
     // ============ 表权限控制 ============
-    getApplyList(params) {
+    getApplyList (params) {
         return http.post(dataManageReq.APPLY_LIST, params)
     },
-    applySource(params) {
+    applySource (params) {
         return http.post(dataManageReq.APPLY_SOURCE, params)
     },
-    revoke(params) {
+    revoke (params) {
         return http.post(dataManageReq.REVOKE_PERMISSION, params)
     },
-    cancelApply(params) {
+    cancelApply (params) {
         return http.post(dataManageReq.APPLY_CANCEL, params)
     },
-    applyReply(params) {
+    applyReply (params) {
         return http.post(dataManageReq.ApplY_REPLY, params)
     },
-    getDdlList(params) {
-        return http.post(dataManageReq.GET_DDL_LIST,params)
+    getDdlList (params) {
+        return http.post(dataManageReq.GET_DDL_LIST, params)
     },
-    getDmlList(params) {
-        return http.post(dataManageReq.GET_DML_LIST,params)
+    getDmlList (params) {
+        return http.post(dataManageReq.GET_DML_LIST, params)
     },
-    getSimpleColumns(params) {
-        return http.post(dataManageReq.GET_SIMPLE_COLUMNS,params)
+    getSimpleColumns (params) {
+        return http.post(dataManageReq.GET_SIMPLE_COLUMNS, params)
     },
-    getApplyDetail(params) {
-        return http.post(dataManageReq.GET_APPLY_DETAIL,params)
+    getApplyDetail (params) {
+        return http.post(dataManageReq.GET_APPLY_DETAIL, params)
     },
-
 
     // =========== 项目表统计 ==================//
-    countProjectTable(params) {
+    countProjectTable (params) {
         return http.post(dataManageReq.PROJECT_TABLE_COUNT, params)
     },
-    countProjectStore(params) {
+    countProjectStore (params) {
         return http.post(dataManageReq.PROJECT_STORE_COUNT, params)
     },
-    getProjectStoreTop(params) {
+    getProjectStoreTop (params) {
         return http.post(dataManageReq.PROJECT_STORE_TOP, params)
     },
-    getProjectTableStoreTop(params) {
+    getProjectTableStoreTop (params) {
         return http.post(dataManageReq.PROJECT_TABLE_STORE_TOP, params)
     },
-    getProjectDataOverview(params) {
+    getProjectDataOverview (params) {
         return http.post(dataManageReq.PROJECT_DATA_OVERVIEW, params)
-    },
+    }
 }

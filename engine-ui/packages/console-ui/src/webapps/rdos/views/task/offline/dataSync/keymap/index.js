@@ -1,25 +1,25 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { isNumber, isEqual, isObject, isNaN } from 'lodash'
-import { 
-    Button, Row, Col, 
+import {
+    Button, Row, Col,
     Input, Tooltip,
-    message, Icon,
+    message, Icon
 } from 'antd';
 
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
 import Resize from 'widgets/resize';
 
-import { 
-    keyMapActions 
+import {
+    keyMapActions
 } from '../../../../../store/modules/offlineTask/offlineAction';
 import utils from 'utils';
 import Api from '../../../../../api';
 
-import { 
+import {
     hdfsFieldTypes,
-    DATA_SOURCE,
+    DATA_SOURCE
 } from '../../../../../comm/const';
 
 import { isHdfsType, isFtpType, isRDB } from '../../../../../comm';
@@ -31,15 +31,15 @@ import ConstModal from './constModal'
 const DefaultRowKey = { // HBase默认行健
     cf: '-',
     key: 'rowkey',
-    type: 'STRING',
+    type: 'STRING'
 };
 
 /**
  * 判断字段是否匹配
- * @param {*} source 
- * @param {*} target 
+ * @param {*} source
+ * @param {*} target
  */
-function isFieldMatch(source, target) {
+function isFieldMatch (source, target) {
     /**
      * TODO
      * 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
@@ -49,7 +49,7 @@ function isFieldMatch(source, target) {
         // const tagetVal = target.key || target.index;
         // return sourceVal === tagetVal;
         return isEqual(source, target);
-    } else if(isObject(source) && !isObject(target) ) {
+    } else if (isObject(source) && !isObject(target)) {
         const sourceVal = source.key || source.index
         return sourceVal === target
     } else if (!isObject(source) && isObject(target)) {
@@ -60,16 +60,15 @@ function isFieldMatch(source, target) {
     }
 }
 
-class Keymap extends React.Component{
-
-    constructor(props) {
+class Keymap extends React.Component {
+    constructor (props) {
         super(props);
 
         this.state = {
-            h: 40,//字段一行高度
-            w: 230,//字段的宽度
-            W: 450,//step容器大小
-            padding: 10,//绘制拖拽点左右边距
+            h: 40, // 字段一行高度
+            w: 230, // 字段的宽度
+            W: 450, // step容器大小
+            padding: 10, // 绘制拖拽点左右边距
             rowMap: false,
             nameMap: false,
             keyModalVisible: false,
@@ -81,34 +80,34 @@ class Keymap extends React.Component{
                 position: -1,
                 source: '',
                 fileType: 'orc'
-            }, //hdfs添加行modal
+            }, // hdfs添加行modal
             batchModal: { // 批量导入目标字段
                 visible: false,
-                batchText: '',
+                batchText: ''
             },
             batchSourceModal: { // 批量导入源表字段
                 visible: false,
-                batchText: '',
+                batchText: ''
             },
             sourceColumnFamily: '', // 源表列族
-            targetColumnFamily: '', // 目标列族
+            targetColumnFamily: '' // 目标列族
         };
     }
 
     /**
      * 获取step容器的大小，最小为450，其他情况为panel大小的5/6;
      */
-    getCanvasW() {
+    getCanvasW () {
         let w = 450;
         const canvas = document.querySelector('.steps-content')
         if (canvas) {
-            const newW = canvas.getBoundingClientRect().width/6*5;
-            if(newW > w) w = newW;
+            const newW = canvas.getBoundingClientRect().width / 6 * 5;
+            if (newW > w) w = newW;
         }
         return w;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         /**
          * step容器
          */
@@ -121,7 +120,7 @@ class Keymap extends React.Component{
          * 设置step容器大小
          */
         this.setState({
-            W: this.getCanvasW(),
+            W: this.getCanvasW()
         })
         /**
          * 开始画
@@ -131,7 +130,7 @@ class Keymap extends React.Component{
         this.initData();
     }
 
-    componentDidUpdate() {
+    componentDidUpdate () {
         this.$canvas.selectAll('.dl, .dr, .lines').remove();
         this.drawSvg();
     }
@@ -142,7 +141,7 @@ class Keymap extends React.Component{
         })
     }
 
-    drawSvg() {
+    drawSvg () {
         this.renderDags();
         this.renderLines();
         this.bindEvents();
@@ -151,7 +150,7 @@ class Keymap extends React.Component{
     /**
      * 绘制字段旁边的拖拽点
      */
-    renderDags() {
+    renderDags () {
         const { w, h, W, padding } = this.state;
         const { targetCol, sourceCol } = this.props;
 
@@ -183,7 +182,7 @@ class Keymap extends React.Component{
             /**
              * W-w*2代表绘制区域的宽度
              */
-            .attr('cx', (d, i) => { return (W - w*2 - padding)})
+            .attr('cx', (d, i) => { return (W - w * 2 - padding) })
             .attr('cy', (d, i) => h * (i + 1.5))
             .attr('r', 5)
             .attr('stroke-width', 2)
@@ -191,10 +190,10 @@ class Keymap extends React.Component{
             .attr('fill', '#2491F7');
     }
 
-    renderLines() {
+    renderLines () {
         const { w, h, W, padding } = this.state;
-        const { 
-            keymap,
+        const {
+            keymap
         } = this.props;
         const { source, target } = keymap;
         const $dagL = selectAll('.col-dag-l');
@@ -215,7 +214,6 @@ class Keymap extends React.Component{
             return isFieldMatch(columnItem, keymapItem);
         }
 
-
         /**
          * source中的元素 key_obj 类型：
          * if(sourceSrcType === 1, 2, 3) string
@@ -225,7 +223,7 @@ class Keymap extends React.Component{
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
 
-                if(matchKeymapToColumn_s(dl, key_obj)) {
+                if (matchKeymapToColumn_s(dl, key_obj)) {
                     sx = padding;
                     sy = (i + 1.5) * h;
 
@@ -235,13 +233,13 @@ class Keymap extends React.Component{
                          * if(targetSrcType === 1, 2, 3) string
                          * if( === 6)  obj{ key, type }
                          */
-                        if(matchKeymapToColumn_t(dr, target[ii])) {
-                            ex = W - w*2 - padding;
+                        if (matchKeymapToColumn_t(dr, target[ii])) {
+                            ex = W - w * 2 - padding;
                             ey = (j + 1.5) * h;
 
                             posArr.push({
-                                s: {x: sx, y: sy},
-                                e: {x: ex, y: ey},
+                                s: { x: sx, y: sy },
+                                e: { x: ex, y: ey },
                                 dl: key_obj,
                                 dr: target[ii]
                             });
@@ -259,21 +257,21 @@ class Keymap extends React.Component{
             .attr('class', 'mapline');
 
         mapline.append('line')
-            .attr("x1", d => d.s.x)
-            .attr("y1", d => d.s.y)
-            .attr("x2", d => d.e.x)
-            .attr("y2", d => d.e.y)
-            .attr("stroke","#2491F7")
-            .attr("stroke-width", 2)
-            .attr("marker-end","url(#arrow)");
+            .attr('x1', d => d.s.x)
+            .attr('y1', d => d.s.y)
+            .attr('x2', d => d.e.x)
+            .attr('y2', d => d.e.y)
+            .attr('stroke', '#2491F7')
+            .attr('stroke-width', 2)
+            .attr('marker-end', 'url(#arrow)');
     }
 
-    bindEvents() {
+    bindEvents () {
         const { w, h, W, padding } = this.state;
-        const { 
-            addLinkedKeys, delLinkedKeys, 
-            sourceSrcType, sourceFileType, 
-            targetSrcType, targetFileType 
+        const {
+            addLinkedKeys, delLinkedKeys,
+            sourceSrcType, sourceFileType,
+            targetSrcType, targetFileType
         } = this.props;
 
         const $line = this.$activeLine;
@@ -290,7 +288,7 @@ class Keymap extends React.Component{
         let targetKey_obj;
 
         $dagL.on('mousedown', (d, i, nodes) => {
-            let sx = padding, sy = (i + 1.5) * h;
+            let sx = padding; let sy = (i + 1.5) * h;
             $line.attr('x1', sx)
                 .attr('y1', sy)
                 .attr('x2', sx)
@@ -301,23 +299,23 @@ class Keymap extends React.Component{
         });
 
         this.$canvas.on('mousemove', () => {
-            if(isMouseDown) {
+            if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 $line.attr('x2', xy[0]).attr('y2', xy[1]);
             }
         }).on('mouseup', () => {
-            if(isMouseDown) {
+            if (isMouseDown) {
                 const xy = mouse(this.$canvas.node());
                 const [ex, ey] = xy;
-                const threholdX = W - w*2 - padding;
+                const threholdX = W - w * 2 - padding;
 
-                if(ex < threholdX) this.resetActiveLine();
+                if (ex < threholdX) this.resetActiveLine();
                 else {
                     const tidx = Math.floor(ey / h) - 1;
                     const $dagR = selectAll('.col-dag-r');
 
                     $dagR.each((d, i) => {
-                        if(i === tidx) {
+                        if (i === tidx) {
                             targetKey_obj = d;
                         }
                     });
@@ -326,13 +324,13 @@ class Keymap extends React.Component{
             /**
              * 阿珍爱上了阿强
              */
-            if(sourceKey_obj && targetKey_obj) {
+            if (sourceKey_obj && targetKey_obj) {
                 /**
                  * 存储连线
                  */
                 addLinkedKeys({
                     source: sourceKey_obj,
-                    target: targetKey_obj,
+                    target: targetKey_obj
                 });
                 this.resetActiveLine();
             }
@@ -357,12 +355,15 @@ class Keymap extends React.Component{
                 delLinkedKeys({
                     source: d.dl,
                     target: d.dr,
-                    sourceSrcType, sourceFileType, targetSrcType, targetFileType
+                    sourceSrcType,
+                    sourceFileType,
+                    targetSrcType,
+                    targetFileType
                 });
             });
     }
 
-    resetActiveLine() {
+    resetActiveLine () {
         this.$activeLine.attr('x1', -10)
             .attr('y1', -10)
             .attr('x2', -10)
@@ -381,7 +382,7 @@ class Keymap extends React.Component{
     loadColumnFamily = () => {
         const {
             sourceMap, targetMap,
-            sourceSrcType, targetSrcType,
+            sourceSrcType, targetSrcType
         } = this.props;
         const ctx = this
 
@@ -395,10 +396,10 @@ class Keymap extends React.Component{
         if (sourceSrcType === DATA_SOURCE.HBASE && sourceMap) {
             getColumnFamily({
                 sourceId: sourceMap.sourceId,
-                tableName: sourceMap.type.table,
+                tableName: sourceMap.type.table
             }, (data) => {
                 ctx.setState({
-                    sourceColumnFamily: data,
+                    sourceColumnFamily: data
                 })
             })
         }
@@ -406,10 +407,10 @@ class Keymap extends React.Component{
         if (targetSrcType === DATA_SOURCE.HBASE && targetMap) {
             getColumnFamily({
                 sourceId: targetMap.sourceId,
-                tableName: targetMap.type.table,
+                tableName: targetMap.type.table
             }, (data) => {
                 ctx.setState({
-                    targetColumnFamily: data,
+                    targetColumnFamily: data
                 })
             })
         }
@@ -424,19 +425,18 @@ class Keymap extends React.Component{
         }
     }
 
-    renderSource() {
+    renderSource () {
         const { w, h, W, H, padding } = this.state;
 
-        const { 
+        const {
             sourceCol,
             sourceSrcType, sourceFileType,
-            removeSourceKeyRow, readonly,
+            removeSourceKeyRow, readonly
         } = this.props;
 
-        const colStyle = { left: padding, top: padding, width: w, height: h, }
+        const colStyle = { left: padding, top: padding, width: w, height: h }
 
         const renderTableRow = (sourceType, col, i) => {
-
             const removeOption = <div className="remove-cell"
                 onClick={() => removeSourceKeyRow(col, i)}>
                 <Tooltip title="删除当前列">
@@ -445,8 +445,8 @@ class Keymap extends React.Component{
             </div>
 
             const editOption = <div className="edit-cell" onClick={
-                    () => { this.initEditKeyRow(true, sourceType, null, col, i) }
-                }>
+                () => { this.initEditKeyRow(true, sourceType, null, col, i) }
+            }>
                 <Tooltip title="编辑当前列">
                     <Icon type="edit" />
                 </Tooltip>
@@ -460,78 +460,78 @@ class Keymap extends React.Component{
             const typeValue = col ? col.value ? `常量` : `${col.type.toUpperCase()}${col.format ? `(${col.format})` : ''}` : '';
             const type = col ? scrollText(typeValue) : '类型';
 
-            switch(sourceType) {
-                case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key ) : '索引位';
+            switch (sourceType) {
+            case DATA_SOURCE.HDFS: {
+                const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
 
-                    return <div>
-                        <div className="cell" title={name}>{name}</div>
-                        <div className="cell" title={typeValue}>{type}</div>
-                        { 
-                            sourceFileType !== 'orc' ? <div className="cell">
+                return <div>
+                    <div className="cell" title={name}>{name}</div>
+                    <div className="cell" title={typeValue}>{type}</div>
+                    {
+                        sourceFileType !== 'orc' ? <div className="cell">
                             { col ? cellOperation(removeOption, editOption) : '操作' }
-                            </div> : ''
+                        </div> : ''
+                    }
+                </div>
+            }
+            case DATA_SOURCE.HBASE: {
+                const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
+                const cf = col ? col.cf : '列族';
+
+                // 仅允许常量删除操作
+                const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption)
+                    : cellOperation(removeOption, editOption);
+
+                return <div className="four-cells">
+                    <div className="cell" title={cf}>{ cf || '-' }</div>
+                    <div className="cell" title={name}>{ name }</div>
+                    <div className="cell" title={typeValue}>{ type }</div>
+                    <div className="cell">
+                        { col ? opt : '操作' }
+                    </div>
+                </div>
+            }
+            case DATA_SOURCE.MAXCOMPUTE:
+            case DATA_SOURCE.HIVE: {
+                const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
+                // 仅允许常量删除操作
+                const opt = col && col.value ? cellOperation(removeOption, editOption)
+                    : cellOperation(null, editOption);
+
+                return <div>
+                    <div className="cell">{name}</div>
+                    <div className="cell" title={typeValue}>{ type }</div>
+                    <div className="cell">
+                        {col ? opt : '操作'}
+                    </div>
+                </div>
+            }
+            case DATA_SOURCE.FTP: {
+                const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
+                return <div>
+                    <div className="cell" title={name}>{name}</div>
+                    <div className="cell" title={typeValue}>{ type }</div>
+                    <div className="cell">
+                        {col ? cellOperation(removeOption, editOption) : '操作'}
+                    </div>
+                </div>
+            }
+            default: {
+                const canFormat = col && col.type &&
+                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR');
+                const opt = canFormat ? cellOperation(null, editOption) : '';
+                return <div>
+                    <div className="cell" title={name}>
+                        {
+                            col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
                         }
                     </div>
-                }
-                case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
-                    const cf = col ? col.cf : '列族';
-
-                    // 仅允许常量删除操作
-                    const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption) :
-                    cellOperation(removeOption, editOption);
-
-                    return <div className="four-cells">
-                        <div className="cell" title={cf}>{ cf || '-' }</div>
-                        <div className="cell" title={name}>{ name }</div>
-                        <div className="cell" title={typeValue}>{ type }</div>
-                        <div className="cell">
-                            { col ? opt : '操作' }
-                        </div>
+                    <div className="cell" title={typeValue}>{ type }</div>
+                    <div className="cell">
+                        {col ? opt : '操作'}
                     </div>
-                }
-                case DATA_SOURCE.MAXCOMPUTE:
-                case DATA_SOURCE.HIVE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
-                    // 仅允许常量删除操作
-                    const opt = col && col.value ? cellOperation(removeOption, editOption) : 
-                    cellOperation(null, editOption);
-
-                    return <div>
-                        <div className="cell">{name}</div>
-                        <div className="cell" title={typeValue}>{ type }</div>
-                        <div className="cell">
-                            {col ? opt : '操作'}
-                        </div>
-                    </div>
-                }
-                case DATA_SOURCE.FTP: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'`: col.key ) : '字段序号';
-                    return <div>
-                        <div className="cell" title={name}>{name}</div>
-                        <div className="cell" title={typeValue}>{ type }</div>
-                        <div className="cell">
-                            {col ? cellOperation(removeOption, editOption) : '操作'}
-                        </div>
-                    </div>
-                }
-                default: {
-                    const canFormat = col && col.type && 
-                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR' );
-                    const opt = canFormat ? cellOperation(null, editOption) : '';
-                    return <div>
-                        <div className="cell" title={name}>
-                            {
-                                col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
-                            }
-                        </div>
-                        <div className="cell" title={typeValue}>{ type }</div>
-                        <div className="cell">
-                            {col ? opt : '操作'}
-                        </div>
-                    </div>
-                }
+                </div>
+            }
             }
         }
 
@@ -539,25 +539,26 @@ class Keymap extends React.Component{
             if (!readonly) {
                 let footerContent = '';
                 const btnAddConst = (<span className="col-plugin" onClick={
-                        () => {this.setState({ visibleConst: true })
+                    () => {
+                        this.setState({ visibleConst: true })
                     }}>
                         +添加常量
-                    </span>);
-                switch(sourceType) {
-                    case DATA_SOURCE.HBASE:
-                        footerContent = <span>
-                                <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
+                </span>);
+                switch (sourceType) {
+                case DATA_SOURCE.HBASE:
+                    footerContent = <span>
+                        <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
                                     +添加字段
-                                </span>
+                        </span>
                                 &nbsp;
-                                <span className="col-plugin" onClick={this.importSourceFields}>
+                        <span className="col-plugin" onClick={this.importSourceFields}>
                                     +文本模式
-                                </span> 
-                            </span>;
-                        break;
-                    case DATA_SOURCE.HDFS: {
-                        footerContent = sourceFileType !== 'orc' ? 
-                        <span>
+                        </span>
+                    </span>;
+                    break;
+                case DATA_SOURCE.HDFS: {
+                    footerContent = sourceFileType !== 'orc'
+                        ? <span>
                             <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
@@ -566,31 +567,32 @@ class Keymap extends React.Component{
                                 +文本模式
                             </span>
                         </span> : null;
-                        break;
-                    }
-                    case DATA_SOURCE.FTP: {
-                        footerContent = <span>
-                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
+                    break;
+                }
+                case DATA_SOURCE.FTP: {
+                    footerContent = <span>
+                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
-                            </span>
+                        </span>
                             &nbsp;
-                            <span className="col-plugin" onClick={this.importSourceFields}>
+                        <span className="col-plugin" onClick={this.importSourceFields}>
                                 +文本模式
-                            </span>
-                        </span>;
-                        break;
-                    }
-                    default: {
-                        footerContent = null ; break;
-                    }
+                        </span>
+                    </span>;
+                    break;
+                }
+                default: {
+                    footerContent = null; break;
+                }
                 }
                 return (
-                    <div className="m-col pa" 
+                    <div className="m-col pa"
                         style={{
                             left: padding,
                             top: padding + (h * (sourceCol.length + 1)),
-                            width: w, height: h,
-                            zIndex: 100,
+                            width: w,
+                            height: h,
+                            zIndex: 100
                         }}
                     >
                         { footerContent }
@@ -603,17 +605,18 @@ class Keymap extends React.Component{
 
         return (
             <div className="sourceLeft">
-                <div className="m-col title pa" 
+                <div className="m-col title pa"
                     style={ colStyle }>
                     { renderTableRow(sourceSrcType) }
                 </div>
                 { sourceCol.map((col, i) => {
                     return <div
                         style={{
-                            width: w, height: h, 
-                            left: padding, 
-                            top: padding + (h * (i + 1)),
-                        }} 
+                            width: w,
+                            height: h,
+                            left: padding,
+                            top: padding + (h * (i + 1))
+                        }}
                         className="m-col pa" key={ `sourceLeft-${i}`} >
                         { renderTableRow(sourceSrcType, col, i) }
                     </div>
@@ -623,12 +626,12 @@ class Keymap extends React.Component{
         )
     }
 
-    renderTarget() {
+    renderTarget () {
         const { w, h, W, H, padding } = this.state;
-        const { 
-            sourceSrcType, targetSrcType, 
+        const {
+            sourceSrcType, targetSrcType,
             targetFileType, removeTargetKeyRow,
-            targetCol, sourceCol, readonly, targetMap,
+            targetCol, sourceCol, readonly, targetMap
         } = this.props;
 
         const colStyle = {
@@ -646,123 +649,125 @@ class Keymap extends React.Component{
                     </Tooltip>
                 </div>
                 <div className="edit-cell" onClick={
-                        () => { this.initEditKeyRow(false, targetFileType, sourceCol[i], col, i) }
-                    }>
+                    () => { this.initEditKeyRow(false, targetFileType, sourceCol[i], col, i) }
+                }>
                     <Tooltip title="编辑当前列">
                         <Icon type="edit" />
                     </Tooltip>
                 </div>
             </div>
-            switch(targetType) {
-                case DATA_SOURCE.HDFS: {
-                    return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                        <div className="cell">
-                            {   col ? operations : '操作' }
-                        </div>
+            switch (targetType) {
+            case DATA_SOURCE.HDFS: {
+                return <div>
+                    <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
+                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                    <div className="cell">
+                        { col ? operations : '操作' }
                     </div>
-                }
-                case DATA_SOURCE.HBASE: {
-                    return <div className="four-cells">
-                        <div className="cell">{col ? col.cf : '列族' }</div>
-                        <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                        <div className="cell">{ col ? operations : '操作' }</div>
+                </div>
+            }
+            case DATA_SOURCE.HBASE: {
+                return <div className="four-cells">
+                    <div className="cell">{col ? col.cf : '列族' }</div>
+                    <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
+                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                    <div className="cell">{ col ? operations : '操作' }</div>
+                </div>
+            }
+            case DATA_SOURCE.FTP: {
+                return <div>
+                    <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
+                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                    <div className="cell">
+                        { col ? operations : '操作' }
                     </div>
-                }
-                case DATA_SOURCE.FTP: {
-                    return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                        <div className="cell">
-                            {   col ? operations : '操作' }
-                        </div>
-                    </div> 
-                }
-                default: {
-                    const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
-                    return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
-                        <div className="cell">{ typeText }</div>
-                    </div>
-                }
+                </div>
+            }
+            default: {
+                const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
+                return <div>
+                    <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
+                    <div className="cell">{ typeText }</div>
+                </div>
+            }
             }
         }
 
         const renderTableFooter = (targetType) => {
             if (!readonly) {
                 let footerContent = ''
-                switch(targetType) {
-                    case DATA_SOURCE.HBASE:
-                        footerContent = <div>
-                            <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
+                switch (targetType) {
+                case DATA_SOURCE.HBASE:
+                    footerContent = <div>
+                        <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
                                 +添加字段
-                            </span>
+                        </span>
                             &nbsp;
-                            <span className="col-plugin" onClick={this.importFields}>
+                        <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                            </span>
-                            <div className="m-col" style={{ padding: '0 10px' }}>
-                                rowkey: <Input 
-                                        style={{ width: '160px' }}
-                                        defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
-                                        placeholder={
-                                            sourceSrcType === DATA_SOURCE.HBASE ? 
-                                            '$(colFamily1:colName1)' : '$(colName)'
-                                        }
-                                        onChange={this.hbaseRowKeyChange}/>
-                            </div>
-                        </div>;
-                        break;
-                    case DATA_SOURCE.HDFS: {
-                        footerContent = <div>
-                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                        </span>
+                        <div className="m-col" style={{ padding: '0 10px' }}>
+                                rowkey: <Input
+                                style={{ width: '160px' }}
+                                defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
+                                placeholder={
+                                    sourceSrcType === DATA_SOURCE.HBASE
+                                        ? '$(colFamily1:colName1)' : '$(colName)'
+                                }
+                                onChange={this.hbaseRowKeyChange}/>
+                        </div>
+                    </div>;
+                    break;
+                case DATA_SOURCE.HDFS: {
+                    footerContent = <div>
+                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
-                            </span>
+                        </span>
                             &nbsp;
-                            <span className="col-plugin" onClick={this.importFields}>
+                        <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                            </span>
-                        </div>;
-                        break;
-                    }
-                    case DATA_SOURCE.FTP: {
-                        footerContent = <div>
-                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                        </span>
+                    </div>;
+                    break;
+                }
+                case DATA_SOURCE.FTP: {
+                    footerContent = <div>
+                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
-                            </span>
+                        </span>
                             &nbsp;
-                            <span className="col-plugin" onClick={this.importFields}>
+                        <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                            </span>
-                        </div>;
-                        break;
-                    }
-                    default: {
-                        footerContent = null; break;
-                    }
+                        </span>
+                    </div>;
+                    break;
+                }
+                default: {
+                    footerContent = null; break;
+                }
                 }
                 return footerContent ? <div className="m-col footer pa" style={{
-                        top: padding + (h * (targetCol.length + 1)),
-                        left: W - (padding + w),
-                        width: w, height: h,
-                        zIndex: 100,
-                    }}>
-                        {footerContent}
-                    </div> : ''
+                    top: padding + (h * (targetCol.length + 1)),
+                    left: W - (padding + w),
+                    width: w,
+                    height: h,
+                    zIndex: 100
+                }}>
+                    {footerContent}
+                </div> : ''
             }
             return ''
         }
 
         return <div className="targetRight">
             <div className="m-col title  pa" style={colStyle}>
-               { renderTableRow(targetSrcType) }
+                { renderTableRow(targetSrcType) }
             </div>
             { targetCol.map((col, i) => {
                 return <div key={ `targetRight-${i}` } className="m-col pa"
                     style={{
-                        width: w, height: h,
+                        width: w,
+                        height: h,
                         top: padding + (h * (i + 1)),
                         left: W - (padding + w)
                     }}>
@@ -774,26 +779,25 @@ class Keymap extends React.Component{
     }
 
     renderKeyModal = () => {
-
-        const { 
-            keyModal, keyModalVisible, 
+        const {
+            keyModal, keyModalVisible,
             sourceColumnFamily, targetColumnFamily
         } = this.state;
 
         const { operation, isReader } = keyModal;
 
-        const { 
-            sourceSrcType, targetSrcType, 
+        const {
+            sourceSrcType, targetSrcType
         } = this.props;
 
         const dataType = keyModal.isReader ? sourceSrcType : targetSrcType;
-        
+
         let onOk = this.doAddkeyRow;
         let title = '添加HDFS字段';
         if (operation === 'add') {
             if (dataType === DATA_SOURCE.HBASE) {
                 title = '添加HBase字段';
-            } else if(dataType === DATA_SOURCE.FTP) {
+            } else if (dataType === DATA_SOURCE.FTP) {
                 title = '添加FTP字段';
             }
         } else if (operation === 'edit') {
@@ -801,7 +805,7 @@ class Keymap extends React.Component{
             title = '修改HDFS字段';
             if (dataType === DATA_SOURCE.HBASE) {
                 title = '修改HBase字段';
-            } else if(dataType === DATA_SOURCE.FTP) {
+            } else if (dataType === DATA_SOURCE.FTP) {
                 title = '添加FTP字段';
             } else {
                 title = '修改字段';
@@ -823,41 +827,40 @@ class Keymap extends React.Component{
 
     renderBatchModal = () => {
         const {
-            batchModal, batchSourceModal, 
+            batchModal, batchSourceModal,
             sourceColumnFamily, targetColumnFamily
         } = this.state;
         const {
-            sourceSrcType, targetSrcType, sourceCol, targetCol,
+            sourceSrcType, targetSrcType, sourceCol, targetCol
         } = this.props;
 
-        
         let sPlaceholder, sDesc, tPlaceholder, tDesc;
         switch (sourceSrcType) {
-            case DATA_SOURCE.FTP:
-            case DATA_SOURCE.HDFS: {
-                sPlaceholder = '0: STRING,\n1: INTEGER,...'
-                sDesc = 'index: type, index: type'
-                break;
-            }
-            case DATA_SOURCE.HBASE: {
-                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-                sDesc = 'columnFamily: fieldName: type,'
-                break;
-            }
+        case DATA_SOURCE.FTP:
+        case DATA_SOURCE.HDFS: {
+            sPlaceholder = '0: STRING,\n1: INTEGER,...'
+            sDesc = 'index: type, index: type'
+            break;
+        }
+        case DATA_SOURCE.HBASE: {
+            sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+            sDesc = 'columnFamily: fieldName: type,'
+            break;
+        }
         }
 
         switch (targetSrcType) {
-            case DATA_SOURCE.FTP:
-            case DATA_SOURCE.HDFS: {
-                tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
-                tDesc = 'fieldName: type, fieldName: type'
-                break;
-            }
-            case DATA_SOURCE.HBASE: {
-                tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-                tDesc = 'columnFamily: fieldName: type,'
-                break;
-            }
+        case DATA_SOURCE.FTP:
+        case DATA_SOURCE.HDFS: {
+            tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
+            tDesc = 'fieldName: type, fieldName: type'
+            break;
+        }
+        case DATA_SOURCE.HBASE: {
+            tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+            tDesc = 'columnFamily: fieldName: type,'
+            break;
+        }
         }
 
         return [
@@ -892,16 +895,16 @@ class Keymap extends React.Component{
         ]
     }
 
-    render() {
+    render () {
         const {
-            w, h, W, padding, visibleConst,
+            w, h, W, padding, visibleConst
         } = this.state;
 
         const {
-            sourceSrcType, 
-            targetSrcType, 
+            sourceSrcType,
+            targetSrcType,
             addSourceKeyRow,
-            navtoStep, targetCol, sourceCol,
+            navtoStep, targetCol, sourceCol
         } = this.props;
 
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
@@ -924,10 +927,10 @@ class Keymap extends React.Component{
                             { this.renderTarget() }
                             <svg
                                 ref={ el => this.canvas = el }
-                                width={ W > w*2 ? W - w*2 : 0 }
+                                width={ W > w * 2 ? W - w * 2 : 0 }
                                 height={ H }
                                 className="pa m-keymapcanvas"
-                                style={{ left: w , top: padding }}
+                                style={{ left: w, top: padding }}
                             >
                                 <defs>
                                     <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="6" refY="6" orient="auto" >
@@ -960,20 +963,20 @@ class Keymap extends React.Component{
                             </Button>
                             <br/>
                             {
-                                isHdfsType(targetSrcType) || isFtpType(targetSrcType) ? 
-                                <Button 
-                                    onClick={() => {this.copySourceCols(sourceCol)}}>
+                                isHdfsType(targetSrcType) || isFtpType(targetSrcType)
+                                    ? <Button
+                                        onClick={() => { this.copySourceCols(sourceCol) }}>
                                     拷贝源字段
-                                </Button>
-                                : ''
+                                    </Button>
+                                    : ''
                             }
                             {
-                                isHdfsType(sourceSrcType) || isFtpType(sourceSrcType) ? 
-                                <Button 
-                                    onClick={() => {this.copyTargetCols(targetCol)}}>
+                                isHdfsType(sourceSrcType) || isFtpType(sourceSrcType)
+                                    ? <Button
+                                        onClick={() => { this.copyTargetCols(targetCol) }}>
                                     拷贝目标字段
-                                </Button>
-                                : ''
+                                    </Button>
+                                    : ''
                             }
                         </div> : null
                         }
@@ -984,7 +987,7 @@ class Keymap extends React.Component{
                 <ConstModal
                     visible={visibleConst}
                     onOk={addSourceKeyRow}
-                    onCancel={() => { this.setState({ visibleConst: false })}}
+                    onCancel={() => { this.setState({ visibleConst: false }) }}
                 />
                 {!this.props.readonly && <div className="steps-action" style={{ marginTop: 80 }}>
                     <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
@@ -994,15 +997,15 @@ class Keymap extends React.Component{
         </Resize>
     }
 
-    prev(cb) {
+    prev (cb) {
         cb.call(null, 1);
     }
 
-    next(cb) {
+    next (cb) {
         const { keymap, targetSrcType, targetCol } = this.props;
         const { source, target } = keymap;
 
-        if(source.length === 0 && target.length === 0) {
+        if (source.length === 0 && target.length === 0) {
             message.error('尚未配置数据同步的字段映射！');
             return;
         }
@@ -1020,7 +1023,7 @@ class Keymap extends React.Component{
         }
 
         // 如果Carbondata作为目标数据源，且目标字段中有分区字段，分区字段必须添加映射，否则error
-        if (!isCarbonDataCheckPartition()) return false;;
+        if (!isCarbonDataCheckPartition()) return false; ;
 
         // 针对Hbase增加keyrow检验项
         if (targetSrcType === DATA_SOURCE.HBASE) {
@@ -1054,7 +1057,7 @@ class Keymap extends React.Component{
                 }
             } else {
                 // 正则提取
-                let regx = /\$\(([\w]+)\)/g, temp;
+                let regx = /\$\(([\w]+)\)/g; let temp;
                 while ((temp = regx.exec(type.rowkey)) !== null) {
                     arr.push(temp[1])
                 }
@@ -1086,23 +1089,23 @@ class Keymap extends React.Component{
      * 拷贝源表字段
      */
     copySourceCols = (sourceKeyRow) => {
-        const { 
-            targetSrcType, 
+        const {
+            targetSrcType,
             addBatchTargetKeyRow
         } = this.props;
 
         if (isHdfsType(targetSrcType)) {
             const serverParams = {};
-            sourceKeyRow.forEach((item)=>{
+            sourceKeyRow.forEach((item) => {
                 serverParams[item.key || item.index] = item.type
             })
             Api.convertToHiveColumns({
                 columns: serverParams
             }).then(
                 (res) => {
-                    if( res.code == 1 ) {
-                        const params=[];
-                        Object.getOwnPropertyNames(res.data).forEach((key)=>{
+                    if (res.code == 1) {
+                        const params = [];
+                        Object.getOwnPropertyNames(res.data).forEach((key) => {
                             params.push({
                                 key: key,
                                 type: res.data[key]
@@ -1116,7 +1119,7 @@ class Keymap extends React.Component{
             const params = sourceKeyRow.map(item => {
                 return {
                     key: item.key || item.index,
-                    type: 'STRING',
+                    type: 'STRING'
                 }
             })
             addBatchTargetKeyRow(params)
@@ -1132,7 +1135,7 @@ class Keymap extends React.Component{
             const params = targetKeyRow.map((item, index) => {
                 return {
                     key: index,
-                    type: 'STRING',
+                    type: 'STRING'
                 }
             })
             addBatchSourceKeyRow(params);
@@ -1144,7 +1147,7 @@ class Keymap extends React.Component{
         this.setState({
             batchModal: {
                 visible: true,
-                batchText: e.target.value,
+                batchText: e.target.value
             }
         })
     }
@@ -1154,7 +1157,7 @@ class Keymap extends React.Component{
         this.setState({
             batchSourceModal: {
                 visible: true,
-                batchText: e.target.value,
+                batchText: e.target.value
             }
         })
     }
@@ -1162,7 +1165,7 @@ class Keymap extends React.Component{
     doBatchImport = () => {
         const { batchModal } = this.state
         const { batchText } = batchModal
-        const { 
+        const {
             targetSrcType,
             replaceBatchTargetKeyRow
         } = this.props
@@ -1173,47 +1176,47 @@ class Keymap extends React.Component{
         const params = []
 
         switch (targetSrcType) {
-            case DATA_SOURCE.FTP:
-            case DATA_SOURCE.HDFS: {
-                for (let i = 0; i < arr.length; i++ ) {
-                    const item = arr[i]
-                    if (!item) continue;
-                    const map = item.split(':')
-                    const key = utils.trim(map[0])
-                    const type = utils.trim(map[1].toUpperCase());
-                    if (hdfsFieldTypes.includes(type)) {
-                        params.push({
-                            key,
-                            type,
-                        })
-                    } else {
-                        message.error(`字段${key}的数据类型错误！`)
-                        return
-                    }
+        case DATA_SOURCE.FTP:
+        case DATA_SOURCE.HDFS: {
+            for (let i = 0; i < arr.length; i++) {
+                const item = arr[i]
+                if (!item) continue;
+                const map = item.split(':')
+                const key = utils.trim(map[0])
+                const type = utils.trim(map[1].toUpperCase());
+                if (hdfsFieldTypes.includes(type)) {
+                    params.push({
+                        key,
+                        type
+                    })
+                } else {
+                    message.error(`字段${key}的数据类型错误！`)
+                    return
                 }
-                break;
             }
-            case DATA_SOURCE.HBASE: {
-                for (let i = 0; i < arr.length; i++) {
-                    const item = arr[i]
-                    if (!item) continue;
-                    const map = item.split(':')
-                    const cf = utils.trim(map[0])
-                    const name = utils.trim(map[1])
-                    const type = utils.trim(map[2])
-                    if (hdfsFieldTypes.includes(type)) {
-                        params.push({
-                            cf: cf,
-                            key: name,
-                            type,
-                        })
-                    } else {
-                        message.error(`字段${name}的数据类型错误！`)
-                        return
-                    }
+            break;
+        }
+        case DATA_SOURCE.HBASE: {
+            for (let i = 0; i < arr.length; i++) {
+                const item = arr[i]
+                if (!item) continue;
+                const map = item.split(':')
+                const cf = utils.trim(map[0])
+                const name = utils.trim(map[1])
+                const type = utils.trim(map[2])
+                if (hdfsFieldTypes.includes(type)) {
+                    params.push({
+                        cf: cf,
+                        key: name,
+                        type
+                    })
+                } else {
+                    message.error(`字段${name}的数据类型错误！`)
+                    return
                 }
-                break;
             }
+            break;
+        }
         }
         replaceBatchTargetKeyRow(params);
         this.hideBatchImportModal()
@@ -1223,8 +1226,8 @@ class Keymap extends React.Component{
         this.setState({
             batchModal: {
                 visible: false,
-                batchText: '',
-            },
+                batchText: ''
+            }
         });
     }
 
@@ -1232,8 +1235,8 @@ class Keymap extends React.Component{
         this.setState({
             batchSourceModal: {
                 visible: false,
-                batchText: '',
-            },
+                batchText: ''
+            }
         });
     }
 
@@ -1241,7 +1244,7 @@ class Keymap extends React.Component{
     importFields = () => {
         this.setState({
             batchModal: {
-                visible: true,
+                visible: true
             }
         })
     }
@@ -1249,7 +1252,7 @@ class Keymap extends React.Component{
     importSourceFields = () => {
         this.setState({
             batchSourceModal: {
-                visible: true,
+                visible: true
             }
         })
     }
@@ -1257,9 +1260,9 @@ class Keymap extends React.Component{
     doBatchAddSourceFields = () => {
         const { batchSourceModal } = this.state
         const { batchText } = batchSourceModal
-        const { 
-            sourceSrcType, 
-            replaceBatchSourceKeyRow 
+        const {
+            sourceSrcType,
+            replaceBatchSourceKeyRow
         } = this.props
 
         if (!batchText) {
@@ -1271,58 +1274,57 @@ class Keymap extends React.Component{
         const params = []
 
         switch (sourceSrcType) {
-            case DATA_SOURCE.FTP:
-            case DATA_SOURCE.HDFS: {
-                for (let i = 0; i < arr.length; i++ ) {
-                    const item = arr[i].replace(/\n/, '');
-                    if (!item) continue;
-                    const map = item.split(':');
-                    if (map.length < 1) { break; };
-                    const key = parseInt(utils.trim(map[0]), 10);
-                    const type = map[1] ? utils.trim(map[1]).toUpperCase(): null;
-                    if (!isNaN(key) && isNumber(key)) {
-                        if (hdfsFieldTypes.includes(type) ) {
-                            if (!params.find(pa => pa.key === key )) {
-                                params.push({
-                                    key: key,
-                                    type,
-                                })
-                            }
-                        } else {
-                            message.error(`索引 ${key} 的数据类型错误！`)
-                            return
+        case DATA_SOURCE.FTP:
+        case DATA_SOURCE.HDFS: {
+            for (let i = 0; i < arr.length; i++) {
+                const item = arr[i].replace(/\n/, '');
+                if (!item) continue;
+                const map = item.split(':');
+                if (map.length < 1) { break; };
+                const key = parseInt(utils.trim(map[0]), 10);
+                const type = map[1] ? utils.trim(map[1]).toUpperCase() : null;
+                if (!isNaN(key) && isNumber(key)) {
+                    if (hdfsFieldTypes.includes(type)) {
+                        if (!params.find(pa => pa.key === key)) {
+                            params.push({
+                                key: key,
+                                type
+                            })
                         }
                     } else {
-                        message.error(`索引名称 ${key} 应该为整数数字！`)
+                        message.error(`索引 ${key} 的数据类型错误！`)
                         return
                     }
+                } else {
+                    message.error(`索引名称 ${key} 应该为整数数字！`)
+                    return
                 }
-                break;
             }
-            case DATA_SOURCE.HBASE: {
+            break;
+        }
+        case DATA_SOURCE.HBASE: {
+            for (let i = 0; i < arr.length; i++) {
+                const item = arr[i].replace(/\n/, '');
+                if (!item) continue;
 
-                for (let i = 0; i < arr.length; i++) {
-                    const item = arr[i].replace(/\n/, '');
-                    if (!item) continue;
-
-                    const map = item.split(':');
-                    if (map.length < 2) { break; };
-                    const cf = utils.trim(map[0]);
-                    const name = utils.trim(map[1]);
-                    const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
-                    if (hdfsFieldTypes.includes(type)) {
-                        params.push({
-                            cf: cf,
-                            key: name,
-                            type,
-                        })
-                    } else {
-                        message.error(`字段${name}的数据类型错误！`)
-                        return
-                    }
+                const map = item.split(':');
+                if (map.length < 2) { break; };
+                const cf = utils.trim(map[0]);
+                const name = utils.trim(map[1]);
+                const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
+                if (hdfsFieldTypes.includes(type)) {
+                    params.push({
+                        cf: cf,
+                        key: name,
+                        type
+                    })
+                } else {
+                    message.error(`字段${name}的数据类型错误！`)
+                    return
                 }
-                break;
             }
+            break;
+        }
         }
         replaceBatchSourceKeyRow(params);
         this.hideBatchSourceModal();
@@ -1332,11 +1334,11 @@ class Keymap extends React.Component{
      * @description 同行映射
      * @memberof Keymap
      */
-    setRowMap() {
+    setRowMap () {
         const { rowMap, nameMap } = this.state;
-        const { 
-            targetCol, sourceCol, sourceSrcType, 
-            targetSrcType,
+        const {
+            targetCol, sourceCol, sourceSrcType,
+            targetSrcType
         } = this.props;
 
         // const convertColumn2Keymap_s = (column) => {
@@ -1353,13 +1355,12 @@ class Keymap extends React.Component{
         //     return column;
         // }
 
-        if(!rowMap) {
+        if (!rowMap) {
             this.props.setRowMap({
                 sourceCol: sourceCol, // convertColumn2Keymap_s(sourceCol),
-                targetCol: targetCol, //convertColumn2Keymap_t(targetCol)
+                targetCol: targetCol // convertColumn2Keymap_t(targetCol)
             });
-        }
-        else{
+        } else {
             this.props.resetLinkedKeys();
         }
 
@@ -1373,14 +1374,13 @@ class Keymap extends React.Component{
      * @description 同名映射
      * @memberof Keymap
      */
-    setNameMap() {
+    setNameMap () {
         const { nameMap, rowMap } = this.state;
-        const { targetCol, sourceCol, sourceSrcType ,targetSrcType } = this.props;
+        const { targetCol, sourceCol, sourceSrcType, targetSrcType } = this.props;
 
-        if(!nameMap) {
-            this.props.setNameMap({sourceCol, targetCol, sourceSrcType, targetSrcType});
-        }
-        else{
+        if (!nameMap) {
+            this.props.setNameMap({ sourceCol, targetCol, sourceSrcType, targetSrcType });
+        } else {
             this.props.resetLinkedKeys();
         }
 
@@ -1396,7 +1396,7 @@ class Keymap extends React.Component{
      * @param {string} hdfs 文件类型 orc/text
      * @memberof Keymap
      */
-    initAddKeyRow(isReader, fileType) {
+    initAddKeyRow (isReader, fileType) {
         this.setState({
             keyModalVisible: true,
             keyModal: {
@@ -1416,7 +1416,7 @@ class Keymap extends React.Component{
                 fileType,
                 editField: field,
                 position: index,
-                source: sourceCol,
+                source: sourceCol
             }
         });
     }
@@ -1430,10 +1430,9 @@ class Keymap extends React.Component{
         const { isReader } = this.state.keyModal
         const { addSourceKeyRow, addTargetKeyRow } = this.props;
         if (formData) {
-            if(isReader) {
+            if (isReader) {
                 addSourceKeyRow(formData);
-            }
-            else {
+            } else {
                 addTargetKeyRow(formData);
             }
             this.hideKeyModal();
@@ -1442,7 +1441,7 @@ class Keymap extends React.Component{
 
     /**
      * 编辑KeyRow
-     * @param {*} isReader 
+     * @param {*} isReader
      */
     doEditKeyRow = (formData) => {
         const {
@@ -1450,36 +1449,34 @@ class Keymap extends React.Component{
             editTargetKeyRow,
             editKeyMapTarget,
             removeKeyMap,
-            editKeyMapSource,
+            editKeyMapSource
         } = this.props;
         const { keyModal } = this.state;
         const { isReader, position, source, editField } = keyModal;
         if (formData) {
-
-            if(isReader) {
+            if (isReader) {
                 editSourceKeyRow({
                     index: position,
-                    value: formData,
+                    value: formData
                 });
                 editKeyMapSource({
                     old: editField,
-                    replace: formData,
+                    replace: formData
                 })
                 removeKeyMap({
-                    source: editField,
+                    source: editField
                 })
-            }
-            else {
+            } else {
                 editTargetKeyRow({
                     index: position,
-                    value: formData,
+                    value: formData
                 });
                 editKeyMapTarget({
                     old: editField,
-                    replace: formData,
+                    replace: formData
                 })
                 removeKeyMap({
-                    target: editField,
+                    target: editField
                 })
             }
             this.hideKeyModal();
@@ -1492,8 +1489,8 @@ class Keymap extends React.Component{
             keyModal: {
                 operation: 'add',
                 editField: '',
-                source: '',
-            },
+                source: ''
+            }
         });
     }
 }
@@ -1502,12 +1499,12 @@ const mapState = state => {
     const { dataSync } = state.offlineTask;
     return {
         targetCol: dataSync.targetMap.column || [],
-        targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type,  // 目标数据源类型
+        targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type, // 目标数据源类型
         targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type.fileType,
         sourceCol: dataSync.sourceMap.column || [],
         sourceSrcType: dataSync.sourceMap.type && dataSync.sourceMap.type.type, // 源头数据源类型
         sourceFileType: dataSync.sourceMap.type && dataSync.sourceMap.type.fileType,
-        keymap: dataSync.keymap,
+        keymap: dataSync.keymap
     };
 };
 

@@ -19,17 +19,16 @@ import { isProjectCouldEdit } from '../../../comm';
 const TabPane = Tabs.TabPane;
 
 class SiderBench extends React.Component {
-
     state = {
         selected: '',
-        expanded: false,
+        expanded: false
     }
 
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    handleTaskParamChange(newVal) {
+    handleTaskParamChange (newVal) {
         this.props.setTaskParams({
             taskParams: newVal
         });
@@ -67,7 +66,7 @@ class SiderBench extends React.Component {
                     isWorkflowNode={isWorkflowNode}
                     tabData={tabData}
                 ></TaskDetail>
-            </TabPane>,
+            </TabPane>
         ];
 
         if (!isWorkflowNode) {
@@ -103,7 +102,7 @@ class SiderBench extends React.Component {
                         tabData={tabData}
                         onChange={this.handleCustomParamsChange}
                     />
-                </TabPane>,
+                </TabPane>
             )
             if (tabData.taskType !== TASK_TYPE.SYNC) {
                 panes.push(
@@ -117,7 +116,7 @@ class SiderBench extends React.Component {
                             language="ini"
                             onChange={this.handleTaskParamChange.bind(this)}
                         />
-                    </TabPane>,
+                    </TabPane>
                 )
             }
         } else if (utils.checkExist(tabData.type)) {
@@ -128,7 +127,7 @@ class SiderBench extends React.Component {
         return panes;
     }
 
-    render() {
+    render () {
         return <div className="m-siderbench padding-r0" ref={(e) => { this.SideBench = e }}>
             <Tabs
                 activeKey={this.state.selected}
@@ -150,7 +149,7 @@ export default connect(state => {
     }
 }, dispatch => {
     return {
-        setTaskParams(params) {
+        setTaskParams (params) {
             dispatch({
                 type: workbenchAction.SET_TASK_SQL_FIELD_VALUE,
                 payload: params

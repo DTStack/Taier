@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 
-import { 
-    Row, Tabs, Icon, 
-    Popover, Tooltip 
+import {
+    Row, Tabs, Icon,
+    Popover, Tooltip
 } from 'antd';
 
 import { hashHistory } from 'react-router';
@@ -13,12 +13,11 @@ import RealTimeTabPanel from './realtimeTab'
 const TabPane = Tabs.TabPane
 
 class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
     }
 
-    render() {
+    render () {
         const { pathname } = this.props.routing.locationBeforeTransitions;
         const activeKey = /^\/*(\w+)(\/*.*)$/.exec(pathname)[1];
 
@@ -31,7 +30,7 @@ class Sidebar extends Component {
         )
     }
 
-    switchTaskPanel(key) {
+    switchTaskPanel (key) {
         hashHistory.push(`/${key}/task`);
     }
 }

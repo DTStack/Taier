@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { union } from "lodash";
+import { union } from 'lodash';
 import {
     Tree,
     Input, Tooltip, Icon, Select
@@ -9,7 +9,7 @@ import {
 import { debounceEventHander } from 'funcs'
 
 import {
-    tableTreeAction,
+    tableTreeAction
 } from '../../../../store/modules/offlineTask/actionType';
 import {
     workbenchActions
@@ -21,7 +21,6 @@ import { MENU_TYPE } from '../../../../comm/const';
 const { TreeNode } = Tree;
 const Option = Select.Option;
 
-
 // 映射State
 const stateToProps = (state) => {
     return {
@@ -31,21 +30,20 @@ const stateToProps = (state) => {
 
 @connect(stateToProps, workbenchActions)
 class TableTree extends React.Component {
-
     state = {
         displaySearch: false,
         tableId: '',
-        projectId: "all",
+        projectId: 'all',
         expandedKeys: [],
-        searchName: ""
+        searchName: ''
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.project.id != nextProps.project.id) {
             this.setState({
-                projectId: "all",
+                projectId: 'all',
                 expandedKeys: [],
                 tableId: '',
-                searchName: ""
+                searchName: ''
             })
         }
     }
@@ -55,7 +53,7 @@ class TableTree extends React.Component {
             keys = union(this.state.expandedKeys, keys)
         }
         this.setState({
-            expandedKeys: keys,
+            expandedKeys: keys
         })
     }
 
@@ -92,7 +90,7 @@ class TableTree extends React.Component {
     search = (e) => {
         e.preventDefault();
         const value = e.target.value;
-        if (value === "") this.setState({ tableId: '' })
+        if (value === '') this.setState({ tableId: '' })
         this.setState({
             searchName: value
         })
@@ -107,26 +105,26 @@ class TableTree extends React.Component {
     doReq = (queryName, id) => {
         const { projectId, searchName } = this.state;
         const { treeData, loadTreeNode, loadTableListNodeByName } = this.props;
-        const nodeId = typeof id == "undefined" ? treeData.id : id
-        if (searchName || projectId != "all") {
+        const nodeId = typeof id == 'undefined' ? treeData.id : id
+        if (searchName || projectId != 'all') {
             this.setState({
                 expandedKeys: [treeData.id + '']
             })
             loadTableListNodeByName(nodeId, {
                 tableName: queryName || searchName,
-                appointProjectId: projectId == "all" ? null : projectId,
-                isDirtyDataTable: 0,
+                appointProjectId: projectId == 'all' ? null : projectId,
+                isDirtyDataTable: 0
             })
         } else {
-            if (typeof id == "undefined") {
+            if (typeof id == 'undefined') {
                 this.setState({
                     expandedKeys: [treeData.id + '']
                 })
             }
             loadTreeNode(nodeId, MENU_TYPE.TABLE, {
                 tableName: queryName || searchName,
-                appointProjectId: projectId == "all" ? null : projectId,
-                isDirtyDataTable: 0,
+                appointProjectId: projectId == 'all' ? null : projectId,
+                isDirtyDataTable: 0
             })
         }
     }
@@ -138,19 +136,19 @@ class TableTree extends React.Component {
         })
     }
 
-    tableChange(value) {
+    tableChange (value) {
         this.setState({
             projectId: value
         }, this.doReq)
     }
-    render() {
+    render () {
         const { displaySearch, tableId, projectId, expandedKeys } = this.state
         const { project } = this.props;
         const display = displaySearch ? 'block' : 'none';
         return (
-            <div className="menu-content" style={{ position: "relative" }}>
-                <header style={{ left: "13px" }}>
-                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: "90px", float: "left", marginLeft: "8px" }}>
+            <div className="menu-content" style={{ position: 'relative' }}>
+                <header style={{ left: '13px' }}>
+                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: '90px', float: 'left', marginLeft: '8px' }}>
                         <Option value="all">全部项目</Option>
                         <Option value={project.id}>{project.projectAlias}</Option>
                     </Select>
@@ -205,10 +203,9 @@ class TableTree extends React.Component {
     }
 }
 
-//抽离组件防止其他影响的卡顿
+// 抽离组件防止其他影响的卡顿
 class TreeContent extends React.PureComponent {
-
-    jumpToDataMap(id) {
+    jumpToDataMap (id) {
         window.open(`${location.pathname}#/data-manage/table/view/${id}`);
     }
 
@@ -234,7 +231,7 @@ class TreeContent extends React.PureComponent {
                     <div className="detail-content">
                         <p className="text-item"><span className="text-item-name">表名</span><span className="text-item-value">{name}</span></p>
                         <p className="text-item"><span className="text-item-name">责任人</span><span className="text-item-value">{data.chargeUser}</span></p>
-                        <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias || "-"}</span></p>
+                        <p className="text-item"><span className="text-item-name">项目名称</span><span className="text-item-value">{data.projectAlias || '-'}</span></p>
                         <p className="text-item"><span className="text-item-name">生命周期</span><span className="text-item-value">{data.lifeDay ? `${data.lifeDay}天` : '-'}</span></p>
                         <p className="text-item"><span className="text-item-name">描述</span>
                             <span className="text-item-value">
@@ -244,9 +241,9 @@ class TreeContent extends React.PureComponent {
                         <a onClick={this.jumpToDataMap.bind(this, data.id)}>更多详情</a>
                     </div>
                 )}
-                    placement="bottomLeft"
-                    mouseEnterDelay={0.5}>
-                    <span style={{ padding: "8px 0px" }}>{name}</span>
+                placement="bottomLeft"
+                mouseEnterDelay={0.5}>
+                    <span style={{ padding: '8px 0px' }}>{name}</span>
                 </Tooltip>
             )
 
@@ -267,8 +264,8 @@ class TreeContent extends React.PureComponent {
         return result;
     }
 
-    render() {
-        console.log("render")
+    render () {
+        console.log('render')
         return (
             <Tree
                 showIcon={true}
@@ -283,6 +280,5 @@ class TreeContent extends React.PureComponent {
         )
     }
 }
-
 
 export default TableTree

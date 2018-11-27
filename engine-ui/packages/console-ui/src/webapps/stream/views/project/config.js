@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import {
     Modal,
-    Input, Form, message, 
+    Input, Form, message,
     Select
 } from 'antd'
 
@@ -17,7 +17,7 @@ import * as ProjectAction from '../../store/modules/project'
 const FormItem = Form.Item
 const Option = Select.Option;
 
-function myFrom(props) {
+function myFrom (props) {
     const { getFieldDecorator } = props.form;
     return (
         <Form>
@@ -28,11 +28,11 @@ function myFrom(props) {
                 {getFieldDecorator('projectAlias', {
                     rules: [{
                         max: 20,
-                        message: '项目显示名称不得超过20个字符！',
+                        message: '项目显示名称不得超过20个字符！'
                     }],
-                    initialValue: props.project ? props.project.projectAlias : '',
+                    initialValue: props.project ? props.project.projectAlias : ''
                 })(
-                    <Input placeholder="请输入项目显示名称" />,
+                    <Input placeholder="请输入项目显示名称" />
                 )}
             </FormItem>
             <FormItem
@@ -42,11 +42,11 @@ function myFrom(props) {
                 {getFieldDecorator('projectDesc', {
                     rules: [{
                         max: 200,
-                        message: '项目描述请控制在200个字符以内！',
+                        message: '项目描述请控制在200个字符以内！'
                     }],
-                    initialValue: props.project ? props.project.projectDesc : '',
+                    initialValue: props.project ? props.project.projectDesc : ''
                 })(
-                    <Input type="textarea" rows={4} />,
+                    <Input type="textarea" rows={4} />
                 )}
             </FormItem>
         </Form>
@@ -56,14 +56,13 @@ function myFrom(props) {
 const DescForm = Form.create()(myFrom)
 
 class ProjectConfig extends Component {
-
     state = {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,
         bindLoading: false,
         visibleChangeProduce: false,
         bindProject: {},
-        projectBindList:[]
+        projectBindList: []
     }
 
     updateProjectDesc = () => {
@@ -89,15 +88,15 @@ class ProjectConfig extends Component {
         });
     }
 
-    render() {
+    render () {
         const { visibleUpdateDesc } = this.state
-        const { params, project = {}} = this.props
+        const { params, project = {} } = this.props
         const adminLength = project && project.adminUsers && project.adminUsers.length;
         const memberLength = project && project.memberUsers && project.memberUsers.length;
-        const admins = project && project.adminUsers && project.adminUsers.length > 0 ?
-            project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
-        const members = project && project.memberUsers && project.memberUsers.length > 0 ?
-            project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
+        const admins = project && project.adminUsers && project.adminUsers.length > 0
+            ? project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
+        const members = project && project.memberUsers && project.memberUsers.length > 0
+            ? project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
         const projectIdentifier = project.projectIdentifier;
         return (
             <div className="project-config">
@@ -154,4 +153,3 @@ export default connect((state) => {
         projects: state.projects
     };
 })(ProjectConfig)
-

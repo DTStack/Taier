@@ -70,7 +70,7 @@ export const hdfsConfig = ( // hdfs config
             <li>
                 4、详细参数含义请参考《帮助文档》或
                 <a href="http://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-hdfs/HDFSHighAvailabilityWithQJM.html"
-                target="blank">Hadoop官方文档</a>
+                    target="blank">Hadoop官方文档</a>
             </li>
         </ul>
     </div>
@@ -109,4 +109,3 @@ export const errorPercentConfig = (
         <p>任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败</p>
     </div>
 )
-

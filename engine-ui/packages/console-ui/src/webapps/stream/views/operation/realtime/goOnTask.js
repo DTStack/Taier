@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import moment from 'moment'
 
 import {
-    message, Modal, 
+    message, Modal,
     DatePicker, TimePicker,
-    Select, Alert, Button,
- } from 'antd'
+    Select, Alert, Button
+} from 'antd'
 
- import utils from 'utils'
- import pureRender from 'utils/pureRender'
- 
+import utils from 'utils'
+import pureRender from 'utils/pureRender'
+
 import Api from '../../../api'
 
 const { RangePicker } = DatePicker;
@@ -17,7 +17,6 @@ const Option = Select.Option
 
 @pureRender
 class GoOnTask extends Component {
-
     state = {
         checkPoints: [],
         dateRange: null,
@@ -25,21 +24,21 @@ class GoOnTask extends Component {
         rangeValue: []
     }
 
-    componentWillReceiveProps(nextProps, nextState) {
+    componentWillReceiveProps (nextProps, nextState) {
         const taskId = nextProps.taskId
-        const visible=nextProps.visible;
+        const visible = nextProps.visible;
         const old = this.props.taskId;
-        const old_visible=this.props.visible;
+        const old_visible = this.props.visible;
 
         if (visible && old_visible !== visible) {
             this.setState({
-                checkPoints:[],
-                dateRange:null,
-                externalPath:'',
-                rangeValue:[]
+                checkPoints: [],
+                dateRange: null,
+                externalPath: '',
+                rangeValue: []
             })
             this.getCheckPointRange({
-                taskId,
+                taskId
             })
         }
     }
@@ -48,7 +47,7 @@ class GoOnTask extends Component {
         Api.getCheckPointRange(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    dateRange: res.data,
+                    dateRange: res.data
                 })
             }
         })
@@ -63,7 +62,7 @@ class GoOnTask extends Component {
         Api.startTask({
             id: this.props.taskId,
             externalPath,
-            isRestoration:0
+            isRestoration: 0
         }).then((res) => {
             if (res.code === 1) {
                 message.success('续跑操作成功！')
@@ -77,7 +76,7 @@ class GoOnTask extends Component {
             externalPath: '',
             dateRange: {},
             checkPoints: [],
-            rangeValue:[]
+            rangeValue: []
         }, () => {
             this.props.onCancel();
         })
@@ -89,7 +88,7 @@ class GoOnTask extends Component {
         Api.getCheckPoints(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    checkPoints: res.data,
+                    checkPoints: res.data
                 })
             }
         })
@@ -97,9 +96,9 @@ class GoOnTask extends Component {
 
     taskReadRangeChange = (value) => {
         this.setState({
-            rangeValue:value,
-            externalPath:'',
-            checkPoints:[]
+            rangeValue: value,
+            externalPath: '',
+            checkPoints: []
         })
         if (!value || value.length === 0) return;
 
@@ -109,32 +108,31 @@ class GoOnTask extends Component {
         this.getCheckPoints({
             taskId: this.props.taskId,
             startTime: start.valueOf(),
-            endTime: end.valueOf(),
+            endTime: end.valueOf()
         })
     }
 
     taskReadTimeChange = (value) => {
         this.setState({
-            externalPath: value,
+            externalPath: value
         })
     }
 
     disabledDate = (current) => {
         const { dateRange } = this.state
         if (dateRange) {
-
             const min = moment(dateRange.left)
             const max = moment(dateRange.right)
 
-            min.set({hour:0,minute:0,second:0,millisecond:0})
-            max.set({hour:24,minute:59,second:59,millisecond:0})
+            min.set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
+            max.set({ hour: 24, minute: 59, second: 59, millisecond: 0 })
 
             return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
         return false;
     }
 
-    render() {
+    render () {
         const { visible } = this.props
         const { dateRange, checkPoints, rangeValue, externalPath } = this.state;
 
@@ -159,11 +157,11 @@ class GoOnTask extends Component {
                     </span>
                 }
             >
-                {!dateRange&&<Alert style={{marginBottom:"8px"}} message="当前没有可用的checkpoint" type="error" />}
+                {!dateRange && <Alert style={{ marginBottom: '8px' }} message="当前没有可用的checkpoint" type="error" />}
                 <Alert message="续跑，任务将恢复至停止前的状态继续运行!" type="warning" />
-                <div style={{lineHeight: '30px'}}>指定读取数据时间:</div>
-                <div> 
-                    <span style={{marginRight: '5px'}}>
+                <div style={{ lineHeight: '30px' }}>指定读取数据时间:</div>
+                <div>
+                    <span style={{ marginRight: '5px' }}>
                         <RangePicker
                             format="YYYY-MM-DD HH:mm:ss"
                             disabledDate={this.disabledDate}
@@ -176,7 +174,7 @@ class GoOnTask extends Component {
                         <Select
                             showSearch
                             size="default"
-                            style={{width: '126px'}}
+                            style={{ width: '126px' }}
                             placeholder="时间点"
                             optionFilterProp="name"
                             onChange={this.taskReadTimeChange}

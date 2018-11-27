@@ -31,7 +31,7 @@ const rootReducer = combineReducers({
     editor, // 编辑器
     operation, // 运维中心
     dataSource,
-    visibleSearchTask,
+    visibleSearchTask
 })
 
 export default rootReducer

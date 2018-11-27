@@ -3,11 +3,11 @@ import { Link, hashHistory } from 'react-router';
 
 import { isProjectCouldEdit } from '../../../comm';
 import {
-    Table, Select, Form, 
+    Table, Select, Form,
     Card, message, Checkbox,
-    DatePicker, Input,
+    DatePicker, Input
 } from 'antd';
-import moment from "moment"
+import moment from 'moment'
 import utils from 'utils';
 
 import Api from '../../../api/dataModel';
@@ -17,11 +17,10 @@ const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
 
 export default class FieldCheck extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
-        const {  triggerType2, startTime2, endTime2 } = this.props.location.query;
-        this. state = {
+        const { triggerType2, startTime2, endTime2 } = this.props.location.query;
+        this.state = {
             table: { data: [] },
             loading: false,
             params: {
@@ -30,43 +29,41 @@ export default class FieldCheck extends Component {
                 tableName: '',
                 ignore: 0, // 1 忽略，0 不忽略
                 type: '2',
-                triggerType: triggerType2&&triggerType2.split(",")||[],
+                triggerType: triggerType2 && triggerType2.split(',') || [],
                 startTime: startTime2,
-                endTime: endTime2,
-            },
+                endTime: endTime2
+            }
         }
     }
 
-  
-    componentDidMount() {
+    componentDidMount () {
         this.loadData();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-           this.componentDidMount();
+            this.componentDidMount();
         }
     }
-    
 
     loadData = () => {
         const { params } = this.state;
-        const { startTime,endTime,triggerType} = params;
-        const { pathname, query} = this.props.location;
-        const pathQuery = { 
-            currentTab: '2', 
-            startTime2: startTime, 
-            endTime2: endTime, 
-            triggerType2: triggerType.join(",")||undefined
+        const { startTime, endTime, triggerType } = params;
+        const { pathname, query } = this.props.location;
+        const pathQuery = {
+            currentTab: '2',
+            startTime2: startTime,
+            endTime2: endTime,
+            triggerType2: triggerType.join(',') || undefined
         };
         hashHistory.push({
             pathname,
-            query: Object.assign(query,pathQuery),
+            query: Object.assign(query, pathQuery)
         })
         this.setState({
-            loading: true,
+            loading: true
         })
         Api.getCheckList(params).then(res => {
             if (res.code === 1) {
@@ -75,7 +72,7 @@ export default class FieldCheck extends Component {
                 })
             }
             this.setState({
-                loading: false,
+                loading: false
             })
         })
     }
@@ -83,7 +80,7 @@ export default class FieldCheck extends Component {
     ignore = (record) => {
         Api.ignoreCheck({
             id: record.id,
-            type: '2',
+            type: '2'
         }).then(res => {
             if (res.code === 1) {
                 this.loadData()
@@ -94,7 +91,7 @@ export default class FieldCheck extends Component {
 
     changeParams = (field, value) => {
         const params = {
-            [field]: value,
+            [field]: value
         }
 
         if (field !== 'pageIndex') params.pageIndex = 1;
@@ -111,33 +108,33 @@ export default class FieldCheck extends Component {
     }
 
     initColumns = () => {
-        const {project,user} = this.props;
+        const { project, user } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
         return [{
             title: '字段名称',
             dataIndex: 'columnName',
-            key: 'columnName',
+            key: 'columnName'
         }, {
             title: '字段描述',
             dataIndex: 'columnDesc',
-            key: 'columnDesc',
+            key: 'columnDesc'
         }, {
             title: '字段类型',
             dataIndex: 'columnType',
-            key: 'columnType',
+            key: 'columnType'
         }, {
             title: '所属表',
             dataIndex: 'tableName',
-            key: 'tableName',
+            key: 'tableName'
         }, {
             title: '最近检测时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '检测结果',
             dataIndex: 'checkResult',
-            key: 'checkResult',
+            key: 'checkResult'
         }, {
             title: '操作',
             key: 'operation',
@@ -151,40 +148,39 @@ export default class FieldCheck extends Component {
                         <a disabled={!couldEdit} onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
-            },
+            }
         }]
     }
 
     onChangeTime = (value) => {
-        this.changeParams('startTime',this.handleMoment(value[0]));
-        this.changeParams('endTime',this.handleMoment(value[1]));
+        this.changeParams('startTime', this.handleMoment(value[0]));
+        this.changeParams('endTime', this.handleMoment(value[1]));
     }
 
-    handleMoment = (moment) => {//moment对象转成时间戳(毫秒数)
-        return moment&&moment.unix()*1000 
+    handleMoment = (moment) => { // moment对象转成时间戳(毫秒数)
+        return moment && moment.unix() * 1000
     }
-      
+
     onOk = (value) => {
         console.log(value);
-        this.changeParams('startTime',this.handleMoment(value[0]));
-        this.changeParams('endTime',this.handleMoment(value[1]));
+        this.changeParams('startTime', this.handleMoment(value[0]));
+        this.changeParams('endTime', this.handleMoment(value[1]));
     }
 
-    render() {
-
+    render () {
         const { loading, table, params } = this.state
-        console.log('params',params);
-        
+        console.log('params', params);
+
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 10,
-            current: table.currentPage,
+            current: table.currentPage
         };
 
         return (
             <div className="m-card antd-input">
-               <Form 
-                    className="m-form-inline" 
+                <Form
+                    className="m-form-inline"
                     layout="inline"
                     style={{ margin: '10 0 0 20' }}
                 >
@@ -218,18 +214,18 @@ export default class FieldCheck extends Component {
                     <FormItem label="最后修改时间">
                         <RangePicker
                             size="default"
-                            value={params.startTime&&params.endTime&&[moment(Number(params.startTime)),moment(Number(params.endTime))]||[]}
+                            value={params.startTime && params.endTime && [moment(Number(params.startTime)), moment(Number(params.endTime))] || []}
                             showTime={{ format: 'HH:mm:ss' }}
                             format="YYYY-MM-DD HH:mm:ss"
                             placeholder={['开始时间', '结束时间']}
                             onChange={this.onChangeTime}
-                            style={{width:200}}
+                            style={{ width: 200 }}
                             onOk={this.onOk}
                         />
                     </FormItem>
                     <FormItem>
-                        <Checkbox 
-                            onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0 )}
+                        <Checkbox
+                            onChange={(e) => this.changeParams('ignore', e.target.checked ? 1 : 0)}
                         >
                             已忽略
                         </Checkbox>
@@ -241,11 +237,10 @@ export default class FieldCheck extends Component {
                     pagination={pagination}
                     loading={loading}
                     columns={this.initColumns()}
-                    onChange={(pagination) => this.changeParams('pageIndex', pagination.current )}
+                    onChange={(pagination) => this.changeParams('pageIndex', pagination.current)}
                     dataSource={table.data || []}
                 />
             </div>
         )
     }
-
 }

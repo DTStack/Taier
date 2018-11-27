@@ -11,7 +11,6 @@ import Editor from 'widgets/editor';
 // const TreeNode = TreeSelect.TreeNode;
 
 export default class Test extends Component {
-
     onEditorChange = (value) => {
         console.log('onEditorChange:', value);
     }
@@ -20,7 +19,7 @@ export default class Test extends Component {
     //     return (
     //         <div style={{height: '100%', width: '100%'}}>
     //             <Row style={{height: '50%', width: '100%'}}>
-    //                 <Editor 
+    //                 <Editor
     //                     key="sql"
     //                     onChange={this.onEditorChange}
     //                     language="sql"
@@ -28,7 +27,7 @@ export default class Test extends Component {
     //             </Row>
     //             <hr />
     //             <Row style={{height: '50%', width: '100%'}}>
-    //                 <Editor 
+    //                 <Editor
     //                     key="python"
     //                     onChange={this.onEditorChange}
     //                     language="python"
@@ -43,7 +42,7 @@ export default class Test extends Component {
     //         <SplitPane split="vertical" minSize={300} maxSize="80%" defaultSize="60%" primary="first">
     //             {/* <div className="leftSidebar">
     //                 <div style={{height: '100%'}}>
-    //                     <Editor 
+    //                     <Editor
     //                         onChange={this.onEditorChange}
     //                         language="sql"
     //                     />
@@ -61,12 +60,11 @@ export default class Test extends Component {
     //     )
     // }
 
-    render() {
+    render () {
         return (
-            <div style={{height: '100%', width: '100%'}}>
-                  <GraphEditor />
+            <div style={{ height: '100%', width: '100%' }}>
+                <GraphEditor />
             </div>
         )
     }
 }
-

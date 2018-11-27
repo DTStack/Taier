@@ -11,19 +11,18 @@ import { TaskStatus } from '../../components/status'
 const Search = Input.Search
 
 class Abstract extends Component {
-
     state = {
         tasks: {
-            data: [],
+            data: []
         },
-        loading: false,
+        loading: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadTaskList()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {
             this.loadTaskList()
@@ -37,22 +36,22 @@ class Abstract extends Component {
             key: 'adminUsers',
             render: (text, record) => {
                 const data = record.adminUsers || []
-                return data && data.length > 0 ?
-                data.map(item => <span>{item.userName}; </span>) : '无'
-            },
+                return data && data.length > 0
+                    ? data.map(item => <span>{item.userName}; </span>) : '无'
+            }
         }, {
             title: '项目成员',
             dataIndex: 'memberUsers',
             key: 'memberUsers',
             render: (text, record) => {
                 const data = record.memberUsers || []
-                return data && data.length > 0 ?
-                data.map(item => <span>{item.userName}</span>) : '无'
-            },
+                return data && data.length > 0
+                    ? data.map(item => <span>{item.userName}</span>) : '无'
+            }
         }, {
             title: '项目描述',
             dataIndex: 'projectDesc',
-            key: 'projectDesc',
+            key: 'projectDesc'
         }]
     }
 
@@ -63,12 +62,12 @@ class Abstract extends Component {
             key: 'name',
             render: (text) => {
                 return <Link to={'/operation'}>{text}</Link>
-            },
+            }
         }, {
             title: '运行时间',
             dataIndex: 'createUserId',
             key: 'createUserId',
-            render: () => '0',
+            render: () => '0'
         }, {
             title: '全部状态',
             dataIndex: 'status',
@@ -77,27 +76,27 @@ class Abstract extends Component {
                 return <TaskStatus value={text} />
             },
             filters: taskStatusFilter,
-            filterMultiple: false,
+            filterMultiple: false
         }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
                 return (<span>{(record.createUser && record.createUser.userName) || '-'}</span>)
-            },
+            }
         }, {
             title: '最近操作时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-            sorter: (a, b) => a.gmtModified - b.gmtModified,
+            sorter: (a, b) => a.gmtModified - b.gmtModified
         }, {
             title: '最近操作人',
             dataIndex: 'modifyUser',
             key: 'modifyUser',
             render: (text, record) => {
                 return (<span>{record.modifyUser && record.modifyUser.userName}</span>)
-            },
+            }
         }, {
             title: '操作',
             key: 'operation',
@@ -126,16 +125,16 @@ class Abstract extends Component {
                         <a onClick={() => { this.updateTaskStatus(record) }}>{name}</a>
                     </div>
                 )
-            },
+            }
         }]
     }
 
-    loadTaskList(currentPage, pageSize, isTimeSortDesc, status) {
+    loadTaskList (currentPage, pageSize, isTimeSortDesc, status) {
         const ctx = this
         this.setState({ loading: true })
         const params = {
             pageIndex: currentPage || 1,
-            pageSize: pageSize || 10,
+            pageSize: pageSize || 10
         }
         if (isTimeSortDesc) params.isTimeSortDesc = isTimeSortDesc
         if (status) params.status = status
@@ -151,7 +150,7 @@ class Abstract extends Component {
         this.setState({ loading: true })
         Api.getTasks({
             taskName: query,
-            pageIndex: 1,
+            pageIndex: 1
         }).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ tasks: res.data, loading: false })
@@ -166,7 +165,7 @@ class Abstract extends Component {
         if (status === 0 || status === 7 || status === 8) {
             Api.startTask({
                 id: task.id,
-                isRestoration: isRestore,
+                isRestoration: isRestore
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('任务已经成功启动！')
@@ -175,7 +174,7 @@ class Abstract extends Component {
             })
         } else if (status === 4) {
             Api.stopTask({
-                id: task.id,
+                id: task.id
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('任务已执行停止！')
@@ -193,12 +192,12 @@ class Abstract extends Component {
         }
     }
 
-    render() {
+    render () {
         const { tasks } = this.state
         const project = this.props.project
         const pagination = {
             total: tasks.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         const arr = project ? [project] : []
         return (
@@ -212,29 +211,29 @@ class Abstract extends Component {
                         </span>
                     </h1>
                     <Table
-                      className="section-border"
-                      bordered={false}
-                      pagination={false}
-                      columns={this.initProjectInfo()}
-                      dataSource={arr}
+                        className="section-border"
+                        bordered={false}
+                        pagination={false}
+                        columns={this.initProjectInfo()}
+                        dataSource={arr}
                     />
                 </article>
                 <article className="section">
                     <h1 className="title black">实时任务</h1>
                     <div style={{ paddingBottom: '15px' }}>
                         <Search
-                          placeholder="按任务名称搜索"
-                          style={{ width: 200 }}
-                          onSearch={this.searchTask}
+                            placeholder="按任务名称搜索"
+                            style={{ width: 200 }}
+                            onSearch={this.searchTask}
                         />
                     </div>
                     <Table
-                      className="section-border"
-                      pagination={pagination}
-                      columns={this.initTaskColumns()}
-                      loading={this.state.loading}
-                      dataSource={tasks.data || []}
-                      onChange={this.handleTableChange}
+                        className="section-border"
+                        pagination={pagination}
+                        columns={this.initTaskColumns()}
+                        loading={this.state.loading}
+                        dataSource={tasks.data || []}
+                        onChange={this.handleTableChange}
                     />
                 </article>
             </div>

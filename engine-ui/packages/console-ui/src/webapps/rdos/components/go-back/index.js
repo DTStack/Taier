@@ -3,7 +3,6 @@ import { Button } from 'antd'
 import { hashHistory } from 'react-router'
 
 export default class GoBack extends Component {
-
     go = () => {
         const url = this.props.url
         if (url) {
@@ -13,7 +12,7 @@ export default class GoBack extends Component {
         }
     }
 
-    render(){
+    render () {
         const { title } = this.props
         return (
             <Button {...this.props} onClick={this.go}>{title || '返回' }</Button>

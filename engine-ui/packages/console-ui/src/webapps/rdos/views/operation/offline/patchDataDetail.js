@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import {
     Table, message, Modal,
     Card, Input, Button, Select,
-    Icon, DatePicker, Tooltip, Form, Checkbox,
+    Icon, DatePicker, Tooltip, Form, Checkbox
 } from 'antd'
 
 import SlidePane from 'widgets/slidePane'
@@ -15,13 +15,12 @@ import { replaceObjectArrayFiledName } from 'funcs';
 import Api from '../../../api'
 import {
     offlineTaskStatusFilter,
-    TASK_STATUS,
+    TASK_STATUS
 } from '../../../comm/const'
 
 import {
-    TaskStatus, TaskType,
+    TaskStatus, TaskType
 } from '../../../components/status'
-
 
 import {
     workbenchActions
@@ -37,7 +36,6 @@ const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
 class PatchDataDetail extends Component {
-
     state = {
         loading: false,
         current: 1,
@@ -53,33 +51,33 @@ class PatchDataDetail extends Component {
         taskType: '',
 
         table: {
-            data: [],
+            data: []
         },
         statistics: '',
 
         visibleSlidePane: false,
-        selectedTask: {},
+        selectedTask: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.setState({
             fillJobName: this.props.params.fillJobName
         }, this.search)
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1, visibleSlidePane: false, }, () => {
+            this.setState({ current: 1, visibleSlidePane: false }, () => {
                 this.search()
             })
         }
     }
-    debounceSearch() {
+    debounceSearch () {
         if (this._isUnmounted) {
             return;
         }
@@ -96,7 +94,7 @@ class PatchDataDetail extends Component {
         } = this.state;
         const reqParams = {
             currentPage: current,
-            pageSize: 20,
+            pageSize: 20
         }
         if (fillJobName) {
             reqParams.fillJobName = fillJobName
@@ -126,9 +124,9 @@ class PatchDataDetail extends Component {
         this.loadPatchRecords(reqParams, isSilent)
     }
 
-    loadPatchRecords(params, isSilent) {
+    loadPatchRecords (params, isSilent) {
         const ctx = this
-        if (!(isSilent && typeof isSilent == "boolean")) {
+        if (!(isSilent && typeof isSilent == 'boolean')) {
             this.setState({ loading: true })
         }
         Api.getFillDataDetail(params).then((res) => {
@@ -142,7 +140,7 @@ class PatchDataDetail extends Component {
         this.loadJobStatics(params)
     }
 
-    loadJobStatics(params) {
+    loadJobStatics (params) {
         const ctx = this
         params.type = 1;
         params.fillTaskName = params.fillJobName;
@@ -153,10 +151,10 @@ class PatchDataDetail extends Component {
         })
     }
 
-    //杀死所有实例
+    // 杀死所有实例
     killAllJobs = () => {
         Api.stopFillDataJobs({
-            fillDataJobName: this.state.fillJobName,
+            fillDataJobName: this.state.fillJobName
         }).then(res => {
             if (res.code === 1) {
                 this.search();
@@ -172,7 +170,7 @@ class PatchDataDetail extends Component {
         if (!selected || selected.length <= 0) {
             warning({
                 title: '提示',
-                content: '您没有选择任何需要杀死的任务！',
+                content: '您没有选择任何需要杀死的任务！'
             })
             return
         }
@@ -180,7 +178,7 @@ class PatchDataDetail extends Component {
             confirm({
                 title: '确认提示',
                 content: '确定要杀死选择的任务？',
-                onOk() {
+                onOk () {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             ctx.setState({ selectedRowKeys: [], selectedRows: [], checkAll: false })
@@ -188,7 +186,7 @@ class PatchDataDetail extends Component {
                             ctx.search()
                         }
                     })
-                },
+                }
             });
         } else {
             warning({
@@ -196,7 +194,7 @@ class PatchDataDetail extends Component {
                 content: `
                     除去“失败”、“停止”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
                     请您重新选择!
-                `,
+                `
             })
         }
     }
@@ -207,7 +205,7 @@ class PatchDataDetail extends Component {
         if (!selected || selected.length <= 0) {
             warning({
                 title: '提示',
-                content: '您没有选择任何需要重跑的任务！',
+                content: '您没有选择任何需要重跑的任务！'
             })
             return
         }
@@ -215,7 +213,7 @@ class PatchDataDetail extends Component {
             confirm({
                 title: '确认提示',
                 content: '确认需要重跑选择的任务？',
-                onOk() {
+                onOk () {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
@@ -223,7 +221,7 @@ class PatchDataDetail extends Component {
                             ctx.search()
                         }
                     })
-                },
+                }
             });
         } else {
             warning({
@@ -231,7 +229,7 @@ class PatchDataDetail extends Component {
                 content: `
                     只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
                     请您重新选择!
-                `,
+                `
             })
         }
     }
@@ -280,9 +278,9 @@ class PatchDataDetail extends Component {
             taskType: filters.taskType,
             selectedRowKeys: [],
             selectedRows: [],
-            execTimeSort: '',//运行时长
-            execStartSort: '',//执行开始
-            cycSort: '',//计划时间
+            execTimeSort: '', // 运行时长
+            execStartSort: '', // 执行开始
+            cycSort: '', // 计划时间
             businessDateSort: ''
 
         }
@@ -290,22 +288,22 @@ class PatchDataDetail extends Component {
             let { field, order } = sorter;
 
             switch (field) {
-                case 'exeTime': {
-                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'exeStartTime': {
-                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'cycTime': {
-                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'bizDay': {
-                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
+            case 'exeTime': {
+                params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'exeStartTime': {
+                params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'cycTime': {
+                params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'bizDay': {
+                params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
             }
         }
         this.setState(params, () => {
@@ -344,7 +342,7 @@ class PatchDataDetail extends Component {
         })
     }
 
-    changeTaskName = (e) => {// 任务名变更
+    changeTaskName = (e) => { // 任务名变更
         this.setState({ taskName: e.target.value })
     }
 
@@ -373,29 +371,29 @@ class PatchDataDetail extends Component {
             key: 'jobName',
             render: (text, record) => {
                 const showName = record.batchTask.isDeleted === 1
-                    ? `${text} (已删除)` :
-                    <a onClick={() => { this.showTask(record) }}>{text}</a>;
+                    ? `${text} (已删除)`
+                    : <a onClick={() => { this.showTask(record) }}>{text}</a>;
                 return showName
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render: (text,record) => {
+            render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
-                    {record.isDirty ?
-                        <Tooltip
+                    {record.isDirty
+                        ? <Tooltip
                             title="部分数据未同步成功，建议检查配置"
                         >
-                            <Icon type="info-circle-o" style={{ color: "#EF5350", marginLeft: "5px" }} />
+                            <Icon type="info-circle-o" style={{ color: '#EF5350', marginLeft: '5px' }} />
                         </Tooltip>
                         : null}
                 </span>
             },
-            width:"110px",
+            width: '110px',
             filters: offlineTaskStatusFilter,
-            filterMultiple: true,
+            filterMultiple: true
         }, {
             title: '任务类型',
             dataIndex: 'taskType',
@@ -403,7 +401,7 @@ class PatchDataDetail extends Component {
             render: (text, record) => {
                 return <TaskType value={text} />
             },
-            filters: taskTypeFilter,
+            filters: taskTypeFilter
         }, {
             title: '业务日期',
             dataIndex: 'bizDay',
@@ -427,7 +425,7 @@ class PatchDataDetail extends Component {
         }, {
             title: '责任人',
             dataIndex: 'dutyUserName',
-            key: 'dutyUserName',
+            key: 'dutyUserName'
         }]
     }
 
@@ -439,9 +437,9 @@ class PatchDataDetail extends Component {
     }
 
     tableFooter = (currentPageData) => {
-        const selectStatus=this.getSelectRowsStatus();
-        const couldKill=selectStatus.haveRunning&&!selectStatus.haveFail&&!selectStatus.haveNotRun&&!selectStatus.haveFail;
-        const couldReRun=!selectStatus.haveRunning&&(selectStatus.haveSuccess||selectStatus.haveFail||selectStatus.haveNotRun||selectStatus.haveFail);
+        const selectStatus = this.getSelectRowsStatus();
+        const couldKill = selectStatus.haveRunning && !selectStatus.haveFail && !selectStatus.haveNotRun && !selectStatus.haveFail;
+        const couldReRun = !selectStatus.haveRunning && (selectStatus.haveSuccess || selectStatus.haveFail || selectStatus.haveNotRun || selectStatus.haveFail);
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '15px 10px 10px 22px' }}>
@@ -459,47 +457,47 @@ class PatchDataDetail extends Component {
             </tr>
         )
     }
-    getSelectRowsStatus() {
+    getSelectRowsStatus () {
         let haveFail, haveNotRun, haveSuccess, haveRunning;
         const { selectedRows } = this.state;
         for (let i = 0; i < selectedRows.length; i++) {
             let row = selectedRows[i];
             switch (row.status) {
-                case TASK_STATUS.RUN_FAILED: {
-                    haveFail = true;
-                    break;
-                }
-                case TASK_STATUS.RUNNING: {
-                    haveRunning = true;
-                    break;
-                }
-                case TASK_STATUS.FINISHED: {
-                    haveSuccess = true;
-                    break;
-                }
-                default: {
-                    haveNotRun = true;
-                    break;
-                }
+            case TASK_STATUS.RUN_FAILED: {
+                haveFail = true;
+                break;
+            }
+            case TASK_STATUS.RUNNING: {
+                haveRunning = true;
+                break;
+            }
+            case TASK_STATUS.FINISHED: {
+                haveSuccess = true;
+                break;
+            }
+            default: {
+                haveNotRun = true;
+                break;
+            }
             }
         }
         return {
             haveFail, haveNotRun, haveSuccess, haveRunning
         }
     }
-    render() {
+    render () {
         const {
             table, selectedRowKeys, fillJobName,
             bizDay, current, statistics, taskName,
-            selectedTask, visibleSlidePane,
+            selectedTask, visibleSlidePane
         } = this.state
 
         const {
-            projectUsers, project, goToTaskDev,
+            projectUsers, project, goToTaskDev
         } = this.props
 
-        const userItems = projectUsers && projectUsers.length > 0 ?
-            projectUsers.map((item) => {
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
                 return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
                     {item.user.userName}
                 </Option>)
@@ -508,7 +506,7 @@ class PatchDataDetail extends Component {
         const pagination = {
             total: table.totalCount,
             defaultPageSize: 20,
-            current,
+            current
         };
 
         // rowSelection object indicates the need for row selection
@@ -524,7 +522,7 @@ class PatchDataDetail extends Component {
             <div>
                 <h1 className="box-title" style={{ lineHeight: '50px' }}>
                     <div style={{ marginTop: '5px' }}>
-                    <span className="ope-statistics">
+                        <span className="ope-statistics">
                             <span className="status_overview_count_font">
                                 <Circle className="status_overview_count" />&nbsp;
                             任务实例总数: &nbsp;{statistics.ALL || 0}
@@ -561,7 +559,7 @@ class PatchDataDetail extends Component {
                                 <Circle className="status_overview_frozen" />&nbsp;
                             冻结: &nbsp;{statistics.FROZEN || 0}
                             </span>&nbsp;
-                    </span>
+                        </span>
                     </div>
                 </h1>
                 <div className="box-2 m-card task-manage">
@@ -595,7 +593,7 @@ class PatchDataDetail extends Component {
                                     style={{
                                         marginTop: '10px',
                                         marginLeft: '20px',
-                                        display: 'inline-block',
+                                        display: 'inline-block'
                                     }}
                                     className="m-form-inline"
                                 >
@@ -656,9 +654,9 @@ class PatchDataDetail extends Component {
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
-                                        return "row-select"
+                                        return 'row-select'
                                     } else {
-                                        return "";
+                                        return '';
                                     }
                                 }
                             }

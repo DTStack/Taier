@@ -1,9 +1,9 @@
-import React from "react"
-import utils from "utils"
+import React from 'react'
+import utils from 'utils'
 
-import { Table } from "antd"
-import Api from "../../../../../api"
-import DetailModal from "./delay/detailModal";
+import { Table } from 'antd'
+import Api from '../../../../../api'
+import DetailModal from './delay/detailModal';
 
 class DataDelay extends React.Component {
     state = {
@@ -14,14 +14,14 @@ class DataDelay extends React.Component {
         },
         delayList: [],
         loading: false,
-        detailVisible:false,
-        detailRecord:{},
-        sorter:{}
+        detailVisible: false,
+        detailRecord: {},
+        sorter: {}
     }
-    componentDidMount() {
+    componentDidMount () {
         this.getDelayList();
     }
-    initPage() {
+    initPage () {
         this.setState({
             pagination: {
                 total: 0,
@@ -30,7 +30,7 @@ class DataDelay extends React.Component {
             }
         })
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -39,7 +39,7 @@ class DataDelay extends React.Component {
             this.getDelayList(nextData);
         }
     }
-    getDelayList(data) {
+    getDelayList (data) {
         const { pagination, sorter } = this.state;
         data = data || this.props.data;
 
@@ -51,12 +51,12 @@ class DataDelay extends React.Component {
             return;
         }
 
-        let extParams={};
+        let extParams = {};
         /**
          * 排序字段
          */
-        extParams.orderBy=sorter.columnKey;
-        extParams.sort=utils.exchangeOrder(sorter.order);
+        extParams.orderBy = sorter.columnKey;
+        extParams.sort = utils.exchangeOrder(sorter.order);
 
         this.setState({
             loading: true
@@ -72,9 +72,9 @@ class DataDelay extends React.Component {
                 if (res.code == 1) {
                     this.setState({
                         delayList: res.data,
-                        pagination:{
+                        pagination: {
                             ...pagination,
-                            total:res.data.length
+                            total: res.data.length
                         }
                     })
                 }
@@ -84,53 +84,53 @@ class DataDelay extends React.Component {
             }
         )
     }
-    initDelayListColumns() {
+    initDelayListColumns () {
         return [{
             title: 'Topic名称',
             dataIndex: 'topicName',
-            width:200
-        },{
+            width: 200
+        }, {
             title: '总延迟消息数',
             dataIndex: 'totalDelayCount',
-            width:180
+            width: 180
         }, {
             title: '分区总数',
-            dataIndex: 'partCount',
+            dataIndex: 'partCount'
         }, {
             title: '操作',
             dataIndex: 'deal',
-            render:(text,record)=>{
-                return <a onClick={this.showDetail.bind(this,record)}>查看详情</a>
+            render: (text, record) => {
+                return <a onClick={this.showDetail.bind(this, record)}>查看详情</a>
             }
         }]
     }
-    showDetail(record){
+    showDetail (record) {
         this.setState({
-            detailRecord:record,
-            detailVisible:true
+            detailRecord: record,
+            detailVisible: true
         })
     }
-    closeDetail(){
+    closeDetail () {
         this.setState({
-            detailRecord:{},
-            detailVisible:false
+            detailRecord: {},
+            detailVisible: false
         })
     }
-    onTableChange(page, filters,tableSorter){
-        const {pagination,sorter} =this.state;
+    onTableChange (page, filters, tableSorter) {
+        const { pagination, sorter } = this.state;
         this.setState({
             pagination: {
                 ...pagination,
                 current: page.current
             },
-            sorter:tableSorter
+            sorter: tableSorter
         })
     }
-    render() {
-        const { pagination, loading, delayList, detailVisible,detailRecord } = this.state;
-        const {data={}} = this.props;
+    render () {
+        const { pagination, loading, delayList, detailVisible, detailRecord } = this.state;
+        const { data = {} } = this.props;
         return (
-            <div style={{ padding: "21px 20px 20px 25px" }}>
+            <div style={{ padding: '21px 20px 20px 25px' }}>
                 <Table
                     rowKey="topicName"
                     className="m-table border-table"
@@ -140,7 +140,7 @@ class DataDelay extends React.Component {
                     loading={loading}
                     onChange={this.onTableChange.bind(this)}
                 />
-                <DetailModal 
+                <DetailModal
                     visible={detailVisible}
                     closeDetail={this.closeDetail.bind(this)}
                     taskId={data.id}

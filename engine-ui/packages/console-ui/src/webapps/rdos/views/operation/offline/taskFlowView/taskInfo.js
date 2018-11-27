@@ -3,7 +3,7 @@ import React from 'react'
 import utils from 'utils'
 import { OfflineTaskStatus, TaskTimeType, TaskType } from '../../../../components/status'
 
-export function TaskInfo(props) {
+export function TaskInfo (props) {
     const { task, project } = props
     return (
         <div className="ant-table bd task-detail">
@@ -25,17 +25,17 @@ export function TaskInfo(props) {
                     </tr>
                     <tr>
                         <td>开始时间：</td>
-                        <td>{task.execStartDate ? task. execStartDate : '-'}</td>
+                        <td>{task.execStartDate ? task.execStartDate : '-'}</td>
                         <td>结束时间：</td>
-                        <td>{task.execStartDate ? task. execEndDate : '-'}</td>
+                        <td>{task.execStartDate ? task.execEndDate : '-'}</td>
                     </tr>
                     <tr>
                         <td>所属项目：</td>
                         <td>{project.projectName}</td>
                         <td>责任人：</td>
                         <td>
-                            {task.batchTask && task.batchTask.createUser 
-                            ? task.batchTask.createUser.userName : '-'}
+                            {task.batchTask && task.batchTask.createUser
+                                ? task.batchTask.createUser.userName : '-'}
                         </td>
                     </tr>
                 </tbody>
@@ -44,7 +44,7 @@ export function TaskInfo(props) {
     )
 }
 
-export function TaskOverView(props) {
+export function TaskOverView (props) {
     const { task, project } = props
     const display = task.status === 5 ? 'none' : 'table-row'
     return (
@@ -61,7 +61,7 @@ export function TaskOverView(props) {
                     </tr>
                     <tr style={{ display }}>
                         <td>开始时间：</td>
-                        <td>{task.execStartDate ? task. execStartDate : '-'}</td>
+                        <td>{task.execStartDate ? task.execStartDate : '-'}</td>
                     </tr>
                     <tr style={{ display }}>
                         <td>结束时间：</td>
@@ -70,8 +70,8 @@ export function TaskOverView(props) {
                     <tr>
                         <td>责任人：</td>
                         <td>
-                            {task.batchTask && task.batchTask.createUser 
-                            ? task.batchTask.createUser.userName : '-'}
+                            {task.batchTask && task.batchTask.createUser
+                                ? task.batchTask.createUser.userName : '-'}
                         </td>
                     </tr>
                 </tbody>
@@ -79,4 +79,3 @@ export function TaskOverView(props) {
         </div>
     )
 }
-

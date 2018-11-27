@@ -5,18 +5,15 @@ import { Alert, Menu } from 'antd';
 import { isEmpty, cloneDeep } from 'lodash';
 
 import Resize from 'widgets/resize';
-import TopCall from "./topCall";
-import TopFail from "./topFail";
-import ErrorDistributed from "./errorDistributed";
+import TopCall from './topCall';
+import TopFail from './topFail';
+import ErrorDistributed from './errorDistributed';
 
 import { lineAreaChartOptions } from '../../consts';
-import {dashBoardActionType} from "../../consts/dashBoardActionType"
+import { dashBoardActionType } from '../../consts/dashBoardActionType'
 import { dashBoardActions } from '../../actions/dashBoard';
 import AdminDashboard from './adminDashboard';
 import UserDashboard from './userDashboard';
-
-
-
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -28,41 +25,41 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
 const mapStateToProps = state => {
-    const { dashBoard, user,common } = state;
-    return { dashBoard, user,common }
+    const { dashBoard, user, common } = state;
+    return { dashBoard, user, common }
 };
 
 const mapDispatchToProps = dispatch => ({
-    chooseUserDate(topn,e) {
-        dispatch(dashBoardActions.chooseUserDate(e.target.value,topn));
+    chooseUserDate (topn, e) {
+        dispatch(dashBoardActions.chooseUserDate(e.target.value, topn));
     },
-    chooseAdminDate(topn,e) {
-        dispatch(dashBoardActions.chooseAdminDate(e.target.value,topn));
+    chooseAdminDate (topn, e) {
+        dispatch(dashBoardActions.chooseAdminDate(e.target.value, topn));
     },
-    getApiCallInfo(params,isAdmin,date){
-        dispatch(dashBoardActions.getApiCallInfo(params,isAdmin,date))
+    getApiCallInfo (params, isAdmin, date) {
+        dispatch(dashBoardActions.getApiCallInfo(params, isAdmin, date))
     },
-    getApprovedMsgCount(){
+    getApprovedMsgCount () {
         dispatch(dashBoardActions.getApprovedMsgCount())
     },
-    getUserCallTopN(topn,isAdmin,date){
-        dispatch(dashBoardActions.getUserCallTopN({topn:topn,time:date},isAdmin,date))
+    getUserCallTopN (topn, isAdmin, date) {
+        dispatch(dashBoardActions.getUserCallTopN({ topn: topn, time: date }, isAdmin, date))
     },
-    getApiCallFailRateTopN(topn,isAdmin,date){
-        dispatch(dashBoardActions.getApiCallFailRateTopN({topn:topn,time:date},isAdmin,date))
+    getApiCallFailRateTopN (topn, isAdmin, date) {
+        dispatch(dashBoardActions.getApiCallFailRateTopN({ topn: topn, time: date }, isAdmin, date))
     },
-    getApiSubscribe(date){
+    getApiSubscribe (date) {
         dispatch(dashBoardActions.getApiSubscribe(date));
     },
-    getApiCallErrorInfo(date){
+    getApiCallErrorInfo (date) {
         dispatch(dashBoardActions.getApiCallErrorInfo(date));
     },
-    listApiCallNumTopNForManager(date){
-        dispatch(dashBoardActions.listApiCallNumTopNForManager({topn:10,time:date}))
+    listApiCallNumTopNForManager (date) {
+        dispatch(dashBoardActions.listApiCallNumTopNForManager({ topn: 10, time: date }))
     },
-    closeWarning(){
+    closeWarning () {
         dispatch({
-            type:dashBoardActionType.CLOSE_APPROVAL_WARNING
+            type: dashBoardActionType.CLOSE_APPROVAL_WARNING
         })
     }
 });
@@ -70,44 +67,41 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class Dashboard extends Component {
     state = {
-        dashBoardView: ""
+        dashBoardView: ''
     }
 
+    componentWillReceiveProps (nextProps) {
+        let oldData = this.props.dashBoard.alarmTrend;
 
-
-
-    componentWillReceiveProps(nextProps) {
-        let oldData = this.props.dashBoard.alarmTrend,
-            newData = nextProps.dashBoard.alarmTrend;
+        let newData = nextProps.dashBoard.alarmTrend;
 
         if (isEmpty(oldData) && !isEmpty(newData)) {
             this.initLineChart(newData)
         }
     }
-    isAdmin(){
-        const menuList=this.props.common.menuList||[];
-        if(menuList.indexOf("overview_market_menu")>-1){
+    isAdmin () {
+        const menuList = this.props.common.menuList || [];
+        if (menuList.indexOf('overview_market_menu') > -1) {
             return true
-        }else{
+        } else {
             return false
         }
-
     }
-    getNowView() {
+    getNowView () {
         const isAdmin = this.isAdmin();
-        //假如不是管理员，则直接返回Myview视图
+        // 假如不是管理员，则直接返回Myview视图
         if (!isAdmin) {
-            return "MyView"
+            return 'MyView'
         }
-        //假如是管理员，但是没有dashBoardView,则返回overview
+        // 假如是管理员，但是没有dashBoardView,则返回overview
         if (!this.state.dashBoardView) {
-            return "overView"
+            return 'overView'
         }
-        //是管理员并且有dashBoardView
+        // 是管理员并且有dashBoardView
         return this.state.dashBoardView;
     }
-    getDashBoardView() {
-        if (this.getNowView() == "overView") {
+    getDashBoardView () {
+        if (this.getNowView() == 'overView') {
             return <AdminDashboard {...this.props}></AdminDashboard>
         }
         return <UserDashboard {...this.props}></UserDashboard>
@@ -115,17 +109,17 @@ class Dashboard extends Component {
 
     handleClick = (e) => {
         this.setState({
-            dashBoardView: e.key,
+            dashBoardView: e.key
         });
     }
-    getMenuView() {
+    getMenuView () {
         const isAdmin = this.isAdmin();
         if (!isAdmin) {
             return null;
         }
         return (
             <Menu
-            className="margin-0-20"
+                className="margin-0-20"
                 onClick={this.handleClick}
                 selectedKeys={[this.getNowView()]}
                 mode="horizontal"
@@ -139,7 +133,7 @@ class Dashboard extends Component {
             </Menu>);
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="dashboard nobackground">
@@ -150,7 +144,5 @@ class Dashboard extends Component {
         )
     }
 }
-
-
 
 export default Dashboard

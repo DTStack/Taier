@@ -8,14 +8,12 @@ import { debounce } from 'lodash';
 
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { DATA_SOURCE } from "../../../comm/const";
-import { havaTableList } from "./sidePanel/panelCommonUtil";
-import { generateAKey } from "utils";
+import { DATA_SOURCE } from '../../../comm/const';
+import { havaTableList } from './sidePanel/panelCommonUtil';
+import { generateAKey } from 'utils';
 
 import Editor from 'widgets/code-editor'
-import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from "./sidePanel/customParams";
-
-
+import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -24,23 +22,22 @@ const { Column, ColumnGroup } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         this.props.onRef(this);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (!this.props.isShow && nextProps.isShow) {
             this.refreshEditor();
         }
     }
-    refreshEditor() {
+    refreshEditor () {
         if (this._editorRef) {
-            console.log("refresh")
+            console.log('refresh')
             this._editorRef.refresh();
         }
     }
     checkParams = (v) => {
-        //手动检测table参数
+        // 手动检测table参数
         const { index, panelColumn } = this.props;
         const tableColumns = panelColumn[index].columns;
 
@@ -57,37 +54,36 @@ class OutputOrigin extends Component {
 
     originOption = (type, arrData) => {
         switch (type) {
-            case "originType":
-                return arrData.map(v => {
-                    return <Option key={v} value={`${v.id}`}>{v.name}</Option>
-                })
-            case "currencyType":
-                return arrData.map(v => {
-                    return <Option key={v} value={`${v}`}>{v}</Option>
-                })
-            case "columnType":
-                return arrData.map((v, index) => {
-                    return <Option key={index} value={`${v.key}`}>{v.key}</Option>
-                })
-            case "primaryType":
-                return arrData.map((v, index) => {
-                    return <Option key={index} value={`${v.column}`}>{v.column}</Option>
-                })
-            default:
-                return null;
+        case 'originType':
+            return arrData.map(v => {
+                return <Option key={v} value={`${v.id}`}>{v.name}</Option>
+            })
+        case 'currencyType':
+            return arrData.map(v => {
+                return <Option key={v} value={`${v}`}>{v}</Option>
+            })
+        case 'columnType':
+            return arrData.map((v, index) => {
+                return <Option key={index} value={`${v.key}`}>{v.key}</Option>
+            })
+        case 'primaryType':
+            return arrData.map((v, index) => {
+                return <Option key={index} value={`${v.column}`}>{v.column}</Option>
+            })
+        default:
+            return null;
         }
     }
 
-
-    editorParamsChange(a, b, c) {
+    editorParamsChange (a, b, c) {
         const { handleInputChange, index, textChange } = this.props;
         textChange();
-        handleInputChange("columnsText", index, b);
+        handleInputChange('columnsText', index, b);
     }
 
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
-    render() {
+    render () {
         const { handleInputChange, index, sync, originOptionType, tableOptionType, panelColumn, tableColumnOptionType } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
@@ -98,12 +94,12 @@ class OutputOrigin extends Component {
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 6 },
+                sm: { span: 6 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 18 },
-            },
+                sm: { span: 18 }
+            }
         };
         return (
             <Row className="title-content">
@@ -113,10 +109,10 @@ class OutputOrigin extends Component {
                 >
                     {getFieldDecorator('type', {
                         rules: [
-                            { required: true, message: '请选择存储类型', }
-                        ],
+                            { required: true, message: '请选择存储类型' }
+                        ]
                     })(
-                        <Select className="right-select" onChange={(v) => { handleInputChange("type", index, v) }}
+                        <Select className="right-select" onChange={(v) => { handleInputChange('type', index, v) }}
                             showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
@@ -132,12 +128,12 @@ class OutputOrigin extends Component {
                     label="数据源"
                 >
                     {getFieldDecorator('sourceId', {
-                        initialValue: "disabled",
+                        initialValue: 'disabled',
                         rules: [
-                            { required: true, message: '请选择数据源', }
-                        ],
+                            { required: true, message: '请选择数据源' }
+                        ]
                     })(
-                        <Select className="right-select" onChange={(v) => { handleInputChange("sourceId", index, v) }}
+                        <Select className="right-select" onChange={(v) => { handleInputChange('sourceId', index, v) }}
                             showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                             {
@@ -146,18 +142,18 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                {havaTableList(panelColumn[index].type) ?
-                    <FormItem
+                {havaTableList(panelColumn[index].type)
+                    ? <FormItem
                         {...formItemLayout}
                         label="表"
                     >
                         {getFieldDecorator('table', {
-                            initialValue: "disabled",
+                            initialValue: 'disabled',
                             rules: [
-                                { required: true, message: '请选择表', }
-                            ],
+                                { required: true, message: '请选择表' }
+                            ]
                         })(
-                            <Select className="right-select" onChange={(v) => { handleInputChange("table", index, v) }}
+                            <Select className="right-select" onChange={(v) => { handleInputChange('table', index, v) }}
                                 showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
@@ -165,101 +161,101 @@ class OutputOrigin extends Component {
                                 }
                             </Select>
                         )}
-                    </FormItem> : ""
+                    </FormItem> : ''
                 }
                 {
-                    panelColumn[index].type == DATA_SOURCE.REDIS ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.REDIS
+                        ? <FormItem
                             {...formItemLayout}
                             label="表"
                         >
                             {getFieldDecorator('table-input', {
-                                initialValue: "disabled",
+                                initialValue: 'disabled',
                                 rules: [
-                                    { required: true, message: '请输入表名', }
-                                ],
+                                    { required: true, message: '请输入表名' }
+                                ]
                             })(
-                                <Input onChange={(v) => { handleInputChange("table", index, v.target.value) }} />
+                                <Input onChange={(v) => { handleInputChange('table', index, v.target.value) }} />
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
-                {panelColumn[index].type == DATA_SOURCE.REDIS ?
-                    <FormItem
+                {panelColumn[index].type == DATA_SOURCE.REDIS
+                    ? <FormItem
                         {...formItemLayout}
                         label="主键"
                     >
                         {getFieldDecorator('primaryKey-input', {
                             rules: [
-                                { required: true, message: '请输入主键', }
-                            ],
+                                { required: true, message: '请输入主键' }
+                            ]
                         })(
                             <Input placeholder="结果表主键，多个字段用英文逗号隔开" onChange={e => handleInputChange('primaryKey', index, e.target.value)} />
                         )}
-                    </FormItem> : ""
+                    </FormItem> : ''
                 }
                 {
-                    panelColumn[index].type == DATA_SOURCE.ES ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.ES
+                        ? <FormItem
                             {...formItemLayout}
                             label="索引"
                         >
                             {getFieldDecorator('index', {
                                 rules: [
-                                    { required: true, message: '请输入索引', }
-                                ],
+                                    { required: true, message: '请输入索引' }
+                                ]
                             })(
                                 <Input placeholder="请输入索引" onChange={e => handleInputChange('index', index, e.target.value)} />
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
                 {
-                    panelColumn[index].type == DATA_SOURCE.ES ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.ES
+                        ? <FormItem
                             {...formItemLayout}
                             label={(
                                 <span >
                                     id&nbsp;
-                                <Tooltip title="id生成规则：填写字段的索引位置（从0开始)">
+                                    <Tooltip title="id生成规则：填写字段的索引位置（从0开始)">
                                         <Icon type="question-circle-o" />
                                     </Tooltip>
                                     &nbsp;
-                            </span>
+                                </span>
                             )}
                         >
                             {getFieldDecorator('esId')(
                                 <Input placeholder="请输入id" onChange={e => handleInputChange('esId', index, e.target.value)} />
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
                 {
-                    panelColumn[index].type == DATA_SOURCE.ES ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.ES
+                        ? <FormItem
                             {...formItemLayout}
                             label="索引类型"
                         >
                             {getFieldDecorator('esType', {
                                 rules: [
-                                    { required: true, message: '请输入索引类型', }
-                                ],
+                                    { required: true, message: '请输入索引类型' }
+                                ]
                             })(
                                 <Input placeholder="请输入索引类型" onChange={e => handleInputChange('esType', index, e.target.value)} />
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
                 {
-                    panelColumn[index].type == DATA_SOURCE.HBASE ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.HBASE
+                        ? <FormItem
                             {...formItemLayout}
                             label="rowKey"
                         >
                             {getFieldDecorator('rowKey', {
                                 rules: [
-                                    { required: true, message: '请输入rowKey', }
-                                ],
+                                    { required: true, message: '请输入rowKey' }
+                                ]
                             })(
                                 <Input placeholder=" rowKey 格式：填写字段1 , 填写字段2 " onChange={e => handleInputChange('rowKey', index, e.target.value)} />
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
                 <FormItem
                     {...formItemLayout}
@@ -268,7 +264,7 @@ class OutputOrigin extends Component {
                     {getFieldDecorator('tableName', {
                         rules: panelColumn[index].type === DATA_SOURCE.ES ? [
                             { required: true, message: '请输入映射表名' }
-                        ] : [],
+                        ] : []
                     })(
                         <Input placeholder="请输入映射表名" onChange={e => handleInputChange('tableName', index, e.target.value)} />
                     )}
@@ -287,7 +283,7 @@ class OutputOrigin extends Component {
                                         key="字段"
                                         width='50%'
                                         render={(text, record, subIndex) => {
-                                            return <Select className="sub-right-select" value={text} onChange={(v) => { handleInputChange("subColumn", index, subIndex, v) }}
+                                            return <Select className="sub-right-select" value={text} onChange={(v) => { handleInputChange('subColumn', index, subIndex, v) }}
                                                 showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                             >
                                                 {
@@ -307,24 +303,23 @@ class OutputOrigin extends Component {
                                     />
                                     <Column
                                         key="delete"
-                                        render={(text, record, subIndex) => { return <Icon type="close" style={{ fontSize: 16, color: "#888" }} onClick={() => { handleInputChange("deleteColumn", index, subIndex) }} /> }}
+                                        render={(text, record, subIndex) => { return <Icon type="close" style={{ fontSize: 16, color: '#888' }} onClick={() => { handleInputChange('deleteColumn', index, subIndex) }} /> }}
                                     />
                                 </Table>
-                                <div style={{ padding: "0 20 20" }}>
-                                    <Button className="stream-btn" type="dashed" style={{ borderRadius: 5 }} onClick={() => { handleInputChange("columns", index, {}) }}>
+                                <div style={{ padding: '0 20 20' }}>
+                                    <Button className="stream-btn" type="dashed" style={{ borderRadius: 5 }} onClick={() => { handleInputChange('columns', index, {}) }}>
                                         <Icon type="plus" /><span> 添加输入</span>
                                     </Button>
                                 </div>
                             </Col>
                             : <Col span="18" style={{ marginBottom: 20, height: 200 }}>
                                 <Editor
-                                    style={{ minHeight: 202, border: "1px solid #ddd" }}
+                                    style={{ minHeight: 202, border: '1px solid #ddd' }}
                                     sync={sync}
                                     placeholder={
-                                        DATA_SOURCE.REDIS == panelColumn[index].type ?
-                                            "一行一个字段，无需字段类型，比如：\nid\nname"
-                                            :
-                                            "字段 类型, 比如 id int 一行一个字段"}
+                                        DATA_SOURCE.REDIS == panelColumn[index].type
+                                            ? '一行一个字段，无需字段类型，比如：\nid\nname'
+                                            : '字段 类型, 比如 id int 一行一个字段'}
                                     value={panelColumn[index].columnsText}
                                     onChange={this.debounceEditorChange.bind(this)}
                                     editorRef={(ref) => {
@@ -335,13 +330,13 @@ class OutputOrigin extends Component {
                     }
                 </Row>
                 {
-                    panelColumn[index].type == DATA_SOURCE.MYSQL ?
-                        <FormItem
+                    panelColumn[index].type == DATA_SOURCE.MYSQL
+                        ? <FormItem
                             {...formItemLayout}
                             label="主键"
                         >
                             {getFieldDecorator('primaryKey')(
-                                <Select className="right-select" onChange={(v) => { handleInputChange("primaryKey", index, v) }} mode="multiple"
+                                <Select className="right-select" onChange={(v) => { handleInputChange('primaryKey', index, v) }} mode="multiple"
                                     showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 >
                                     {
@@ -349,7 +344,7 @@ class OutputOrigin extends Component {
                                     }
                                 </Select>
                             )}
-                        </FormItem> : ""
+                        </FormItem> : ''
                 }
                 <FormItem
                     {...formItemLayout}
@@ -363,7 +358,7 @@ class OutputOrigin extends Component {
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
                     customParams={customParams}
-                    onChange={(type, id, value) => { handleInputChange("customParams", index, value, { id, type }) }}
+                    onChange={(type, id, value) => { handleInputChange('customParams', index, value, { id, type }) }}
                 />}
             </Row>
         )
@@ -371,7 +366,7 @@ class OutputOrigin extends Component {
 }
 
 const OutputForm = Form.create({
-    mapPropsToFields(props) {
+    mapPropsToFields (props) {
         const {
             type, sourceId,
             table, columns,
@@ -386,7 +381,7 @@ const OutputForm = Form.create({
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             table: { value: table },
-            "table-input": { value: table },
+            'table-input': { value: table },
             columns: { value: columns },
             columnsText: { value: columnsText },
             id: { value: id },
@@ -397,7 +392,7 @@ const OutputForm = Form.create({
             parallelism: { value: parallelism },
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
-            "primaryKey-input": { value: primaryKey },
+            'primaryKey-input': { value: primaryKey },
             rowKey: { value: rowKey },
             ...generateMapValues(customParams)
         }
@@ -406,35 +401,34 @@ const OutputForm = Form.create({
 
 const initialData = {
     popoverVisible: false,
-    tabTemplate: [],//模版存储,所有输出源(记录个数)
-    panelActiveKey: [],//输出源是打开或关闭状态
-    popoverVisible: [],//删除显示按钮状态
-    panelColumn: [],//存储数据
-    checkFormParams: [],//存储要检查的参数from
-    originOptionType: [],//数据源选择数据
-    tableOptionType: [],//表选择数据
-    tableColumnOptionType: [],//表字段选择的类型
+    tabTemplate: [], // 模版存储,所有输出源(记录个数)
+    panelActiveKey: [], // 输出源是打开或关闭状态
+    popoverVisible: [], // 删除显示按钮状态
+    panelColumn: [], // 存储数据
+    checkFormParams: [], // 存储要检查的参数from
+    originOptionType: [], // 数据源选择数据
+    tableOptionType: [], // 表选择数据
+    tableColumnOptionType: []// 表字段选择的类型
 
 }
 
 export default class OutputPanel extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
             popoverVisible: false,
-            tabTemplate: [],//模版存储,所有输出源(记录个数)
-            panelActiveKey: [],//输出源是打开或关闭状态
-            popoverVisible: [],//删除显示按钮状态
-            panelColumn: [],//存储数据
-            checkFormParams: [],//存储要检查的参数from
-            originOptionType: [],//数据源选择数据
-            tableOptionType: [],//表选择数据
-            tableColumnOptionType: [],//表字段选择的类型
+            tabTemplate: [], // 模版存储,所有输出源(记录个数)
+            panelActiveKey: [], // 输出源是打开或关闭状态
+            popoverVisible: [], // 删除显示按钮状态
+            panelColumn: [], // 存储数据
+            checkFormParams: [], // 存储要检查的参数from
+            originOptionType: [], // 数据源选择数据
+            tableOptionType: [], // 表选择数据
+            tableColumnOptionType: []// 表字段选择的类型
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { sink } = this.props.currentPage;
         if (sink && sink.length > 0) {
             /**
@@ -447,7 +441,7 @@ export default class OutputPanel extends Component {
     currentInitData = (sink) => {
         const { tabTemplate, panelColumn } = this.state;
         sink.map((v, index) => {
-            tabTemplate.push("OutputForm");
+            tabTemplate.push('OutputForm');
             initCustomParam(v);
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
@@ -487,7 +481,7 @@ export default class OutputPanel extends Component {
         const tableOptionType = [];
         const tableColumnOptionType = [];
         sink.map(v => {
-            tabTemplate.push("OutputForm");
+            tabTemplate.push('OutputForm');
             panelColumn.push(v);
         })
         dispatch(BrowserAction.setOutputData({ taskId, sink: { tabTemplate, panelColumn, panelActiveKey, popoverVisible, checkFormParams, originOptionType, tableOptionType, tableColumnOptionType } }));
@@ -538,7 +532,7 @@ export default class OutputPanel extends Component {
     getTableType = (index, sourceId) => {
         const { tableOptionType } = this.state;
         if (sourceId) {
-            Api.getStremTableType({ sourceId, "isSys": false }).then(v => {
+            Api.getStremTableType({ sourceId, 'isSys': false }).then(v => {
                 if (index === 'add') {
                     if (v.code === 1) {
                         tableOptionType.push(v.data)
@@ -558,7 +552,7 @@ export default class OutputPanel extends Component {
                 })
             })
         } else {
-            if (index === "add") {
+            if (index === 'add') {
                 tableOptionType.push([]);
             } else {
                 tableOptionType[index] = [];
@@ -591,7 +585,7 @@ export default class OutputPanel extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
@@ -617,13 +611,13 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             tableName: undefined,
             primaryKey: undefined,
-            rowKey: undefined,
+            rowKey: undefined
         }
         let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
-        if (type === "add") {
-            tabTemplate.push("OutputForm");
+        if (type === 'add') {
+            tabTemplate.push('OutputForm');
             panelColumn.push(inputData);
-            this.getTypeOriginData("add", inputData.type);
+            this.getTypeOriginData('add', inputData.type);
             this.getTableType('add', inputData.table)
             tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
@@ -638,7 +632,7 @@ export default class OutputPanel extends Component {
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.props.tableParamsChange()//添加数据改变标记
+        this.props.tableParamsChange()// 添加数据改变标记
         this.setOutputData({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, tableColumnOptionType });
         this.setState({
             tabTemplate,
@@ -658,7 +652,7 @@ export default class OutputPanel extends Component {
         dispatch(BrowserAction.setOutputData({ taskId: currentPage.id, sink: dispatchSource }));
     }
 
-    changeActiveKey = (index) => {// 删除导致key改变,处理被改变key的值
+    changeActiveKey = (index) => { // 删除导致key改变,处理被改变key的值
         const { panelActiveKey } = this.state;
         const deleteActiveKey = `${index + 1}`;
         const deleteActiveKeyIndex = panelActiveKey.indexOf(deleteActiveKey);
@@ -675,7 +669,7 @@ export default class OutputPanel extends Component {
         panelActiveKey = key
         this.setOutputData({ panelActiveKey })
         this.setState({
-            panelActiveKey,
+            panelActiveKey
         })
     }
 
@@ -687,7 +681,7 @@ export default class OutputPanel extends Component {
         return filterColumn[0].type
     }
 
-    filterPrimaryKey = (columns, primaryKeys) => {//删除导致原始的primaryKey不存在
+    filterPrimaryKey = (columns, primaryKeys) => { // 删除导致原始的primaryKey不存在
         return primaryKeys.filter(v => {
             let flag = false;
             columns.map(value => {
@@ -699,47 +693,47 @@ export default class OutputPanel extends Component {
         })
     }
 
-    handleInputChange = (/**改变的属性 */type, /**改变的panel序号 */index, value, subValue) => {//监听数据改变
+    handleInputChange = (/** 改变的属性 */type, /** 改变的panel序号 */index, value, subValue) => { // 监听数据改变
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         if (type === 'columns') {
             panelColumn[index][type].push(value);
-        } else if (type === "deleteColumn") {
-            panelColumn[index]["columns"].splice(value, 1);
-            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]["columns"], panelColumn[index].primaryKey || []);
+        } else if (type === 'deleteColumn') {
+            panelColumn[index]['columns'].splice(value, 1);
+            const filterPrimaryKeys = this.filterPrimaryKey(panelColumn[index]['columns'], panelColumn[index].primaryKey || []);
             panelColumn[index].primaryKey = filterPrimaryKeys;
-        } else if (type === "subColumn") {
-            panelColumn[index]["columns"][value].column = subValue;
+        } else if (type === 'subColumn') {
+            panelColumn[index]['columns'][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
-            panelColumn[index]["columns"][value].type = subType;
-        } else if (type == "customParams") {
+            panelColumn[index]['columns'][value].type = subType;
+        } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
         }
-        if (type === "columnsText") {
-            //this.parseColumnsText(index,value)
+        if (type === 'columnsText') {
+            // this.parseColumnsText(index,value)
         }
         const allParamsType = [
-            "type", "sourceId",
-            "table", "columns",
-            "columnsText", "id",
-            "index", "writePolicy",
-            "esId", "esType",
-            "parallelism", "tableName",
-            "primaryKey", "rowKey", "customParams"];
+            'type', 'sourceId',
+            'table', 'columns',
+            'columnsText', 'id',
+            'index', 'writePolicy',
+            'esId', 'esType',
+            'parallelism', 'tableName',
+            'primaryKey', 'rowKey', 'customParams'];
         /**
          * 这里开始处理改变操作，比如数据源改变要改变重置表名等
          */
-        if (type === "type") {
+        if (type === 'type') {
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v === "type") {
+                if (v === 'type') {
                     panelColumn[index][v] = value;
-                } else if (v == "parallelism") {
+                } else if (v == 'parallelism') {
                     panelColumn[index][v] = 1
-                } else if (v == "columns") {
+                } else if (v == 'columns') {
                     panelColumn[index][v] = [];
                 } else {
                     panelColumn[index][v] = undefined
@@ -747,14 +741,14 @@ export default class OutputPanel extends Component {
             })
             // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index, value);
-        } else if (type === "sourceId") {
+        } else if (type === 'sourceId') {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v !== "type" && v != "sourceId" && v != "customParams") {
-                    if (v == "columns") {
+                if (v !== 'type' && v != 'sourceId' && v != 'customParams') {
+                    if (v == 'columns') {
                         panelColumn[index][v] = [];
-                    } else if (v == "parallelism") {
+                    } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
                     } else {
                         panelColumn[index][v] = undefined
@@ -766,15 +760,15 @@ export default class OutputPanel extends Component {
             if (havaTableList(panelColumn[index].type)) {
                 this.getTableType(index, value)
             }
-        } else if (type === "table") {
+        } else if (type === 'table') {
             tableColumnOptionType[index] = [];
             const { sourceId } = panelColumn[index];
             panelColumn[index].columns = [];
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId" && v != "table" && v != "customParams") {
-                    if (v == "columns") {
+                if (v != 'type' && v != 'sourceId' && v != 'table' && v != 'customParams') {
+                    if (v == 'columns') {
                         panelColumn[index][v] = [];
-                    } else if (v == "parallelism") {
+                    } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
                     } else {
                         panelColumn[index][v] = undefined
@@ -785,10 +779,10 @@ export default class OutputPanel extends Component {
                 this.getTableColumns(index, sourceId, value)
             }
         }
-        this.props.tableParamsChange()//添加数据改变标记
+        this.props.tableParamsChange()// 添加数据改变标记
         this.setOutputData({ panelColumn })
         this.setState({
-            panelColumn,
+            panelColumn
         })
     }
 
@@ -808,15 +802,14 @@ export default class OutputPanel extends Component {
             parallelism: 1,
             tableName: undefined,
             rowKey: undefined,
-            primaryKey: undefined,
+            primaryKey: undefined
         }
-        if (type === "type") {
+        if (type === 'type') {
             inputData.type = value;
             originOptionType[index] = [];
             tableOptionType[index] = [];
             panelColumn[index] = inputData;
-
-        } else if (type === "sourceId") {
+        } else if (type === 'sourceId') {
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
             tableOptionType[index] = [];
@@ -830,10 +823,10 @@ export default class OutputPanel extends Component {
         let { popoverVisible } = this.state;
         popoverVisible[index] = visible;
         if (e) {
-            e.stopPropagation();//阻止删除按钮点击后冒泡到panel
-            if (visible) {//只打开一个Popover提示
+            e.stopPropagation();// 阻止删除按钮点击后冒泡到panel
+            if (visible) { // 只打开一个Popover提示
                 popoverVisible = popoverVisible.map((v, i) => {
-                    return index == i ? true : false
+                    return index == i
                 })
             }
         }
@@ -844,8 +837,8 @@ export default class OutputPanel extends Component {
     panelHeader = (index) => {
         const { popoverVisible } = this.state;
         const popoverContent = <div className="input-panel-title">
-            <div style={{ padding: "8 0 12" }}> <Icon type="exclamation-circle" style={{ color: "#faad14", }} />  你确定要删除此输出源吗？</div>
-            <div style={{ textAlign: "right", padding: "0 0 8" }}>
+            <div style={{ padding: '8 0 12' }}> <Icon type="exclamation-circle" style={{ color: '#faad14' }} />  你确定要删除此输出源吗？</div>
+            <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                 <Button style={{ marginRight: 8 }} size="small" onClick={() => { this.handlePopoverVisibleChange(null, index, false) }}>取消</Button>
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
@@ -864,7 +857,7 @@ export default class OutputPanel extends Component {
         </div>
     }
 
-    recordForm = (ref) => {//存储子组建的所有要检查的form表单
+    recordForm = (ref) => { // 存储子组建的所有要检查的form表单
         const { checkFormParams } = this.state;
         checkFormParams.push(ref);
         this.setOutputData({ checkFormParams })
@@ -873,7 +866,7 @@ export default class OutputPanel extends Component {
         })
     }
 
-    render() {
+    render () {
         const { tabTemplate, panelActiveKey, panelColumn, originOptionType, tableOptionType, tableColumnOptionType, sync } = this.state;
         const { isShow } = this.props;
         return (
@@ -909,4 +902,3 @@ export default class OutputPanel extends Component {
         )
     }
 }
-

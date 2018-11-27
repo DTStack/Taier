@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { cloneDeep } from "lodash"
+import { cloneDeep } from 'lodash'
 
 import Resize from 'widgets/resize';
 import { pieOption } from '../../consts';
@@ -14,53 +14,53 @@ require('echarts/lib/component/title');
 
 const errorDic = [
     {
-        code: "disable",
-        name: "禁用",
-        color: "#71C671"
+        code: 'disable',
+        name: '禁用',
+        color: '#71C671'
     },
     {
-        code: "unauthorize",
-        name: "未认证",
-        color: "#EE4000"
+        code: 'unauthorize',
+        name: '未认证',
+        color: '#EE4000'
     },
     {
-        code: "paramerror",
-        name: "参数错误",
-        color: "#1C86EE"
+        code: 'paramerror',
+        name: '参数错误',
+        color: '#1C86EE'
     },
     {
-        code: "timeout",
-        name: "超时",
-        color: "#EE9A00"
+        code: 'timeout',
+        name: '超时',
+        color: '#EE9A00'
     },
     {
-        code: "outlimit",
-        name: "超出限制",
-        color: "#40E0D0"
+        code: 'outlimit',
+        name: '超出限制',
+        color: '#40E0D0'
     },
     {
-        code: "other",
-        name: "其他",
-        color: "#A2B5CD"
-    },
+        code: 'other',
+        name: '其他',
+        color: '#A2B5CD'
+    }
 ]
 class ErrorDistributed extends Component {
     state = {
 
     }
-    componentDidMount() {
+    componentDidMount () {
         const data = this.props.chartData || [];
         this.intPie(data);
     }
     resize = () => {
         if (this.state.pieChart) this.state.pieChart.resize()
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.intPie(nextProps.chartData)
         }
     }
-    intPie(chartData) {
+    intPie (chartData) {
         let item = [];
         let data = [];
 
@@ -90,13 +90,13 @@ class ErrorDistributed extends Component {
         myChart.setOption(option);
         this.setState({ pieChart: myChart })
     }
-    render() {
+    render () {
         const defaultSize = {
-            height: "300px"
+            height: '300px'
         }
         const sizeMap = {
             'mini': {
-                height: "280px"
+                height: '280px'
             }
         }
         const { mode } = this.props;

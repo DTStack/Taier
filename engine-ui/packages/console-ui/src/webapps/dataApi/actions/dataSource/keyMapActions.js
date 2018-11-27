@@ -4,7 +4,6 @@ import API from '../../api/dataSource';
 
 // keyMap模块
 export const keyMapActions = (dispatch) => {
-
     return {
         addLinkedKeys: (params) => {
             dispatch({
@@ -41,23 +40,23 @@ export const keyMapActions = (dispatch) => {
                 type: ACTION_TYPE.RESET_LINKED_KEYS
             });
         },
-        removeSourceKeyRow(source, index) {
+        removeSourceKeyRow (source, index) {
             dispatch({
                 type: ACTION_TYPE.REMOVE_KEYMAP,
-                payload: { source },
+                payload: { source }
             });
         },
-        editKeyMapTarget(params) {
+        editKeyMapTarget (params) {
             dispatch({
                 type: ACTION_TYPE.EDIT_KEYMAP_TARGET,
                 payload: params
             });
         },
-        removeTargetKeyRow(target, index) {
+        removeTargetKeyRow (target, index) {
             dispatch({
                 type: ACTION_TYPE.REMOVE_KEYMAP,
-                payload: { target },
+                payload: { target }
             });
-        },
+        }
     }
 };

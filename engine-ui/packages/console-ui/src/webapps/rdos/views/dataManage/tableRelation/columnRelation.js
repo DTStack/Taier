@@ -1,10 +1,8 @@
 import React from 'react';
 
 import {
-    Button, Tooltip, Spin, Icon,
+    Button, Tooltip, Spin, Icon
 } from 'antd'
-
-
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -16,7 +14,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 })
 
 const {
@@ -26,30 +24,29 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxHierarchicalLayout,
-    mxUtils,
+    mxUtils
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 120,
-    height: 35,
+    height: 35
 }
 
 export default class TableRelation extends React.Component {
-
     state = {
         selectedData: '', // 选中的数据
         data: {}, // 数据
         tableInfo: {},
         loading: 'success',
         columnName: '',
-        visible: false,
+        visible: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this._vertexCells = [] // 用于缓存创建的顶点节点
-        this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.layout = "";
-        this.graph = "";
+        this.Container.innerHTML = ''; // 清理容器内的Dom元素
+        this.layout = '';
+        this.graph = '';
         const editor = this.Container
         const tableData = this.props.tableData
         this.loadEditor(editor)
@@ -58,7 +55,7 @@ export default class TableRelation extends React.Component {
             const params = {
                 tableName: tableData.tableName,
                 belongProjectId: tableData.belongProjectId,
-                dataSourceId: tableData.dataSourceId,
+                dataSourceId: tableData.dataSourceId
             }
             this.loadTableColumn(params)
         }
@@ -85,11 +82,10 @@ export default class TableRelation extends React.Component {
         })
     }
 
-
     getXmlNode = (data) => {
         const doc = mxUtils.createXmlDocument()
         const xmlNode = doc.createElement('MyTable')
-        xmlNode.setAttribute('data',  JSON.stringify(data))
+        xmlNode.setAttribute('data', JSON.stringify(data))
         return xmlNode;
     }
 
@@ -106,13 +102,12 @@ export default class TableRelation extends React.Component {
             this.cx,
             this.cy,
             VertexSize.width,
-            height,
+            height
         );
         return rootVertex;
     }
 
     insertTableColumnVertext = (parent, data) => {
-
         const graph = this.graph;
         const tableData = this.getXmlNode(data);
         const rootCell = graph.getDefaultParent();
@@ -126,7 +121,7 @@ export default class TableRelation extends React.Component {
             1,
             1,
             VertexSize.width,
-            height,
+            height
         );
         graph.view.refresh(newVertex);
         if (data.isParent) {
@@ -162,7 +157,7 @@ export default class TableRelation extends React.Component {
                 for (let i = 0; i < children.length; i++) {
                     const node = children[i];
                     node.isChild = true;
-                    this.insertTableColumnVertext(originCell, node);;
+                    this.insertTableColumnVertext(originCell, node); ;
                 }
             }
         })
@@ -176,7 +171,7 @@ export default class TableRelation extends React.Component {
 
         const model = graph.getModel();
 
-        this.executeLayout = function(change, post) {
+        this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
                 const layout = new mxHierarchicalLayout(graph, false);
@@ -202,7 +197,6 @@ export default class TableRelation extends React.Component {
     }
 
     loadEditor = (container) => {
-
         // Disables the context menu
         mxEvent.disableContextMenu(container);
 
@@ -253,7 +247,7 @@ export default class TableRelation extends React.Component {
         graph.getLabel = function (cell) {
             if (this.getModel().isVertex(cell)) {
                 const data = cell.getAttribute('data');
-                const table = data ? JSON.parse(data) : { columns: [], };
+                const table = data ? JSON.parse(data) : { columns: [] };
                 const tableTitle = table.isParent ? '上游' : table.isChild ? '下游' : '本表';
                 let lis = ''
                 for (let i = 0; i < table.columns.length; i++) {
@@ -279,7 +273,7 @@ export default class TableRelation extends React.Component {
         this.setState({ loading: 'success' })
     }
 
-    listenOnClick() {
+    listenOnClick () {
         const ctx = this;
 
         this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
@@ -295,10 +289,10 @@ export default class TableRelation extends React.Component {
                         tableName: obj.tableName,
                         belongProjectId: obj.belongProjectId,
                         dataSourceId: obj.dataSourceId,
-                        column: colName,
+                        column: colName
                     }
                     ctx.setState({
-                        columnName: colName,
+                        columnName: colName
                     })
                     ctx.loadRelationColumns(params)
                 }
@@ -310,7 +304,7 @@ export default class TableRelation extends React.Component {
         this.componentDidMount()
     }
 
-    graphEnable() {
+    graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)
     }
@@ -323,22 +317,22 @@ export default class TableRelation extends React.Component {
         this.graph.zoomOut()
     }
 
-    render() {
+    render () {
         return (
-            <div className="graph-editor col-relation" style={{position: 'relative'}}>
+            <div className="graph-editor col-relation" style={{ position: 'relative' }}>
                 <Spin
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
                     <div className="absolute-middle txt-bg">字段血缘信息</div>
-                    <div 
+                    <div
                         className="editor pointer" ref={(e) => { this.Container = e }}
                     />
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
+                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -351,16 +345,16 @@ export default class TableRelation extends React.Component {
                     position: 'absolute',
                     top: -30,
                     right: 10
-                }} 
-                    onClick={this.props.onShowTable} 
-                    size="small">
+                }}
+                onClick={this.props.onShowTable}
+                size="small">
                     <Icon type="left" />返回
                 </Button>
             </div>
         )
     }
 
-    getDefaultVertexStyle() {
+    getDefaultVertexStyle () {
         let style = [];
         style[mxConstants.STYLE_FILLCOLOR] = '#E6F7FF';
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
@@ -370,7 +364,7 @@ export default class TableRelation extends React.Component {
         return style;
     }
 
-    getDefaultEdgeStyle() {
+    getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;

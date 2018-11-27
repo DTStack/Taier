@@ -6,7 +6,7 @@ import { debounce, cloneDeep } from 'lodash';
 import {
     Row, Col, Button,
     message, Modal, Tag, Form, Input, Icon,
-    Tooltip,
+    Tooltip
 } from 'antd'
 
 import utils from 'utils'
@@ -32,15 +32,14 @@ const confirm = Modal.confirm;
 const FormItem = Form.Item;
 
 class TaskIndex extends Component {
-
     state = {
-        publishDesc: "",
-        showPublish: false,
+        publishDesc: '',
+        showPublish: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props;
-        const taskId = utils.getParameterByName("taskId")
+        const taskId = utils.getParameterByName('taskId')
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
         }
@@ -50,33 +49,33 @@ class TaskIndex extends Component {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask', this.props);
 
-        //检查页面输入输出参数配置
+        // 检查页面输入输出参数配置
         const { checkFormParams = [], panelColumn = [] } = inputData[currentPage.id] || {};
         const { checkFormParams: outputCheckFormParams = [], panelColumn: outputPanelColumn = [] } = outputData[currentPage.id] || {};
         const { checkFormParams: dimensionCheckFormParams = [], panelColumn: dimensionPanelColumn = [] } = dimensionData[currentPage.id] || {};
 
-        for (let index = 0, len = checkFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+        for (let index = 0, len = checkFormParams.length; index < len; index++) { // 检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();
             console.log('result', result);
 
             if (!result.status) {
-                return message.error(`源表--输入源${checkFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
+                return message.error(`源表--输入源${checkFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
             }
         }
 
         if (outputCheckFormParams.length > 0) {
-            for (let index = 0, len = outputCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+            for (let index = 0, len = outputCheckFormParams.length; index < len; index++) { // 检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
                 if (!result.status) {
-                    return message.error(`结果表--输出源${outputCheckFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
+                    return message.error(`结果表--输出源${outputCheckFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
                 }
             }
         }
         if (dimensionCheckFormParams.length > 0) {
-            for (let index = 0, len = dimensionCheckFormParams.length; index < len; index++) {//检查出一个未填选项,不再检查其它的选项,只弹一次错误
+            for (let index = 0, len = dimensionCheckFormParams.length; index < len; index++) { // 检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = dimensionCheckFormParams[index].checkParams();
                 if (!result.status) {
-                    return message.error(`维表--维表${dimensionCheckFormParams[index].props.index + 1}: ${result.message || "您还有未填选项"}`);
+                    return message.error(`维表--维表${dimensionCheckFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
                 }
             }
         }
@@ -85,7 +84,7 @@ class TaskIndex extends Component {
         if (resList && resList.length > 0) {
             currentPage.resourceIdList = resList.map(item => item.id)
         }
-    
+
         // currentPage.source = panelColumn;
         // currentPage.sink = outputPanelColumn;
         // currentPage.side = dimensionPanelColumn;
@@ -94,7 +93,6 @@ class TaskIndex extends Component {
 
         return new Promise((resolve, reject) => {
             Api.saveTask(currentPage).then((res) => {
-
                 const updatePageStatus = (pageData) => {
                     message.success('任务保存成功')
                     pageData.notSynced = false;// 添加已保存标记
@@ -124,18 +122,18 @@ class TaskIndex extends Component {
                             title: '锁定提醒', // 锁定提示
                             content: <span>
                                 文件正在被{lockInfo.lastKeepLockUserName}编辑中，开始编辑时间为
-                                    {utils.formatDateTime(lockInfo.gmtModified)}。
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
                                     强制保存可能导致{lockInfo.lastKeepLockUserName}对文件的修改无法正常保存！
-                                </span>,
+                            </span>,
                             okText: '确定保存',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 const succCall = (res) => {
                                     if (res.code === 1) updatePageStatus(res.data)
                                 }
                                 Api.forceUpdateTask(currentPage).then(succCall)
-                            },
+                            }
                         });
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
@@ -144,17 +142,17 @@ class TaskIndex extends Component {
                             title: '保存警告',
                             content: <span>
                                 文件已经被{lockInfo.lastKeepLockUserName}编辑过，编辑时间为
-                                    {utils.formatDateTime(lockInfo.gmtModified)}。
+                                {utils.formatDateTime(lockInfo.gmtModified)}。
                                     点击确认按钮会<Tag color="orange">覆盖</Tag>
                                 您本地的代码，请您提前做好备份！
-                                </span>,
+                            </span>,
                             okText: '确定覆盖',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 const reqParams = {
                                     id: currentPage.id,
-                                    lockVersion: lockInfo.version,
+                                    lockVersion: lockInfo.version
                                 }
                                 Api.getTask(reqParams).then(res => {
                                     if (res.code === 1) {
@@ -163,7 +161,7 @@ class TaskIndex extends Component {
                                         updatePageStatus(taskInfo)
                                     }
                                 })
-                            },
+                            }
                         });
                     }
                 }
@@ -193,7 +191,7 @@ class TaskIndex extends Component {
         const { currentPage, dispatch } = this.props
         Api.startTask({
             id: currentPage.id,
-            isRestoration: 0, // 0-false, 1-true
+            isRestoration: 0 // 0-false, 1-true
         }).then((res) => {
             if (res.code === 1) {
                 currentPage.status = 10
@@ -203,7 +201,7 @@ class TaskIndex extends Component {
         })
     }
 
-    autoSaveTask() {
+    autoSaveTask () {
         const ctx = this
         this.timerID = setInterval(() => {
             if (ctx.state.editorState === 'edit') {
@@ -229,7 +227,7 @@ class TaskIndex extends Component {
     closePublish = () => {
         this.setState({
             publishDesc: '',
-            showPublish: false,
+            showPublish: false
         })
     }
 
@@ -237,7 +235,7 @@ class TaskIndex extends Component {
         this.props.dispatch(showSeach(true));
     }
 
-    submitTab() {
+    submitTab () {
         const {
             currentPage, dispatch
         } = this.props;
@@ -247,7 +245,6 @@ class TaskIndex extends Component {
 
         // 添加提交描述信息
         if (publishDesc) {
-
             if (publishDesc.length > 200) {
                 message.error('备注信息不可超过200个字符！')
                 return false;
@@ -331,7 +328,7 @@ class TaskIndex extends Component {
         )
     }
 
-    render() {
+    render () {
         const { dispatch, currentPage, editor } = this.props
         const disablePublish = currentPage.notSynced;
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
@@ -348,7 +345,7 @@ class TaskIndex extends Component {
                                 title="创建任务"
                             >
                                 <MyIcon className="my-icon" type="focus" themeDark={themeDark} /> 新建任务
-                                </Button>
+                            </Button>
                             <Button
                                 disabled={currentPage.invalid}
                                 onClick={this.saveTask}
@@ -381,7 +378,7 @@ class TaskIndex extends Component {
                             >
                                 <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
                                     <Icon type="upload" /> 提交
-                            </Button>
+                                </Button>
                             </Tooltip>
                         </span>
                         <Link to={`/operation/realtime?tname=${currentPage.name}`}>
@@ -416,6 +413,6 @@ export default connect((state) => {
         outputData,
         dimensionData,
         project,
-        editor,
+        editor
     }
-})(TaskIndex) 
+})(TaskIndex)

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Card, Col, Row, Table } from 'antd';
 import { pieOption } from '../../consts';
-import { cloneDeep } from "lodash"
+import { cloneDeep } from 'lodash'
 import Resize from 'widgets/resize';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -11,63 +11,63 @@ require('echarts/lib/chart/pie');
 require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
- 
+
 const errorDic = [
     {
-        code: "disable",
-        name: "禁用",
-        color: "#71C671"
+        code: 'disable',
+        name: '禁用',
+        color: '#71C671'
     },
     {
-        code: "unauthorize",
-        name: "未认证",
-        color: "rgba(244,67,54,0.9)"
+        code: 'unauthorize',
+        name: '未认证',
+        color: 'rgba(244,67,54,0.9)'
     },
     {
-        code: "paramerror",
-        name: "参数错误",
-        color: "#1C86EE"
+        code: 'paramerror',
+        name: '参数错误',
+        color: '#1C86EE'
     },
     {
-        code: "timeout",
-        name: "超时",
-        color: "#EE9A00"
+        code: 'timeout',
+        name: '超时',
+        color: '#EE9A00'
     },
     {
-        code: "outlimit",
-        name: "超出限制",
-        color: "#40E0D0"
+        code: 'outlimit',
+        name: '超出限制',
+        color: '#40E0D0'
     },
     {
-        code: "other",
-        name: "其他",
-        color: "#A2B5CD"
-    },
+        code: 'other',
+        name: '其他',
+        color: '#A2B5CD'
+    }
 ]
 class ErrorDistributed extends Component {
     state = {
 
     }
-    componentDidMount() {
+    componentDidMount () {
         const data = this.props.chartData || [];
         this.intPie(data);
     }
     resize = () => {
         if (this.state.pieChart) this.state.pieChart.resize()
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.intPie(nextProps.chartData)
         }
     }
-    intPie(chartData) {
+    intPie (chartData) {
         let item = [];
         let data = [];
 
         for (let i = 0; i < chartData.length; i++) {
             let d = chartData[i];
-            let errorItem = errorDic[d.type-1]
-            if (errorItem&&item.indexOf(errorItem.name) < 0) {
+            let errorItem = errorDic[d.type - 1]
+            if (errorItem && item.indexOf(errorItem.name) < 0) {
                 item.push(errorItem.name)
                 data.push({
                     value: d.callNum,
@@ -90,7 +90,7 @@ class ErrorDistributed extends Component {
         myChart.setOption(option);
         this.setState({ pieChart: myChart })
     }
-    render() {
+    render () {
         return (
             <Card
                 noHovering

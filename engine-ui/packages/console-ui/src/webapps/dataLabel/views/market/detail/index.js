@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { connect } from "react-redux";
-import { Card, Icon, Row, Col, Button, Table } from "antd"
-import { Link } from "react-router";
+import { connect } from 'react-redux';
+import { Card, Icon, Row, Col, Button, Table } from 'antd'
+import { Link } from 'react-router';
 import { apiMarketActions } from '../../../actions/apiMarket';
-import TopCard from "./topCard"
+import TopCard from './topCard'
 
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
@@ -11,14 +11,14 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(apiId) {
+    getApiDetail (apiId) {
         dispatch(
             apiMarketActions.getApiDetail({
                 apiId: apiId
             })
         )
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo (apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId
@@ -32,36 +32,35 @@ class APIDetail extends Component {
     state = {
         apiId: ''
     }
-    componentDidMount() {
+    componentDidMount () {
         const apiId = this.props.router.params && this.props.router.params.api;
         if (apiId) {
             this.setState({
                 apiId: apiId
-            },()=>{
+            }, () => {
                 this.props.getApiDetail(apiId);
                 this.props.getApiExtInfo(apiId);
             })
         }
-
     }
 
-    getRequestDataSource() {
-        return this.getValue('reqParam')||[];
+    getRequestDataSource () {
+        return this.getValue('reqParam') || [];
     }
-    getRequestColumns() {
+    getRequestColumns () {
         return [{
             title: '参数名',
             dataIndex: 'paramName',
-            key: 'paramName',
+            key: 'paramName'
         }, {
             title: '数据类型',
             dataIndex: 'paramType',
-            key: 'paramType',
+            key: 'paramType'
         }, {
             title: '是否必填',
             dataIndex: 'required',
             key: 'required',
-            render(text) {
+            render (text) {
                 if (text) {
                     return '是'
                 }
@@ -74,24 +73,24 @@ class APIDetail extends Component {
         }];
     }
 
-    getResponseDataSource() {
-        return this.getValue('respParam')||[];
+    getResponseDataSource () {
+        return this.getValue('respParam') || [];
     }
 
-    getResponseColumns() {
+    getResponseColumns () {
         return [{
             title: '参数名',
             dataIndex: 'paramName',
-            key: 'paramName',
+            key: 'paramName'
         }, {
             title: '数据类型',
             dataIndex: 'paramType',
-            key: 'paramType',
+            key: 'paramType'
         }, {
             title: '是否必填',
             dataIndex: 'required',
             key: 'required',
-            render(text) {
+            render (text) {
                 if (text) {
                     return '是'
                 }
@@ -100,20 +99,19 @@ class APIDetail extends Component {
         }, {
             title: '说明',
             dataIndex: 'desc',
-            key: 'desc',
+            key: 'desc'
 
         }];
     }
-    getValue(key){
-        const api=this.props.apiMarket&&this.props.apiMarket.api&&this.props.apiMarket.api[this.state.apiId];
-        if(api){
+    getValue (key) {
+        const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.state.apiId];
+        if (api) {
             return api[key]
-        }else{
+        } else {
             return null;
         }
-
     }
-    render() {
+    render () {
         return (
             <div>
                 <TopCard {...this.state} {...this.props} ></TopCard>
@@ -155,15 +153,15 @@ class APIDetail extends Component {
                     <div style={{ marginTop: 20 }}>
                         <h1 className="title-border-l-blue">JSON样例</h1>
                         <div style={{ marginTop: 15 }}>
-                        <pre>
-                        {JSON.stringify({
-                                "inFields":{
-                                    id:175,
-                                    date:"2017-09-08 12:33:23",
-                                    in:"12,34,45"
-                                }
-                            },null,"    \r")}
-                        </pre>
+                            <pre>
+                                {JSON.stringify({
+                                    'inFields': {
+                                        id: 175,
+                                        date: '2017-09-08 12:33:23',
+                                        in: '12,34,45'
+                                    }
+                                }, null, '    \r')}
+                            </pre>
                         </div>
                     </div>
                 </Card>

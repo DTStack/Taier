@@ -2,24 +2,23 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
     Table, Button, Card, Input,
-    message, Modal, Popconfirm,
- } from 'antd'
+    message, Modal, Popconfirm
+} from 'antd'
 
- import utils from 'utils'
- import Api from '../../../api'
- import MemberForm from './form'
- import EditMemberRoleForm from './editRole'
- 
- import * as UserAction from '../../../store/modules/user'
- import * as ProjectAction from '../../../store/modules/project'
+import utils from 'utils'
+import Api from '../../../api'
+import MemberForm from './form'
+import EditMemberRoleForm from './editRole'
+
+import * as UserAction from '../../../store/modules/user'
+import * as ProjectAction from '../../../store/modules/project'
 
 const Search = Input.Search
 
 class ProjectMember extends Component {
-
     state = {
         users: {
-            data: [],
+            data: []
         },
         roles: [],
         notProjectUsers: [],
@@ -27,16 +26,16 @@ class ProjectMember extends Component {
         loading: false,
         visible: false,
         current: 1,
-        visibleEditRole: false,
+        visibleEditRole: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search()
         this.loadRoles()
         this.loadUsersNotInProject()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -55,7 +54,7 @@ class ProjectMember extends Component {
         const { project, dispatch } = this.props
         Api.removeProjectUser({
             targetUserId: member.userId,
-            projectId: project.id,
+            projectId: project.id
         }).then((res) => {
             if (res.code === 1) {
                 ctx.search();
@@ -72,7 +71,7 @@ class ProjectMember extends Component {
             projectId: projectId || project.id,
             pageSize: 10,
             currentPage: current || 1,
-            name:name||undefined
+            name: name || undefined
         };
         this.loadUsers(params)
     }
@@ -91,7 +90,7 @@ class ProjectMember extends Component {
     loadRoles = (page) => {
         const ctx = this
         Api.getRoleList({
-            currentPage: page || 1,
+            currentPage: page || 1
         }).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ roles: res.data && res.data.data })
@@ -143,7 +142,7 @@ class ProjectMember extends Component {
         Api.updateUserRole({
             projectId: project.id,
             targetUserId: editTarget.userId,
-            roleIds: memberRole.roleIds, // 3-管理员，4-普通成员
+            roleIds: memberRole.roleIds // 3-管理员，4-普通成员
         }).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
@@ -154,10 +153,9 @@ class ProjectMember extends Component {
     }
 
     loadUsersNotInProject = () => {
-
         const params = {
-            userName:"",
-            projectId: this.props.project.id,
+            userName: '',
+            projectId: this.props.project.id
         }
 
         Api.searchUICUsers(params).then((res) => {
@@ -170,20 +168,20 @@ class ProjectMember extends Component {
     searchUser = (query) => {
         this.setState({
             current: 1,
-            name: query,
+            name: query
         }, this.search)
     }
 
     handleTableChange = (pagination) => {
         this.setState({
-            current: pagination.current,
+            current: pagination.current
         }, this.search)
     }
 
     onCancel = () => {
         this.setState({
             visible: false,
-            visibleEditRole: false,
+            visibleEditRole: false
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
@@ -202,21 +200,21 @@ class ProjectMember extends Component {
             key: 'userName',
             render: (text, record) => {
                 return record.user ? record.user.userName : ''
-            },
+            }
         }, {
             title: '邮箱',
             dataIndex: 'user',
             key: 'email',
             render: (text, record) => {
                 return record.user ? record.user.email : ''
-            },
+            }
         }, {
             title: '手机号',
             dataIndex: 'user',
             key: 'phoneNumber',
             render: (text, record) => {
                 return record.user ? record.user.phoneNumber : ''
-            },
+            }
         }, {
             title: '角色',
             dataIndex: 'role',
@@ -226,53 +224,54 @@ class ProjectMember extends Component {
                     role => role.roleName
                 ) : []
                 return roles.join(',')
-            },
+            }
         }, {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render: (text, record) => utils.formatDateTime(record.user.gmtCreate),
+            render: (text, record) => utils.formatDateTime(record.user.gmtCreate)
         }, {
             title: '操作',
             width: 100,
             key: 'operation',
             render: (text, record) => {
-                const setRemove = record.roles && 
-                record.roles.find((role => role.id !== 2 )) ? (
-                <Popconfirm
-                  title="确认将该成员从项目中移除？"
-                  okText="确定" cancelText="取消"
-                  onConfirm={() => { this.removeUserFromProject(record) }}
-                >
-                    <a>移出项目</a>
-                </Popconfirm>) : ''
+                const setRemove = record.roles &&
+                record.roles.find(role => role.id !== 2) ? (
+                        <Popconfirm
+                            title="确认将该成员从项目中移除？"
+                            okText="确定" cancelText="取消"
+                            onConfirm={() => { this.removeUserFromProject(record) }}
+                        >
+                            <a>移出项目</a>
+                        </Popconfirm>) : ''
                 return (
                     <span key={record.id}>
                         <span>{setRemove}</span>
                         <br/>
                         <span><a onClick={() => {
-                            this.setState({ 
+                            this.setState({
                                 visibleEditRole: true,
                                 editTarget: record
-                             })}
+                            })
+                        }
                         }>编辑角色</a></span>
                     </span>
                 )
-            },
+            }
         }]
     }
 
-    render() {
-        const { 
+    render () {
+        const {
             visible, users, roles,
-            notProjectUsers, visibleEditRole, editTarget 
+            notProjectUsers, visibleEditRole, editTarget
         } = this.state;
 
         const { project } = this.props
 
         const pagination = {
             total: users.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
 
         const title = (
@@ -285,26 +284,26 @@ class ProjectMember extends Component {
             </div>
         )
 
-        const extra = <Button 
-                type="primary"
-                style={{ marginTop: 10 }}
-                onClick={this.initAddMember}
-            >
+        const extra = <Button
+            type="primary"
+            style={{ marginTop: 10 }}
+            onClick={this.initAddMember}
+        >
                 添加成员
-            </Button>
+        </Button>
 
         return (
             <div>
-                <h1 className="box-title" style={{paddingTop: '0'}}>
+                <h1 className="box-title" style={{ paddingTop: '0' }}>
                     {project.projectName}
                     <span className="box-sub-title">&nbsp;描述：{project.projectDesc}</span>
                 </h1>
                 <div className="box-2 m-card">
-                    <Card 
+                    <Card
                         noHovering
                         bordered={false}
                         loading={false}
-                        title={title} 
+                        title={title}
                         extra={extra}
                         className='full-screen-table-70'
                     >
@@ -320,30 +319,30 @@ class ProjectMember extends Component {
                     </Card>
                 </div>
                 <Modal
-                  title="添加项目成员"
-                  wrapClassName="vertical-center-modal"
-                  visible={visible}
-                  onOk={this.addMember}
-                  onCancel={this.onCancel}
-                  maskClosable={false}
+                    title="添加项目成员"
+                    wrapClassName="vertical-center-modal"
+                    visible={visible}
+                    onOk={this.addMember}
+                    onCancel={this.onCancel}
+                    maskClosable={false}
                 >
                     <MemberForm
-                      wrappedComponentRef={(e) => { this.memberForm = e }}
-                      roles={roles}
-                      notProjectUsers={notProjectUsers}
+                        wrappedComponentRef={(e) => { this.memberForm = e }}
+                        roles={roles}
+                        notProjectUsers={notProjectUsers}
                     />
                 </Modal>
                 <Modal
-                  title="设置用户角色"
-                  wrapClassName="vertical-center-modal"
-                  visible={visibleEditRole}
-                  onOk={this.updateMemberRole}
-                  onCancel={this.onCancel}
+                    title="设置用户角色"
+                    wrapClassName="vertical-center-modal"
+                    visible={visibleEditRole}
+                    onOk={this.updateMemberRole}
+                    onCancel={this.onCancel}
                 >
                     <EditMemberRoleForm
-                      user={editTarget}
-                      roles={roles}
-                      wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
+                        user={editTarget}
+                        roles={roles}
+                        wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
                     />
                 </Modal>
             </div>
@@ -353,6 +352,6 @@ class ProjectMember extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        project: state.project,
+        project: state.project
     }
 })(ProjectMember)

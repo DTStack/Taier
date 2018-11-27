@@ -5,19 +5,19 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 
 import Header from './layout/header'
-import GlobalLoading from "./layout/loading"
+import GlobalLoading from './layout/loading'
 import * as UserAction from '../actions/user'
-import {commonActions} from '../actions/common'
+import { commonActions } from '../actions/common'
 
 import { updateApp } from 'main/actions/app'
 
 import { daApp } from 'config/base'
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 const mapStateToProps = state => {
     const { common } = state;
@@ -27,31 +27,29 @@ const mapStateToProps = state => {
     mapStateToProps
 )
 class Main extends Component {
-    componentWillMount(){
+    componentWillMount () {
         const { dispatch } = this.props;
         dispatch(commonActions.getMenuList())
     }
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props;
         dispatch(UserAction.getUser())
         dispatch(updateApp(daApp));
-        
-        
     }
 
-    render() {
+    render () {
         let { children } = this.props
-        let header=<Header />
-        if(!this.props.common.menuList){
-            children=<GlobalLoading />;
-            header=null;
+        let header = <Header />
+        if (!this.props.common.menuList) {
+            children = <GlobalLoading />;
+            header = null;
         }
         return (
             <div className="main">
-            
+
                 {header}
                 <div className="container overflow-x-hidden">
-                    { children || "加载中...." }
+                    { children || '加载中....' }
                 </div>
             </div>
         )

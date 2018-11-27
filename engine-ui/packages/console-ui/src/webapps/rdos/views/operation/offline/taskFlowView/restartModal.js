@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router'
 
 import {
     Input, Modal, Row, message, Form,
-    Table, DatePicker, Col, Tree,
+    Table, DatePicker, Col, Tree
 } from 'antd'
 
 import Api from '../../../../api'
@@ -17,7 +17,7 @@ const TreeNode = Tree.TreeNode
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-function replaceTreeNode(treeNode, replace) {
+function replaceTreeNode (treeNode, replace) {
     if (treeNode.id === parseInt(replace.id, 10)) {
         treeNode = Object.assign(treeNode, replace);
         return;
@@ -31,20 +31,19 @@ function replaceTreeNode(treeNode, replace) {
 }
 
 class RestartModal extends Component {
-
     state = {
         treeData: [],
         selected: [],
         expandedKeys: [],
         currentNode: '',
-        checkedKeys: [],
+        checkedKeys: []
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const node = nextProps.restartNode
         const visible = nextProps.visible
-        
-        if (visible && node ) {
+
+        if (visible && node) {
             this.setState({
                 currentNode: node,
                 treeData: [node],
@@ -72,7 +71,7 @@ class RestartModal extends Component {
             jobId: restartNode.id,
             subJobIds: checked,
             justRunChild: true,
-            setSuccess: true,
+            setSuccess: true
         }
 
         Api.restartAndResume(reqParams).then((res) => {
@@ -97,7 +96,6 @@ class RestartModal extends Component {
     }
 
     insertChildren = (node, children) => {
-
         const treeData = Object.assign(this.state.treeData)
 
         const loop = (data) => {
@@ -118,7 +116,7 @@ class RestartModal extends Component {
 
     cancleModal = () => {
         this.setState({
-            selected: [],
+            selected: []
         })
         this.props.onCancel()
     }
@@ -153,7 +151,6 @@ class RestartModal extends Component {
     getTreeNodes = (data, currentNode) => {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
-
                 const disabed = item.id === currentNode.id;
                 const id = `${item.batchTask ? item.id : item.jobId}`;
 
@@ -192,7 +189,7 @@ class RestartModal extends Component {
         return []
     }
 
-    render() {
+    render () {
         const { visible, onCancel, restartNode } = this.props
         const { treeData } = this.state
         const treeNodes = this.getTreeNodes(treeData, restartNode)
@@ -207,7 +204,7 @@ class RestartModal extends Component {
             >
                 <Row>
                     <Col span="12">请选择要重跑的任务:</Col>
-                    <Col span="12" className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>  
+                    <Col span="12" className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>
                 </Row>
                 <Row className="section patch-data">
                     <Row className="patch-header">

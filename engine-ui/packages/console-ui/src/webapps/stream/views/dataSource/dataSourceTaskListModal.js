@@ -1,13 +1,12 @@
-import React from "react";
-import { Table, Modal, Button } from "antd";
-import { connect } from "react-redux";
+import React from 'react';
+import { Table, Modal, Button } from 'antd';
+import { connect } from 'react-redux';
 
-import Api from "../../api"
-
+import Api from '../../api'
 
 @connect((state) => {
     return {
-        project: state.project,
+        project: state.project
     }
 })
 class DataSourceTaskListModal extends React.Component {
@@ -21,18 +20,18 @@ class DataSourceTaskListModal extends React.Component {
             total: 0
         }
     }
-    closeModal() {
+    closeModal () {
         this.setState({
             visible: false
         })
     }
-    showModal() {
+    showModal () {
         this.setState({
-            visible: true,
+            visible: true
         })
         this.getTaskList();
     }
-    getTaskList() {
+    getTaskList () {
         const { pagination } = this.state;
         const { type, dataSource } = this.props;
         this.setState({
@@ -61,28 +60,28 @@ class DataSourceTaskListModal extends React.Component {
                 }
             )
     }
-    initColumns() {
+    initColumns () {
         const { type } = this.props;
         return [{
             title: '任务名称',
             dataIndex: 'name',
-            key: 'name',
+            key: 'name'
         }, {
             title: '操作',
             dataIndex: 'edit',
             key: 'edit',
-            width: "100px",
-            render(t, record) {
+            width: '100px',
+            render (t, record) {
                 return <a target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
             }
         }]
     }
-    handleTableChange(pagination) {
+    handleTableChange (pagination) {
         this.setState({ pagination: pagination }, () => {
             this.getTaskList();
         })
     }
-    render() {
+    render () {
         const { visible, pagination, loading, taskList } = this.state;
         const { dataSource = {}, children } = this.props;
         return (

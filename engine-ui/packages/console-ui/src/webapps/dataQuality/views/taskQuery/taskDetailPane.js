@@ -4,37 +4,37 @@ import { Table, Card, Checkbox } from 'antd';
 import moment from 'moment';
 
 import Resize from 'widgets/resize';
+
+import { lineAreaChartOptions } from '../../consts';
+import { DetailCheckStatus } from '../../components/display';
+import TQApi from '../../api/taskQuery';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 require('echarts/lib/component/markLine');
 
-import { lineAreaChartOptions } from '../../consts';
-import { DetailCheckStatus } from '../../components/display';
-import TQApi from '../../api/taskQuery';
-
 export default class TaskDetailPane extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             lineChart: '',
             visible: false,
             taskDetail: [],
             currentRecord: {},
-            showSnapshot:false
+            showSnapshot: false
         };
     }
 
-    componentWillReceiveProps(nextProps) {
-        let oldData = this.props.data,
-            newData = nextProps.data;
+    componentWillReceiveProps (nextProps) {
+        let oldData = this.props.data;
+
+        let newData = nextProps.data;
 
         if (!isEmpty(newData) && oldData !== newData) {
             TQApi.getTaskDetail({
                 recordId: newData.id,
-                monitorId: newData.monitorId,
+                monitorId: newData.monitorId
             }).then((res) => {
                 if (res.code === 1) {
                     this.setState({
@@ -44,13 +44,13 @@ export default class TaskDetailPane extends Component {
                 }
             });
         }
-        
+
         if (this.props.currentTab !== nextProps.currentTab) {
             this.resize();
         }
     }
 
-    isSnapshotChange(e) {
+    isSnapshotChange (e) {
         this.setState({
             showSnapshot: e.target.checked
         });
@@ -66,12 +66,12 @@ export default class TaskDetailPane extends Component {
             dataIndex: 'columnName',
             key: 'columnName',
             render: (text, record) => {
-                const snapshotText = record.isSnapshot?" (已删除)":"";
+                const snapshotText = record.isSnapshot ? ' (已删除)' : '';
                 let obj = {
                     children: (record.isCustomizeSql ? record.customizeSql : text) + snapshotText,
                     props: {
                         colSpan: record.isCustomizeSql ? 3 : 1
-                    },
+                    }
                 };
                 return obj;
             },
@@ -85,7 +85,7 @@ export default class TaskDetailPane extends Component {
                     children: record.functionName,
                     props: {
                         colSpan: record.isCustomizeSql ? 0 : 1
-                    },
+                    }
                 };
                 return obj;
             },
@@ -99,7 +99,7 @@ export default class TaskDetailPane extends Component {
                     children: text,
                     props: {
                         colSpan: record.isCustomizeSql ? 0 : 1
-                    },
+                    }
                 };
                 return obj;
             },
@@ -113,7 +113,7 @@ export default class TaskDetailPane extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render: (text => <DetailCheckStatus value={text} />),
+            render: text => <DetailCheckStatus value={text} />,
             width: '8%'
         }, {
             title: '统计值',
@@ -136,13 +136,13 @@ export default class TaskDetailPane extends Component {
             title: '最近修改人',
             key: 'modifyUser',
             dataIndex: 'modifyUser',
-            width: '12%',
+            width: '12%'
         }, {
             title: '最近修改时间',
             key: 'gmtModified',
             dataIndex: 'gmtModified',
             width: '12%',
-            render: (text) => (moment(text).format("YYYY-MM-DD HH:mm"))
+            render: (text) => (moment(text).format('YYYY-MM-DD HH:mm'))
         }, {
             title: '操作',
             width: '8%',
@@ -165,13 +165,16 @@ export default class TaskDetailPane extends Component {
         });
     }
 
-    initLineChart(chartData) {
+    initLineChart (chartData) {
         const { currentRecord } = this.state;
 
-        let myChart = echarts.init(document.getElementById('TaskTrend')),
-            option = cloneDeep(lineAreaChartOptions),
-            xData = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm')),
-            yData = Object.values(chartData);
+        let myChart = echarts.init(document.getElementById('TaskTrend'));
+
+        let option = cloneDeep(lineAreaChartOptions);
+
+        let xData = Object.keys(chartData).map(item => moment(item).format('YYYY-MM-DD HH:mm'));
+
+        let yData = Object.values(chartData);
 
         option.title.text = '';
         option.tooltip.axisPointer.label.formatter = '{value}';
@@ -179,7 +182,7 @@ export default class TaskDetailPane extends Component {
 
         option.xAxis[0].axisTick = {
             show: false,
-            alignWithLabel: true,
+            alignWithLabel: true
         }
         option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('YYYY-MM-DD HH:mm'));
@@ -192,11 +195,10 @@ export default class TaskDetailPane extends Component {
             type: 'line',
             smooth: true,
             symbolSize: 8,
-            data: yData,
+            data: yData
         }];
 
         if (!isEmpty(chartData)) {
-
             // 非枚举值需要显示基线
             option.series[0].markLine = currentRecord.operator === 'in' ? undefined : {
                 silent: true,
@@ -211,7 +213,7 @@ export default class TaskDetailPane extends Component {
                 },
                 data: [
                     {
-                        yAxis: +currentRecord.threshold,
+                        yAxis: +currentRecord.threshold
                     }
                 ]
             };
@@ -221,30 +223,29 @@ export default class TaskDetailPane extends Component {
         this.setState({ lineChart: myChart });
     }
 
-    render() {
+    render () {
         const { visible, currentRecord, taskDetail, showSnapshot } = this.state;
 
         const filterTaskDetail = taskDetail ? taskDetail.filter(
-            (item)=>{
-                if(showSnapshot){
+            (item) => {
+                if (showSnapshot) {
                     return true;
                 }
-                return item.isSnapshot==0?true:false;
+                return item.isSnapshot == 0;
             }
         ) : []
-
 
         let cardTitle = (
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
         )
 
         if (currentRecord && currentRecord.isCustomizeSql) {
-            cardTitle = "指标最近波动图"
+            cardTitle = '指标最近波动图'
         }
 
         return (
             <div style={{ padding: 10 }}>
-                <Checkbox value={showSnapshot} style={{ marginBottom: "10px" }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
+                <Checkbox value={showSnapshot} style={{ marginBottom: '10px' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
                 <Table
                     rowKey="id"
                     className="m-table"
@@ -256,8 +257,7 @@ export default class TaskDetailPane extends Component {
                 />
 
                 {
-                    visible
-                    &&
+                    visible &&
                     <Card
                         noHovering
                         bordered={false}

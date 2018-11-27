@@ -9,13 +9,12 @@ import { taskTypeIcon } from '../../../comm'
 const TreeNode = Tree.TreeNode
 
 class FolderTree extends Component {
-
     renderFileInfo = (menuType, file) => {
         if (
-            (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT)
-            && file.type === 'file'
+            (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) &&
+            file.type === 'file'
         ) {
-            const lockInfo = file.readWriteLockVO||{};
+            const lockInfo = file.readWriteLockVO || {};
             return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
         }
         return file.createUser;
@@ -23,8 +22,8 @@ class FolderTree extends Component {
 
     renderStatusBadge = (menuType, file) => {
         if (
-            (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) 
-            && file.type === 'file'
+            (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) &&
+            file.type === 'file'
         ) {
             let status = 'success'
             const lockStatus = file.readWriteLockVO && file.readWriteLockVO.getLock;
@@ -42,9 +41,7 @@ class FolderTree extends Component {
         const { treeType, treeData, isFolderPicker } = this.props
 
         const loopTree = (tree) => {
-            
             return tree && tree.map(item => {
-                
                 const key = item.id;
                 const isLeaf = item.type === 'file';
                 const taskType = item.taskType;
@@ -56,49 +53,49 @@ class FolderTree extends Component {
                 let claTitle = ''
                 if (item.type === 'file') {
                     switch (treeType) {
-                        case MENU_TYPE.TASK:
-                            claTitle = 'task-item'
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            claTitle = 'resource-item'
-                            break;
-                        case MENU_TYPE.COSTOMFUC:
-                            claTitle = 'function-item'
-                            break;
-                        default:
-                            claTitle = 'file-item'
+                    case MENU_TYPE.TASK:
+                        claTitle = 'task-item'
+                        break;
+                    case MENU_TYPE.RESOURCE:
+                        claTitle = 'resource-item'
+                        break;
+                    case MENU_TYPE.COSTOMFUC:
+                        claTitle = 'function-item'
+                        break;
+                    default:
+                        claTitle = 'file-item'
                     }
                 } else {
                     switch (treeType) {
-                        case MENU_TYPE.TASK:
-                            claTitle = 'task-folder-item'
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            claTitle = 'resource-folder-item'
-                            break;
-                        case MENU_TYPE.COSTOMFUC:
-                        case MENU_TYPE.FUNCTION:
-                            claTitle = 'function-folder-item'
-                            break;
-                        default:
-                            claTitle = 'folder-item'
+                    case MENU_TYPE.TASK:
+                        claTitle = 'task-folder-item'
+                        break;
+                    case MENU_TYPE.RESOURCE:
+                        claTitle = 'resource-folder-item'
+                        break;
+                    case MENU_TYPE.COSTOMFUC:
+                    case MENU_TYPE.FUNCTION:
+                        claTitle = 'function-folder-item'
+                        break;
+                    default:
+                        claTitle = 'folder-item'
                     }
                 }
 
                 const title = (
-                    <span 
+                    <span
                         title={item.name}
                         id={`JS_${item.id}`}
-                        style={{padding:"8px 0px"}}
+                        style={{ padding: '8px 0px' }}
                         className={claTitle}>
                         {this.renderStatusBadge(treeType, item)}
                         {item.name}
-                        <i className="item-tooltip"><span style={{color: "#ccc"}}>{this.renderFileInfo(treeType, item)}</span></i>
+                        <i className="item-tooltip"><span style={{ color: '#ccc' }}>{this.renderFileInfo(treeType, item)}</span></i>
                     </span>
                 );
 
                 return (
-                    <TreeNode 
+                    <TreeNode
                         title={title}
                         name={item.name}
                         key={key}
@@ -118,54 +115,57 @@ class FolderTree extends Component {
         return loopTree(treeData)
     }
 
-    render() {
+    render () {
         let treeContent = ''
-        const { 
+        const {
             onRightClick, onSelect, onChange, multiple, id,
             loadData, isPicker, placeholder, disabled, value,
-            expandedKeys, onExpand, selectedKeys,
+            expandedKeys, onExpand, selectedKeys
         } = this.props;
-        if (isPicker) treeContent = (
-            <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
-                <TreeSelect
-                    showSearch
-                    allowClear
-                    key={id}
-                    value={value}
-                    loadData={loadData}
-                    onChange={onChange}
-                    onSelect={onSelect}
+        if (isPicker) {
+            treeContent = (
+                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
+                    <TreeSelect
+                        showSearch
+                        allowClear
+                        key={id}
+                        value={value}
+                        loadData={loadData}
+                        onChange={onChange}
+                        onSelect={onSelect}
+                        disabled={disabled}
+                        multiple={multiple}
+                        size="large"
+                        treeNodeFilterProp="name"
+                        filterTreeNode={(inputValue, treeNode) => {
+                            return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+                        }}
+                        getPopupContainer={() => this.selEle }
+                        placeholder={placeholder || '请选择存储位置'}
+                        dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
+                    >
+                        {this.renderTreeNodes()}
+                    </TreeSelect>
+                </div>
+            )
+        } else {
+            treeContent = (
+                <Tree
+                    showIcon
                     disabled={disabled}
-                    multiple={multiple}
-                    size="large"
-                    treeNodeFilterProp="name"
-                    filterTreeNode={(inputValue, treeNode) =>{
-                        return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
-                    }}
-                    getPopupContainer={() => this.selEle }
-                    placeholder={placeholder || '请选择存储位置'}
-                    dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
+                    onRightClick={onRightClick}
+                    onSelect={onSelect}
+                    onChange={onChange}
+                    loadData={loadData}
+                    selectedKeys={selectedKeys}
+                    expandedKeys={ expandedKeys }
+                    onExpand={ onExpand }
+                    autoExpandParent={false}
                 >
                     {this.renderTreeNodes()}
-                </TreeSelect>
-            </div>
-        )
-        else treeContent = (
-            <Tree
-                showIcon
-                disabled={disabled}
-                onRightClick={onRightClick}
-                onSelect={onSelect}
-                onChange={onChange}
-                loadData={loadData}
-                selectedKeys={selectedKeys}
-                expandedKeys={ expandedKeys }
-                onExpand={ onExpand }
-                autoExpandParent={false}
-            >
-                {this.renderTreeNodes()}
-            </Tree>
-        )
+                </Tree>
+            )
+        }
 
         return <div style={{ position: 'relative', display: 'block' }} >
             {treeContent}

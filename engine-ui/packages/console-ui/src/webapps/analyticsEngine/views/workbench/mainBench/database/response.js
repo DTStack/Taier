@@ -30,7 +30,7 @@ const Response = props => {
 
 Response.propTypes = {
     message: PropTypes.string,
-    data: PropTypes.object,
+    data: PropTypes.object
 }
 
 export default Response

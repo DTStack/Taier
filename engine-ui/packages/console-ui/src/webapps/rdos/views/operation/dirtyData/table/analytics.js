@@ -11,58 +11,56 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const Option = Select.Option
 
-
 export default class TableAnalytics extends Component {
-
     state = {
         data: [],
         tableId: this.props.routeParams.tableId,
         tablePartitions: [],
         tableCountInfo: '',
         loading: false,
-        errorType: "npe",
+        errorType: 'npe',
         currentPage: {
-            npe : 1,
+            npe: 1,
             duplicate: 1,
             conversion: 1,
-            other: 1,
+            other: 1
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const tableId = this.state.tableId;
         this.getTableAnalytics({ tableId, limit: 10, errorType: 'npe' });
         this.getTablePartitions({ tableId, pageSize: 1000 });
         this.getTableCountInfo({ tableId });
     }
 
-    getTableAnalytics(params) {
+    getTableAnalytics (params) {
         this.setState({ loading: true })
         ajax.getDirtyDataAnalytics(params).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 this.setState({
                     data: res.data,
-                    loading: false,
+                    loading: false
                 });
             }
         });
     }
 
-    getTablePartitions(params) {
+    getTablePartitions (params) {
         ajax.getTablePartition(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tablePartitions: (res.data && res.data.data) || [],
+                    tablePartitions: (res.data && res.data.data) || []
                 });
             }
         });
     }
 
-    getTableCountInfo(params) {
+    getTableCountInfo (params) {
         ajax.countDirtyData(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tableCountInfo: res.data,
+                    tableCountInfo: res.data
                 });
             }
         });
@@ -74,17 +72,17 @@ export default class TableAnalytics extends Component {
         this.getTableAnalytics({
             tableId,
             partId,
-            errorType: value,
+            errorType: value
         })
     }
 
     onPartitionChange = (value) => {
         const { errorType, tableId } = this.state
-        this.setState({ partId: value, })
+        this.setState({ partId: value })
         this.getTableAnalytics({
             tableId,
             errorType,
-            partId: value,
+            partId: value
         })
     }
 
@@ -96,8 +94,8 @@ export default class TableAnalytics extends Component {
                 key: 't-id',
                 width: 80,
                 render: (text, item, index) => {
-                    return  (currentPage[errorType]-1)*10 + index + 1
-                },
+                    return (currentPage[errorType] - 1) * 10 + index + 1
+                }
             }]
             data.forEach((item, index) => {
                 let titleItem = item;
@@ -105,13 +103,13 @@ export default class TableAnalytics extends Component {
                     title: item,
                     key: index + item,
                     width: 200,
-                    render: (text, item) => {  
-                        if (titleItem==="ts") {
+                    render: (text, item) => {
+                        if (titleItem === 'ts') {
                             return <span>{moment(item[index]).format('YYYY-MM-DD HH:mm:ss')}</span>
-                        }else{
+                        } else {
                             return <span>{item[index]}</span>
                         }
-                    },
+                    }
                 })
             })
             return arr
@@ -119,21 +117,21 @@ export default class TableAnalytics extends Component {
         return []
     }
 
-    changePage = (pagination)=> {
+    changePage = (pagination) => {
         let { errorType, currentPage } = this.state;
-        currentPage [ errorType || "npe"] = pagination.current;
+        currentPage[ errorType || 'npe'] = pagination.current;
         this.setState({
             currentPage
         })
     }
 
-    render() {
+    render () {
         console.log(this.state.errorType);
-        
+
         const { tableData } = this.props;
         const { data, tablePartitions, tableCountInfo } = this.state
-  
-        const partitionsOptions = tablePartitions && tablePartitions.map(p => 
+
+        const partitionsOptions = tablePartitions && tablePartitions.map(p =>
             <Option id={p.partId} value={`${p.partId}`} title={p.name}>
                 {p.name}
             </Option>
@@ -142,26 +140,26 @@ export default class TableAnalytics extends Component {
         const cols = this.generateCols(data[0])
         const showData = data.slice(1, data.length)
         const dirtyDataCount = tableCountInfo && (
-            tableCountInfo.conversion + tableCountInfo.duplicate 
-            + tableCountInfo.npe + tableCountInfo.other
+            tableCountInfo.conversion + tableCountInfo.duplicate +
+            tableCountInfo.npe + tableCountInfo.other
         )
 
-        const tablePane = <Table 
-            columns={cols} 
+        const tablePane = <Table
+            columns={cols}
             className="m-table"
-            dataSource={showData} 
+            dataSource={showData}
             loading={this.state.loading}
-            scroll={{ x: true, y: 280 }} 
+            scroll={{ x: true, y: 280 }}
             onChange={this.changePage}
         />
 
         return (
-            <Card 
+            <Card
                 bordered={false}
                 noHovering
                 title={
-                    <span style={{fontSize:"12px",fontWeight:"normal"}}> 
-                        总计：共{tableCountInfo.totalNum||0}条 脏数据，
+                    <span style={{ fontSize: '12px', fontWeight: 'normal' }}>
+                        总计：共{tableCountInfo.totalNum || 0}条 脏数据，
                         空指针：{tableCountInfo.npe || 0}条，
                         主键冲突：{tableCountInfo.duplicate || 0}条，
                         类型转换：{tableCountInfo.conversion || 0}条，
@@ -169,12 +167,12 @@ export default class TableAnalytics extends Component {
                     </span>
                 }
                 extra={
-                    <Select 
+                    <Select
                         allowClear
                         showSearch
                         placeholder="分区下拉选项"
-                        onChange={this.onPartitionChange} 
-                        style={{width: '126px', marginTop: '10px'}}
+                        onChange={this.onPartitionChange}
+                        style={{ width: '126px', marginTop: '10px' }}
                     >
                         { partitionsOptions }
                     </Select>

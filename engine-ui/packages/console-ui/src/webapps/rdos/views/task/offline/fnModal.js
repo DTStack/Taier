@@ -9,39 +9,39 @@ import ajax from '../../../api';
 import { MENU_TYPE } from '../../../comm/const';
 import {
     modalAction,
-    fnTreeAction,
+    fnTreeAction
 } from '../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 class FnForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    handleSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'nodePid': value});
+    handleSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'nodePid': value });
     }
 
-    handleResSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'resources': value});
+    handleResSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'resources': value });
         this.props.form.validateFields(['resources']);
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { defaultData, isEditExist, isCreateFromMenu, isCreateNormal } = this.props;
 
         const formItemLayout = {
             labelCol: {
                 xs: { span: 24 },
-                sm: { span: 6 },
+                sm: { span: 6 }
             },
             wrapperCol: {
                 xs: { span: 24 },
-                sm: { span: 14 },
-            },
+                sm: { span: 14 }
+            }
         };
 
         return (
@@ -53,16 +53,16 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('name', {
                         rules: [{
-                            required: true, message: '函数名称不可为空！',
+                            required: true, message: '函数名称不可为空！'
                         }, {
                             pattern: /^[A-Za-z0-9_-]+$/,
-                            message: '函数名称只能由字母、数字、下划线组成!',
+                            message: '函数名称只能由字母、数字、下划线组成!'
                         }, {
                             max: 20,
-                            message: '函数名称不得超过20个字符！',
-                        }],
+                            message: '函数名称不得超过20个字符！'
+                        }]
                     })(
-                        <Input placeholder="请输入函数名称" />,
+                        <Input placeholder="请输入函数名称" />
                     )}
                 </FormItem>
                 <FormItem
@@ -72,10 +72,10 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('className', {
                         rules: [{
-                            required: true, message: '类名不能为空',
+                            required: true, message: '类名不能为空'
                         }, {
                             pattern: /^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*$/,
-                            message: '请输入有效的类名!',
+                            message: '请输入有效的类名!'
                         }]
                     })(
                         <Input placeholder="请输入类名"></Input>
@@ -88,7 +88,7 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('resources', {
                         rules: [{
-                            required: true, message: '请选择关联资源',
+                            required: true, message: '请选择关联资源'
                         }, {
                             validator: this.checkNotDir.bind(this)
                         }]
@@ -120,10 +120,10 @@ class FnForm extends React.Component {
                     {getFieldDecorator('commandFormate', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -134,10 +134,10 @@ class FnForm extends React.Component {
                     {getFieldDecorator('paramDesc', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -147,10 +147,10 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
-                        initialValue: isCreateNormal ? this.props.functionTreeData.id :
-                            isCreateFromMenu ? defaultData.parentId: undefined
+                        initialValue: isCreateNormal ? this.props.functionTreeData.id
+                            : isCreateFromMenu ? defaultData.parentId : undefined
                     })(
                         <Input type="hidden"></Input>
                     )}
@@ -159,8 +159,8 @@ class FnForm extends React.Component {
                         ispicker
                         treeData={ this.props.functionTreeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
-                        defaultNode={ isCreateNormal ? this.props.functionTreeData.name :
-                            isCreateFromMenu ? this.getFolderName(defaultData.parentId) : undefined
+                        defaultNode={ isCreateNormal ? this.props.functionTreeData.name
+                            : isCreateFromMenu ? this.getFolderName(defaultData.parentId) : undefined
                         }
                     />
                 </FormItem>
@@ -175,16 +175,15 @@ class FnForm extends React.Component {
      * @param {any} cb
      * @memberof TaskForm
      */
-    checkNotDir(rule, value, callback) {
+    checkNotDir (rule, value, callback) {
         const { resTreeData } = this.props;
         let nodeType;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === value) {
+                if (node.id === value) {
                     nodeType = node.type;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -192,7 +191,7 @@ class FnForm extends React.Component {
 
         loop([resTreeData]);
 
-        if(nodeType === 'folder') {
+        if (nodeType === 'folder') {
             callback('请选择具体文件, 而非文件夹');
         }
         callback();
@@ -203,16 +202,15 @@ class FnForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id) {
+    getFolderName (id) {
         const { functionTreeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -227,7 +225,7 @@ class FnForm extends React.Component {
 const FnFormWrapper = Form.create()(FnForm);
 
 class FnModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -236,42 +234,42 @@ class FnModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return this.props !== nextProps;
     }
 
-    handleSubmit() {
+    handleSubmit () {
         const { isModalShow, toggleCreateFn, addFn } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) { 
+            if (!err) {
                 addFn(values)
-                .then(
-                    (success)=>{
-                        if(success){
-                            this.closeModal();
-                            form.resetFields();
+                    .then(
+                        (success) => {
+                            if (success) {
+                                this.closeModal();
+                                form.resetFields();
+                            }
                         }
-                    }
-                );
+                    );
             }
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         const { toggleCreateFn } = this.props;
 
         this.closeModal();
     }
 
-    closeModal() {
+    closeModal () {
         this.dtcount++;
         this.props.emptyModalDefault();
         this.props.toggleCreateFn();
     }
 
-    render() {
+    render () {
         const { isModalShow, functionTreeData, resTreeData, defaultData } = this.props;
 
         const isCreateNormal = typeof defaultData === 'undefined';
@@ -311,23 +309,23 @@ export default connect(state => {
         isModalShow: state.offlineTask.modalShow.createFn,
         functionTreeData: state.offlineTask.functionTree,
         resTreeData: state.offlineTask.resourceTree,
-        defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
+        defaultData: state.offlineTask.modalShow.defaultData // 表单默认数据
     }
 },
 dispatch => {
     return {
-        toggleCreateFn: function() {
+        toggleCreateFn: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_FN
             });
         },
 
-        addFn: function(params) {
-           return ajax.addOfflineFunction(params)
+        addFn: function (params) {
+            return ajax.addOfflineFunction(params)
                 .then(res => {
                     console.log(res);
-                    let {data} = res;
-                    if(res.code === 1) {
+                    let { data } = res;
+                    if (res.code === 1) {
                         dispatch({
                             type: fnTreeAction.ADD_FOLDER_CHILD,
                             payload: data
@@ -336,7 +334,7 @@ dispatch => {
                     }
                 })
         },
-        emptyModalDefault() {
+        emptyModalDefault () {
             dispatch({
                 type: modalAction.EMPTY_MODAL_DEFAULT
             });

@@ -1,10 +1,9 @@
 import React from 'react';
 import {
-    Tooltip, Spin, Icon, message,
+    Tooltip, Spin, Icon, message
 } from 'antd'
 
 import { cloneDeep } from 'lodash';
-
 
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
@@ -15,7 +14,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 })
 
 const {
@@ -27,12 +26,12 @@ const {
     mxPopupMenu,
     mxPerimeter,
     mxHierarchicalLayout,
-    mxUtils,
+    mxUtils
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 30,
-    height: 30,
+    height: 30
 }
 
 const getVertexNode = (obj) => {
@@ -46,7 +45,7 @@ const getTableReqParams = (tableData) => {
         pageIndex: 1,
         pageSize: 6,
         belongProjectId: tableData.belongProjectId,
-        dataSourceId: tableData.dataSourceId,
+        dataSourceId: tableData.dataSourceId
     }
     return params;
 }
@@ -58,7 +57,6 @@ export const isEqTable = (from, compareTo) => {
 }
 
 export default class TableRelation extends React.Component {
-
     state = {
         selectedData: '', // 选中的数据
         treeData: {}, // 树形数据
@@ -68,13 +66,13 @@ export default class TableRelation extends React.Component {
         currentPage: 1,
         currentChild: {},
         currentParent: {},
-        visible: false,
+        visible: false
     }
 
-    componentDidMount() {
-        this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.layout = "";
-        this.graph = "";
+    componentDidMount () {
+        this.Container.innerHTML = ''; // 清理容器内的Dom元素
+        this.layout = '';
+        this.graph = '';
         const editor = this.Container
         const tableData = this.props.tableData
         this.loadEditor(editor)
@@ -169,7 +167,7 @@ export default class TableRelation extends React.Component {
         }
     }
 
-    handParent(parent) {
+    handParent (parent) {
         const cloneParent = Object.assign({}, parent);
         cloneParent.childResult = null;
         cloneParent.parentResult = null;
@@ -208,7 +206,7 @@ export default class TableRelation extends React.Component {
         this.setState({
             treeData: rootData,
             currentChild: rootData,
-            currentParent: rootData,
+            currentParent: rootData
         });
         return rootData;
     }
@@ -222,7 +220,7 @@ export default class TableRelation extends React.Component {
      * 3. 给当前父节点添加标记
      */
     preHandTreeNodes = (treeNode, treeType) => {
-        const { treeData, } = this.state;
+        const { treeData } = this.state;
         const myTree = cloneDeep(treeData);
         myTree.isRoot = true;
         const props = treeType === 'parent' ? 'parentResult' : 'childResult';
@@ -269,7 +267,6 @@ export default class TableRelation extends React.Component {
                     change();
                 }
                 layout.execute(graph.getDefaultParent())
-
             } catch (e) {
                 throw e;
             } finally {
@@ -294,10 +291,10 @@ export default class TableRelation extends React.Component {
 
             return po === 'prev' ? {
                 x: x,
-                y: y - 60,
+                y: y - 60
             } : {
                 x: x,
-                y: y + 80,
+                y: y + 80
             }
         }
 
@@ -318,7 +315,7 @@ export default class TableRelation extends React.Component {
                 )
             }
 
-            if (parentPage.currentPage < parentPage.totalPage ) {
+            if (parentPage.currentPage < parentPage.totalPage) {
                 graph.insertVertex(
                     rootCell,
                     'parentNext',
@@ -333,7 +330,6 @@ export default class TableRelation extends React.Component {
         }
 
         if (this._childPrev && childPage.totalPage > 0) {
-
             const geoChildPerv = getGeo(this._childPrev, 'prev');
             const geoChildNext = getGeo(this._childNext);
             if (childPage.currentPage > 1) {
@@ -348,7 +344,7 @@ export default class TableRelation extends React.Component {
                     'prevBtn'
                 )
             }
-            if (childPage.currentPage < childPage.totalPage ) {
+            if (childPage.currentPage < childPage.totalPage) {
                 graph.insertVertex(
                     rootCell,
                     'childNext',
@@ -364,7 +360,6 @@ export default class TableRelation extends React.Component {
     }
 
     renderTree = (treeNodeData) => {
-
         const graph = this.graph;
 
         graph.getModel().clear();
@@ -383,7 +378,6 @@ export default class TableRelation extends React.Component {
             const currentNode = this.insertVertex(rootCell, currentNodeData);
             this.rootCell = currentNode;
             this.loopTree(currentNode, treeNodeData);
-
         }, () => {
             this.renderPagination();
             graph.scrollCellToVisible(this.rootCell);
@@ -434,7 +428,6 @@ export default class TableRelation extends React.Component {
     }
 
     loopTree = (currentNode, treeNodeData) => {
-
         if (treeNodeData) {
             const graph = this.graph;
 
@@ -525,7 +518,6 @@ export default class TableRelation extends React.Component {
 
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-
             if (!cell) return
 
             const table = JSON.parse(cell.getAttribute('data'));
@@ -559,7 +551,6 @@ export default class TableRelation extends React.Component {
                     })
                 }
             }
-
         }
     }
 
@@ -572,29 +563,27 @@ export default class TableRelation extends React.Component {
             const CLICK_LEFT = 1;
             if (target.which === CLICK_LEFT && cell && cell.vertex) {
                 if (cell.value === 'pagination') {
-                    
                     const currentChild = ctx.state.currentChild;
                     const currentParent = ctx.state.currentParent;
                     const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
                     const childPage = currentChild.childResult ? currentChild.childResult : {};
 
-                    switch(cell.id) {
-                        case 'parentPrev': {
-                            ctx.onPageChange(parentPage.currentPage - 1, 'parent');
-                            return;
-                        }
-                        case 'parentNext': {
-                            ctx.onPageChange(parentPage.currentPage + 1, 'parent');
-                            return;
-                        }
-                        case 'childPrev': {
-                            ctx.onPageChange(childPage.currentPage - 1, 'child');
-                            return;
-                        }
-                        case 'childNext': {
-                            ctx.onPageChange(childPage.currentPage + 1, 'child');
-                            return;
-                        }
+                    switch (cell.id) {
+                    case 'parentPrev': {
+                        ctx.onPageChange(parentPage.currentPage - 1, 'parent');
+                        return;
+                    }
+                    case 'parentNext': {
+                        ctx.onPageChange(parentPage.currentPage + 1, 'parent');
+                        return;
+                    }
+                    case 'childPrev': {
+                        ctx.onPageChange(childPage.currentPage - 1, 'child');
+                        return;
+                    }
+                    case 'childNext': {
+                        ctx.onPageChange(childPage.currentPage + 1, 'child');
+                    }
                     }
                 } else {
                     let data = cell.getAttribute('data')
@@ -609,12 +598,12 @@ export default class TableRelation extends React.Component {
         })
     }
 
-    render() {
+    render () {
         const { tableInfo, relationTasks, loading } = this.state;
         return (
             <div className="graph-editor"
                 style={{ position: 'relative', background: '#FAFAFA', height: '1000px' }}
-                >
+            >
                 <Spin
                     tip="Loading..."
                     size="large"
@@ -625,7 +614,7 @@ export default class TableRelation extends React.Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}} />
+                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -738,7 +727,7 @@ export default class TableRelation extends React.Component {
         this.componentDidMount()
     }
 
-    graphEnable() {
+    graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)
     }
@@ -761,7 +750,7 @@ export default class TableRelation extends React.Component {
         })
     }
 
-    getDefaultVertexStyle() {
+    getDefaultVertexStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_ELLIPSE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.EllipsePerimeter;
@@ -775,7 +764,7 @@ export default class TableRelation extends React.Component {
         return style;
     }
 
-    initPaginationStyles() {
+    initPaginationStyles () {
         let PrevStyle = new Object();
         PrevStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         PrevStyle[mxConstants.STYLE_STROKECOLOR] = 'none';
@@ -791,7 +780,7 @@ export default class TableRelation extends React.Component {
         this.graph.getStylesheet().putCellStyle('nextBtn', nextStyle);
     }
 
-    getDefaultEdgeStyle() {
+    getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;

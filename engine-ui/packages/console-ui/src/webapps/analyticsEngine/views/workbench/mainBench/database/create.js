@@ -8,16 +8,15 @@ import API from '../../../../api';
 import Response from './response';
 
 class CreateDatabaseModal extends Component {
-
     state = {
         databaseData: null,
         submitted: false,
-        requesting: false,
+        requesting: false
     }
 
     onSubmit = async () => {
         this.setState({
-            requesting: true,
+            requesting: true
         })
         const { loadCatalogue } = this.props;
 
@@ -38,7 +37,7 @@ class CreateDatabaseModal extends Component {
 
         const form = this.dbForm.props.form;
 
-        form.validateFields( async (err, values) => {
+        form.validateFields(async (err, values) => {
             if (!err) {
                 // 创建数据库默认ID -1, 用于后端权限校验
                 values.databaseId = -1;
@@ -46,14 +45,14 @@ class CreateDatabaseModal extends Component {
                 if (result.code === 1) {
                     this.setState({
                         databaseData: result.data,
-                        submitted: true,
+                        submitted: true
                     });
                     loadCatalogue();
                     // 移除当前元素active样式
                     document.activeElement.blur();
                 }
                 this.setState({
-                    requesting: false,
+                    requesting: false
                 })
             }
         });
@@ -66,7 +65,7 @@ class CreateDatabaseModal extends Component {
             this.setState({
                 databaseData: null,
                 submitted: false,
-                requesting: false,
+                requesting: false
             });
         }, 0)
     }
@@ -74,8 +73,7 @@ class CreateDatabaseModal extends Component {
     render () {
         const { databaseData, requesting } = this.state;
         const { modal } = this.props;
-        const visible =  modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE 
-        ? true : false;
+        const visible = !!(modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE);
 
         return (
             <Modal
@@ -89,13 +87,12 @@ class CreateDatabaseModal extends Component {
                 bodyStyle={{ padding: 0 }}
             >
                 {
-                    databaseData ? 
-                    <Response data={databaseData} message="创建成功" /> 
-                    : 
-                    <DBForm
-                        isCreate={true}
-                        wrappedComponentRef={(e) => { this.dbForm = e }}
-                    />
+                    databaseData
+                        ? <Response data={databaseData} message="创建成功" />
+                        : <DBForm
+                            isCreate={true}
+                            wrappedComponentRef={(e) => { this.dbForm = e }}
+                        />
                 }
             </Modal>
         )

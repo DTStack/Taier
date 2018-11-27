@@ -6,18 +6,18 @@ import {
     Table, message,
     Row, Col, Card, Input,
     Button, Select, Form,
-    Checkbox, Tabs,
+    Checkbox, Tabs
 } from 'antd'
 
 import utils from 'utils'
 import { replaceObjectArrayFiledName } from 'funcs';
 import SlidePane from 'widgets/slidePane'
 
- import Api from '../../../api'
-import { 
-    offlineTaskPeriodFilter, 
+import Api from '../../../api'
+import {
+    offlineTaskPeriodFilter,
     SCHEDULE_STATUS,
-    PROJECT_TYPE 
+    PROJECT_TYPE
 } from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
@@ -37,10 +37,9 @@ const Search = Input.Search
 const TabPane = Tabs.TabPane
 
 class OfflineTaskMana extends Component {
-
     state = {
         tasks: {
-            data: [],
+            data: []
         },
         loading: false,
         patchDataVisible: false,
@@ -58,16 +57,16 @@ class OfflineTaskMana extends Component {
         taskPeriodId: '',
         scheduleStatus: '',
         checkVals: [],
-        selectedRowKeys: [],
+        selectedRowKeys: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         if (this.props.project.id !== 0) {
             this.search()
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (project && oldProj.id !== project.id) {
@@ -81,11 +80,11 @@ class OfflineTaskMana extends Component {
         const {
             taskName, person,
             startTime, endTime, taskType,
-            scheduleStatus, current, taskPeriodId,
+            scheduleStatus, current, taskPeriodId
         } = this.state
 
         const reqParams = {
-            currentPage: current || 1,
+            currentPage: current || 1
         }
 
         if (taskName) {
@@ -110,12 +109,12 @@ class OfflineTaskMana extends Component {
         this.loadTaskList(reqParams)
     }
 
-    loadTaskList(params) { // currentPage, pageSize, isMine, status
+    loadTaskList (params) { // currentPage, pageSize, isMine, status
         const ctx = this
         this.setState({ loading: true })
         const reqParams = Object.assign({
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 20
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
@@ -137,7 +136,7 @@ class OfflineTaskMana extends Component {
 
         Api.forzenTask({
             taskIdList: selected,
-            scheduleStatus: mode  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+            scheduleStatus: mode //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
         }).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ selectedRowKeys: [], checkAll: false })
@@ -152,7 +151,7 @@ class OfflineTaskMana extends Component {
             selectedRowKeys: [],
             current: pagination.current,
             taskType: filters.taskType,
-            taskPeriodId: filters.taskPeriodId,
+            taskPeriodId: filters.taskPeriodId
         }, this.search)
     }
 
@@ -182,7 +181,7 @@ class OfflineTaskMana extends Component {
         const { checkVals } = this.state
         const setVals = {
             person: target,
-            current: 1,
+            current: 1
         }
         if (target == user.id) {
             if (checkVals.indexOf('person') === -1) {
@@ -198,13 +197,13 @@ class OfflineTaskMana extends Component {
         this.setState(setVals, this.search)
     }
 
-    changeTaskName = (e) => {// 任务名变更
+    changeTaskName = (e) => { // 任务名变更
         this.setState({ taskName: e.target.value })
     }
 
     onTabChange = (tabKey) => {
         this.setState({
-            tabKey,
+            tabKey
         })
     }
 
@@ -216,7 +215,7 @@ class OfflineTaskMana extends Component {
 
         this.setState({
             selectedRowKeys,
-            checkAll: e.target.checked,
+            checkAll: e.target.checked
         })
     }
 
@@ -236,12 +235,12 @@ class OfflineTaskMana extends Component {
                 conditions.startTime = moment().set({
                     'hour': 0,
                     'minute': 0,
-                    'second': 0,
+                    'second': 0
                 }).unix()
                 conditions.endTime = moment().set({
                     'hour': 23,
                     'minute': 59,
-                    'second': 59,
+                    'second': 59
                 }).unix()
             } else if (item === 'stopped') {
                 conditions.scheduleStatus = 2; // 任务状态(1:正常 2：冻结)
@@ -263,7 +262,7 @@ class OfflineTaskMana extends Component {
 
     initTaskColumns = () => {
         const isPro = this.props.project.projectType == PROJECT_TYPE.PRO;
-        const pre = isPro ? "发布" : '提交'
+        const pre = isPro ? '发布' : '提交'
         const { taskTypeFilter } = this.props;
 
         return [{
@@ -272,19 +271,19 @@ class OfflineTaskMana extends Component {
             key: 'name',
             width: 200,
             render: (text, record) => {
-                const content = record.isDeleted === 1 ? `${text} (已删除)` :
-                    <a onClick={() => { this.showTask(record) }}>
+                const content = record.isDeleted === 1 ? `${text} (已删除)`
+                    : <a onClick={() => { this.showTask(record) }}>
                         {record.name + (record.scheduleStatus == SCHEDULE_STATUS.STOPPED ? ' (已冻结)' : '')}
                     </a>
                 return content;
-            },
+            }
         }, {
             title: pre + '时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: (text) => {
                 return <span>{utils.formatDateTime(text)}</span>
-            },
+            }
         }, {
             title: '任务类型',
             dataIndex: 'taskType',
@@ -292,7 +291,7 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskType value={text} />
             },
-            filters: taskTypeFilter,
+            filters: taskTypeFilter
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -300,14 +299,14 @@ class OfflineTaskMana extends Component {
             render: (text) => {
                 return <TaskTimeType value={text} />
             },
-            filters: offlineTaskPeriodFilter,
+            filters: offlineTaskPeriodFilter
         }, {
             title: '责任人',
             dataIndex: 'userName',
             key: 'userName',
             render: (text, record) => {
                 return <span>{record.ownerUser && record.ownerUser.userName}</span>
-            },
+            }
         }, {
             title: '操作',
             key: 'operation',
@@ -320,7 +319,7 @@ class OfflineTaskMana extends Component {
                         <a onClick={() => { this.props.goToTaskDev(record.id) }}>修改</a>
                     </span>
                 )
-            },
+            }
         }]
     }
 
@@ -353,16 +352,16 @@ class OfflineTaskMana extends Component {
         )
     }
 
-    render() {
+    render () {
         const { projectUsers, project } = this.props
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
-            current, taskName, visibleSlidePane, selectedRowKeys, tabKey,
+            current, taskName, visibleSlidePane, selectedRowKeys, tabKey
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const isTest=project.projectType == PROJECT_TYPE.TEST;
-        const userItems = projectUsers && projectUsers.length > 0 ?
-            projectUsers.map((item) => {
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
                 return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                     {item.user.userName}
                 </Option>)
@@ -371,7 +370,7 @@ class OfflineTaskMana extends Component {
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
-            current,
+            current
         };
 
         const rowSelection = {
@@ -380,7 +379,7 @@ class OfflineTaskMana extends Component {
                     selectedRowKeys
                 })
             },
-            selectedRowKeys: selectedRowKeys,
+            selectedRowKeys: selectedRowKeys
         };
 
         return (
@@ -389,19 +388,19 @@ class OfflineTaskMana extends Component {
                     <h1 className="box-title" style={{ lineHeight: '50px' }}>
                         <div style={{ marginTop: '5px' }}>
                             <span className="ope-statistics">
-                                <span style={{ color: "#2E3943" }}>
+                                <span style={{ color: '#2E3943' }}>
                                     <Circle style={{ background: '#2E3943' }} />&nbsp;
-                            任务总数: &nbsp;{tasks.totalCount||0}
+                            任务总数: &nbsp;{tasks.totalCount || 0}
                                 </span>&nbsp;
-                        <span style={{ color: "#F5A623" }}>
+                                <span style={{ color: '#F5A623' }}>
                                     <Circle style={{ background: '#F5A623 ' }} />&nbsp;
-                            已发布: &nbsp;{tasks.publishedTasks||0}
+                            已发布: &nbsp;{tasks.publishedTasks || 0}
                                 </span>&nbsp;
-                    </span>
+                            </span>
                         </div>
                     </h1>
                 )}
-                <div className={`m-card ${!isTest?'box-1':'box-2'} task-manage`}>
+                <div className={`m-card ${!isTest ? 'box-1' : 'box-2'} task-manage`}>
                     <Card
                         noHovering
                         bordered={false}
@@ -453,14 +452,14 @@ class OfflineTaskMana extends Component {
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
-                                        return "row-select"
+                                        return 'row-select'
                                     } else {
-                                        return "";
+                                        return '';
                                     }
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className={`m-table ${isPro?'full-screen-table-90':'full-screen-table-120'}`}
+                            className={`m-table ${isPro ? 'full-screen-table-90' : 'full-screen-table-120'}`}
                             pagination={pagination}
                             rowSelection={rowSelection}
                             loading={this.state.loading}
@@ -473,7 +472,7 @@ class OfflineTaskMana extends Component {
                             className="m-tabs bd-top bd-right m-slide-pane"
                             onClose={this.closeSlidePane}
                             visible={visibleSlidePane}
-                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px', }}
+                            style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
                             <Tabs animated={false} onChange={this.onTabChange}>
                                 <TabPane tab="依赖视图" key="taskFlow">
@@ -499,7 +498,7 @@ class OfflineTaskMana extends Component {
                 <PatchDataModal
                     visible={patchDataVisible}
                     task={patchTargetTask}
-                    handCancel={() => { this.setState({ patchDataVisible: false, patchTargetTask: '', }) }}
+                    handCancel={() => { this.setState({ patchDataVisible: false, patchTargetTask: '' }) }}
                 />
             </div>
         )

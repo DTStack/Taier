@@ -1,15 +1,15 @@
 import React from 'react';
 import assign from 'object-assign';
 
-import { 
+import {
     Steps, Button, message, Form, Icon
 } from 'antd';
 
 import api from '../../../api/dataManage';
 import ajax from '../../../api/dataModel';
 
-import { 
-    tableModelRules,
+import {
+    tableModelRules
 } from '../../../comm/const';
 
 import BaseForm from './baseForm';
@@ -18,8 +18,7 @@ import ColumnsPartition from './columnsPartition';
 const Step = Steps.Step;
 
 class TableCreator extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -46,34 +45,33 @@ class TableCreator extends React.Component {
             incrementCounts: [],
             freshFrequencies: [],
             dataCatalogue: [], // 数据类目
-            columnFileds: [], // 指标字段
+            columnFileds: [] // 指标字段
         };
 
         // move up/down
-        Array.prototype.__move = function(from, to) {
+        Array.prototype.__move = function (from, to) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadTableNameRules();
         this.loadOptionsData();
         this.loadCatalogue();
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         let shouldUpdate = false;
 
         if (this.state.current === 0) {
-            if(this.state.type !== nextState.type) shouldUpdate = true;
+            if (this.state.type !== nextState.type) shouldUpdate = true;
             else shouldUpdate = this.state.current !== nextState.current;
-        }
-        else {
+        } else {
             shouldUpdate = true;
         }
 
-        if (this.state.tableNameRules !== nextState.tableNameRules || 
+        if (this.state.tableNameRules !== nextState.tableNameRules ||
             this.state.modelLevels !== nextState.modelLevels ||
             this.state.dataCatalogue !== nextState.dataCatalogue
         ) {
@@ -86,7 +84,7 @@ class TableCreator extends React.Component {
     loadCatalogue = () => {
         api.getDataCatalogues().then(res => {
             this.setState({
-                dataCatalogue: res.data && [res.data],
+                dataCatalogue: res.data && [res.data]
             })
         })
     }
@@ -95,7 +93,7 @@ class TableCreator extends React.Component {
         ajax.getTableNameRules().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tableNameRules: res.data,
+                    tableNameRules: res.data
                 })
             }
         })
@@ -104,84 +102,82 @@ class TableCreator extends React.Component {
     loadOptionsData = () => {
         const defaultParams = {
             currentPage: 1,
-            pageSize: 1000,
+            pageSize: 1000
         }
         const ctx = this;
         // 加载主题选项
         const callSucc = (field) => {
-            return function(res) {
+            return function (res) {
                 if (res.code === 1) {
                     ctx.setState({
-                        [field]: res.data ? res.data.data : [],
+                        [field]: res.data ? res.data.data : []
                     })
                 }
             }
         }
         ajax.getModels(assign({
-            type: 1, // 模型层级
+            type: 1 // 模型层级
         }, defaultParams)).then(callSucc('modelLevels'));
 
         ajax.getModels(assign({
-            type: 2, // 模型层级
+            type: 2 // 模型层级
         }, defaultParams)).then(callSucc('subjectFields'));
 
         ajax.getModels(assign({
-            type: 3, // 模型层级
+            type: 3 // 模型层级
         }, defaultParams)).then(callSucc('freshFrequencies'));
 
         ajax.getModels(assign({
-            type: 4, // 模型层级
+            type: 4 // 模型层级
         }, defaultParams)).then(callSucc('incrementCounts'));
 
         // 获取指标字段
         ajax.getTablePartitions().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    columnFileds: res.data || [],
+                    columnFileds: res.data || []
                 })
             }
         });
     }
 
-    next() {
+    next () {
         const { current, table } = this.state;
         const { partition_keys, columns } = table;
 
-        if(current === 0) {
+        if (current === 0) {
             this.baseForm.validateFields((err, values) => {
-                if(!err) {
+                if (!err) {
                     const next = current + 1;
                     this.setState({ current: next });
                 }
             });
-        }
-        else if(current === 1){
-            if(partition_keys.length === 0 && columns.length === 0) {
+        } else if (current === 1) {
+            if (partition_keys.length === 0 && columns.length === 0) {
                 message.error('请添加字段或分区信息');
-            }
-            else {
+            } else {
                 this.doCreate();
             }
         }
     }
 
-    prev() {
+    prev () {
         const current = this.state.current - 1;
         this.setState({ current });
     }
 
-    doCreate() {
+    doCreate () {
         const { table, current, tableNameRules } = this.state;
         let { columns, partition_keys } = table;
         columns = this.reduceRowData(columns);
         partition_keys = this.reduceRowData(partition_keys);
-        
-        if(partition_keys.length === 0 && columns.length === 0) {
+
+        if (partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
         }
 
         ajax.createTable(table).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const next = current + 1;
                 this.setState({ current: next,
                     result: 'success'
@@ -198,7 +194,7 @@ class TableCreator extends React.Component {
      * @param {any} arr
      * @memberof TableCreator
      */
-    reduceRowData(arr) {
+    reduceRowData (arr) {
         return arr.filter(data => {
             return data.name !== '';
         });
@@ -210,16 +206,14 @@ class TableCreator extends React.Component {
      * @param {number} type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    addRow(data, type) {
-
+    addRow (data, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
 
-        if(type === 1) {
+        if (type === 1) {
             columns.push(data);
             table.columns = columns;
-        }
-        else if(type === 2) {
+        } else if (type === 2) {
             partition_keys.push(data);
             table.partition_keys = partition_keys;
         }
@@ -235,17 +229,16 @@ class TableCreator extends React.Component {
      * @param {number} type type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    delRow(uuid, type) {
+    delRow (uuid, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
 
-        if(type === 1) {
+        if (type === 1) {
             columns = columns.filter(col => {
                 return col.uuid !== uuid
             });
             table.columns = columns;
-        }
-        else if(type === 2) {
+        } else if (type === 2) {
             partition_keys = partition_keys.filter(col => {
                 return col.uuid !== uuid
             });
@@ -263,21 +256,20 @@ class TableCreator extends React.Component {
      * @param {number} type  1: columns 2: partitions
      * @memberof TableCreator
      */
-    replaceRow(newCol, type) {
+    replaceRow (newCol, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
         const { uuid } = newCol;
 
-        if(type === 1) {
+        if (type === 1) {
             columns = columns.map(col => {
-                if(col.uuid === uuid) return newCol;
+                if (col.uuid === uuid) return newCol;
                 else return col;
             });
             table.columns = columns;
-        }
-        else if(type === 2) {
+        } else if (type === 2) {
             partition_keys = partition_keys.map(col => {
-                if(col.uuid === uuid) return newCol;
+                if (col.uuid === uuid) return newCol;
                 else return col;
             });
             table.partition_keys = partition_keys;
@@ -295,20 +287,19 @@ class TableCreator extends React.Component {
      * @param {boolean} isUp
      * @memberof TableCreator
      */
-    moveRow(uuid, type, isUp) {
+    moveRow (uuid, type, isUp) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
         let from;
 
-        if(type === 1) {
+        if (type === 1) {
             columns.forEach((col, i) => {
-                if(col.uuid === uuid) from = i;
+                if (col.uuid === uuid) from = i;
             });
-            table.columns = columns.__move(from,  isUp ? from - 1 : from + 1);
-        }
-        else if(type === 2) {
+            table.columns = columns.__move(from, isUp ? from - 1 : from + 1);
+        } else if (type === 2) {
             partition_keys.forEach((col, i) => {
-                if(col.uuid === uuid) from = i;
+                if (col.uuid === uuid) from = i;
             });
             table.partition_keys = partition_keys.__move(from, isUp ? from - 1 : from + 1);
         }
@@ -318,16 +309,16 @@ class TableCreator extends React.Component {
         })
     }
 
-    resetLoc() {
+    resetLoc () {
         this.setState(state => {
             let table = assign(state.table, {
                 location: undefined
             });
-            return assign(state, {table});
+            return assign(state, { table });
         });
     }
 
-    render() {
+    render () {
         const the = this;
 
         const {
@@ -335,12 +326,12 @@ class TableCreator extends React.Component {
             subjectFields,
             incrementCounts,
             freshFrequencies,
-            columnFileds,// 指标字段
-            dataCatalogue,
+            columnFileds, // 指标字段
+            dataCatalogue
         } = this.state;
 
         const BaseFormWrapper = Form.create({
-            onValuesChange(props, values) {
+            onValuesChange (props, values) {
                 the.setState(state => {
                     state.table = assign(state.table, values);
                     return state;
@@ -373,22 +364,22 @@ class TableCreator extends React.Component {
             />
         }, {
             title: '新建完成',
-            content: <div className="m-createresult" style={{textAlign: 'center'}}>
-                { this.state.result ? (this.state.result === 'success' ?
-                    <div>
+            content: <div className="m-createresult" style={{ textAlign: 'center' }}>
+                { this.state.result ? (this.state.result === 'success'
+                    ? <div>
                         <h3>
                             <Icon type="check-circle" style={{ color: 'green' }}/> 新建成功!
                         </h3>
                         <p style={{ marginTop: 10 }}><span className="m-countdown" /> 秒后自动返回</p>
-                    </div>:
-                    <div>
+                    </div>
+                    : <div>
                         <h3>
                             <Icon type="close-circle" style={{ color: 'red' }}/> 新建失败!
                         </h3>
                         <p style={{ color: 'red', marginTop: 10 }}>{this.state.result.message}</p>
                     </div>) : null
                 }
-            </div>,
+            </div>
         }];
 
         return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>
@@ -408,12 +399,12 @@ class TableCreator extends React.Component {
                     > 上一步 </Button>
                 }
                 { this.state.current < steps.length - 1 && <Button type="primary"
-                        onClick={ () => this.next() }
-                    >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
+                    onClick={ () => this.next() }
+                >{ this.state.current === 1 ? '提交' : '下一步' }</Button>
                 }
                 { this.state.current === steps.length - 1 && <Button type="primary"
-                        onClick={() => this.props.router.push('/data-model/table')}
-                    >返回</Button>
+                    onClick={() => this.props.router.push('/data-model/table')}
+                >返回</Button>
                 }
             </div>
         </div>

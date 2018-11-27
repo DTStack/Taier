@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import { Modal, Form, Input, message, Button, DatePicker, InputNumber, Checkbox, Tooltip, Icon } from "antd"
-import { connect } from "react-redux";
-import { hashHistory } from "react-router";
-import moment from "moment";
+import React, { Component } from 'react';
+import { Modal, Form, Input, message, Button, DatePicker, InputNumber, Checkbox, Tooltip, Icon } from 'antd'
+import { connect } from 'react-redux';
+import { hashHistory } from 'react-router';
+import moment from 'moment';
 
 import { apiMarketActions } from '../../actions/apiMarket';
 
@@ -21,7 +21,7 @@ const formLayout = {
 let modal;
 
 const mapDispatchToProps = dispatch => ({
-    apiApply(apiId, applyContent, callLimit, callTime) {
+    apiApply (apiId, applyContent, callLimit, callTime) {
         return dispatch(apiMarketActions.apiApply({
             apiId: apiId,
             applyContent: applyContent,
@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => ({
             endTime: callTime && callTime.length > 1 && callTime[1].valueOf()
         }));
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo (apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId
@@ -46,10 +46,10 @@ class ApplyBox extends Component {
         countMode: false,
         dateMode: false
     }
-    handleSubmit(values) {
+    handleSubmit (values) {
         console.log(values)
     }
-    handleOk() {
+    handleOk () {
         const { countMode, dateMode } = this.state;
         const { hideJump } = this.props;
 
@@ -76,38 +76,36 @@ class ApplyBox extends Component {
                             }
                         }
                     )
-
             }
         });
-
     }
-    handleCancel() {
+    handleCancel () {
         this.props.form.resetFields();
         this.props.cancelCallback();
     }
-    showApplySuccessModal() {
+    showApplySuccessModal () {
         modal = Modal.success({
             title: '申请提交成功',
             content: (
                 <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的API</a> 中查看审批进度</span>
             ),
-            okText: "确定"
+            okText: '确定'
         });
     }
-    jumpToMine() {
+    jumpToMine () {
         if (modal) {
             modal.destroy();
         }
 
-        hashHistory.push("/api/mine");
+        hashHistory.push('/api/mine');
     }
-    changeCountMode(evt) {
+    changeCountMode (evt) {
         this.props.form.resetFields(['callCount'])
         this.setState({
             countMode: evt.target.checked
         })
     }
-    changeDateMode(evt) {
+    changeDateMode (evt) {
         this.props.form.resetFields(['callDateRange'])
         this.setState({
             dateMode: evt.target.checked
@@ -116,7 +114,7 @@ class ApplyBox extends Component {
     disabledDate = (current) => {
         return current && current.valueOf() < moment().subtract(1, 'days').valueOf();
     }
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { countMode, dateMode } = this.state;
         return (
@@ -131,7 +129,7 @@ class ApplyBox extends Component {
                         <Button key="back" size="large" onClick={this.handleCancel.bind(this)}>取消</Button>,
                         <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={this.handleOk.bind(this)}>
                             提交
-                        </Button>,
+                        </Button>
                     ]}
                 >
 
@@ -149,16 +147,16 @@ class ApplyBox extends Component {
                         >
                             {getFieldDecorator('callCount', {
                                 rules: [
-                                    { required: !countMode, message: "请输入调用次数" },
+                                    { required: !countMode, message: '请输入调用次数' },
                                     {
                                         validator: function (rule, value, callback) {
-                                            if ((value||value===0) && value < 1) {
-                                                callback("次数不能小于1")
+                                            if ((value || value === 0) && value < 1) {
+                                                callback('次数不能小于1')
                                                 return;
                                             }
                                             callback();
                                         }
-                                    },
+                                    }
                                 ]
                             })(<InputNumber min={1} disabled={countMode} type="number" />)}
                             <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
@@ -171,8 +169,8 @@ class ApplyBox extends Component {
                             {...formLayout}
                         >
                             {getFieldDecorator('callDateRange', {
-                                rules: [{ required: !dateMode, message: "请选择调用周期" }]
-                            })(<RangePicker disabledDate={this.disabledDate} disabled={dateMode} style={{ width: "220px", verticalAlign: "middle", marginRight: "8px" }} popupStyle={{ fontSize: "14px" }} />)}
+                                rules: [{ required: !dateMode, message: '请选择调用周期' }]
+                            })(<RangePicker disabledDate={this.disabledDate} disabled={dateMode} style={{ width: '220px', verticalAlign: 'middle', marginRight: '8px' }} popupStyle={{ fontSize: '14px' }} />)}
                             <Checkbox checked={dateMode} onChange={this.changeDateMode.bind(this)}>不限制调用时间</Checkbox>
                         </FormItem>
                         <FormItem
@@ -184,8 +182,8 @@ class ApplyBox extends Component {
                             {getFieldDecorator('applyMsg',
                                 {
                                     rules: [{ required: true, message: '请输入申请信息' },
-                                    { max: 200, message: "最大字符不能超过200" },]
-                                }, )(<TextArea style={{ width: 300 }} rows={4} />)}
+                                        { max: 200, message: '最大字符不能超过200' }]
+                                })(<TextArea style={{ width: 300 }} rows={4} />)}
 
                         </FormItem>
 
@@ -193,7 +191,6 @@ class ApplyBox extends Component {
                 </Modal>
 
             </div>
-
 
         )
     }

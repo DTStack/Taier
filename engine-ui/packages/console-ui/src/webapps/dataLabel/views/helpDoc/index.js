@@ -3,7 +3,7 @@ import { Icon, Tooltip } from 'antd';
 import * as Doc from './docs'
 
 export default class HelpDoc extends React.Component {
-    render() {
+    render () {
         const { doc } = this.props
         return (
             <Tooltip key={doc} title={Doc[doc]}>

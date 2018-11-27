@@ -6,36 +6,35 @@ import { bindActionCreators } from 'redux';
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
 import pureRender from 'utils/pureRender';
-import { commonFileEditDelegator } from "widgets/editor/utils";
+import { commonFileEditDelegator } from 'widgets/editor/utils';
 
 import API from '../../../../api';
-import IDEEditor from "main/components/ide";
+import IDEEditor from 'main/components/ide';
 
-import {PROJECT_TYPE} from "../../../../comm/const";
+import { PROJECT_TYPE } from '../../../../comm/const';
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
 import {
-    workbenchActions,
+    workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 
-import { updateUser } from "../../../../store/modules/user";
+import { updateUser } from '../../../../store/modules/user';
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 
 @pureRender
 class CommonEditorContainer extends Component {
-
     state = {
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const currentNode = this.props.currentTabData;
         if (currentNode) {
-            this.props.getTab(currentNode.id)//初始化console所需的数据结构
+            this.props.getTab(currentNode.id)// 初始化console所需的数据结构
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         if (current && current.id !== old.id) {
@@ -48,12 +47,12 @@ class CommonEditorContainer extends Component {
         const taskCustomParams = this.props.taskCustomParams;
         let params = {
             merged: false,
-            cursorPosition: editorInstance.getPosition(),
+            cursorPosition: editorInstance.getPosition()
         }
         if (utils.checkExist(task.taskType)) {
             params.sqlText = newVal
             // 过滤注释内容
-            params.taskVariables = matchTaskParams(taskCustomParams, newVal)//this.matchTaskParams(newVal)
+            params.taskVariables = matchTaskParams(taskCustomParams, newVal)// this.matchTaskParams(newVal)
         } else if (utils.checkExist(task.type)) {
             params.scriptText = newVal
         }
@@ -77,7 +76,7 @@ class CommonEditorContainer extends Component {
             for (let i = 0; i < sqls.length; i++) {
                 let sql = sqls[i];
                 const trimed = utils.trim(sql);
-                if (trimed !== "") {
+                if (trimed !== '') {
                     // 过滤语句前后空格
                     arr.push(utils.trimlr(sql));
                 }
@@ -92,7 +91,7 @@ class CommonEditorContainer extends Component {
             editor,
             project,
             currentTab,
-            currentTabData,
+            currentTabData
         } = this.props;
 
         const params = {
@@ -138,7 +137,7 @@ class CommonEditorContainer extends Component {
     sqlFormat = () => {
         const { currentTabData, updateTaskField } = this.props;
         const params = {
-            sql: currentTabData.sqlText || currentTabData.scriptText || ""
+            sql: currentTabData.sqlText || currentTabData.scriptText || ''
         };
         API.sqlFormat(params).then(res => {
             if (res.data) {
@@ -168,25 +167,24 @@ class CommonEditorContainer extends Component {
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
-    render() {
-
+    render () {
         const { editor = {}, currentTabData, value, mode, toolBarOptions = {}, project, user } = this.props;
 
         const currentTab = currentTabData.id;
 
         const consoleData = editor.console;
 
-        const data = consoleData && consoleData[currentTab] ?
-            consoleData[currentTab] : { results: [] }
+        const data = consoleData && consoleData[currentTab]
+            ? consoleData[currentTab] : { results: [] }
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         const editorOpts = {
             value: value,
             language: mode,
             options: {
-                readOnly: isLocked||!couldEdit,
+                readOnly: isLocked || !couldEdit
             },
             cursorPosition: cursorPosition,
             theme: editor.options.theme,
@@ -212,7 +210,7 @@ class CommonEditorContainer extends Component {
         const consoleOpts = {
             data: data,
             onConsoleClose: this.closeConsole,
-            onRemoveTab: this.removeConsoleTab,
+            onRemoveTab: this.removeConsoleTab
         }
 
         return (
@@ -232,7 +230,7 @@ export default connect(state => {
     return {
         editor: state.editor,
         project: state.project,
-        user: state.user,
+        user: state.user
     }
 }, dispatch => {
     const taskAc = workbenchActions(dispatch);
@@ -244,4 +242,4 @@ export default connect(state => {
         }
     })
     return actions;
-})(CommonEditorContainer) 
+})(CommonEditorContainer)

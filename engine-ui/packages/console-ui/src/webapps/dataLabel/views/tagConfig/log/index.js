@@ -10,7 +10,6 @@ const Option = Select.Option;
 const RangePicker = DatePicker.RangePicker;
 
 export default class TagLog extends Component {
-
     state = {
         loading: false,
         queryParams: {
@@ -18,10 +17,10 @@ export default class TagLog extends Component {
             currentPage: 1,
             pageSize: 20
         },
-        logList: {},
+        logList: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getTagLogData(this.state.queryParams);
     }
 
@@ -31,9 +30,9 @@ export default class TagLog extends Component {
 
         TCApi.queryTagLogInfo(params).then((res) => {
             if (res.code === 1) {
-                this.setState({ 
+                this.setState({
                     loading: false,
-                    logList: res.data 
+                    logList: res.data
                 });
             }
         });
@@ -58,7 +57,7 @@ export default class TagLog extends Component {
             width: '15%',
             render: (text) => {
                 return TAG_STATUS[text];
-            },
+            }
         }, {
             title: '日志内容',
             dataIndex: 'log',
@@ -99,7 +98,7 @@ export default class TagLog extends Component {
             ...this.state.queryParams,
             currentPage: 1,
             startTime: date[0] ? date[0].startOf('day').valueOf() : undefined,
-            endTime: date[1] ? date[1].startOf('day').valueOf() : undefined,
+            endTime: date[1] ? date[1].startOf('day').valueOf() : undefined
         };
 
         this.getTagLogData(queryParams);
@@ -109,20 +108,20 @@ export default class TagLog extends Component {
     disabledDate = (current) => {
         return current && current.valueOf() > Date.now();
     }
-    
+
     // 状态筛选
     onStatueChange = (value) => {
         let queryParams = {
-            ...this.state.queryParams, 
+            ...this.state.queryParams,
             currentPage: 1,
-            tagStatus: value ? value : undefined
+            tagStatus: value || undefined
         };
 
         this.getTagLogData(queryParams);
         this.setState({ queryParams });
     }
 
-    render() {
+    render () {
         const { queryParams, loading, logList } = this.state;
 
         const cardTitle = (
@@ -130,18 +129,18 @@ export default class TagLog extends Component {
                 <div className="flex" style={{ alignItems: 'center' }}>
                     更新时间：
                     <RangePicker
-                       format="YYYY-MM-DD"
-                       style={{ width: 250 }}
-                       placeholder={['更新开始时间', '更新结束时间']}
-                       disabledDate={this.disabledDate}
-                       onChange={this.onUpdateTimeChange}
+                        format="YYYY-MM-DD"
+                        style={{ width: 250 }}
+                        placeholder={['更新开始时间', '更新结束时间']}
+                        disabledDate={this.disabledDate}
+                        onChange={this.onUpdateTimeChange}
                     />
                 </div>
 
                 <div className="m-l-8">
                     状态：
                     <Select
-                        allowClear 
+                        allowClear
                         style={{ width: 150 }}
                         placeholder="选择状态"
                         onChange={this.onStatueChange}>
@@ -165,16 +164,16 @@ export default class TagLog extends Component {
                 </h1>
 
                 <div className="box-2 m-card shadow">
-                    <Card 
+                    <Card
                         title={cardTitle}
                         extra={false}
-                        noHovering 
+                        noHovering
                         bordered={false}
                     >
-                        <Table 
+                        <Table
                             rowKey="id"
                             className="m-table fixed-table"
-                            columns={this.initColumns()} 
+                            columns={this.initColumns()}
                             loading={loading}
                             pagination={pagination}
                             dataSource={logList.data}

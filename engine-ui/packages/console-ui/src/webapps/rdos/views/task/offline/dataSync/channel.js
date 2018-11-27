@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { 
-    Form, InputNumber, Input, 
+import {
+    Form, InputNumber, Input,
     Select, Button, AutoComplete,
-    Checkbox,
+    Checkbox
 } from 'antd';
 
 import {
@@ -19,42 +19,41 @@ import LifeCycle from '../../../dataManage/lifeCycle';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-class ChannelForm extends React.Component{
-
+class ChannelForm extends React.Component {
     state = {
-        isRecord: false,
+        isRecord: false
     }
 
-    constructor(props){
+    constructor (props) {
         super(props);
     }
 
     onLifeDayChange = val => {
         this.props.changeChannelSetting({
-            lifeDay: val,
+            lifeDay: val
         })
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { setting, changeChannelSetting, navtoStep, form } = this.props;
 
         const formItemLayout = {
             labelCol: {
-                sm: { span: 6 },
+                sm: { span: 6 }
             },
             wrapperCol: {
-                sm: { span: 14 },
+                sm: { span: 14 }
             }
         };
 
         const speedOption = [];
         const channelOption = [];
 
-        for(let i = 1; i <= 20; i++) {
+        for (let i = 1; i <= 20; i++) {
             speedOption.push(<Option value={`${i}`} key={i}>{ i }MB/s</Option>)
         }
-        for(let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 5; i++) {
             channelOption.push(<Option value={`${i}`} key={i}>{i}</Option>)
         }
 
@@ -98,7 +97,7 @@ class ChannelForm extends React.Component{
                     )}
                     <HelpDoc doc="jobConcurrence" />
                 </FormItem>
-                <FormItem 
+                <FormItem
                     {...formItemLayout}
                     label="错误记录管理"
                     className="txt-left"
@@ -113,7 +112,7 @@ class ChannelForm extends React.Component{
                 </FormItem>
                 {
                     setting.isSaveDirty ? <div>
-                        <FormItem 
+                        <FormItem
                             {...formItemLayout}
                             label="脏数据写入hive表"
                         >
@@ -125,7 +124,7 @@ class ChannelForm extends React.Component{
                             )}
                             <HelpDoc doc="recordDirtyData" />
                         </FormItem>
-                        <FormItem 
+                        <FormItem
                             {...formItemLayout}
                             label="脏数据存储生命周期"
                             className="txt-left"
@@ -148,27 +147,27 @@ class ChannelForm extends React.Component{
                     {...formItemLayout}
                     label="错误记录数超过"
                 >
-                {getFieldDecorator('record', {
-                    rules: [],
-                    initialValue: setting.record
-                })(
-                    <InputNumber
-                        style={{ float: 'left' }}
-                    />
-                )}
-                <span style={{float: 'left'}}> 
-                    条, 任务自动结束 
-                    <HelpDoc 
-                        doc="errorCount" 
-                    />
-                </span>
+                    {getFieldDecorator('record', {
+                        rules: [],
+                        initialValue: setting.record
+                    })(
+                        <InputNumber
+                            style={{ float: 'left' }}
+                        />
+                    )}
+                    <span style={{ float: 'left' }}>
+                    条, 任务自动结束
+                        <HelpDoc
+                            doc="errorCount"
+                        />
+                    </span>
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
                     label="错误记录比例配置"
                 >
-                    <span style={{float: 'left'}}> 
-                        任务执行结束后，统计错误记录占比，大于 
+                    <span style={{ float: 'left' }}>
+                        任务执行结束后，统计错误记录占比，大于
                     </span>
                     {getFieldDecorator('percentage', {
                         rules: [],
@@ -178,11 +177,11 @@ class ChannelForm extends React.Component{
                             style={{ float: 'left' }}
                         />
                     )}
-                    <span style={{float: 'left'}}> 
-                        %时，任务置为失败 
+                    <span style={{ float: 'left' }}>
+                        %时，任务置为失败
                     </span>
-                    <HelpDoc 
-                        doc="errorPercentConfig" 
+                    <HelpDoc
+                        doc="errorPercentConfig"
                     />
                 </FormItem>
             </Form>
@@ -193,14 +192,14 @@ class ChannelForm extends React.Component{
         </div>
     }
 
-    prev(cb) {
+    prev (cb) {
         cb.call(null, 2);
     }
 
-    next(cb) {
+    next (cb) {
         const { form } = this.props;
         form.validateFields((err, values) => {
-            if(!err) {
+            if (!err) {
                 cb.call(null, 4);
             }
         });
@@ -208,20 +207,20 @@ class ChannelForm extends React.Component{
 }
 
 const ChannelFormWrap = Form.create({
-    onValuesChange: function(props, values) {
+    onValuesChange: function (props, values) {
         const { changeChannelSetting, setting } = props;
         if (setting.isSaveDirty && !setting.lifeDay) {
             values.lifeDay = 90;
         }
-        if(!setting.isSaveDirty){
+        if (!setting.isSaveDirty) {
             values.tableName = null;
         }
         changeChannelSetting(values);
     }
 })(ChannelForm);
 
-class Channel extends React.Component{
-    render() {
+class Channel extends React.Component {
+    render () {
         return <div>
             <ChannelFormWrap {...this.props} />
         </div>
@@ -237,7 +236,7 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
     return {
-        changeChannelSetting(params) {
+        changeChannelSetting (params) {
             dispatch({
                 type: settingAction.CHANGE_CHANNEL_FIELDS,
                 payload: params

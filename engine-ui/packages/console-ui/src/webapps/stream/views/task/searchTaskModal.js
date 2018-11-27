@@ -18,8 +18,7 @@ const Option = Select.Option;
 
 @pureRender
 class SearchTaskModal extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             visible: false,
@@ -27,27 +26,25 @@ class SearchTaskModal extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this._keyStack = {};
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this._keyStack = {};
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
     }
 
     bindEvent = (target) => {
-
         const keyCode = target.keyCode;
         const keyMap = this._keyStack;
 
-        const keyP = 80, ctrlKey = 17;
+        const keyP = 80; const ctrlKey = 17;
 
         if (keyCode === keyP || keyCode === ctrlKey) {
-
             keyMap[keyCode] = target.type == 'keydown';
 
             if (target.type != 'keydown') {
@@ -56,7 +53,6 @@ class SearchTaskModal extends React.Component {
             }
 
             if (inRealtime()) {
-
                 if (keyMap[ctrlKey] && keyMap[keyP]) {
                     target.preventDefault();
                     this.props.showSeach(true)
@@ -79,14 +75,14 @@ class SearchTaskModal extends React.Component {
         const succCall = (res) => {
             if (res.code === 1) {
                 this.setState({
-                    data: res.data,
+                    data: res.data
                 });
             }
         }
 
-       if (inRealtime()) {
+        if (inRealtime()) {
             ajax.searchRealtimeTask({
-                taskName: value,
+                taskName: value
             }).then(succCall)
         }
     }
@@ -98,7 +94,6 @@ class SearchTaskModal extends React.Component {
         const taskId = option.props.data.id
         const { openRealtimeTaskTab } = this.props
         openRealtimeTaskTab({ id: taskId })
-
     }
 
     onfocus = () => {
@@ -110,7 +105,7 @@ class SearchTaskModal extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { data } = this.state;
         const { visibleSearchTask, editor } = this.props;
         const options = data && data.map(item =>

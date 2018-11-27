@@ -11,7 +11,7 @@ import { CATALOGUE_TYPE } from '../../consts';
  * 移除数据地图
  * @param {Object} params DataMap参数
  */
-export function onRemoveDataMap(params) {
+export function onRemoveDataMap (params) {
     return async dispatch => {
         const res = await API.deleteDataMap(params);
         if (res.code === 1) {
@@ -19,7 +19,7 @@ export function onRemoveDataMap(params) {
             dispatch(closeTab(params.id));
             dispatch(loadCatalogue({
                 id: params.tableId,
-                databaseId: params.databaseId,
+                databaseId: params.databaseId
             }, CATALOGUE_TYPE.TABLE));
         }
     }
@@ -28,7 +28,7 @@ export function onRemoveDataMap(params) {
 /**
  * 获取DataMap详情
  */
-export function onCreateDataMap(params) {
+export function onCreateDataMap (params) {
     console.log('onCreateDataMap:', params);
     return (dispatch, getStore) => {
         const { workbench } = getStore();
@@ -49,7 +49,7 @@ export function onCreateDataMap(params) {
             actionType: workbenchAction.CREATE_DATA_MAP,
             tableId: params.id,
             databaseId: params.databaseId,
-            tableName: params.tableName,
+            tableName: params.tableName
         }
 
         dispatch(openTab(defaultCreateDataMapData));
@@ -59,12 +59,10 @@ export function onCreateDataMap(params) {
 /**
  * 获取DataMap详情
  */
-export function onGetDataMap(params) {
-
+export function onGetDataMap (params) {
     return async dispatch => {
-
         const res = await API.getDataMapDetail(params);
-    
+
         if (res.code === 1) {
             const dataMapData = res.data;
             // 添加Action标记
@@ -74,7 +72,7 @@ export function onGetDataMap(params) {
         } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }

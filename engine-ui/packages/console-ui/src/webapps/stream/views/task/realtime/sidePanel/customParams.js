@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 import {
     Row, Col, Input,
@@ -8,8 +8,7 @@ import {
 const FormItem = Form.Item;
 
 class CustomParams extends React.Component {
-
-    renderCustomParams() {
+    renderCustomParams () {
         const { customParams, formItemLayout, getFieldDecorator, onChange } = this.props;
         return customParams.map((customParam) => {
             return (
@@ -19,12 +18,12 @@ class CustomParams extends React.Component {
                             {getFieldDecorator(customParam.id + '-key', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入参数名"
+                                    message: '请输入参数名'
                                 }]
                             })(
-                                <Input onChange={(e)=>{
-                                    onChange("key",customParam.id,e.target.value);
-                                }} style={{ width: "calc(100% - 12px)" }} />
+                                <Input onChange={(e) => {
+                                    onChange('key', customParam.id, e.target.value);
+                                }} style={{ width: 'calc(100% - 12px)' }} />
                             )}
                             :
                         </FormItem>
@@ -34,27 +33,27 @@ class CustomParams extends React.Component {
                             {getFieldDecorator(customParam.id + '-value', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入参数值"
+                                    message: '请输入参数值'
                                 }]
                             })(
-                                <Input onChange={(e)=>{
-                                    onChange("value",customParam.id,e.target.value);
-                                }} style={{ width: "calc(100% - 30px)" }} />
+                                <Input onChange={(e) => {
+                                    onChange('value', customParam.id, e.target.value);
+                                }} style={{ width: 'calc(100% - 30px)' }} />
                             )}
-                            <a style={{float:"right"}} onClick={this.deleteCustomParam.bind(this,customParam.id)}>删除</a>
+                            <a style={{ float: 'right' }} onClick={this.deleteCustomParam.bind(this, customParam.id)}>删除</a>
                         </FormItem>
                     </Col>
                 </Row>
             )
         })
     }
-    deleteCustomParam(id){
-        this.props.onChange("deleteCustomParam",id);
+    deleteCustomParam (id) {
+        this.props.onChange('deleteCustomParam', id);
     }
-    addCustomParams() {
-        this.props.onChange("newCustomParam");
+    addCustomParams () {
+        this.props.onChange('newCustomParam');
     }
-    render() {
+    render () {
         const { formItemLayout } = this.props;
 
         return (
@@ -72,5 +71,4 @@ class CustomParams extends React.Component {
 
 export default CustomParams;
 
-export * from "./customParamsUtil";
-
+export * from './customParamsUtil';

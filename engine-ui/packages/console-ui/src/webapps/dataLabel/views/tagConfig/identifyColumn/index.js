@@ -11,7 +11,6 @@ const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
 export default class IdentifyColumn extends Component {
-
     state = {
         visible: false,
         loading: false,
@@ -20,10 +19,10 @@ export default class IdentifyColumn extends Component {
             pageSize: 20
         },
         columnData: {},
-        currentData: {},
+        currentData: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getColumnData(this.state.queryParams);
     }
 
@@ -87,13 +86,13 @@ export default class IdentifyColumn extends Component {
         const { queryParams, currentData } = this.state;
 
         form.validateFields((err, values) => {
-            console.log(err,values)
+            console.log(err, values)
             let api, params, msg;
 
-            if(!err) {
+            if (!err) {
                 if (currentData.id) {
                     api = TCApi.updateIdentifyColumn;
-                    params = {...values, id: currentData.id};
+                    params = { ...values, id: currentData.id };
                     msg = '更新成功';
                 } else {
                     api = TCApi.addIdentifyColumn;
@@ -151,15 +150,15 @@ export default class IdentifyColumn extends Component {
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         let queryParams = {
-            ...this.state.queryParams, 
-            currentPage: page.current,
+            ...this.state.queryParams,
+            currentPage: page.current
         };
 
         this.getColumnData(queryParams);
         this.setState({ queryParams });
     }
-    
-    render() {
+
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, queryParams, loading, columnData, currentData } = this.state;
 
@@ -170,9 +169,9 @@ export default class IdentifyColumn extends Component {
         )
 
         const cardExtra = (
-            <Button 
-                type="primary" 
-                style={{ margin: 10 }} 
+            <Button
+                type="primary"
+                style={{ margin: 10 }}
                 onClick={this.addColumn}>
                 新建识别列
             </Button>
@@ -186,16 +185,16 @@ export default class IdentifyColumn extends Component {
 
         return (
             <div className="box-1 m-card shadow">
-                <Card 
+                <Card
                     title={cardTitle}
                     extra={cardExtra}
-                    noHovering 
+                    noHovering
                     bordered={false}
                 >
-                    <Table 
+                    <Table
                         rowKey="id"
                         className="m-table"
-                        columns={this.initColumns()} 
+                        columns={this.initColumns()}
                         loading={loading}
                         pagination={pagination}
                         dataSource={columnData.data}
@@ -203,7 +202,7 @@ export default class IdentifyColumn extends Component {
                     />
 
                     <Modal
-                        title={currentData.id ? '编辑识别列': '新建识别列'}
+                        title={currentData.id ? '编辑识别列' : '新建识别列'}
                         width={'50%'}
                         visible={visible}
                         maskClosable={false}
@@ -216,16 +215,16 @@ export default class IdentifyColumn extends Component {
                             <FormItem {...formItemLayout} label="类型名称">
                                 {
                                     getFieldDecorator('name', {
-                                        rules: [{ 
-                                            required: true, 
-                                            message: '类型名称不可为空' 
-                                        }, { 
+                                        rules: [{
+                                            required: true,
+                                            message: '类型名称不可为空'
+                                        }, {
                                             max: 20,
-                                            message: "最大字数不能超过20" 
-                                        }, { 
-                                            pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), 
-                                            message: '名称只能以字母，数字，下划线组成' 
-                                        }], 
+                                            message: '最大字数不能超过20'
+                                        }, {
+                                            pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/),
+                                            message: '名称只能以字母，数字，下划线组成'
+                                        }],
                                         initialValue: currentData.name
                                     })(
                                         <Input placeholder="请输入类型名称" />
@@ -237,13 +236,13 @@ export default class IdentifyColumn extends Component {
                                     getFieldDecorator('identityDesc', {
                                         rules: [{
                                             max: 200,
-                                            message: "描述字符不能超过200"
+                                            message: '描述字符不能超过200'
                                         }],
                                         initialValue: currentData.identityDesc
                                     })(
-                                        <TextArea 
-                                            placeholder="类型描述" 
-                                            autosize={{ minRows: 3, maxRows: 6 }} 
+                                        <TextArea
+                                            placeholder="类型描述"
+                                            autosize={{ minRows: 3, maxRows: 6 }}
                                         />
                                     )
                                 }

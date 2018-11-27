@@ -8,8 +8,8 @@ import ajax from '../../../api';
  * @param {any} resData
  * @returns tableData
  */
-function formatTableData(resData) {
-    let tableData = {...resData.table};
+function formatTableData (resData) {
+    let tableData = { ...resData.table };
     tableData.desc = tableData.tableDesc;
 
     tableData.columns = resData.column.map(o => {
@@ -33,20 +33,20 @@ function formatTableData(resData) {
 }
 
 export default {
-    searchTable(params) {
+    searchTable (params) {
         return dispatch => {
             tableMaApi.newSearchTable(params).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     dispatch(this.loadTableList(res.data))
                 }
             })
         }
     },
 
-    getTableDetail(params) {
+    getTableDetail (params) {
         return dispatch => {
             tableMaApi.getTable(params).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     let tableData = formatTableData(res.data);
                     dispatch(this.loadTableDetail(tableData));
                 }
@@ -54,95 +54,95 @@ export default {
         }
     },
 
-    loadTableDetail(payload) {
+    loadTableDetail (payload) {
         return {
             type: tableAction.LOAD_TABLE_DETAIL,
             payload
         }
     },
 
-    loadTableList(payload) {
+    loadTableList (payload) {
         return {
             type: tableAction.LOAD_TABLE_LIST,
             payload
         }
     },
 
-    modifyDesc(params) {
+    modifyDesc (params) {
         return {
             type: tableAction.MODIFY_DESC,
             payload: params
         }
     },
 
-    addRow(params) {
+    addRow (params) {
         return {
             type: tableAction.ADD_ROW,
             payload: params
         }
     },
 
-    delRow(params) {
+    delRow (params) {
         return {
             type: tableAction.DEL_ROW,
             payload: params
         }
     },
 
-    replaceRow(params) {
+    replaceRow (params) {
         return {
             type: tableAction.REPLACE_ROW,
             payload: params
         }
     },
 
-    moveRow(params) {
+    moveRow (params) {
         return {
             type: tableAction.MOVE_ROW,
             payload: params
         }
     },
-    saveTable(params) {
+    saveTable (params) {
         return dispatch => {
             tableMaApi.saveTable(params).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     message.success('保存成功')
                     dispatch(this.saveStatus(res.code))
                 }
             })
         }
     },
-    getUsers(params) {
+    getUsers (params) {
         return dispatch => {
             ajax.getProjectUsers(params).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     dispatch(this.getProjectUsersDataSuc(res.data))
                 }
             })
         }
     },
-    getProjectUsersDataSuc(params) {
+    getProjectUsersDataSuc (params) {
         return {
             type: logAction.GET_USERS_SUC,
             payload: params
         }
     },
-    saveStatus(code){
+    saveStatus (code) {
         return {
             type: tableAction.SAVE_TABLE,
             payload: code
         }
     },
-    getCatalogues(params) {
+    getCatalogues (params) {
         return dispatch => {
             tableMaApi.getDataCatalogues(params).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     dispatch(this.getDataCatalogues(res.data))
                 }
             })
         }
     },
-    getDataCatalogues(data){
+    getDataCatalogues (data) {
         return {
             type: cataloguesAction.DATA_CATALOGUES,
             payload: data

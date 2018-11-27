@@ -10,12 +10,11 @@ import {
 const Panel = Collapse.Panel;
 
 export default class ScriptDetail extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
+    render () {
         const scriptInfo = this.props.tabData
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2']}>

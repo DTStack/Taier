@@ -17,15 +17,15 @@ import { formItemLayout, MENU_TYPE } from '../../../comm/const'
 const FormItem = Form.Item;
 
 class FolderForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    handleSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'nodePid': value});
+    handleSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'nodePid': value });
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { defaultData } = this.props;
         // 没有默认数据
@@ -42,14 +42,14 @@ class FolderForm extends React.Component {
                         rules: [
                             {
                                 max: 20,
-                                message: '项目名称不得超过20个字符！',
+                                message: '项目名称不得超过20个字符！'
                             },
                             {
                                 required: true,
-                                message: '文件夹名称不能为空',
+                                message: '文件夹名称不能为空'
                             }
                         ],
-                        initialValue: isCreateNormal ? undefined :  defaultData.name
+                        initialValue: isCreateNormal ? undefined : defaultData.name
                     })(
                         <Input type="text" placeholder="文件夹名称" />
                     )}
@@ -74,9 +74,9 @@ class FolderForm extends React.Component {
                         ispicker
                         treeData={ this.props.treeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
-                        defaultNode={ isCreateNormal ?
-                            this.props.treeData.name :
-                            this.getFolderName(defaultData.parentId)
+                        defaultNode={ isCreateNormal
+                            ? this.props.treeData.name
+                            : this.getFolderName(defaultData.parentId)
                         }
                     />
                 </FormItem>
@@ -89,16 +89,15 @@ class FolderForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id) {
+    getFolderName (id) {
         const { treeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -113,7 +112,7 @@ class FolderForm extends React.Component {
 const FolderFormWrapper = Form.create()(FolderForm);
 
 class FolderModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -122,7 +121,7 @@ class FolderModal extends React.Component {
         this.dtcount = 0;
     }
 
-    handleSubmit() {
+    handleSubmit () {
         const { cateType, defaultData } = this.props;
         const form = this.form;
 
@@ -146,16 +145,16 @@ class FolderModal extends React.Component {
                                 form.resetFields();
                             }
                         });
-                } 
+                }
             }
         })
     }
 
-    handleCancel() {
+    handleCancel () {
         this.closeModal();
     }
 
-    closeModal() {
+    closeModal () {
         const { toggleCreateFolder, emptyModalDefault } = this.props;
 
         this.dtcount++;
@@ -164,30 +163,30 @@ class FolderModal extends React.Component {
         toggleCreateFolder();
     }
 
-    getTreeData(cateType) {
-        switch(cateType) {
-            case MENU_TYPE.TASK:
-            case MENU_TYPE.TASK_DEV:
-                return this.props.taskTreeData;
-            case MENU_TYPE.RESOURCE:
-                return this.props.resourceTreeData;
-            case MENU_TYPE.COSTOMFUC:
-            case MENU_TYPE.FUNCTION:
-            case MENU_TYPE.SYSFUC:
-                return this.props.functionTreeData;
-            case MENU_TYPE.SCRIPT:
-                return this.props.scriptTreeData;
-            default:
-                return this.props.taskTreeData;
+    getTreeData (cateType) {
+        switch (cateType) {
+        case MENU_TYPE.TASK:
+        case MENU_TYPE.TASK_DEV:
+            return this.props.taskTreeData;
+        case MENU_TYPE.RESOURCE:
+            return this.props.resourceTreeData;
+        case MENU_TYPE.COSTOMFUC:
+        case MENU_TYPE.FUNCTION:
+        case MENU_TYPE.SYSFUC:
+            return this.props.functionTreeData;
+        case MENU_TYPE.SCRIPT:
+            return this.props.scriptTreeData;
+        default:
+            return this.props.taskTreeData;
         }
     }
 
-    render() {
+    render () {
         const { isModalShow, cateType, defaultData } = this.props;
 
-        if(!defaultData) this.isCreate = true;
+        if (!defaultData) this.isCreate = true;
         else {
-            if(!defaultData.name) this.isCreate = true;
+            if (!defaultData.name) this.isCreate = true;
             else this.isCreate = false;
         }
 
@@ -225,18 +224,18 @@ export default connect(state => {
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
         functionTreeData: offlineTask.functionTree,
-        scriptTreeData: offlineTask.scriptTree,
+        scriptTreeData: offlineTask.scriptTree
     }
 },
 dispatch => {
     const benchActions = workbenchActions(dispatch)
     return {
-        toggleCreateFolder: function() {
+        toggleCreateFolder: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_FOLDER
             });
         },
-        addOfflineCatalogue: function(params, cateType) {
+        addOfflineCatalogue: function (params, cateType) {
             return ajax.addOfflineCatalogue(params)
                 .then(res => {
                     // let {data} = res;
@@ -262,7 +261,7 @@ dispatch => {
                     //         action = taskTreeAction;
                     // }
 
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         // data.catalogueType = cateType;
                         // dispatch({
                         //     type: action.ADD_FOLDER_CHILD,
@@ -274,10 +273,10 @@ dispatch => {
                 });
         },
 
-        editOfflineCatalogue: function(params, defaultData, cateType) {
+        editOfflineCatalogue: function (params, defaultData, cateType) {
             return ajax.editOfflineCatalogue(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         let newData = defaultData;
                         // let action;
                         // switch(cateType) {
@@ -308,7 +307,7 @@ dispatch => {
                     }
                 })
         },
-        emptyModalDefault() {
+        emptyModalDefault () {
             dispatch({
                 type: modalAction.EMPTY_MODAL_DEFAULT
             });

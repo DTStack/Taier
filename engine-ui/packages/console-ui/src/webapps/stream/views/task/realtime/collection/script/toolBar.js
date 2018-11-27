@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Button, message, Modal, Form, Select,
+    Button, message, Modal, Form, Select
 } from 'antd'
 
 import utils from 'utils'
@@ -16,42 +16,39 @@ import { actions as collectionActions } from '../../../../../store/modules/realt
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-
 class ImportTemplateForm extends Component {
-
     state = {
         sourceType: undefined,
         targetType: undefined
     }
 
-    sourceTypeChange(value) {
+    sourceTypeChange (value) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({
             sourceType: value
         },
-            () => {
-                setFieldsValue({
-                    sourceId: undefined
-                })
+        () => {
+            setFieldsValue({
+                sourceId: undefined
             })
+        })
     }
 
-    targetTypeChange(value) {
+    targetTypeChange (value) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({
             targetType: value
         },
-            () => {
-                setFieldsValue({
-                    targetSourceId: undefined
-                })
+        () => {
+            setFieldsValue({
+                targetSourceId: undefined
             })
-
+        })
     }
 
-    getSourceList() {
+    getSourceList () {
         const { sourceType } = this.state;
         const { dataSourceList = [] } = this.props;
 
@@ -66,7 +63,7 @@ class ImportTemplateForm extends Component {
             })
     }
 
-    getTargetList() {
+    getTargetList () {
         const { targetType } = this.state;
         const { dataSourceList = [] } = this.props;
 
@@ -79,10 +76,9 @@ class ImportTemplateForm extends Component {
                     {src.dataName}( <DatabaseType value={src.type} /> )
                 </Option>
             })
-
     }
 
-    getTemplateFromNet() {
+    getTemplateFromNet () {
         const { validateFields } = this.props.form;
         const { id } = this.props;
 
@@ -90,23 +86,23 @@ class ImportTemplateForm extends Component {
             (err, values) => {
                 if (!err) {
                     let params = {
-                        "id": id,
-                        "sourceMap": {
-                            "sourceId": values.sourceId,
-                            "type": values.sourceType,
+                        'id': id,
+                        'sourceMap': {
+                            'sourceId': values.sourceId,
+                            'type': values.sourceType
                         },
-                        "targetMap": {
-                            "sourceId": values.targetSourceId,
-                            "type": values.targetType
+                        'targetMap': {
+                            'sourceId': values.targetSourceId,
+                            'type': values.targetType
                         },
-                        "taskId": id
+                        'taskId': id
                     };
 
                     API.getRealtimeCollectionTemplate(params)
                         .then(
                             (res) => {
                                 if (res.code == 1) {
-                                    message.success("导入成功");
+                                    message.success('导入成功');
                                     this.props.onSuccess(res.data);
                                 }
                             }
@@ -116,7 +112,7 @@ class ImportTemplateForm extends Component {
         )
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { dataSourceList, execConfirmVisible } = this.props;
         const { sourceType } = this.state;
@@ -169,7 +165,7 @@ class ImportTemplateForm extends Component {
                         >
                             {getFieldDecorator('sourceType', {
                                 rules: [{
-                                    required: true, message: '来源类型不可为空！',
+                                    required: true, message: '来源类型不可为空！'
                                 }]
                             })(
                                 <Select
@@ -181,14 +177,14 @@ class ImportTemplateForm extends Component {
                             )}
                         </FormItem>
                         {!isBeats && <FormItem
-                            style={{ marginBottom: "35px" }}
+                            style={{ marginBottom: '35px' }}
                             {...formItemLayout}
                             label="数据源"
                             hasFeedback
                         >
                             {getFieldDecorator('sourceId', {
                                 rules: [{
-                                    required: true, message: '数据源不可为空！',
+                                    required: true, message: '数据源不可为空！'
                                 }]
                             })(
                                 <Select
@@ -205,7 +201,7 @@ class ImportTemplateForm extends Component {
                         >
                             {getFieldDecorator('targetType', {
                                 rules: [{
-                                    required: true, message: '目标类型不可为空！',
+                                    required: true, message: '目标类型不可为空！'
                                 }]
                             })(
                                 <Select
@@ -223,7 +219,7 @@ class ImportTemplateForm extends Component {
                         >
                             {getFieldDecorator('targetSourceId', {
                                 rules: [{
-                                    required: true, message: '数据源不可为空！',
+                                    required: true, message: '数据源不可为空！'
                                 }]
                             })(
                                 <Select
@@ -241,32 +237,30 @@ class ImportTemplateForm extends Component {
 }
 const WrapTemplateForm = Form.create()(ImportTemplateForm);
 
-
 @connect(state => {
     const { currentPage } = state.realtimeTask;
 
     return {
-        dataSourceList: currentPage.dataSourceList,
+        dataSourceList: currentPage.dataSourceList
     };
 }, dispatch => {
     return {
         getDataSource: () => {
             dispatch(collectionActions.getDataSource());
-        },
+        }
     }
 })
 class CollectionToolbar extends Component {
-
     state = {
         execConfirmVisible: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { getDataSource } = this.props;
         getDataSource();
     }
 
-    importTemplate() {
+    importTemplate () {
         this.setState({
             execConfirmVisible: true
         })
@@ -275,7 +269,7 @@ class CollectionToolbar extends Component {
     onSuccess = (template) => {
         const { dispatch } = this.props;
         const data = {
-            merged: true,
+            merged: true
         }
 
         data.sqlText = utils.jsonFormat(template);
@@ -287,7 +281,7 @@ class CollectionToolbar extends Component {
         this.props.editorChange(data)
     }
 
-    render() {
+    render () {
         const { execConfirmVisible } = this.state
 
         return (

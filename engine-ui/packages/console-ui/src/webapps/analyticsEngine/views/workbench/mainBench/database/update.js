@@ -8,15 +8,13 @@ import API from '../../../../api';
 import Response from './response';
 
 class UpdateDatabaseModal extends Component {
-
     state = {
         databaseData: null,
         submitted: false,
-        requesting: false,
+        requesting: false
     }
 
     onSubmit = () => {
-    
         if (this.state.submitted) {
             const copyInstance = new CopyUtils();
             const { databaseData } = this.state;
@@ -34,18 +32,18 @@ class UpdateDatabaseModal extends Component {
 
         const form = this.dbForm.props.form;
         const { defaultData } = this.props;
-        form.validateFields( async (err, values) => {
+        form.validateFields(async (err, values) => {
             if (!err) {
                 const result = await API.resetDBPassword({
                     databaseId: defaultData.id,
                     oldPwd: values.oldPwd,
-                    newPwd: values.dbPwd,
+                    newPwd: values.dbPwd
                 });
                 if (result.code === 1) {
                     defaultData.dbPwd = values.dbPwd;
                     this.setState({
                         databaseData: defaultData,
-                        submitted: true,
+                        submitted: true
                     })
                 }
             }
@@ -58,7 +56,7 @@ class UpdateDatabaseModal extends Component {
         setTimeout(() => {
             this.setState({
                 databaseData: null,
-                submitted: false,
+                submitted: false
             });
         }, 0)
     }
@@ -76,16 +74,15 @@ class UpdateDatabaseModal extends Component {
                 onCancel={this.resetModal}
                 bodyStyle={{ padding: 0 }}
                 maskClosable={false}
-            >   
+            >
                 {
-                    databaseData ? 
-                    <Response data={databaseData} message="重置成功" /> 
-                    : 
-                    <DBForm
-                        databaseData={defaultData}
-                        isCreate={false}
-                        wrappedComponentRef={(e) => { this.dbForm = e }}
-                    />
+                    databaseData
+                        ? <Response data={databaseData} message="重置成功" />
+                        : <DBForm
+                            databaseData={defaultData}
+                            isCreate={false}
+                            wrappedComponentRef={(e) => { this.dbForm = e }}
+                        />
                 }
                 {
                     !databaseData && <Row className="update-warning" style={{ padding: '0 0 26px 60px' }}>

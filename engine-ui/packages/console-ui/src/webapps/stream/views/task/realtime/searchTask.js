@@ -5,13 +5,12 @@ import utils from 'utils'
 const Option = Select.Option
 
 class SearchTask extends Component {
-
-    render() {
+    render () {
         const {
             title, data,
-            handCancle, visible,
+            handCancle, visible
         } = this.props
-        
+
         return (
             <Select
                 showSearch

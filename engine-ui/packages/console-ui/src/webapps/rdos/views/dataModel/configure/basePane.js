@@ -2,32 +2,30 @@ import React, { Component } from 'react';
 import { message } from 'antd';
 import Api from '../../../api/dataModel';
 
-
 class BasePane extends Component {
-
     state ={
         table: { data: [] },
 
         loading: false,
-        
+
         modalData: '',
         modalVisible: false,
 
         params: {
             currentPage: 1,
             pageSize: 10,
-            type: 1, // 模型层级
+            type: 1 // 模型层级
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadData();
     }
 
     loadData = () => {
         const { params } = this.state;
         this.setState({
-            loading: true,
+            loading: true
         });
         Api.getModels(params).then(res => {
             if (res.code === 1) {
@@ -36,7 +34,7 @@ class BasePane extends Component {
                 })
             }
             this.setState({
-                loading: false,
+                loading: false
             })
         });
     }
@@ -45,14 +43,11 @@ class BasePane extends Component {
         const succCall = (res) => {
             if (res.code === 1) {
                 this.setState({
-                    modalVisible: false,
+                    modalVisible: false
                 }, this.loadData)
             }
         }
-        if (formData.isEdit) 
-            Api.updateModel(formData).then(succCall);
-        else 
-            Api.addModel(formData).then(succCall);
+        if (formData.isEdit) { Api.updateModel(formData).then(succCall); } else { Api.addModel(formData).then(succCall); }
     }
 
     delete = (data) => {
@@ -69,7 +64,7 @@ class BasePane extends Component {
     initEdit = (data) => {
         this.setState({
             modalData: data,
-            modalVisible: true,
+            modalVisible: true
         })
     }
 
@@ -78,8 +73,8 @@ class BasePane extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        const params = Object.assign(this.state.params, { 
-            currentPage: pagination.current 
+        const params = Object.assign(this.state.params, {
+            currentPage: pagination.current
         })
         this.setState(params, this.loadData)
     }

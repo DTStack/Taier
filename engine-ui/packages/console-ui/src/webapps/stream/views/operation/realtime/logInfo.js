@@ -13,26 +13,26 @@ const editorOptions = {
     readOnly: true,
     autofocus: false,
     indentWithTabs: true,
-    smartIndent: true,
+    smartIndent: true
 }
 
-function wrappTitle(title) {
+function wrappTitle (title) {
     return `====================${title}====================`
 }
 
-export default function LogInfo(props) {
+export default function LogInfo (props) {
     const log = props.log || {};
     let engineLog = {};
     try {
         engineLog = log.engineLog ? JSON.parse(log.engineLog) : {}
     } catch (e) {
         engineLog = {
-            "all-exceptions": [{ exception: log.engineLog }]
+            'all-exceptions': [{ exception: log.engineLog }]
         }
-        console.log("engineLog is not a json\n", e)
+        console.log('engineLog is not a json\n', e)
     }
     const logStyle = Object.assign({}, editorStyle, {
-        height: props.height,
+        height: props.height
     });
 
     const errors = engineLog['all-exceptions'] || ''
@@ -62,4 +62,3 @@ export default function LogInfo(props) {
         </div>
     )
 }
-

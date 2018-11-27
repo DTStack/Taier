@@ -10,7 +10,7 @@ const Apis = Object.assign(
     datamap,
     table,
     database,
-    table,
+    table
 )
 
 export default Apis;

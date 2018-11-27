@@ -1,11 +1,10 @@
-import React from "react"
-import { connect } from "react-redux";
-import utils from "utils";
+import React from 'react'
+import { connect } from 'react-redux';
+import utils from 'utils';
 
-import { Button, Table, Popconfirm, message } from "antd";
+import { Button, Table, Popconfirm, message } from 'antd';
 
-
-import AlarmForm from "./alarmForm";
+import AlarmForm from './alarmForm';
 import {
     AlarmStatus, AlarmTriggerType, AlarmTypes
 } from '../../../../../../components/status'
@@ -13,27 +12,25 @@ import {
 import Api from '../../../../../../api'
 import { AlarmStatusFilter } from '../../../../../../comm/const'
 
-
 class AlarmConfigList extends React.Component {
-
     state = {
         pagination: {
             total: 0,
             pageSize: 5,
-            current:1
+            current: 1
         },
-        alarmStatus:undefined,
+        alarmStatus: undefined,
         visible: false,
         alarmInfo: undefined,
-        loading:false,
-        configs:[]
+        loading: false,
+        configs: []
     }
 
-    componentDidMount() {
-        console.log("AlarmMsgconfig")
+    componentDidMount () {
+        console.log('AlarmMsgconfig')
         this.loadAlarmRules();
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const data = nextProps.data
         const oldData = this.props.data
         if (oldData && data && oldData.id !== data.id) {
@@ -42,9 +39,9 @@ class AlarmConfigList extends React.Component {
     }
     handleTableChange = (pagination, filters) => {
         this.setState({
-            pagination:{
+            pagination: {
                 ...this.state.pagination,
-                current:pagination.current,
+                current: pagination.current
             },
             alarmStatus: filters.alarmStatus ? filters.alarmStatus[0] : ''
         }, this.loadAlarmRules)
@@ -52,68 +49,68 @@ class AlarmConfigList extends React.Component {
     /**
      * 删除成功重新加载数据，重新计算current值是否合理
      */
-    safeDeleteReLoad(){
-        const {pagination} = this.state;
-        let {current,total,pageSize} = pagination;
-        total=total-1;
+    safeDeleteReLoad () {
+        const { pagination } = this.state;
+        let { current, total, pageSize } = pagination;
+        total = total - 1;
         /**
          * 判断current是否超出total边界
          */
-        if((current-1)*pageSize>=total&&current>1){
-            current=current-1;
+        if ((current - 1) * pageSize >= total && current > 1) {
+            current = current - 1;
         }
         this.setState({
-            pagination:{
+            pagination: {
                 ...pagination,
                 total,
                 current
             }
-        },this.loadAlarmRules)
+        }, this.loadAlarmRules)
     }
-    loadAlarmRules(data){
-        const {pagination,alarmStatus} = this.state;
-        data=data||this.props.data||{};
+    loadAlarmRules (data) {
+        const { pagination, alarmStatus } = this.state;
+        data = data || this.props.data || {};
         const reqForm = {
             ...pagination,
-            pageIndex:pagination.current,
-            taskId:data.id,
-            alarmStatus:alarmStatus||undefined
+            pageIndex: pagination.current,
+            taskId: data.id,
+            alarmStatus: alarmStatus || undefined
         }
         this.setState({ loading: true })
         Api.getAlarmList(reqForm).then((res) => {
             this.setState({
                 loading: false
             })
-            if(res.code==1){
-                this.setState({ 
-                    configs: res.data.data || [], 
-                    pagination:{
+            if (res.code == 1) {
+                this.setState({
+                    configs: res.data.data || [],
+                    pagination: {
                         ...this.state.pagination,
-                        total:res.data.totalCount
+                        total: res.data.totalCount
                     }
                 })
             }
         })
     }
-    initConfigListColumns() {
+    initConfigListColumns () {
         return [{
             title: '告警名称',
             dataIndex: 'alarmName',
             key: 'alarmName',
-            width:"110px",
+            width: '110px'
         }, {
             title: '触发方式',
             dataIndex: 'myTrigger',
             key: 'myTrigger',
-            width:"100px",
+            width: '100px',
             render: (text) => {
                 return <AlarmTriggerType value={text} />
-            },
+            }
         }, {
             title: '告警方式',
             dataIndex: 'senderTypes',
             key: 'senderTypes',
-            width:"80px",
+            width: '80px',
             render: (data) => {
                 return <AlarmTypes value={data} />
             }
@@ -121,14 +118,14 @@ class AlarmConfigList extends React.Component {
             title: '接收人',
             dataIndex: 'receiveUsers',
             key: 'receiveUsers',
-            width:"150px",
+            width: '150px',
             render: (text, record) => {
                 const recivers = record.receiveUsers
                 if (recivers.length > 0) {
                     return recivers.map(item => <span>{item.userName};</span>)
                 }
                 return ''
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'alarmStatus',
@@ -137,20 +134,20 @@ class AlarmConfigList extends React.Component {
                 return <AlarmStatus value={text} />
             },
             filters: AlarmStatusFilter,
-            filterMultiple: false,
+            filterMultiple: false
         }, {
             title: '创建时间',
             dataIndex: 'createTime',
             key: 'createTime',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '创建人',
             dataIndex: 'createUser',
-            key: 'createUser',
+            key: 'createUser'
         }, {
             title: '操作',
             key: 'operation',
-            width:"150px",
+            width: '150px',
             render: (record) => {
                 let isOpen = ''
                 if (record.alarmStatus === 1) {
@@ -161,7 +158,7 @@ class AlarmConfigList extends React.Component {
                 return (
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
-                        <span  className="ant-divider" />
+                        <span className="ant-divider" />
                         <Popconfirm
                             title="确定删除这条告警吗?"
                             onConfirm={() => { this.deleteAlarm(record) }}
@@ -170,34 +167,34 @@ class AlarmConfigList extends React.Component {
                         >
                             <a>删除</a>
                         </Popconfirm>
-                        <span  className="ant-divider" />
+                        <span className="ant-divider" />
                         <a onClick={() => { this.updateAlarmStatus(record) }}>{isOpen}</a>
                     </div>
                 )
-            },
+            }
         }]
     }
-    initEdit(record){
+    initEdit (record) {
         this.setState({
-            visible:true,
-            alarmInfo:record
+            visible: true,
+            alarmInfo: record
         })
     }
     addAlarm = (alarm) => {
-        const {data={}} = this.props;
+        const { data = {} } = this.props;
         const ctx = this
-        alarm.taskId=data.id;
-        
+        alarm.taskId = data.id;
+
         return Api.addAlarm(alarm).then((res) => {
             if (res.code === 1) {
-                ctx.setState({ visible: false, alarmInfo:undefined })
+                ctx.setState({ visible: false, alarmInfo: undefined })
                 ctx.loadAlarmRules()
                 return true;
             }
         })
     }
 
-    deleteAlarm(alarm) {
+    deleteAlarm (alarm) {
         const ctx = this
         Api.deleteAlarm(alarm).then((res) => {
             if (res.code === 1) {
@@ -207,7 +204,7 @@ class AlarmConfigList extends React.Component {
         })
     }
 
-    updateAlarmStatus(alarm) {
+    updateAlarmStatus (alarm) {
         const ctx = this
         const params = { alarmId: alarm.alarmId }
         if (alarm.alarmStatus === 0) {
@@ -228,36 +225,36 @@ class AlarmConfigList extends React.Component {
     }
 
     updateAlarm = (alarm) => {
-        const {data={}} = this.props;
-        const {alarmInfo} = this.state;
+        const { data = {} } = this.props;
+        const { alarmInfo } = this.state;
         const ctx = this
-        alarm.taskId=data.id;
+        alarm.taskId = data.id;
 
         alarm.id = alarmInfo.alarmId
-       return Api.updateAlarm(alarm).then((res) => {
+        return Api.updateAlarm(alarm).then((res) => {
             if (res.code === 1) {
                 message.success('告警更新成功！')
-                ctx.setState({ visible: false, alarmInfo:undefined })
+                ctx.setState({ visible: false, alarmInfo: undefined })
                 ctx.loadAlarmRules()
                 return true;
             }
         })
     }
-    render() {
+    render () {
         const { pagination, visible, alarmInfo, loading, configs } = this.state;
         const { projectUsers, data = {} } = this.props;
         return (
             <section className="pane-alarm-configList">
                 <header>
                     告警配置
-                        <Button onClick={() => { this.setState({ visible: true }) }} type="primary" >添加告警</Button>
+                    <Button onClick={() => { this.setState({ visible: true }) }} type="primary" >添加告警</Button>
                 </header>
                 <Table
                     rowKey="alarmId"
                     className="m-table border-table"
                     loading={loading}
                     columns={this.initConfigListColumns()}
-                    dataSource={configs||[]}
+                    dataSource={configs || []}
                     pagination={pagination}
                     onChange={this.handleTableChange.bind(this)}
                 />
@@ -282,6 +279,6 @@ export default connect((state) => {
     return {
         projectUsers: state.projectUsers,
         project: state.project,
-        user: state.user,
+        user: state.user
     }
 })(AlarmConfigList);

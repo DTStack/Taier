@@ -12,7 +12,7 @@ import ScriptModal from './scriptModal';
 
 import CloneTaskModal from './cloneTaskModal';
 export default class Offline extends React.Component {
-    render() {
+    render () {
         return <div>
             <CloneTaskModal></CloneTaskModal>
             <TaskModal />

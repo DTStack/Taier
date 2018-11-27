@@ -14,13 +14,12 @@ import { Navigator, Logo } from 'main/components/nav';
     }
 })
 class Header extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {}
     }
 
-    render() {
+    render () {
         const { user, apps } = this.props;
         const baseUrl = '/console.html#/console'
 
@@ -28,30 +27,30 @@ class Header extends Component {
             id: 'queueManage',
             name: '队列管理',
             link: `${baseUrl}/queueManage`,
-            enable: true,
+            enable: true
         }, {
             id: 'resourceManage',
             name: '资源管理',
             link: `${baseUrl}/resourceManage`,
-            enable: true,
+            enable: true
         }, {
             id: 'clusterManage',
             name: '多集群管理',
             link: `${baseUrl}/clusterManage`,
-            enable: true,
+            enable: true
         }];
 
         const logo = <span>
-           <img
-                style={{ height: "20px", width: '20px', marginTop: "13px" }}
+            <img
+                style={{ height: '20px', width: '20px', marginTop: '13px' }}
                 alt="logo"
                 src="/public/console/img/logo.svg"
             />
             <span style={{
-                fontSize: "14px",
-                color: "#ffffff",
-                position: "absolute",
-                left: "80px",
+                fontSize: '14px',
+                color: '#ffffff',
+                position: 'absolute',
+                left: '80px',
                 top: 0
             }}>
                 {window.APP_CONF.prefix}.Console
@@ -66,4 +65,3 @@ class Header extends Component {
     }
 }
 export default Header
-

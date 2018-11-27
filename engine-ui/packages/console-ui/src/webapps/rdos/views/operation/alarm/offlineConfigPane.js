@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import {
     Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Input, Button, message, Popconfirm
 } from 'antd'
 
 import utils from 'utils'
@@ -11,8 +11,8 @@ import utils from 'utils'
 import Api from '../../../api'
 import { AlarmStatusFilter } from '../../../comm/const'
 
-import { 
-    AlarmStatus, AlarmTriggerType, AlarmTypes, TaskType 
+import {
+    AlarmStatus, AlarmTriggerType, AlarmTypes, TaskType
 } from '../../../components/status'
 
 import AlarmForm from './offLineAlarmForm'
@@ -21,7 +21,6 @@ const Option = Select.Option
 const FormItem = Form.Item
 
 class OfflineConfig extends Component {
-
     state = {
         configs: { data: [] },
         taskList: [],
@@ -32,15 +31,15 @@ class OfflineConfig extends Component {
         taskName: '',
         alarmPeo: '',
         alarmStatus: '',
-        current: 1,
+        current: 1
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadAlarmRules()
         this.loadTaskList()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -49,7 +48,7 @@ class OfflineConfig extends Component {
         }
     }
 
-    loadAlarmRules(params) {
+    loadAlarmRules (params) {
         const ctx = this
         const reqForm = params || { pageIndex: 1 }
         this.setState({ loading: true })
@@ -63,7 +62,7 @@ class OfflineConfig extends Component {
         const params = { pageIndex: current }
         if (taskName) { params.taskName = taskName }
         if (alarmPeo) { params.ownerId = alarmPeo }
-        if (alarmStatus !== '') {params.alarmStatus = alarmStatus}
+        if (alarmStatus !== '') { params.alarmStatus = alarmStatus }
         this.loadAlarmRules(params)
     }
 
@@ -84,7 +83,7 @@ class OfflineConfig extends Component {
         })
     }
 
-    deleteAlarm(alarm) {
+    deleteAlarm (alarm) {
         const ctx = this
         Api.deleteOfflineAlarm(alarm).then((res) => {
             if (res.code === 1) {
@@ -94,7 +93,7 @@ class OfflineConfig extends Component {
         })
     }
 
-    updateAlarmStatus(alarm) {
+    updateAlarmStatus (alarm) {
         const ctx = this
         const params = { alarmId: alarm.alarmId }
         if (alarm.alarmStatus === 0) {
@@ -130,24 +129,24 @@ class OfflineConfig extends Component {
         const ctx = this
         const params = {
             pageIndex: 1,
-            pageSize: 1000,
+            pageSize: 1000
         }
         Api.getOfflineTasksByProject(params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({
                     taskList: res.data || [],
-                    loading: false,
+                    loading: false
                 })
             }
         })
     }
 
     changeTaskName = (evt) => {
-        this.setState({ taskName: evt.target.value, current: 1  })
+        this.setState({ taskName: evt.target.value, current: 1 })
     }
 
     changeReceive = (target) => {
-        this.setState({ alarmPeo: target, current: 1  })
+        this.setState({ alarmPeo: target, current: 1 })
     }
 
     initEdit = (alarm) => {
@@ -158,12 +157,12 @@ class OfflineConfig extends Component {
         return [{
             title: '告警名称',
             dataIndex: 'alarmName',
-            key: 'alarmName',
+            key: 'alarmName'
         }, {
             width: 80,
             title: '任务名称',
             dataIndex: 'taskName',
-            key: 'taskName',
+            key: 'taskName'
         }, {
             width: 80,
             title: '任务类型',
@@ -171,7 +170,7 @@ class OfflineConfig extends Component {
             key: 'taskType',
             render: (text) => {
                 return <TaskType value={text} />
-            },
+            }
         }, {
             width: 80,
             title: '触发方式',
@@ -179,7 +178,7 @@ class OfflineConfig extends Component {
             key: 'myTrigger',
             render: (text) => {
                 return <AlarmTriggerType value={text} />
-            },
+            }
         }, {
             width: 80,
             title: '告警方式',
@@ -198,7 +197,7 @@ class OfflineConfig extends Component {
                     return recivers.map(item => <span>{item.userName};</span>)
                 }
                 return ''
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'alarmStatus',
@@ -207,16 +206,16 @@ class OfflineConfig extends Component {
                 return <AlarmStatus value={text} />
             },
             filters: AlarmStatusFilter,
-            filterMultiple: false,
+            filterMultiple: false
         }, {
             title: '创建时间',
             dataIndex: 'createTime',
             key: 'createTime',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '创建人',
             dataIndex: 'createUser',
-            key: 'createUser',
+            key: 'createUser'
         }, {
             title: '操作',
             key: 'operation',
@@ -232,10 +231,10 @@ class OfflineConfig extends Component {
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
                         <Popconfirm
-                          title="确定删除这条告警吗?"
-                          onConfirm={() => { this.deleteAlarm(record) }}
-                          okText="确定"
-                          cancelText="取消"
+                            title="确定删除这条告警吗?"
+                            onConfirm={() => { this.deleteAlarm(record) }}
+                            okText="确定"
+                            cancelText="取消"
                         >
                             <a>删除</a>
                         </Popconfirm>
@@ -243,33 +242,32 @@ class OfflineConfig extends Component {
                         <a onClick={() => { this.updateAlarmStatus(record) }}>{isOpen}</a>
                     </div>
                 )
-            },
+            }
         }]
     }
 
-    render() {
-
+    render () {
         const { visible, loading, configs,
-            alarmInfo, taskList, visibleEdit,
+            alarmInfo, taskList, visibleEdit
         } = this.state
 
         const { projectUsers } = this.props
-        const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (
-                <Option 
-                    key={item.id} 
-                    value={`${item.user.id}`} 
-                    name={item.user.userName}
-                >
-                    {item.user.userName}
-                </Option>
-            )
-        }) : []
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
+                return (
+                    <Option
+                        key={item.id}
+                        value={`${item.user.id}`}
+                        name={item.user.userName}
+                    >
+                        {item.user.userName}
+                    </Option>
+                )
+            }) : []
 
         const pagination = {
             total: configs.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         return (
             <div className="m-card">
@@ -278,8 +276,8 @@ class OfflineConfig extends Component {
                     bordered={false}
                     loading={false}
                     title={
-                        <Form 
-                            className="m-form-inline" 
+                        <Form
+                            className="m-form-inline"
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
@@ -288,7 +286,7 @@ class OfflineConfig extends Component {
                                     style={{ width: 126 }}
                                     placeholder="任务名称"
                                     size="default"
-                                    
+
                                     onChange={this.changeTaskName}
                                 />
                             </FormItem>
@@ -306,9 +304,9 @@ class OfflineConfig extends Component {
                                 </Select>
                             </FormItem>
                             <FormItem>
-                                <Button 
+                                <Button
                                     size="default"
-                                    type="primary" 
+                                    type="primary"
                                     onClick={this.search}
                                 >
                                     搜索
@@ -327,7 +325,7 @@ class OfflineConfig extends Component {
                         </Button>
                     }
                 >
-                     <Table
+                    <Table
                         rowKey="alarmId"
                         key="offlineConfig"
                         className="m-table"
@@ -336,27 +334,27 @@ class OfflineConfig extends Component {
                         columns={this.initColumns()}
                         onChange={this.handleTableChange}
                         dataSource={configs.data || []}
-                        />
+                    />
                 </Card>
                 <AlarmForm
-                  {...this.props}
-                  title="修改告警规则"
-                  alarmInfo={alarmInfo}
-                  taskList={taskList}
-                  wrapClassName="vertical-center-modal"
-                  visible={visibleEdit}
-                  onOk={this.updateAlarm}
-                  onCancel={() => { this.setState({ visibleEdit: false }) }}
+                    {...this.props}
+                    title="修改告警规则"
+                    alarmInfo={alarmInfo}
+                    taskList={taskList}
+                    wrapClassName="vertical-center-modal"
+                    visible={visibleEdit}
+                    onOk={this.updateAlarm}
+                    onCancel={() => { this.setState({ visibleEdit: false }) }}
                 />
                 <AlarmForm
-                  {...this.props}
-                  title="创建告警规则"
-                  alarmInfo={{}}
-                  taskList={taskList}
-                  wrapClassName="vertical-center-modal"
-                  visible={visible}
-                  onOk={this.addAlarm}
-                  onCancel={() => { this.setState({ visible: false }) }}
+                    {...this.props}
+                    title="创建告警规则"
+                    alarmInfo={{}}
+                    taskList={taskList}
+                    wrapClassName="vertical-center-modal"
+                    visible={visible}
+                    onOk={this.addAlarm}
+                    onCancel={() => { this.setState({ visible: false }) }}
                 />
             </div>
         )
@@ -366,6 +364,6 @@ export default connect((state) => {
     return {
         projectUsers: state.projectUsers,
         project: state.project,
-        user: state.user,
+        user: state.user
     }
 })(OfflineConfig)

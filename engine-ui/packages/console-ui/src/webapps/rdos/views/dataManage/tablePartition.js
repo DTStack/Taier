@@ -5,26 +5,25 @@ import moment from 'moment';
 import Api from '../../api/dataManage';
 
 export default class TablePartition extends React.Component {
-
     state = {
         result: { data: [] },
         current: 1,
         loading: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         if (this.props.table) {
             this.loadPartition();
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { table: old_table } = this.props;
         const { table } = nextProps;
         if (
-            table
-            && table.id
-            && (!old_table || old_table.id != table.id)
+            table &&
+            table.id &&
+            (!old_table || old_table.id != table.id)
         ) {
             this.loadPartition();
         }
@@ -37,11 +36,11 @@ export default class TablePartition extends React.Component {
         const params = {
             tableId: table.id,
             pageIndex: current,
-            pageSize: 10,
+            pageSize: 10
         }
         this.setState({
             loading: true,
-            result:{}
+            result: {}
         })
         Api.getTablePartition(params).then(res => {
             this.setState({
@@ -61,7 +60,7 @@ export default class TablePartition extends React.Component {
         })
     }
 
-    initClumuns() {
+    initClumuns () {
         return [{
             title: '分区名',
             dataIndex: 'name',
@@ -80,11 +79,11 @@ export default class TablePartition extends React.Component {
         }]
     }
 
-    render() {
+    render () {
         const { result, loading } = this.state
         const { pagination, havaBorder } = this.props
         const realPagination = pagination || {
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         realPagination.total = result.totalCount
         return (
@@ -101,5 +100,4 @@ export default class TablePartition extends React.Component {
             </div>
         )
     }
-
 }

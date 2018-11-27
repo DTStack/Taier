@@ -13,12 +13,12 @@ export const DATA_SOURCE = {
     ES: 11,
     REDIS: 12,
     MONGODB: 13,
-    KAFKA: 14,//KAFKA_11
+    KAFKA: 14, // KAFKA_11
     ADS: 15,
     BEATS: 16,
-    KAFKA_10:17,
-    KAFKA_09:18,
-    DB2:19
+    KAFKA_10: 17,
+    KAFKA_09: 18,
+    DB2: 19
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -35,49 +35,49 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     14: 'KAFKA_11',
-    15: "ADS",
+    15: 'ADS',
     16: 'BEATS',
     17: 'KAFKA_10',
     18: 'KAFKA_09'
 }
 
-export const REDIS_TYPE={
-    SINGLE:1,
-    CLUSTER:3,
-    SENTINEL:2
+export const REDIS_TYPE = {
+    SINGLE: 1,
+    CLUSTER: 3,
+    SENTINEL: 2
 }
 
 // 锁类型
 export const LOCK_TYPE = {
     OFFLINE_TASK: 'BATCH_TASK',
     OFFLINE_SCRIPT: 'BATCH_SCRIPT',
-    STREAM_TASK: 'STREAM_TASK',
+    STREAM_TASK: 'STREAM_TASK'
 }
 
 // 资源类型
 export const RESOURCE_TYPE = {
     JAR: 1,
-    PY: 2,
+    PY: 2
 }
 export const RESOURCE_TYPE_MAP = {
-    1: "jar",
-    2: "py"
+    1: 'jar',
+    2: 'py'
 }
 
 // 调度状态
 export const SCHEDULE_STATUS = {
     NORMAL: 1,
-    STOPPED: 2,
+    STOPPED: 2
 }
 
 //
 export const APPLY_RESOURCE_TYPE = {
     TABLE: 0,
     FUNCTION: 1,
-    SOURCE: 2,
+    SOURCE: 2
 }
 
-//数据操作类型
+// 数据操作类型
 export const CAT_TYPE = {
     INSERT: 1,
     UPDATE: 2,
@@ -97,22 +97,22 @@ export const MENU_TYPE = {
     FUNCTION: 'FunctionManager',
     COSTOMFUC: 'CustomFunction',
     SYSFUC: 'SystemFunction',
-    TABLE: 'TableQuery',
+    TABLE: 'TableQuery'
 }
 
 export const PROJECT_TYPE = {
-    COMMON: 0,//普通
-    TEST: 1,//测试
-    PRO: 2,//生产
+    COMMON: 0, // 普通
+    TEST: 1, // 测试
+    PRO: 2// 生产
 }
 export const PROJECT_STATUS = {
-    INITIALIZE: 0,//创建中
-    NORMAL: 1,//正常
-    DISABLE: 2,//禁用
-    FAIL: 3,//创建失败
+    INITIALIZE: 0, // 创建中
+    NORMAL: 1, // 正常
+    DISABLE: 2, // 禁用
+    FAIL: 3// 创建失败
 }
 
-//发布的item类别
+// 发布的item类别
 export const publishType = {
     TASK: 0,
     TABLE: 1,
@@ -120,7 +120,7 @@ export const publishType = {
     FUNCTION: 3
 }
 
-//发布状态
+// 发布状态
 export const publishStatus = {
     UNSUBMIT: 0,
     SUCCESS: 1,
@@ -130,18 +130,18 @@ export const publishStatus = {
 export const PROJECT_ROLE = { // 项目角色
     PROJECT_OWNER: 2, // 项目所有者
     TENANT_OWVER: 1, // 租户所有者
-    VISITOR: 4, // 访客
+    VISITOR: 4 // 访客
 }
 
 export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver
     DATA_SOURCE.MYSQL,
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
-    DATA_SOURCE.POSTGRESQL,
+    DATA_SOURCE.POSTGRESQL
 ]
 
-export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ //支持分库分表的数据库类型r
-    DATA_SOURCE.MYSQL,
+export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ // 支持分库分表的数据库类型r
+    DATA_SOURCE.MYSQL
     // DATA_SOURCE.ORACLE,
     // DATA_SOURCE.SQLSERVER,
     // DATA_SOURCE.POSTGRESQL,
@@ -160,12 +160,10 @@ export const TASK_TYPE = { // 任务类型
     ML: 8,
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
-    DATA_COLLECTION: 11,//实时采集
+    DATA_COLLECTION: 11// 实时采集
 }
 
-
-
-export const LEARNING_TYPE = {//深度学习框架
+export const LEARNING_TYPE = {// 深度学习框架
     TENSORFLOW: 0,
     MXNET: 1
 }
@@ -174,12 +172,12 @@ export const PYTON_VERSION = {
     PYTHON3: 3
 }
 
-export const DATA_SYNC_TYPE = { //数据同步配置模式
+export const DATA_SYNC_TYPE = { // 数据同步配置模式
     GUIDE: 0,
     SCRIPT: 1
 }
 
-export const DEAL_MODEL_TYPE = {//python和深度学习操作类型
+export const DEAL_MODEL_TYPE = {// python和深度学习操作类型
     EDIT: 1,
     RESOURCE: 0
 }
@@ -196,44 +194,44 @@ export const TASK_TYPE_ARRAY = [ //
     TASK_TYPE.MR,
     TASK_TYPE.SYNC,
     TASK_TYPE.PYTHON,
-    TASK_TYPE.VIRTUAL_NODE,
+    TASK_TYPE.VIRTUAL_NODE
 ]
 
 export const HELP_DOC_URL = {
-    DATA_SOURCE: "/public/stream/helpSite/index.html#integration_datasource",
-    DATA_SYNC: "/public/stream/helpSite/index.html#Integration",
-    TASKPARAMS: "/public/stream/helpSite/index.html#deve_batch_schedule_param"
+    DATA_SOURCE: '/public/stream/helpSite/index.html#integration_datasource',
+    DATA_SYNC: '/public/stream/helpSite/index.html#Integration',
+    TASKPARAMS: '/public/stream/helpSite/index.html#deve_batch_schedule_param'
 }
 
 export const TASK_STATUS = { // 任务状态
     ALL: null,
-    WAIT_SUBMIT: 0,//等待提交
-    CREATED: 1,//已创建
+    WAIT_SUBMIT: 0, // 等待提交
+    CREATED: 1, // 已创建
     INVOKED: 2,
     DEPLOYING: 3,
-    RUNNING: 4,//运行中
-    FINISHED: 5,//已完成
-    STOPING: 6,//停止中
-    STOPED: 7,//已取消
-    RUN_FAILED: 8,//运行失败
-    SUBMIT_FAILED: 9,//提交失败
-    SUBMITTING: 10,//提交中
-    RESTARTING: 11,//重试中
+    RUNNING: 4, // 运行中
+    FINISHED: 5, // 已完成
+    STOPING: 6, // 停止中
+    STOPED: 7, // 已取消
+    RUN_FAILED: 8, // 运行失败
+    SUBMIT_FAILED: 9, // 提交失败
+    SUBMITTING: 10, // 提交中
+    RESTARTING: 11, // 重试中
     SET_SUCCESS: 12,
-    KILLED: 13,//已停止
-    WAIT_RUN: 16,//等待运行
+    KILLED: 13, // 已停止
+    WAIT_RUN: 16, // 等待运行
     WAIT_COMPUTE: 17,
-    FROZEN: 18,//冻结
-    PARENT_FAILD: 21, // 上游失败
+    FROZEN: 18, // 冻结
+    PARENT_FAILD: 21 // 上游失败
 }
 
 export const CHARTS_COLOR = [
-    "#339CFF",
-    "#15D275",
-    "#5579ED",
-    "#00C3E5",
-    "#16DFB4",
-    "#86E159"
+    '#339CFF',
+    '#15D275',
+    '#5579ED',
+    '#00C3E5',
+    '#16DFB4',
+    '#86E159'
 ]
 
 // 表模型规则
@@ -247,7 +245,7 @@ export const TABLE_MODEL_RULE = {
     SUBJECT: 2,
     FREQUENCY: 3,
     INCREMENT: 4,
-    CUSTOM: 5,
+    CUSTOM: 5
 }
 
 export const hdfsFieldTypes = [ // hdfs 类型
@@ -261,86 +259,86 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'FLOAT',
     'DOUBLE',
     'TIMESTAMP',
-    'DATE',
+    'DATE'
 ]
 
 export const mysqlFieldTypes = [// mysql类型
-    "BIT",
-    "BOOL",
-    "TINYINT",
-    "SMALLINT",
-    "MEDIUMINT",
-    "INT",
-    "BIGINT",
-    "FLOAT",
-    "DOUBLE",
-    "DECIMAL",
-    "CHAR",
-    "VARCHAR",
-    "TINYTEXT",
-    "TEXT",
-    "MEDIUMTEXT",
-    "LONGTEXT",
-    "DATETIME",
-    "DATE",
-    "TIMESTAMP",
-    "TIME",
-    "YEAR"
+    'BIT',
+    'BOOL',
+    'TINYINT',
+    'SMALLINT',
+    'MEDIUMINT',
+    'INT',
+    'BIGINT',
+    'FLOAT',
+    'DOUBLE',
+    'DECIMAL',
+    'CHAR',
+    'VARCHAR',
+    'TINYTEXT',
+    'TEXT',
+    'MEDIUMTEXT',
+    'LONGTEXT',
+    'DATETIME',
+    'DATE',
+    'TIMESTAMP',
+    'TIME',
+    'YEAR'
 ]
 
 // 表模型规则列表
 export const tableModelRules = [{
     name: '层级',
-    value: TABLE_MODEL_RULE.LEVEL,
+    value: TABLE_MODEL_RULE.LEVEL
 }, {
     name: '主题域',
-    value: TABLE_MODEL_RULE.SUBJECT,
+    value: TABLE_MODEL_RULE.SUBJECT
 }, {
     name: '增量',
-    value: TABLE_MODEL_RULE.INCREMENT,
+    value: TABLE_MODEL_RULE.INCREMENT
 }, {
     name: '刷新频率',
-    value: TABLE_MODEL_RULE.FREQUENCY,
+    value: TABLE_MODEL_RULE.FREQUENCY
 }, {
     name: '自定义',
-    value: TABLE_MODEL_RULE.CUSTOM,
+    value: TABLE_MODEL_RULE.CUSTOM
 }]
 
 // 实时任务状态过滤选项
 // 16,17 等待运行
 export const taskStatusFilter = [{
     text: '等待提交',
-    value: TASK_STATUS.WAIT_SUBMIT,
+    value: TASK_STATUS.WAIT_SUBMIT
 }, {
     text: '提交中',
-    value: TASK_STATUS.SUBMITTING,
+    value: TASK_STATUS.SUBMITTING
 }, {
     text: '提交失败',
-    value: TASK_STATUS.SUBMIT_FAILED,
+    value: TASK_STATUS.SUBMIT_FAILED
 }, {
     text: '等待运行',
-    value: TASK_STATUS.WAIT_RUN,
+    value: TASK_STATUS.WAIT_RUN
 }, {
     text: '运行中',
-    value: TASK_STATUS.RUNNING,
+    value: TASK_STATUS.RUNNING
 }, {
     text: '取消',
-    value: TASK_STATUS.STOPED,
+    value: TASK_STATUS.STOPED
 }, {
     text: '运行失败',
-    value: TASK_STATUS.RUN_FAILED,
+    value: TASK_STATUS.RUN_FAILED
 }]
 
 export const taskStatus = {
-    "ALL": null,
-    "UNSUBMIT": 0,
-    "WAITING_RUN": 16,
-    "FINISHED": 5,
-    "RUNNING": 4,
-    "CANCELED": 7,
-    "FAILED": 8,
-    "SUBMITTING": 10,
-    "FROZEN": 18,
+    'ALL': null,
+    'UNSUBMIT': 0,
+    'WAITING_RUN': 16,
+    'FINISHED': 5,
+    'RUNNING': 4,
+    'CANCELED': 7,
+    'FAILED': 8,
+    'SUBMITTING': 10,
+    'FROZEN': 18
 }
 
 // 离线任务状态过滤选项
@@ -355,129 +353,123 @@ export const taskStatus = {
 export const offlineTaskStatusFilter = [{
     id: 1,
     text: '等待提交',
-    value: 0,
+    value: 0
 }, {
     id: 2,
     text: '提交中',
-    value: 10,
+    value: 10
 }, {
     id: 3,
     text: '等待运行',
-    value: 16,
+    value: 16
 }, {
     id: 4,
     text: '运行中',
-    value: 4,
+    value: 4
 }, {
     id: 5,
     text: '成功',
-    value: 5,
+    value: 5
 }, {
     id: 6,
     text: '取消',
-    value: 7,
+    value: 7
 }, {
     id: 7,
     text: '失败',
-    value: 8,
+    value: 8
 }, {
     id: 8,
     text: '冻结',
-    value: 18,
+    value: 18
 }]
-
-
 
 export const ScheduleTypeFilter = [{ // 调度过滤
     text: '周期调度',
-    value: 0,
+    value: 0
 }, {
     text: '补数据',
-    value: 1,
+    value: 1
 }]
 
 export const AlarmStatusFilter = [{ // 告警状态过滤选项
     text: '正常',
-    value: 0,
+    value: 0
 }, {
     text: '关闭',
-    value: 1,
+    value: 1
 }]
 
 export const alarmTriggerType = {
     TASK_FAIL: 0,
     TASK_STOP: 3,
     DELAY_COST: 6,
-    DELAY_COST_P: 7,
+    DELAY_COST_P: 7
 }
 
 export const jobTypes = [{ // 调度类型 0-周期调度 ， 1-补数据类型
     text: '全部',
-    value: '',
+    value: ''
 }, {
     text: '周期调度',
-    value: 0,
+    value: 0
 }, {
     text: '补数据',
-    value: 1,
+    value: 1
 }]
 
 export const DataSourceTypeFilter = [{ // 离线数据源类型过滤选项
     text: 'MySQL',
-    value: DATA_SOURCE.MYSQL,
+    value: DATA_SOURCE.MYSQL
 }, {
     text: 'Oracle',
-    value: DATA_SOURCE.ORACLE,
+    value: DATA_SOURCE.ORACLE
 }, {
     text: 'SQLServer',
-    value: DATA_SOURCE.SQLSERVER,
+    value: DATA_SOURCE.SQLSERVER
 }, {
     text: 'PostgreSQL',
-    value: DATA_SOURCE.POSTGRESQL,
+    value: DATA_SOURCE.POSTGRESQL
 }, {
     text: 'HDFS',
-    value: DATA_SOURCE.HDFS,
+    value: DATA_SOURCE.HDFS
 }, {
     text: 'Hive',
-    value: DATA_SOURCE.HIVE,
+    value: DATA_SOURCE.HIVE
 }, {
     text: 'HBase',
-    value: DATA_SOURCE.HBASE,
+    value: DATA_SOURCE.HBASE
 }, {
     text: 'MaxCompute',
-    value: DATA_SOURCE.MAXCOMPUTE,
+    value: DATA_SOURCE.MAXCOMPUTE
 }, {
     text: 'FTP',
-    value: DATA_SOURCE.FTP,
+    value: DATA_SOURCE.FTP
 }, {
     text: 'ElasticSearch',
-    value: DATA_SOURCE.ES,
+    value: DATA_SOURCE.ES
 }, {
     text: 'Redis',
-    value: DATA_SOURCE.REDIS,
+    value: DATA_SOURCE.REDIS
 }, {
     text: 'MongoDB',
-    value: DATA_SOURCE.MONGODB,
+    value: DATA_SOURCE.MONGODB
 }]
 
 export const StreamDataSourceTypeFilter = [{ // 实时数据源类型过滤选项
     text: 'MySQL',
-    value: DATA_SOURCE.MYSQL,
+    value: DATA_SOURCE.MYSQL
 }, {
     text: 'HBase',
-    value: DATA_SOURCE.HBASE,
+    value: DATA_SOURCE.HBASE
 }, {
     text: 'ElasticSearch',
-    value: DATA_SOURCE.ES,
+    value: DATA_SOURCE.ES
 }, {
     text: 'Kafka',
-    value: DATA_SOURCE.KAFKA,
+    value: DATA_SOURCE.KAFKA
 }
 ]
-
-
-
-
 
 export const propEditorOptions = { // 编辑器选项
     mode: 'text/x-properties',
@@ -485,7 +477,7 @@ export const propEditorOptions = { // 编辑器选项
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    autofocus: false,
+    autofocus: false
 }
 
 export const jsonEditorOptions = { // json编辑器选项
@@ -498,11 +490,10 @@ export const jsonEditorOptions = { // json编辑器选项
     matchBrackets: true
 }
 
-
 export const transformRuleType = { // 整库迁移高级设置转换类型
     1: 'nameRule',
     2: 'columnRule',
-    3: 'typeRule',
+    3: 'typeRule'
 }
 
 export const originTypeTransformRule = [ // 整库迁移高级设置字段转换规则
@@ -543,40 +534,40 @@ export const TIME_TYPE = {
     H6: '6h',
     D1: '1d',
     D7: '7d',
-    W1: "1w"
+    W1: '1w'
 }
 
 export const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-    },
+        sm: { span: 14 }
+    }
 }
 
 export const tailFormItemLayout = { // 表单末尾布局
     wrapperCol: {
         xs: {
             span: 24,
-            offset: 0,
+            offset: 0
         },
         sm: {
             span: 14,
-            offset: 6,
-        },
-    },
+            offset: 6
+        }
+    }
 }
 
 export const lineAreaChartOptions = {// 堆叠折现图默认选项
     title: {
         text: '堆叠区域图',
         textStyle: {
-            fontSize: 12,
+            fontSize: 12
         },
-        textAlign: 'left',
+        textAlign: 'left'
     },
     tooltip: {
         trigger: 'axis',
@@ -593,7 +584,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     toolbox: {
         feature: {
             saveAsImage: {
-                show: false,
+                show: false
             }
         }
     },
@@ -609,7 +600,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             boundaryGap: false,
             data: [],
             axisTick: {
-                show: true,
+                show: true
             },
             axisLine: {
                 lineStyle: {
@@ -618,30 +609,30 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             },
             axisLabel: {
                 textStyle: {
-                    color: '#666666',
-                },
+                    color: '#666666'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             splitLine: {
-                color: '#666666',
+                color: '#666666'
             }
         }
     ],
     yAxis: [
         {
-            name: "数量(个)",
+            name: '数量(个)',
             type: 'value',
             axisLabel: {
                 formatter: '{value}',
                 textStyle: {
                     color: '#666666',
-                    baseline: 'bottom',
-                },
+                    baseline: 'bottom'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             nameLocation: 'end',
             nameGap: 20,
@@ -649,7 +640,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
                 show: false
             },
             axisTick: {
-                show: false,
+                show: false
             },
             splitLine: {
                 lineStyle: {
@@ -670,13 +661,13 @@ export const pieChartOptions = {
         textBaseline: 'top',
         textStyle: {
             fontSize: 14,
-            fontWeight: 'bold',
+            fontWeight: 'bold'
         },
         x: 'left'
     },
     tooltip: {
         trigger: 'item',
-        formatter: "{a} <br/>{b} : {c} ({d}%)"
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
     },
     legend: {
         orient: 'vertical',
@@ -701,8 +692,8 @@ export const defaultBarOption = {
         text: '世界人口总量',
         textStyle: {
             fontSize: 12,
-            fontWeight: 'bold',
-        },
+            fontWeight: 'bold'
+        }
     },
     tooltip: {
         trigger: 'axis',
@@ -733,18 +724,18 @@ export const defaultBarOption = {
         axisLine: {
             lineStyle: {
                 color: '#dddddd',
-                width: 2,
+                width: 2
             }
         },
         position: 'top',
         axisLabel: {
             textStyle: {
                 color: '#666666'
-            },
+            }
         },
         axisTick: {
-            show: false,
-        },
+            show: false
+        }
     },
     series: [
         {
@@ -769,4 +760,3 @@ export const defaultBarOption = {
         }
     ]
 };
-

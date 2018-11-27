@@ -9,14 +9,14 @@ import '../../styles/pages/dataManage.scss';
 const { Sider, Content } = Layout;
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-    render() {
+    render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-datamanagement g-datamanage">
@@ -24,7 +24,7 @@ class Container extends Component {
                     <Sidebar {...this.props} />
                 </Sider>
                 <Content style={{ position: 'relative' }}>
-                    { children || "概览" }
+                    { children || '概览' }
                 </Content>
             </Layout>
         )
@@ -34,6 +34,6 @@ Container.propTypes = propType
 Container.defaultProps = defaultPro
 export default connect(state => ({
     project: state.project.id,
-    project_obj:state.project,
-    user:state.user
+    project_obj: state.project,
+    user: state.user
 }), null)(Container);

@@ -6,7 +6,7 @@ import { Link } from 'react-router'
 import {
     Row, Input, Select, Menu, message,
     Col, Radio, Pagination, Checkbox, Form,
-    DatePicker, TimePicker, Table, Card,
+    DatePicker, TimePicker, Table, Card
 } from 'antd'
 
 import utils from 'utils'
@@ -20,12 +20,11 @@ const RadioGroup = Radio.Group
 const Option = Select.Option
 const FormItem = Form.Item
 
-function getTimeString(date) {
+function getTimeString (date) {
     return date ? date.format('HH:mm') : ''
 }
 
 class PatchDataList extends Component {
-
     state = {
         loading: false,
         current: 1,
@@ -36,14 +35,14 @@ class PatchDataList extends Component {
         runDay: undefined,
         bizDay: '',
         dutyUserId: undefined,
-        checkVals: [],
+        checkVals: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadPatchData()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { project } = nextProps
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -66,7 +65,7 @@ class PatchDataList extends Component {
 
     killAllJobs = (job) => {
         Api.stopFillDataJobs({
-            fillDataJobName: job.fillDataJobName,
+            fillDataJobName: job.fillDataJobName
         }).then(res => {
             if (res.code === 1) {
                 message.success('已成功杀死所有实例！')
@@ -122,7 +121,7 @@ class PatchDataList extends Component {
         const { checkVals } = this.state
         const setVals = {
             dutyUserId: value,
-            current: 1,
+            current: 1
         }
         let checkArr = [...checkVals]
         if (value == user.id) {
@@ -142,7 +141,7 @@ class PatchDataList extends Component {
 
         const conditions = {
             checkVals: checkedList,
-            runDay: '',
+            runDay: ''
         };
 
         checkedList.forEach(item => {
@@ -172,7 +171,7 @@ class PatchDataList extends Component {
                 return (
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
                 )
-            },
+            }
         },
         {
             width: 150,
@@ -180,12 +179,12 @@ class PatchDataList extends Component {
             dataIndex: 'doneJobSum',
             key: 'doneJobSum',
             render: (text, record) => {
-                const isComplete=record.finishedJobSum==record.doneJobSum&&record.doneJobSum==record.allJobSum;
-                const style=isComplete?{color:"#333333"}:{color: "#EF5350"};
+                const isComplete = record.finishedJobSum == record.doneJobSum && record.doneJobSum == record.allJobSum;
+                const style = isComplete ? { color: '#333333' } : { color: '#EF5350' };
                 return <span style={style}>
                     {record.finishedJobSum}/{record.doneJobSum}/{record.allJobSum}
                 </span>
-            },
+            }
         },
         {
             width: 150,
@@ -194,17 +193,17 @@ class PatchDataList extends Component {
             key: 'fromDay',
             render: (text, record) => {
                 return <span>{record.fromDay} ~ {record.toDay}</span>
-            },
+            }
         }, {
             width: 150,
             title: '实例生成时间',
             dataIndex: 'createTime',
-            key: 'createTime',
+            key: 'createTime'
         }, {
             width: 100,
             title: '操作人',
             dataIndex: 'dutyUserName',
-            key: 'dutyUserName',
+            key: 'dutyUserName'
         }, {
             width: 100,
             title: '操作',
@@ -222,28 +221,26 @@ class PatchDataList extends Component {
         return current && current.valueOf() > Date.now();
     }
 
-    render() {
-
+    render () {
         const {
             tasks, current, checkVals,
             dutyUserId, bizDay,
-            runDay, jobName,
+            runDay, jobName
         } = this.state
 
         const { projectUsers } = this.props
-        const userItems = projectUsers && projectUsers.length > 0 ?
-            projectUsers.map((item) => {
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
                 return (
                     <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                         {item.user.userName}
                     </Option>)
             }) : []
 
-
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
-            current,
+            current
         };
 
         const title = (
@@ -332,6 +329,6 @@ export default connect((state) => {
     return {
         project: state.project,
         user: state.user,
-        projectUsers: state.projectUsers,
+        projectUsers: state.projectUsers
     }
 })(PatchDataList)

@@ -24,12 +24,11 @@ import './styles/pages/iconfont.scss'
 import './styles/themes/default.scss'
 import './styles/themes/dark.scss'
 
-
 import routers from './routers'
 import { store, history } from './store'
 
 export default class Root extends React.Component {
-    render() {
+    render () {
         return (
             <Provider store={store} >
                 <Router routes={routers} history={history} key={Math.random()} />

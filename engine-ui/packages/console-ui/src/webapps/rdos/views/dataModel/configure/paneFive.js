@@ -3,15 +3,15 @@ import { connect } from 'react-redux';
 
 import {
     Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Icon,
+    Input, Button, message, Icon
 } from 'antd';
 
 import utils from 'utils';
 
-import { 
-    formItemLayout, 
-    tableModelRules, 
-    TABLE_MODEL_RULE 
+import {
+    formItemLayout,
+    tableModelRules,
+    TABLE_MODEL_RULE
 } from '../../../comm/const';
 
 import Api from '../../../api/dataModel';
@@ -21,7 +21,7 @@ const FormItem = Form.Item;
 
 const defaultRule = {
     value: TABLE_MODEL_RULE.CUSTOM,
-    name: '自定义',
+    name: '自定义'
 };
 
 @connect((state) => {
@@ -30,16 +30,15 @@ const defaultRule = {
     }
 })
 class ModelDefineRule extends Component {
-
     state = {
         tbNameRules: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadTbNameRules();
     }
 
-    componentWillReceiveProps(nextProps){
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -51,7 +50,7 @@ class ModelDefineRule extends Component {
         Api.getTableNameRules().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tbNameRules: res.data.length > 0 ? res.data : [tableModelRules[0]],
+                    tbNameRules: res.data.length > 0 ? res.data : [tableModelRules[0]]
                 })
             }
         })
@@ -60,7 +59,7 @@ class ModelDefineRule extends Component {
     submit = (e) => {
         e.preventDefault()
         const formData = {
-            rule: this.state.tbNameRules,
+            rule: this.state.tbNameRules
         }
         Api.createModelRule(formData).then(res => {
             if (res.code === 1) {
@@ -118,11 +117,10 @@ class ModelDefineRule extends Component {
     }
 
     renderTableNameRules = () => {
-
         const { tbNameRules } = this.state;
         const length = tbNameRules.length;
 
-        const options = tableModelRules.map((rule, index) => <Option 
+        const options = tableModelRules.map((rule, index) => <Option
             key={rule.value}
             index={index}
             disabled={this.isDisabled(rule)}
@@ -132,17 +130,17 @@ class ModelDefineRule extends Component {
         </Option>);
 
         return tbNameRules && tbNameRules.map((rule, index) => <span
-            style={{display: 'inline-block', marginBottom: '5px'}} 
+            style={{ display: 'inline-block', marginBottom: '5px' }}
             key={index}>
-                <Select
-                    placeholder="请选择"
-                    value={rule.value}
-                    style={{ width: 126, marginRight: '5px' }}
-                    onSelect={(value, option) => this.changeTbNameRule(option, index)}
-                >
-                    {options}
-                </Select>
-            </span>
+            <Select
+                placeholder="请选择"
+                value={rule.value}
+                style={{ width: 126, marginRight: '5px' }}
+                onSelect={(value, option) => this.changeTbNameRule(option, index)}
+            >
+                {options}
+            </Select>
+        </span>
         );
     }
 
@@ -151,28 +149,28 @@ class ModelDefineRule extends Component {
         const names = [];
         for (let i = 0; i < tbNameRules.length; i++) {
             const rule = tbNameRules[i];
-            switch(rule.value) {
-                case TABLE_MODEL_RULE.LEVEL: {
-                    names.push('ods'); continue;
-                }
-                case TABLE_MODEL_RULE.SUBJECT: {
-                    names.push('sales'); continue;
-                }
-                case TABLE_MODEL_RULE.INCREMENT: {
-                    names.push('i'); continue;
-                }
-                case TABLE_MODEL_RULE.FREQUENCY: {
-                    names.push('m'); continue;
-                }
-                case TABLE_MODEL_RULE.CUSTOM: {
-                    names.push('custom'); continue;
-                }
+            switch (rule.value) {
+            case TABLE_MODEL_RULE.LEVEL: {
+                names.push('ods'); continue;
+            }
+            case TABLE_MODEL_RULE.SUBJECT: {
+                names.push('sales'); continue;
+            }
+            case TABLE_MODEL_RULE.INCREMENT: {
+                names.push('i'); continue;
+            }
+            case TABLE_MODEL_RULE.FREQUENCY: {
+                names.push('m'); continue;
+            }
+            case TABLE_MODEL_RULE.CUSTOM: {
+                names.push('custom'); continue;
+            }
             }
         }
         return names.join('_');
     }
 
-    render() {
+    render () {
         const { tbNameRules } = this.state;
         return (
             <div className="m-card">
@@ -183,27 +181,27 @@ class ModelDefineRule extends Component {
                     title="表名生成规则配置:"
                 >
                     <div>
-                        <Form style={{marginTop: '24px'}}>
+                        <Form style={{ marginTop: '24px' }}>
                             <FormItem
                                 {...formItemLayout}
                                 label="表名"
                                 hasFeedback
                             >
                                 {this.renderTableNameRules()}
-                                <Button 
-                                    icon="plus" 
+                                <Button
+                                    icon="plus"
                                     title="添加规则"
                                     size="normal"
-                                    style={{marginRight: '5px'}}
+                                    style={{ marginRight: '5px' }}
                                     onClick={this.appendTbNameRule}
                                 />
                                 {
-                                    tbNameRules.length > 1 && <Button 
-                                        icon="minus" 
+                                    tbNameRules.length > 1 && <Button
+                                        icon="minus"
                                         title="移除规则"
                                         size="normal"
-                                        style={{marginRight: '5px'}}
-                                        onClick={() => this.removeTbNameRule(tbNameRules.length -1 )}
+                                        style={{ marginRight: '5px' }}
+                                        onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
                                     />
                                 }
                             </FormItem>

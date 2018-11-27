@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { Table } from "antd"
-import utils from "utils";
+import React, { Component } from 'react';
+import { Table } from 'antd'
+import utils from 'utils';
 class DisableTable extends Component {
     state = {
         pageIndex: 1,
-        filter:{},
-        sortedInfo:{}
+        filter: {},
+        sortedInfo: {}
     }
-    initColumns() {
+    initColumns () {
         return [{
             title: '用户',
             dataIndex: 'userName',
@@ -17,13 +17,13 @@ class DisableTable extends Component {
             title: '最近24小时调用',
             dataIndex: 'recent24HCallNum',
             key: 'recent24HCallNum'
- 
+
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
             key: 'recent24HFailRate',
-            render(text){
-                return text+"%";
+            render (text) {
+                return text + '%';
             }
         }, {
             title: '最近7天调用',
@@ -44,39 +44,39 @@ class DisableTable extends Component {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            render(text){
+            render (text) {
                 return utils.formatDateTime(text);
             }
 
         }]
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 10,
-            total: this.props.total,
+            total: this.props.total
         }
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         this.setState({
             pageIndex: page.current,
-            filter:filter,
-            sortedInfo:sorter
+            filter: filter,
+            sortedInfo: sorter
         });
         this.props.tableChange({
-            page:page.current,
-            filter:filter,
-            sortedInfo:sorter
+            page: page.current,
+            filter: filter,
+            sortedInfo: sorter
         })
     }
-    lookAllErrorText() {
-        console.log("lookAllErrorText")
+    lookAllErrorText () {
+        console.log('lookAllErrorText')
     }
-    render() {
+    render () {
         return (
             <Table
-            rowKey="applyId"
+                rowKey="applyId"
                 className="m-table monitor-table table-p-l20"
                 columns={this.initColumns()}
                 loading={this.props.loading}

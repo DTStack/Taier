@@ -15,16 +15,15 @@ import { commonActions } from '../actions/common'
 import { updateApp } from 'main/actions/app'
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 @connect()
 class Main extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser());
         dispatch(updateApp(dlApp));
@@ -35,7 +34,7 @@ class Main extends Component {
         dispatch(dataSourceActions.getDataSourcesType());
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="main">

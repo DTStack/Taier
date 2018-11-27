@@ -18,11 +18,11 @@ import {
     fnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
-    tableTreeAction,
+    tableTreeAction
 } from '../../store/modules/offlineTask/actionType';
 
 import {
-    workbenchActions,
+    workbenchActions
 } from '../../store/modules/offlineTask/offlineAction';
 
 import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
@@ -48,12 +48,11 @@ const TabPane = Tabs.TabPane;
         scriptTreeData: offlineTask.scriptTree,
         tableTreeData: offlineTask.tableTree,
         currentTab,
-        currentTabData,
+        currentTabData
     }
 }, workbenchActions)
 class OfflineTabPane extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
@@ -61,15 +60,15 @@ class OfflineTabPane extends Component {
         subMenus: [],
         expandedKeys: [],
         expandedKeys2: [],
-        menu: MENU_TYPE.TASK,
+        menu: MENU_TYPE.TASK
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.loadTaskParams();
         this.getCatelogue();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const old = this.props.project;
         const newData = nextProps.project;
         const nextTab = nextProps.currentTabData;
@@ -77,18 +76,18 @@ class OfflineTabPane extends Component {
             this.getCatelogue();
             this.setState({
                 expandedKeys: [],
-                expandedKeys2: [],
+                expandedKeys2: []
             })
         }
         // 任务定位滚动
         if (this.props.currentTab !== nextProps.currentTab) {
-            let type = MENU_TYPE.TASK_DEV, menu = MENU_TYPE.TASK;
+            let type = MENU_TYPE.TASK_DEV; let menu = MENU_TYPE.TASK;
             if (nextTab && nextTab.scriptText !== undefined) {
                 type = MENU_TYPE.SCRIPT;
                 menu = MENU_TYPE.SCRIPT;
             }
             this.setState({
-                menu,
+                menu
             }, () => {
                 this.locateFilePos(nextProps.currentTab, null, type, nextTab)
             })
@@ -101,7 +100,7 @@ class OfflineTabPane extends Component {
             keys = union(this.state.expandedKeys, keys)
         }
         this.setState({
-            expandedKeys: keys,
+            expandedKeys: keys
         })
     }
 
@@ -113,7 +112,7 @@ class OfflineTabPane extends Component {
 
     onExpand2 = (expandedKeys) => {
         this.setState({
-            expandedKeys2: expandedKeys,
+            expandedKeys2: expandedKeys
         })
     }
 
@@ -128,10 +127,9 @@ class OfflineTabPane extends Component {
      * 定位任务在文件树的具体位置
      */
     locateFilePos = (currentTab, name, type) => {
-
         const { expandedKeys, menu } = this.state;
         const {
-            taskTreeData, scriptTreeData,
+            taskTreeData, scriptTreeData
         } = this.props;
 
         // 过滤任务开发定位脚本，或者脚本定位任务的无效情况
@@ -157,10 +155,9 @@ class OfflineTabPane extends Component {
             }, 0)
         }
 
-        let checkedPath = '', path = ''; // 路径存储
+        let checkedPath = ''; let path = ''; // 路径存储
 
         const hasPath = (data, id, path) => {
-
             if (!data) return false;
             path = `${path ? path + '-' : path}${data.id}`
             if (data && data.id === id) {
@@ -187,14 +184,14 @@ class OfflineTabPane extends Component {
             ajax.locateCataPosition({
                 id: currentTab,
                 catalogueType: type,
-                name: name,
+                name: name
             }).then(res => {
                 if (res.code === 1 && res.data) {
                     const data = res.data.children[0];
                     if (hasPath(data, currentTab, path)) {
                         const keys = getExpandedKey(checkedPath);
                         this.setState({
-                            expandedKeys: keys,
+                            expandedKeys: keys
                         })
                     }
                     this.props.locateFilePos(data, type);
@@ -204,7 +201,7 @@ class OfflineTabPane extends Component {
         }
     }
 
-    getCatelogue() {
+    getCatelogue () {
         const { dispatch } = this.props;
         // 四组数据在一个接口里面, 所以不在container中dispatch
         ajax.getOfflineCatalogue({
@@ -214,50 +211,50 @@ class OfflineTabPane extends Component {
             if (res.code === 1) {
                 const arrData = res.data.children;
 
-                this.setState({ subMenus: arrData, })
+                this.setState({ subMenus: arrData })
 
                 for (let i = 0; i < arrData.length; i++) {
                     const menuItem = arrData[i]
                     switch (menuItem.catalogueType) {
-                        case MENU_TYPE.TASK: {
-                            dispatch({
-                                type: taskTreeAction.RESET_TASK_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            break;
-                        }
-                        case MENU_TYPE.SCRIPT: {
-                            dispatch({
-                                type: scriptTreeAction.RESET_SCRIPT_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            break;
-                        }
-                        case MENU_TYPE.RESOURCE: {
-                            dispatch({
-                                type: resTreeAction.RESET_RES_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            break;
-                        }
-                        case MENU_TYPE.FUNCTION: {
-                            dispatch({
-                                type: fnTreeAction.RESET_FUC_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            dispatch({
-                                type: sysFnTreeActon.RESET_SYSFUC_TREE,
-                                payload: menuItem.children[1]
-                            });
-                            break;
-                        }
-                        case MENU_TYPE.TABLE: {
-                            dispatch({
-                                type: tableTreeAction.RESET_TABLE_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            break;
-                        }
+                    case MENU_TYPE.TASK: {
+                        dispatch({
+                            type: taskTreeAction.RESET_TASK_TREE,
+                            payload: menuItem.children[0]
+                        });
+                        break;
+                    }
+                    case MENU_TYPE.SCRIPT: {
+                        dispatch({
+                            type: scriptTreeAction.RESET_SCRIPT_TREE,
+                            payload: menuItem.children[0]
+                        });
+                        break;
+                    }
+                    case MENU_TYPE.RESOURCE: {
+                        dispatch({
+                            type: resTreeAction.RESET_RES_TREE,
+                            payload: menuItem.children[0]
+                        });
+                        break;
+                    }
+                    case MENU_TYPE.FUNCTION: {
+                        dispatch({
+                            type: fnTreeAction.RESET_FUC_TREE,
+                            payload: menuItem.children[0]
+                        });
+                        dispatch({
+                            type: sysFnTreeActon.RESET_SYSFUC_TREE,
+                            payload: menuItem.children[1]
+                        });
+                        break;
+                    }
+                    case MENU_TYPE.TABLE: {
+                        dispatch({
+                            type: tableTreeAction.RESET_TABLE_TREE,
+                            payload: menuItem.children[0]
+                        });
+                        break;
+                    }
                     }
                 }
             }
@@ -272,51 +269,49 @@ class OfflineTabPane extends Component {
             toggleCoverUpload,
             toggleCreateFn,
             toggleCreateScript,
-            dispatch,
+            dispatch
         } = this.props;
 
         switch (key) {
-            case 'task:newFolder': {
-                toggleCreateFolder(MENU_TYPE.TASK_DEV)
-                return;
-            }
-            case 'task:newTask': {
-                toggleCreateTask()
-                return;
-            }
-            case 'script:newScript': {
-                toggleCreateScript()
-                return;
-            }
-            case 'script:newFolder': {
-                toggleCreateFolder(MENU_TYPE.SCRIPT)
-                return;
-            }
-            case 'resource:newFolder': {
-                toggleCreateFolder(MENU_TYPE.RESOURCE)
-                return;
-            }
-            case 'resource:upload': {
-                toggleUpload()
-                return;
-            }
-            case 'resource:replace': {
-                toggleCoverUpload()
-                return;
-            }
-            case 'function:newFolder': {
-                toggleCreateFolder(MENU_TYPE.COSTOMFUC)
-                return;
-            }
-            case 'function:newFunc': {
-                toggleCreateFn()
-                return;
-            }
+        case 'task:newFolder': {
+            toggleCreateFolder(MENU_TYPE.TASK_DEV)
+            return;
+        }
+        case 'task:newTask': {
+            toggleCreateTask()
+            return;
+        }
+        case 'script:newScript': {
+            toggleCreateScript()
+            return;
+        }
+        case 'script:newFolder': {
+            toggleCreateFolder(MENU_TYPE.SCRIPT)
+            return;
+        }
+        case 'resource:newFolder': {
+            toggleCreateFolder(MENU_TYPE.RESOURCE)
+            return;
+        }
+        case 'resource:upload': {
+            toggleUpload()
+            return;
+        }
+        case 'resource:replace': {
+            toggleCoverUpload()
+            return;
+        }
+        case 'function:newFolder': {
+            toggleCreateFolder(MENU_TYPE.COSTOMFUC)
+            return;
+        }
+        case 'function:newFunc': {
+            toggleCreateFn()
+        }
         }
     }
 
     renderTabPanes = () => {
-
         const {
             taskTreeData,
             resourceTreeData,
@@ -340,39 +335,39 @@ class OfflineTabPane extends Component {
                 const menuItem = subMenus[i]
                 let menuContent = ''
                 switch (menuItem.catalogueType) {
-                    case MENU_TYPE.TASK: {
-                        menuContent = <div className="menu-content">
-                            <header>
-                                <Tooltip title="定位">
-                                    <Icon
-                                        type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV, currentTabData)}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="刷新">
-                                    <Icon
-                                        type="sync"
-                                        style={{ fontSize: '12px' }}
-                                        onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
-                                    />
-                                </Tooltip>
-                                <Dropdown overlay={
-                                    <Menu onClick={this.onMenuClick}>
-                                        {couldEdit && <Menu.Item key="task:newTask">
+                case MENU_TYPE.TASK: {
+                    menuContent = <div className="menu-content">
+                        <header>
+                            <Tooltip title="定位">
+                                <Icon
+                                    type="environment"
+                                    onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV, currentTabData)}
+                                />
+                            </Tooltip>
+                            <Tooltip title="刷新">
+                                <Icon
+                                    type="sync"
+                                    style={{ fontSize: '12px' }}
+                                    onClick={() => reloadTreeNodes(taskTreeData.id, MENU_TYPE.TASK_DEV)}
+                                />
+                            </Tooltip>
+                            <Dropdown overlay={
+                                <Menu onClick={this.onMenuClick}>
+                                    {couldEdit && <Menu.Item key="task:newTask">
                                             新建任务
-                                        </Menu.Item>}
-                                        {couldEdit && <Menu.Item key="task:newFolder">
+                                    </Menu.Item>}
+                                    {couldEdit && <Menu.Item key="task:newFolder">
                                             新建文件夹
-                                        </Menu.Item>}
-                                    </Menu>
-                                } trigger={['click']}>
-                                    <Icon type="bars" />
-                                </Dropdown>
-                            </header>
-                            <div className="contentBox">
-                                <div className="folder-box">
-                                    {
-                                        !isEmpty(taskTreeData) &&
+                                    </Menu.Item>}
+                                </Menu>
+                            } trigger={['click']}>
+                                <Icon type="bars" />
+                            </Dropdown>
+                        </header>
+                        <div className="contentBox">
+                            <div className="folder-box">
+                                {
+                                    !isEmpty(taskTreeData) &&
                                         <FolderTree
                                             isPro={isPro}
                                             couldEdit={couldEdit}
@@ -381,47 +376,47 @@ class OfflineTabPane extends Component {
                                             treeData={taskTreeData}
                                             expandedKeys={expandedKeys}
                                         />
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
-                        break;
-                    }
-                    case MENU_TYPE.SCRIPT: {
-                        menuContent = <div className="menu-content">
-                            <header>
-                                <Tooltip title="定位" placement="bottom">
-                                    <Icon
-                                        type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
-                                    />
-                                </Tooltip>
-                                <Tooltip title="刷新" placement="bottom">
-                                    <Icon
-                                        type="sync"
-                                        style={{ fontSize: '12px' }}
-                                        onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
-                                    />
-                                </Tooltip>
-                                {couldEdit && (
-                                    <Dropdown overlay={
-                                        <Menu onClick={this.onMenuClick}>
-                                            <Menu.Item key="script:newScript">
+                    </div>
+                    break;
+                }
+                case MENU_TYPE.SCRIPT: {
+                    menuContent = <div className="menu-content">
+                        <header>
+                            <Tooltip title="定位" placement="bottom">
+                                <Icon
+                                    type="environment"
+                                    onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
+                                />
+                            </Tooltip>
+                            <Tooltip title="刷新" placement="bottom">
+                                <Icon
+                                    type="sync"
+                                    style={{ fontSize: '12px' }}
+                                    onClick={() => reloadTreeNodes(scriptTreeData.id, menuItem.catalogueType)}
+                                />
+                            </Tooltip>
+                            {couldEdit && (
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="script:newScript">
                                                 新建脚本
                                         </Menu.Item>
-                                            <Menu.Item key="script:newFolder">
+                                        <Menu.Item key="script:newFolder">
                                                 新建文件夹
                                         </Menu.Item>
-                                        </Menu>
-                                    } trigger={['click']}>
-                                        <Icon type="bars" />
-                                    </Dropdown>
-                                )}
-                            </header>
-                            <div className="contentBox">
-                                <div className="folder-box">
-                                    {
-                                        !isEmpty(scriptTreeData) &&
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
+                            )}
+                        </header>
+                        <div className="contentBox">
+                            <div className="folder-box">
+                                {
+                                    !isEmpty(scriptTreeData) &&
                                         <FolderTree
                                             isPro={isPro}
                                             couldEdit={couldEdit}
@@ -430,44 +425,44 @@ class OfflineTabPane extends Component {
                                             onExpand={this.onExpand}
                                             treeData={scriptTreeData}
                                         />
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
-                        break;
-                    }
-                    case MENU_TYPE.RESOURCE: {
-                        menuContent = <div className="menu-content">
-                            <header>
-                                <Tooltip title="刷新">
-                                    <Icon
-                                        type="sync"
-                                        style={{ fontSize: '12px' }}
-                                        onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
-                                    />
-                                </Tooltip>
-                                {couldEdit && (
-                                    <Dropdown overlay={
-                                        <Menu onClick={this.onMenuClick}>
-                                            <Menu.Item key="resource:upload">
+                    </div>
+                    break;
+                }
+                case MENU_TYPE.RESOURCE: {
+                    menuContent = <div className="menu-content">
+                        <header>
+                            <Tooltip title="刷新">
+                                <Icon
+                                    type="sync"
+                                    style={{ fontSize: '12px' }}
+                                    onClick={() => reloadTreeNodes(resourceTreeData.id, menuItem.catalogueType)}
+                                />
+                            </Tooltip>
+                            {couldEdit && (
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="resource:upload">
                                                 上传资源
                                         </Menu.Item>
-                                            <Menu.Item key="resource:replace">
+                                        <Menu.Item key="resource:replace">
                                                 替换资源
                                         </Menu.Item>
-                                            <Menu.Item key="resource:newFolder">
+                                        <Menu.Item key="resource:newFolder">
                                                 新建文件夹
                                         </Menu.Item>
-                                        </Menu>
-                                    } trigger={['click']}>
-                                        <Icon type="bars" />
-                                    </Dropdown>
-                                )}
-                            </header>
-                            <div className="contentBox">
-                                <div className="folder-box">
-                                    {
-                                        !isEmpty(resourceTreeData) &&
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
+                            )}
+                        </header>
+                        <div className="contentBox">
+                            <div className="folder-box">
+                                {
+                                    !isEmpty(resourceTreeData) &&
                                         <FolderTree
                                             isPro={isPro}
                                             couldEdit={couldEdit}
@@ -476,41 +471,41 @@ class OfflineTabPane extends Component {
                                             onExpand={this.onExpand}
                                             treeData={resourceTreeData}
                                         />
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
-                        break;
-                    }
-                    case MENU_TYPE.FUNCTION: {
-                        menuContent = <div className="menu-content">
-                            <header>
-                                <Tooltip title="刷新">
-                                    <Icon
-                                        type="sync"
-                                        style={{ fontSize: '12px' }}
-                                        onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
-                                    />
-                                </Tooltip>
-                                {couldEdit && (
-                                    <Dropdown overlay={
-                                        <Menu onClick={this.onMenuClick}>
-                                            <Menu.Item key="function:newFunc">
+                    </div>
+                    break;
+                }
+                case MENU_TYPE.FUNCTION: {
+                    menuContent = <div className="menu-content">
+                        <header>
+                            <Tooltip title="刷新">
+                                <Icon
+                                    type="sync"
+                                    style={{ fontSize: '12px' }}
+                                    onClick={() => reloadTreeNodes(functionTreeData.id, MENU_TYPE.COSTOMFUC)}
+                                />
+                            </Tooltip>
+                            {couldEdit && (
+                                <Dropdown overlay={
+                                    <Menu onClick={this.onMenuClick}>
+                                        <Menu.Item key="function:newFunc">
                                                 新建函数
                                         </Menu.Item>
-                                            <Menu.Item key="function:newFolder">
+                                        <Menu.Item key="function:newFolder">
                                                 新建文件夹
                                         </Menu.Item>
-                                        </Menu>
-                                    } trigger={['click']}>
-                                        <Icon type="bars" />
-                                    </Dropdown>
-                                )}
-                            </header>
-                            <div className="contentBox">
-                                <div className="folder-box">
-                                    {
-                                        !isEmpty(functionTreeData) &&
+                                    </Menu>
+                                } trigger={['click']}>
+                                    <Icon type="bars" />
+                                </Dropdown>
+                            )}
+                        </header>
+                        <div className="contentBox">
+                            <div className="folder-box">
+                                {
+                                    !isEmpty(functionTreeData) &&
                                         <FolderTree
                                             isPro={isPro}
                                             couldEdit={couldEdit}
@@ -518,9 +513,9 @@ class OfflineTabPane extends Component {
                                             expandedKeys={expandedKeys}
                                             onExpand={this.onExpand}
                                             treeData={functionTreeData} />
-                                    }
-                                    {
-                                        !isEmpty(sysFunctionTreeData) &&
+                                }
+                                {
+                                    !isEmpty(sysFunctionTreeData) &&
                                         <FolderTree
                                             isPro={isPro}
                                             couldEdit={couldEdit}
@@ -529,20 +524,20 @@ class OfflineTabPane extends Component {
                                             onExpand={this.onExpand2}
                                             treeData={sysFunctionTreeData}
                                         />
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
-                        break;
-                    }
-                    case MENU_TYPE.TABLE: {
-                        menuContent = <TableTree treeData={tableTreeData} />
-                        break;
-                    }
-                    default: {
-                        menuContent = '';
-                        break;
-                    }
+                    </div>
+                    break;
+                }
+                case MENU_TYPE.TABLE: {
+                    menuContent = <TableTree treeData={tableTreeData} />
+                    break;
+                }
+                default: {
+                    menuContent = '';
+                    break;
+                }
                 }
                 menus.push(
                     <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}>
@@ -555,7 +550,7 @@ class OfflineTabPane extends Component {
         return menus;
     }
 
-    render() {
+    render () {
         const {
             taskTreeData
         } = this.props;
@@ -576,6 +571,5 @@ class OfflineTabPane extends Component {
         )
     }
 }
-
 
 export default OfflineTabPane;

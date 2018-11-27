@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
-import { Layout } from "antd";
-import SplitPane from "react-split-pane";
-import { connect } from "react-redux";
+import { Layout } from 'antd';
+import SplitPane from 'react-split-pane';
+import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Sidebar from './sidebar';
 import Default from './default';
-import MainBench from "./mainBench";
+import MainBench from './mainBench';
 import CreateDBModal from './mainBench/database/create';
 import CreateTableDDLModal from './mainBench/tableDetail/ddlModal';
-
 
 import workbenchActions from '../../actions/workbenchActions';
 
@@ -20,7 +19,7 @@ const { Content } = Layout;
         const { workbench, modal } = state;
         return {
             modal,
-            mainBench: workbench.mainBench,
+            mainBench: workbench.mainBench
         };
     },
     dispatch => {
@@ -29,23 +28,21 @@ const { Content } = Layout;
     }
 )
 class Workbench extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
         }
     }
 
-    componentWillUnmount() {
-        window.removeEventListener("beforeunload", this.beforeunload, false);
+    componentWillUnmount () {
+        window.removeEventListener('beforeunload', this.beforeunload, false);
     }
 
-    render() {
-
+    render () {
         const {
             mainBench,
             onSQLQuery,
-            onCreateTable,
+            onCreateTable
         } = this.props;
 
         return (
@@ -59,17 +56,17 @@ class Workbench extends Component {
                 >
                     <div
                         className="ant-layout-sider bd-right"
-                        style={{ width: "inherit", height: '100%' }}
+                        style={{ width: 'inherit', height: '100%' }}
                     >
                         <Sidebar />
                     </div>
-                    <Content style={{height: '100%'}}>
+                    <Content style={{ height: '100%' }}>
                         {
-                            mainBench.tabs.length ? <MainBench /> :
-                            <Default 
-                                onSQLQuery={onSQLQuery}
-                                onCreateTable={onCreateTable}
-                            />
+                            mainBench.tabs.length ? <MainBench />
+                                : <Default
+                                    onSQLQuery={onSQLQuery}
+                                    onCreateTable={onCreateTable}
+                                />
                         }
                         <CreateDBModal {...this.props} />
                         <CreateTableDDLModal {...this.props} />

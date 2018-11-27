@@ -5,7 +5,7 @@ import moment from 'moment'
 import {
     Row, Input, Select, Menu, message,
     Col, Radio, Pagination, Checkbox, Form,
-    DatePicker, TimePicker, Table, Tree,
+    DatePicker, TimePicker, Table, Tree
 } from 'antd'
 
 import utils from 'utils'
@@ -22,53 +22,52 @@ const TreeNode = Tree.TreeNode
 const Option = Select.Option
 const FormItem = Form.Item
 
-function replaceTreeNode(treeNode, replace) {
+function replaceTreeNode (treeNode, replace) {
     if (treeNode && treeNode.length > 0) {
         for (let i = 0; i < treeNode.length; i += 1) {
             const node = treeNode[i]
-            if ( treeNode[i].data === replace.data) {
-                 treeNode[i] = Object.assign( treeNode[i], replace);
+            if (treeNode[i].data === replace.data) {
+                treeNode[i] = Object.assign(treeNode[i], replace);
                 return;
             }
             if (treeNode[i].children) {
-                replaceTreeNode( treeNode[i].children, replace)
+                replaceTreeNode(treeNode[i].children, replace)
             }
         }
     }
 }
 
-function getTimeString(date) {
+function getTimeString (date) {
     return date ? date.format('HH:mm') : ''
 }
 
 class PatchData extends Component {
-
     state = {
         loading: false,
         whichTask: [0],
         chooseTime: 0,
-        current: 1 ,
+        current: 1,
         tasks: {
-            data: [],
+            data: []
         },
         owner: undefined,
         startTime: '',
         endTime: '',
-        bussinessDate: utils.getParameterByName('patchBizTime') 
-        ? moment(utils.getParameterByName('patchBizTime')) : '',
+        bussinessDate: utils.getParameterByName('patchBizTime')
+            ? moment(utils.getParameterByName('patchBizTime')) : '',
         runningDate: utils.getParameterByName('patchBizTime') ? '' : moment(),
         taskStatus: [],
         jobType: '',
         taskName: utils.getParameterByName('patchName') || '',
         selected: '',
-        expandedKeys: [],
+        expandedKeys: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadPatchData()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { project } = nextProps
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -85,7 +84,7 @@ class PatchData extends Component {
         this.loadPatchData(params)
     }
 
-    loadPatchData(params) {
+    loadPatchData (params) {
         const ctx = this
         this.setState({ loading: true, expandedKeys: [] })
         if (this.valideParams()) {
@@ -100,7 +99,7 @@ class PatchData extends Component {
         }
     }
 
-    loadPatchDataDetail(params, node) {
+    loadPatchDataDetail (params, node) {
         const ctx = this
         this.setState({ loading: true })
         Api.getFillDataDetail(params).then((res) => {
@@ -115,7 +114,7 @@ class PatchData extends Component {
         })
     }
 
-    loadPatchDate(params, node) { // 查询补数据的日期列表
+    loadPatchDate (params, node) { // 查询补数据的日期列表
         const ctx = this
         this.setState({ loading: true })
         Api.getFillDate(params).then((res) => {
@@ -146,9 +145,9 @@ class PatchData extends Component {
         const {
             startTime, endTime,
             taskStatus, owner, jobType,
-            runningDate, bussinessDate, taskName,
+            runningDate, bussinessDate, taskName
         } = this.state
-        let reqParams = { currentPage: 1, pageSize: 10, }
+        let reqParams = { currentPage: 1, pageSize: 10 }
         if (taskName) {
             reqParams.jobName = taskName
         }
@@ -162,7 +161,7 @@ class PatchData extends Component {
             reqParams.status = taskStatus.join(',')
         }
         if (owner) {
-             reqParams.dutyUserId = owner
+            reqParams.dutyUserId = owner
         }
         if (jobType) {
             reqParams.type = jobType
@@ -177,11 +176,11 @@ class PatchData extends Component {
         const node = treeNode.props.data
         const parent = treeNode.props.parent
         return new Promise((resolve) => {
-            if (!node.children || node.children.length === 0) {  // PRE_VIEW(0), BIZ_DAY(1)
+            if (!node.children || node.children.length === 0) { // PRE_VIEW(0), BIZ_DAY(1)
                 if (node.type === 0) {
                     const params = {
                         fillJobName: node.data,
-                        jobName: taskName,
+                        jobName: taskName
                     }
                     if (taskStatus && taskStatus.length > 0) {
                         params.status = taskStatus.join(',')
@@ -194,7 +193,7 @@ class PatchData extends Component {
                     const params = {
                         bizDay: node.data,
                         fillJobName: parent.data || '',
-                        jobName: taskName,
+                        jobName: taskName
                     }
                     params.fromTime = getTimeString(startTime)
                     params.toTime = getTimeString(endTime)
@@ -219,13 +218,13 @@ class PatchData extends Component {
     }
 
     onWhichTask = (value) => {
-        const val = value && value.length > 0 ? [value[value.length -1]] : []
+        const val = value && value.length > 0 ? [value[value.length - 1]] : []
         const { user } = this.props
         // const userId = parseInt(, 10)
         const data = {
             owner: `${user.id}`,
             whichTask: val,
-            current: 1,
+            current: 1
         }
         if (val[0] === 2) { // is mine
             data.runningDate = moment()
@@ -270,7 +269,7 @@ class PatchData extends Component {
     }
 
     onOwnerChange = (value) => {
-        const state = { owner: value, current: 1, }
+        const state = { owner: value, current: 1 }
         if (value === 0 || value === undefined) {
             state.whichTask = 0
         }
@@ -297,10 +296,10 @@ class PatchData extends Component {
                     </TreeNode>);
                 }
                 const content = item.batchTask ? (
-                <span>
-                    <p><TaskBadgeStatus value={item.status} /> {item.batchTask.name}</p>
-                    <p>{item.businessDate}</p>
-                </span>) : item.data
+                    <span>
+                        <p><TaskBadgeStatus value={item.status} /> {item.batchTask.name}</p>
+                        <p>{item.businessDate}</p>
+                    </span>) : item.data
                 return (<TreeNode
                     data={item}
                     parent={parent}
@@ -313,25 +312,25 @@ class PatchData extends Component {
         return <NoData />
     }
 
-    render() {
+    render () {
         const {
             tasks, startTime, endTime, whichTask,
-            owner, bussinessDate, runningDate, taskName,
+            owner, bussinessDate, runningDate, taskName
         } = this.state
         const { projectUsers } = this.props
-        const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (
-                <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
-                {item.user.userName}
-            </Option>)
-        }) : []
-        const statusFilter = offlineTaskStatusFilter && offlineTaskStatusFilter.length > 0 ?
-        offlineTaskStatusFilter.map((item) => {
-            return (<Option key={item.id} value={item.value} name={item.text}>
-                {item.text}
-            </Option>)
-        }) : []
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
+                return (
+                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                        {item.user.userName}
+                    </Option>)
+            }) : []
+        const statusFilter = offlineTaskStatusFilter && offlineTaskStatusFilter.length > 0
+            ? offlineTaskStatusFilter.map((item) => {
+                return (<Option key={item.id} value={item.value} name={item.text}>
+                    {item.text}
+                </Option>)
+            }) : []
         const showTime = bussinessDate ? 'block' : 'none'
 
         const treeNodes = this.getTreeNodes(tasks.data)
@@ -365,7 +364,7 @@ class PatchData extends Component {
                                 onChange={this.onBuisTimeChange}
                             />
                         </FormItem>
-                        <FormItem 
+                        <FormItem
                             style={{ paddingBottom: '10px', display: showTime }}
                         >
                             <TimePicker
@@ -442,6 +441,6 @@ export default connect((state) => {
     return {
         project: state.project,
         user: state.user,
-        projectUsers: state.projectUsers,
+        projectUsers: state.projectUsers
     }
 })(PatchData)

@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { Tooltip, message } from 'antd';
 
 export default class ToolTipCopy extends Component {
-
     state = {
-        
+
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.removeFake();
     }
 
@@ -43,7 +42,7 @@ export default class ToolTipCopy extends Component {
         this.copyText();
     }
 
-    removeFake() {
+    removeFake () {
         if (this.fakeHandler) {
             document.body.removeEventListener('click', this.fakeHandlerCallback);
             this.fakeHandler = null;
@@ -56,32 +55,31 @@ export default class ToolTipCopy extends Component {
         }
     }
 
-    copyText() {
+    copyText () {
         let succeeded;
 
         try {
             succeeded = document.execCommand('copy');
-        }
-        catch (err) {
+        } catch (err) {
             succeeded = false;
         }
 
         this.handleResult(succeeded);
     }
 
-    handleResult(succeeded) {
+    handleResult (succeeded) {
         if (succeeded) {
-             message.success('复制成功');
+            message.success('复制成功');
         } else {
-             message.error('不支持');
+            message.error('不支持');
         }
     }
 
-    render() {
+    render () {
         const { value } = this.props;
 
-        return <Tooltip 
-            placement="right" 
+        return <Tooltip
+            placement="right"
             overlayClassName="copy-area"
             overlayStyle={{ cursor: 'pointer' }}
             title={

@@ -19,22 +19,21 @@ import {
     workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 
-import { isProjectCouldEdit } from "../../../../comm"
+import { isProjectCouldEdit } from '../../../../comm'
 
 const Step = Steps.Step;
 
 class DataSync extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
     state = {
         currentStep: 0,
-        loading: true,
+        loading: true
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { id } = this.props;
 
         this.getJobData({ taskId: id });
@@ -42,7 +41,7 @@ class DataSync extends React.Component {
         this.props.getDataSource();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         // 如果列发生变化，则检测更新系统变量
         if (this.onVariablesChange(this.props, nextProps)) {
             this.props.updateDataSyncVariables(
@@ -63,7 +62,7 @@ class DataSync extends React.Component {
         const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where && oldSource.type.where && oldSource.type.where !== sourceMap.type.where;
         const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && oldSource.type.partition && sourceMap.type.partition && oldSource.type.partition !== sourceMap.type.partition;
         const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && oldTarget.type.partition && targetMap.type.partition && oldTarget.type.partition !== targetMap.type.partition;
-        const isSQLChange = oldSQL !== undefined && newSQL!== undefined && oldSQL !== newSQL;
+        const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
 
         // Output test conditions
@@ -93,7 +92,7 @@ class DataSync extends React.Component {
                         (source, index) => {
                             return {
                                 ...source,
-                                key: index == 0 ? "main" : ("key" + ~~Math.random() * 10000000)
+                                key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)
                             }
                         }
                     )) : null;
@@ -120,7 +119,7 @@ class DataSync extends React.Component {
     }
 
     // 组件离开保存数据到tabs中
-    componentWillUnmount() {
+    componentWillUnmount () {
         const { id, dataSync } = this.props;
         if (this.state.loading) {
             return;
@@ -131,24 +130,24 @@ class DataSync extends React.Component {
         })
     }
 
-    next() {
+    next () {
         this.setState({
             currentStep: this.state.currentStep + 1
         })
     }
 
-    prev() {
+    prev () {
         this.setState({
             currentStep: this.state.currentStep - 1
         })
     }
 
-    navtoStep(step) {
+    navtoStep (step) {
         this.setState({ currentStep: step });
         this.props.setCurrentStep(step);
     }
 
-    save() {
+    save () {
         this.props.saveTab();
     }
 
@@ -158,7 +157,7 @@ class DataSync extends React.Component {
      * @returns {any} result 接口所需数据结构
      * @memberof DataSync
      */
-    generateRqtBody(data) {
+    generateRqtBody (data) {
         // 深刻龙避免直接mutate store
         let clone = cloneDeep(data);
 
@@ -220,32 +219,35 @@ class DataSync extends React.Component {
     getPopupContainer = () => {
         return this._datasyncDom;
     }
-    render() {
+    render () {
         const { currentStep, loading } = this.state;
-        const { 
+        const {
             readWriteLockVO, notSynced, user, project,
-            sourceMap, targetMap,
+            sourceMap, targetMap
         } = this.props;
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
         const couldEdit = isProjectCouldEdit(project, user);
 
         const steps = [
             {
-                title: '数据来源', content: <DataSyncSource
+                title: '数据来源',
+                content: <DataSyncSource
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
             {
-                title: '选择目标', content: <DataSyncTarget
+                title: '选择目标',
+                content: <DataSyncTarget
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
             {
-                title: '字段映射', content: <DataSyncKeymap
+                title: '字段映射',
+                content: <DataSyncKeymap
                     currentStep={currentStep}
                     sourceMap={sourceMap}
                     targetMap={targetMap}
@@ -253,27 +255,29 @@ class DataSync extends React.Component {
                 />
             },
             {
-                title: '通道控制', content: <DataSyncChannel
+                title: '通道控制',
+                content: <DataSyncChannel
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
             {
-                title: '预览保存', content: <DataSyncSave
+                title: '预览保存',
+                content: <DataSyncSave
                     currentStep={currentStep}
                     notSynced={notSynced}
                     navtoStep={this.navtoStep.bind(this)}
                     saveJob={this.save.bind(this)}
                 />
-            },
+            }
         ];
 
         return loading ? null : <div className="m-datasync">
             <Steps current={currentStep}>
                 {steps.map(item => <Step key={item.title} title={item.title} />)}
             </Steps>
-            <div ref={(ref) => { this._datasyncDom = ref; }} className="steps-content" style={{ position: "relative" }}>
+            <div ref={(ref) => { this._datasyncDom = ref; }} className="steps-content" style={{ position: 'relative' }}>
                 {isLocked || !couldEdit ? <div className="steps-mask"></div> : null}
                 {steps[currentStep].content}
             </div>
@@ -292,7 +296,7 @@ const mapState = (state) => {
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
         currentTab: workbench.currentTab,
-        taskCustomParams: workbench.taskCustomParams,
+        taskCustomParams: workbench.taskCustomParams
     }
 };
 
@@ -356,7 +360,7 @@ const mapDispatch = (dispatch, ownProps) => {
                 payload: step
             });
         },
-        saveJobData(params) {
+        saveJobData (params) {
             ajax.saveOfflineJobData(params)
                 .then(res => {
                     if (res.code === 1) {
@@ -370,9 +374,9 @@ const mapDispatch = (dispatch, ownProps) => {
                     }
                 })
         },
-        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+        updateDataSyncVariables (sourceMap, targetMap, taskCustomParams) {
             wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
-        },
+        }
     }
 }
 

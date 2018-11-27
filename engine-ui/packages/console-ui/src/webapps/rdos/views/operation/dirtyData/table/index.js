@@ -1,8 +1,8 @@
-import React from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router";
-import moment from "moment";
-import SplitPane from "react-split-pane";
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
+import moment from 'moment';
+import SplitPane from 'react-split-pane';
 import {
     Row,
     Col,
@@ -14,23 +14,23 @@ import {
     Modal,
     message,
     Card
-} from "antd";
-import CopyToClipboard from "react-copy-to-clipboard";
-import "../../../../styles/pages/dataManage.scss";
+} from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import '../../../../styles/pages/dataManage.scss';
 
-import utils from "utils";
-import GoBack from "main/components/go-back";
+import utils from 'utils';
+import GoBack from 'main/components/go-back';
 
-import ajax from "../../../../api/dataManage";
-import TableOverview from "./overview";
-import TableAnalytics from "./analytics";
+import ajax from '../../../../api/dataManage';
+import TableOverview from './overview';
+import TableAnalytics from './analytics';
 
 const TabPane = Tabs.TabPane;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 export default class TableDetail extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.tableId = this.props.routeParams.tableId;
         this.state = {
@@ -39,11 +39,11 @@ export default class TableDetail extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getTable();
     }
 
-    getTable() {
+    getTable () {
         ajax.getDirtyDataTableInfo({ tableId: this.tableId }).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -53,21 +53,21 @@ export default class TableDetail extends React.Component {
         });
     }
 
-    switchType(evt) {
+    switchType (evt) {
         const showType = evt.target.value;
         this.setState({
             showType
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         this.setState({
             visible: false
         });
     }
 
-    handleOk() {
-        message.info("复制成功，代码窗口即将关闭");
+    handleOk () {
+        message.info('复制成功，代码窗口即将关闭');
         setTimeout(() => {
             this.setState({
                 visible: false
@@ -75,32 +75,32 @@ export default class TableDetail extends React.Component {
         }, 1000);
     }
 
-    render() {
+    render () {
         const { showType, tableData, previewData } = this.state;
         const columns = [
             {
-                title: "序号",
-                dataIndex: "id",
-                key: "id",
-                render(id) {
+                title: '序号',
+                dataIndex: 'id',
+                key: 'id',
+                render (id) {
                     return id;
                 }
             },
             {
-                title: "字段名称",
-                dataIndex: "columnName",
-                key: "columnName"
+                title: '字段名称',
+                dataIndex: 'columnName',
+                key: 'columnName'
             },
             {
-                title: "类型",
-                dataIndex: "columnType",
-                key: "columnType"
+                title: '类型',
+                dataIndex: 'columnType',
+                key: 'columnType'
             },
             {
-                title: "注释",
-                dataIndex: "comment",
-                key: "comment",
-                render(text) {
+                title: '注释',
+                dataIndex: 'comment',
+                key: 'comment',
+                render (text) {
                     return text;
                 }
             }
@@ -108,7 +108,7 @@ export default class TableDetail extends React.Component {
 
         const fieldsData =
             showType === 0 ? tableData.column : tableData.partition;
-        console.log("--------fieldsData", fieldsData);
+        console.log('--------fieldsData', fieldsData);
 
         const tableInfo = tableData.table || {};
         const relTasks = tableInfo.tasks && tableInfo.tasks.map(i => i.name);
@@ -148,13 +148,13 @@ export default class TableDetail extends React.Component {
                                                         {moment(
                                                             tableInfo.createTime
                                                         ).format(
-                                                            "YYYY-MM-DD HH:mm:ss"
+                                                            'YYYY-MM-DD HH:mm:ss'
                                                         )}
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <th>相关任务</th>
-                                                    <td>{relTasks || "无"}</td>
+                                                    <td>{relTasks || '无'}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>描述</th>
@@ -191,8 +191,8 @@ export default class TableDetail extends React.Component {
                                                     <th>是否分区</th>
                                                     <td>
                                                         {tableInfo.partitions
-                                                            ? "是"
-                                                            : "否"}
+                                                            ? '是'
+                                                            : '否'}
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -216,7 +216,7 @@ export default class TableDetail extends React.Component {
                                     )}
                                 </Col>
                             </Row>
-                            <Row style={{ padding: "0 30px", height: "500px" }}>
+                            <Row style={{ padding: '0 30px', height: '500px' }}>
                                 <div className="m-tabs m-card bd">
                                     <Tabs
                                         animated={false}
@@ -260,13 +260,13 @@ export default class TableDetail extends React.Component {
                                                 extra={
                                                     <p
                                                         style={{
-                                                            color: "#ccc"
+                                                            color: '#ccc'
                                                         }}
                                                     >
-                                                        共{" "}
+                                                        共{' '}
                                                         {(fieldsData &&
                                                             fieldsData.length) ||
-                                                            0}{" "}
+                                                            0}{' '}
                                                         个字段
                                                     </p>
                                                 }

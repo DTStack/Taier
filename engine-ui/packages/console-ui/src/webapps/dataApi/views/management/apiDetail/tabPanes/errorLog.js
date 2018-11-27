@@ -1,48 +1,47 @@
-import React, { Component } from "react";
-import { Table, Modal, Row, Col } from "antd"
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { Table, Modal, Row, Col } from 'antd'
+import { connect } from 'react-redux';
 
-import utils from "utils"
+import utils from 'utils'
 import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
-import AdminErrorDistributed from "../../../../components/errorDistributed";
+import AdminErrorDistributed from '../../../../components/errorDistributed';
 
 const errorType = {
-    1: "disable",
-    2: "unauthorize",
-    3: "paramerror",
-    4: "timeout",
-    5: "outlimit",
-    6: "other" 
+    1: 'disable',
+    2: 'unauthorize',
+    3: 'paramerror',
+    4: 'timeout',
+    5: 'outlimit',
+    6: 'other'
 }
 const errorExchange = {
-    disable: "禁用",
-    unauthorize: "未认证",
-    paramerror: "参数错误",
-    timeout: "超时",
-    outlimit: "超过限制",
-    other: "其他",
+    disable: '禁用',
+    unauthorize: '未认证',
+    paramerror: '参数错误',
+    timeout: '超时',
+    outlimit: '超过限制',
+    other: '其他'
 
 }
 const mapStateToProps = state => {
-
     return {}
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiCallErrorInfo(id, date) {
+    getApiCallErrorInfo (id, date) {
         return dispatch(apiManageActions.getApiCallErrorInfo({
             apiId: id,
             time: date
         }));
     },
-    queryApiCallLog(id, currentPage, bizType,date) {
+    queryApiCallLog (id, currentPage, bizType, date) {
         return dispatch(mineActions.queryApiCallLog({
             apiId: id,
             currentPage: currentPage,
             bizType: bizType,
             useAdmin: true,
-            time:date
+            time: date
         }));
     }
 });
@@ -59,28 +58,26 @@ class ManageErrorLog extends Component {
         pageIndex: 1,
         total: 0,
         filter: {},
-        recordInfoList:[]
+        recordInfoList: []
     }
-    componentDidMount() {
+    componentDidMount () {
         const { apiId, dateType } = this.props;
         this.getErrorInfo(apiId, dateType);
-
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { apiId, dateType } = this.props;
-        const { apiId:nextApiId, dateType:nextDateType } = nextProps;
+        const { apiId: nextApiId, dateType: nextDateType } = nextProps;
         if (apiId != nextApiId || dateType != nextDateType) {
             this.setState({
-                pageIndex:1
-            },()=>{
-                this.getErrorInfo(nextApiId,nextDateType);
-            })  
+                pageIndex: 1
+            }, () => {
+                this.getErrorInfo(nextApiId, nextDateType);
+            })
         }
     }
-    getErrorInfo(apiId, dateType) {
+    getErrorInfo (apiId, dateType) {
         if (!apiId) {
             return;
-
         }
         this.props.getApiCallErrorInfo(apiId, dateType)
             .then(
@@ -100,12 +97,12 @@ class ManageErrorLog extends Component {
                         }
                         this.setState({
                             error: dic,
-                            recordInfoList:res.data.recordInfoList
+                            recordInfoList: res.data.recordInfoList
                         })
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0],dateType)
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0], dateType)
             .then(
                 (res) => {
                     if (res) {
@@ -116,14 +113,13 @@ class ManageErrorLog extends Component {
                     }
                 }
             )
-
     }
-    initColumns() {
+    initColumns () {
         return [{
             title: '调用时间',
             dataIndex: 'invokeTime',
             key: 'invokeTime',
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text)
             }
 
@@ -136,8 +132,8 @@ class ManageErrorLog extends Component {
             title: '错误类型',
             dataIndex: 'bizType',
             key: 'bizType',
-            width: "100px",
-            render(text) {
+            width: '100px',
+            render (text) {
                 return errorExchange[errorType[text]]
             },
             filters: [
@@ -153,13 +149,13 @@ class ManageErrorLog extends Component {
             title: '错误日志',
             dataIndex: 'content',
             key: 'content',
-            width: "250px"
+            width: '250px'
 
         }, {
             title: '操作',
             dataIndex: '',
             key: 'deal',
-            width: "100px",
+            width: '100px',
             render: (text, record) => {
                 return (
                     <a onClick={this.lookAllErrorText.bind(this, record.content)}>查看全部</a>
@@ -167,14 +163,14 @@ class ManageErrorLog extends Component {
             }
         }]
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 10,
-            total: this.state.total,
+            total: this.state.total
         }
     }
-    getSource() {
+    getSource () {
         return this.state.data
     }
     // 表格换页/排序
@@ -183,12 +179,12 @@ class ManageErrorLog extends Component {
             pageIndex: page.current,
             filter: filter
         },
-            () => {
-                const {apiId,dateType} = this.props;
-                this.getErrorInfo(apiId,dateType);
-            });
+        () => {
+            const { apiId, dateType } = this.props;
+            this.getErrorInfo(apiId, dateType);
+        });
     }
-    lookAllErrorText(text) {
+    lookAllErrorText (text) {
         Modal.info({
             title: '错误日志',
             content: (
@@ -197,27 +193,27 @@ class ManageErrorLog extends Component {
 
                 </div>
             ),
-            onOk() { },
+            onOk () { }
         });
     }
-    getErrorPercent(key) {
+    getErrorPercent (key) {
         return this.state.error[key] && this.state.error[key].percent || 0;
     }
-    getErrorCount(key) {
+    getErrorCount (key) {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
-    render() {
+    render () {
         const { recordInfoList } = this.state;
         const data = this.getSource();
-        let className = "m-table monitor-table table-p-l20"
+        let className = 'm-table monitor-table table-p-l20'
         if (data.length < 3) {
-            className += " mini-filter"
+            className += ' mini-filter'
         }
         return (
             <div>
                 <Row>
-                    <Col span={16} style={{paddingRight:"20px"}}>
-                        <p style={{ lineHeight: "1", padding: "14px 0px 14px 8px" }} className="child-span-padding-r20">
+                    <Col span={16} style={{ paddingRight: '20px' }}>
+                        <p style={{ lineHeight: '1', padding: '14px 0px 14px 8px' }} className="child-span-padding-r20">
                             <span>参数错误: {this.getErrorPercent('paramerror')}% ({this.getErrorCount('paramerror')}次)</span>
                             <span>禁用: {this.getErrorPercent('disable')}% ({this.getErrorCount('disable')}次)</span>
                             <span>未认证: {this.getErrorPercent('unauthorize')}% ({this.getErrorCount('unauthorize')}次)</span>
@@ -236,7 +232,7 @@ class ManageErrorLog extends Component {
                             onChange={this.onTableChange}
                         />
                     </Col>
-                    <Col  span={8} >
+                    <Col span={8} >
                         <AdminErrorDistributed chartData={recordInfoList} mode="mini" />
                     </Col>
                 </Row>

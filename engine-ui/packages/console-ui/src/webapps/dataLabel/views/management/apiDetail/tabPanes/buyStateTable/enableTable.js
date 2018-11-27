@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { Table } from "antd";
+import React, { Component } from 'react';
+import { Table } from 'antd';
 
-import utils from "utils";
+import utils from 'utils';
 import { EXCHANGE_API_STATUS } from '../../../../../consts';
 
 class EnableTable extends Component {
@@ -10,7 +10,7 @@ class EnableTable extends Component {
         filter: {},
         sortedInfo: {}
     }
-    initColumns() {
+    initColumns () {
         return [{
             title: '用户',
             dataIndex: 'userName',
@@ -28,11 +28,11 @@ class EnableTable extends Component {
             ],
             render: (text, record) => {
                 const dic = {
-                    success: "正常",
-                    stop: "停用",
-                    disabled:"取消授权"
+                    success: '正常',
+                    stop: '停用',
+                    disabled: '取消授权'
                 }
-             
+
                 return <span className={`state-${EXCHANGE_API_STATUS[text]}`}>{dic[EXCHANGE_API_STATUS[text]]}</span>
             }
         }, {
@@ -44,8 +44,8 @@ class EnableTable extends Component {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
             key: 'recent24HFailRate',
-            render(text){
-                return text+"%";
+            render (text) {
+                return text + '%';
             }
         }, {
             title: '最近7天调用',
@@ -66,7 +66,7 @@ class EnableTable extends Component {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text);
             }
 
@@ -75,7 +75,7 @@ class EnableTable extends Component {
             dataIndex: '',
             key: 'deal',
             render: (text, record) => {
-                if (EXCHANGE_API_STATUS[record.status] != "disabled") {
+                if (EXCHANGE_API_STATUS[record.status] != 'disabled') {
                     return <a onClick={
                         () => {
                             this.props.cancelApi(record.applyId)
@@ -91,11 +91,11 @@ class EnableTable extends Component {
 
         }]
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 10,
-            total: this.props.total,
+            total: this.props.total
         }
     }
 
@@ -112,10 +112,10 @@ class EnableTable extends Component {
             sortedInfo: sorter
         })
     }
-    lookAllErrorText() {
-        console.log("lookAllErrorText")
+    lookAllErrorText () {
+        console.log('lookAllErrorText')
     }
-    render() {
+    render () {
         return (
             <Table
                 rowKey="applyId"

@@ -7,7 +7,7 @@ const Mx = require('public/stream/mxgraph')({
     mxImageBasePath: 'public/stream/mxgraph/images',
     mxLoadResources: false,
     mxLanguage: 'none',
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 })
 
 const {
@@ -32,7 +32,7 @@ const {
     mxUndoManager,
     mxCompactTreeLayout,
     mxUtils,
-    mxDragSource,
+    mxDragSource
     // mxCylinder,
 } = Mx
 
@@ -40,17 +40,16 @@ const KEY = {
     COMMAND: 91, // Command键
     CTRL: 17, // Control键
     BACKUP: 8, // Backup回车
-    A: 65, // Button A
+    A: 65 // Button A
 }
 
 const VertexSize = { // vertex大小
     width: 120,
-    height: 60,
+    height: 60
 }
 
 export default class Editor extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const editor = this.Container
         this.initEditor()
         this.loadEditor(editor)
@@ -441,9 +440,9 @@ export default class Editor extends Component {
     }
 
     /* eslint-enable */
-    render() {
+    render () {
         return (
-            <div style={{height: '100%', width: '90%', marginLeft: '10%', position: 'relative'}}>
+            <div style={{ height: '100%', width: '90%', marginLeft: '10%', position: 'relative' }}>
                 <div className="editor" ref={(e) => { this.Container = e }} />
                 <div style={{ position: 'absolute', zIndex: '2', right: '20px', top: '30px' }}>
                     <button onClick={() => this.zoomIn()}>放大</button>
@@ -459,14 +458,14 @@ export default class Editor extends Component {
                 <ul style={{ position: 'absolute', zIndex: '2', left: '-10%', top: '30px' }}>
 
                     <li>
-                        <button ref={(ins) => this.btn1 = ins } style={{padding: '10px'}}>
+                        <button ref={(ins) => this.btn1 = ins } style={{ padding: '10px' }}>
                             Tool-1
                         </button>
                     </li>
 
-                    <li style={{marginTop: '10px'}}>
+                    <li style={{ marginTop: '10px' }}>
                         <button ref={(ins) => this.btn2 = ins }
-                            style={{padding: '10px'}}
+                            style={{ padding: '10px' }}
                         >
                             Tool-2
                         </button>

@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { debounce } from 'lodash';
 
-import { commonFileEditDelegator } from "widgets/editor/utils";
+import { commonFileEditDelegator } from 'widgets/editor/utils';
 
-import IDEEditor from "main/components/ide";
+import IDEEditor from 'main/components/ide';
 
-import API from "../../../../api";
+import API from '../../../../api';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
 
@@ -25,7 +25,6 @@ import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
     return actions;
 })
 class CommonCodeEditor extends Component {
-
     onContentChange = (value, editorInstance) => {
         const { editorChange } = this.props;
         editorChange({
@@ -36,21 +35,20 @@ class CommonCodeEditor extends Component {
     }
 
     format = () => {
-
         const { currentPage, setCurrentPage, onFormat } = this.props;
         const params = {
-            sql: currentPage.sqlText || ""
+            sql: currentPage.sqlText || ''
         };
-        function updatePage(text) {
+        function updatePage (text) {
             const data = {
                 merged: true,
                 sqlText: text,
-                id: currentPage.id,
+                id: currentPage.id
             };
             const updatedData = Object.assign(currentPage, data);
             setCurrentPage(updatedData);
         }
-        if (onFormat && typeof onFormat == "function") {
+        if (onFormat && typeof onFormat == 'function') {
             onFormat(currentPage.sqlText).then(
                 (formatText) => {
                     updatePage(formatText)
@@ -67,8 +65,7 @@ class CommonCodeEditor extends Component {
 
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
-    render() {
-
+    render () {
         const {
             currentPage,
             editor,
@@ -82,13 +79,13 @@ class CommonCodeEditor extends Component {
             value: currentPage.sqlText,
             language: mode,
             options: {
-                readOnly: isLocked,
+                readOnly: isLocked
             },
             cursorPosition: cursorPosition,
             theme: editor.options.theme,
             onChange: this.onContentChange,
             sync: currentPage.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange,
+            onCursorSelection: this.debounceSelectionChange
         };
 
         const toolbarOpts = {

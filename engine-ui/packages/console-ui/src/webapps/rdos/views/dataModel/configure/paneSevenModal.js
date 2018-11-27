@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import { isArray, isNumber, isEmpty } from 'lodash';
 import {
     Form, Input, Icon, Select,
-    Radio, Modal, Button,
+    Radio, Modal, Button
 } from 'antd'
 
 import Api from '../../../api/dataModel';
-import { 
+import {
     formItemLayout,
-    TABLE_MODEL_RULE,
+    TABLE_MODEL_RULE
 } from '../../../comm/const';
 import LifeCycle from '../../dataManage/lifeCycle';
 
@@ -17,39 +17,38 @@ const RadioGroup = Radio.Group
 const Option = Select.Option;
 
 class DeriveIndexModal extends Component {
-
-    state = { 
+    state = {
         indexNames: [],
         automIndexs: [],
-        columnTypes: [],
+        columnTypes: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         // 加载原子指标
         this.loadAtomIndex();
         this.getColumnType();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (!this.props.visible && nextProps.visible) {
             const isEdit = nextProps.data && !isEmpty(nextProps.data);
             this.loadAtomIndex(isEdit);
             if (isEdit) {
                 const indexNames = nextProps.data.columnName.split('_');
                 this.setState({
-                    indexNames: indexNames,
+                    indexNames: indexNames
                 })
             }
         }
     }
 
-    getColumnType() {
-        Api.getColumnType().then(res =>{
-            if(res.code === 1){
+    getColumnType () {
+        Api.getColumnType().then(res => {
+            if (res.code === 1) {
                 this.setState({
-                    columnTypes: res.data||[]
+                    columnTypes: res.data || []
                 })
-            } 
+            }
         })
     }
 
@@ -57,13 +56,13 @@ class DeriveIndexModal extends Component {
         Api.getModelIndexs({
             type: 1,
             pageSize: 1000,
-            currentPage: 1,
+            currentPage: 1
         }).then(res => {
             if (res.code === 1) {
                 const automIndexs = res.data ? res.data.data : []
-                const initalState = { automIndexs, }
+                const initalState = { automIndexs }
                 if (!isEdit) {
-                    initalState.indexNames = automIndexs&&automIndexs.length > 0 ? [automIndexs[0].columnName] : [];
+                    initalState.indexNames = automIndexs && automIndexs.length > 0 ? [automIndexs[0].columnName] : [];
                 }
                 this.setState(initalState)
             }
@@ -105,7 +104,6 @@ class DeriveIndexModal extends Component {
     }
 
     insertIndexName = (index) => {
-
         const { automIndexs } = this.state;
         const originArr = this.state.indexNames;
 
@@ -139,13 +137,11 @@ class DeriveIndexModal extends Component {
         })
     }
 
-
     renderIndexNames = () => {
-
         const { indexNames, automIndexs } = this.state;
         const length = indexNames.length;
 
-        const options = automIndexs && automIndexs.map((atomIndex, index) => <Option 
+        const options = automIndexs && automIndexs.map((atomIndex, index) => <Option
             key={atomIndex.id}
             index={index}
             value={atomIndex.columnName}
@@ -154,47 +150,46 @@ class DeriveIndexModal extends Component {
         </Option>);
 
         return indexNames && indexNames.map((indexName, index) => <span
-            style={{display: 'inline-block', marginBottom: '5px'}} 
+            style={{ display: 'inline-block', marginBottom: '5px' }}
             key={index}>
-                <Select
-                    showSearch
-                    placeholder="请选择"
-                    value={indexName}
-                    style={{ width: 126, marginRight: '5px' }}
-                    onSelect={(value, option) => this.changeIndexName(value, index)}
-                >
-                    {options}
-                </Select>
-                {
-                    (index == length - 1) && length > 1 ? <Button 
-                        icon="minus" 
-                        title="移除规则"
-                        style={{marginRight: '5px'}}
-                        onClick={() => this.removeIndexName(index)}
-                    /> :
-                    <Button 
-                        icon="plus" 
+            <Select
+                showSearch
+                placeholder="请选择"
+                value={indexName}
+                style={{ width: 126, marginRight: '5px' }}
+                onSelect={(value, option) => this.changeIndexName(value, index)}
+            >
+                {options}
+            </Select>
+            {
+                (index == length - 1) && length > 1 ? <Button
+                    icon="minus"
+                    title="移除规则"
+                    style={{ marginRight: '5px' }}
+                    onClick={() => this.removeIndexName(index)}
+                />
+                    : <Button
+                        icon="plus"
                         title="添加规则"
-                        style={{marginRight: '5px'}}
+                        style={{ marginRight: '5px' }}
                         onClick={() => this.insertIndexName(index)}
                     />
-                }
-            </span>
+            }
+        </span>
         );
     }
 
-    render() {
-
+    render () {
         const {
             form, visible, data
         } = this.props;
 
-        const { indexNames,automIndexs,columnTypes } = this.state;
+        const { indexNames, automIndexs, columnTypes } = this.state;
 
         const { getFieldDecorator } = form
 
         const isEdit = data && !isEmpty(data);
-        const title = isEdit ? '编辑衍生指标': '创建衍生指标'
+        const title = isEdit ? '编辑衍生指标' : '创建衍生指标'
         // const TYPES =[
         //     "TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
         //     "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
@@ -217,14 +212,14 @@ class DeriveIndexModal extends Component {
                     >
                         {getFieldDecorator('columnNameZh', {
                             rules: [{
-                                required: true, message: '衍生指标名称不可为空！',
+                                required: true, message: '衍生指标名称不可为空！'
                             }, {
                                 max: 64,
-                                message: '衍生指标名称不得超过64个字符！',
+                                message: '衍生指标名称不得超过64个字符！'
                             }],
-                            initialValue: data ? data.columnNameZh : '',
+                            initialValue: data ? data.columnNameZh : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -235,11 +230,11 @@ class DeriveIndexModal extends Component {
                         {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
-                                message: '指标口径请控制在200个字符以内！',
+                                message: '指标口径请控制在200个字符以内！'
                             }],
-                            initialValue: data ? data.modelDesc : '',
+                            initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />,
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                     <FormItem
@@ -248,7 +243,7 @@ class DeriveIndexModal extends Component {
                         hasFeedback
                     >
                         {
-                            automIndexs &&  automIndexs.length > 0 ?this.renderIndexNames() : <span style={{color: "#f00"}}>请先创建原子指标</span>
+                            automIndexs && automIndexs.length > 0 ? this.renderIndexNames() : <span style={{ color: '#f00' }}>请先创建原子指标</span>
                         }
                     </FormItem>
                     <FormItem
@@ -257,7 +252,7 @@ class DeriveIndexModal extends Component {
                         style={{ wordBreak: 'break-all' }}
                     >
                         {
-                            indexNames && indexNames.length > 0 ?  indexNames.join('_') :   <span style={{color: "#f00"}}>请先创建原子指标</span>
+                            indexNames && indexNames.length > 0 ? indexNames.join('_') : <span style={{ color: '#f00' }}>请先创建原子指标</span>
                         }
                     </FormItem>
                     <FormItem
@@ -267,11 +262,11 @@ class DeriveIndexModal extends Component {
                     >
                         {getFieldDecorator('dataType', {
                             rules: [],
-                            initialValue: data ? data.dataType : 'STRING',
+                            initialValue: data ? data.dataType : 'STRING'
                         })(
                             <Select>
                                 {columnTypes.map(str => <Option key={str} value={str}>{str}</Option>)}
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                 </Form>

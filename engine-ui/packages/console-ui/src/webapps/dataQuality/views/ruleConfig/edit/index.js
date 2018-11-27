@@ -9,7 +9,6 @@ import GoBack from 'main/components/go-back';
 const Step = Steps.Step;
 
 export default class RuleConfigEdit extends Component {
-
     state = {
         current: 0,
         editParams: {
@@ -43,12 +42,13 @@ export default class RuleConfigEdit extends Component {
     navToStep = (value) => {
         this.setState({ current: value });
     }
- 
-    render() {
+
+    render () {
         const { current, editParams, havePart, useInput } = this.state;
         const steps = [
             {
-                title: '监控对象', content: <StepOne
+                title: '监控对象',
+                content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
                     havePart={havePart}
@@ -60,7 +60,8 @@ export default class RuleConfigEdit extends Component {
                 />
             },
             {
-                title: '监控规则', content: <StepTwo
+                title: '监控规则',
+                content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
                     editParams={editParams}
@@ -68,7 +69,8 @@ export default class RuleConfigEdit extends Component {
                 />
             },
             {
-                title: '调度属性', content: <StepThree
+                title: '调度属性',
+                content: <StepThree
                     currentStep={current}
                     havePart={havePart}
                     navToStep={this.navToStep}
@@ -77,16 +79,16 @@ export default class RuleConfigEdit extends Component {
                 />
             }
         ];
-        
+
         return (
             <div className="box-1 rule-edit">
                 <h1 className="box-title">
-                    <GoBack /> 
+                    <GoBack />
                     <span className="m-l-8">
                         新建质量监控
                     </span>
                 </h1>
-                
+
                 <div className="steps-container">
                     <Steps current={current}>
                         { steps.map(item => <Step key={item.title} title={item.title} />) }
@@ -97,4 +99,3 @@ export default class RuleConfigEdit extends Component {
         )
     }
 }
-

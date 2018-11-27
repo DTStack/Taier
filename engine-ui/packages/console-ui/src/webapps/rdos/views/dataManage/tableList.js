@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Input, Table, Form, message,
-    Card, Select, Tabs,Spin
+    Card, Select, Tabs, Spin
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
@@ -24,38 +24,37 @@ const ROUTER_BASE = '/data-manage/table';
     return {
         allProjects: state.allProjects,
         user: state.user,
-        dataCatalogues: state.dataManage.dataCatalogues,
+        dataCatalogues: state.dataManage.dataCatalogues
     }
 })
 class TableList extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         const { listType, pId, tableName, pageIndex, catalogueId } = props.location.query;
-        
+
         this.state = {
             table: [],
             editRecord: {},
             loading: false,
-            dataCatalogue:[props.dataCatalogues],
+            dataCatalogue: [props.dataCatalogues],
             tableLog: {
                 tableId: undefined,
                 tableName,
-                visible: false,
+                visible: false
             },
             queryParams: {
-                listType:listType || "1",
+                listType: listType || '1',
                 pageIndex: pageIndex || 1,
                 pageSize: 20,
                 catalogueId,
                 pId,
-                tableName,
-            },
+                tableName
+            }
         }
         this.isAdminAbove = this.props.user && this.props.user.isAdminAbove;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
     }
 
@@ -65,17 +64,17 @@ class TableList extends Component {
         const pathname = this.props.location.pathname;
         hashHistory.push({
             pathname,
-            query: queryParams,
+            query: queryParams
         })
         ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
-                    loading: false,
+                    loading: false
                 })
             } else {
                 this.setState({
-                    loading: false,
+                    loading: false
                 })
             }
         })
@@ -92,23 +91,23 @@ class TableList extends Component {
     }
 
     changeParams = (field, value) => {
-        let queryParams = Object.assign(this.state.queryParams);      
+        let queryParams = Object.assign(this.state.queryParams);
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
         }
-       
+
         this.setState({
-            queryParams,
+            queryParams
         }, this.search)
     }
- 
+
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
         this.setState({
-            queryParams,
+            queryParams
         }, this.search)
     }
 
@@ -116,19 +115,19 @@ class TableList extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 tableName: e.target.value,
-                pageIndex: 1,
-            }),
+                pageIndex: 1
+            })
         })
     }
 
     showModal = (editRecord) => {
         this.setState({
             visible: true,
-            editRecord,
+            editRecord
         });
     }
 
-    showTableLog(table) {
+    showTableLog (table) {
         const { id, tableName } = table;
         const { tableLog } = this.state;
         tableLog.tableId = id;
@@ -158,7 +157,7 @@ class TableList extends Component {
                 width: 120,
                 key: 'tableName',
                 dataIndex: 'tableName',
-                render(text, record) {
+                render (text, record) {
                     return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
@@ -166,81 +165,81 @@ class TableList extends Component {
                 title: '类目',
                 key: 'catalogue',
                 dataIndex: 'catalogue',
-                render(text, record) {
+                render (text, record) {
                     return text
-                },
+                }
             },
             {
                 title: '项目名称',
                 key: 'project',
-                dataIndex: 'project',
+                dataIndex: 'project'
             },
             {
                 title: '项目显示名称',
                 key: 'projectAlias',
-                dataIndex: 'projectAlias',
+                dataIndex: 'projectAlias'
             },
             {
                 title: '创建时间',
                 key: 'gmtCreate',
                 dataIndex: 'gmtCreate',
-                render(text, record) {
+                render (text, record) {
                     return utils.formatDateTime(text)
                 }
             },
             {
                 title: '占用存储',
                 key: 'tableSize',
-                dataIndex: 'tableSize',
+                dataIndex: 'tableSize'
             },
             {
                 title: '生命周期',
                 key: 'lifeDay',
-                dataIndex: 'lifeDay',
+                dataIndex: 'lifeDay'
             },
             {
-                title: '操作', 
+                title: '操作',
                 key: 'id',
                 width: 120,
-                render(text, record) {
+                render (text, record) {
                     switch (queryParams.listType) {
-                        case '1':
-                        case '2':
-                        case '3':
-                            return <span>
-                                <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
-                                <span className="ant-divider"></span>
-                                {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
-                                <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
-                            </span>
-                        case '5':
-                            return <span>
-                                <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
-                            </span>
-                        default:
-                            return '--';
+                    case '1':
+                    case '2':
+                    case '3':
+                        return <span>
+                            <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
+                            <span className="ant-divider"></span>
+                            {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
+                            <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
+                        </span>
+                    case '5':
+                        return <span>
+                            <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
+                        </span>
+                    default:
+                        return '--';
                     }
                 }
             }
         ];
-        if (queryParams.listType == "4") {
+        if (queryParams.listType == '4') {
             initialColumns.pop(1);
-            let addInitalColumns=[{
+            let addInitalColumns = [{
                 title: '有效期',
                 key: 'timeTeft',
                 dataIndex: 'timeTeft',
-                render(text, record) {
-                    return text ? `${text}天` : " " 
+                render (text, record) {
+                    return text ? `${text}天` : ' '
                 }
-            },{
+            }, {
                 title: '通过时间',
                 key: 'passTime',
                 dataIndex: 'passTime',
-                render(text, record) {
-                    return text ? utils.formatDateTime(text) : " "
+                render (text, record) {
+                    return text ? utils.formatDateTime(text) : ' '
                 }
             }]
-            initialColumns = [...initialColumns,...addInitalColumns]
+            initialColumns = [...initialColumns, ...addInitalColumns]
         }
         return initialColumns;
     }
@@ -265,10 +264,10 @@ class TableList extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogueId&&Number(queryParams.catalogueId)}
+                            value={queryParams.catalogueId && Number(queryParams.catalogueId)}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
-                            treeData={dataCatalogue&&dataCatalogue[0].children}
+                            treeData={dataCatalogue && dataCatalogue[0].children}
                         />
                     </span>
                 </FormItem>
@@ -323,7 +322,7 @@ class TableList extends Component {
         </div>
     }
 
-    render() {
+    render () {
         const { tableLog, queryParams } = this.state;
         const projectUsers = [];
         return (
@@ -331,7 +330,7 @@ class TableList extends Component {
                 <Tabs
                     activeKey={queryParams.listType}
                     animated={false}
-                    style={{overflow:'visible',height: "calc(100% - 40px)"}}
+                    style={{ overflow: 'visible', height: 'calc(100% - 40px)' }}
                     onChange={value => this.changeParams('listType', value)}
                 >
                     <TabPane tab="我近期操作的表" key="1">
@@ -340,8 +339,8 @@ class TableList extends Component {
                     <TabPane tab="个人账号的表" key="2">
                         {this.renderPane()}
                     </TabPane>
-                    { 
-                        this.isAdminAbove == 1 ? <TabPane tab="我管理的表" key="3">{this.renderPane()}</TabPane> : ""
+                    {
+                        this.isAdminAbove == 1 ? <TabPane tab="我管理的表" key="3">{this.renderPane()}</TabPane> : ''
                     }
                     <TabPane tab="被授权的表" key="4">
                         {this.renderPane()}
@@ -355,9 +354,9 @@ class TableList extends Component {
                     visible={tableLog.visible}
                     style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                 >
-                   {tableLog.visible ? <div className="m-loglist">
+                    {tableLog.visible ? <div className="m-loglist">
                         <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
-                    </div> : ""}
+                    </div> : ''}
                 </SlidePane>
             </div>
         )

@@ -4,16 +4,16 @@ import moment from 'moment'
 
 import {
     Table, Row, Col, Select, Card,
-    Input, Button, DatePicker, Form,
+    Input, Button, DatePicker, Form
 } from 'antd'
 
 import utils from 'utils'
 
 import Api from '../../../api'
 import {
-    AlarmTriggerType, 
-    TaskType, 
-    AlarmTypes,
+    AlarmTriggerType,
+    TaskType,
+    AlarmTypes
 } from '../../../components/status'
 
 const RangePicker = DatePicker.RangePicker
@@ -21,7 +21,6 @@ const Option = Select.Option
 const FormItem = Form.Item
 
 class OfflinePanel extends Component {
-    
     state = {
         alarmRecords: { data: [] },
         loading: false,
@@ -30,15 +29,15 @@ class OfflinePanel extends Component {
         taskName: '',
         alarmPe: '',
         statistics: '',
-        current: 1,
+        current: 1
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadAlarms({ pageIndex: 1 })
         this.loadAlarmStatistics()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -47,7 +46,7 @@ class OfflinePanel extends Component {
         }
     }
 
-    loadAlarms(reqParams) {
+    loadAlarms (reqParams) {
         const ctx = this
         this.setState({ loading: true })
         Api.getOfflineAlarmRecords(reqParams).then((res) => {
@@ -57,7 +56,7 @@ class OfflinePanel extends Component {
         })
     }
 
-    loadAlarmStatistics() {
+    loadAlarmStatistics () {
         const ctx = this
         Api.getOfflineAlarmStatistics().then((res) => {
             if (res.code === 1) {
@@ -80,36 +79,36 @@ class OfflinePanel extends Component {
     }
 
     rangeTimeChange = (date) => { // 缺少时间过滤条件
-        const start = (date && date[0] ) ? date[0].set({
+        const start = (date && date[0]) ? date[0].set({
             'hour': 0,
             'minute': 0,
-            'second': 0,
+            'second': 0
         }) : ''
-        const end = (date && date[1] ) ? date[1].set({
+        const end = (date && date[1]) ? date[1].set({
             'hour': 23,
             'minute': 59,
-            'second': 59,
+            'second': 59
         }) : ''
         this.setState({
             startTime: start,
             endTime: end,
             current: 1
-        },()=>{
+        }, () => {
             this.search();
         })
     }
 
     handleTableChange = (pagination, filters) => {
         this.setState({
-            current: pagination.current,
+            current: pagination.current
         }, this.search)
     }
 
     changeReceive = (target) => {
         this.setState({ alarmPe: target, current: 1 }
-        ,()=>{
-            this.search();
-        })
+            , () => {
+                this.search();
+            })
     }
 
     changeTaskName = (evt) => {
@@ -128,12 +127,12 @@ class OfflinePanel extends Component {
             key: 'time',
             render: (text) => {
                 return utils.formatDateTime(text)
-            },
+            }
         }, {
             title: '任务名称',
             width: 100,
             dataIndex: 'taskName',
-            key: 'taskName',
+            key: 'taskName'
         }, {
             width: 80,
             title: '任务类型',
@@ -141,7 +140,7 @@ class OfflinePanel extends Component {
             key: 'taskType',
             render: (text) => {
                 return <TaskType value={text} />
-            },
+            }
         }, {
             width: 100,
             title: '触发方式',
@@ -149,12 +148,12 @@ class OfflinePanel extends Component {
             key: 'myTrigger',
             render: (text) => {
                 return <AlarmTriggerType value={text} />
-            },
+            }
         }, {
             title: '任务责任人',
             width: 100,
             dataIndex: 'taskCreateUser',
-            key: 'taskCreateUser',
+            key: 'taskCreateUser'
         }, {
             width: 100,
             title: '告警方式',
@@ -174,35 +173,35 @@ class OfflinePanel extends Component {
                     return recivers.map(item => item.userName).join(', ')
                 }
                 return ''
-            },
+            }
         }, {
             title: '告警内容',
             dataIndex: 'alarmContent',
-            key: 'alarmContent',
+            key: 'alarmContent'
         }]
     }
 
-    render() {
+    render () {
         const { statistics, alarmRecords } = this.state
         const { projectUsers } = this.props
-        const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (
-                <Option
-                    key={item.id}
-                    value={`${item.user.id}`}
-                    name={item.user.userName}
-                >
-                    {item.user.userName}
-                </Option>
-            )
-        }) : []
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
+                return (
+                    <Option
+                        key={item.id}
+                        value={`${item.user.id}`}
+                        name={item.user.userName}
+                    >
+                        {item.user.userName}
+                    </Option>
+                )
+            }) : []
         const pagination = {
             total: alarmRecords.totalCount || 0,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         return (
-            <div className="m-card" style={{paddingTop: "5px"}}>
+            <div className="m-card" style={{ paddingTop: '5px' }}>
                 <Row className="m-count box-1">
                     <Col span={6}>
                         <section className="m-count-section">
@@ -217,7 +216,7 @@ class OfflinePanel extends Component {
                         </section>
                     </Col>
                     <Col span={6}>
-                        <section className="m-count-section" style={{width: '50px'}}>
+                        <section className="m-count-section" style={{ width: '50px' }}>
                             <span className="m-count-title">近30天</span>
                             <span className="m-count-content font-darkgreen">{statistics.month || 0}</span>
                         </section>
@@ -248,7 +247,7 @@ class OfflinePanel extends Component {
                                     placeholder="任务名称"
                                     allowClear
                                     style={{ width: 126 }}
-                                    onChange={this.changeTaskName} 
+                                    onChange={this.changeTaskName}
                                     onPressEnter={this.search}
                                 />
                             </FormItem>
@@ -270,7 +269,7 @@ class OfflinePanel extends Component {
                             <FormItem>
                                 <Button
                                     size="default"
-                                    type="primary" 
+                                    type="primary"
                                     onClick={this.search}
                                 >
                                     搜索
@@ -298,6 +297,6 @@ class OfflinePanel extends Component {
 export default connect((state) => {
     return {
         projectUsers: state.projectUsers,
-        project: state.project,
+        project: state.project
     }
 })(OfflinePanel)

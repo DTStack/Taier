@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
-import { 
-    Row, Col, Button, message,
- } from 'antd'
+import {
+    Row, Col, Button, message
+} from 'antd'
 
- import GoBack from 'main/components/go-back'
+import GoBack from 'main/components/go-back'
 
- import Api from '../../../api'
- import { formItemLayout } from '../../../comm/const'
- import RoleForm from './form'
- 
+import Api from '../../../api'
+import { formItemLayout } from '../../../comm/const'
+import RoleForm from './form'
+
 export default class RoleAdd extends Component {
-
     goIndex = () => {
         this.props.router.go(-1)
     }
@@ -30,7 +29,7 @@ export default class RoleAdd extends Component {
         })
     }
 
-    render() {
+    render () {
         return (
             <div className="box-1">
                 <div className="box-card">
@@ -41,7 +40,7 @@ export default class RoleAdd extends Component {
                             <Col {...formItemLayout.labelCol}></Col>
                             <Col {...formItemLayout.wrapperCol}>
                                 <Button type="primary" onClick={this.submit}>确认添加</Button>
-                                <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
+                                <Button style={{ marginLeft: '20px' }} onClick={this.goIndex}>取消</Button>
                             </Col>
                         </Row>
                     </article>
@@ -50,4 +49,3 @@ export default class RoleAdd extends Component {
         )
     }
 }
-

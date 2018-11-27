@@ -6,7 +6,6 @@ import { isSelectedProject } from './interceptor'
 
 import NotFund from 'widgets/notFund'
 
-
 // 继承主应用的的公共View组件
 import Main from 'main/views'
 import MsgCenter from 'main/views/message'
@@ -22,14 +21,12 @@ import GRoleEdit from 'main/views/admin/role/edit'
 import Container from './views/container'
 import Dashboard from './views/dashboard'
 
-
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
 import ProjectMember from './views/project/member'
 import RoleManagement from './views/project/role'
 import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
-
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
@@ -39,32 +36,29 @@ import OpeRealTimeList from './views/operation/realtime/list'
 // ======= 运维 =======
 import DataSourceStream from './views/dataSource/stream';
 
-
 // The below is async load components
 // ======= 项目 =======
 // const Dashboard = asyncComponent(() => import('././views/dashboard')
 // .then(module => module.default), { name: 'dashboard' })
 
 const ProjectContainer = asyncComponent(() => import('./views/project/container')
-.then(module => module.default), { name: 'projectContainer' })
+    .then(module => module.default), { name: 'projectContainer' })
 
 // ======= 实时任务 =========
 const TaskIndex = asyncComponent(() => import('./views/task/realtime')
-.then(module => module.default), { name: 'pageTask' })
+    .then(module => module.default), { name: 'pageTask' })
 
 // ======= 运维 =======
 const Operation = asyncComponent(() => import('./views/operation/container')
-.then(module => module.default), { name: 'operationPage' })
+    .then(module => module.default), { name: 'operationPage' })
 
 // ======= 数据源管理 =======
 const DataSourceContainer = asyncComponent(() => import('./views/dataSource/container')
-.then(module => module.default), { name: 'dataSourceContainer' })
-
+    .then(module => module.default), { name: 'dataSourceContainer' })
 
 // ======= 测试 =======
 const Test = asyncComponent(() => import('./views/test')
-.then(module => module.default), { name: 'testPage' })
-
+    .then(module => module.default), { name: 'testPage' })
 
 export default (
     <Route path="/" component={Main}>

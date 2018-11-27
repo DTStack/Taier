@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 
 export default class Resize extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         window.addEventListener('resize', this.resize, false)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         window.removeEventListener('resize', this.resize, false);
     }
 
@@ -16,8 +15,7 @@ export default class Resize extends Component {
         if (onResize) onResize()
     }
 
-    render() {
+    render () {
         return this.props.children
     }
-
 }

@@ -1,23 +1,20 @@
-import React from "react";
-import moment from "moment";
+import React from 'react';
+import moment from 'moment';
 
-import { Form, Select, Radio, Checkbox, DatePicker, Input, Button } from "antd";
+import { Form, Select, Radio, Checkbox, DatePicker, Input, Button } from 'antd';
 
-import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE, CAT_TYPE, collect_type } from "../../../../../comm/const"
-import HelpDoc from "../../../../helpDoc";
+import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE, CAT_TYPE, collect_type } from '../../../../../comm/const'
+import HelpDoc from '../../../../helpDoc';
 
-import ajax from "../../../../../api/index"
+import ajax from '../../../../../api/index'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 
-
-
 class CollectionSource extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             tableList: [],
@@ -25,7 +22,7 @@ class CollectionSource extends React.Component {
             dataSourceTypes: []
         }
     }
-    componentDidMount() {
+    componentDidMount () {
         const { collectionData } = this.props;
         const { sourceMap = {} } = collectionData;
         this.getSupportDaTypes();
@@ -35,7 +32,7 @@ class CollectionSource extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { sourceMap } = collectionData;
         const { collectionData: old_col } = this.props;
@@ -53,13 +50,13 @@ class CollectionSource extends React.Component {
          * 当collectType是File，并且此时collectType发生过改变或者tab的id发生了改变，则去请求binlog列表
          */
         if (
-            (sourceMap.collectType != old_source.collectType || collectionData.id != old_col.id)
-            && sourceMap.collectType == collect_type.FILE) {
+            (sourceMap.collectType != old_source.collectType || collectionData.id != old_col.id) &&
+            sourceMap.collectType == collect_type.FILE) {
             this.getBinLogList(sourceMap.sourceId);
         }
     }
 
-    getSupportDaTypes() {
+    getSupportDaTypes () {
         ajax.getSupportDaTypes().then(
             (res) => {
                 if (res.code == 1) {
@@ -71,7 +68,7 @@ class CollectionSource extends React.Component {
         )
     }
 
-    getTableList(sourceId) {
+    getTableList (sourceId) {
         ajax.getStreamTablelist({
             sourceId,
             isSys: false
@@ -83,7 +80,7 @@ class CollectionSource extends React.Component {
             }
         });
     }
-    getBinLogList(sourceId) {
+    getBinLogList (sourceId) {
         ajax.getBinlogListBySource({ sourceId })
             .then((res) => {
                 if (res.code == 1) {
@@ -93,19 +90,19 @@ class CollectionSource extends React.Component {
                 }
             })
     }
-    clearBinLog() {
+    clearBinLog () {
         this.setState({
             binLogList: []
         })
     }
-    next() {
+    next () {
         this._form.validateFields(null, {}, (err, values) => {
             if (!err) {
                 this.props.navtoStep(1)
             }
         })
     }
-    render() {
+    render () {
         const { tableList, binLogList, dataSourceTypes } = this.state;
         return (
             <div>
@@ -127,198 +124,197 @@ class CollectionSource extends React.Component {
 }
 
 class CollectionSourceForm extends React.Component {
-    renderByCatType() {
+    renderByCatType () {
         const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
         const { sourceMap, isEdit } = collectionData;
         const collectType = sourceMap.collectType
         switch (collectType) {
-            case collect_type.ALL: {
-                return null
-            }
-            case collect_type.TIME: {
-                return <FormItem
-                    {...formItemLayout}
-                    label="起始时间"
-                    style={{ textAlign: "left" }}
-                >
-                    {getFieldDecorator('timestamp', {
-                        rules: [{
-                            required: true, message: "请选择起始时间"
-                        }]
-                    })(
-                        <DatePicker
-                            disabled={isEdit}
-                            showTime
-                            placeholder="请选择起始时间"
-                            format="YYYY-MM-DD HH:mm:ss"
-                        />
-                    )}
-                </FormItem>
-            }
-            case collect_type.FILE: {
-                return <FormItem
-                    {...formItemLayout}
-                    label="起始文件"
-                >
-                    {getFieldDecorator('journalName', {
-                        rules: [{
-                            required: true, message: "请填写起始文件"
-                        }]
-                    })(
-                        <Select
-                            placeholder="请填写起始文件"
-                            disabled={isEdit}
-                        >
-                            {binLogList.map((binlog) => {
-                                return <Option key={binlog}>{binlog}</Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>
-            }
-
+        case collect_type.ALL: {
+            return null
+        }
+        case collect_type.TIME: {
+            return <FormItem
+                {...formItemLayout}
+                label="起始时间"
+                style={{ textAlign: 'left' }}
+            >
+                {getFieldDecorator('timestamp', {
+                    rules: [{
+                        required: true, message: '请选择起始时间'
+                    }]
+                })(
+                    <DatePicker
+                        disabled={isEdit}
+                        showTime
+                        placeholder="请选择起始时间"
+                        format="YYYY-MM-DD HH:mm:ss"
+                    />
+                )}
+            </FormItem>
+        }
+        case collect_type.FILE: {
+            return <FormItem
+                {...formItemLayout}
+                label="起始文件"
+            >
+                {getFieldDecorator('journalName', {
+                    rules: [{
+                        required: true, message: '请填写起始文件'
+                    }]
+                })(
+                    <Select
+                        placeholder="请填写起始文件"
+                        disabled={isEdit}
+                    >
+                        {binLogList.map((binlog) => {
+                            return <Option key={binlog}>{binlog}</Option>
+                        })}
+                    </Select>
+                )}
+            </FormItem>
+        }
         }
     }
-    renderForm() {
+    renderForm () {
         let { collectionData, tableList } = this.props;
         let { dataSourceList = [], sourceMap, isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const allTable = sourceMap.allTable;
         const { type, sourceId } = sourceMap;
-        const isCollectTypeEdit = sourceId ? true : false
+        const isCollectTypeEdit = !!sourceId
 
         switch (type) {
-            case DATA_SOURCE.MYSQL: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据源"
-                    >
-                        {getFieldDecorator('sourceId', {
-                            rules: [{ required: true, message: '请选择数据源' }],
-                        })(
-                            <Select
-                                disabled={isEdit}
-                                placeholder="请选择数据源"
-                                style={{ width: "100%" }}
-                            >
-                                {dataSourceList.map((item) => {
-                                    if (item.type != type) {
-                                        return null
-                                    }
-                                    return <Option key={item.id} value={item.id}>{item.dataName}</Option>
-                                }).filter(Boolean)}
-                            </Select>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="表"
-                    >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true, message: "请选择表"
-                            }]
-                        })(
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="请选择表"
+        case DATA_SOURCE.MYSQL: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="数据源"
+                >
+                    {getFieldDecorator('sourceId', {
+                        rules: [{ required: true, message: '请选择数据源' }]
+                    })(
+                        <Select
+                            disabled={isEdit}
+                            placeholder="请选择数据源"
+                            style={{ width: '100%' }}
+                        >
+                            {dataSourceList.map((item) => {
+                                if (item.type != type) {
+                                    return null
+                                }
+                                return <Option key={item.id} value={item.id}>{item.dataName}</Option>
+                            }).filter(Boolean)}
+                        </Select>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="表"
+                >
+                    {getFieldDecorator('table', {
+                        rules: [{
+                            required: true, message: '请选择表'
+                        }]
+                    })(
+                        <Select
+                            mode="multiple"
+                            style={{ width: '100%' }}
+                            placeholder="请选择表"
 
-                            >
-                                {tableList.length ? [<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
-                                    (table) => {
-                                        return <Option disabled={allTable} key={`${table}`} value={table}>
-                                            {table}
-                                        </Option>
-                                    }
-                                )) : []}
-                            </Select>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="采集起点"
-                        style={{ textAlign: "left" }}
-                    >
-                        {getFieldDecorator('collectType', {
-                            rules: [{
-                                required: true, message: "请选择采集起点"
-                            }]
-                        })(
-                            <RadioGroup disabled={isEdit || !isCollectTypeEdit}>
-                                <Radio value={collect_type.ALL}>从任务运行时开始</Radio>
-                                <Radio value={collect_type.TIME}>按时间选择</Radio>
-                                <Radio value={collect_type.FILE}>按文件选择</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem>,
-                    this.renderByCatType(),
-                    <FormItem
-                        {...formItemLayout}
-                        label="数据操作"
-                    >
-                        {getFieldDecorator('cat', {
-                            rules: [{
-                                required: true, message: "请选择数据操作"
-                            }]
-                        })(
-                            <CheckboxGroup options={
-                                [{ label: 'Insert', value: CAT_TYPE.INSERT },
+                        >
+                            {tableList.length ? [<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
+                                (table) => {
+                                    return <Option disabled={allTable} key={`${table}`} value={table}>
+                                        {table}
+                                    </Option>
+                                }
+                            )) : []}
+                        </Select>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="采集起点"
+                    style={{ textAlign: 'left' }}
+                >
+                    {getFieldDecorator('collectType', {
+                        rules: [{
+                            required: true, message: '请选择采集起点'
+                        }]
+                    })(
+                        <RadioGroup disabled={isEdit || !isCollectTypeEdit}>
+                            <Radio value={collect_type.ALL}>从任务运行时开始</Radio>
+                            <Radio value={collect_type.TIME}>按时间选择</Radio>
+                            <Radio value={collect_type.FILE}>按文件选择</Radio>
+                        </RadioGroup>
+                    )}
+                </FormItem>,
+                this.renderByCatType(),
+                <FormItem
+                    {...formItemLayout}
+                    label="数据操作"
+                >
+                    {getFieldDecorator('cat', {
+                        rules: [{
+                            required: true, message: '请选择数据操作'
+                        }]
+                    })(
+                        <CheckboxGroup options={
+                            [{ label: 'Insert', value: CAT_TYPE.INSERT },
                                 { label: 'Update', value: CAT_TYPE.UPDATE },
                                 { label: 'Delete', value: CAT_TYPE.DELETE }]
-                            }
-                            />
-                        )}
-                    </FormItem>
-                ]
-            }
-            case DATA_SOURCE.BEATS: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="主机名/IP"
-                    >
-                        {getFieldDecorator('macAndIp', {})(
-                            <Input disabled />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="端口"
-                    >
-                        {getFieldDecorator('port', {
-                            rules: [{
-                                validator: (rule, value, callback) => {
-                                    if (value) {
-                                        if (parseInt(value)) {
-                                            callback()
-                                        } else {
-                                            callback("请输入正确的端口")
-                                        }
-                                    } else {
+                        }
+                        />
+                    )}
+                </FormItem>
+            ]
+        }
+        case DATA_SOURCE.BEATS: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="主机名/IP"
+                >
+                    {getFieldDecorator('macAndIp', {})(
+                        <Input disabled />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="端口"
+                >
+                    {getFieldDecorator('port', {
+                        rules: [{
+                            validator: (rule, value, callback) => {
+                                if (value) {
+                                    if (parseInt(value)) {
                                         callback()
+                                    } else {
+                                        callback('请输入正确的端口')
                                     }
+                                } else {
+                                    callback()
                                 }
-                            }],
-                        })(
-                            <Input
-                                // disabled={isEdit}
-                                placeholder="请输入端口"
-                                style={{ width: "100%" }}
-                            />
-                        )}
-                        <HelpDoc doc="binlogPortHelp" />
-                    </FormItem>
-                ]
-            }
-            default:{
-                return null;
-            }
+                            }
+                        }]
+                    })(
+                        <Input
+                            // disabled={isEdit}
+                            placeholder="请输入端口"
+                            style={{ width: '100%' }}
+                        />
+                    )}
+                    <HelpDoc doc="binlogPortHelp" />
+                </FormItem>
+            ]
+        }
+        default: {
+            return null;
+        }
         }
     }
-    render() {
+    render () {
         let { collectionData, dataSourceTypes = [] } = this.props;
         let { isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
@@ -330,12 +326,12 @@ class CollectionSourceForm extends React.Component {
                         label="数据源类型"
                     >
                         {getFieldDecorator('type', {
-                            rules: [{ required: true, message: '请选择数据源类型' }],
+                            rules: [{ required: true, message: '请选择数据源类型' }]
                         })(
                             <Select
                                 disabled={isEdit}
                                 placeholder="请选择数据源类型"
-                                style={{ width: "100%" }}
+                                style={{ width: '100%' }}
                             >
                                 {dataSourceTypes.map((item) => {
                                     return <Option key={item.value} value={item.value} >{item.key}</Option>
@@ -351,7 +347,7 @@ class CollectionSourceForm extends React.Component {
 }
 
 const WrapCollectionSourceForm = Form.create({
-    onValuesChange(props, fields) {
+    onValuesChange (props, fields) {
         let clear = false;
         /**
          * 数据源类型改变，清空数据源
@@ -396,7 +392,7 @@ const WrapCollectionSourceForm = Form.create({
         }
         props.updateSourceMap(fields, clear);
     },
-    mapPropsToFields(props) {
+    mapPropsToFields (props) {
         const { collectionData } = props;
         const sourceMap = collectionData.sourceMap;
         return {
@@ -425,10 +421,9 @@ const WrapCollectionSourceForm = Form.create({
                 value: sourceMap.journalName
             },
             macAndIp: {
-                value: "任务运行时自动分配，无需手动指定"
+                value: '任务运行时自动分配，无需手动指定'
             }
         }
-
     }
 })(CollectionSourceForm);
 

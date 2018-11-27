@@ -4,7 +4,7 @@ import { isEmpty } from 'lodash';
 
 import {
     Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Input, Button, message, Popconfirm
 } from 'antd';
 
 import utils from 'utils';
@@ -18,16 +18,15 @@ const Option = Select.Option;
 const FormItem = Form.Item;
 
 class AtomIndexDefine extends BasePane {
-
-    componentDidMount() {
+    componentDidMount () {
         this.setState({
             params: Object.assign(this.state.params, {
-                type: 1, // 原子指标
-            }),
+                type: 1 // 原子指标
+            })
         }, this.loadData)
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -38,7 +37,7 @@ class AtomIndexDefine extends BasePane {
     loadData = () => {
         const { params } = this.state;
         this.setState({
-            loading: true,
+            loading: true
         });
         Api.getModelIndexs(params).then(res => {
             if (res.code === 1) {
@@ -47,7 +46,7 @@ class AtomIndexDefine extends BasePane {
                 })
             }
             this.setState({
-                loading: false,
+                loading: false
             })
         });
     }
@@ -58,7 +57,7 @@ class AtomIndexDefine extends BasePane {
             params[field] = value;
         }
         this.setState({
-            params,
+            params
         }, this.loadData)
     }
 
@@ -66,8 +65,8 @@ class AtomIndexDefine extends BasePane {
         this.setState({
             params: Object.assign(this.state.params, {
                 columnNameZh: e.target.value,
-                currentPage: 1,
-            }),
+                currentPage: 1
+            })
         })
     }
 
@@ -79,7 +78,7 @@ class AtomIndexDefine extends BasePane {
                 this.loadData();
                 this.setState({
                     modalData: null,
-                    modalVisible: false,
+                    modalVisible: false
                 });
             }
         }
@@ -105,28 +104,28 @@ class AtomIndexDefine extends BasePane {
             title: '指标类型',
             dataIndex: 'columnType',
             key: 'columnType',
-            render: type => <IndexType value={type} />,
+            render: type => <IndexType value={type} />
         }, {
             title: '原子指标名称',
             dataIndex: 'columnNameZh',
-            key: 'columnNameZh',
+            key: 'columnNameZh'
         }, {
             title: '原子指标命名',
             dataIndex: 'columnName',
-            key: 'columnName',
+            key: 'columnName'
         }, {
             title: '数据类型',
             dataIndex: 'dataType',
-            key: 'dataType',
+            key: 'dataType'
         }, {
             title: '最近修改人',
             dataIndex: 'userName',
-            key: 'userName',
+            key: 'userName'
         }, {
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '操作',
             key: 'operation',
@@ -144,17 +143,16 @@ class AtomIndexDefine extends BasePane {
                         </Popconfirm>
                     </div>
                 )
-            },
+            }
         }]
     }
 
-    render() {
-
+    render () {
         const { loading, table, modalVisible, modalData } = this.state
 
         const pagination = {
             total: table.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
 
         return (
@@ -222,9 +220,7 @@ class AtomIndexDefine extends BasePane {
             </div>
         )
     }
-
 }
-
 
 export default connect((state) => {
     return {

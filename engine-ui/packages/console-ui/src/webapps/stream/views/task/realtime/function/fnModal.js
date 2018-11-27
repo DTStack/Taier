@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-    Modal, Button, Form, Input, Radio,
+import {
+    Modal, Button, Form, Input, Radio
 } from 'antd';
-import { isEmpty }  from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { getContainer } from 'funcs';
 import { formItemLayout, MENU_TYPE } from '../../../../comm/const';
@@ -12,16 +12,15 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 class FnForm extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const {
-            resTreeData, fnTreeData, 
-            activeNode, loadTreeData 
+            resTreeData, fnTreeData,
+            activeNode, loadTreeData
         } = this.props;
 
         return (
@@ -33,17 +32,17 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('name', {
                         rules: [{
-                            required: true, message: '函数名称不可为空！',
+                            required: true, message: '函数名称不可为空！'
                         }, {
                             pattern: /^[A-Za-z0-9_-]+$/,
-                            message: '函数名称只能由字母、数字、下划线组成!',
+                            message: '函数名称只能由字母、数字、下划线组成!'
                         }, {
                             max: 20,
-                            message: '函数名称不得超过20个字符！',
+                            message: '函数名称不得超过20个字符！'
                         }],
-                        initialValue: '',
+                        initialValue: ''
                     })(
-                        <Input placeholder="请输入函数名称" />,
+                        <Input placeholder="请输入函数名称" />
                     )}
                 </FormItem>
                 <FormItem
@@ -55,12 +54,12 @@ class FnForm extends React.Component {
                         rules: [{
                             required: true
                         }],
-                        initialValue: 0,
+                        initialValue: 0
                     })(
                         <RadioGroup>
                             <Radio key={0} value={0}>Scala</Radio>
                             <Radio key={1} value={1}>Table</Radio>
-                        </RadioGroup>,
+                        </RadioGroup>
                     )}
                 </FormItem>
                 <FormItem
@@ -70,10 +69,10 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('className', {
                         rules: [{
-                            required: true, message: '类名不能为空',
-                        },{
+                            required: true, message: '类名不能为空'
+                        }, {
                             pattern: /^[a-zA-Z]+[0-9a-zA-Z_]*(\.[a-zA-Z]+[0-9a-zA-Z_]*)*$/,
-                            message: '请输入有效的类名',
+                            message: '请输入有效的类名'
                         }]
                     })(
                         <Input placeholder="com.test.Example"></Input>
@@ -86,7 +85,7 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('resourceId', {
                         rules: [{
-                            required: true, message: '请选择关联资源',
+                            required: true, message: '请选择关联资源'
                         }, {
                             validator: this.checkNotDir.bind(this)
                         }]
@@ -116,10 +115,10 @@ class FnForm extends React.Component {
                     {getFieldDecorator('commandFormat', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -130,10 +129,10 @@ class FnForm extends React.Component {
                     {getFieldDecorator('paramDesc', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>,
+                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -143,7 +142,7 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
                         initialValue: !isEmpty(activeNode) ? activeNode.id : ''
                     })(
@@ -166,22 +165,20 @@ class FnForm extends React.Component {
      * @param {any} cb
      * @memberof TaskForm
      */
-    checkNotDir(rule, value, callback) {
+    checkNotDir (rule, value, callback) {
         const { resTreeData } = this.props;
         let nodeType;
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === value) {
+                if (node.id === value) {
                     nodeType = node.type;
-                    return;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
         };
         loop(resTreeData);
-        if(nodeType === 'folder') {
+        if (nodeType === 'folder') {
             callback('请选择具体文件, 而非文件夹');
         }
         callback();
@@ -192,16 +189,15 @@ class FnForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id) {
+    getFolderName (id) {
         const { fnTreeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -216,7 +212,7 @@ class FnForm extends React.Component {
 const FnFormWrapper = Form.create()(FnForm);
 
 class FnModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -225,37 +221,37 @@ class FnModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return this.props !== nextProps;
     }
 
-    handleSubmit() {
+    handleSubmit () {
         const { isModalShow, toggleCreateFn, handOk } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) {
+            if (!err) {
                 handOk(values);
-                setTimeout(()=> {
+                setTimeout(() => {
                     form.resetFields();
                 }, 500);
             }
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         const { handCancel } = this.props;
         this.form.resetFields();
         if (handCancel) handCancel();
     }
 
-    render() {
-        const { 
+    render () {
+        const {
             visible,
             activeNode,
             fnTreeData,
             resTreeData,
-            loadTreeData,
+            loadTreeData
         } = this.props;
 
         const customFuncs = fnTreeData.find(item => {

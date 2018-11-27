@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { Table,Modal } from "antd"
-import utils from "utils"
+import React, { Component } from 'react';
+import { Table, Modal } from 'antd'
+import utils from 'utils'
 const errorType = {
-    1: "禁用",
-    2: "未认证",
-    3: "参数错误",
-    4: "超时",
-    5: "超出限制",
-    6: "其他"
+    1: '禁用',
+    2: '未认证',
+    3: '参数错误',
+    4: '超时',
+    5: '超出限制',
+    6: '其他'
 }
 class errorLog extends Component {
     state = {
@@ -19,19 +19,17 @@ class errorLog extends Component {
         loading: false,
         pageIndex: 1,
         total: 0,
-        filter:{}
+        filter: {}
     }
-    componentDidMount() {
-
+    componentDidMount () {
         this.getErrorInfo();
-
     }
-    getErrorInfo(apiId) {
-        apiId=apiId||this.props.showRecord.apiId;
+    getErrorInfo (apiId) {
+        apiId = apiId || this.props.showRecord.apiId;
         if (!apiId) {
             return;
         }
-        
+
         this.props.getApiCallErrorInfo(apiId)
             .then(
                 (res) => {
@@ -54,7 +52,7 @@ class errorLog extends Component {
                     }
                 }
             )
-        this.props.queryApiCallLog(apiId,this.state.pageIndex,this.state.filter.bizType&&this.state.filter.bizType[0])
+        this.props.queryApiCallLog(apiId, this.state.pageIndex, this.state.filter.bizType && this.state.filter.bizType[0])
             .then(
                 (res) => {
                     if (res) {
@@ -65,26 +63,23 @@ class errorLog extends Component {
                     }
                 }
             )
-
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
         ) {
-            if(nextProps.slidePaneShow){
+            if (nextProps.slidePaneShow) {
                 this.getErrorInfo(nextProps.showRecord.apiId);
             }
-            
-
         }
     }
-    initColumns() {
+    initColumns () {
         return [{
             title: '调用时间',
             dataIndex: 'invokeTime',
             key: 'invokeTime',
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text)
             }
 
@@ -92,7 +87,7 @@ class errorLog extends Component {
             title: '错误类型',
             dataIndex: 'bizType',
             key: 'bizType',
-            render(text) {
+            render (text) {
                 return errorType[text]
             },
             filters: [
@@ -103,68 +98,66 @@ class errorLog extends Component {
                 { text: '超出限制', value: '5' },
                 { text: '其他', value: '6' }
             ],
-            filterMultiple:false
+            filterMultiple: false
         }, {
             title: '错误日志',
             dataIndex: 'content',
             key: 'content',
-            width: "50%"
+            width: '50%'
 
         }, {
             title: '操作',
             dataIndex: '',
             key: 'deal',
-            render: (text,record) => {
+            render: (text, record) => {
                 return (
-                    <a onClick={this.lookAllErrorText.bind(this,record.content)}>查看全部</a>
+                    <a onClick={this.lookAllErrorText.bind(this, record.content)}>查看全部</a>
                 )
             }
         }]
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 5,
-            total: this.state.total,
+            total: this.state.total
         }
     }
-    getSource() {
+    getSource () {
         return this.state.data;
     }
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         this.setState({
             pageIndex: page.current,
-            filter:filter
+            filter: filter
         },
-            () => {
-                this.getErrorInfo();
-            });
+        () => {
+            this.getErrorInfo();
+        });
     }
-    lookAllErrorText(text) {
+    lookAllErrorText (text) {
         Modal.info({
             title: '错误日志',
             content: (
                 <div>
                     <p>{text}</p>
-                    
+
                 </div>
             ),
-            onOk() { },
+            onOk () { }
         });
     }
-    getErrorPercent(key) {
+    getErrorPercent (key) {
         return this.state.error[key] && this.state.error[key].percent || 0;
     }
-    getErrorCount(key) {
+    getErrorCount (key) {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
-    render() {
-      
-        
+    render () {
         return (
             <div style={{ paddingLeft: 20 }}>
-                <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
+                <p style={{ lineHeight: '30px', paddingLeft: '20px' }} className="child-span-padding-r20">
                     <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
                     <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
                     <span>未认证: {this.getErrorPercent('未认证')}% ({this.getErrorCount('未认证')}次)</span>
@@ -175,7 +168,7 @@ class errorLog extends Component {
                 <Table
                     rowKey="id"
                     className="m-table monitor-table"
-                    
+
                     columns={this.initColumns()}
                     loading={this.state.loading}
                     pagination={this.getPagination()}

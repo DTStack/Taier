@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { isArray, isNumber, isEmpty } from 'lodash';
 import {
     Form, Input, Icon, Select,
-    Radio, Modal,
+    Radio, Modal
 } from 'antd'
 
 import Api from '../../../api'
@@ -14,7 +14,6 @@ const RadioGroup = Radio.Group
 const Option = Select.Option;
 
 class SubjectDomainModal extends Component {
-
     state = { }
 
     submit = (e) => {
@@ -22,7 +21,7 @@ class SubjectDomainModal extends Component {
         const { handOk, form, data } = this.props
 
         const formData = this.props.form.getFieldsValue()
-        formData.type = 2;  // 主题域
+        formData.type = 2; // 主题域
         formData.isEdit = data && !isEmpty(data) ? true : undefined;
         formData.id = formData.isEdit ? data.id : undefined;
 
@@ -44,8 +43,7 @@ class SubjectDomainModal extends Component {
         })
     }
 
-    render() {
-
+    render () {
         const {
             form, visible, data
         } = this.props
@@ -53,7 +51,7 @@ class SubjectDomainModal extends Component {
         const { getFieldDecorator } = form
 
         const isEdit = data && !isEmpty(data);
-        const title = isEdit ? '编辑主题域': '创建主题域'
+        const title = isEdit ? '编辑主题域' : '创建主题域'
 
         return (
             <Modal
@@ -71,14 +69,14 @@ class SubjectDomainModal extends Component {
                     >
                         {getFieldDecorator('name', {
                             rules: [{
-                                required: true, message: '主题域名称不可为空！',
+                                required: true, message: '主题域名称不可为空！'
                             }, {
                                 max: 64,
-                                message: '主题域名称不得超过64个字符！',
+                                message: '主题域名称不得超过64个字符！'
                             }],
-                            initialValue: data ? data.name : '',
+                            initialValue: data ? data.name : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -88,17 +86,17 @@ class SubjectDomainModal extends Component {
                     >
                         {getFieldDecorator('prefix', {
                             rules: [{
-                                required: true, message: '主题域前缀不可为空！',
+                                required: true, message: '主题域前缀不可为空！'
                             }, {
                                 pattern: /^[A-Za-z0-9]+$/,
-                                message: '主题域前缀只能由字母、数字组成!',
+                                message: '主题域前缀只能由字母、数字组成!'
                             }, {
                                 max: 64,
-                                message: '主题域前缀不得超过64个字符！',
+                                message: '主题域前缀不得超过64个字符！'
                             }],
-                            initialValue: data ? data.prefix : '',
+                            initialValue: data ? data.prefix : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -109,11 +107,11 @@ class SubjectDomainModal extends Component {
                         {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
-                                message: '主题域说明请控制在200个字符以内！',
+                                message: '主题域说明请控制在200个字符以内！'
                             }],
-                            initialValue: data ? data.modelDesc : '',
+                            initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />,
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                 </Form>

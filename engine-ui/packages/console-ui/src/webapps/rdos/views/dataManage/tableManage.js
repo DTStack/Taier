@@ -1,11 +1,11 @@
 import React from 'react';
 
 class TableManage extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
+    render () {
         return <div className="g-tablemanage">
             { this.props.children }
         </div>

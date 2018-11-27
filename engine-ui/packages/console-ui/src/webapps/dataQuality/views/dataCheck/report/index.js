@@ -5,7 +5,7 @@ import TableCell from 'widgets/tableCell';
 import DCApi from '../../../api/dataCheck';
 
 export default class DataCheckReport extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             params: {
@@ -18,7 +18,7 @@ export default class DataCheckReport extends Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { params } = this.state;
         let verifyRecordId = params.verifyRecordId;
 
@@ -36,45 +36,44 @@ export default class DataCheckReport extends Component {
 
     initColumns = (data) => {
         return data.length && data.map((item) => {
-            
             return {
                 title: item,
                 key: item,
                 dataIndex: item,
-                width: (item.length*8+28)+"px",
+                width: (item.length * 8 + 28) + 'px',
                 render: (value) => {
-                    return <TableCell 
+                    return <TableCell
                         className="no-scroll-bar"
-                        value={value ? value : undefined}
+                        value={value || undefined}
                         readOnly
-                        style={{ minWidth: 80, width: '100%', resize: 'none' }} 
+                        style={{ minWidth: 80, width: '100%', resize: 'none' }}
                     />
                 }
             }
         });
     }
-    getScroll(){
-        let i=100;
-        const columnList=this.state.tableData.attachment;
-        for(let j in columnList){
-            let item=columnList[j];
-            i=i+item.length*8+28
+    getScroll () {
+        let i = 100;
+        const columnList = this.state.tableData.attachment;
+        for (let j in columnList) {
+            let item = columnList[j];
+            i = i + item.length * 8 + 28
         }
         console.log(i)
-        return i+"px";
-     }
+        return i + 'px';
+    }
     // 表格换页
     onTableChange = (page, filter, sorter) => {
         let params = {
             ...this.state.params,
-            currentPage: page.current,
+            currentPage: page.current
         }
         // this.props.getCheckReportTable(params);
         DCApi.getCheckReportTable(params).then((res) => {
             if (res.code === 1) {
-                this.setState({ 
+                this.setState({
                     params: params,
-                    tableData: res.data 
+                    tableData: res.data
                 });
             }
         });
@@ -86,7 +85,7 @@ export default class DataCheckReport extends Component {
         window.open(`/api/dq/export/verify/doExport?${getParams}`);
     }
 
-    render() {
+    render () {
         const { params, tableData, reportData } = this.state;
         const { verifyVO, lAll, rAll, mapSuccess, mapFailure, rightUnfound, leftUnfound, dataSourceEN } = reportData;
 
@@ -96,12 +95,12 @@ export default class DataCheckReport extends Component {
             total: tableData.totalCount
         }
         let getParams = `verifyRecordId=${params.verifyRecordId}&currentPage=${params.currentPage}&pageSize=${params.pageSize}`;
-        const downloadUrl=`/api/dq/export/verify/doExport?${getParams}`
+        const downloadUrl = `/api/dq/export/verify/doExport?${getParams}`
 
         return (
             <div className="box-1">
                 <h1 className="box-title">
-                    <GoBack /> 
+                    <GoBack />
                     <span className="m-l-8">查看报告</span>
                 </h1>
                 <div className="report-content">
@@ -158,20 +157,20 @@ export default class DataCheckReport extends Component {
                 <div className="report-content">
                     <h3 className="flex" style={{ justifyContent: 'space-between' }}>
                         具体差异
-                        <a href={downloadUrl} download><Icon 
-                            type="download" 
+                        <a href={downloadUrl} download><Icon
+                            type="download"
                             // onClick={this.handleDownload}
-                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }} 
+                            style={{ fontSize: 16, marginRight: 25, cursor: 'pointer' }}
                         /></a>
                     </h3>
-                    <Table 
+                    <Table
                         // rowKey="key"
                         // bordered
                         className="m-cells m-table"
                         scroll={{ x: this.getScroll() }}
                         pagination={pagination}
                         dataSource={tableData.data ? tableData.data : []}
-                        columns={this.initColumns(tableData.attachment ? tableData.attachment: [])} 
+                        columns={this.initColumns(tableData.attachment ? tableData.attachment : [])}
                         onChange={this.onTableChange}
                     />
                 </div>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import {
-    Input, Select, Form, Checkbox, Modal,
+    Input, Select, Form, Checkbox, Modal
 } from 'antd'
 
 import { MY_APPS, ANALYTICS_ENGINE_ROLE } from 'main/consts';
@@ -12,11 +12,8 @@ const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
-
 class FormAddUser extends Component {
-
-    render() {
-
+    render () {
         const { form, roles, onSearch, userList, initialData, user, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
@@ -31,14 +28,14 @@ class FormAddUser extends Component {
                     {item.userName}
                 </Option>
             )
-        
+
         let roleOptions = [];
         let initialValue = [];
         if (roles) {
             roles.forEach(role => {
                 // 判断哪些角色禁用
                 const disabled = isDisabledRole(MY_APPS.ANALYTICS_ENGINE, role.roleValue, user, myRoles);
-                if( role.roleValue === ANALYTICS_ENGINE_ROLE.VISITOR) {
+                if (role.roleValue === ANALYTICS_ENGINE_ROLE.VISITOR) {
                     initialValue.push(role.id)
                 }
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
@@ -53,11 +50,11 @@ class FormAddUser extends Component {
                 >
                     {getFieldDecorator('databaseId', {
                         rules: [{
-                            required: true, message: '数据库为必填项！',
+                            required: true, message: '数据库为必填项！'
                         }],
-                        initialValue: initialData && initialData.id,
+                        initialValue: initialData && initialData.id
                     })(
-                        <Input type="hidden" />,
+                        <Input type="hidden" />
                     )}
                     <span>{initialData && initialData.name}</span>
                 </FormItem>
@@ -68,8 +65,8 @@ class FormAddUser extends Component {
                 >
                     {getFieldDecorator('targetUserIds', {
                         rules: [{
-                            required: true, message: '用户不可为空！',
-                        }],
+                            required: true, message: '用户不可为空！'
+                        }]
                     })(
                         <Select
                             mode="multiple"
@@ -82,7 +79,7 @@ class FormAddUser extends Component {
                             onSearch={onSearch}
                         >
                             {userOptions}
-                        </Select>,
+                        </Select>
                     )}
                 </FormItem>
                 <FormItem
@@ -91,12 +88,12 @@ class FormAddUser extends Component {
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: initialValue,
+                        initialValue: initialValue
                     })(
                         <CheckboxGroup
                             options={roleOptions}
                             onChange={this.roleChange}
-                        />,
+                        />
                     )}
                 </FormItem>
             </Form>
@@ -107,7 +104,6 @@ class FormAddUser extends Component {
 const FormWrapper = Form.create()(FormAddUser);
 
 class AddUser extends Component {
-    
     addUser = () => {
         const { onSubmit } = this.props;
         const form = this._formInstance.props.form;

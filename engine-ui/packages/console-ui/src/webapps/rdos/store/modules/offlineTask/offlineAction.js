@@ -8,7 +8,7 @@ import { MENU_TYPE } from '../../../comm/const'
 
 import {
     stopSql,
-    setSelectionContent,
+    setSelectionContent
 } from '../../../store/modules/editor/editorAction';
 
 import { matchTaskParams } from '../../../comm';
@@ -25,7 +25,7 @@ import {
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
-    workflowAction,
+    workflowAction
 } from './actionType';
 
 const confirm = Modal.confirm;
@@ -51,7 +51,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        handleTargetMapChange(srcmap) {
+        handleTargetMapChange (srcmap) {
             dispatch({
                 type: targetMapAction.DATA_TARGETMAP_CHANGE,
                 payload: srcmap
@@ -86,7 +86,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        addSourceKeyRow(params) {
+        addSourceKeyRow (params) {
             dispatch({
                 type: sourceMapAction.ADD_SOURCE_KEYROW,
                 payload: params
@@ -95,7 +95,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        addBatchSourceKeyRow(params) {
+        addBatchSourceKeyRow (params) {
             dispatch({
                 type: sourceMapAction.ADD_BATCH_SOURCE_KEYROW,
                 payload: params
@@ -104,7 +104,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        replaceBatchSourceKeyRow(params) {
+        replaceBatchSourceKeyRow (params) {
             dispatch({
                 type: sourceMapAction.REPLACE_BATCH_SOURCE_KEYROW,
                 payload: params
@@ -117,7 +117,7 @@ export const keyMapActions = (dispatch, ownProps) => {
         /**
          * 拷贝目标字段到源表
          */
-        copyTargetRowsToSource(params) {
+        copyTargetRowsToSource (params) {
             dispatch({
                 type: sourceMapAction.COPY_TARGET_ROWS_TO_SOURCE,
                 payload: params
@@ -126,7 +126,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        editSourceKeyRow(params) {
+        editSourceKeyRow (params) {
             dispatch({
                 type: sourceMapAction.EDIT_SOURCE_KEYROW,
                 payload: params
@@ -135,17 +135,17 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        removeSourceKeyRow(source, index) {
+        removeSourceKeyRow (source, index) {
             dispatch({
                 type: sourceMapAction.REMOVE_SOURCE_KEYROW,
                 payload: index
             });
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
-                payload: { source },
+                payload: { source }
             });
         },
-        addTargetKeyRow(params) {
+        addTargetKeyRow (params) {
             dispatch({
                 type: targetMapAction.ADD_TARGET_KEYROW,
                 payload: params
@@ -154,19 +154,19 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        editKeyMapSource(params) {
+        editKeyMapSource (params) {
             dispatch({
                 type: keyMapAction.EDIT_KEYMAP_SOURCE,
                 payload: params
             });
         },
-        editKeyMapTarget(params) {
+        editKeyMapTarget (params) {
             dispatch({
                 type: keyMapAction.EDIT_KEYMAP_TARGET,
                 payload: params
             });
         },
-        editTargetKeyRow(params) {
+        editTargetKeyRow (params) {
             dispatch({
                 type: targetMapAction.EDIT_TARGET_KEYROW,
                 payload: params
@@ -175,7 +175,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        addBatchTargetKeyRow(params) {
+        addBatchTargetKeyRow (params) {
             dispatch({
                 type: targetMapAction.ADD_BATCH_TARGET_KEYROW,
                 payload: params
@@ -184,7 +184,7 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        replaceBatchTargetKeyRow(params) {
+        replaceBatchTargetKeyRow (params) {
             dispatch({
                 type: targetMapAction.REPLACE_BATCH_TARGET_KEYROW,
                 payload: params
@@ -193,29 +193,28 @@ export const keyMapActions = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        removeTargetKeyRow(target, index) {
+        removeTargetKeyRow (target, index) {
             dispatch({
                 type: targetMapAction.REMOVE_TARGET_KEYROW,
                 payload: index
             });
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
-                payload: { target },
+                payload: { target }
             });
         },
 
-        removeKeyMap({source, target}) {
+        removeKeyMap ({ source, target }) {
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
-                payload: { source, target },
+                payload: { source, target }
             });
-        },
+        }
     }
 };
 
 // workbenchActions
 export const workbenchActions = (dispatch) => {
-
     const closeAll = (tabs) => {
         for (let i in tabs) {
             dispatch(stopSql(tabs[i].id, null, true))
@@ -241,7 +240,7 @@ export const workbenchActions = (dispatch) => {
     const reloadTaskTab = (taskId) => {
         // 更新tabs数据
         ajax.getOfflineTaskDetail({
-            id: taskId,
+            id: taskId
         }).then(res => {
             if (res.code === 1) {
                 dispatch({
@@ -281,9 +280,9 @@ export const workbenchActions = (dispatch) => {
 
         /**
          * 发布任务
-         * @param {*} res 
+         * @param {*} res
         */
-        publishTask(res) {
+        publishTask (res) {
             dispatch({
                 type: workbenchAction.CHANGE_TASK_SUBMITSTATUS,
                 payload: (res.data && res.data.submitStatus) || 1
@@ -295,20 +294,20 @@ export const workbenchActions = (dispatch) => {
 
         /**
          * 更新当前任务的字段
-         * @param {*} taskFields 
+         * @param {*} taskFields
         */
-        updateTaskField(taskFields) {
+        updateTaskField (taskFields) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: taskFields,
+                payload: taskFields
             });
         },
 
         /**
          * 集中处理Data同步中的变量,例如${system.date}
-         * @param {Object} dataSync 
+         * @param {Object} dataSync
          */
-        updateDataSyncVariables(sourceMap, targetMap, taskCustomParams) {
+        updateDataSyncVariables (sourceMap, targetMap, taskCustomParams) {
             let taskVariables = [];
 
             // SourceMapupdateDataSyncVariables
@@ -317,7 +316,7 @@ export const workbenchActions = (dispatch) => {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.where)
                     taskVariables = taskVariables.concat(vbs);
                 }
-    
+
                 // 分区，获取任务自定义参数
                 if (sourceMap.type && sourceMap.type.partition) {
                     const vbs = matchTaskParams(taskCustomParams, sourceMap.type.partition)
@@ -328,7 +327,7 @@ export const workbenchActions = (dispatch) => {
                 if (sourceMap.column && sourceMap.column.length > 0) {
                     let str = '';
                     for (let i = 0; i < sourceMap.column.length; i++) {
-                        str += `${sourceMap.column[i].key || sourceMap.column[i].index }`;
+                        str += `${sourceMap.column[i].key || sourceMap.column[i].index}`;
                     }
                     const vbs = matchTaskParams(taskCustomParams, str);
                     taskVariables = taskVariables.concat(vbs);
@@ -343,7 +342,7 @@ export const workbenchActions = (dispatch) => {
                     const vbs = matchTaskParams(taskCustomParams, sqlText)
                     taskVariables = taskVariables.concat(vbs);
                 }
-    
+
                 if (targetMap.type.partition) {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition)
                     taskVariables = taskVariables.concat(vbs);
@@ -354,7 +353,7 @@ export const workbenchActions = (dispatch) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: {
                     taskVariables
-                },
+                }
             });
         },
 
@@ -376,37 +375,37 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
-        createWorkflowTask(data) {
+        createWorkflowTask (data) {
             return ajax.addOfflineTask(data)
-            .then(res => {
-                if (res.code === 1) {
-                    const newTask = res.data;
-                    dispatch({
-                        type: workflowAction.UPDATE,
-                        payload: {
-                            node: newTask,
-                            status: 'created',
-                        }
-                    })
-                    return true;
-                }
-            });
+                .then(res => {
+                    if (res.code === 1) {
+                        const newTask = res.data;
+                        dispatch({
+                            type: workflowAction.UPDATE,
+                            payload: {
+                                node: newTask,
+                                status: 'created'
+                            }
+                        })
+                        return true;
+                    }
+                });
         },
 
         // 确定克隆
-        confirmClone(data) {
+        confirmClone (data) {
             return ajax.cloneTask(data)
-            .then(res => {
-                if(res.code == 1) {
-                    dispatch({
-                        type: workflowAction.CLONE,
-                    })
-                    return true;
-                }
-            })
+                .then(res => {
+                    if (res.code == 1) {
+                        dispatch({
+                            type: workflowAction.CLONE
+                        })
+                        return true;
+                    }
+                })
         },
 
-        saveTask(task, noMsg) {
+        saveTask (task, noMsg) {
             console.log('saveTask:', task)
             // 删除不必要的字段
             delete task.taskVersions;
@@ -421,14 +420,13 @@ export const workbenchActions = (dispatch) => {
             }
 
             const succCallback = (res) => {
-
                 const updateTabData = (res) => {
                     const resData = res.data;
                     const data = {
                         id: task.id,
                         name: resData.name,
                         version: resData.version,
-                        readWriteLockVO: resData.readWriteLockVO,
+                        readWriteLockVO: resData.readWriteLockVO
                     }
 
                     dispatch({
@@ -438,7 +436,6 @@ export const workbenchActions = (dispatch) => {
                 }
 
                 if (res.code === 1) {
-
                     const fileData = res.data;
                     const lockInfo = fileData.readWriteLockVO;
                     const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
@@ -458,9 +455,9 @@ export const workbenchActions = (dispatch) => {
                             okText: '确定保存',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 ajax.forceUpdateOfflineTask(params).then(updateTabData)
-                            },
+                            }
                         });
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
@@ -476,14 +473,14 @@ export const workbenchActions = (dispatch) => {
                             okText: '确定覆盖',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 const reqParams = {
                                     id: task.id,
-                                    lockVersion: lockInfo.version,
+                                    lockVersion: lockInfo.version
                                 }
                                 // 更新version, getLock信息
                                 ajax.getOfflineTaskDetail(reqParams).then(updateTabData);
-                            },
+                            }
                         });
                     }
                 }
@@ -495,14 +492,12 @@ export const workbenchActions = (dispatch) => {
 
         /**
          * 保存Tab数据
-         * @param {} params 
-         * @param {*} isSave 
-         * @param {*} type 
+         * @param {} params
+         * @param {*} isSave
+         * @param {*} type
          */
-        saveTab(params, isSave, type) {
-
+        saveTab (params, isSave, type) {
             const updateTaskInfo = function (data) {
-
                 dispatch({
                     type: workbenchAction.SET_TASK_FIELDS_VALUE,
                     payload: data
@@ -521,7 +516,7 @@ export const workbenchActions = (dispatch) => {
                         message.success(isSave ? '保存成功！' : '发布成功！');
                         updateTaskInfo({
                             version: fileData.version,
-                            readWriteLockVO: fileData.readWriteLockVO,
+                            readWriteLockVO: fileData.readWriteLockVO
                         })
                         // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
@@ -535,13 +530,13 @@ export const workbenchActions = (dispatch) => {
                             okText: '确定保存',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 const succCall = (res) => {
                                     if (res.code === 1) {
                                         message.success('保存成功！')
                                         updateTaskInfo({
                                             version: res.data.version,
-                                            readWriteLockVO: res.data.readWriteLockVO,
+                                            readWriteLockVO: res.data.readWriteLockVO
                                         })
                                     }
                                 }
@@ -550,7 +545,7 @@ export const workbenchActions = (dispatch) => {
                                 } else if (type === 'script') {
                                     ajax.forceUpdateOfflineScript(params).then(succCall)
                                 }
-                            },
+                            }
                         });
                         // 如果同步状态，则提示会覆盖代码，
                         // 点击确认，重新拉取代码并覆盖当前代码，取消则退出
@@ -566,10 +561,10 @@ export const workbenchActions = (dispatch) => {
                             okText: '确定覆盖',
                             okType: 'danger',
                             cancelText: '取消',
-                            onOk() {
+                            onOk () {
                                 const reqParams = {
                                     id: params.id,
-                                    lockVersion: lockInfo.version,
+                                    lockVersion: lockInfo.version
                                 }
                                 if (type === 'task') {
                                     // 更新version, getLock信息
@@ -589,7 +584,7 @@ export const workbenchActions = (dispatch) => {
                                         }
                                     })
                                 }
-                            },
+                            }
                         });
                     }
                     return res;
@@ -599,8 +594,7 @@ export const workbenchActions = (dispatch) => {
             params.lockVersion = params.readWriteLockVO.version;
             if (type === 'task') {
                 return ajax.saveOfflineJobData(params).then(succCallback);
-            }
-            else if (type === 'script') {
+            } else if (type === 'script') {
                 return ajax.saveScript(params).then(succCallback);
             }
         },
@@ -619,15 +613,14 @@ export const workbenchActions = (dispatch) => {
                 }
                 if (treeType && treeType === MENU_TYPE.SCRIPT) { // 脚本类型
                     ajax.getScriptById({
-                        id: id,
+                        id: id
                     }).then(succCallBack);
                 } else { // 默认任务类型
                     ajax.getOfflineTaskDetail({
-                        id: id,
+                        id: id
                     }).then(succCallBack);
                 }
-            }
-            else {
+            } else {
                 id !== currentTab && dispatch({
                     type: workbenchAction.OPEN_TASK_TAB,
                     payload: id
@@ -637,7 +630,6 @@ export const workbenchActions = (dispatch) => {
         },
 
         closeTab: (tabId, tabs) => {
-            
             const doClose = (id) => {
                 dispatch(stopSql(id, null, true))
                 dispatch({
@@ -652,24 +644,22 @@ export const workbenchActions = (dispatch) => {
 
             if (!dirty) {
                 doClose(+tabId);
-            }
-            else {
+            } else {
                 confirm({
                     title: '修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃当前修改数据',
-                    onOk() {
+                    onOk () {
                         doClose(+tabId);
                     },
-                    onCancel() { }
+                    onCancel () { }
                 });
             }
         },
 
         closeAllorOthers: (action, tabs, currentTab) => {
-
             if (action === 'ALL') {
                 let allClean = true;
-    
+
                 for (let tab of tabs) {
                     console.log('ALL notSynced:', tab.notSynced)
                     if (tab.notSynced) {
@@ -677,22 +667,20 @@ export const workbenchActions = (dispatch) => {
                         break;
                     }
                 }
-    
+
                 if (allClean) {
                     closeAll(tabs);
-                }
-                else {
+                } else {
                     confirm({
                         title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                         content: '强制关闭将丢弃所有修改数据',
-                        onOk() {
+                        onOk () {
                             closeAll(tabs);
                         },
-                        onCancel() { }
+                        onCancel () { }
                     });
                 }
-            }
-            else {
+            } else {
                 let allClean = true;
                 for (let tab of tabs) {
                     console.log('notSynced:', tab.notSynced)
@@ -701,18 +689,17 @@ export const workbenchActions = (dispatch) => {
                         break;
                     }
                 }
-    
+
                 if (allClean) {
                     closeOthers(currentTab, tabs);
-                }
-                else {
+                } else {
                     confirm({
                         title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                         content: '强制关闭将丢弃这些修改数据',
-                        onOk() {
+                        onOk () {
                             closeOthers(currentTab, tabs);
                         },
-                        onCancel() { }
+                        onCancel () { }
                     });
                 }
             }
@@ -721,14 +708,13 @@ export const workbenchActions = (dispatch) => {
         /**
          * 定位文件位置
          */
-        locateFilePos(data, type) {
+        locateFilePos (data, type) {
             if (type === MENU_TYPE.TASK || type === MENU_TYPE.TASK_DEV) {
                 dispatch({
                     type: taskTreeAction.MERGE_FOLDER_CONTENT,
                     payload: data
                 });
-            }
-            else if (MENU_TYPE.SCRIPT) {
+            } else if (MENU_TYPE.SCRIPT) {
                 dispatch({
                     type: scriptTreeAction.MERGE_FOLDER_CONTENT,
                     payload: data
@@ -764,28 +750,28 @@ export const workbenchActions = (dispatch) => {
                     let action;
 
                     switch (type) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SYSFUC:
-                            action = sysFnTreeActon;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        case MENU_TYPE.TABLE:
-                            action = tableTreeAction
-                            break;
-                        default:
-                            action = taskTreeAction;
+                    case MENU_TYPE.TASK:
+                    case MENU_TYPE.TASK_DEV:
+                        action = taskTreeAction;
+                        break;
+                    case MENU_TYPE.RESOURCE:
+                        action = resTreeAction;
+                        break;
+                    case MENU_TYPE.FUNCTION:
+                    case MENU_TYPE.COSTOMFUC:
+                        action = fnTreeAction;
+                        break;
+                    case MENU_TYPE.SYSFUC:
+                        action = sysFnTreeActon;
+                        break;
+                    case MENU_TYPE.SCRIPT:
+                        action = scriptTreeAction;
+                        break;
+                    case MENU_TYPE.TABLE:
+                        action = tableTreeAction
+                        break;
+                    default:
+                        action = taskTreeAction;
                     }
 
                     data.children && dispatch({
@@ -796,7 +782,7 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
-        delOfflineTask(params, nodePid, type) {
+        delOfflineTask (params, nodePid, type) {
             return ajax.delOfflineTask(params)
                 .then(res => {
                     if (res.code == 1) {
@@ -817,7 +803,7 @@ export const workbenchActions = (dispatch) => {
                 });
         },
 
-        delOfflineScript(params, nodePid, type) {
+        delOfflineScript (params, nodePid, type) {
             ajax.deleteScript(params)
                 .then(res => {
                     if (res.code == 1) {
@@ -837,29 +823,29 @@ export const workbenchActions = (dispatch) => {
                 });
         },
 
-        delOfflineFolder(params, nodePid, cateType) {
+        delOfflineFolder (params, nodePid, cateType) {
             ajax.delOfflineFolder(params)
                 .then(res => {
                     if (res.code === 1) {
                         let action;
 
                         switch (cateType) {
-                            case MENU_TYPE.TASK:
-                            case MENU_TYPE.TASK_DEV:
-                                action = taskTreeAction;
-                                break;
-                            case MENU_TYPE.RESOURCE:
-                                action = resTreeAction;
-                                break;
-                            case MENU_TYPE.FUNCTION:
-                            case MENU_TYPE.COSTOMFUC:
-                                action = fnTreeAction;
-                                break;
-                            case MENU_TYPE.SCRIPT:
-                                action = scriptTreeAction;
-                                break;
-                            default:
-                                action = taskTreeAction;
+                        case MENU_TYPE.TASK:
+                        case MENU_TYPE.TASK_DEV:
+                            action = taskTreeAction;
+                            break;
+                        case MENU_TYPE.RESOURCE:
+                            action = resTreeAction;
+                            break;
+                        case MENU_TYPE.FUNCTION:
+                        case MENU_TYPE.COSTOMFUC:
+                            action = fnTreeAction;
+                            break;
+                        case MENU_TYPE.SCRIPT:
+                            action = scriptTreeAction;
+                            break;
+                        default:
+                            action = taskTreeAction;
                         }
 
                         dispatch({
@@ -873,7 +859,7 @@ export const workbenchActions = (dispatch) => {
                 })
         },
 
-        loadTaskParams() {
+        loadTaskParams () {
             ajax.getCustomParams()
                 .then(res => {
                     if (res.code === 1) {
@@ -885,7 +871,7 @@ export const workbenchActions = (dispatch) => {
                 })
         },
 
-        setModalDefault(data) {
+        setModalDefault (data) {
             dispatch({
                 type: modalAction.SET_MODAL_DEFAULT,
                 payload: data
@@ -902,14 +888,14 @@ export const workbenchActions = (dispatch) => {
         toggleCreateTask: function (data) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK,
-                payload: data,
+                payload: data
             });
         },
         // 克隆任务
         toggleCloneTask: function (data) {
             dispatch({
                 type: modalAction.TOGGLE_CLONE_TASK,
-                payload: data,
+                payload: data
             });
         },
 
@@ -942,12 +928,12 @@ export const workbenchActions = (dispatch) => {
             dispatch({
                 type: modalAction.TOGGLE_UPLOAD,
                 payload: {
-                    isCoverUpload: true,
+                    isCoverUpload: true
                 }
             });
         },
 
-        delOfflineRes(params, nodePid) {
+        delOfflineRes (params, nodePid) {
             ajax.delOfflineRes(params)
                 .then(res => {
                     if (res.code === 1) {
@@ -962,7 +948,7 @@ export const workbenchActions = (dispatch) => {
                 })
         },
 
-        delOfflineFn(params, nodePid) {
+        delOfflineFn (params, nodePid) {
             ajax.delOfflineFn(params)
                 .then(res => {
                     if (res.code === 1) {
@@ -977,14 +963,14 @@ export const workbenchActions = (dispatch) => {
                 })
         },
 
-        showFnViewModal(id) {
+        showFnViewModal (id) {
             dispatch({
                 type: modalAction.SHOW_FNVIEW_MODAL,
                 payload: id
             })
         },
 
-        showResViewModal(id) {
+        showResViewModal (id) {
             dispatch({
                 type: modalAction.SHOW_RESVIEW_MODAL,
                 payload: id
@@ -994,20 +980,20 @@ export const workbenchActions = (dispatch) => {
         /**
          *  The below is workflow actions
          */
-        updateWorkflow(data) {
+        updateWorkflow (data) {
             dispatch({
                 type: workflowAction.UPDATE,
                 payload: data
             })
         },
-    
-        resetWorkflow() {
+
+        resetWorkflow () {
             dispatch({
-                type: workflowAction.RESET,
+                type: workflowAction.RESET
             })
         },
 
-        reloadWorkflowTabNode(flowId, tabs) {
+        reloadWorkflowTabNode (flowId, tabs) {
             if (tabs && tabs.length > 0) {
                 for (let i = 0; i < tabs.length; i++) {
                     const tab = tabs[i];
@@ -1016,7 +1002,6 @@ export const workbenchActions = (dispatch) => {
                     }
                 }
             }
-        },
+        }
     }
 }
-

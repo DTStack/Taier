@@ -5,19 +5,17 @@
 * @Last Modified time: 2018-09-28 16:53:11
 */
 import React, { Component } from 'react';
-import { Modal, message } from "antd";
-import Api from "../../api/console";
-
+import { Modal, message } from 'antd';
+import Api from '../../api/console';
 
 class KillTask extends Component {
-
     // 请求杀任务接口
-    killTask() {
+    killTask () {
         const { killResource } = this.props;
         // console.log(killResource.jobName);
         // 获取集群
         var queueName, clusterName, computeTypeInt;
-        const arr = killResource.groupName.split("_");
+        const arr = killResource.groupName.split('_');
         if (arr.length == 1) {
             clusterName = killResource.groupName
         } else {
@@ -27,7 +25,7 @@ class KillTask extends Component {
             }
         }
 
-        if (killResource.computeType == "BATCH") {
+        if (killResource.computeType == 'BATCH') {
             computeTypeInt = 1
         } else {
             computeTypeInt = 0
@@ -42,19 +40,19 @@ class KillTask extends Component {
         }).then((res) => {
             if (res.code == 1) {
                 this.props.killSuccess(killResource.taskId);
-                message.success("操作成功");
+                message.success('操作成功');
                 this.props.autoRefresh();
                 // 异步,成功之后才能关闭
                 this.props.onCancel();
             } else {
-                message.success("操作失败");
+                message.success('操作失败');
             }
         })
     }
-    confirmKilltask() {
+    confirmKilltask () {
         this.killTask();
     }
-    render() {
+    render () {
         return (
             <Modal
                 title="杀任务"

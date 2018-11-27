@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 
-import { 
-    taskTreeReducer, 
+import {
+    taskTreeReducer,
     resourceTreeReducer,
     functionTreeReducer,
     sysFunctionTreeReducer,
     scriptTreeReducer,
-    tableTreeReducer,
+    tableTreeReducer
 } from './folderTree'
 
 import { modalShowReducer } from './modal'
@@ -26,5 +26,5 @@ export const offlineTask = combineReducers({
     scriptTree: scriptTreeReducer,
     workbench: workbenchReducer,
     dataSync: dataSyncReducer,
-    workflow: workflowReducer,
+    workflow: workflowReducer
 });

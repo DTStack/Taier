@@ -1,9 +1,9 @@
-import React from "react";
-import { hashHistory } from "react-router";
-import { Card, Table, Button } from "antd";
-import moment from "moment";
+import React from 'react';
+import { hashHistory } from 'react-router';
+import { Card, Table, Button } from 'antd';
+import moment from 'moment';
 
-import Api from "../../api/console"
+import Api from '../../api/console'
 const PAGE_SIZE = 10;
 
 class ClusterManage extends React.Component {
@@ -15,10 +15,10 @@ class ClusterManage extends React.Component {
             loading: true
         }
     }
-    componentDidMount() {
+    componentDidMount () {
         this.getResourceList();
     }
-    getResourceList() {
+    getResourceList () {
         const { table } = this.state;
         const { pageIndex } = table;
         Api.getClusterList({
@@ -47,7 +47,7 @@ class ClusterManage extends React.Component {
                 }
             )
     }
-    getPagination() {
+    getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
             current: pageIndex,
@@ -55,37 +55,37 @@ class ClusterManage extends React.Component {
             total: total
         }
     }
-    initTableColumns() {
+    initTableColumns () {
         return [
             {
-                title: "集群名称",
-                dataIndex: "clusterName"
+                title: '集群名称',
+                dataIndex: 'clusterName'
             },
             {
-                title: "节点数量",
-                dataIndex: "totalNode"
+                title: '节点数量',
+                dataIndex: 'totalNode'
             },
             {
-                title: "总资源数",
-                dataIndex: "totalCore",
-                width: "200px",
-                render(text, record) {
+                title: '总资源数',
+                dataIndex: 'totalCore',
+                width: '200px',
+                render (text, record) {
                     const memory = record.totalMemory / 1024;
                     const haveDot = Math.floor(memory) != memory
                     return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
                 }
             },
             {
-                title: "修改时间",
-                dataIndex: "gmtModified",
-                width: "200px",
-                render(text) {
-                    return new moment(text).format("YYYY-MM-DD HH:mm:ss")
+                title: '修改时间',
+                dataIndex: 'gmtModified',
+                width: '200px',
+                render (text) {
+                    return new moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {
-                title: "操作",
-                dataIndex: "deal",
+                title: '操作',
+                dataIndex: 'deal',
                 render: (text, record) => {
                     return (
                         <div>
@@ -98,36 +98,36 @@ class ClusterManage extends React.Component {
             }
         ]
     }
-    editCluster(item) {
+    editCluster (item) {
         hashHistory.push({
-            pathname: "/console/clusterManage/editCluster",
+            pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: "edit"
+                mode: 'edit'
             }
         })
     }
-    viewCluster(item){
+    viewCluster (item) {
         hashHistory.push({
-            pathname: "/console/clusterManage/editCluster",
+            pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: "view"
+                mode: 'view'
             }
         })
     }
-    newCluster() {
+    newCluster () {
         hashHistory.push({
-            pathname: "/console/clusterManage/editCluster"
+            pathname: '/console/clusterManage/editCluster'
         })
     }
-    render() {
+    render () {
         const { dataSource, table } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
 
         const cardTitle = (
-            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: "right", marginTop: "9px" }}>新增集群</Button></div>
+            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
         )
         return (
             <div className="contentBox m-card">

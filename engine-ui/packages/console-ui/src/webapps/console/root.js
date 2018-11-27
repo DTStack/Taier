@@ -15,12 +15,12 @@ import './styles/main.scss'
 import routers from './routers'
 
 export default class Root extends React.Component {
-    render() {
-        const { store , history } = this.props
+    render () {
+        const { store, history } = this.props
         return (
             <Provider store={store} >
-                <Router routes={routers} history={history} key={Math.random()} onEnter={()=>{
-                    console.log("enter")
+                <Router routes={routers} history={history} key={Math.random()} onEnter={() => {
+                    console.log('enter')
                 }} />
             </Provider>
         )

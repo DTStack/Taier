@@ -3,67 +3,67 @@ import http from './http'
 import req from '../consts/reqUrls'
 
 export default {
-    getAllApiList(params) {
+    getAllApiList (params) {
         return http.post(req.GET_ALL_API_LIST, params);
     },
-    getDataSourceByBaseInfo(params){
+    getDataSourceByBaseInfo (params) {
         return http.post(req.GET_DATASOURCE_BASE_INFO, params);
     },
-    deleteApi(params){
+    deleteApi (params) {
         return http.post(req.DELETE_API, params);
     },
-    updateApiStatus(params){
+    updateApiStatus (params) {
         return http.post(req.UPDATE_API, params);
     },
-    getApiCallUserRankList(params){
+    getApiCallUserRankList (params) {
         return http.post(req.GET_API_CALL_RANK, params);
     },
-    getApiUserApplyList(params){
+    getApiUserApplyList (params) {
         return http.post(req.GET_API_BUY_STATE, params);
     },
-    updateCatalogue(params){
+    updateCatalogue (params) {
         return http.post(req.UPDATE_CATAGORY, params);
     },
-    addCatalogue(params){
+    addCatalogue (params) {
         return http.post(req.ADD_CATAGORY, params);
     },
-    deleteCatalogue(params){
+    deleteCatalogue (params) {
         return http.post(req.DELETE_CATAGORY, params);
     },
-    createApi(params){
+    createApi (params) {
         return http.post(req.NEW_API, params);
     },
-    tablelist(params){
+    tablelist (params) {
         return http.post(req.GET_TABLE_BY_DATASOURCE, params);
     },
-    tablecolumn(params){
+    tablecolumn (params) {
         return http.post(req.GET_TABLE_COLUMNS_DETAIL, params);
     },
-    previewData(params){
+    previewData (params) {
         return http.post(req.GET_TABLE_PREVIEW_DATA, params);
     },
-    updateApi(params){
+    updateApi (params) {
         return http.post(req.CHANGE_API, params);
     },
-    getApiInfo(params){
+    getApiInfo (params) {
         return http.post(req.GET_API_DETAIL_INFO, params);
     },
-    getApiCallErrorInfoForManager(params){
+    getApiCallErrorInfoForManager (params) {
         return http.post(req.GET_API_CALL_ERROR_INFO_ADMIN, params);
     },
-    saveOrUpdateApiInfo(params){
+    saveOrUpdateApiInfo (params) {
         return http.post(req.SAVE_OR_UPDATE_APIINFO, params);
     },
-    sqlformat(params){
+    sqlformat (params) {
         return http.post(req.FORMAT_SQL, params);
     },
-    sqlParser(params){
+    sqlParser (params) {
         return http.post(req.PARSER_SQL, params);
     },
-    apiTest(params){
-        return http.post(req.TEST_API,params);
+    apiTest (params) {
+        return http.post(req.TEST_API, params);
     },
-    checkNameExist(params){
-        return http.post(req.CHECK_API_IS_EXIST,params);
-    },
+    checkNameExist (params) {
+        return http.post(req.CHECK_API_IS_EXIST, params);
+    }
 }

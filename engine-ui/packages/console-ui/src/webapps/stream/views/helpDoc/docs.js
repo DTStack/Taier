@@ -154,7 +154,7 @@ export const customParams = (
     </div>
 )
 
-// 
+//
 export const taskDependentTypeDesc = (
     <div>
         <p>
@@ -168,7 +168,6 @@ export const inputTaskHelp = (
         利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
     </div>
 )
-
 
 export const outputTaskHelp = (
     <div>

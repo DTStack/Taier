@@ -1,22 +1,22 @@
-import React from "react";
-import { Card, Table, Modal, Select, message, Row, Col, Form } from "antd";
-import { connect } from "react-redux";
-import { cloneDeep, uniq } from "lodash";
+import React from 'react';
+import { Card, Table, Modal, Select, message, Row, Col, Form } from 'antd';
+import { connect } from 'react-redux';
+import { cloneDeep, uniq } from 'lodash';
 
-import { formItemLayout } from "../../consts"
-import Api from "../../api/console";
-import { getUser } from "../../actions/console"
+import { formItemLayout } from '../../consts'
+import Api from '../../api/console';
+import { getUser } from '../../actions/console'
 
 const Option = Select.Option;
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
     return {
         consoleUser: state.consoleUser
     }
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
     return {
-        getTenantList() {
+        getTenantList () {
             dispatch(getUser())
         }
     }
@@ -26,16 +26,16 @@ class ChangeResourceModal extends React.Component {
     state = {
         loading: false,
         selectUserMap: {},
-        selectUser: "",//select输入value
-        selectHack: false,//select combobox自带bug
+        selectUser: '', // select输入value
+        selectHack: false// select combobox自带bug
     }
-    componentDidMount() {
+    componentDidMount () {
         const { resource } = this.props;
         this.setState({
             selectUserMap: this.exchangeSelectMap(resource.tenants)
         })
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { resource: nextResource, visible: nextVisible } = nextProps;
         const { resource, visible } = this.props;
         if (visible != nextVisible && nextVisible) {
@@ -47,7 +47,7 @@ class ChangeResourceModal extends React.Component {
             this.props.getTenantList();
         }
     }
-    exchangeSelectMap(userList = []) {
+    exchangeSelectMap (userList = []) {
         let result = {};
         userList.map(
             (item) => {
@@ -58,15 +58,15 @@ class ChangeResourceModal extends React.Component {
         )
         return result;
     }
-    changeUserValue(value) {
+    changeUserValue (value) {
         this.setState({
             selectUser: value
         })
     }
-    selectUser(value, option) {
+    selectUser (value, option) {
         const { selectUserMap } = this.state;
         this.setState({
-            selectUser: "",
+            selectUser: '',
             selectUserMap: {
                 ...selectUserMap,
                 [option.props.tenantid]: {
@@ -75,7 +75,7 @@ class ChangeResourceModal extends React.Component {
             }
         })
     }
-    removeUser(id) {
+    removeUser (id) {
         let { selectUserMap } = this.state;
         selectUserMap = cloneDeep(selectUserMap);
         delete selectUserMap[id];
@@ -83,13 +83,13 @@ class ChangeResourceModal extends React.Component {
             selectUserMap: selectUserMap
         })
     }
-    getUserOptions() {
+    getUserOptions () {
         const result = [];
         const { selectUserMap } = this.state;
         const { consoleUser, resource } = this.props;
         let userList = consoleUser.userList;
         let extUserList = resource.tenants || [];
-        userList = uniq(userList.concat(extUserList), "tenantId")//去重合并
+        userList = uniq(userList.concat(extUserList), 'tenantId')// 去重合并
 
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
@@ -99,17 +99,17 @@ class ChangeResourceModal extends React.Component {
         }
         return result;
     }
-    initColumns() {
+    initColumns () {
         return [
             {
-                title: "租户名称",
-                dataIndex: "name",
-                className:"text-middle",
-                render(text){
+                title: '租户名称',
+                dataIndex: 'name',
+                className: 'text-middle',
+                render (text) {
                     return <span className="text-middle">{text}</span>
-                },
+                }
                 // width:"150px",
-            },
+            }
             // {
             //     title:"操作",
             //     dataIndex:"deal",
@@ -119,7 +119,7 @@ class ChangeResourceModal extends React.Component {
             // }
         ]
     }
-    getTableDataSource() {
+    getTableDataSource () {
         const { selectUserMap } = this.state;
         const keyAndValue = Object.entries(selectUserMap);
         return keyAndValue.map((item) => {
@@ -128,14 +128,13 @@ class ChangeResourceModal extends React.Component {
                 name: item[1].tenantName
             }
         })
-
     }
-    getTenantsList() {
+    getTenantsList () {
         const { selectUserMap } = this.state;
         const selectKeys = Object.keys(selectUserMap);
         return selectKeys;
     }
-    changeResource() {
+    changeResource () {
         this.setState({
             loading: true
         })
@@ -148,30 +147,29 @@ class ChangeResourceModal extends React.Component {
             .then(
                 (res) => {
                     this.setState({
-                        loading: false,
+                        loading: false
                     })
                     if (res.code == 1) {
-                        message.success("修改成功");
+                        message.success('修改成功');
                         this.props.resourceUserChange();
                     }
                 }
             )
-
     }
-    onCancel() {
+    onCancel () {
         this.props.onCancel()
     }
-    resetValueByHack() {
+    resetValueByHack () {
         this.setState({
             selectHack: true
         }, () => {
             this.setState({
                 selectHack: false,
-                selectUser: ""
+                selectUser: ''
             })
         })
     }
-    render() {
+    render () {
         const { selectUser, loading, selectHack } = this.state;
         const { visible, resource } = this.props;
         const columns = this.initColumns();
@@ -195,7 +193,7 @@ class ChangeResourceModal extends React.Component {
                     >
                         {!selectHack && <Select
                             mode="combobox"
-                            style={{ width: "100%" }}
+                            style={{ width: '100%' }}
                             placeholder="请选择租户"
                             onSelect={this.selectUser.bind(this)}
                             onSearch={this.changeUserValue.bind(this)}
@@ -207,7 +205,7 @@ class ChangeResourceModal extends React.Component {
 
                     <Table
                         className="m-table"
-                        style={{ margin: "0px 20px", marginTop: "30px" }}
+                        style={{ margin: '0px 20px', marginTop: '30px' }}
                         columns={columns}
                         pagination={false}
                         dataSource={this.getTableDataSource()}

@@ -8,7 +8,6 @@ import assign from 'object-assign';
 import { isEqual, throttle, range, isObject } from 'lodash';
 import { browserHistory, hashHistory } from 'react-router'
 
-
 import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
@@ -25,25 +24,24 @@ const RadioGroup = Radio.Group;
  * @extends {React.Component}
  */
 class BaseForm extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
-            type: props.location?'2':'1', // 1: 内部表 2:外部表
+            type: props.location ? '2' : '1', // 1: 内部表 2:外部表
             dataCatalogue: [],
-            storedType:props.storedType
+            storedType: props.storedType
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadCatalogue();
     }
 
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
-                dataCatalogue: res.data && [res.data],
+                dataCatalogue: res.data && [res.data]
             })
         })
     }
@@ -52,7 +50,7 @@ class BaseForm extends React.Component {
         this.props.form.setFieldsValue({ 'lifeDay': value })
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { tableName, desc, delim, location, lifeDay, catalogueId } = this.props;
         const { type, dataCatalogue, storedType } = this.state;
@@ -66,17 +64,17 @@ class BaseForm extends React.Component {
             >
                 {getFieldDecorator('tableName', {
                     rules: [{
-                        required: true, message: '表名不可为空！',
+                        required: true, message: '表名不可为空！'
                     }, {
                         pattern: /^([A-Za-z0-9_]{1,64})$/,
-                        message: '表名称只能由字母、数字、下划线组成，且长度不超过64个字符!',
+                        message: '表名称只能由字母、数字、下划线组成，且长度不超过64个字符!'
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
                     validateTrigger: 'onBlur',
                     initialValue: tableName
                 })(
-                    <Input placeholder="请输入表名" autoComplete="off" />,
+                    <Input placeholder="请输入表名" autoComplete="off" />
                 )}
             </FormItem>
             <FormItem
@@ -99,7 +97,7 @@ class BaseForm extends React.Component {
                 {getFieldDecorator('location', {
                     rules: [{
                         required: true,
-                        message: '外部表地址不可为空！',
+                        message: '外部表地址不可为空！'
                     }, {
                         validator: this.validateLoc.bind(this)
                     }],
@@ -118,7 +116,7 @@ class BaseForm extends React.Component {
                         required: true,
                         message: '表所在类目不可为空！'
                     }],
-                    initialValue: catalogueId || undefined,
+                    initialValue: catalogueId || undefined
                 })(
                     <CatalogueTree
                         isPicker
@@ -151,13 +149,13 @@ class BaseForm extends React.Component {
             >
                 {getFieldDecorator('storedType', {
                     rules: [{
-                        required: true, message: '存储格式不可为空！',
+                        required: true, message: '存储格式不可为空！'
                     }],
-                    initialValue: storedType,
+                    initialValue: storedType
                 })(
-                    <Select onChange={(value)=>{
+                    <Select onChange={(value) => {
                         this.setState({
-                            storedType:value
+                            storedType: value
                         })
                     }}>
                         <Option value="textfile">textfile</Option>
@@ -174,7 +172,7 @@ class BaseForm extends React.Component {
                 >
                     {getFieldDecorator('delim', {
                         rules: [],
-                        initialValue: delim,
+                        initialValue: delim
                     })(
                         <Input placeholder="分隔符" autoComplete="off" />
                     )}
@@ -187,7 +185,7 @@ class BaseForm extends React.Component {
                 {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
-                        message: '描述不得超过200个字符！',
+                        message: '描述不得超过200个字符！'
                     }],
                     initialValue: desc
                 })(
@@ -197,15 +195,14 @@ class BaseForm extends React.Component {
         </Form>
     }
 
-    validateDelim(rule, value, callback) {
+    validateDelim (rule, value, callback) {
         value = value.trim();
 
         if (value[0] === '\\') {
             if (value.length > 2) {
                 callback('分隔符长度只能为1（不包括转义字符"\\"）')
             }
-        }
-        else {
+        } else {
             if (value.length > 1) {
                 callback('分隔符长度只能为1')
             }
@@ -213,7 +210,7 @@ class BaseForm extends React.Component {
         callback();
     }
 
-    validateTableName(rule, value, callback) {
+    validateTableName (rule, value, callback) {
         const ctx = this;
         value ? ajax.checkTableExist({
             tableName: value
@@ -227,7 +224,7 @@ class BaseForm extends React.Component {
             .then(callback) : callback();
     }
 
-    validateLoc(rule, value, callback) {
+    validateLoc (rule, value, callback) {
         value ? ajax.checkHdfsLocExist({
             hdfsUri: 'hdfs://' + value
         }).then(res => {
@@ -238,7 +235,7 @@ class BaseForm extends React.Component {
             .then(callback) : callback();
     }
 
-    handleChange(e) {
+    handleChange (e) {
         const type = e.target.value;
 
         this.setState({ type });
@@ -246,15 +243,13 @@ class BaseForm extends React.Component {
     }
 }
 
-
 /**
  * @description 字段/分区 一行
  * @class RowItem
  * @extends {React.Component}
  */
 export class RowItem extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             editMode: false
@@ -267,15 +262,14 @@ export class RowItem extends React.Component {
      * @param {any} evt value/event
      * @memberof RowItem
      */
-    handleChange(selectName, evt) {
+    handleChange (selectName, evt) {
         const { data, replaceRow } = this.props;
         let iptName, value;
 
         if (isObject(evt)) {
             iptName = evt.target.name;
             value = evt.target.value;
-        }
-        else {
+        } else {
             iptName = selectName;
             value = evt;
         }
@@ -300,7 +294,7 @@ export class RowItem extends React.Component {
         }
     }
 
-    checkParams(params) {
+    checkParams (params) {
         const reg = /^[A-Za-z0-9_]+$/;
         if (params.columnName) {
             if (!reg.test(params.columnName)) {
@@ -319,18 +313,18 @@ export class RowItem extends React.Component {
         return true;
     }
 
-    render() {
+    render () {
         const { data } = this.props;
         const { editMode } = this.state;
         const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
 
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
-        //const needExtra = true;
-        const TYPES = isPartition ?
-            ['STRING', 'BIGINT'] :
-            ["TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
-                "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
-                "DECIMAL", "DATE", "VARCHAR", "CHAR"
+        // const needExtra = true;
+        const TYPES = isPartition
+            ? ['STRING', 'BIGINT']
+            : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
+                'FLOAT', 'DOUBLE', 'STRING', 'BINARY', 'TIMESTAMP',
+                'DECIMAL', 'DATE', 'VARCHAR', 'CHAR'
             ];
 
         return <Row className="row">
@@ -379,72 +373,72 @@ export class RowItem extends React.Component {
         </Row>
     }
 
-    renderExtra(columnType) {
+    renderExtra (columnType) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = '';
 
         columnType = columnType.toUpperCase();
         switch (columnType) {
-            case 'DECIMAL':
-                result = <span className="extra-ipt">
-                    <Select name="precision"
-                        style={{ marginLeft: '2%', width: '18%' }}
-                        value={`${precision}` || '10'}
-                        onChange={this.handleChange.bind(this, 'precision')}
-                        placeholder="precision"
-                        disabled={isSaved}
-                    >
-                        {range(39).slice(1).map(n => <Option value={`${n}`}
-                            key={n}
-                        >{n}</Option>)}
-                    </Select>
-                    <Select name="scale"
-                        style={{ marginLeft: '2%', width: '18%' }}
-                        value={`${scale}` || '0'}
-                        onChange={this.handleChange.bind(this, 'scale')}
-                        placeholder="scale"
-                        disabled={isSaved}
-                    >
-                        {range(precision || 10).map(n1 => <Option value={`${n1}`}
-                            key={n1}
-                        >{n1}</Option>)}
-                    </Select>
-                    <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
-                    </Tooltip>
-                </span>
-                break;
-            case 'CHAR':
-                result = <span className="extra-ipt">
-                    <InputNumber name="charLen" defaultValue={charLen || 10}
-                        min={1}
-                        max={255}
-                        style={{ width: '38%', marginLeft: '2%' }}
-                        onChange={this.handleChange.bind(this, 'charLen')}
-                        disabled={isSaved}
-                    />
-                    <Tooltip title="type(char)；char的长度为1~255">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
-                    </Tooltip>
-                </span>
-                break;
-            case 'VARCHAR':
-                result = <span className="extra-ipt">
-                    <InputNumber name="varcharLen" defaultValue={varcharLen || 10}
-                        min={1}
-                        max={65535}
-                        style={{ width: '38%', marginLeft: '2%' }}
-                        onChange={this.handleChange.bind(this, 'varcharLen')}
-                        disabled={isSaved}
-                    />
-                    <Tooltip title="type(varchar)；varchar的长度为1~65535">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
-                    </Tooltip>
-                </span>
-                break;
+        case 'DECIMAL':
+            result = <span className="extra-ipt">
+                <Select name="precision"
+                    style={{ marginLeft: '2%', width: '18%' }}
+                    value={`${precision}` || '10'}
+                    onChange={this.handleChange.bind(this, 'precision')}
+                    placeholder="precision"
+                    disabled={isSaved}
+                >
+                    {range(39).slice(1).map(n => <Option value={`${n}`}
+                        key={n}
+                    >{n}</Option>)}
+                </Select>
+                <Select name="scale"
+                    style={{ marginLeft: '2%', width: '18%' }}
+                    value={`${scale}` || '0'}
+                    onChange={this.handleChange.bind(this, 'scale')}
+                    placeholder="scale"
+                    disabled={isSaved}
+                >
+                    {range(precision || 10).map(n1 => <Option value={`${n1}`}
+                        key={n1}
+                    >{n1}</Option>)}
+                </Select>
+                <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
+                </Tooltip>
+            </span>
+            break;
+        case 'CHAR':
+            result = <span className="extra-ipt">
+                <InputNumber name="charLen" defaultValue={charLen || 10}
+                    min={1}
+                    max={255}
+                    style={{ width: '38%', marginLeft: '2%' }}
+                    onChange={this.handleChange.bind(this, 'charLen')}
+                    disabled={isSaved}
+                />
+                <Tooltip title="type(char)；char的长度为1~255">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
+                </Tooltip>
+            </span>
+            break;
+        case 'VARCHAR':
+            result = <span className="extra-ipt">
+                <InputNumber name="varcharLen" defaultValue={varcharLen || 10}
+                    min={1}
+                    max={65535}
+                    style={{ width: '38%', marginLeft: '2%' }}
+                    onChange={this.handleChange.bind(this, 'varcharLen')}
+                    disabled={isSaved}
+                />
+                <Tooltip title="type(varchar)；varchar的长度为1~65535">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }} />
+                </Tooltip>
+            </span>
+            break;
 
-            default: break;
+        default: break;
         }
 
         return result;
@@ -458,32 +452,32 @@ export class RowItem extends React.Component {
  * @extends {React.Component}
  */
 export class ColumnsPartition extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    addRow(type) {
+    addRow (type) {
         this.props.addRow({
             columnName: '',
             columnType: 'STRING',
             columnDesc: '',
-            uuid: Date.now(),
+            uuid: Date.now()
         }, type);
     }
 
-    delRow(type, uuid) {
+    delRow (type, uuid) {
         this.props.delRow(uuid, type);
     }
 
-    replaceRow(type, newCol) {
+    replaceRow (type, newCol) {
         this.props.replaceRow(newCol, type);
     }
 
-    moveRow(type, uuid, isUp) {
+    moveRow (type, uuid, isUp) {
         this.props.moveRow(uuid, type, isUp);
     }
 
-    render() {
+    render () {
         const { columns, partition_keys, isEdit } = this.props;
 
         return <div className="m-columnspartition">
@@ -539,9 +533,8 @@ export class ColumnsPartition extends React.Component {
     }
 }
 
-
 class TableCreator extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -566,21 +559,20 @@ class TableCreator extends React.Component {
         };
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         let shouldUpdate = false;
 
         if (this.state.current === 0) {
             if (this.state.type !== nextState.type) shouldUpdate = true;
             else shouldUpdate = this.state.current !== nextState.current;
-        }
-        else {
+        } else {
             shouldUpdate = true;
         }
 
         return shouldUpdate;
     }
 
-    next() {
+    next () {
         const { current, table } = this.state;
         const { partition_keys, columns } = table;
 
@@ -591,23 +583,21 @@ class TableCreator extends React.Component {
                     this.setState({ current: next });
                 }
             });
-        }
-        else if (current === 1) {
+        } else if (current === 1) {
             if (partition_keys.length === 0 && columns.length === 0) {
                 message.error('请添加字段或分区信息');
-            }
-            else {
+            } else {
                 this.doCreate();
             }
         }
     }
 
-    prev() {
+    prev () {
         const current = this.state.current - 1;
         this.setState({ current });
     }
 
-    doCreate() {
+    doCreate () {
         const { table, current } = this.state;
         let { columns, partition_keys } = table;
 
@@ -616,8 +606,7 @@ class TableCreator extends React.Component {
 
         if (partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
-        }
-        else {
+        } else {
             ajax.createTable(table).then(res => {
                 if (res.code === 1) {
                     const next = current + 1;
@@ -638,13 +627,13 @@ class TableCreator extends React.Component {
      * @param {any} arr
      * @memberof TableCreator
      */
-    reduceRowData(arr) {
+    reduceRowData (arr) {
         return arr.filter(data => {
             return data.name !== '';
         });
     }
 
-    dosth() {
+    dosth () {
         console.log(arguments);
     }
 
@@ -654,16 +643,14 @@ class TableCreator extends React.Component {
      * @param {number} type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    addRow(data, type) {
-
+    addRow (data, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
 
         if (type === 1) {
             columns.push(data);
             table.columns = columns;
-        }
-        else if (type === 2) {
+        } else if (type === 2) {
             partition_keys.push(data);
             table.partition_keys = partition_keys;
         }
@@ -679,7 +666,7 @@ class TableCreator extends React.Component {
      * @param {number} type type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    delRow(uuid, type) {
+    delRow (uuid, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
 
@@ -688,8 +675,7 @@ class TableCreator extends React.Component {
                 return col.uuid !== uuid
             });
             table.columns = columns;
-        }
-        else if (type === 2) {
+        } else if (type === 2) {
             partition_keys = partition_keys.filter(col => {
                 return col.uuid !== uuid
             });
@@ -707,7 +693,7 @@ class TableCreator extends React.Component {
      * @param {number} type  1: columns 2: partitions
      * @memberof TableCreator
      */
-    replaceRow(newCol, type) {
+    replaceRow (newCol, type) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
         const { uuid } = newCol;
@@ -718,8 +704,7 @@ class TableCreator extends React.Component {
                 else return col;
             });
             table.columns = columns;
-        }
-        else if (type === 2) {
+        } else if (type === 2) {
             partition_keys = partition_keys.map(col => {
                 if (col.uuid === uuid) return newCol;
                 else return col;
@@ -739,7 +724,7 @@ class TableCreator extends React.Component {
      * @param {boolean} isUp
      * @memberof TableCreator
      */
-    moveRow(uuid, type, isUp) {
+    moveRow (uuid, type, isUp) {
         let { table } = this.state;
         let { columns, partition_keys } = table;
         let from;
@@ -749,8 +734,7 @@ class TableCreator extends React.Component {
                 if (col.uuid === uuid) from = i;
             });
             table.columns = columns.__move(from, isUp ? from - 1 : from + 1);
-        }
-        else if (type === 2) {
+        } else if (type === 2) {
             partition_keys.forEach((col, i) => {
                 if (col.uuid === uuid) from = i;
             });
@@ -762,7 +746,7 @@ class TableCreator extends React.Component {
         })
     }
 
-    resetLoc() {
+    resetLoc () {
         this.setState(state => {
             let table = assign(state.table, {
                 location: undefined
@@ -774,30 +758,27 @@ class TableCreator extends React.Component {
     goBack = () => {
         const { url, history } = this.props
         if (url) {
-            if (history)
-                browserHistory.push(url)
-            else
-                hashHistory.push(url)
+            if (history) { browserHistory.push(url) } else { hashHistory.push(url) }
         } else {
             browserHistory.go(-1)
         }
     }
 
-    render() {
+    render () {
         const { current } = this.state;
         const the = this;
         const BaseFormWrapper = Form.create({
-            onValuesChange(props, values) {
-                const {table}=the.state;
+            onValuesChange (props, values) {
+                const { table } = the.state;
                 the.setState({
-                    table:{
+                    table: {
                         ...table,
                         ...values
                     }
                 })
             }
         })(BaseForm);
-        console.log("render")
+        console.log('render')
         const steps = [{
             title: '基本信息',
             content: <BaseFormWrapper
@@ -817,21 +798,21 @@ class TableCreator extends React.Component {
         }, {
             title: '新建完成',
             content: <div className="m-createresult" style={{ textAlign: 'center' }}>
-                {this.state.result ? (this.state.result === 'success' ?
-                    <div>
+                {this.state.result ? (this.state.result === 'success'
+                    ? <div>
                         <h3>
                             <Icon type="check-circle" style={{ color: 'green' }} /> 新建成功!
                         </h3>
                         <p style={{ marginTop: 10 }}><span className="m-countdown" /> 秒后自动返回</p>
-                    </div> :
-                    <div>
+                    </div>
+                    : <div>
                         <h3>
                             <Icon type="close-circle" style={{ color: 'red' }} /> 新建失败!
                         </h3>
                         <p style={{ color: 'red', marginTop: 10 }}>{this.state.result.message}</p>
                     </div>) : null
                 }
-            </div>,
+            </div>
         }];
 
         return <div className="bg-w" style={{ padding: '20px', margin: '20px' }}>

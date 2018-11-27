@@ -1,14 +1,14 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Layout, Spin } from "antd";
-import SplitPane from "react-split-pane";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Layout, Spin } from 'antd';
+import SplitPane from 'react-split-pane';
+import { connect } from 'react-redux';
 
-import Sidebar from "./sidebar";
+import Sidebar from './sidebar';
 import Default from './realtime/default';
 import TaskIndex from './realtime';
-import SearchTaskModal from "./searchTaskModal";
-import { stopSql, getEditorThemeClassName } from "../../store/modules/editor/editorAction";
+import SearchTaskModal from './searchTaskModal';
+import { stopSql, getEditorThemeClassName } from '../../store/modules/editor/editorAction';
 
 const { Content } = Layout;
 
@@ -19,36 +19,34 @@ const defaultPro = {
     children: []
 };
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
     return { editor: state.editor, pages: state.realtimeTask.pages };
 }
 
 @connect(mapStateToProps)
 class Container extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
-            loading: "success"
+            loading: 'success'
         };
         this.loadIDETheme(this.props.editor.options.theme);
-
     }
 
-    componentDidMount() {
+    componentDidMount () {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
         }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         const { dispatch, editor } = this.props;
         const running = editor.running;
-        //清楚所有运行中的tabs状态
+        // 清楚所有运行中的tabs状态
         for (let i in running) {
             dispatch(stopSql(running[i], null, true));
         }
-        window.removeEventListener("beforeunload", this.beforeunload, false);
+        window.removeEventListener('beforeunload', this.beforeunload, false);
         this.unloadIDETheme();
     }
 

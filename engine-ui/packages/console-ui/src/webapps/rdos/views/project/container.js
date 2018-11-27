@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import {connect} from "react-redux"
-import {hashHistory} from "react-router";
+import { connect } from 'react-redux'
+import { hashHistory } from 'react-router';
 import PropTypes from 'prop-types'
 import { Layout } from 'antd'
 
@@ -9,25 +9,25 @@ import Sidebar from './sidebar'
 const { Sider, Content } = Layout;
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
-@connect(state=>{
+@connect(state => {
     return {
-        project:state.project
+        project: state.project
     }
 })
 class Container extends Component {
-    componentWillReceiveProps(nextProps){
-        const {params={},project={}} = nextProps;
-        if(params.pid!=project.id){
-            hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i,`$1${project.id}$2`))
+    componentWillReceiveProps (nextProps) {
+        const { params = {}, project = {} } = nextProps;
+        if (params.pid != project.id) {
+            hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i, `$1${project.id}$2`))
         }
     }
-    render() {
+    render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-project">

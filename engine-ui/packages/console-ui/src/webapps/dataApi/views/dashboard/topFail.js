@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import { Card, Col, Row, Table } from 'antd';
-import { Link } from "react-router"
+import { Link } from 'react-router'
 class TopFail extends Component {
-    getDataSource() {
+    getDataSource () {
         return this.props.data || [];
     }
-    openNewDetail(text, apiName) {
+    openNewDetail (text, apiName) {
         if (this.props.isAdmin) {
             this.props.router.push({
                 pathname: '/api/manage',
-                state:{
+                state: {
                     apiName: apiName,
                     apiId: text
                 }
@@ -25,11 +25,11 @@ class TopFail extends Component {
         }
     }
 
-    render() {
+    render () {
         return (
             <Card
                 noHovering
-                title={this.props.noTitle ? '' : "失败率TOP10"}
+                title={this.props.noTitle ? '' : '失败率TOP10'}
                 style={{ height: this.props.cardHeight || 403 }}
                 className="shadow"
             >
@@ -39,22 +39,22 @@ class TopFail extends Component {
                     }}
                     className="m-table"
                     rowClassName={() => {
-                        return "h-33"
+                        return 'h-33'
                     }}
                     pagination={false}
                     columns={[{
                         title: '排名',
                         dataIndex: 'rank',
                         key: 'rank',
-                        className: "color-666",
-                        render(text, record, index) {
+                        className: 'color-666',
+                        render (text, record, index) {
                             return <span className={`rank-number rank-number-fail_${index + 1}`}>{index + 1}</span>
                         }
                     }, {
                         title: '接口',
                         dataIndex: 'apiName',
                         key: 'apiName',
-                        className: "color-666",
+                        className: 'color-666',
                         render: (text, record) => {
                             return <a onClick={this.openNewDetail.bind(this, record.id, record.apiName)}>{text}</a>
                         }
@@ -62,23 +62,21 @@ class TopFail extends Component {
                         title: '调用次数',
                         dataIndex: 'callNum',
                         key: 'callNum',
-                        className: "color-666"
+                        className: 'color-666'
                     },
                     {
                         title: '失败率',
                         dataIndex: 'failRate',
                         key: 'failRate',
-                        className: "color-666",
-                        render(text) {
-                            return text + "%"
+                        className: 'color-666',
+                        render (text) {
+                            return text + '%'
                         }
                     }]}
-
 
                     dataSource={this.getDataSource()}
                     onChange={this.onTableChange}
                 />
-
 
             </Card>
         )

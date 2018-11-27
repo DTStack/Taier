@@ -6,7 +6,6 @@ import { formItemLayout } from '../../../comm/const'
 const FormItem = Form.Item
 
 class ApprovelModal extends Component {
-
     submit = (e) => {
         e.preventDefault()
         const { onOk, form } = this.props
@@ -24,30 +23,28 @@ class ApprovelModal extends Component {
         onCancel()
         form.resetFields()
     }
-    
-    
 
-    handleResource(type){
+    handleResource (type) {
         const { table } = this.props;
         let data;
-        if(type === "resourceName"){
-            const resourceName =  table.map(v=>{
+        if (type === 'resourceName') {
+            const resourceName = table.map(v => {
                 return v.resourceName
             })
-            data = resourceName.join(" 、")
-        }else{
-            data =  table.map(v=>{
+            data = resourceName.join(' 、')
+        } else {
+            data = table.map(v => {
                 return v.applyId
             })
         }
         return data
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, agreeApply } = this.props;
         const title = agreeApply ? '批量通过' : '批量驳回';
-        
+
         return (
             <Modal
                 title={title}
@@ -62,30 +59,30 @@ class ApprovelModal extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('tableName', {
-                            rules: [],
+                            rules: []
                         })(
                             <span>{ this.handleResource('resourceName') }</span>
-                           
+
                         )}
                     </FormItem>
                     <FormItem
-                        style={{display: 'none'}}
+                        style={{ display: 'none' }}
                     >
                         {getFieldDecorator('ids', {
                             rules: [],
                             initialValue: this.handleResource('ids')
                         })(
-                            <Input type="hidden" />,
+                            <Input type="hidden" />
                         )}
                     </FormItem>
                     <FormItem
-                        style={{display: 'none'}}
+                        style={{ display: 'none' }}
                     >
                         {getFieldDecorator('status', {
                             rules: [],
                             initialValue: agreeApply ? 1 : 2
                         })(
-                            <Input type="hidden" />,
+                            <Input type="hidden" />
                         )}
                     </FormItem>
                     <FormItem
@@ -96,10 +93,10 @@ class ApprovelModal extends Component {
                         {getFieldDecorator('reply', {
                             rules: [{
                                 max: 200,
-                                message: '请控制在200个字符以内！',
-                            }],
+                                message: '请控制在200个字符以内！'
+                            }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="回复内容" />,
+                            <Input type="textarea" rows={4} placeholder="回复内容" />
                         )}
                     </FormItem>
                 </Form>

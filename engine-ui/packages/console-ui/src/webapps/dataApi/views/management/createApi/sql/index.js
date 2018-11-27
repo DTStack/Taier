@@ -1,56 +1,56 @@
-import React from "react";
-import { Card, Modal, Spin, Button, Checkbox } from "antd";
+import React from 'react';
+import { Card, Modal, Spin, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux';
 import { apiManageActions } from '../../../../actions/apiManage';
 
-import CodeEditor from "widgets/editor";
+import CodeEditor from 'widgets/editor';
 class ApiSqlEditor extends React.Component {
     state = {
-        sql: "",
+        sql: '',
         loading: false,
         visible: false
     }
-    componentWillMount(){
-        if(this.props.disAbleTip){
+    componentWillMount () {
+        if (this.props.disAbleTip) {
             this.setState({
-                visible:false
+                visible: false
             })
         }
     }
-    componentDidMount() {
-        if(this.props.isClickCode) {
+    componentDidMount () {
+        if (this.props.isClickCode) {
             this.setState({
-                visible:false
+                visible: false
             })
         } else {
             this.setState({
-                visible:true
+                visible: true
             })
         }
     }
     // select LOCK_NAME from QRTZ_LOCKS
-    showModal() {
+    showModal () {
         this.setState({
             visible: true
         })
     }
-    renderTitle() {
+    renderTitle () {
         const { loading } = this.props;
         return (
             <span>API配置SQL语句
-                <a style={{ marginLeft: "20px", fontSize: "12px" }} onClick={this.props.sqlFormat}>格式化语句</a>
-                <a style={{ marginLeft: "8px", fontSize: "12px" }} onClick={this.showModal.bind(this)}>SQL编写提示</a>
-                <a style={{ float: "right", marginLeft: "8px", fontSize: "12px" }} onClick={() => {
+                <a style={{ marginLeft: '20px', fontSize: '12px' }} onClick={this.props.sqlFormat}>格式化语句</a>
+                <a style={{ marginLeft: '8px', fontSize: '12px' }} onClick={this.showModal.bind(this)}>SQL编写提示</a>
+                <a style={{ float: 'right', marginLeft: '8px', fontSize: '12px' }} onClick={() => {
                     if (loading) {
                         return;
                     }
                     this.props.sqlModeShowChange()
                 }}>编辑参数</a>
-                <span style={{ float: "right", fontSize: "12px", color: "#888" }}>{loading && <Spin size="small" style={{ marginRight: "8px" }} />}代码</span>
+                <span style={{ float: 'right', fontSize: '12px', color: '#888' }}>{loading && <Spin size="small" style={{ marginRight: '8px' }} />}代码</span>
             </span>
         )
     }
-    render() {
+    render () {
         return (
             <div>
                 <Card
@@ -58,21 +58,21 @@ class ApiSqlEditor extends React.Component {
                     title={this.renderTitle()}
                 >
                     <CodeEditor
-                        style={{ height: "600px", marginTop: "1px" }}
+                        style={{ height: '600px', marginTop: '1px' }}
                         onChange={this.props.sqlOnChange}
                         value={this.props.editor.sql}
                         // cursor={this.props.editor.cursor}
                         sync={this.props.editor.sync}
                     />
                     <Modal
-                        bodyStyle={{ padding: "20px 13px 12px 20px" }}
+                        bodyStyle={{ padding: '20px 13px 12px 20px' }}
                         title="SQL编写提示"
                         visible={this.state.visible}
                         width="520px"
                         footer={
                             (
                                 <div>
-                                    <Checkbox checked={this.props.disAbleTip} style={{float:"left",marginTop:"5px",marginLeft:"10px"}} onChange={this.props.disAbleTipChange}>不再提示</Checkbox>
+                                    <Checkbox checked={this.props.disAbleTip} style={{ float: 'left', marginTop: '5px', marginLeft: '10px' }} onChange={this.props.disAbleTipChange}>不再提示</Checkbox>
                                     <Button type="primary" onClick={() => { this.setState({ visible: false }) }}>知道了</Button>
                                 </div>
                             )
@@ -138,6 +138,5 @@ const mapStateToProps = (state) => {
         isClickCode: apiManage.isClickCode
     }
 }
-
 
 export default connect(mapStateToProps, null)(ApiSqlEditor);

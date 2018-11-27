@@ -1,15 +1,15 @@
-import React from "react"
-import { connect } from "react-redux"
+import React from 'react'
+import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { Collapse, Form, Input, Radio, Tabs } from "antd";
-import Editor from "widgets/editor"
-import Address from "./runcode/address";
+import { Collapse, Form, Input, Radio, Tabs } from 'antd';
+import Editor from 'widgets/editor'
+import Address from './runcode/address';
 
-import { TASK_TYPE } from "../../../../../comm/const";
-import { formItemLayout, DATA_SOURCE } from "../../../../../comm/const";
+import { TASK_TYPE } from '../../../../../comm/const';
+import { formItemLayout, DATA_SOURCE } from '../../../../../comm/const';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../../store/modules/realtimeTask/comm';
-import utils from "utils";
+import utils from 'utils';
 
 const { TextArea } = Input;
 const Panel = Collapse.Panel;
@@ -19,7 +19,7 @@ const TabPane = Tabs.TabPane;
 
 @connect(state => {
     return {
-        taskTypes: state.realtimeTask.comm.taskTypes,
+        taskTypes: state.realtimeTask.comm.taskTypes
     }
 }, dispatch => {
     return bindActionCreators({
@@ -28,113 +28,112 @@ const TabPane = Tabs.TabPane;
 })
 class RunCode extends React.Component {
     state = {
-        tabKey: "env"
+        tabKey: 'env'
     }
 
-    componentDidMount() {
-        console.log("RunCode")
+    componentDidMount () {
+        console.log('RunCode')
         this.props.realtimeGetTaskTypes();
     }
-    getRunCode() {
+    getRunCode () {
         const { data = {}, taskTypes = [] } = this.props;
         const {
             taskType, sqlText,
             taskDesc, name, mainClass, exeArgs, resourceList = []
         } = data;
         switch (taskType) {
-            case TASK_TYPE.SQL:
-            case TASK_TYPE.DATA_COLLECTION: {
-                return (
-                    <Editor
-                        sync={true}
-                        style={{ height: "100%" }}
-                        options={{ readOnly: false }}
-                        language={this.getEditorLanguage(taskType)}
-                        options={{ readOnly: true, minimap: { enabled: false } }}
-                        value={sqlText}
-                    />
-                )
-            }
-            case TASK_TYPE.MR:
-            default: {
-                return (
-                    <Form>
-                        <FormItem
-                            {...formItemLayout}
-                            label="任务名称"
-                        >
-                            <Input disabled value={name} />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="任务类型"
-                        >
-                            <RadioGroup value={taskType} disabled>
-                                {taskTypes.map(item =>
-                                    <Radio key={item.key} value={item.key}>{item.value}</Radio>
-                                )}
-                            </RadioGroup>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="资源"
-                        >
-                            <Input disabled value={resourceList && resourceList.length ? resourceList[0].resourceName : ""} />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="mainClass"
-                        >
-                            <Input disabled value={mainClass} />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                        >
-                            <Input disabled value={exeArgs} />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="描述"
-                        >
-                            <TextArea disabled value={taskDesc} />
-                        </FormItem>
-                    </Form>
-                )
-            }
-
+        case TASK_TYPE.SQL:
+        case TASK_TYPE.DATA_COLLECTION: {
+            return (
+                <Editor
+                    sync={true}
+                    style={{ height: '100%' }}
+                    options={{ readOnly: false }}
+                    language={this.getEditorLanguage(taskType)}
+                    options={{ readOnly: true, minimap: { enabled: false } }}
+                    value={sqlText}
+                />
+            )
+        }
+        case TASK_TYPE.MR:
+        default: {
+            return (
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="任务名称"
+                    >
+                        <Input disabled value={name} />
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="任务类型"
+                    >
+                        <RadioGroup value={taskType} disabled>
+                            {taskTypes.map(item =>
+                                <Radio key={item.key} value={item.key}>{item.value}</Radio>
+                            )}
+                        </RadioGroup>
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="资源"
+                    >
+                        <Input disabled value={resourceList && resourceList.length ? resourceList[0].resourceName : ''} />
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="mainClass"
+                    >
+                        <Input disabled value={mainClass} />
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="参数"
+                    >
+                        <Input disabled value={exeArgs} />
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="描述"
+                    >
+                        <TextArea disabled value={taskDesc} />
+                    </FormItem>
+                </Form>
+            )
+        }
         }
     }
-    getEditorLanguage(taskType) {
+    getEditorLanguage (taskType) {
         switch (taskType) {
-            case TASK_TYPE.SQL: {
-                return 'sql'
-            }
-            case TASK_TYPE.DATA_COLLECTION: {
-                return 'json'
-            }
-            default: {
-                return 'ini'
-            }
+        case TASK_TYPE.SQL: {
+            return 'sql'
+        }
+        case TASK_TYPE.DATA_COLLECTION: {
+            return 'json'
+        }
+        default: {
+            return 'ini'
+        }
         }
     }
-    changeTab(activeKey) {
+    changeTab (activeKey) {
         this.setState({
             tabKey: activeKey
         })
     }
-    getJsonEditor(value) {
-        value = utils.jsonFormat(value)||'';
+    getJsonEditor (value) {
+        value = utils.jsonFormat(value) || '';
         return <Editor
             sync={true}
-            style={{ height: "100%" }}
+            style={{ height: '100%' }}
             options={{ readOnly: false }}
             language="json"
             options={{ readOnly: true, minimap: { enabled: false } }}
             value={value}
         />
     }
-    render() {
+    render () {
         const { tabKey } = this.state;
         const { data = {}, isShow } = this.props;
         const { taskType, originSourceType } = data;
@@ -142,19 +141,19 @@ class RunCode extends React.Component {
         const isflinkSql = taskType == TASK_TYPE.SQL;
 
         const editorBoxStyle = {
-            position: "absolute",
-            top: "20px",
-            bottom: "0px",
-            left: "0px",
-            right: "0px",
-            width: "100%"
+            position: 'absolute',
+            top: '20px',
+            bottom: '0px',
+            left: '0px',
+            right: '0px',
+            width: '100%'
         }
         return (
             <div className="m-tabs">
                 <Tabs
                     className="nav-border content-border"
                     animated={false}
-                    tabBarStyle={{ background: "transparent", borderWidth: "0px" }}
+                    tabBarStyle={{ background: 'transparent', borderWidth: '0px' }}
                     onChange={this.changeTab.bind(this)}
                     value={tabKey}
                 >
@@ -184,7 +183,7 @@ class RunCode extends React.Component {
                         <div style={editorBoxStyle}>
                             <Editor
                                 sync={true}
-                                style={{ height: "100%" }}
+                                style={{ height: '100%' }}
                                 options={{ readOnly: false }}
                                 language="ini"
                                 options={{ readOnly: true, minimap: { enabled: false } }}

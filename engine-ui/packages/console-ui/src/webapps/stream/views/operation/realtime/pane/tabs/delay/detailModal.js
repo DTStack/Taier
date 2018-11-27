@@ -1,12 +1,11 @@
-import React from "react"
-import utils from "utils"
+import React from 'react'
+import utils from 'utils'
 
-import { Table, Modal, Button } from "antd"
-import Api from "../../../../../../api"
-import DetailGraph from "./detailGraph";
+import { Table, Modal, Button } from 'antd'
+import Api from '../../../../../../api'
+import DetailGraph from './detailGraph';
 
 class DelayDetailModal extends React.Component {
-
     state = {
         pagination: {
             total: 0,
@@ -21,10 +20,10 @@ class DelayDetailModal extends React.Component {
         expandedRowKeys: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getDelayList();
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { taskId, topicName } = this.props;
         const { taskId: nextTaskId, topicName: nextTopicName } = nextProps;
         if (taskId != nextTaskId || topicName != nextTopicName) {
@@ -32,7 +31,7 @@ class DelayDetailModal extends React.Component {
             this.getDelayList(nextTaskId, nextTopicName);
         }
     }
-    initPage() {
+    initPage () {
         this.setState({
             pagination: {
                 ...this.state.pagination,
@@ -41,9 +40,9 @@ class DelayDetailModal extends React.Component {
             }
         })
     }
-    getDelayList(taskId, topicName) {
-        taskId = typeof taskId == "undefined" ? this.props.taskId : taskId;
-        topicName = typeof topicName == "undefined" ? this.props.topicName : topicName;
+    getDelayList (taskId, topicName) {
+        taskId = typeof taskId == 'undefined' ? this.props.taskId : taskId;
+        topicName = typeof topicName == 'undefined' ? this.props.topicName : topicName;
         if (!taskId || !topicName) {
             return;
         }
@@ -53,7 +52,6 @@ class DelayDetailModal extends React.Component {
         this.setState({
             delayList: []
         })
-
 
         let extParams = {};
         /**
@@ -89,7 +87,7 @@ class DelayDetailModal extends React.Component {
             }
         )
     }
-    initDelayListColumns() {
+    initDelayListColumns () {
         return [{
             title: '分区ID',
             dataIndex: 'partitionId',
@@ -98,16 +96,16 @@ class DelayDetailModal extends React.Component {
             title: '延迟消息数（条）',
             dataIndex: 'delayCount',
             width: 130,
-            sorter: (a,b)=>{
-                return a-b
-            },
+            sorter: (a, b) => {
+                return a - b
+            }
         }, {
             title: '总消息数',
             dataIndex: 'totalDelayCount',
             width: 110,
-            sorter: (a,b)=>{
-                return a-b
-            },
+            sorter: (a, b) => {
+                return a - b
+            }
         }, {
             title: '当前消费位置',
             dataIndex: 'currentLocation',
@@ -115,29 +113,29 @@ class DelayDetailModal extends React.Component {
         }, {
             title: '操作',
             dataIndex: 'deal',
-            width: "100px",
+            width: '100px',
             render: (text, record) => {
-                const {expandedRowKeys} = this.state;
-                if(expandedRowKeys[0]==record.partitionId){
-                    return <a onClick={this.onExpand.bind(this, false,record)}>关闭详情</a>
-                }else{
-                    return <a onClick={this.onExpand.bind(this, true,record)}>查看详情</a>
+                const { expandedRowKeys } = this.state;
+                if (expandedRowKeys[0] == record.partitionId) {
+                    return <a onClick={this.onExpand.bind(this, false, record)}>关闭详情</a>
+                } else {
+                    return <a onClick={this.onExpand.bind(this, true, record)}>查看详情</a>
                 }
             }
         }]
     }
-    showDetail(record) {
+    showDetail (record) {
         this.setState({
-            expandedRowKeys:[record.partitionId]
+            expandedRowKeys: [record.partitionId]
         })
     }
-    closeDetail() {
+    closeDetail () {
         this.setState({
             detailRecord: {},
             detailVisible: false
         })
     }
-    onTableChange(page, filters, sorter) {
+    onTableChange (page, filters, sorter) {
         const { pagination } = this.state;
         this.setState({
             pagination: {
@@ -145,15 +143,15 @@ class DelayDetailModal extends React.Component {
                 current: page.current
             },
             sorter: sorter,
-            expandedRowKeys:[]
+            expandedRowKeys: []
         })
     }
-    expandedRowRender(record) {
-        const { taskId, topicName} = this.props;
+    expandedRowRender (record) {
+        const { taskId, topicName } = this.props;
         const { partitionId } = record;
         return <DetailGraph taskId={taskId} partitionId={partitionId} topicName={topicName} />
     }
-    onExpand(expanded, record) {
+    onExpand (expanded, record) {
         if (expanded) {
             this.setState({
                 expandedRowKeys: [record.partitionId]
@@ -163,9 +161,8 @@ class DelayDetailModal extends React.Component {
                 expandedRowKeys: []
             })
         }
-
     }
-    render() {
+    render () {
         const { delayList, pagination, loading, expandedRowKeys } = this.state;
         return (
             <Modal

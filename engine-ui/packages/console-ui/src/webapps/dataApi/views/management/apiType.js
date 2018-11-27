@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { connect } from "react-redux"
-import { Card, message } from "antd";
-import ApiTypeTree from "./apiTypeTree"
+import React, { Component } from 'react';
+import { connect } from 'react-redux'
+import { Card, message } from 'antd';
+import ApiTypeTree from './apiTypeTree'
 import GoBack from 'main/components/go-back'
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
@@ -13,24 +13,24 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getCatalogue(pid) {
+    getCatalogue (pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    deleteCatalogue(pid) {
-        return dispatch(apiManageActions.deleteCatalogue({ id:pid }));
+    deleteCatalogue (pid) {
+        return dispatch(apiManageActions.deleteCatalogue({ id: pid }));
     },
-    updateCatalogue(pid, nodeName) {
-        return dispatch(apiManageActions.updateCatalogue({ id:pid, nodeName })); 
+    updateCatalogue (pid, nodeName) {
+        return dispatch(apiManageActions.updateCatalogue({ id: pid, nodeName }));
     },
-    addCatalogue(pid,nodeName) {
-        return dispatch(apiManageActions.addCatalogue({ pid ,nodeName}));
+    addCatalogue (pid, nodeName) {
+        return dispatch(apiManageActions.addCatalogue({ pid, nodeName }));
     },
-    addCatalogueEdit(tree) {
+    addCatalogueEdit (tree) {
         dispatch({
             type: ACTION_TYPE.GET_CATALOGUE,
             payload: tree
         });
-    } 
+    }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -41,47 +41,43 @@ class ApiType extends Component {
     onCheck = (checkedKeys, info) => {
         console.log('onCheck', checkedKeys, info);
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.getCatalogue(0);
     }
-    deleteCatalogue(pid) {
+    deleteCatalogue (pid) {
         this.props.deleteCatalogue(pid)
             .then(
                 (res) => {
                     if (res) {
-                        
-                        message.success("删除成功")
+                        message.success('删除成功')
                     }
                     this.props.getCatalogue(0);
                 }
             )
-
     }
-    addCatalogue(id,name) {
+    addCatalogue (id, name) {
         this.props.addCatalogue(id, name)
             .then(
                 (res) => {
                     if (res) {
-                        
-                        message.success("新增成功")
+                        message.success('新增成功')
                     }
                     this.props.getCatalogue(0);
                 }
             )
     }
-    updateCatalogue(id, nodeName) {
+    updateCatalogue (id, nodeName) {
         this.props.updateCatalogue(id, nodeName)
             .then(
                 (res) => {
                     if (res) {
-                        
-                        message.success("更改成功")
+                        message.success('更改成功')
                     }
                     this.props.getCatalogue(0);
                 }
             )
-    } 
-    render() {
+    }
+    render () {
         return (
             <div className="m-card">
                 <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> 类目管理</h1>

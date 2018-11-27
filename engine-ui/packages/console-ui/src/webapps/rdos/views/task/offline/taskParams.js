@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
+import {
     Form,
     Collapse,
     Input,
     Icon,
-    Tooltip,
- } from 'antd';
+    Tooltip
+} from 'antd';
 
- import HelpDoc from '../../helpDoc';
+import HelpDoc from '../../helpDoc';
 
 const FormItem = Form.Item;
 const Panel = Collapse.Panel;
@@ -15,23 +15,22 @@ const Panel = Collapse.Panel;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 8 },
+        sm: { span: 8 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-    },
+        sm: { span: 14 }
+    }
 }
 
 class TaskParams extends React.Component {
-
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
         const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
         if (reg.test(value)) {
             const taskVariables = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
-            onChange({taskVariables})
+            onChange({ taskVariables })
         }
     }
 
@@ -40,18 +39,18 @@ class TaskParams extends React.Component {
         const taskVariables = [...tabData.taskVariables];
         console.log('removeParams:', index, taskVariables[index]);
         taskVariables.splice(index, 1);
-        onChange({taskVariables})
+        onChange({ taskVariables })
     }
 
     getFormItems = () => {
         const { getFieldDecorator } = this.props.form;
         const { taskVariables } = this.props.tabData;
-        const sysArr = [], customArr = [];
+        const sysArr = []; const customArr = [];
         const removeIcon = {
-            position: "absolute",
-            top: "10px",
-            right: "-20px",
-            cursor: 'pointer',
+            position: 'absolute',
+            top: '10px',
+            right: '-20px',
+            cursor: 'pointer'
         }
         const getFormItem = (index, param) => (
             <FormItem
@@ -61,13 +60,13 @@ class TaskParams extends React.Component {
             >
                 {getFieldDecorator(param.paramName, {
                     rules: [{
-                        //匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
+                        // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
                         pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i,
-                        message: '参数格式不正确',
+                        message: '参数格式不正确'
                     }],
                     initialValue: param.paramCommand
                 })(
-                    <Input 
+                    <Input
                         disabled={param.type === 0}
                         onChange={(e) => { this.onChange(index, e.target.value) }}
                     />
@@ -93,36 +92,36 @@ class TaskParams extends React.Component {
             customItems: customArr
         }
     }
-    renderNothing(text){
+    renderNothing (text) {
         return (
             <p style={{
-                textAlign:"center",
-                fontSize:"14px",
-                color:"#a1a1a1",
+                textAlign: 'center',
+                fontSize: '14px',
+                color: '#a1a1a1'
 
-            }}>{text||'无参数'}</p>
+            }}>{text || '无参数'}</p>
         )
     }
-    render() {
-        const {tabData, isPro, couldEdit} = this.props;
+    render () {
+        const { tabData, isPro, couldEdit } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const formItems = this.getFormItems()
-        
+
         return (
-            <Form style={{position:"relative"}}>
-                {isLocked||!couldEdit?<div className="cover-mask"></div>:null} 
+            <Form style={{ position: 'relative' }}>
+                {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
                 <Collapse bordered={false} defaultActiveKey={['1', '2']}>
                     <Panel key="1" header={<span>
-                            系统参数配置 <HelpDoc style={{position: 'inherit'}} doc="customSystemParams" />
-                        </span>
+                            系统参数配置 <HelpDoc style={{ position: 'inherit' }} doc="customSystemParams" />
+                    </span>
                     }>
-                        {formItems.sysItems.length?formItems.sysItems:this.renderNothing("无系统参数")}
+                        {formItems.sysItems.length ? formItems.sysItems : this.renderNothing('无系统参数')}
                     </Panel>
                     <Panel key="2" header={
-                        <span>自定义参数配置 <HelpDoc style={{position: 'inherit'}} doc="customParams" />
+                        <span>自定义参数配置 <HelpDoc style={{ position: 'inherit' }} doc="customParams" />
                         </span>
                     }>
-                        {formItems.customItems.length?formItems.customItems:this.renderNothing("无自定义参数")}
+                        {formItems.customItems.length ? formItems.customItems : this.renderNothing('无自定义参数')}
                     </Panel>
                 </Collapse>
             </Form>

@@ -7,5 +7,5 @@ export default Object.assign(
     comm,
     table,
     datamap,
-    database,
+    database
 )

@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Steps } from "antd";
+import React, { Component } from 'react';
+import { Steps } from 'antd';
 
 import StepOne from './stepOne';
 import StepTwo from './stepTwo';
@@ -19,7 +19,7 @@ export default class PublishTag extends Component {
         tagType: 1
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { tagId } = this.state;
 
         Api.getApiInfo({ tagId }).then((res) => {
@@ -45,13 +45,13 @@ export default class PublishTag extends Component {
                         inputParams: data.inputParam,
                         outputParams: data.outputParam
                     },
-                    tagType: data.type 
+                    tagType: data.type
                 });
             }
         });
-        
+
         if (this.props.route.path.indexOf('editApi') > -1) {
-            this.setState({ editStatus: 'edit'});
+            this.setState({ editStatus: 'edit' });
         }
     }
 
@@ -60,20 +60,21 @@ export default class PublishTag extends Component {
     }
 
     changeBasicInfo = (obj) => {
-        let basicInfo = {...this.state.basicInfo, ...obj};
+        let basicInfo = { ...this.state.basicInfo, ...obj };
         this.setState({ basicInfo });
     }
 
     changeParamsConfig = (obj) => {
-        let paramsConfig = {...this.state.paramsConfig, ...obj};
+        let paramsConfig = { ...this.state.paramsConfig, ...obj };
         this.setState({ paramsConfig });
     }
 
-    render() {
+    render () {
         const { tagId, tagType, current, basicInfo, paramsConfig, editStatus } = this.state;
         const steps = [
             {
-                title: '基本属性', content: <StepOne
+                title: '基本属性',
+                content: <StepOne
                     tagType={tagType}
                     currentStep={current}
                     navToStep={this.navToStep}
@@ -83,7 +84,8 @@ export default class PublishTag extends Component {
                 />
             },
             {
-                title: '参数配置', content: <StepTwo
+                title: '参数配置',
+                content: <StepTwo
                     tagId={tagId}
                     currentStep={current}
                     navToStep={this.navToStep}
@@ -93,7 +95,8 @@ export default class PublishTag extends Component {
                 />
             },
             {
-                title: '完成', content: <StepThree
+                title: '完成',
+                content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
                 />
@@ -103,12 +106,12 @@ export default class PublishTag extends Component {
         return (
             <div className="box-1">
                 <h1 className="box-title">
-                    <GoBack /> 
+                    <GoBack />
                     <span className="m-l-8">
                         标签发布
                     </span>
                 </h1>
-                
+
                 <div className="steps-container">
                     <Steps current={current}>
                         { steps.map(item => <Step key={item.title} title={item.title} />) }

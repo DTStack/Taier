@@ -7,7 +7,6 @@ import Editor from 'widgets/editor';
 import workbenchAction from '../../../../consts/workbenchActionType';
 
 class DDLModal extends Component {
-
     handleOk = () => {
         message.info('复制成功，代码窗口即将关闭');
         setTimeout(() => {
@@ -17,12 +16,11 @@ class DDLModal extends Component {
 
     render () {
         const { modal, resetModal } = this.props;
-        const visible =  modal && modal.visibleModal === workbenchAction.GENERATE_CREATE_SQL 
-        ? true : false;
+        const visible = !!(modal && modal.visibleModal === workbenchAction.GENERATE_CREATE_SQL);
 
         return (
             <div>
-                 <Modal className="m-codemodal"
+                <Modal className="m-codemodal"
                     title="建表语句"
                     width="750px"
                     visible={visible}
@@ -40,12 +38,12 @@ class DDLModal extends Component {
                     <Editor
                         sync
                         value={modal.modalData}
-                        language="dtsql" 
+                        language="dtsql"
                         options={{
-                            readOnly:false
-                        }} 
+                            readOnly: false
+                        }}
                         disabledSyntaxCheck={true}
-                        style={{ height: '400px' }} 
+                        style={{ height: '400px' }}
                     />
                 </Modal>
             </div>

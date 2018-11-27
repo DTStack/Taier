@@ -1,16 +1,16 @@
-import React from "react";
-import { Table, Modal, message } from "antd";
+import React from 'react';
+import { Table, Modal, message } from 'antd';
 import { connect } from 'react-redux';
 
-import utils from "utils";
+import utils from 'utils';
 
-import DiffCodeEditor from "widgets/editor/diff";
-import { TASK_TYPE } from "../../../comm/const";
-import DiffParams from "./diffParams";
+import DiffCodeEditor from 'widgets/editor/diff';
+import { TASK_TYPE } from '../../../comm/const';
+import DiffParams from './diffParams';
 
 const mapState = state => {
     return {
-        editor: state.editor,
+        editor: state.editor
     };
 };
 
@@ -18,14 +18,14 @@ const mapState = state => {
 class TaskVersion extends React.Component {
     state = {
         showDiff: false,
-        campareTo: "",
+        campareTo: '',
         diffParams: {
             showDiffparams: false,
-            tableInfo: ""
+            tableInfo: ''
         }
     };
 
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
@@ -50,13 +50,13 @@ class TaskVersion extends React.Component {
             showDiff: false,
             campareTo: {}
         });
-        this._modalKey=~~(Math.random()*10000)
+        this._modalKey = ~~(Math.random() * 10000)
     };
 
     closeParamsModal = () => {
         const { diffParams } = this.state;
         diffParams.showDiffparams = false;
-        diffParams.tableInfo = "";
+        diffParams.tableInfo = '';
         this.setState({
             diffParams
         });
@@ -76,29 +76,29 @@ class TaskVersion extends React.Component {
         return output;
     }
 
-    render() {
+    render () {
         const { taskInfo, taskType, editor } = this.props;
         const { showDiff, campareTo, diffParams } = this.state;
 
         let sqlTextJSON = taskInfo.sqlText;
         let compareToText = campareTo.sqlText;
         let language;
-        switch(taskInfo.taskType){
-            case TASK_TYPE.SYNC:{
-                language="json";
-                break;
-            }
-            case TASK_TYPE.PYTHON_23:{
-                language="python";
-                break;
-            }
-            case TASK_TYPE.SQL:{
-                language="dtsql";
-                break;
-            }
-            default:{
-                language="dtsql";
-            }
+        switch (taskInfo.taskType) {
+        case TASK_TYPE.SYNC: {
+            language = 'json';
+            break;
+        }
+        case TASK_TYPE.PYTHON_23: {
+            language = 'python';
+            break;
+        }
+        case TASK_TYPE.SQL: {
+            language = 'dtsql';
+            break;
+        }
+        default: {
+            language = 'dtsql';
+        }
         }
 
         return (
@@ -115,7 +115,7 @@ class TaskVersion extends React.Component {
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="代码对比"
                     width="900px"
-                    bodyStyle={{ height: "500px" }}
+                    bodyStyle={{ height: '500px' }}
                     visible={showDiff}
                     onCancel={this.close}
                     cancelText="关闭"
@@ -123,9 +123,9 @@ class TaskVersion extends React.Component {
                 >
                     <DiffCodeEditor
                         className="merge-text"
-                        original={{value:sqlTextJSON}}
-                        modified={{value:compareToText}}
-                        options={{readOnly:true}}
+                        original={{ value: sqlTextJSON }}
+                        modified={{ value: compareToText }}
+                        options={{ readOnly: true }}
                         onChange={this.codeChange}
                         language={language}
                         theme={editor.options.theme}
@@ -135,7 +135,7 @@ class TaskVersion extends React.Component {
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="参数对比"
                     width="900px"
-                    bodyStyle={{ minHeight: "500px",paddingBottom: 20 }}
+                    bodyStyle={{ minHeight: '500px', paddingBottom: 20 }}
                     visible={diffParams.showDiffparams}
                     onCancel={this.closeParamsModal}
                     cancelText="关闭"
@@ -152,9 +152,9 @@ class TaskVersion extends React.Component {
     }
 
     taskTypeJudge = (taskInfo, record) => {
-        if (taskInfo.taskType === TASK_TYPE.SQL 
-            || taskInfo.taskType === TASK_TYPE.SYNC
-            ||taskInfo.taskType==TASK_TYPE.DATA_COLLECTION) {
+        if (taskInfo.taskType === TASK_TYPE.SQL ||
+            taskInfo.taskType === TASK_TYPE.SYNC ||
+            taskInfo.taskType == TASK_TYPE.DATA_COLLECTION) {
             return (
                 <div>
                     <a onClick={() => this.diffCode(record)}>代码</a>
@@ -162,45 +162,45 @@ class TaskVersion extends React.Component {
                     <a onClick={() => this.diffParams(record)}>参数</a>
                 </div>
             );
-        } else if(taskInfo.taskType === TASK_TYPE.WORKFLOW) {
+        } else if (taskInfo.taskType === TASK_TYPE.WORKFLOW) {
             return <div>
                 <a onClick={() => this.diffParams(record)}>参数</a>
             </div>
         } else {
-            return "-";
+            return '-';
         }
     };
 
     taskVersionCols = () => {
-        const isPro=this.props.isPro;
+        const isPro = this.props.isPro;
         const taskInfo = this.props.taskInfo;
-        const pre=isPro?'发布':'提交'
+        const pre = isPro ? '发布' : '提交'
         return [
             {
                 width: 120,
-                title: pre+"时间",
-                dataIndex: "gmtCreate",
-                key: "gmtCreate",
+                title: pre + '时间',
+                dataIndex: 'gmtCreate',
+                key: 'gmtCreate',
                 render: text => {
                     return utils.formatDateTime(text);
                 }
             },
             {
-                title: pre+"人",
-                dataIndex: "userName",
-                key: "userName"
+                title: pre + '人',
+                dataIndex: 'userName',
+                key: 'userName'
             },
             {
                 width: 120,
-                title: "描述",
-                dataIndex: "publishDesc",
-                key: "publishDesc"
+                title: '描述',
+                dataIndex: 'publishDesc',
+                key: 'publishDesc'
             },
             {
-                title: "操作",
-                dataIndex: "operation",
+                title: '操作',
+                dataIndex: 'operation',
                 width: 80,
-                key: "operation",
+                key: 'operation',
                 render: (text, record) => {
                     return this.taskTypeJudge(taskInfo, record);
                 }
@@ -209,4 +209,4 @@ class TaskVersion extends React.Component {
     };
 }
 
-export default  TaskVersion;
+export default TaskVersion;

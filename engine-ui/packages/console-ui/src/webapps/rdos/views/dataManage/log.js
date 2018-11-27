@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs,Spin
+    Form, DatePicker, Select, Icon, Card, Tabs, Spin
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
-import utils from "utils";
+import utils from 'utils';
 
 import SlidePane from 'widgets/slidePane';
 
@@ -21,7 +21,7 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
 class LogSearchForm extends React.Component {
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { projectUsers } = this.props;
 
@@ -71,19 +71,19 @@ class LogSearchForm extends React.Component {
 
 const FormWrapper = Form.create()(LogSearchForm);
 class TableLog extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             logs: {},
-            isDeleted: 1,
+            isDeleted: 1
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
     }
 
-    render() {
+    render () {
         const { tableId, tableName, projectUsers } = this.props;
         const { logs } = this.state;
         const columns = [{
@@ -91,7 +91,7 @@ class TableLog extends React.Component {
             width: 200,
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(text, record) {
+            render (text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }, {
@@ -99,7 +99,7 @@ class TableLog extends React.Component {
             width: 200,
             dataIndex: 'userId',
             key: 'userId',
-            render(text, record) {
+            render (text, record) {
                 let userName;
 
                 projectUsers.forEach(function (o) {
@@ -112,7 +112,7 @@ class TableLog extends React.Component {
             title: '操作语句',
             dataIndex: 'actionSql',
             key: 'actionSql',
-            render(text) {
+            render (text) {
                 return <code style={{ maxWidth: '400px', maxHeight: '100px' }}>{text}</code>
             }
         }];
@@ -155,7 +155,7 @@ class TableLog extends React.Component {
         </div>
     }
 
-    showPage(pageIndex, pageSize) {
+    showPage (pageIndex, pageSize) {
         const form = this.getFormParams();
         const params = Object.assign(form, {
             pageIndex, pageSize
@@ -164,12 +164,12 @@ class TableLog extends React.Component {
         this.doSearch(params);
     }
 
-    search() {
+    search () {
         const params = this.getFormParams();
         this.doSearch(params);
     }
 
-    getFormParams() {
+    getFormParams () {
         const params = this.searchForm.getFieldsValue();
         if (params.range) {
             var [startTime, endTime] = params.range;
@@ -181,7 +181,7 @@ class TableLog extends React.Component {
         return { startTime, endTime, ...params };
     }
 
-    doSearch(params) {
+    doSearch (params) {
         ajax.searchLog(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -193,8 +193,7 @@ class TableLog extends React.Component {
 }
 
 class Log extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             tableList: {},
@@ -202,27 +201,27 @@ class Log extends React.Component {
             visibleSlidePane: false,
             tableName: '',
             isDeleted: '',
-            loading: false,
+            loading: false
         }
     }
 
-    componentDidMount() {
-        const tableName  = utils.getParameterByName('tableName');
+    componentDidMount () {
+        const tableName = utils.getParameterByName('tableName');
         this.searchTable({
             tableName: tableName || ''
         });
         this.props.getUsers()
     }
 
-    searchTable(args) {
+    searchTable (args) {
         let { isDeleted, tableName, loading, tableList } = this.state
         tableList = [];
-        this.setState({loading: true,tableList})
+        this.setState({ loading: true, tableList })
         const params = Object.assign({
             timeSort: 'desc',
             pageSize: 20,
             tableName,
-            isDeleted,
+            isDeleted
         }, args);
 
         ajax.newSearchTable(params).then(res => {
@@ -231,7 +230,7 @@ class Log extends React.Component {
             }
             this.setState({
                 tableList,
-                loading: false,
+                loading: false
             })
         });
     }
@@ -246,48 +245,48 @@ class Log extends React.Component {
         if (filters.tableName) {
             const isDeleted = filters.tableName[0]
             this.setState({
-                isDeleted,
+                isDeleted
             }, this.searchTable)
         }
     }
 
-    showTableListPage(page, pageSize) {
+    showTableListPage (page, pageSize) {
         const { isDeleted } = this.state;
         this.searchTable({
             pageIndex: page,
-            isDeleted,
+            isDeleted
         });
     }
 
-    showTableLog(table) {
+    showTableLog (table) {
         const { id, tableName } = table;
         this.setState({
-            tableLog: { tableId:id, tableName },
-            visibleSlidePane: true,
+            tableLog: { tableId: id, tableName },
+            visibleSlidePane: true
         })
     }
 
     onFilter = (value, record) => {
         this.searchTable({
-            isDeleted: value,
+            isDeleted: value
         })
     }
 
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
-            tableLog:{}
+            tableLog: {}
         })
     }
 
-    render() {
+    render () {
         const the = this;
         const columns = [{
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
             width: 300,
-            render(text, record) {
+            render (text, record) {
                 return <a href="javascript:void(0)"
                     onClick={the.showTableLog.bind(the, record)}
                 >
@@ -296,21 +295,20 @@ class Log extends React.Component {
             },
             filters: [
                 { text: '已删除', value: 1 },
-                { text: '未删除', value: 0 },
+                { text: '未删除', value: 0 }
             ],
             filterMultiple: false,
-            filteredValue:(this.state.isDeleted||this.state.isDeleted===0)?[this.state.isDeleted]:undefined
+            filteredValue: (this.state.isDeleted || this.state.isDeleted === 0) ? [this.state.isDeleted] : undefined
         }, {
             title: '最近变更时间',
             dataIndex: 'lastDmlTime',
             key: 'lastDmlTime',
-            render(text, record) {
+            render (text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }];
-        const { tableList, tableLog, visibleSlidePane, isDeleted,loading } = this.state;
+        const { tableList, tableLog, visibleSlidePane, isDeleted, loading } = this.state;
 
-        
         const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
         const { projectUsers } = this.props;
 
@@ -336,13 +334,13 @@ class Log extends React.Component {
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.tableLog && this.state.tableLog.tableId == record.id) {
-                                        return "row-select"
+                                        return 'row-select'
                                     } else {
-                                        return "";
+                                        return '';
                                     }
                                 }
                             }
-                            dataSource={data||[]}
+                            dataSource={data || []}
                             className="m-table"
                             rowKey="id"
                             pagination={false}
@@ -368,8 +366,8 @@ class Log extends React.Component {
                                 color: '#ddd',
                                 textAlign: 'center',
                                 marginTop: 40
-                            }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p> :
-                                <TableLog key={tableLog.tableId} {...tableLog}
+                            }}><Icon type="exclamation-circle-o" /> 未选中任何数据表</p>
+                                : <TableLog key={tableLog.tableId} {...tableLog}
                                     projectUsers={projectUsers}
                                 />}
                         </div>
@@ -386,7 +384,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    getUsers() {
+    getUsers () {
         dispatch(UserAction.getProjectUsers())
     }
 });

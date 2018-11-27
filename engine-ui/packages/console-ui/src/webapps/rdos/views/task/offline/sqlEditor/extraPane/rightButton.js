@@ -1,25 +1,25 @@
-import React from "react";
-import {connect} from "react-redux"
+import React from 'react';
+import { connect } from 'react-redux'
 
 import {
-    workbenchAction,
+    workbenchAction
 } from '../../../../../store/modules/offlineTask/actionType';
 
-@connect(state=>{
+@connect(state => {
     return {
-        showTableTooltip:state.offlineTask.workbench.showTableTooltip
+        showTableTooltip: state.offlineTask.workbench.showTableTooltip
     }
 })
 class TableTipButton extends React.Component {
-    changeTableTipVisible(){
-        const {showTableTooltip, dispatch} = this.props;
+    changeTableTipVisible () {
+        const { showTableTooltip, dispatch } = this.props;
         dispatch({
-            type:showTableTooltip?workbenchAction.CLOSE_TABLE_TOOLTIP:workbenchAction.OPEN_TABLE_TOOLTIP
+            type: showTableTooltip ? workbenchAction.CLOSE_TABLE_TOOLTIP : workbenchAction.OPEN_TABLE_TOOLTIP
         })
     }
-    render() {
+    render () {
         return (
-            <img onClick={this.changeTableTipVisible.bind(this)} className="pointer" style={{marginTop:"4px",height:"20px"}} src="/public/rdos/img/tip.svg" />
+            <img onClick={this.changeTableTipVisible.bind(this)} className="pointer" style={{ marginTop: '4px', height: '20px' }} src="/public/rdos/img/tip.svg" />
         )
     }
 }

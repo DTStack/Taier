@@ -4,16 +4,16 @@ import { Table, Row, Col, Card } from 'antd';
 import moment from 'moment';
 
 import Resize from 'widgets/resize';
+
+import { lineAreaChartOptions, DATA_SOURCE } from '../../consts';
+import TQApi from '../../api/taskQuery';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-import { lineAreaChartOptions, DATA_SOURCE } from '../../consts';
-import TQApi from '../../api/taskQuery';
-
 export default class TaskTablePane extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             lineChart: '',
@@ -21,7 +21,7 @@ export default class TaskTablePane extends Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { data } = this.props;
 
         this.loadReports({
@@ -30,9 +30,10 @@ export default class TaskTablePane extends Component {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
-        let oldData = this.props.data,
-            newData = nextProps.data;
+    componentWillReceiveProps (nextProps) {
+        let oldData = this.props.data;
+
+        let newData = nextProps.data;
 
         if (!isEmpty(newData) && oldData !== newData) {
             this.loadReports({
@@ -61,17 +62,20 @@ export default class TaskTablePane extends Component {
         }
     }
 
-    initLineChart(chartData) {
-        let myChart = echarts.init(document.getElementById('TableReportTrend')),
-            option  = cloneDeep(lineAreaChartOptions),
-            xData   = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm')),
-            legends = [{ 
-                key: 'dayCountRecord',
-                name: '记录数'
-            }, { 
-                key: 'dayCountTrigger',
-                name: '总告警数'
-            }];
+    initLineChart (chartData) {
+        let myChart = echarts.init(document.getElementById('TableReportTrend'));
+
+        let option = cloneDeep(lineAreaChartOptions);
+
+        let xData = chartData.map(item => moment(item.executeTime).format('YYYY-MM-DD HH:mm'));
+
+        let legends = [{
+            key: 'dayCountRecord',
+            name: '记录数'
+        }, {
+            key: 'dayCountTrigger',
+            name: '总告警数'
+        }];
 
         option.grid = {
             left: 20,
@@ -83,7 +87,7 @@ export default class TaskTablePane extends Component {
 
         option.xAxis[0].axisTick = {
             show: false,
-            alignWithLabel: true,
+            alignWithLabel: true
         };
         option.xAxis[0].boundaryGap = ['5%', '5%'];
         option.xAxis[0].axisLabel.formatter = (value, index) => (moment(value).format('MM-DD HH:mm'));
@@ -105,10 +109,10 @@ export default class TaskTablePane extends Component {
             legends.forEach((legend) => {
                 arr.push({
                     name: legend.name,
-                    type:'line',
+                    type: 'line',
                     smooth: true,
                     symbolSize: 8,
-                    data: data.map(item => item[legend.key]),
+                    data: data.map(item => item[legend.key])
                 });
             });
         }
@@ -166,7 +170,7 @@ export default class TaskTablePane extends Component {
             title: '平均告警率',
             dataIndex: 'alarmRate',
             key: 'alarmRate',
-            render: (text => text && text.toFixed ? text.toFixed(2) : text)
+            render: text => text && text.toFixed ? text.toFixed(2) : text
         }]
     }
 
@@ -176,7 +180,7 @@ export default class TaskTablePane extends Component {
             title: '执行时间',
             dataIndex: 'executeTime',
             key: 'executeTime',
-            render: (value) => (moment(value).format("YYYY-MM-DD HH:mm:ss")),
+            render: (value) => (moment(value).format('YYYY-MM-DD HH:mm:ss')),
             width: '40%'
         }, {
             title: '记录数',
@@ -195,7 +199,7 @@ export default class TaskTablePane extends Component {
             data.dataSourceType === DATA_SOURCE.HIVE ||
             data.dataSourceType === DATA_SOURCE.MAXCOMPUTE
         ) {
-            colums.splice(1,0,{
+            colums.splice(1, 0, {
                 title: '分区',
                 dataIndex: 'partition',
                 key: 'partition',
@@ -205,25 +209,26 @@ export default class TaskTablePane extends Component {
         return colums
     }
 
-    render() {
+    render () {
         const { tableReport } = this.state;
 
-        let reportData = !isEmpty(tableReport) ? [tableReport] : [],
-            usage = tableReport.usage ? [...tableReport.usage].reverse() : [];
+        let reportData = !isEmpty(tableReport) ? [tableReport] : [];
+
+        let usage = tableReport.usage ? [...tableReport.usage].reverse() : [];
 
         const tableReportTitle = (
             <div>
                 表级统计
-                <span 
+                <span
                     style={{ fontSize: 12, color: '#999' }}>
-                    （执行时间：{moment(tableReport.executeTime).format("YYYY-MM-DD HH:mm:ss")}）
+                    （执行时间：{moment(tableReport.executeTime).format('YYYY-MM-DD HH:mm:ss')}）
                 </span>
             </div>
         )
 
         return (
             <div style={{ padding: 20 }}>
-                <Table 
+                <Table
                     rowKey="tableName"
                     className="m-table txt-center-table"
                     columns={this.initTableInfoColumns()}
@@ -233,14 +238,14 @@ export default class TaskTablePane extends Component {
 
                 <Row style={{ padding: '20px 0' }} gutter={16}>
                     <Col span={12}>
-                        <Card   
+                        <Card
                             noHovering
                             bordered={false}
-                            loading={false} 
+                            loading={false}
                             className="shadow"
-                            title={tableReportTitle} 
+                            title={tableReportTitle}
                         >
-                            <Table 
+                            <Table
                                 rowKey="tableName"
                                 className="m-table txt-center-table"
                                 columns={this.initTableReportColumns()}
@@ -251,14 +256,14 @@ export default class TaskTablePane extends Component {
                     </Col>
 
                     <Col span={12}>
-                        <Card   
+                        <Card
                             noHovering
                             bordered={false}
-                            loading={false} 
+                            loading={false}
                             className="shadow"
-                            title="最近30次综合报告" 
+                            title="最近30次综合报告"
                         >
-                            <Table 
+                            <Table
                                 rowKey="id"
                                 className="m-table txt-center-table"
                                 columns={this.init30TimesInfo()}
@@ -293,7 +298,7 @@ export default class TaskTablePane extends Component {
                         <Card
                             noHovering
                             bordered={false}
-                            loading={false} 
+                            loading={false}
                             className="shadow"
                             title="最近30次表数据波动图"
                             style={{ width: '100%' }}

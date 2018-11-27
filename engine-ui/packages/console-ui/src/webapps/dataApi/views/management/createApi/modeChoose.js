@@ -1,18 +1,18 @@
-import React from "react";
+import React from 'react';
 
-import { API_MODE } from "../../../consts";
+import { API_MODE } from '../../../consts';
 
 class ModeChoose extends React.Component {
     state = {
 
     }
 
-    render() {
+    render () {
         const { chooseMode } = this.props;
 
         return (
             <div className="modeChooseBox">
-                <div className="modeChooseItem leftItem" onClick={chooseMode.bind(null,API_MODE.GUIDE)} >
+                <div className="modeChooseItem leftItem" onClick={chooseMode.bind(null, API_MODE.GUIDE)} >
                     <div className="modeTitle">
                         <img src="./public/dataApi/img/modeguide.png" /> 模版向导模式
                     </div>
@@ -21,7 +21,7 @@ class ModeChoose extends React.Component {
                     </div>
 
                 </div>
-                <div className="modeChooseItem rightItem" onClick={chooseMode.bind(null,API_MODE.SQL)} >
+                <div className="modeChooseItem rightItem" onClick={chooseMode.bind(null, API_MODE.SQL)} >
                     <div className="modeTitle">
                         <img src="./public/dataApi/img/modesql.png" /> 自定义SQL模式
                     </div>

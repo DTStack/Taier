@@ -6,14 +6,14 @@ import { hashHistory } from 'react-router'
 import API from '../../api/dataManage';
 import CatalogueTree from './catalogTree';
 
-function appendTreeNode(treeNode, append, target) {
+function appendTreeNode (treeNode, append, target) {
     const targetId = target.nodeId
 
     for (let i = 0; i < treeNode.length; i += 1) {
         const node = treeNode[i]
         if (node.nodeId === targetId) {
             node.children.unshift(append)
-            return 
+            return
         }
         if (node.children.length > 0) {
             appendTreeNode(node.children, append, target)
@@ -21,7 +21,7 @@ function appendTreeNode(treeNode, append, target) {
     }
 }
 
-function removeTreeNode(treeNodes, target) {
+function removeTreeNode (treeNodes, target) {
     for (let i = 0; i < treeNodes.length; i += 1) {
         const node = treeNodes[i]
         if (node.nodeId === target.nodeId) {
@@ -34,13 +34,13 @@ function removeTreeNode(treeNodes, target) {
     }
 }
 
-function replaceTreeNode(treeNodes, source, target) {
+function replaceTreeNode (treeNodes, source, target) {
     for (let i = 0; i < treeNodes.length; i += 1) {
         const node = treeNodes[i]
         if (node.nodeId === source.nodeId) {
-            //后端不返回子节点情况下兼容性处理
-            if(!target.children||target.children.length==0){
-                target.children=treeNodes[i].children;
+            // 后端不返回子节点情况下兼容性处理
+            if (!target.children || target.children.length == 0) {
+                target.children = treeNodes[i].children;
             }
             treeNodes[i] = target // 替换节点
             break;
@@ -52,19 +52,18 @@ function replaceTreeNode(treeNodes, source, target) {
 }
 
 class DataCatalogue extends React.Component {
-
     state = {
         treeData: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadCatalogue()
     }
 
     loadCatalogue = () => {
         API.getDataCatalogues().then(res => {
             this.setState({
-                treeData: res.data && [res.data],
+                treeData: res.data && [res.data]
             })
         })
     }
@@ -73,81 +72,81 @@ class DataCatalogue extends React.Component {
         const self = this
         const treeData = cloneDeep(self.state.treeData)
 
-        switch(type) {
-            case 'initAdd': {
-                const tmpId = Date.now()
-                appendTreeNode(treeData, {
-                    nodeId: tmpId,
-                    parentId: node.nodeId,
-                    children: [],
-                    isNew: true,
-                    bindData: {
-                        id: tmpId,
-                        name: `新建类目${node.children.length}`,
-                        type: 'folder',
-                        level: node.bindData.level + 1,
-                        parentId: node.nodeId,
-                    }
-                }, node)
-                self.setState({
-                    treeData,
-                })
-                break;
-            }
-            case 'add': {
-                API.addDataCatalogue({
-                    nodeName: node.nodeName,
-                    nodePid: node.nodePid,
-                }).then(res => {
-                    const source = { nodeId: node.tmpId }
-                    if (res.code === 1) {
-                        message.success('数据类目增加成功！')
-                        replaceTreeNode(treeData, source, res.data)
-                    } else {
-                        removeTreeNode(treeData, source)
-                    }
-                    self.setState({
-                        treeData,
-                    })
-                    if (callback) callback(res)
-                })
-                break;
-            }
-            case 'delete': {
-                const succCall = res => {
-                    if (res.code === 1) {
-                        message.success('数据类目删除成功！')
-                        removeTreeNode(treeData, node)
-                        self.setState({
-                            treeData,
-                        })
-                    }
+        switch (type) {
+        case 'initAdd': {
+            const tmpId = Date.now()
+            appendTreeNode(treeData, {
+                nodeId: tmpId,
+                parentId: node.nodeId,
+                children: [],
+                isNew: true,
+                bindData: {
+                    id: tmpId,
+                    name: `新建类目${node.children.length}`,
+                    type: 'folder',
+                    level: node.bindData.level + 1,
+                    parentId: node.nodeId
                 }
-                if (node.bindData.type !== 'table') {
-                    API.delDataCatalogue({ id: node.nodeId }).then(succCall)
+            }, node)
+            self.setState({
+                treeData
+            })
+            break;
+        }
+        case 'add': {
+            API.addDataCatalogue({
+                nodeName: node.nodeName,
+                nodePid: node.nodePid
+            }).then(res => {
+                const source = { nodeId: node.tmpId }
+                if (res.code === 1) {
+                    message.success('数据类目增加成功！')
+                    replaceTreeNode(treeData, source, res.data)
                 } else {
-                    API.delTableInCatalogue({ 
-                        id: node.bindData.id, 
-                    }).then(succCall)
+                    removeTreeNode(treeData, source)
                 }
-                break;
-            }
-            case 'edit': {
-                API.updateDataCatalogue(node).then((res) => {
-                    if (res.code === 1) {
-                        const source = { nodeId: node.id }
-                        
-                        replaceTreeNode(treeData, source, res.data)
-                        message.success('数据类目更新成功！')
-                    }
-                    self.setState({
-                        treeData,
-                    })
-                    if (callback) callback(res)
+                self.setState({
+                    treeData
                 })
-                break;
+                if (callback) callback(res)
+            })
+            break;
+        }
+        case 'delete': {
+            const succCall = res => {
+                if (res.code === 1) {
+                    message.success('数据类目删除成功！')
+                    removeTreeNode(treeData, node)
+                    self.setState({
+                        treeData
+                    })
+                }
             }
-            default: break;
+            if (node.bindData.type !== 'table') {
+                API.delDataCatalogue({ id: node.nodeId }).then(succCall)
+            } else {
+                API.delTableInCatalogue({
+                    id: node.bindData.id
+                }).then(succCall)
+            }
+            break;
+        }
+        case 'edit': {
+            API.updateDataCatalogue(node).then((res) => {
+                if (res.code === 1) {
+                    const source = { nodeId: node.id }
+
+                    replaceTreeNode(treeData, source, res.data)
+                    message.success('数据类目更新成功！')
+                }
+                self.setState({
+                    treeData
+                })
+                if (callback) callback(res)
+            })
+            break;
+        }
+        default: break;
         }
     }
 
@@ -158,7 +157,7 @@ class DataCatalogue extends React.Component {
         }
     }
 
-    render() {
+    render () {
         return (
             <div>
                 <h1 className="box-title">

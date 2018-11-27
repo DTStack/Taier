@@ -4,24 +4,23 @@ import API from '../../api/apiMarket';
 
 export const apiMarketActions = {
 
-    //获取市场分离信息
-    getCatalogue(pid) {
+    // 获取市场分离信息
+    getCatalogue (pid) {
         return (dispatch) => {
-            API.getCatalogue({pid:pid,lvNum:10}).then((res) => {
+            API.getCatalogue({ pid: pid, lvNum: 10 }).then((res) => {
                 if (res.code === 1) {
                     dispatch({
                         type: ACTION_TYPE.GET_CATALOGUE,
                         payload: res.data
                     });
                 }
-                
             });
         }
     },
-    //获取市场api列表
-    getApiMarketList(params){
+    // 获取市场api列表
+    getApiMarketList (params) {
         return (dispatch) => {
-           return API.listByCondition(params).then((res) => {
+            return API.listByCondition(params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
                         type: ACTION_TYPE.GET_API_MARKET_LIST,
@@ -29,13 +28,12 @@ export const apiMarketActions = {
                     });
                     return res;
                 }
-                
             });
         }
     },
-    //获取api详情
-    getApiDetail(params){
-        return (dispatch)=>{
+    // 获取api详情
+    getApiDetail (params) {
+        return (dispatch) => {
             return API.getApiDetail(params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
@@ -44,17 +42,16 @@ export const apiMarketActions = {
                     });
                     return res;
                 }
-                
             });
         }
     },
-    //获取api调用情况等
-    getApiExtInfo(params){
-        let callFunc="getApiExtInfoForNormal"
-        if(params.useAdmin){
-            callFunc="getApiExtInfoForManager"
+    // 获取api调用情况等
+    getApiExtInfo (params) {
+        let callFunc = 'getApiExtInfoForNormal'
+        if (params.useAdmin) {
+            callFunc = 'getApiExtInfoForManager'
         }
-        return (dispatch)=>{
+        return (dispatch) => {
             return API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
@@ -63,19 +60,17 @@ export const apiMarketActions = {
                     });
                     return res;
                 }
-                
             });
         }
     },
-    //申请api
-    apiApply(params){
-        return (dispatch)=>{
+    // 申请api
+    apiApply (params) {
+        return (dispatch) => {
             return API.apiApply(params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-                
             });
         }
-    },
+    }
 }

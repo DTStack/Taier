@@ -1,8 +1,8 @@
-import commonActionType from "../consts/commonActionType";
-import API from "../api";
+import commonActionType from '../consts/commonActionType';
+import API from '../api';
 
 const commonActions = {
-    getUserList(params) {
+    getUserList (params) {
         return dispatch => {
             API.getUserList(params).then(res => {
                 if (res.code === 1) {
@@ -14,7 +14,7 @@ const commonActions = {
             });
         };
     },
-    getAllDict(params) {
+    getAllDict (params) {
         return dispatch => {
             API.getAllDict(params).then(res => {
                 if (res.code === 1) {

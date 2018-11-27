@@ -1,29 +1,28 @@
-import React from "react";
-import { Card, Table, Modal, Select } from "antd";
-import moment from "moment";
+import React from 'react';
+import { Card, Table, Modal, Select } from 'antd';
+import moment from 'moment';
 
-import Api from "../../api/console";
-import ChangeResourceModal from "../../components/changeResource";
-
+import Api from '../../api/console';
+import ChangeResourceModal from '../../components/changeResource';
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;
 
 class ResourceManage extends React.Component {
     state = {
-        resource:{},
+        resource: {},
         dataSource: [],
         table: {
             pageIndex: 1,
             total: 0,
             loading: true
         },
-        changeModalVisible:false
+        changeModalVisible: false
     }
-    componentDidMount() {
+    componentDidMount () {
         this.getResourceList();
     }
-    getResourceList() {
+    getResourceList () {
         const { table } = this.state;
         const { pageIndex } = table;
         Api.getResourceList({
@@ -52,7 +51,7 @@ class ResourceManage extends React.Component {
                 }
             )
     }
-    getPagination() {
+    getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
             current: pageIndex,
@@ -60,146 +59,146 @@ class ResourceManage extends React.Component {
             total: total
         }
     }
-    exchangeDataSource(dataSource){
-        let newDataSource=[];
-        let deepLength=0;
-        for(let _i=0;_i<dataSource.length;_i++){
-            let cluster=dataSource[_i];
+    exchangeDataSource (dataSource) {
+        let newDataSource = [];
+        let deepLength = 0;
+        for (let _i = 0; _i < dataSource.length; _i++) {
+            let cluster = dataSource[_i];
             newDataSource.push({
                 ...cluster,
-                type:"cluster",
-                className:null,
-                clusterId:cluster.id,
-                children:loop(cluster.queues,deepLength)
+                type: 'cluster',
+                className: null,
+                clusterId: cluster.id,
+                children: loop(cluster.queues, deepLength)
             })
         }
-        function loop(queues,deepLength){
-            let newQueues=[];
-            if(!queues){
+        function loop (queues, deepLength) {
+            let newQueues = [];
+            if (!queues) {
                 return null;
             }
-            for(let _i=0;_i<queues.length;_i++){
-                let queue=queues[_i];
+            for (let _i = 0; _i < queues.length; _i++) {
+                let queue = queues[_i];
                 newQueues.push({
                     ...queue,
-                    queueId:queue.id,
-                    deepLength:deepLength,
-                    className:`table-row-color_level${deepLength+1}`,
-                    children:loop(queue.childQueues,deepLength+1)
+                    queueId: queue.id,
+                    deepLength: deepLength,
+                    className: `table-row-color_level${deepLength + 1}`,
+                    children: loop(queue.childQueues, deepLength + 1)
                 })
             }
-            return newQueues.length>0?newQueues:null;
+            return newQueues.length > 0 ? newQueues : null;
         }
         return newDataSource;
     }
-    initTableColumns() {
+    initTableColumns () {
         return [
             {
-                title: "集群名称",
-                dataIndex: "clusterName",
-                width:"200px"
+                title: '集群名称',
+                dataIndex: 'clusterName',
+                width: '200px'
             },
             {
-                title: "资源队列",
-                dataIndex: "queueName",
-                width:"200px",
-                render(text,record){
-                    if(record.type=="cluster"){
+                title: '资源队列',
+                dataIndex: 'queueName',
+                width: '200px',
+                render (text, record) {
+                    if (record.type == 'cluster') {
                         return null;
                     }
-                    if(record.queueState=="STOPPED"){
-                        text=`${text}(已停用)`
+                    if (record.queueState == 'STOPPED') {
+                        text = `${text}(已停用)`
                     }
-                    return <span style={{paddingLeft:record.deepLength*10+"px"}}>{text}</span>;
+                    return <span style={{ paddingLeft: record.deepLength * 10 + 'px' }}>{text}</span>;
                 }
             },
             {
-                title: "最小容量（%）",
-                dataIndex: "capacity",
-                width: "120px",
-                render(text,record) {
-                    if(record.type=="cluster"){
-                        return null;
-                    }
-                    return text * 100;
-                }
-            },
-            {
-                title: "最大容量（%）",
-                dataIndex: "maxCapacity",
-                width: "120px",
-                render(text,record) {
-                    if(record.type=="cluster"){
+                title: '最小容量（%）',
+                dataIndex: 'capacity',
+                width: '120px',
+                render (text, record) {
+                    if (record.type == 'cluster') {
                         return null;
                     }
                     return text * 100;
                 }
             },
             {
-                title: "绑定租户",
-                dataIndex: "tenants",
-                render(tenants,record){
-                    if(!tenants){
+                title: '最大容量（%）',
+                dataIndex: 'maxCapacity',
+                width: '120px',
+                render (text, record) {
+                    if (record.type == 'cluster') {
+                        return null;
+                    }
+                    return text * 100;
+                }
+            },
+            {
+                title: '绑定租户',
+                dataIndex: 'tenants',
+                render (tenants, record) {
+                    if (!tenants) {
                         return null;
                     }
                     return tenants.map(
-                        (tenant)=>{
+                        (tenant) => {
                             return tenant.tenantName
                         }
-                    ).join("，")||"无"
+                    ).join('，') || '无'
                 }
             },
             {
-                title: "修改时间",
-                dataIndex: "gmtModified",
-                width: "200px",
-                render(text) {
-                    return new moment(text).format("YYYY-MM-DD HH:mm:ss")
+                title: '修改时间',
+                dataIndex: 'gmtModified',
+                width: '200px',
+                render (text) {
+                    return new moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {
-                title: "操作",
-                dataIndex: "deal",
-                render:(text,record)=> {
-                    if(record.queueState=="STOPPED"||!record.tenants){
+                title: '操作',
+                dataIndex: 'deal',
+                render: (text, record) => {
+                    if (record.queueState == 'STOPPED' || !record.tenants) {
                         return null;
                     }
-                    return <a onClick={this.changeResource.bind(this,record)}>修改</a>
+                    return <a onClick={this.changeResource.bind(this, record)}>修改</a>
                 },
-                width:"80px"
+                width: '80px'
             }
         ]
     }
-    changeResource(resource){
+    changeResource (resource) {
         this.setState({
-            resource:resource,
-            changeModalVisible:true
+            resource: resource,
+            changeModalVisible: true
         })
     }
-    changeUserValue(value) {
+    changeUserValue (value) {
         this.setState({
             selectUser: value
         })
     }
-    selectUser(value) {
+    selectUser (value) {
         const { selectUserList } = this.state;
         this.setState({
-            selectUser: "",
+            selectUser: '',
             selectUserList: selectUserList.concat(value)
         })
     }
-    closeModal(){
+    closeModal () {
         this.setState({
-            changeModalVisible:false
+            changeModalVisible: false
         })
     }
-    resourceUserChange(){
+    resourceUserChange () {
         this.setState({
-            changeModalVisible:false
+            changeModalVisible: false
         })
         this.getResourceList();
     }
-    getUserOptions() {
+    getUserOptions () {
         const { userList, selectUserList } = this.state;
         const result = [];
         for (let i = 0; i < userList.length; i++) {
@@ -210,19 +209,19 @@ class ResourceManage extends React.Component {
         }
         return result;
     }
-    render() {
+    render () {
         const { dataSource, table, changeModalVisible, resource } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
         return (
             <div className="contentBox">
                 <Card
-                    style={{ width: "900px", color: "rgba(1,1,1,0.84)" }}
+                    style={{ width: '900px', color: 'rgba(1,1,1,0.84)' }}
                     noHovering
                 >
                     <h2>什么是资源管理</h2>
-                    <p style={{ marginTop: "20px" }}>资源管理是以租户为单位进行计算资源的分配，当您需要多个租户，并且每个租户分配不同比例的资源容量时需要使用本功能，例如：您的集群有10个节点，每个节点的配置为8核16GB内存，总资源为80核160GB内存，那么您可以新建“销售”和“开发”2个租户，为销售租户分配30%的资源容量，为开发租户分配70%的资源容量。</p>
-                    <p style={{ marginTop: "20px" }}>注意:</p>
+                    <p style={{ marginTop: '20px' }}>资源管理是以租户为单位进行计算资源的分配，当您需要多个租户，并且每个租户分配不同比例的资源容量时需要使用本功能，例如：您的集群有10个节点，每个节点的配置为8核16GB内存，总资源为80核160GB内存，那么您可以新建“销售”和“开发”2个租户，为销售租户分配30%的资源容量，为开发租户分配70%的资源容量。</p>
+                    <p style={{ marginTop: '20px' }}>注意:</p>
                     <ul>
                         <li>1、“资源队列”仅包括集群的内存和CPU；</li>
                         <li>2、只支持将资源队列绑定到租户，暂时不支持绑定到项目；</li>
@@ -232,13 +231,13 @@ class ResourceManage extends React.Component {
                     </ul>
                 </Card>
                 <Table
-                    rowClassName={(record,index)=>{
+                    rowClassName={(record, index) => {
                         return record.className
                     }}
                     rowKey={(record) => {
-                        return record.clusterId + "~" + record.queueId
+                        return record.clusterId + '~' + record.queueId
                     }}
-                    style={{ marginTop: "20px" }}
+                    style={{ marginTop: '20px' }}
                     className="m-table no-card-table"
                     pagination={this.getPagination()}
                     loading={loading}
@@ -250,7 +249,7 @@ class ResourceManage extends React.Component {
                     onCancel={this.closeModal.bind(this)}
                     resourceUserChange={this.resourceUserChange.bind(this)}
                     resource={resource}
-                 />
+                />
             </div>
         )
     }

@@ -3,22 +3,21 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 
 import {
-    Card, Button, Row, Col,
- } from 'antd'
+    Card, Button, Row, Col
+} from 'antd'
 
 import Api from '../../../api'
 
 class RealtimeStatistics extends Component {
-
     state = {
-        realtime: {},
+        realtime: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadRealtimeData()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -26,7 +25,7 @@ class RealtimeStatistics extends Component {
         }
     }
 
-    loadRealtimeData() {
+    loadRealtimeData () {
         const ctx = this
         Api.taskStatistics().then((res) => {
             if (res.code === 1) {
@@ -35,7 +34,7 @@ class RealtimeStatistics extends Component {
         })
     }
 
-    render() {
+    render () {
         const { realtime } = this.state
         const faild = realtime.SUBMITFAILD + realtime.FAILED
         return (
@@ -76,6 +75,6 @@ class RealtimeStatistics extends Component {
 }
 export default connect((state) => {
     return {
-        project: state.project,
+        project: state.project
     }
 })(RealtimeStatistics)

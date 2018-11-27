@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import { defaultEditorOptions } from '../../comm/const'
 import 'codemirror/addon/merge/merge.css'
-import "./style.css";
+import './style.css';
 
 const codemirror = require('codemirror')
 
@@ -10,15 +10,14 @@ require('codemirror/mode/sql/sql')
 require('public/rdos/js/merge')
 
 class DiffEditor extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { value, compareTo } = this.props
         this.initUI(value, compareTo)
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { value, compareTo,tableRefresh } = nextProps
-        if(tableRefresh){
+    componentWillReceiveProps (nextProps) {
+        const { value, compareTo, tableRefresh } = nextProps
+        if (tableRefresh) {
             this._self.edit.doc.setValue(value)
             this._self.right.orig.doc.setValue(compareTo)
         }
@@ -31,7 +30,6 @@ class DiffEditor extends Component {
     }
 
     initUI = (value, compareTo) => {
-
         const { onChange, readOnly } = this.props
 
         const instance = this.getCodeMirrorIns();
@@ -41,11 +39,11 @@ class DiffEditor extends Component {
             origLeft: null,
             orig: compareTo,
             lineNumbers: true,
-            mode: "text/x-sql",
+            mode: 'text/x-sql',
             highlightDifferences: true,
             connect: null,
             collapseIdentical: false,
-            readOnly:readOnly
+            readOnly: readOnly
         });
 
         mv.edit.doc.on('change', (doc) => {
@@ -55,12 +53,12 @@ class DiffEditor extends Component {
         })
 
         // this.resize(mv)
-        mv.wrap.style.height = "500px";
+        mv.wrap.style.height = '500px';
         this._self = mv
     }
 
-    mergeViewHeight(mergeView) {
-        function editorHeight(editor) {
+    mergeViewHeight (mergeView) {
+        function editorHeight (editor) {
             if (!editor) return 0;
             return editor.getScrollInfo().height;
         }
@@ -68,38 +66,36 @@ class DiffEditor extends Component {
             editorHeight(mergeView.editor()),
             editorHeight(mergeView.rightOriginal()));
     }
- 
-    resize(mergeView) {
+
+    resize (mergeView) {
         var height = this.mergeViewHeight(mergeView);
         for (; ;) {
-            if (mergeView.leftOriginal())
-                mergeView.leftOriginal().setSize(null, height);
+            if (mergeView.leftOriginal()) { mergeView.leftOriginal().setSize(null, height); }
             mergeView.editor().setSize(null, height);
-            if (mergeView.rightOriginal())
-                mergeView.rightOriginal().setSize(null, height);
+            if (mergeView.rightOriginal()) { mergeView.rightOriginal().setSize(null, height); }
             var newHeight = this.mergeViewHeight(mergeView);
             if (newHeight >= height) break;
             else height = newHeight;
         }
-        mergeView.wrap.style.height = height + "px";
+        mergeView.wrap.style.height = height + 'px';
     }
 
-    getCodeMirrorIns() {
+    getCodeMirrorIns () {
         return this._self || codemirror
     }
 
-    render() {
+    render () {
         const { className, style } = this.props
         let renderClass = 'code-editor merge-text'
-        renderClass = className ?
-            `${renderClass} ${className}` : renderClass
+        renderClass = className
+            ? `${renderClass} ${className}` : renderClass
         let renderStyle = {
             position: 'relative',
-            borderTop:"1px solid #e9e9e9",
-            marginTop:"20px"
+            borderTop: '1px solid #e9e9e9',
+            marginTop: '20px'
         }
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle
-        
+
         return (
             <div
                 ref={(e) => { this.diffView = e }}

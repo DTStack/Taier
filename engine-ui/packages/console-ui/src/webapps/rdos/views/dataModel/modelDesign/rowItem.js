@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 import assign from 'object-assign';
 import { isEqual, range, isObject } from 'lodash';
 
-import { 
+import {
     message, Input,
     Row, Col, Icon, Select,
-    Tooltip, InputNumber,
+    Tooltip, InputNumber
 } from 'antd';
 
 const Option = Select.Option;
@@ -17,8 +17,7 @@ const Option = Select.Option;
  * @extends {React.Component}
  */
 export default class RowItem extends React.Component {
-    
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             editMode: false
@@ -31,15 +30,14 @@ export default class RowItem extends React.Component {
      * @param {any} evt value/event
      * @memberof RowItem
      */
-    handleChange(selectName, evt) {
+    handleChange (selectName, evt) {
         const { data, replaceRow } = this.props;
         let iptName, value;
 
-        if(isObject(evt)) {
+        if (isObject(evt)) {
             iptName = evt.target.name;
             value = evt.target.value;
-        }
-        else{
+        } else {
             iptName = selectName;
             value = evt;
         }
@@ -47,15 +45,15 @@ export default class RowItem extends React.Component {
         const newData = assign({}, data, { [iptName]: value });
         const TYPE = newData.columnType.toUpperCase();
 
-        if(TYPE === 'DECIMAL') {
-            if(!newData.precision) newData.precision = 10;
-            if(!newData.scale) newData.scale = 0;
+        if (TYPE === 'DECIMAL') {
+            if (!newData.precision) newData.precision = 10;
+            if (!newData.scale) newData.scale = 0;
         }
-        if(TYPE === 'CHAR') {
-            if(!newData.charLen) newData.charLen = 10;
+        if (TYPE === 'CHAR') {
+            if (!newData.charLen) newData.charLen = 10;
         }
-        if(TYPE === 'VARCHAR') {
-            if(!newData.varcharLen) newData.varcharLen = 10;
+        if (TYPE === 'VARCHAR') {
+            if (!newData.varcharLen) newData.varcharLen = 10;
         }
 
         if (this.checkParams(newData)) {
@@ -63,7 +61,7 @@ export default class RowItem extends React.Component {
         }
     }
 
-    checkParams(params) {
+    checkParams (params) {
         const reg = /^[A-Za-z0-9_]+$/;
         if (params.name) {
             if (!reg.test(params.name)) {
@@ -82,24 +80,24 @@ export default class RowItem extends React.Component {
         return true;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return !isEqual(this.props, nextProps);
     }
 
-    render() {
+    render () {
         const { data, columnFileds } = this.props;
         const { editMode } = this.state;
-        console.log('rowItem',this.props);
-        console.log('rowItem',data);
-        
+        console.log('rowItem', this.props);
+        console.log('rowItem', data);
+
         const options = columnFileds && columnFileds.map(field => <Option title={field.columnName} value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
         const { isSaved, isPartition, precision, scale, columnType } = data;
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
-        const TYPES = isPartition ?
-            ['STRING', 'BIGINT'] :
-            ["TINYINT", "SMALLINT", "INT", "BIGINT", "BOOLEAN",
-            "FLOAT", "DOUBLE", "STRING", "BINARY", "TIMESTAMP",
-            "DECIMAL", "DATE", "VARCHAR", "CHAR"
+        const TYPES = isPartition
+            ? ['STRING', 'BIGINT']
+            : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
+                'FLOAT', 'DOUBLE', 'STRING', 'BINARY', 'TIMESTAMP',
+                'DECIMAL', 'DATE', 'VARCHAR', 'CHAR'
             ];
 
         return <Row className="row">
@@ -111,7 +109,7 @@ export default class RowItem extends React.Component {
                     notFoundContent=""
                     name="columnName"
                     showArrow={true}
-                    style={{width: '100%'}}
+                    style={{ width: '100%' }}
                     defaultActiveFirstOption={false}
                     disabled={ isSaved }
                     filterOption={false}
@@ -131,8 +129,8 @@ export default class RowItem extends React.Component {
                 { needExtra && this.renderExtra(data.columnType) }
             </Col>
             <Col span={7} className="cell">
-                <Input 
-                    name="comment" 
+                <Input
+                    name="comment"
                     defaultValue={ data.comment }
                     autoComplete="off"
                     onChange={ this.handleChange.bind(this, undefined) }
@@ -158,72 +156,72 @@ export default class RowItem extends React.Component {
         </Row>
     }
 
-    renderExtra(columnType) {
+    renderExtra (columnType) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = '';
 
         columnType = columnType.toUpperCase();
-        switch(columnType) {
-            case 'DECIMAL':
-                result = <span className="extra-ipt">
-                    <Select name="precision"
-                        style={{ marginLeft: '2%', width: '18%' }}
-                        value={ `${precision}` || '10'}
-                        onChange={ this.handleChange.bind(this, 'precision') }
-                        placeholder="precision"
-                        disabled={ isSaved }
-                    >
-                        {range(39).slice(1).map(n => <Option value={`${n}`}
-                            key={n}
-                        >{n}</Option>)}
-                    </Select>
-                    <Select name="scale"
-                        style={{ marginLeft: '2%', width: '18%' }}
-                        value={ `${scale}` || '0'}
-                        onChange={ this.handleChange.bind(this, 'scale') }
-                        placeholder="scale"
-                        disabled={ isSaved }
-                    >
-                        {range(precision || 10).map(n1 => <Option value={`${n1}`}
-                            key={n1}
-                        >{n1}</Option>)}
-                    </Select>
-                    <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                    </Tooltip>
-                </span>
-                break;
-            case 'CHAR':
-                result = <span className="extra-ipt">
-                    <InputNumber name="charLen" defaultValue={ charLen || 10 }
-                        min={1}
-                        max={255}
-                        style={{ width: '38%', marginLeft: '2%' }}
-                        onChange={ this.handleChange.bind(this, 'charLen') }
-                        disabled={ isSaved }
-                    />
-                    <Tooltip title="type(char)；char的长度为1~255">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                    </Tooltip>
-                </span>
-                break;
-            case 'VARCHAR':
-                result = <span className="extra-ipt">
-                    <InputNumber name="varcharLen" defaultValue={ varcharLen || 10 }
-                        min={1}
-                        max={65535}
-                        style={{ width: '38%', marginLeft: '2%' }}
-                        onChange={ this.handleChange.bind(this, 'varcharLen') }
-                        disabled={ isSaved }
-                    />
-                    <Tooltip title="type(varchar)；varchar的长度为1~65535">
-                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                    </Tooltip>
-                </span>
-                break;
+        switch (columnType) {
+        case 'DECIMAL':
+            result = <span className="extra-ipt">
+                <Select name="precision"
+                    style={{ marginLeft: '2%', width: '18%' }}
+                    value={ `${precision}` || '10'}
+                    onChange={ this.handleChange.bind(this, 'precision') }
+                    placeholder="precision"
+                    disabled={ isSaved }
+                >
+                    {range(39).slice(1).map(n => <Option value={`${n}`}
+                        key={n}
+                    >{n}</Option>)}
+                </Select>
+                <Select name="scale"
+                    style={{ marginLeft: '2%', width: '18%' }}
+                    value={ `${scale}` || '0'}
+                    onChange={ this.handleChange.bind(this, 'scale') }
+                    placeholder="scale"
+                    disabled={ isSaved }
+                >
+                    {range(precision || 10).map(n1 => <Option value={`${n1}`}
+                        key={n1}
+                    >{n1}</Option>)}
+                </Select>
+                <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                </Tooltip>
+            </span>
+            break;
+        case 'CHAR':
+            result = <span className="extra-ipt">
+                <InputNumber name="charLen" defaultValue={ charLen || 10 }
+                    min={1}
+                    max={255}
+                    style={{ width: '38%', marginLeft: '2%' }}
+                    onChange={ this.handleChange.bind(this, 'charLen') }
+                    disabled={ isSaved }
+                />
+                <Tooltip title="type(char)；char的长度为1~255">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                </Tooltip>
+            </span>
+            break;
+        case 'VARCHAR':
+            result = <span className="extra-ipt">
+                <InputNumber name="varcharLen" defaultValue={ varcharLen || 10 }
+                    min={1}
+                    max={65535}
+                    style={{ width: '38%', marginLeft: '2%' }}
+                    onChange={ this.handleChange.bind(this, 'varcharLen') }
+                    disabled={ isSaved }
+                />
+                <Tooltip title="type(varchar)；varchar的长度为1~65535">
+                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                </Tooltip>
+            </span>
+            break;
 
-            default: break;
+        default: break;
         }
 
         return result;

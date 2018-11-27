@@ -1,24 +1,23 @@
 import React, { Component } from 'react'
 import { assign } from 'lodash'
-import { 
+import {
     Row, Col, Button,
-    Card, message, Spin,
- } from 'antd'
+    Card, message, Spin
+} from 'antd'
 
- import Api from '../../../api'
- import GoBack from 'main/components/go-back'
- import { formItemLayout } from '../../../comm/const'
+import Api from '../../../api'
+import GoBack from 'main/components/go-back'
+import { formItemLayout } from '../../../comm/const'
 
- import RoleForm from './form'
+import RoleForm from './form'
 
 export default class RoleEdit extends Component {
-
     state = {
         roleInfo: {},
-        loading: false,
+        loading: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadRolePermission()
     }
 
@@ -44,16 +43,15 @@ export default class RoleEdit extends Component {
     loadRolePermission = () => {
         const ctx = this
         const { params } = ctx.props
-        ctx.setState({loading: true})
-        Api.getRoleInfo({roleId: params.roleId}).then(res => {
+        ctx.setState({ loading: true })
+        Api.getRoleInfo({ roleId: params.roleId }).then(res => {
             if (res.code === 1) {
                 ctx.setState({ roleInfo: res.data, loading: false })
             }
         })
     }
 
-    render() {
-
+    render () {
         return (
             <div className="box-1">
                 <div className="box-card full-screen-table-40">
@@ -61,16 +59,16 @@ export default class RoleEdit extends Component {
                     <article title="查看角色">
                         <Spin tip="Loading..." spinning={this.state.loading}>
                             <article className="section">
-                                <RoleForm 
+                                <RoleForm
                                     key="edit-role"
-                                    roleInfo={this.state.roleInfo} 
-                                    ref={(e) => this.form = e} 
+                                    roleInfo={this.state.roleInfo}
+                                    ref={(e) => this.form = e}
                                 />
                                 <Row>
                                     <Col {...formItemLayout.labelCol}></Col>
                                     <Col {...formItemLayout.wrapperCol}>
                                         <Button type="primary" disabled onClick={this.submit}>确认更新</Button>
-                                        <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
+                                        <Button style={{ marginLeft: '20px' }} onClick={this.goIndex}>取消</Button>
                                     </Col>
                                 </Row>
                             </article>
@@ -81,4 +79,3 @@ export default class RoleEdit extends Component {
         )
     }
 }
-

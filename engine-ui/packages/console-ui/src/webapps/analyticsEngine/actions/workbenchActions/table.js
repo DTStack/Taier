@@ -11,17 +11,16 @@ import { resetModal, openTab, updateModal, closeTab, loadCatalogue } from './com
 /**
  * 生成建表语句
  */
-export function onGenerateCreateSQL({ tableId, databaseId }) {
-
+export function onGenerateCreateSQL ({ tableId, databaseId }) {
     return async dispatch => {
         const res = await API.getCreateSQL({
             tableId,
-            databaseId,
+            databaseId
         });
         if (res.code === 1) {
             const modalValue = {
                 visibleModal: workbenchAction.GENERATE_CREATE_SQL,
-                modalData: res.data,
+                modalData: res.data
             }
             return dispatch(updateModal(modalValue))
         } else {
@@ -34,22 +33,21 @@ export function onGenerateCreateSQL({ tableId, databaseId }) {
     }
 };
 
-
 /**
  * 点击“新建表”
- * @param {导航数据} params 
+ * @param {导航数据} params
  */
-export function onCreateTable(params) {
+export function onCreateTable (params) {
     console.log(params)
     return (dispatch, getStore) => {
-        const {workbench} = getStore();
+        const { workbench } = getStore();
         const { tabs } = workbench.mainBench;
         console.log(tabs)
 
         let createTableTabIndex = 0;
-        for(let i = 0;i<tabs.length;i++){
-            if(tabs[i].actionType === workbenchAction.CREATE_TABLE){
-                createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex?tabs[i].createTableTabIndex:createTableTabIndex
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].actionType === workbenchAction.CREATE_TABLE) {
+                createTableTabIndex = tabs[i].createTableTabIndex > createTableTabIndex ? tabs[i].createTableTabIndex : createTableTabIndex
             }
         }
         // const name = params && params.name ? params.name + ' - ' : '';
@@ -69,20 +67,20 @@ export function onCreateTable(params) {
                 autoLoadMerge: 0,
                 levelThreshold: '4,3',
                 preserveSegments: 0,
-                allowCompactionDays:0,
+                allowCompactionDays: 0,
                 blockSize: 1024,
                 compactType: 0,
                 partitions: {
-                    partitionType:0,
+                    partitionType: 0,
                     partConfig: undefined,
-                    columns: [],
+                    columns: []
                 },
                 bucketInfo: {
                     bucketNumber: undefined,
                     infos: []
                 }
-             },
-            currentStep: 0,
+            },
+            currentStep: 0
         }
         console.log(newCreateTableTabData)
 
@@ -90,26 +88,26 @@ export function onCreateTable(params) {
     }
 };
 
-export function onEditTable(params){
+export function onEditTable (params) {
     console.log(params)
     return async (dispatch, getStore) => {
-        const {workbench} = getStore();
+        const { workbench } = getStore();
         const { tabs } = workbench.mainBench;
 
         let editTableIndex = 0;
-        for(let i = 0;i<tabs.length;i++){
-            if(tabs[i].actionType === workbenchAction.OPEN_TABLE_EDITOR){
-                editTableIndex = tabs[i].editTableIndex > editTableIndex?tabs[i].editTableIndex:editTableIndex
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].actionType === workbenchAction.OPEN_TABLE_EDITOR) {
+                editTableIndex = tabs[i].editTableIndex > editTableIndex ? tabs[i].editTableIndex : editTableIndex
             }
         }
-        //获取表详情
+        // 获取表详情
         const res = await API.getTableById({
             databaseId: params.databaseId,
             id: params.id
         })
 
-        if(res.code === 1){
-            res.data.columns.map((o,i)=>{
+        if (res.code === 1) {
+            res.data.columns.map((o, i) => {
                 o._fid = i
             })
             const newEditTableTabData = {
@@ -123,44 +121,43 @@ export function onEditTable(params){
             }
 
             dispatch(openTab(newEditTableTabData))
-        }else{
+        } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
-
     }
 }
 
 /*
 * 保存新建表数据到storage
 */
-export function saveNewTableData(params) {
-   console.log(params)
-   return (dispatch)=>{
-       dispatch({
-           type: workbenchAction.NEW_TABLE_INFO_CHANGE,
-           payload: params
-       })
-   }
+export function saveNewTableData (params) {
+    console.log(params)
+    return (dispatch) => {
+        dispatch({
+            type: workbenchAction.NEW_TABLE_INFO_CHANGE,
+            payload: params
+        })
+    }
 };
 
-export function handleNextStep() {
+export function handleNextStep () {
     console.log('sdsdadsaNEXT')
-    return (dispatch,getStore) => {
+    return (dispatch, getStore) => {
         let currentStep = 0;
         const { workbench } = getStore();
-        const { tabs,currentTab } = workbench.mainBench;
-        tabs.map(o=>{
-            if(o.id === currentTab){
+        const { tabs, currentTab } = workbench.mainBench;
+        tabs.map(o => {
+            if (o.id === currentTab) {
                 currentStep = o.currentStep;
             }
         })
 
-        if(currentStep === 2){
-            //提交表单
-        }else{
+        if (currentStep === 2) {
+            // 提交表单
+        } else {
             return dispatch({
                 type: workbenchAction.NEXT_STEP
             })
@@ -168,8 +165,8 @@ export function handleNextStep() {
     }
 };
 
-export function handleLastStep(){
-    return (dispatch,getStore) => {
+export function handleLastStep () {
+    return (dispatch, getStore) => {
         const { workbench } = getStore();
         const { currentStep } = workbench.mainBench;
 
@@ -182,19 +179,19 @@ export function handleLastStep(){
 /**
  * 获取表详情
  */
-export function onTableDetail(params){
-    return async (dispatch,getStore)=>{
+export function onTableDetail (params) {
+    return async (dispatch, getStore) => {
         const { workbench } = getStore();
-        const {tabs} = workbench.mainBench;
+        const { tabs } = workbench.mainBench;
         const res = await API.getTableById({
             databaseId: params.databaseId,
             id: params.id
         })
-        if (res.code === 1){
+        if (res.code === 1) {
             let tableDetailIndex = 0;
-            for(let i = 0;i<tabs.length;i++){
-                if(tabs[i].actionType === workbenchAction.OPEN_TABLE){
-                    tableDetailIndex = tabs[i].tableDetailIndex > tableDetailIndex?tabs[i].tableDetailIndex:tableDetailIndex
+            for (let i = 0; i < tabs.length; i++) {
+                if (tabs[i].actionType === workbenchAction.OPEN_TABLE) {
+                    tableDetailIndex = tabs[i].tableDetailIndex > tableDetailIndex ? tabs[i].tableDetailIndex : tableDetailIndex
                 }
             }
             const tableDetail = {
@@ -202,51 +199,49 @@ export function onTableDetail(params){
                 tabName: `详情 ${params.tableName}`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
-                tableDetail:res.data,
+                tableDetail: res.data
             }
             dispatch(openTab(tableDetail))
-        }else{
+        } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }
 };
 
-
 /**
  * 存储新建表数据至服务端
  */
-export function handleSave(){
-    return async (dispatch,getStore) => {
-
+export function handleSave () {
+    return async (dispatch, getStore) => {
         const { workbench } = getStore();
         const { tabs, currentTab } = workbench.mainBench;
         let params = {};
-        tabs.map(o=>{
-            if(o.id === currentTab){
+        tabs.map(o => {
+            if (o.id === currentTab) {
                 params = o.tableItem;
             }
         })
-        if(params.partitions.partitionType !== 0 && !params.partitions.partConfig){
+        if (params.partitions.partitionType !== 0 && !params.partitions.partConfig) {
             notification.error({
                 message: '提示',
-                description: params.partitions.partitionType === 1?'分区数量不能为空':params.partitions.partitionType === 2?'分区范围不能为空':'分区名称不能为空'
+                description: params.partitions.partitionType === 1 ? '分区数量不能为空' : params.partitions.partitionType === 2 ? '分区范围不能为空' : '分区名称不能为空'
             })
             return;
         }
         let stopFlag = false;
         let bucketList = [];
-        params.columns.map(o=>{
-            if(!o.name || o.name === '' || !o.type){
+        params.columns.map(o => {
+            if (!o.name || o.name === '' || !o.type) {
                 notification.error({
                     message: '提示',
                     description: '字段名称与字段类型不可为空'
                 })
                 stopFlag = true;
             }
-            if(o.isBucket){
+            if (o.isBucket) {
                 bucketList.push({
                     name: o.name,
                     type: o.type,
@@ -255,7 +250,7 @@ export function handleSave(){
             }
         })
 
-        if(!params.bucketInfo.bucketNumber && bucketList.length > 0){
+        if (!params.bucketInfo.bucketNumber && bucketList.length > 0) {
             notification.error({
                 message: '提示',
                 description: '分桶数量不能为空'
@@ -263,11 +258,11 @@ export function handleSave(){
             return;
         }
 
-        if(stopFlag)    return;
-        else    stopFlag = false;
+        if (stopFlag) return;
+        else stopFlag = false;
 
-        params.partitions.columns.map(o=>{
-            if(o.name === '' || o.type === ''){
+        params.partitions.columns.map(o => {
+            if (o.name === '' || o.type === '') {
                 notification.error({
                     message: '提示',
                     description: '分区名称与分区类型不可为空'
@@ -276,14 +271,14 @@ export function handleSave(){
             }
         })
 
-        if(stopFlag)    return;
-        else    stopFlag = false;
+        if (stopFlag) return;
+        else stopFlag = false;
 
-        if(params.type === 1){
+        if (params.type === 1) {
             params.location = params.location
         }
 
-        if(params.lifeCycle === -1){
+        if (params.lifeCycle === -1) {
             params.lifeCycle = params.shortLisyCycle;
             // delete params.shortLisyCycle;
         }
@@ -291,30 +286,29 @@ export function handleSave(){
         // params.partitionType = params.partitions.partitionType;
         // params.partitions = params.partitions.columns;
 
-
-        const res = await API.createTable({...params,
-            partConfig:params.partitions.partConfig,
-            partitionType:params.partitions.partitionType,
-            partitions:params.partitions.columns,
+        const res = await API.createTable({ ...params,
+            partConfig: params.partitions.partConfig,
+            partitionType: params.partitions.partitionType,
+            partitions: params.partitions.columns,
             bucketInfo: {
                 bucketNumber: params.bucketInfo.bucketNumber,
                 infos: bucketList
             }
         })
-        if(res.code === 1){
+        if (res.code === 1) {
             console.log('保存成功');
             const data = res.data;
             // 重新加载Table列表
             // dispatch(gloablActions.getAllTable());
             // 重新Reload数据库下的表左侧目录
             dispatch(loadCatalogue({
-                id: data.databaseId,
+                id: data.databaseId
             }, CATALOGUE_TYPE.DATA_BASE));
             return dispatch({
                 type: workbenchAction.NEW_TABLE_SAVED,
                 payload: data
             })
-        }else{
+        } else {
             // params.partitions = {
             //     partConfig: params.partConfig,
             //     partitionType: params.partitionType,
@@ -322,16 +316,16 @@ export function handleSave(){
             // }
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }
 };
 /**
  * 编辑表页-保存编辑状态
- * @param {更改的参数对象} params 
+ * @param {更改的参数对象} params
  */
-export function saveEditTableInfo(params){
+export function saveEditTableInfo (params) {
     return dispatch => {
         return dispatch({
             type: workbenchAction.SAVE_EDITTABLE_INFO,
@@ -341,24 +335,24 @@ export function saveEditTableInfo(params){
 };
 /**
  * 保存表信息
- * @param {预留} param 
+ * @param {预留} param
  */
-export function saveTableInfo(param){
-    return async (dispatch,getStore)=>{
+export function saveTableInfo (param) {
+    return async (dispatch, getStore) => {
         const { workbench } = getStore();
         const { tabs, currentTab } = workbench.mainBench;
         let tableDetail = {};
-        tabs.map(o=>{
-            if(o.id === currentTab){
+        tabs.map(o => {
+            if (o.id === currentTab) {
                 tableDetail = o.tableDetail
             }
         })
 
         console.log(tableDetail)
-        let {databaseId,tableName,tableDesc,lifeDay,columns,partitions, id} = tableDetail;
+        let { databaseId, tableName, tableDesc, lifeDay, columns, partitions, id } = tableDetail;
         let stopFlag = false;
-        columns.map(o=>{
-            if((!o.name || o.name === '' || !o.type) && !stopFlag){
+        columns.map(o => {
+            if ((!o.name || o.name === '' || !o.type) && !stopFlag) {
                 notification.error({
                     message: '提示',
                     description: '字段名称与字段类型不可为空'
@@ -366,13 +360,13 @@ export function saveTableInfo(param){
                 stopFlag = true;
             }
         })
-        if(stopFlag) return;
+        if (stopFlag) return;
 
-        lifeDay = lifeDay === -1? tableDetail.shortLisyCycle:lifeDay;
+        lifeDay = lifeDay === -1 ? tableDetail.shortLisyCycle : lifeDay;
 
         let flag = [];
-        columns.map(o=>{
-            if(o.isNew){
+        columns.map(o => {
+            if (o.isNew) {
                 flag.push({
                     comment: o.comment,
                     dictionary: o.dictionary,
@@ -381,22 +375,21 @@ export function saveTableInfo(param){
                     sortColumn: o.sortColumn,
                     type: o.type,
                     precision: o.precision || null,
-                    scale: o.scale || null,
+                    scale: o.scale || null
                 })
             }
         })
         console.log(tableDetail)
 
-
-        const res = await API.saveTableInfo({databaseId,tableName,tableDesc,lifeDay,columns:flag,partitions,id});
-        if(res.code === 1){
+        const res = await API.saveTableInfo({ databaseId, tableName, tableDesc, lifeDay, columns: flag, partitions, id });
+        if (res.code === 1) {
             message.success('修改成功')
             // dispatch(handleCancel());
-            dispatch(toTableDetail({databaseId: tableDetail.databaseId,id:tableDetail.id}))
-        }else{
+            dispatch(toTableDetail({ databaseId: tableDetail.databaseId, id: tableDetail.id }))
+        } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }
@@ -406,18 +399,17 @@ export function saveTableInfo(param){
  * 保存新表/更新表之后跳转到详情
  * @param {databaseId, id}
  */
-export function toTableDetail(params){
-
-    return async (dispatch,getStore)=>{
+export function toTableDetail (params) {
+    return async (dispatch, getStore) => {
         const { workbench } = getStore();
         const { tabs, currentTab } = workbench.mainBench;
 
         const res = await API.getTableById(params);
-        if(res.code === 1){
+        if (res.code === 1) {
             let tableDetailIndex = 0;
-            for(let i = 0;i<tabs.length;i++){
-                if(tabs[i].actionType === workbenchAction.OPEN_TABLE){
-                    tableDetailIndex = tabs[i].tableDetailIndex > tableDetailIndex?tabs[i].tableDetailIndex:tableDetailIndex
+            for (let i = 0; i < tabs.length; i++) {
+                if (tabs[i].actionType === workbenchAction.OPEN_TABLE) {
+                    tableDetailIndex = tabs[i].tableDetailIndex > tableDetailIndex ? tabs[i].tableDetailIndex : tableDetailIndex
                 }
             }
             let newTabData = {
@@ -425,25 +417,25 @@ export function toTableDetail(params){
                 tabName: `${res.data.tableName}详情`,
                 tableDetailIndex: tableDetailIndex + 1,
                 actionType: workbenchAction.OPEN_TABLE,
-                tableDetail:res.data,
+                tableDetail: res.data
             }
             // tabData = newTabData;
 
             dispatch(closeTab(currentTab))
             dispatch(openTab(newTabData));
-        }else{
+        } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }
 }
 
-export function handleCancel(){
-    return (dispatch,getStore)=>{
-        const {currentTab} = getStore().workbench.mainBench;
-        
+export function handleCancel () {
+    return (dispatch, getStore) => {
+        const { currentTab } = getStore().workbench.mainBench;
+
         dispatch(closeTab(currentTab))
     }
 }

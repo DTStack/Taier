@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { cloneDeep } from "lodash";
+import { cloneDeep } from 'lodash';
 
 import {
     Row, Col, Modal, Card, Tooltip,
@@ -18,7 +18,7 @@ import * as ProjectAction from '../../store/modules/project'
 const FormItem = Form.Item
 const Option = Select.Option;
 
-function myFrom(props) {
+function myFrom (props) {
     const { getFieldDecorator } = props.form;
     return (
         <Form>
@@ -29,11 +29,11 @@ function myFrom(props) {
                 {getFieldDecorator('projectAlias', {
                     rules: [{
                         max: 20,
-                        message: '项目显示名称不得超过20个字符！',
+                        message: '项目显示名称不得超过20个字符！'
                     }],
-                    initialValue: props.project ? props.project.projectAlias : '',
+                    initialValue: props.project ? props.project.projectAlias : ''
                 })(
-                    <Input placeholder="请输入项目显示名称" />,
+                    <Input placeholder="请输入项目显示名称" />
                 )}
             </FormItem>
             <FormItem
@@ -43,11 +43,11 @@ function myFrom(props) {
                 {getFieldDecorator('projectDesc', {
                     rules: [{
                         max: 200,
-                        message: '项目描述请控制在200个字符以内！',
+                        message: '项目描述请控制在200个字符以内！'
                     }],
-                    initialValue: props.project ? props.project.projectDesc : '',
+                    initialValue: props.project ? props.project.projectDesc : ''
                 })(
-                    <Input type="textarea" rows={4} />,
+                    <Input type="textarea" rows={4} />
                 )}
             </FormItem>
         </Form>
@@ -57,14 +57,13 @@ function myFrom(props) {
 const DescForm = Form.create()(myFrom)
 
 class ProjectConfig extends Component {
-
     state = {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,
         bindLoading: false,
         visibleChangeProduce: false,
         bindProject: {},
-        projectBindList:[]
+        projectBindList: []
     }
 
     updateProjectDesc = () => {
@@ -90,7 +89,7 @@ class ProjectConfig extends Component {
         });
     }
 
-    changeScheduleStatus(checked) {
+    changeScheduleStatus (checked) {
         const { params, project, dispatch } = this.props
         this.setState({
             scheduleStatusLoading: true
@@ -104,7 +103,7 @@ class ProjectConfig extends Component {
                         scheduleStatusLoading: false
                     })
                     if (res.code == 1) {
-                        message.success("周期调度状态切换成功！")
+                        message.success('周期调度状态切换成功！')
                         const newProject = cloneDeep(Object.assign(project, { scheduleStatus: checked ? 0 : 1 }))
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
@@ -112,20 +111,20 @@ class ProjectConfig extends Component {
                 }
             )
     }
-    bindProject() {
+    bindProject () {
         const { bindProject } = this.state;
         const { project, dispatch } = this.props;
         if (!bindProject.name) {
-            message.warning("请选择发布目标");
+            message.warning('请选择发布目标');
             return;
         }
         Modal.confirm({
             title: '确认绑定发布目标',
-            content: (<div style={{ color: "ff0000", fontWeight: "bold" }}>
+            content: (<div style={{ color: 'ff0000', fontWeight: 'bold' }}>
                 <p>是否确定将{bindProject.name}项目指定为发布目标？</p>
                 <p>此配置不可逆，确认后不可修改</p>
             </div>),
-            iconType: "exclamation-circle",
+            iconType: 'exclamation-circle',
             onOk: () => {
                 this.setState({
                     bindLoading: true
@@ -138,12 +137,12 @@ class ProjectConfig extends Component {
                             bindLoading: false
                         })
                         if (res.code == 1) {
-                            message.success("绑定成功！")
+                            message.success('绑定成功！')
                             const newProject = cloneDeep(Object.assign(project,
                                 {
                                     produceProject: bindProject.name,
                                     produceProjectId: bindProject.id,
-                                    projectType:PROJECT_TYPE.TEST
+                                    projectType: PROJECT_TYPE.TEST
                                 }
                             ))
                             dispatch(ProjectAction.setProject(newProject))
@@ -153,24 +152,24 @@ class ProjectConfig extends Component {
                     }
                 )
             },
-            onCancel() {
-                return;
-            },
+            onCancel () {
+
+            }
         });
     }
-    changeBindModalVisible(isShow) {
-        const {project}=this.props;
+    changeBindModalVisible (isShow) {
+        const { project } = this.props;
         if (!isShow) {
             this.setState({
                 bindProject: {}
             })
-        }else{
+        } else {
             Api.getBindingProjectList({
-                projectAlias:project.projectAlias
+                projectAlias: project.projectAlias
             }).then(
-                (res)=>{
+                (res) => {
                     this.setState({
-                        projectBindList:res.data
+                        projectBindList: res.data
                     })
                 }
             )
@@ -179,64 +178,64 @@ class ProjectConfig extends Component {
             visibleChangeProduce: isShow
         })
     }
-    renderSubmit(project) {
+    renderSubmit (project) {
         switch (project.projectType) {
-            case PROJECT_TYPE.COMMON: {
-                return (
-                    <tr>
-                        <td className="t-title">
+        case PROJECT_TYPE.COMMON: {
+            return (
+                <tr>
+                    <td className="t-title">
                             发布目标
-                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                                <Icon className="help-doc" type="question-circle-o" />
-                            </Tooltip>
-                        </td>
-                        <td>
-                            <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
-                        </td>
-                    </tr>
-                )
-            }
-            case PROJECT_TYPE.TEST: {
-                return (
-                    <tr>
-                        <td className="t-title">
+                        <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
+                    </td>
+                    <td>
+                        <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
+                    </td>
+                </tr>
+            )
+        }
+        case PROJECT_TYPE.TEST: {
+            return (
+                <tr>
+                    <td className="t-title">
                             发布目标
-                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                                <Icon className="help-doc" type="question-circle-o" />
-                            </Tooltip>
-                        </td>
-                        <td>
-                            {project.produceProject}
-                        </td>
-                    </tr>
-                )
-            }
-            case PROJECT_TYPE.PRO: {
-                return (
-                    <tr>
-                        <td className="t-title">发布源</td>
-                        <td>
-                            {project.testProject}
-                        </td>
-                    </tr>
-                )
-            }
-            default: {
-                return null;
-            }
+                        <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
+                    </td>
+                    <td>
+                        {project.produceProject}
+                    </td>
+                </tr>
+            )
+        }
+        case PROJECT_TYPE.PRO: {
+            return (
+                <tr>
+                    <td className="t-title">发布源</td>
+                    <td>
+                        {project.testProject}
+                    </td>
+                </tr>
+            )
+        }
+        default: {
+            return null;
+        }
         }
     }
-    render() {
-        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading,projectBindList } = this.state
+    render () {
+        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading, projectBindList } = this.state
         const { params, project = {}, projects = [] } = this.props
         const scheduleStatus = project && project.scheduleStatus;
         const isScheduleEnAbled = scheduleStatus == 0;
         const adminLength = project && project.adminUsers && project.adminUsers.length;
         const memberLength = project && project.memberUsers && project.memberUsers.length;
-        const admins = project && project.adminUsers && project.adminUsers.length > 0 ?
-            project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
-        const members = project && project.memberUsers && project.memberUsers.length > 0 ?
-            project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
+        const admins = project && project.adminUsers && project.adminUsers.length > 0
+            ? project.adminUsers.map((item, index) => index == adminLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName}; </span>) : ''
+        const members = project && project.memberUsers && project.memberUsers.length > 0
+            ? project.memberUsers.map((item, index) => index == memberLength - 1 ? <span key={item.id}>{item.userName}</span> : <span key={item.id}>{item.userName};</span>) : ''
         const projectIdentifier = project.projectIdentifier;
         return (
             <div className="project-config">
@@ -308,7 +307,7 @@ class ProjectConfig extends Component {
                     >
                         <Select
                             placeholder="请选择发布项目"
-                            style={{ width: "100%" }}
+                            style={{ width: '100%' }}
                             showSearch
                             optionFilterProp="children"
                             value={bindProject.id}
@@ -327,14 +326,14 @@ class ProjectConfig extends Component {
                                         key={project.id}
                                         value={project.id}>
                                         {project.projectAlias}
-                                    </Option> 
+                                    </Option>
                                 }
                             ).filter(Boolean)}
                         </Select>
                     </FormItem>
                     <Row>
                         <Col offset={1} span={23}>
-                            <p style={{ color: "#ff0000", fontWeight: "bold" }}>此配置不可逆，请确认后操作</p>
+                            <p style={{ color: '#ff0000', fontWeight: 'bold' }}>此配置不可逆，请确认后操作</p>
                             <p>可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。</p>
                             <p>发布目标的项目必须是空的，不能包含任何的任务、资源、函数、表。</p>
                         </Col>
@@ -351,4 +350,3 @@ export default connect((state) => {
         projects: state.projects
     };
 })(ProjectConfig)
-

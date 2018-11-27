@@ -1,12 +1,11 @@
-import React from "react";
-import utils from "utils";
+import React from 'react';
+import utils from 'utils';
 
-import CommonEditor from "../../editor/commonEditor"
-import Toolbar from "./toolBar"
+import CommonEditor from '../../editor/commonEditor'
+import Toolbar from './toolBar'
 
 class CollectionScript extends React.Component {
-    
-    formatJson(text) {
+    formatJson (text) {
         if (!text) {
             return text;
         }
@@ -21,10 +20,10 @@ class CollectionScript extends React.Component {
             }
         )
     }
-    getLeftButton(){
+    getLeftButton () {
         return <Toolbar {...this.props} />
     }
-    render() {
+    render () {
         return (
             <div>
                 <CommonEditor
@@ -32,7 +31,7 @@ class CollectionScript extends React.Component {
                     {...this.props}
                     onFormat={this.formatJson}
                     toolBarOptions={{
-                        leftCustomButton:this.getLeftButton()
+                        leftCustomButton: this.getLeftButton()
                     }}
                 />
             </div>

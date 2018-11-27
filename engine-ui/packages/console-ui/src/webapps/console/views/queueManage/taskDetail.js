@@ -6,14 +6,14 @@
 */
 
 import React, { Component } from 'react';
-import { Input, Select, Card, Table, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Radio } from "antd"
-import moment from "moment";
+import { Input, Select, Card, Table, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Radio } from 'antd'
+import moment from 'moment';
 import '../../styles/main.scss'
 import ViewDetail from '../../components/viewDetail';
 import KillTask from '../../components/killTask';
 import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
-import Api from "../../api/console";
+import Api from '../../api/console';
 import { TASK_STATE } from '../../consts/index.js';
 import utils from 'utils';
 const PAGE_SIZE = 10;
@@ -29,8 +29,8 @@ class TaskDetail extends Component {
             loading: false
         },
         taskList: [],
-        computeType: "batch",
-        jobName: "",
+        computeType: 'batch',
+        jobName: '',
         engineList: [],
         groupList: [],
         engineType: undefined,
@@ -78,8 +78,8 @@ class TaskDetail extends Component {
     //         })
     //     }
     // }
-    
-    componentDidMount() {
+
+    componentDidMount () {
         const { query = {} } = this.props;
         this.searchTaskFuzzy();
         this.getEngineList();
@@ -92,14 +92,14 @@ class TaskDetail extends Component {
         this.searchTaskList();
     }
     // 获取计算类型
-    changeComputeValue(value) {
+    changeComputeValue (value) {
         this.setState({
             computeType: value
         }, this.searchTaskFuzzy.bind(this))
     }
     // 获取改变模糊任务值
-    changeTaskName(value) {
-        const {table} = this.state;
+    changeTaskName (value) {
+        const { table } = this.state;
         if (!value) {
             this.setState({
                 dataSource: [],
@@ -107,7 +107,7 @@ class TaskDetail extends Component {
                     ...table,
                     total: 0
                 },
-                jobName: "",
+                jobName: '',
                 isShowAll: false
             }, this.searchTaskFuzzy.bind(this))
         } else {
@@ -117,7 +117,7 @@ class TaskDetail extends Component {
         }
     }
     // 模糊查询任务
-    searchTaskFuzzy() {
+    searchTaskFuzzy () {
         const computeType = this.state.computeType;
         const jobName = this.state.jobName;
         this.setState({
@@ -138,7 +138,7 @@ class TaskDetail extends Component {
         }
     }
     // 渲染任务下拉列表
-    getTaskNameListView() {
+    getTaskNameListView () {
         const taskList = this.state.taskList;
         return taskList.map((item, index) => {
             return <Option key={index} value={item}>{item}</Option>
@@ -146,7 +146,7 @@ class TaskDetail extends Component {
     }
 
     // 选中某个值
-    changeSelectValue(value) {
+    changeSelectValue (value) {
         this.setState({
             jobName: value,
             engineType: undefined,
@@ -156,17 +156,17 @@ class TaskDetail extends Component {
     }
 
     // 显示更多任务
-    handleGroupClick() {
+    handleGroupClick () {
         const { table } = this.state;
-        const {singleTaskInfo} = this.state;
-        const {setNode} = this.state;
+        const { singleTaskInfo } = this.state;
+        const { setNode } = this.state;
         console.log(singleTaskInfo[0]);
         console.log(singleTaskInfo[0].engineType);
         console.log(singleTaskInfo[0].groupName);
         console.log(singleTaskInfo[0].node);
         // 获取集群
         var clusterName1;
-        const arr = (singleTaskInfo[0].groupName || "").split("_");
+        const arr = (singleTaskInfo[0].groupName || '').split('_');
         if (arr.length == 1) {
             clusterName1 = singleTaskInfo[0].groupName
         } else {
@@ -187,16 +187,16 @@ class TaskDetail extends Component {
             groupName: singleTaskInfo[0].groupName,
             clusterName: clusterName1,
             node: setNode
-        },this.getDetailTaskList.bind(this))
+        }, this.getDetailTaskList.bind(this))
     }
     // 根据任务名搜索任务
-    searchTaskList() {
+    searchTaskList () {
         const computeType = this.state.computeType;
         const jobName = this.state.jobName;
         const { table } = this.state;
         const { pageIndex } = table;
-        const {isClickGroup} = this.state;
-        const {  dataSource } = this.state;
+        const { isClickGroup } = this.state;
+        const { dataSource } = this.state;
         // this.setState({
         //     dataSource: [],
         //     table: {
@@ -205,7 +205,7 @@ class TaskDetail extends Component {
         //     }
         // })
         this.setState({
-            dataSource: [],
+            dataSource: []
         })
         if (jobName) {
             Api.searchTaskList({
@@ -245,14 +245,14 @@ class TaskDetail extends Component {
     }
 
     // 获取集群下拉
-    getClusterListOptionView() {
+    getClusterListOptionView () {
         const { clusterList } = this.props;
         return clusterList.map((item, index) => {
             return <Option key={item.id} value={item.clusterName}>{item.clusterName}</Option>
         })
     }
     // 改变集群值
-    changeClusterValue(value) {
+    changeClusterValue (value) {
         const engineType = this.state.engineType;
         this.setState({
             clusterName: value,
@@ -261,23 +261,22 @@ class TaskDetail extends Component {
         }, this.getGroupList.bind(this))
     }
 
-    
     // 获取节点下拉
-    getNodeAddressOptionView() {
+    getNodeAddressOptionView () {
         const { nodeList } = this.props;
         return nodeList.map((item, index) => {
             return <Option key={item} value={item}>{item}</Option>
         })
     }
     // 改变节点值
-    changeNodeAddressValue(value) {
-        const {table} = this.state;
-        if(!value) {
+    changeNodeAddressValue (value) {
+        const { table } = this.state;
+        if (!value) {
             this.setState({
                 dataSource: [],
                 node: value,
                 groupList: [],
-                groupName:undefined,
+                groupName: undefined,
                 table: {
                     ...table,
                     total: 0
@@ -293,12 +292,12 @@ class TaskDetail extends Component {
                     loading: false,
                     total: 0
                 }
-            },this.getGroupList.bind(this))
+            }, this.getGroupList.bind(this))
         }
     }
 
     // 获取引擎下拉数据
-    getEngineList() {
+    getEngineList () {
         return Api.getEngineList().then((res) => {
             if (res.code == 1) {
                 const data = res.data;
@@ -308,23 +307,23 @@ class TaskDetail extends Component {
             }
         })
     }
-    getEngineListOptionView() {
+    getEngineListOptionView () {
         const engineList = this.state.engineList;
         return engineList.map((item, index) => {
             return <Option key={index} value={item}>{item}</Option>
         })
     }
     // 改变引擎option值
-    changeEngineValue(value) {
+    changeEngineValue (value) {
         const engineType = this.state.engineType;
-        const {node} = this.state;
+        const { node } = this.state;
         const { table } = this.state;
         if (!value) {
             this.setState({
                 dataSource: [],
                 engineType: undefined,
                 groupName: undefined,
-                node:node,
+                node: node,
                 table: {
                     ...table,
                     loading: false,
@@ -344,9 +343,8 @@ class TaskDetail extends Component {
                 }
             }, this.getGroupList.bind(this))
         }
-
     }
-    getGroupList() {
+    getGroupList () {
         const { engineType, clusterName, node } = this.state;
         this.setState({
             groupList: []
@@ -372,18 +370,18 @@ class TaskDetail extends Component {
         }
     }
     // 获取group下拉视图
-    getGroupOptionView() {
+    getGroupOptionView () {
         const groupList = this.state.groupList;
         return groupList.map((item, index) => {
             return <Option key={index} value={item}>{item}</Option>
         })
     }
-    changeGroupValue(value) { 
-        const {table} = this.state;
-        if(!value) {
+    changeGroupValue (value) {
+        const { table } = this.state;
+        if (!value) {
             this.setState({
                 dataSource: [],
-                groupName:value,
+                groupName: value,
                 table: {
                     ...table,
                     loading: false,
@@ -394,19 +392,19 @@ class TaskDetail extends Component {
             this.setState({
                 groupName: value
             }, this.getDetailTaskList.bind(this))
-        }  
+        }
     }
-    getInitialState() {
+    getInitialState () {
 
     }
     // 获取详细任务
-    getDetailTaskList() {
+    getDetailTaskList () {
         const { engineType, groupName, node } = this.state;
         const { table } = this.state;
         const { loading } = table;
         const { pageIndex } = table;
         this.setState({
-            dataSource: [],
+            dataSource: []
         })
         if (engineType && groupName && node) {
             this.setState({
@@ -421,7 +419,7 @@ class TaskDetail extends Component {
                 node: node,
                 pageSize: PAGE_SIZE,
                 currentPage: pageIndex
-                // clusterName: 
+                // clusterName:
             }).then((res) => {
                 if (res.code == 1) {
                     this.setState({
@@ -446,10 +444,10 @@ class TaskDetail extends Component {
     }
 
     // 请求置顶调整接口
-    changeJobPriority(record) {
+    changeJobPriority (record) {
         // 获取集群
         var groupName, clusterName, computeTypeInt;
-        const arr = (record.groupName || "").split("_");
+        const arr = (record.groupName || '').split('_');
         if (arr.length == 1) {
             clusterName = record.groupName
         } else {
@@ -458,7 +456,7 @@ class TaskDetail extends Component {
                 groupName = arr[1];
             }
         }
-        const {node} = this.state;
+        const { node } = this.state;
         return Api.changeJobPriority({
             engineType: record.engineType,
             groupName: record.groupName,
@@ -467,13 +465,13 @@ class TaskDetail extends Component {
             jobIndex: 1
         }).then((res) => {
             if (res.code == 1) {
-                message.success("置顶成功");
+                message.success('置顶成功');
                 return true;
             }
         })
     }
     // 获取分页信息
-    getPagination() {
+    getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
             currentPage: pageIndex,
@@ -488,106 +486,106 @@ class TaskDetail extends Component {
                 pageIndex: page.current
             }
         },
-            () => {
-                this.getDetailTaskList();
-            })
+        () => {
+            this.getDetailTaskList();
+        })
     }
 
-    initTableColumns() {
+    initTableColumns () {
         const { queueNum } = this.state;
         const { pageIndex, total } = this.state.table;
-        const {radioValue} = this.state;
-        const {isClickGroup} = this.state;
+        const { radioValue } = this.state;
+        const { isClickGroup } = this.state;
         return [
             {
-                title: "执行顺序",
-                dataIndex: "theJobIdx",
-                render(text, record, index) {
-                    return (radioValue == 1) ? ((++index) + PAGE_SIZE * (pageIndex - 1)) :  
-                    (queueNum.theJobIdx)
+                title: '执行顺序',
+                dataIndex: 'theJobIdx',
+                render (text, record, index) {
+                    return (radioValue == 1) ? ((++index) + PAGE_SIZE * (pageIndex - 1))
+                        : (queueNum.theJobIdx)
                     // return ((++index) + PAGE_SIZE * (pageIndex - 1))
                 },
-                width: "80px"
+                width: '80px'
             },
             {
-                title: "任务名称",
-                dataIndex: "taskName",
-                render(text, record) {
+                title: '任务名称',
+                dataIndex: 'taskName',
+                render (text, record) {
                     return record.jobName;
                 },
-                width: "350px"
+                width: '350px'
             },
             {
-                title: "状态",
-                dataIndex: "status",
-                render(text, record) {
+                title: '状态',
+                dataIndex: 'status',
+                render (text, record) {
                     switch (text) {
-                        case TASK_STATE.UNSUBMIT:
-                            return "UNSUBMIT";
-                        case TASK_STATE.CREATED:
-                            return "CREATED";
-                        case TASK_STATE.SCHEDULED:
-                            return "SCHEDULED";
-                        case TASK_STATE.DEPLOYING:
-                            return "DEPLOYING";
-                        case TASK_STATE.RUNNING:
-                            return "RUNNING";
-                        case TASK_STATE.FINISHED:
-                            return "FINISHED";
-                        case TASK_STATE.CANCELLING:
-                            return "CANCELLING";
-                        case TASK_STATE.CANCELED:
-                            return "CANCELED";
-                        case TASK_STATE.FAILED:
-                            return "FAILED";
-                        case TASK_STATE.SUBMITFAILD:
-                            return "SUBMITFAILD";
-                        case TASK_STATE.SUBMITTING:
-                            return "SUBMITTING";
-                        case TASK_STATE.RESTARTING:
-                            return "RESTARTING";
-                        case TASK_STATE.MANUALSUCCESS:
-                            return "MANUALSUCCESS";
-                        case TASK_STATE.KILLED:
-                            return "KILLED";
-                        case TASK_STATE.SUBMITTED:
-                            return "SUBMITTED";
-                        case TASK_STATE.NOTFOUND:
-                            return "NOTFOUND";
-                        case TASK_STATE.WAITENGINE:
-                            return "WAITENGINE";
-                        case TASK_STATE.WAITCOMPUTE:
-                            return "WAITCOMPUTE";
-                        case TASK_STATE.FROZEN:
-                            return "FROZEN";
-                        case TASK_STATE.ENGINEACCEPTED:
-                            return "ENGINEACCEPTED";
-                        case TASK_STATE.ENGINEDISTRIBUTE:
-                            return "ENGINEDISTRIBUTE";
-                        default:
-                            return null;
+                    case TASK_STATE.UNSUBMIT:
+                        return 'UNSUBMIT';
+                    case TASK_STATE.CREATED:
+                        return 'CREATED';
+                    case TASK_STATE.SCHEDULED:
+                        return 'SCHEDULED';
+                    case TASK_STATE.DEPLOYING:
+                        return 'DEPLOYING';
+                    case TASK_STATE.RUNNING:
+                        return 'RUNNING';
+                    case TASK_STATE.FINISHED:
+                        return 'FINISHED';
+                    case TASK_STATE.CANCELLING:
+                        return 'CANCELLING';
+                    case TASK_STATE.CANCELED:
+                        return 'CANCELED';
+                    case TASK_STATE.FAILED:
+                        return 'FAILED';
+                    case TASK_STATE.SUBMITFAILD:
+                        return 'SUBMITFAILD';
+                    case TASK_STATE.SUBMITTING:
+                        return 'SUBMITTING';
+                    case TASK_STATE.RESTARTING:
+                        return 'RESTARTING';
+                    case TASK_STATE.MANUALSUCCESS:
+                        return 'MANUALSUCCESS';
+                    case TASK_STATE.KILLED:
+                        return 'KILLED';
+                    case TASK_STATE.SUBMITTED:
+                        return 'SUBMITTED';
+                    case TASK_STATE.NOTFOUND:
+                        return 'NOTFOUND';
+                    case TASK_STATE.WAITENGINE:
+                        return 'WAITENGINE';
+                    case TASK_STATE.WAITCOMPUTE:
+                        return 'WAITCOMPUTE';
+                    case TASK_STATE.FROZEN:
+                        return 'FROZEN';
+                    case TASK_STATE.ENGINEACCEPTED:
+                        return 'ENGINEACCEPTED';
+                    case TASK_STATE.ENGINEDISTRIBUTE:
+                        return 'ENGINEDISTRIBUTE';
+                    default:
+                        return null;
                     }
                 }
             },
             {
-                title: "已等待",
-                dataIndex: "waitTime",
-                render(text, record) {
+                title: '已等待',
+                dataIndex: 'waitTime',
+                render (text, record) {
                     return record.waitTime;
                 }
             },
             {
-                title: "提交时间",
-                dataIndex: "generateTime",
-                render(text) {
-                    return new moment(text).format("YYYY-MM-DD HH:mm:ss")
+                title: '提交时间',
+                dataIndex: 'generateTime',
+                render (text) {
+                    return new moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {
-                title: "集群",
-                dataIndex: "clusterName",
-                render(text, record) {
-                    const arr = (record.groupName || "").split("_");
+                title: '集群',
+                dataIndex: 'clusterName',
+                render (text, record) {
+                    const arr = (record.groupName || '').split('_');
                     if (arr.length == 1) {
                         return record.groupName
                     } else {
@@ -597,33 +595,33 @@ class TaskDetail extends Component {
                     }
                     // return record.groupName;
                 },
-                width: "70px"
+                width: '70px'
             },
             {
-                title: "引擎",
-                dataIndex: "engine",
-                render(text, record) {
+                title: '引擎',
+                dataIndex: 'engine',
+                render (text, record) {
                     return record.engineType;
                 },
-                width: "80px"
+                width: '80px'
             },
             {
-                title: "group",
-                dataIndex: "groupName",
-                render(text, record) {
+                title: 'group',
+                dataIndex: 'groupName',
+                render (text, record) {
                     return record.groupName;
                 }
             },
             {
-                title: "租户",
-                dataIndex: "tenement",
-                render(text, record) {
+                title: '租户',
+                dataIndex: 'tenement',
+                render (text, record) {
                     return record.tenantName;
                 }
             },
             {
-                title: "操作",
-                dataIndex: "deal",
+                title: '操作',
+                dataIndex: 'deal',
                 render: (text, record, index) => {
                     return (
                         <div>
@@ -642,92 +640,91 @@ class TaskDetail extends Component {
                         </div>
                     )
                 },
-                width: "220px"
+                width: '220px'
             }
         ]
     }
 
     // 剩余资源
-    handleClickResource() {
+    handleClickResource () {
         this.setState({
             isShowResource: true
         })
     }
-    handleCloseResource() {
+    handleCloseResource () {
         this.setState({
             isShowResource: false
         })
     }
     // 刷新
-    handleClickRefresh() {
+    handleClickRefresh () {
         // 刷新根据引擎,group搜索出的任务
         // 刷新根据任务搜索
-        const {radioValue} = this.state;
-        const {isClickGroup} = this.state;
-        if(radioValue ==1) {
+        const { radioValue } = this.state;
+        const { isClickGroup } = this.state;
+        if (radioValue == 1) {
             this.getDetailTaskList();
         } else {
-                this.searchTaskList();
-            }
+            this.searchTaskList();
+        }
     }
 
-
     // 查看详情
-    viewDetails(record) {
+    viewDetails (record) {
         this.setState({
             isShowViewDetail: true,
             resource: record
         })
     }
-    handleCloseViewDetail() {
+    handleCloseViewDetail () {
         this.setState({
             isShowViewDetail: false
         })
     }
     // 杀任务
-    killTask(record) {
+    killTask (record) {
         this.setState({
             isShowKill: true,
             killResource: record
         })
     }
-    handleCloseKill() {
+    handleCloseKill () {
         this.setState({
             isShowKill: false
         })
     }
     // kill
-    killSuccess(killId) {
+    killSuccess (killId) {
         this.setState({
             killIds: [...this.state.killIds, killId]
         })
     }
     // 顺序调整
-    sequentialAdjustment(record) {
+    sequentialAdjustment (record) {
         this.setState({
             isShowReorder: true,
             priorityResource: record
         })
     }
-    autoRefresh() {
-        const {radioValue} = this.state;
-        if(radioValue == 1) {
+    autoRefresh () {
+        const { radioValue } = this.state;
+        if (radioValue == 1) {
             this.getDetailTaskList();
-        }else {
+        } else {
             this.searchTaskList();
         }
     }
-    handleCloseReorder() {
+    handleCloseReorder () {
         this.setState({
             isShowReorder: false
         })
     }
     // 置顶
-    stickTask(record) {
-        const {radioValue} = this.state;
-        this.changeJobPriority(record).then((isSuccess)=>{
-            if(isSuccess){
-                if(radioValue==1){
+    stickTask (record) {
+        const { radioValue } = this.state;
+        this.changeJobPriority(record).then((isSuccess) => {
+            if (isSuccess) {
+                if (radioValue == 1) {
                     this.getDetailTaskList();
                 } else {
                     this.searchTaskList();
@@ -742,12 +739,12 @@ class TaskDetail extends Component {
     //     })
     // }
     // 集群筛选
-    onClusterChange() {
+    onClusterChange () {
 
     }
     // 改变单选框值
-    changeRadioValue(e) {
-        const {table} = this.state;
+    changeRadioValue (e) {
+        const { table } = this.state;
         this.setState({
             dataSource: [],
             table: {
@@ -757,43 +754,43 @@ class TaskDetail extends Component {
             engineType: undefined,
             groupName: undefined,
             clusterName: undefined,
-            jobName: "",
+            jobName: '',
             isShowAll: false,
             radioValue: e.target.value
         })
     }
-    render() {
+    render () {
         const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, isShowStick } = this.state;
         const columns = this.initTableColumns();
         const { dataSource, table } = this.state;
         const { loading } = table;
         const { resource } = this.state;
         const { killResource, priorityResource } = this.state;
-        const isShowAll = this.state.isShowAll ? "inline-block" : "none";
+        const isShowAll = this.state.isShowAll ? 'inline-block' : 'none';
         const style = {
             display: isShowAll
         }
         const { total } = this.state.table;
         const { clusterList } = this.props;
         const { node } = this.state;
-        const {radioValue} = this.state;
-        const {isClickGroup} = this.state;
-        const {singleTaskInfo} = this.state;
+        const { radioValue } = this.state;
+        const { isClickGroup } = this.state;
+        const { singleTaskInfo } = this.state;
         // const {moreTaskNum} = this.state;
         return (
             <div>
-                <div style={{ margin: "20px" }}>
+                <div style={{ margin: '20px' }}>
                     <RadioGroup onChange={this.changeRadioValue.bind(this)} value={this.state.radioValue}>
                         <Radio value={1}>按group筛选</Radio>
                         <Radio value={2}>按任务搜索</Radio>
                     </RadioGroup>
                 </div>
-                {(radioValue == 1 ) ? (
+                {(radioValue == 1) ? (
                     <div className="select">
                         集群：
                         <Select
                             placeholder="请选择集群"
-                            style={{ width: "150px", marginRight: "10px" }}
+                            style={{ width: '150px', marginRight: '10px' }}
                             value={this.state.clusterName}
                             onChange={this.changeClusterValue.bind(this)}
                             allowClear
@@ -803,7 +800,7 @@ class TaskDetail extends Component {
                         引擎：
                         <Select
                             placeholder="请选择引擎"
-                            style={{ width: "150px", marginRight: "10px" }}
+                            style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeEngineValue.bind(this)}
                             value={this.state.engineType}
                             allowClear
@@ -814,7 +811,7 @@ class TaskDetail extends Component {
                         <Select
                             value={this.state.node}
                             placeholder="请选择节点"
-                            style={{ width: "150px", marginRight: "10px" }}
+                            style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeNodeAddressValue.bind(this)}
                             allowClear={true}
                         >
@@ -824,21 +821,21 @@ class TaskDetail extends Component {
                         <Select
                             value={this.state.groupName}
                             placeholder="请选择group"
-                            style={{ width: "150px", marginRight: "10px" }}
+                            style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeGroupValue.bind(this)}
                             allowClear={true}
                         >
                             {this.getGroupOptionView()}
                         </Select>
-                        <div style={{ float: "right" }}>
-                            <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
+                        <div style={{ float: 'right' }}>
+                            <Button type="primary" style={{ marginRight: '9px' }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
                             <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
                         </div>
                     </div>
                 ) : (
-                    <div style={{ margin: "20px" }}>
+                    <div style={{ margin: '20px' }}>
                         计算类型: <Select
-                            style={{ width: "80px", marginRight: "10px" }}
+                            style={{ width: '80px', marginRight: '10px' }}
                             value={this.state.computeType}
                             onChange={this.changeComputeValue.bind(this)}
                         >
@@ -849,7 +846,7 @@ class TaskDetail extends Component {
                         <Select className="task-search"
                             mode="combobox"
                             value={this.state.jobName}
-                            style={{ width: "250px" }}
+                            style={{ width: '250px' }}
                             notFoundContent="没有搜索到该任务"
                             filterOption={false}
                             onChange={this.changeTaskName.bind(this)}
@@ -861,14 +858,14 @@ class TaskDetail extends Component {
                                 this.getTaskNameListView()
                             }
                         </Select>
-                        
+
                         {
                             (singleTaskInfo) ? (
                                 <span style={style}>查找此任务所在<a onClick={this.handleGroupClick.bind(this)}>group</a>的所有任务</span>
                             ) : null
                         }
-                        <div style={{ float: "right" }}>
-                            <Button type="primary" style={{ marginRight: "9px" }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
+                        <div style={{ float: 'right' }}>
+                            <Button type="primary" style={{ marginRight: '9px' }} onClick={this.handleClickResource.bind(this)}>剩余资源</Button>
                             <Button onClick={this.handleClickRefresh.bind(this)}>刷新</Button>
                         </div>
                     </div>
@@ -883,7 +880,7 @@ class TaskDetail extends Component {
                     pagination={this.getPagination()}
                     rowClassName={(record, index) => {
                         if (this.state.killIds.indexOf(record.taskId) > -1) {
-                            return "killTask"
+                            return 'killTask'
                         }
                     }}
                     dataSource={dataSource}
@@ -891,7 +888,7 @@ class TaskDetail extends Component {
                     onChange={this.onTableChange}
                     footer={() => {
                         return (
-                            <div style={{ lineHeight: "20px", paddingLeft: "18px" }}>
+                            <div style={{ lineHeight: '20px', paddingLeft: '18px' }}>
                                 任务总数<span>{total}</span>个
                             </div>
                         )

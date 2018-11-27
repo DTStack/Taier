@@ -1,42 +1,40 @@
 import React, { Component } from 'react'
 import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
-import { Link } from "react-router";
-import TopCall from "./topCall";
-import TopFail from "./topFail";
-import TopCallFunc from "./topCallFunc";
-import ErrorDistributed from "./errorDistributed";
+import { Link } from 'react-router';
+import TopCall from './topCall';
+import TopFail from './topFail';
+import TopCallFunc from './topCallFunc';
+import ErrorDistributed from './errorDistributed';
 
-
-import OverView from "./overView"
+import OverView from './overView'
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 class AdminDashboard extends Component {
     state = {
-        nowView: "callTop"
+        nowView: 'callTop'
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.chooseAdminDate(10, {
             target: {
                 value: this.props.dashBoard.adminDate
             }
         })
     }
-    topViewChange(key) {
+    topViewChange (key) {
         this.setState({
             nowView: key
         })
     }
-    getDateChoose() {
+    getDateChoose () {
         return this.props.dashBoard.adminDate || '1';
     }
 
-
-    render() {
-        const {approvalWarning} = this.props.dashBoard;
-        const approval_alert = (this.props.dashBoard.approvedMsgCount > 0&&approvalWarning) ? (
+    render () {
+        const { approvalWarning } = this.props.dashBoard;
+        const approval_alert = (this.props.dashBoard.approvedMsgCount > 0 && approvalWarning) ? (
             <Alert
                 message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
                 type="warning"
@@ -56,7 +54,7 @@ class AdminDashboard extends Component {
                         defaultValue={this.getDateChoose()}
                         className="no-bd nobackground"
                         onChange={this.props.chooseAdminDate.bind(this, 10)}
-                        style={{ marginTop: '8.5px', float: "right" }}
+                        style={{ marginTop: '8.5px', float: 'right' }}
                     >
                         <RadioButton value='1'>最近24小时</RadioButton>
                         <RadioButton value='7'>最近7天</RadioButton>
@@ -70,19 +68,19 @@ class AdminDashboard extends Component {
                         </Col>
                         <Col span={8} className="m-card-small m-tabs noheight">
 
-                                <Tabs
-                                    defaultActiveKey={this.state.nowView}
-                                    onChange={this.topViewChange.bind(this)}
-                                    className="shadow"
+                            <Tabs
+                                defaultActiveKey={this.state.nowView}
+                                onChange={this.topViewChange.bind(this)}
+                                className="shadow"
 
-                                >
-                                    <Tabs.TabPane tab="调用用户Top10" key="callTop">
-                                        <TopCall data={marketOverview.callCountTop}></TopCall>
-                                    </Tabs.TabPane>
-                                    <Tabs.TabPane tab="调用量Top10" key="callFuncTop">
-                                        <TopCallFunc idAdmin={true} router={this.props.router} data={marketOverview.topCallFunc}></TopCallFunc>
-                                    </Tabs.TabPane>
-                                </Tabs>
+                            >
+                                <Tabs.TabPane tab="调用用户Top10" key="callTop">
+                                    <TopCall data={marketOverview.callCountTop}></TopCall>
+                                </Tabs.TabPane>
+                                <Tabs.TabPane tab="调用量Top10" key="callFuncTop">
+                                    <TopCallFunc idAdmin={true} router={this.props.router} data={marketOverview.topCallFunc}></TopCallFunc>
+                                </Tabs.TabPane>
+                            </Tabs>
 
                         </Col>
                     </Row>
@@ -94,7 +92,6 @@ class AdminDashboard extends Component {
                             <TopFail isAdmin={true} router={this.props.router} data={marketOverview.callFailTop}></TopFail>
                         </Col>
                     </Row>
-
 
                 </div>
 

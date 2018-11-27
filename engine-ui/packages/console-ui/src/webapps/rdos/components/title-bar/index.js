@@ -3,7 +3,7 @@ import GoBack from 'widgets/go-back'
 
 import './style.scss'
 
-export default function TitleBar(props) {
+export default function TitleBar (props) {
     const { title, goBack } = props
     return (
         <header className="title-bar bd-bottom">

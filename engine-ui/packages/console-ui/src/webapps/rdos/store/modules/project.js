@@ -4,28 +4,25 @@ import utils from 'utils'
 import Api from '../../api'
 
 import {
-    workbenchAction,
+    workbenchAction
 } from '../../store/modules/offlineTask/actionType';
 import { clearPages } from '../../store/modules/realtimeTask/browser';
-
 
 const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
     'GET_ALL_PROJECTS',
-    'SET_PROJECT',
+    'SET_PROJECT'
 ], { prefix: 'project/' })
 
 const defaultProject = {
     id: 0,
-    projectName: '项目选择', 
+    projectName: '项目选择'
 }
 
 // Action
-export function getProject(id) {
-
+export function getProject (id) {
     return (dispatch) => {
-
         const projectKey = 'project_id';
         const oldProjectID = utils.getCookie(projectKey);
 
@@ -34,48 +31,48 @@ export function getProject(id) {
             utils.setCookie(projectKey, id)
             // 当切换项目时，应当清理任务开发导航中的缓存数据
             dispatch(clearPages());
-            dispatch({ 
+            dispatch({
                 type: workbenchAction.CLOSE_ALL_TABS
             });
-        } 
+        }
         Api.getProjectByID({
-            projectId: id,
+            projectId: id
         }).then((res) => {
             return dispatch({
                 type: projectAction.GET_PROJECT,
-                data: res.data,
+                data: res.data
             })
         })
     }
 }
 
-export function setProject(data) {
+export function setProject (data) {
     if (data && data.id) {
         utils.setCookie('project_id', data.id);
     }
     return {
         type: projectAction.SET_PROJECT,
-        data,
+        data
     }
 }
 
-export function getProjects(params) {
-    return function fn(dispatch) {
+export function getProjects (params) {
+    return function fn (dispatch) {
         Api.getProjects(params).then((res) => {
             return dispatch({
                 type: projectAction.GET_PROJECTS,
-                data: res.data,
+                data: res.data
             })
         })
     }
 }
 
-export function getAllProjects(params) {
-    return function fn(dispatch) {
+export function getAllProjects (params) {
+    return function fn (dispatch) {
         Api.getAllProjects(params).then((res) => {
             return dispatch({
                 type: projectAction.GET_ALL_PROJECTS,
-                data: res.data,
+                data: res.data
             })
         })
     }
@@ -83,7 +80,7 @@ export function getAllProjects(params) {
 
 // Reducer
 // 获取系统下登录用户有权限的项目
-export function projects(state = [], action) {
+export function projects (state = [], action) {
     switch (action.type) {
     case projectAction.GET_PROJECTS:
         return action.data || state
@@ -93,7 +90,7 @@ export function projects(state = [], action) {
 }
 
 // 获取系统所以项目
-export function allProjects(state = [], action) {
+export function allProjects (state = [], action) {
     switch (action.type) {
     case projectAction.GET_ALL_PROJECTS:
         return action.data || state
@@ -102,7 +99,7 @@ export function allProjects(state = [], action) {
     }
 }
 
-export function project(state = defaultProject, action) {
+export function project (state = defaultProject, action) {
     switch (action.type) {
     case projectAction.GET_PROJECT:
         return action.data

@@ -1,13 +1,13 @@
-import React from "react"
-import { Spin, Icon, Tooltip } from "antd";
-import moment from "moment";
-import utils from "utils";
-import { cloneDeep } from "lodash";
+import React from 'react'
+import { Spin, Icon, Tooltip } from 'antd';
+import moment from 'moment';
+import utils from 'utils';
+import { cloneDeep } from 'lodash';
 
 import Resize from 'widgets/resize';
-import FullScreen from "widgets/fullscreen"
+import FullScreen from 'widgets/fullscreen'
 
-import { lineAreaChartOptions, TIME_TYPE } from "../../../../../../comm/const"
+import { lineAreaChartOptions, TIME_TYPE } from '../../../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -17,7 +17,7 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
-function haveData(lineData = {}) {
+function haveData (lineData = {}) {
     const { y = [] } = lineData;
 
     let haveData = false;
@@ -36,7 +36,7 @@ class AlarmBaseGraphBox extends React.Component {
         key: '' + Math.random()
     }
 
-    render() {
+    render () {
         const { key } = this.state;
         const { title, lineData, desc } = this.props;
         const { loading } = lineData;
@@ -51,7 +51,7 @@ class AlarmBaseGraphBox extends React.Component {
                                 title={desc}
                                 overlayClassName="big-tooltip"
                             >
-                                <Icon style={{ marginLeft: "8px" }} type="question-circle-o" />
+                                <Icon style={{ marginLeft: '8px' }} type="question-circle-o" />
                             </Tooltip>
                         )}
 
@@ -61,13 +61,12 @@ class AlarmBaseGraphBox extends React.Component {
                             exitFullIcon={<Icon className="alt" type="shrink" />}
                             isShowTitle={false} /> : null}
                     </header>
-                    {loading ?
-                        <div className="loading-box">
+                    {loading
+                        ? <div className="loading-box">
                             <Spin className="loading" />
                         </div>
-                        :
-                        <div className="graph-content">
-                            {haveLineData ? <AlarmBaseGraph   {...this.props} /> : <p className="no-data-text">暂无数据</p>}
+                        : <div className="graph-content">
+                            {haveLineData ? <AlarmBaseGraph {...this.props} /> : <p className="no-data-text">暂无数据</p>}
                         </div>
                     }
                 </div>
@@ -77,45 +76,43 @@ class AlarmBaseGraphBox extends React.Component {
 }
 
 class AlarmBaseGraph extends React.Component {
-
     state = {
         lineChart: null
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.initGraph();
     }
-    componentWillReceiveProps(nextProps) {
-        if (this.props.lineData != nextProps.lineData
-            || this.props.time != nextProps.time
+    componentWillReceiveProps (nextProps) {
+        if (this.props.lineData != nextProps.lineData ||
+            this.props.time != nextProps.time
         ) {
             this.initGraph(nextProps.lineData, nextProps.time)
         }
     }
-    exchangeDate(date, time, joinLine) {
+    exchangeDate (date, time, joinLine) {
         switch (time) {
-            case TIME_TYPE.M10:
-            case TIME_TYPE.H1: {
-                return utils.formatMinute(parseInt(date));
-            }
-            case TIME_TYPE.H6:
-            case TIME_TYPE.D1: {
-                return utils.formatHours(parseInt(date));
-            }
+        case TIME_TYPE.M10:
+        case TIME_TYPE.H1: {
+            return utils.formatMinute(parseInt(date));
+        }
+        case TIME_TYPE.H6:
+        case TIME_TYPE.D1: {
+            return utils.formatHours(parseInt(date));
+        }
 
-            case TIME_TYPE.W1: {
-                if (joinLine) {
-                    return utils.formatDayHours(parseInt(date)).split(" ").join("\n")
-                }
-                return utils.formatDayHours(parseInt(date));
+        case TIME_TYPE.W1: {
+            if (joinLine) {
+                return utils.formatDayHours(parseInt(date)).split(' ').join('\n')
             }
-            default: {
-                return utils.formatHours(parseInt(date));
-            }
+            return utils.formatDayHours(parseInt(date));
+        }
+        default: {
+            return utils.formatHours(parseInt(date));
+        }
         }
     }
-    initGraph(lineData, time) {
-
+    initGraph (lineData, time) {
         lineData = lineData || this.props.lineData;
         time = time || this.props.time;
         if (!lineData) {
@@ -144,14 +141,14 @@ class AlarmBaseGraph extends React.Component {
         /**
          * 设置纵坐标名称
          */
-        if (unit == "s") {
-            options.yAxis[0].name = "";
+        if (unit == 's') {
+            options.yAxis[0].name = '';
             options.yAxis[0].axisLabel.formatter = (value) => {
                 return utils.formatTime(value);
             }
-            options.yAxis[0].axisPointer={
-                label:{
-                    formatter : (params) => {
+            options.yAxis[0].axisPointer = {
+                label: {
+                    formatter: (params) => {
                         return utils.formatTime(params.value);
                     }
                 }
@@ -179,25 +176,25 @@ class AlarmBaseGraph extends React.Component {
         /**
          * 设置小图标
          */
-        options.legend.type = "scroll";
+        options.legend.type = 'scroll';
         options.legend.data = legend.map((item) => {
             return {
                 name: item,
-                icon: "circle"
+                icon: 'circle'
             }
         });
-        options.legend.bottom = "12px"
-        options.legend.left = "10px";
+        options.legend.bottom = '12px'
+        options.legend.left = '10px';
         options.legend.itemWidth = 6
         options.legend.itemHeight = 6
         // options.legend.borderRadius="50%";
         /**
          * 画图区域的定位
          */
-        options.grid.bottom = "45px";
-        options.grid.left = "20px";
-        options.grid.right = "40px";
-        options.grid.top = "50px";
+        options.grid.bottom = '45px';
+        options.grid.left = '20px';
+        options.grid.right = '40px';
+        options.grid.top = '50px';
         options.grid.containLabel = true
         /**
          * 设置具体的数据
@@ -206,9 +203,9 @@ class AlarmBaseGraph extends React.Component {
             let line = {
                 name: legend[index],
                 data: item,
-                type: "line",
+                type: 'line',
                 smooth: true,
-                showSymbol: item.length > 2 ? false : true
+                showSymbol: !(item.length > 2)
             }
             if (color[index]) {
                 line.lineStyle = {
@@ -235,7 +232,7 @@ class AlarmBaseGraph extends React.Component {
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
-    render() {
+    render () {
         return (
             <Resize onResize={this.resize.bind(this)}>
                 <article ref={(ref) => { this._dom = ref }} style={{ width: '100%', height: '100%' }} />

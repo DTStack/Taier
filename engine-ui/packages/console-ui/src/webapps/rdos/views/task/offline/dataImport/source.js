@@ -1,38 +1,36 @@
 import React, { Component } from 'react'
 
-import { 
+import {
     Modal, Button, Form, Table, Checkbox,
-    Icon, Input, Select, Row, Radio,
+    Icon, Input, Select, Row, Radio
 } from 'antd';
 
 import TableCell from 'widgets/tableCell'
 import { formItemLayout } from '../../../../comm/const'
-
 
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 
 export default class ImportSource extends Component {
-
     state = {
-        radio: 1,
+        radio: 1
     }
 
     splitChange = (value) => {
-        this.props.changeStatus({splitSymbol: value})
+        this.props.changeStatus({ splitSymbol: value })
     }
 
     charsetChange = (value) => {
-        this.props.changeStatus({charset: value})
+        this.props.changeStatus({ charset: value })
     }
 
     asTitle = (e) => {
         const value = e.target.checked
-        this.props.changeStatus({ 
+        this.props.changeStatus({
             asTitle: value,
-            matchType: value ? 1 : 0,
-         })
+            matchType: value ? 1 : 0
+        })
     }
 
     changeStartLine = (e) => {
@@ -44,7 +42,7 @@ export default class ImportSource extends Component {
 
     radioChange = (e) => {
         this.setState({
-            radio: e.target.value,
+            radio: e.target.value
         });
     }
 
@@ -58,8 +56,8 @@ export default class ImportSource extends Component {
                         width: 100,
                         key: index + item,
                         render: (text, item) => {
-                            return <TableCell style={{minWidth: 100}} value={item[index]} />
-                        },
+                            return <TableCell style={{ minWidth: 100 }} value={item[index]} />
+                        }
                     })
                 })
                 return arr
@@ -71,21 +69,21 @@ export default class ImportSource extends Component {
                         width: 100,
                         title: title,
                         render: (text, item) => {
-                            return <TableCell style={{minWidth: 100}} value={item[index]} />
+                            return <TableCell style={{ minWidth: 100 }} value={item[index]} />
                         }
                     })
-                }) 
+                })
                 return arr
             }
         }
         return []
     }
 
-    getRowKey(record, index) {
+    getRowKey (record, index) {
         return `${record.length > 0 ? record[0] : ''}-${index}`;
     }
 
-    render() {
+    render () {
         const { data, file, display, formState } = this.props
         const columns = this.generateCols(formState.asTitle, data[0]);
         const dataSource = formState.asTitle ? data.slice(1) : data;
@@ -93,16 +91,16 @@ export default class ImportSource extends Component {
         const { radio } = this.state
 
         return (
-            <div style={{display: display === 'source' ? 'block' : 'none'}}>
+            <div style={{ display: display === 'source' ? 'block' : 'none' }}>
                 <Row>
                     <Form>
                         <FormItem
                             {...formItemLayout}
                             label="已选文件"
                         >
-                            <span style={{fontSize: '14px'}}>{file.name || ''}</span>
+                            <span style={{ fontSize: '14px' }}>{file.name || ''}</span>
                             &nbsp;&nbsp;
-                            <span style={{color: '#f60'}}>
+                            <span style={{ color: '#f60' }}>
                                 只支持.txt、.csv和.log文件类型
                             </span>
                         </FormItem>
@@ -112,9 +110,9 @@ export default class ImportSource extends Component {
                         >
                             <RadioGroup onChange={this.radioChange} defaultValue={1}>
                                 <Radio value={1}/>
-                                <Select 
+                                <Select
                                     disabled={radio === 2}
-                                    style={{width: '80px'}} 
+                                    style={{ width: '80px' }}
                                     value={formState.splitSymbol}
                                     onChange={this.splitChange}>
                                     <Option value=",">逗号</Option>
@@ -126,12 +124,12 @@ export default class ImportSource extends Component {
                                     <Option value="&">&</Option>
                                 </Select>
                                 &nbsp;&nbsp;<Radio value={2}>自定义</Radio>
-                                <Input 
+                                <Input
                                     disabled={radio === 1}
                                     onChange={(e) => {
                                         this.splitChange(e.target.value)
                                     }}
-                                    style={{width: '80px'}}
+                                    style={{ width: '80px' }}
                                 />
                             </RadioGroup>
                         </FormItem>
@@ -139,7 +137,7 @@ export default class ImportSource extends Component {
                             {...formItemLayout}
                             label="原始字符集"
                         >
-                            <Select 
+                            <Select
                                 value={formState.charset}
                                 onChange={this.charsetChange}
                             >
@@ -153,19 +151,19 @@ export default class ImportSource extends Component {
                             {...formItemLayout}
                             label="导入起始行"
                         >
-                            <Input 
+                            <Input
                                 onChange={this.changeStartLine}
                                 type="number"
                                 min={1}
                                 max={data.length}
-                                value={formState.startLine} 
+                                value={formState.startLine}
                             />
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="首行为标题"
                         >
-                            <Checkbox 
+                            <Checkbox
                                 checked={formState.asTitle}
                                 onChange={this.asTitle}
                             >
@@ -175,16 +173,15 @@ export default class ImportSource extends Component {
                     </Form>
                 </Row>
                 <Row className="no-table-padding">
-                    <Table 
+                    <Table
                         rowKey={this.getRowKey}
-                        scroll={{ y: 240, x: 800, }} 
+                        scroll={{ y: 240, x: 800 }}
                         bordered
-                        dataSource={dataSource} 
+                        dataSource={dataSource}
                         columns={columns}
                     />
                 </Row>
             </div>
         )
     }
-
 }

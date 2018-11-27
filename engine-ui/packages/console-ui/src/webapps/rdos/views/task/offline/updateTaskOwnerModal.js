@@ -5,11 +5,10 @@ import { Modal, Select } from 'antd';
 const Option = Select.Option;
 
 class UpdateTaskOwnerModal extends React.Component {
-
-    render() {
+    render () {
         const {
-             onOk, visible, onCancel, 
-             projectUsers, onSelect, defaultValue 
+            onOk, visible, onCancel,
+            projectUsers, onSelect, defaultValue
         } = this.props;
 
         const userOptions = projectUsers && projectUsers.map(

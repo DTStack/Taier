@@ -7,9 +7,9 @@
 
 // 剩余资源
 import React, { Component } from 'react';
-import { Modal, Select, Form, Table, Button } from "antd";
-import { formItemLayout } from "../../consts";
-import Api from "../../api/console";
+import { Modal, Select, Form, Table, Button } from 'antd';
+import { formItemLayout } from '../../consts';
+import Api from '../../api/console';
 
 const Option = Select.Option;
 class Resource extends Component {
@@ -22,11 +22,11 @@ class Resource extends Component {
         flinkListSource: undefined
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getClusterResources();
     }
     // 获取资源信息
-    getClusterResources() {
+    getClusterResources () {
         const { clusterName } = this.state;
         Api.getClusterResources({
             clusterName: clusterName
@@ -40,7 +40,7 @@ class Resource extends Component {
         })
     }
     // 改变集群
-    changeCluster(value) {
+    changeCluster (value) {
         if (!value) {
             this.setState({
                 yarnListSource: undefined,
@@ -52,100 +52,99 @@ class Resource extends Component {
                 clusterName: value
             }, this.getClusterResources.bind(this))
         }
-
     }
 
     // 集群下拉
-    getClusterListOptionView() {
+    getClusterListOptionView () {
         const { clusterList } = this.props;
         return clusterList.map((item, index) => {
             return <Option key={item.id} value={item.clusterName}>{item.clusterName}</Option>
         })
     }
-    closeCluster() {
+    closeCluster () {
 
     }
-    initYarnColumns() {
+    initYarnColumns () {
         return [
             {
-                title: "virtualCores",
-                dataIndex: "virtualCores",
-                render(text, record) {
+                title: 'virtualCores',
+                dataIndex: 'virtualCores',
+                render (text, record) {
                     return record.virtualCores;
                 },
-                width: "150px"
+                width: '150px'
             },
             {
-                title: "usedVirtualCores",
-                dataIndex: "usedVirtualCores",
-                render(text, record) {
+                title: 'usedVirtualCores',
+                dataIndex: 'usedVirtualCores',
+                render (text, record) {
                     return record.usedVirtualCores;
                 },
-                width: "170px"
+                width: '170px'
             },
             {
-                title: "memory (M)",
-                dataIndex: "memory",
-                render(text, record) {
+                title: 'memory (M)',
+                dataIndex: 'memory',
+                render (text, record) {
                     return record.memory;
                 },
-                width: "150px"
+                width: '150px'
             },
             {
-                title: "usedMemory (M)",
-                dataIndex: "usedMemory",
-                render(text, record) {
+                title: 'usedMemory (M)',
+                dataIndex: 'usedMemory',
+                render (text, record) {
                     return record.usedMemory;
                 },
-                width: "160px"
+                width: '160px'
             }
         ]
     }
-    initFlinkColumns() {
+    initFlinkColumns () {
         return [
             {
-                title: "freeSlots",
-                dataIndex: "freeSlots",
-                render(text, record) {
+                title: 'freeSlots',
+                dataIndex: 'freeSlots',
+                render (text, record) {
                     return record.freeSlots;
                 },
-                width: "165px"
+                width: '165px'
             },
             {
-                title: "cpuCores",
-                dataIndex: "cpuCores",
-                render(text, record) {
+                title: 'cpuCores',
+                dataIndex: 'cpuCores',
+                render (text, record) {
                     return record.cpuCores;
                 },
-                width: "155px"
+                width: '155px'
             },
             {
-                title: "slotsNumber",
-                dataIndex: "slotsNumber",
-                render(text, record) {
+                title: 'slotsNumber',
+                dataIndex: 'slotsNumber',
+                render (text, record) {
                     return record.slotsNumber;
                 },
-                width: "175px"
+                width: '175px'
             },
             {
-                title: "freeMemory (M)",
-                dataIndex: "freeMemory",
-                render(text, record) {
+                title: 'freeMemory (M)',
+                dataIndex: 'freeMemory',
+                render (text, record) {
                     return record.freeMemory;
                 },
-                width: "190px"
+                width: '190px'
             },
             {
-                title: "physicalMemory (M)",
-                dataIndex: "physicalMemory",
-                render(text, record) {
+                title: 'physicalMemory (M)',
+                dataIndex: 'physicalMemory',
+                render (text, record) {
                     return record.physicalMemory;
                 },
-                width: "240px"
+                width: '240px'
             }
         ]
     }
-    render() {
+    render () {
         const { selectHack } = this.state;
         const columnsYarn = this.initYarnColumns();
         const columnsFlink = this.initFlinkColumns();
@@ -160,7 +159,7 @@ class Resource extends Component {
                     width="600"
                     className="m-card"
                     footer={[
-                        <Button key="submit" type="primary" size="large"  onClick={this.props.onCancel}>
+                        <Button key="submit" type="primary" size="large" onClick={this.props.onCancel}>
                         关闭
                         </Button>
                     ]}
@@ -170,7 +169,7 @@ class Resource extends Component {
                         {...formItemLayout}
                     >
                         <Select
-                            style={{ width: "100%" }}
+                            style={{ width: '100%' }}
                             onChange={this.changeCluster.bind(this)}
                             placeholder="请选择集群"
                             value={this.state.clusterName}
@@ -184,7 +183,7 @@ class Resource extends Component {
                     </Form.Item>
                     <Table
                         className="m-table"
-                        style={{ margin: "0px 20px", marginTop: "30px" }}
+                        style={{ margin: '0px 20px', marginTop: '30px' }}
                         columns={columnsYarn}
                         pagination={false}
                         dataSource={yarnListSource}
@@ -192,7 +191,7 @@ class Resource extends Component {
                     />
                     <Table
                         className="m-table"
-                        style={{ margin: "0px 20px", marginTop: "30px" }}
+                        style={{ margin: '0px 20px', marginTop: '30px' }}
                         columns={columnsFlink}
                         pagination={false}
                         dataSource={flinkListSource}

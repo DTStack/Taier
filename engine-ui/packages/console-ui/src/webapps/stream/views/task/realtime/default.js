@@ -1,22 +1,22 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col } from 'antd'
-import utils from "utils";
+import utils from 'utils';
 
 import * as ModalAction from '../../../store/modules/realtimeTask/modal'
 import { modalAction } from '../../../store/modules/realtimeTask/actionTypes'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 
 class Default extends Component {
-    componentDidMount() {
-        const taskId = utils.getParameterByName("taskId")
+    componentDidMount () {
+        const taskId = utils.getParameterByName('taskId')
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
         }
     }
-    render() {
+    render () {
         const { dispatch, editor } = this.props;
-        const themeDark = editor.options.theme !== "vs" ? true : undefined;
+        const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const iconBaseUrl = themeDark ? '/public/stream/img/theme-dark' : '/public/rdos/img';
 
         return (
@@ -33,7 +33,7 @@ class Default extends Component {
                         onClick={() => { dispatch(ModalAction.updateModal(modalAction.ADD_RES_VISIBLE)) }}
                         className="operation-content">
                         <img src={`${iconBaseUrl}/upload_res.png`} className="anticon" />
-                            <p className="txt-center operation-title">上传资源</p>
+                        <p className="txt-center operation-title">上传资源</p>
                     </div>
                 </Col>
             </Row>
@@ -43,6 +43,6 @@ class Default extends Component {
 export default connect(state => {
     return {
         project: state.project,
-        editor: state.editor,
+        editor: state.editor
     }
 })(Default)

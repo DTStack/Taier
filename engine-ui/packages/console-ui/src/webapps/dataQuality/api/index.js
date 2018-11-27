@@ -13,23 +13,23 @@ export default {
      * @param { Intager } type  2:unread, 3:allread
      * @param { Object } params 分页 { currentPage, pageSize }
      */
-    getMessage(params) {
+    getMessage (params) {
         return http.post(req.MASSAGE_QUERY, params)
     },
 
-    getMsgById(params) {
+    getMsgById (params) {
         return http.post(req.GET_MASSAGE_BY_ID, params)
     },
 
-    markAsRead(params) {
+    markAsRead (params) {
         return http.post(req.MASSAGE_MARK_AS_READ, params)
     },
 
-    markAsAllRead(params) {
+    markAsAllRead (params) {
         return http.post(req.MASSAGE_MARK_AS_ALL_READ, params)
     },
 
-    deleteMsgs(params) {
+    deleteMsgs (params) {
         return http.post(req.MASSAGE_DELETE, params)
     }
 

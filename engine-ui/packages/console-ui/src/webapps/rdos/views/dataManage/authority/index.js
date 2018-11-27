@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Input, Button, Table, Form,
-    message, Checkbox,Card, Select,
-    Tabs, DatePicker,Spin,Tooltip
+    message, Checkbox, Card, Select,
+    Tabs, DatePicker, Spin, Tooltip
 } from 'antd';
 
-import { Link,hashHistory } from 'react-router';
+import { Link, hashHistory } from 'react-router';
 import { parse } from 'qs';
 import moment from 'moment';
 
@@ -20,7 +20,6 @@ const Option = Select.Option
 const TabPane = Tabs.TabPane
 const { RangePicker } = DatePicker;
 
-
 const ROUTER_BASE = '/data-manage/table';
 
 const applyStatus = (status) => {
@@ -28,11 +27,11 @@ const applyStatus = (status) => {
         return <span>待审批</span>
     } else if (status === 1) {
         return <span>已通过</span>
-    }else if(status === 2){
+    } else if (status === 2) {
         return <span>未通过</span>
-    }else if(status === 3){
+    } else if (status === 3) {
         return <span>已过期</span>
-    }else if(status === 4){
+    } else if (status === 4) {
         return <span>已撤销</span>
     }
 }
@@ -46,26 +45,25 @@ const revokeStatus = (status) => {
 }
 
 const selectStatusList = [
-    {status:0,value: "待审批"},
-    {status:1,value: "已通过"},
-    {status:2,value: "未通过"},
-    {status:3,value: "已过期"},
-    {status:4,value: "已撤销"}
+    { status: 0, value: '待审批' },
+    { status: 1, value: '已通过' },
+    { status: 2, value: '未通过' },
+    { status: 3, value: '已过期' },
+    { status: 4, value: '已撤销' }
 ];
 
 @connect(state => {
     return {
         allProjects: state.allProjects,
-        user: state.user,
+        user: state.user
     }
 })
 class AuthMana extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         const isAdminAbove = this.props.user && this.props.user.isAdminAbove || 0;
-        const isPermission = isAdminAbove==0 ? "1" : "0";
-        const { listType, pageIndex, resourceName, startTime, endTime ,belongProjectId, applyUserId, status } = this.props.location.query;
+        const isPermission = isAdminAbove == 0 ? '1' : '0';
+        const { listType, pageIndex, resourceName, startTime, endTime, belongProjectId, applyUserId, status } = this.props.location.query;
         this.state = {
             isAdminAbove,
             table: [],
@@ -76,8 +74,8 @@ class AuthMana extends Component {
             visible: false,
             isShowPermission: false,
             loading: false,
-            rangeTime: startTime&&endTime&&[moment(Number(startTime)),moment(Number(endTime))]||[],
-            userList:[],
+            rangeTime: startTime && endTime && [moment(Number(startTime)), moment(Number(endTime))] || [],
+            userList: [],
             queryParams: {
                 listType: listType || isPermission,
                 pageIndex: pageIndex || 1,
@@ -87,45 +85,44 @@ class AuthMana extends Component {
                 endTime,
                 belongProjectId,
                 applyUserId,
-                status: status&&[status]||undefined,
+                status: status && [status] || undefined
             },
             permissionParams: {},
-            applyReason: undefined, //申请意见传给子组件
-            reply: undefined, //审批意见
+            applyReason: undefined, // 申请意见传给子组件
+            reply: undefined // 审批意见
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
-        //this.loadCatalogue();
+        // this.loadCatalogue();
         this.getUsersInTenant();
     }
 
-    getUsersInTenant(){
-        ajax.getUsersInTenant().then(res=>{
-            console.log("getUsersInTenant",res);
-            if(res.code === 1){
+    getUsersInTenant () {
+        ajax.getUsersInTenant().then(res => {
+            console.log('getUsersInTenant', res);
+            if (res.code === 1) {
                 this.setState({
                     userList: res.data || []
                 })
             }
-            
         })
     }
 
-    componentWillReceiveProps(nextProps) {
-        if(nextProps.user != this.props.user){
+    componentWillReceiveProps (nextProps) {
+        if (nextProps.user != this.props.user) {
             this.judgmentAauthority(nextProps)
         }
     }
 
     judgmentAauthority = (nextProps) => {
-        let { queryParams,isAdminAbove } = this.state;
-        isAdminAbove = nextProps.user&&nextProps.user.isAdminAbove;
-        const isPermission = isAdminAbove==0 ? "1" : "0";
-        const { listType } = this.props.location.search&&parse(this.props.location.search.substr(1))||{listType: isPermission}
+        let { queryParams, isAdminAbove } = this.state;
+        isAdminAbove = nextProps.user && nextProps.user.isAdminAbove;
+        const isPermission = isAdminAbove == 0 ? '1' : '0';
+        const { listType } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: isPermission }
         queryParams.listType = listType;
-        this.setState({queryParams,isAdminAbove})
+        this.setState({ queryParams, isAdminAbove })
     }
 
     search = () => {
@@ -134,13 +131,13 @@ class AuthMana extends Component {
         const pathname = this.props.location.pathname;
         hashHistory.push({
             pathname,
-            query: queryParams,
+            query: queryParams
         })
         ajax.getApplyList(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
-                    checkAll: false,
+                    checkAll: false
                 })
             }
             this.setState({ loading: false })
@@ -164,7 +161,7 @@ class AuthMana extends Component {
             if (res.code === 1) {
                 message.success('操作成功！')
                 this.setState({
-                    visible: false,
+                    visible: false
                 }, this.search)
             }
         })
@@ -177,7 +174,7 @@ class AuthMana extends Component {
             if (res.code === 1) {
                 message.success('操作成功！')
                 this.setState({
-                    isShowPermission: false,
+                    isShowPermission: false
                 }, this.search)
             }
         })
@@ -201,7 +198,6 @@ class AuthMana extends Component {
         } else {
             message.warning('请勾选要操作的列表')
         }
-
     }
 
     cancelApply = (id) => {
@@ -216,21 +212,21 @@ class AuthMana extends Component {
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
-        const pathname = this.props.location.pathname;        
+        const pathname = this.props.location.pathname;
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
         }
         this.setState({
             queryParams,
-            selectedRowKeys: [],
+            selectedRowKeys: []
         }, this.search)
     }
 
     loadCatalogue = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
-                dataCatalogue: res.data && [res.data],
+                dataCatalogue: res.data && [res.data]
             })
         })
     }
@@ -239,16 +235,16 @@ class AuthMana extends Component {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
-        if(Object.keys(sorter).length > 0){
-            if(sorter.field === "applyTime"){
-                queryParams.sort = sorter.order === "descend" ? "desc" : "asc"
-            }else{
-                queryParams.sortColumn = sorter.order === "descend" ? "gmt_create" : "day"
+        if (Object.keys(sorter).length > 0) {
+            if (sorter.field === 'applyTime') {
+                queryParams.sort = sorter.order === 'descend' ? 'desc' : 'asc'
+            } else {
+                queryParams.sortColumn = sorter.order === 'descend' ? 'gmt_create' : 'day'
             }
         }
         this.setState({
             queryParams,
-            selectedRowKeys: [],
+            selectedRowKeys: []
         }, this.search)
     }
 
@@ -256,8 +252,8 @@ class AuthMana extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 resourceName: e.target.value,
-                pageIndex: 1,
-            }),
+                pageIndex: 1
+            })
         })
     }
 
@@ -277,7 +273,7 @@ class AuthMana extends Component {
         })
     }
 
-    batchApply(agreeApply) {
+    batchApply (agreeApply) {
         const { selectedRowKeys, table } = this.state;
         const editRecord = [];
         if (selectedRowKeys.length > 0) {
@@ -291,22 +287,21 @@ class AuthMana extends Component {
             this.setState({
                 agreeApply,
                 visible: true,
-                editRecord,
+                editRecord
             })
         } else {
             message.warning('请勾选要操作的列表')
         }
     }
 
-
     // 请求数据
     getPermissionData = (record) => {
         ajax.getApplyDetail({
             tableId: record.resourceId,
             tableName: record.resourceName,
-            applyId: record.applyId,
+            applyId: record.applyId
         }).then(res => {
-            if(res.code ===1 ) {
+            if (res.code === 1) {
                 console.log(res.data);
                 const data = res.data;
                 const fullDdls = data.fullDdls;
@@ -364,7 +359,7 @@ class AuthMana extends Component {
                     ids,
                     total,
                     ischeckAll,
-                    idCheckIds,
+                    idCheckIds
                 }
                 this.setState({
                     permissionParams: params
@@ -372,7 +367,7 @@ class AuthMana extends Component {
             }
         })
     }
-   // 通过
+    // 通过
     passClick = (record) => {
         console.log(record);
         this.getPermissionData(record);
@@ -380,8 +375,8 @@ class AuthMana extends Component {
             isShowPermission: true,
             agreeApply: true,
             editRecord: [record],
-            applyReason:record.applyReason,
-            reply: record.reply,
+            applyReason: record.applyReason,
+            reply: record.reply
         });
     }
     // 驳回
@@ -390,69 +385,66 @@ class AuthMana extends Component {
         this.setState({
             isShowPermission: true,
             agreeApply: false,
-            editRecord: [record],
+            editRecord: [record]
         });
     }
-
-
 
     tableFooter = (currentPageData) => {
         const { queryParams } = this.state;
 
         let operation = '';
         switch (queryParams.listType) {
-            case "0": { // 待审批
-                return (
-                    <div className="ant-table-row  ant-table-row-level-0">
-                        <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
-                            <Checkbox
-                                checked={this.state.checkAll}
-                                onChange={this.onCheckAllChange}
-                            >
-                            </Checkbox>
-                        </div>
-                        <div style={{ display: "inline-block", marginLeft: '15px' }}>
-                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, true)}>批量通过</Button>&nbsp;
-                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, false)}>批量驳回</Button>&nbsp;
-                        </div>
+        case '0': { // 待审批
+            return (
+                <div className="ant-table-row  ant-table-row-level-0">
+                    <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
+                        <Checkbox
+                            checked={this.state.checkAll}
+                            onChange={this.onCheckAllChange}
+                        >
+                        </Checkbox>
                     </div>
-                )
-            }
-            case "3": { // 权限回收
-                return (
-                    <div className="ant-table-row  ant-table-row-level-0">
-                        <div style={{ padding: '15px 10px 10px 30px', display: "inline-block" }}>
-                            <Checkbox
-                                checked={this.state.checkAll}
-                                onChange={this.onCheckAllChange}
-                            >
-                            </Checkbox>
-                        </div>
-                        <div style={{ display: "inline-block", marginLeft: '15px' }}>
-                            <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
-                        </div>
+                    <div style={{ display: 'inline-block', marginLeft: '15px' }}>
+                        <Button type="primary" size="small" onClick={this.batchApply.bind(this, true)}>批量通过</Button>&nbsp;
+                        <Button type="primary" size="small" onClick={this.batchApply.bind(this, false)}>批量驳回</Button>&nbsp;
                     </div>
-                ) 
-            }
-            case "1": // 申请记录
-            case "2":  // 已处理
-            default:
-                return null;
+                </div>
+            )
         }
-
+        case '3': { // 权限回收
+            return (
+                <div className="ant-table-row  ant-table-row-level-0">
+                    <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
+                        <Checkbox
+                            checked={this.state.checkAll}
+                            onChange={this.onCheckAllChange}
+                        >
+                        </Checkbox>
+                    </div>
+                    <div style={{ display: 'inline-block', marginLeft: '15px' }}>
+                        <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
+                    </div>
+                </div>
+            )
+        }
+        case '1': // 申请记录
+        case '2': // 已处理
+        default:
+            return null;
+        }
     }
 
-    characterProcess = (text="",maxWidth="300px") => {
-        const style ={overflow: "hidden",
+    characterProcess = (text = '', maxWidth = '300px') => {
+        const style = { overflow: 'hidden',
             maxWidth,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap"}
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap' }
         const content = (
-        <Tooltip title={text} >
-            <div style ={style}>{text}</div>
-        </Tooltip>
+            <Tooltip title={text} >
+                <div style ={style}>{text}</div>
+            </Tooltip>
         )
-       
+
         return content
     }
 
@@ -466,25 +458,25 @@ class AuthMana extends Component {
                 width: 120,
                 key: 'resourceName',
                 dataIndex: 'resourceName',
-                render(text, record) {
+                render (text, record) {
                     return <Link to={`${ROUTER_BASE}/view/${record.resourceId}`}>{text}</Link>
                 }
             },
             {
                 title: '项目名称',
                 key: 'projectName',
-                dataIndex: 'projectName',
+                dataIndex: 'projectName'
             },
             {
                 title: '项目显示名称',
                 key: 'projectAlias',
-                dataIndex: 'projectAlias',
+                dataIndex: 'projectAlias'
             },
             {
                 title: '类型',
                 key: 'resourceType',
                 dataIndex: 'resourceType',
-                render(text) {
+                render (text) {
                     if (text === '0') {
                         return '表'
                     } else if (text === '1') {
@@ -498,225 +490,225 @@ class AuthMana extends Component {
                 title: '申请人',
                 key: 'applyUser',
                 dataIndex: 'applyUser'
-            },
+            }
         ];
 
         switch (queryParams.listType) {
-            case "0": { // 待审批
-                return baseCols.concat(
-                    [
-                        {
-                            title: '申请时间',
-                            key: 'applyTime',
-                            dataIndex: 'applyTime',
-                            sorter:true,
-                            render(text, record) {
-                                return utils.formatDateTime(text)
-                            }
-                        },
-                        {
-                            title: '有效期',
-                            key: 'day',
-                            dataIndex: 'day',
-                            render(text, record) {
-                                return `${text}天`
-                            }
-                        },
-                        {
-                            title: '申请原因',
-                            key: 'applyReason',
-                            dataIndex: 'applyReason',
-                            width: "100px",
-                            render : text => this.characterProcess(text,"100px"),
-                        },
-                        {
-                            title: '操作',
-                            key: 'id',
-                            width: 120,
-                            render(text, record) {
-                                return <span>
-                                    <a onClick={() => ctx.passClick(record)}>通过</a>
-                                    <span className="ant-divider"></span>
-                                    <a onClick={() => ctx.rejectClick(record)}>驳回</a>
-                                </span>
-                            }
+        case '0': { // 待审批
+            return baseCols.concat(
+                [
+                    {
+                        title: '申请时间',
+                        key: 'applyTime',
+                        dataIndex: 'applyTime',
+                        sorter: true,
+                        render (text, record) {
+                            return utils.formatDateTime(text)
                         }
-                    ]
-                )
-            }
+                    },
+                    {
+                        title: '有效期',
+                        key: 'day',
+                        dataIndex: 'day',
+                        render (text, record) {
+                            return `${text}天`
+                        }
+                    },
+                    {
+                        title: '申请原因',
+                        key: 'applyReason',
+                        dataIndex: 'applyReason',
+                        width: '100px',
+                        render: text => this.characterProcess(text, '100px')
+                    },
+                    {
+                        title: '操作',
+                        key: 'id',
+                        width: 120,
+                        render (text, record) {
+                            return <span>
+                                <a onClick={() => ctx.passClick(record)}>通过</a>
+                                <span className="ant-divider"></span>
+                                <a onClick={() => ctx.rejectClick(record)}>驳回</a>
+                            </span>
+                        }
+                    }
+                ]
+            )
+        }
 
-            case "1": {  // 申请记录 
-                return baseCols.concat(
-                    [
-                        {
-                            title: '申请时间',
-                            key: 'applyTime',
-                            dataIndex: 'applyTime',
-                            sorter: true,
-                            render(text, record) {
-                                return utils.formatDateTime(text)
-                            }
-                        },
-                        {
-                            title: '有效期',
-                            key: 'day',
-                            dataIndex: 'day',
-                            render(text, record) {
-                                return `${text}天`
-                            }
-                        },
-                        {
-                            title: '状态',
-                            key: 'applyStatus',
-                            dataIndex: 'applyStatus',
-                            render(status) {
-                                return applyStatus(status);
-                            }
-                        },
-                        {
-                            title: '收回状态',
-                            key: 'isRevoke',
-                            dataIndex: 'isRevoke',
-                            render(status) {
-                                return revokeStatus(status);
-                            }
-                        },
-                        // {
-                        //     title: '申请详情',
-                        //     key: 'applyReason',
-                        //     dataIndex: 'applyReason',
-                        //     width:"100px",
-                        //     render : text => this.characterProcess(text,"100px"),
-                        // },
-                        {
-                            title: '操作',
-                            key: 'operation',
-                            dataIndex: 'applyStatus',
-                            width: 120,
-                            render(text, record) {
-                                return <span>
-                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                                    <span className="ant-divider"></span>
-                                    {
-                                        text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : "撤销"
-                                    }
-                                </span>
-                            }
+        case '1': { // 申请记录
+            return baseCols.concat(
+                [
+                    {
+                        title: '申请时间',
+                        key: 'applyTime',
+                        dataIndex: 'applyTime',
+                        sorter: true,
+                        render (text, record) {
+                            return utils.formatDateTime(text)
                         }
-                    ]
-                )
-            }
-            case "2": {  // 已处理 
-                return baseCols.concat(
-                    [
-                        {
-                            title: '申请时间',
-                            key: 'applyTime',
-                            dataIndex: 'applyTime',
-                            sorter:true,
-                            render(text, record) {
-                                return utils.formatDateTime(text)
-                            }
-                        },
-                        {
-                            title: '有效期',
-                            key: 'day',
-                            dataIndex: 'day',
-                            render(text, record) {
-                                return `${text}天`
-                            }
-                        },
-                        {
-                            title: '状态',
-                            key: 'applyStatus',
-                            dataIndex: 'applyStatus',
-                            render(status) {
-                                return applyStatus(status);
-                            }
-                        },
-                        {
-                            title: '收回状态',
-                            key: 'isRevoke',
-                            dataIndex: 'isRevoke',
-                            render(status) {
-                                return revokeStatus(status);
-                            }
-                        },
-                        {
-                            title: '审批人',
-                            key: 'dealUser',
-                            dataIndex: 'dealUser',
-                        },
-                        // {
-                        //     title: '审批意见',
-                        //     key: 'reply',
-                        //     dataIndex: 'reply',
-                        //     width:"100px",
-                        //     render : text => this.characterProcess(text,"100px"),
-                        // },
-                        {
-                            title: '操作',
-                            key: 'operation',
-                            width:"100px",
-                            render(record) {
-                                return <span>
-                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                                </span>
-                            }
+                    },
+                    {
+                        title: '有效期',
+                        key: 'day',
+                        dataIndex: 'day',
+                        render (text, record) {
+                            return `${text}天`
                         }
-                    ]
-                )
-            }
-            case "3": {  // 权限回收 
-                return baseCols.concat(
-                    [
-                        {
-                            title: '审批结果',
-                            key: 'applyStatus',
-                            dataIndex: 'applyStatus',
-                            render(status) {
-                                return applyStatus(status);
-                            }
-                        },
-                        {
-                            title: '审批意见',
-                            key: 'reply',
-                            dataIndex: 'reply',
-                            width:"100px",
-                            render : text => this.characterProcess(text,"100px"),
-                        },
-                        {
-                            title: '处理时间',
-                            key: 'handTime',
-                            dataIndex: 'handTime',
-                            render(text, record) {
-                                return utils.formatDateTime(text)
-                            }
-                        },
-                        {
-                            title: '操作',
-                            key: 'id',
-                            width: 120,
-                            render(text, record) {
-                                return <span>
-                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                                    <span className="ant-divider"></span>
-                                    <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
-                                </span>
-                            }
+                    },
+                    {
+                        title: '状态',
+                        key: 'applyStatus',
+                        dataIndex: 'applyStatus',
+                        render (status) {
+                            return applyStatus(status);
                         }
-                    ]
-                )
-            }
-            default:
-                return [];
+                    },
+                    {
+                        title: '收回状态',
+                        key: 'isRevoke',
+                        dataIndex: 'isRevoke',
+                        render (status) {
+                            return revokeStatus(status);
+                        }
+                    },
+                    // {
+                    //     title: '申请详情',
+                    //     key: 'applyReason',
+                    //     dataIndex: 'applyReason',
+                    //     width:"100px",
+                    //     render : text => this.characterProcess(text,"100px"),
+                    // },
+                    {
+                        title: '操作',
+                        key: 'operation',
+                        dataIndex: 'applyStatus',
+                        width: 120,
+                        render (text, record) {
+                            return <span>
+                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                <span className="ant-divider"></span>
+                                {
+                                    text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : '撤销'
+                                }
+                            </span>
+                        }
+                    }
+                ]
+            )
+        }
+        case '2': { // 已处理
+            return baseCols.concat(
+                [
+                    {
+                        title: '申请时间',
+                        key: 'applyTime',
+                        dataIndex: 'applyTime',
+                        sorter: true,
+                        render (text, record) {
+                            return utils.formatDateTime(text)
+                        }
+                    },
+                    {
+                        title: '有效期',
+                        key: 'day',
+                        dataIndex: 'day',
+                        render (text, record) {
+                            return `${text}天`
+                        }
+                    },
+                    {
+                        title: '状态',
+                        key: 'applyStatus',
+                        dataIndex: 'applyStatus',
+                        render (status) {
+                            return applyStatus(status);
+                        }
+                    },
+                    {
+                        title: '收回状态',
+                        key: 'isRevoke',
+                        dataIndex: 'isRevoke',
+                        render (status) {
+                            return revokeStatus(status);
+                        }
+                    },
+                    {
+                        title: '审批人',
+                        key: 'dealUser',
+                        dataIndex: 'dealUser'
+                    },
+                    // {
+                    //     title: '审批意见',
+                    //     key: 'reply',
+                    //     dataIndex: 'reply',
+                    //     width:"100px",
+                    //     render : text => this.characterProcess(text,"100px"),
+                    // },
+                    {
+                        title: '操作',
+                        key: 'operation',
+                        width: '100px',
+                        render (record) {
+                            return <span>
+                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                            </span>
+                        }
+                    }
+                ]
+            )
+        }
+        case '3': { // 权限回收
+            return baseCols.concat(
+                [
+                    {
+                        title: '审批结果',
+                        key: 'applyStatus',
+                        dataIndex: 'applyStatus',
+                        render (status) {
+                            return applyStatus(status);
+                        }
+                    },
+                    {
+                        title: '审批意见',
+                        key: 'reply',
+                        dataIndex: 'reply',
+                        width: '100px',
+                        render: text => this.characterProcess(text, '100px')
+                    },
+                    {
+                        title: '处理时间',
+                        key: 'handTime',
+                        dataIndex: 'handTime',
+                        render (text, record) {
+                            return utils.formatDateTime(text)
+                        }
+                    },
+                    {
+                        title: '操作',
+                        key: 'id',
+                        width: 120,
+                        render (text, record) {
+                            return <span>
+                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                <span className="ant-divider"></span>
+                                <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
+                            </span>
+                        }
+                    }
+                ]
+            )
+        }
+        default:
+            return [];
         }
     }
 
     onChangeTime = (date, dateString) => {
         const { queryParams } = this.state;
-        const startTime = dateString&&Date.parse(dateString[0])||undefined;
-        const endTime = dateString&&Date.parse(dateString[1])||undefined;
+        const startTime = dateString && Date.parse(dateString[0]) || undefined;
+        const endTime = dateString && Date.parse(dateString[1]) || undefined;
         queryParams.startTime = startTime;
         queryParams.endTime = endTime;
         this.setState({
@@ -725,7 +717,7 @@ class AuthMana extends Component {
     };
 
     renderPane = (isShowRowSelection = false) => {
-        const { table, selectedRowKeys, queryParams, rangeTime, loading, userList, } = this.state;
+        const { table, selectedRowKeys, queryParams, rangeTime, loading, userList } = this.state;
 
         const { allProjects } = this.props;
 
@@ -758,8 +750,8 @@ class AuthMana extends Component {
         >
             {v.value}
         </Option>)
-        console.log('rangeTime',rangeTime);
-    
+        console.log('rangeTime', rangeTime);
+
         const title = (
             <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
                 <FormItem label="项目">
@@ -776,12 +768,12 @@ class AuthMana extends Component {
                     </Select>
                 </FormItem>
                 {
-                     queryParams.listType == 1 ? "" : <FormItem label="申请人">
+                    queryParams.listType == 1 ? '' : <FormItem label="申请人">
                         <Select
                             allowClear
                             showSearch
                             optionFilterProp="name"
-                            style={{ width: 126}}
+                            style={{ width: 126 }}
                             placeholder="选择申请人"
                             value={queryParams.applyUserId}
                             onChange={(value) => this.changeParams('applyUserId', value)}
@@ -791,19 +783,19 @@ class AuthMana extends Component {
                     </FormItem>
                 }
                 {
-                    queryParams.listType == 0||queryParams.listType == 3 ? "" : <FormItem label="状态">
-                            <Select
-                                allowClear
-                                showSearch
-                                optionFilterProp="status"
-                                style={{ width: 126 }}
-                                placeholder="选择状态"
-                                value={queryParams.status}
-                                onChange={(value) => this.changeParams('status', value ? [value] : undefined)}
-                            >
-                                {selectStatus}
-                            </Select>
-                        </FormItem>
+                    queryParams.listType == 0 || queryParams.listType == 3 ? '' : <FormItem label="状态">
+                        <Select
+                            allowClear
+                            showSearch
+                            optionFilterProp="status"
+                            style={{ width: 126 }}
+                            placeholder="选择状态"
+                            value={queryParams.status}
+                            onChange={(value) => this.changeParams('status', value ? [value] : undefined)}
+                        >
+                            {selectStatus}
+                        </Select>
+                    </FormItem>
                 }
                 <FormItem>
                     <Input.Search
@@ -816,11 +808,11 @@ class AuthMana extends Component {
                     />
                 </FormItem>
                 <FormItem label="申请时间">
-                    <RangePicker 
-                        onChange={this.onChangeTime} 
-                        format="YYYY-MM-DD HH:mm:ss" 
-                        value={rangeTime} 
-                        ranges={{ Today: [moment(today0), moment(today24)]}}
+                    <RangePicker
+                        onChange={this.onChangeTime}
+                        format="YYYY-MM-DD HH:mm:ss"
+                        value={rangeTime}
+                        ranges={{ Today: [moment(today0), moment(today24)] }}
                     />
                 </FormItem>
             </Form>
@@ -835,9 +827,9 @@ class AuthMana extends Component {
 
         const rowSelection = isShowRowSelection ? {
             selectedRowKeys,
-            onChange: this.onSelectChange,
+            onChange: this.onSelectChange
         } : null;
-        const selectCalssName = isShowRowSelection ? "m-table-fix m-table" : "m-table"
+        const selectCalssName = isShowRowSelection ? 'm-table-fix m-table' : 'm-table'
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
                 <Card noHovering bordered={false} title={title} className="full-screen-table-80">
@@ -860,119 +852,119 @@ class AuthMana extends Component {
         </div>
     }
 
-    render() {
-        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission, permissionParams, applyReason, reply} = this.state;
+    render () {
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission, permissionParams, applyReason, reply } = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
                     activeKey={queryParams.listType}
-                    animated={false} 
-                    style={{height: 'auto'}} 
+                    animated={false}
+                    style={{ height: 'auto' }}
                     onChange={value => this.changeParams('listType', value)}
 
                 >
                     {
-                        isAdminAbove == 0 ? "" : <TabPane tab="待我审批" key={0}>
-                                                    {this.renderPane(true)}
-                                                    <ApprovalModal 
-                                                        visible={visible}
-                                                        agreeApply={agreeApply}
-                                                        table={editRecord}
-                                                        onOk={this.approveApply}
-                                                        onCancel={() => {
-                                                            this.setState({
-                                                                visible: false,
-                                                                agreeApply: undefined,
-                                                                editRecord: [],
-                                                            })
-                                                        }}
-                                                    />
-                                                    <DetailPermission
-                                                        visible={isShowPermission}
-                                                        agreeApply={agreeApply}
-                                                        table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
-                                                        listType={queryParams.listType}
-                                                        onOk={this.approveApplySingle}
-                                                        onCancel={() => {
-                                                            this.setState({
-                                                                isShowPermission: false,
-                                                                agreeApply: undefined,
-                                                                editRecord: [],
-                                                            })
-                                                        }}
-                                                    >
-                                                    </DetailPermission>
-                                                </TabPane> 
+                        isAdminAbove == 0 ? '' : <TabPane tab="待我审批" key={0}>
+                            {this.renderPane(true)}
+                            <ApprovalModal
+                                visible={visible}
+                                agreeApply={agreeApply}
+                                table={editRecord}
+                                onOk={this.approveApply}
+                                onCancel={() => {
+                                    this.setState({
+                                        visible: false,
+                                        agreeApply: undefined,
+                                        editRecord: []
+                                    })
+                                }}
+                            />
+                            <DetailPermission
+                                visible={isShowPermission}
+                                agreeApply={agreeApply}
+                                table={editRecord}
+                                applyReason={applyReason}
+                                reply={reply}
+                                permissionParams={permissionParams}
+                                listType={queryParams.listType}
+                                onOk={this.approveApplySingle}
+                                onCancel={() => {
+                                    this.setState({
+                                        isShowPermission: false,
+                                        agreeApply: undefined,
+                                        editRecord: []
+                                    })
+                                }}
+                            >
+                            </DetailPermission>
+                        </TabPane>
                     }
-                    {    
-                       isAdminAbove == 2 ? "" : <TabPane tab="申请记录" key={1}>
-                                                    {this.renderPane()}
-                                                    <DetailPermission
-                                                        visible={isShowPermission}
-                                                        table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
-                                                        listType={queryParams.listType}
-                                                        onOk={this.approveApplySingle}
-                                                        onCancel={() => {
-                                                            this.setState({
-                                                                isShowPermission: false,
-                                                                agreeApply: undefined,
-                                                                editRecord: [],
-                                                            })
-                                                        }}
-                                                    >
-                                                    </DetailPermission>
-                                                </TabPane>
+                    {
+                        isAdminAbove == 2 ? '' : <TabPane tab="申请记录" key={1}>
+                            {this.renderPane()}
+                            <DetailPermission
+                                visible={isShowPermission}
+                                table={editRecord}
+                                applyReason={applyReason}
+                                reply={reply}
+                                permissionParams={permissionParams}
+                                listType={queryParams.listType}
+                                onOk={this.approveApplySingle}
+                                onCancel={() => {
+                                    this.setState({
+                                        isShowPermission: false,
+                                        agreeApply: undefined,
+                                        editRecord: []
+                                    })
+                                }}
+                            >
+                            </DetailPermission>
+                        </TabPane>
 
                     }
                     {
-                        isAdminAbove == 0 ? "" : <TabPane tab="已处理" key={2}>
-                                                    {this.renderPane()}
-                                                    <DetailPermission
-                                                        visible={isShowPermission}
-                                                        table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
-                                                        listType={queryParams.listType}
-                                                        onOk={this.approveApplySingle}
-                                                        onCancel={() => {
-                                                            this.setState({
-                                                                isShowPermission: false,
-                                                                agreeApply: undefined,
-                                                                editRecord: [],
-                                                            })
-                                                        }}
-                                                    >
-                                                    </DetailPermission>
-                                                </TabPane> 
+                        isAdminAbove == 0 ? '' : <TabPane tab="已处理" key={2}>
+                            {this.renderPane()}
+                            <DetailPermission
+                                visible={isShowPermission}
+                                table={editRecord}
+                                applyReason={applyReason}
+                                reply={reply}
+                                permissionParams={permissionParams}
+                                listType={queryParams.listType}
+                                onOk={this.approveApplySingle}
+                                onCancel={() => {
+                                    this.setState({
+                                        isShowPermission: false,
+                                        agreeApply: undefined,
+                                        editRecord: []
+                                    })
+                                }}
+                            >
+                            </DetailPermission>
+                        </TabPane>
                     }
                     {
-                        isAdminAbove == 0 ? "" : <TabPane tab="权限回收" key={3}>
-                                                    {this.renderPane(true)}
-                                                    <DetailPermission
-                                                        visible={isShowPermission}
-                                                        table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
-                                                        listType={queryParams.listType}
-                                                        onOk={this.approveApplySingle}
-                                                        onCancel={() => {
-                                                            this.setState({
-                                                                isShowPermission: false,
-                                                                agreeApply: undefined,
-                                                                editRecord: [],
-                                                            })
-                                                        }}
-                                                    >
-                                                    </DetailPermission>
-                                                </TabPane> 
+                        isAdminAbove == 0 ? '' : <TabPane tab="权限回收" key={3}>
+                            {this.renderPane(true)}
+                            <DetailPermission
+                                visible={isShowPermission}
+                                table={editRecord}
+                                applyReason={applyReason}
+                                reply={reply}
+                                permissionParams={permissionParams}
+                                listType={queryParams.listType}
+                                onOk={this.approveApplySingle}
+                                onCancel={() => {
+                                    this.setState({
+                                        isShowPermission: false,
+                                        agreeApply: undefined,
+                                        editRecord: []
+                                    })
+                                }}
+                            >
+                            </DetailPermission>
+                        </TabPane>
                     }
                 </Tabs>
             </div>

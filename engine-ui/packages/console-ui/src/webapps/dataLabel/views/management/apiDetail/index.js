@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
-import { connect } from "react-redux";
-import { Menu, Card, Table, Tabs, Radio, Modal, message } from "antd"
-import { Link } from "react-router";
-import ManageTopCard from "./topCard"
+import { connect } from 'react-redux';
+import { Menu, Card, Table, Tabs, Radio, Modal, message } from 'antd'
+import { Link } from 'react-router';
+import ManageTopCard from './topCard'
 import { apiMarketActions } from '../../../actions/apiMarket';
 import { apiManageActions } from '../../../actions/apiManage';
-import { EXCHANGE_ADMIN_API_STATUS } from "../../../consts"
-import ManageErrorLog from "./tabPanes/errorLog"
-import ApiManageCallState from "./tabPanes/callState"
-import BuyManageState from "./tabPanes/buyState"
+import { EXCHANGE_ADMIN_API_STATUS } from '../../../consts'
+import ManageErrorLog from './tabPanes/errorLog'
+import ApiManageCallState from './tabPanes/callState'
+import BuyManageState from './tabPanes/buyState'
 
 const confirm = Modal.confirm;
 const RadioButton = Radio.Button;
@@ -20,28 +20,28 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(apiId) {
+    getApiDetail (apiId) {
         dispatch(
             apiMarketActions.getApiDetail({
                 apiId: apiId
             })
         )
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo (apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId,
-                useAdmin:true
+                useAdmin: true
             })
         )
     },
-    deleteApi(apiId) {
+    deleteApi (apiId) {
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(apiId) {
+    openApi (apiId) {
         return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(apiId) {
+    closeApi (apiId) {
         return dispatch(apiManageActions.closeApi(apiId));
     }
 });
@@ -50,184 +50,172 @@ const mapDispatchToProps = dispatch => ({
 class APIManageDetail extends Component {
     state = {
         apiId: '',
-        nowView: "callState",
+        nowView: 'callState',
         callStateDate: '1',
-        errorLogDate: '7',
+        errorLogDate: '7'
 
     }
-    //删除api
-    deleteApi() {
+    // 删除api
+    deleteApi () {
         let apiId = this.state.apiId;
         confirm({
             title: '确认删除该标签？',
             onOk: () => {
-
                 this.props.deleteApi(apiId)
                     .then(
                         (res) => {
                             if (res) {
-                                message.success("删除成功")
+                                message.success('删除成功')
                                 this.getApiExtInfo();
-
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
-
     }
-    openApi() {
+    openApi () {
         let apiId = this.state.apiId;
         confirm({
             title: '确认开启该标签？',
             onOk: () => {
-
                 this.props.openApi(apiId)
                     .then(
                         (res) => {
-
-                            message.success("开启成功")
+                            message.success('开启成功')
                             if (res) {
                                 this.getApiExtInfo();
-                                
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    closeApi() {
+    closeApi () {
         let apiId = this.state.apiId;
         confirm({
             title: '确认禁用该标签？',
             onOk: () => {
-
                 this.props.closeApi(apiId)
                     .then(
                         (res) => {
-
-                            message.success("禁用成功")
+                            message.success('禁用成功')
                             if (res) {
                                 this.getApiExtInfo();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    getApiExtInfo() {
+    getApiExtInfo () {
         this.props.getApiExtInfo(this.state.apiId)
     }
-    componentDidMount() {
+    componentDidMount () {
         const apiId = this.props.router.params && this.props.router.params.api;
         if (apiId) {
             this.setState({
                 apiId: apiId
             },
-                () => {
-                    this.getApiExtInfo();
-                })
+            () => {
+                this.getApiExtInfo();
+            })
         }
-
     }
-    callback(key) {
+    callback (key) {
         console.log(key)
         this.setState({
             nowView: key
         })
     }
-    chooseCallStateDate(e) {
+    chooseCallStateDate (e) {
         this.setState({
             callStateDate: e.target.value
         });
     }
-    chooseErrorLogDate(e) {
+    chooseErrorLogDate (e) {
         this.setState({
             errorLogDate: e.target.value
         });
     }
-    getValue(key) {
+    getValue (key) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.state.apiId];
         if (api) {
             return api[key]
         } else {
             return null;
         }
-
     }
-    getDateTypeView() {
+    getDateTypeView () {
         switch (this.state.nowView) {
-            case "callState":
-                return (
-                    <div
-                        className="m-radio-group"
-                        key="callStateDate"
-                        style={{ marginTop: "4px", marginRight: "8px" }}
+        case 'callState':
+            return (
+                <div
+                    className="m-radio-group"
+                    key="callStateDate"
+                    style={{ marginTop: '4px', marginRight: '8px' }}
+                >
+                    <RadioGroup
+
+                        name="callStateDate"
+                        defaultValue={this.state.callStateDate}
+                        className="no-bd nobackground"
+                        onChange={this.chooseCallStateDate.bind(this)}
                     >
-                        <RadioGroup
+                        <RadioButton value='1'>最近24小时</RadioButton>
+                        <RadioButton value='7'>最近7天</RadioButton>
+                        <RadioButton value='30'>最近30天</RadioButton>
+                        <RadioButton value='-1'>历史以来</RadioButton>
+                    </RadioGroup>
+                </div>
+            );
+        case 'errorLog':
+            return (
+                <div
+                    className="m-radio-group"
+                    key="errorLogDate"
+                    style={{ marginTop: '4px', marginRight: '8px' }}
+                >
+                    <RadioGroup
 
-                            name="callStateDate"
-                            defaultValue={this.state.callStateDate}
-                            className="no-bd nobackground"
-                            onChange={this.chooseCallStateDate.bind(this)}
-                        >
-                            <RadioButton value='1'>最近24小时</RadioButton>
-                            <RadioButton value='7'>最近7天</RadioButton>
-                            <RadioButton value='30'>最近30天</RadioButton>
-                            <RadioButton value='-1'>历史以来</RadioButton>
-                        </RadioGroup>
-                    </div>
-                );
-            case "errorLog":
-                return (
-                    <div
-                        className="m-radio-group"
-                        key="errorLogDate"
-                        style={{ marginTop: "4px", marginRight: "8px" }}
+                        name="errorLogDate"
+                        defaultValue={this.state.errorLogDate}
+                        className="no-bd nobackground"
+                        onChange={this.chooseErrorLogDate.bind(this)}
                     >
-                        <RadioGroup
-
-                            name="errorLogDate"
-                            defaultValue={this.state.errorLogDate}
-                            className="no-bd nobackground"
-                            onChange={this.chooseErrorLogDate.bind(this)}
-                        >
-                            <RadioButton value='7'>最近7天</RadioButton>
-                        </RadioGroup>
-                    </div>
-                );
-            default:
-                return null;
-
+                        <RadioButton value='7'>最近7天</RadioButton>
+                    </RadioGroup>
+                </div>
+            );
+        default:
+            return null;
         }
-
     }
-    render() {
-        let status=EXCHANGE_ADMIN_API_STATUS[this.getValue('status')];
+    render () {
+        let status = EXCHANGE_ADMIN_API_STATUS[this.getValue('status')];
         let isDisAble;
-        if(status=="stop"){
-            isDisAble=true;
+        if (status == 'stop') {
+            isDisAble = true;
         }
-        
+
         return (
             <div>
-                <ManageTopCard  {...this.state} {...this.props}
+                <ManageTopCard {...this.state} {...this.props}
                     deleteApi={this.deleteApi.bind(this)}
                     openApi={this.openApi.bind(this)}
                     closeApi={this.closeApi.bind(this)}
                 ></ManageTopCard>
                 <div className="tabs-box m-tabs noheight tabs-filter-show">
                     <Tabs
-                    
+
                         defaultActiveKey={this.state.nowView}
                         onChange={this.callback.bind(this)}
                         tabBarExtraContent={this.getDateTypeView()}

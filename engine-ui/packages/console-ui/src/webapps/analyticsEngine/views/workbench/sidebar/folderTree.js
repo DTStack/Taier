@@ -6,45 +6,44 @@ import MyIcon from '../../../components/icon';
 
 const TreeNode = Tree.TreeNode;
 
-const getItemClassName = function(type) {
-    switch(type) {
-        case CATALOGUE_TYPE.DATA_BASE:
-            return 's-database anchor-database';
-        case CATALOGUE_TYPE.DATA_MAP:
-            return 's-datamap anchor-datamap';
-        case CATALOGUE_TYPE.TABLE:
-            return 's-table anchor-table';
-        case CATALOGUE_TYPE.FOLDER:
-        default: return 's-tree-item anchor-tree-item';
+const getItemClassName = function (type) {
+    switch (type) {
+    case CATALOGUE_TYPE.DATA_BASE:
+        return 's-database anchor-database';
+    case CATALOGUE_TYPE.DATA_MAP:
+        return 's-datamap anchor-datamap';
+    case CATALOGUE_TYPE.TABLE:
+        return 's-table anchor-table';
+    case CATALOGUE_TYPE.FOLDER:
+    default: return 's-tree-item anchor-tree-item';
     }
 }
 
-const getContextMenuAnchorName = function(type) {
-    switch(type) {
-        case CATALOGUE_TYPE.DATA_BASE:
-            return 'anchor-database';
-        case CATALOGUE_TYPE.DATA_MAP:
-            return 'anchor-datamap';
-        case CATALOGUE_TYPE.TABLE:
-            return 'anchor-table';
-        case CATALOGUE_TYPE.FOLDER:
-        default: return 'anchor-tree-item';
+const getContextMenuAnchorName = function (type) {
+    switch (type) {
+    case CATALOGUE_TYPE.DATA_BASE:
+        return 'anchor-database';
+    case CATALOGUE_TYPE.DATA_MAP:
+        return 'anchor-datamap';
+    case CATALOGUE_TYPE.TABLE:
+        return 'anchor-table';
+    case CATALOGUE_TYPE.FOLDER:
+    default: return 'anchor-tree-item';
     }
 }
 
 class FolderTree extends React.PureComponent {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
     }
 
     renderNodeHoverButton = (item) => {
         const { onTableDetail, onGetDataMap, onSQLQuery, onGetDB } = this.props;
-        switch(item.type) {
-            case CATALOGUE_TYPE.DATA_BASE:
+        switch (item.type) {
+        case CATALOGUE_TYPE.DATA_BASE:
             return (
                 <span className="tree-node-hover-items">
-                    <MyIcon type="btn_sql_query" className="tree-node-hover-item" 
+                    <MyIcon type="btn_sql_query" className="tree-node-hover-item"
                         title="SQL查询"
                         style={{ width: 15, height: 15 }}
                         onClick={(e) => {
@@ -52,57 +51,55 @@ class FolderTree extends React.PureComponent {
                             onSQLQuery(item);
                         }}
                     />
-                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
+                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
                         onClick={(e) => {
                             e.stopPropagation();
                             onGetDB({ databaseId: item.id });
                         }
-                    }
+                        }
                     />
                 </span>
             )
-            case CATALOGUE_TYPE.DATA_MAP:
-                return (
-                    <span className="tree-node-hover-items">
-                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o" 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onGetDataMap({ id: item.id });
-                            }}
-                        />
-                    </span>
-                )
-            case CATALOGUE_TYPE.TABLE:
-                return (
-                    <span className="tree-node-hover-items">
-                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
-                            style={{ width: 15, height: 15 }}
-                            title="SQL查询"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onSQLQuery(item);
-                            }}
-                        />
-                        <Icon
-                            className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onTableDetail(item);
-                            }}
-                        />
-                    </span>
-                )
-            case CATALOGUE_TYPE.FOLDER:
-            default: return '';
+        case CATALOGUE_TYPE.DATA_MAP:
+            return (
+                <span className="tree-node-hover-items">
+                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onGetDataMap({ id: item.id });
+                        }}
+                    />
+                </span>
+            )
+        case CATALOGUE_TYPE.TABLE:
+            return (
+                <span className="tree-node-hover-items">
+                    <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                        style={{ width: 15, height: 15 }}
+                        title="SQL查询"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSQLQuery(item);
+                        }}
+                    />
+                    <Icon
+                        className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onTableDetail(item);
+                        }}
+                    />
+                </span>
+            )
+        case CATALOGUE_TYPE.FOLDER:
+        default: return '';
         }
     }
 
     renderNodes = () => {
         const { treeData } = this.props;
         const loop = (data) => {
-
             return data && data.map(item => {
-
                 const id = `${item.id || item.tableId}`
                 const name = item.name || item.tableName
                 const isLeaf = !item.children || item.children.length === 0;
@@ -113,7 +110,7 @@ class FolderTree extends React.PureComponent {
                     <Tooltip placement="bottomLeft" mouseEnterDelay={0.5}>
                         <span
                             title={name}
-                            style={{padding:"8px 0px"}}
+                            style={{ padding: '8px 0px' }}
                         >
                             {name}
                             { this.renderNodeHoverButton(item) }
@@ -142,7 +139,7 @@ class FolderTree extends React.PureComponent {
         return result;
     }
 
-    render() {
+    render () {
         return (
             <div className="s-catalogue">
                 <Tree

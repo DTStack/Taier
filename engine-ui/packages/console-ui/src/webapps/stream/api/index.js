@@ -4,7 +4,7 @@ import utils from 'utils'
 import req from './req'
 import http from './http'
 import stremReq from './reqStrem';
-import {publishType} from "../comm/const";
+import { publishType } from '../comm/const';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''

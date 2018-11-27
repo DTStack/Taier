@@ -19,38 +19,38 @@ const formItemLayoutWithOutLabel = {
 };
 
 export default class TransformModal extends Component {
-
     state = {
-        nameRule: [{id: 1}],
-        columnRule: [{id: 1}],
-        typeRule: [{id: 1}]
+        nameRule: [{ id: 1 }],
+        columnRule: [{ id: 1 }],
+        typeRule: [{ id: 1 }]
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (nextProps.visible && !this.props.visible) {
-            let nameRule = [...this.state.nameRule],
-                columnRule = [...this.state.columnRule],
-                typeRule = [...this.state.typeRule];
+            let nameRule = [...this.state.nameRule];
+
+            let columnRule = [...this.state.columnRule];
+
+            let typeRule = [...this.state.typeRule];
 
             if (nextProps.transformFields.length) {
                 nextProps.transformFields.forEach((item) => {
                     switch (item.convertObject) {
-                        case 1:
-                            nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                            nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                            break;
-                        case 2:
-                            columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                            columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                            break;
-                        case 3:
-                            typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                            typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                            break;
-                        default:
-                            break;
+                    case 1:
+                        nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                        nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                        break;
+                    case 2:
+                        columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                        columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                        break;
+                    case 3:
+                        typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                        typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                        break;
+                    default:
+                        break;
                     }
-
                 });
 
                 // 去除没有数据的空行
@@ -61,24 +61,28 @@ export default class TransformModal extends Component {
                 });
             } else {
                 this.setState({
-                    nameRule: [{id: 1}],
-                    columnRule: [{id: 1}],
-                    typeRule: [{id: 1}]
+                    nameRule: [{ id: 1 }],
+                    columnRule: [{ id: 1 }],
+                    typeRule: [{ id: 1 }]
                 });
             }
-
         }
     }
 
     // 增加设置
     add = (type, id) => {
-        let data = [...this.state[type]],
-            ids  = data.map(item => item.id),
-            newId = Math.max(...ids) + 1,
-            target = data.filter(item => item.id == id)[0],
-            index = data.indexOf(target) + 1,
-            newRule = {};
-        
+        let data = [...this.state[type]];
+
+        let ids = data.map(item => item.id);
+
+        let newId = Math.max(...ids) + 1;
+
+        let target = data.filter(item => item.id == id)[0];
+
+        let index = data.indexOf(target) + 1;
+
+        let newRule = {};
+
         data.splice(index, 0, { id: newId });
         newRule[type] = data;
 
@@ -87,9 +91,11 @@ export default class TransformModal extends Component {
 
     // 移除
     remove = (type, id) => {
-        let data = [...this.state[type]],
-            target = data.filter(item => item.id == id)[0],
-            newRule = {};
+        let data = [...this.state[type]];
+
+        let target = data.filter(item => item.id == id)[0];
+
+        let newRule = {};
 
         data.splice(data.indexOf(target), 1);
         newRule[type] = data;
@@ -109,9 +115,10 @@ export default class TransformModal extends Component {
         form.validateFields((err, values) => {
             // console.log(err,values)
 
-            if(!err) {
-                let leftKeys = [],
-                    fields = [];
+            if (!err) {
+                let leftKeys = [];
+
+                let fields = [];
 
                 // 拿到所有左侧的值
                 for (let [key, value] of Object.entries(values)) {
@@ -121,8 +128,9 @@ export default class TransformModal extends Component {
                 }
 
                 fields = leftKeys.map(key => {
-                    let type,
-                        rightKey = key.replace(/left/, 'right');
+                    let type;
+
+                    let rightKey = key.replace(/left/, 'right');
 
                     if (key.indexOf('nameRule') > -1) {
                         type = 1;
@@ -177,7 +185,7 @@ export default class TransformModal extends Component {
 
     // 选择为空时重置对应item
     handleSelect = (target, value) => {
-        console.log(target,value)
+        console.log(target, value)
         const { form } = this.props;
 
         if (!value && !form.getFieldValue(target)) {
@@ -197,23 +205,23 @@ export default class TransformModal extends Component {
                 let label;
 
                 switch (type) {
-                    case 'nameRule':
-                        label = '表名转换规则';
-                        break;
-                    case 'columnRule':
-                        label = '字段名转换规则';
-                        break;
-                    case 'typeRule':
-                        label = '字段类型转换规则';
-                        break;
-                    default:
-                        break;
+                case 'nameRule':
+                    label = '表名转换规则';
+                    break;
+                case 'columnRule':
+                    label = '字段名转换规则';
+                    break;
+                case 'typeRule':
+                    label = '字段类型转换规则';
+                    break;
+                default:
+                    break;
                 }
 
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>
-                    <FormItem 
+                    <FormItem
                         label={label}
-                        {...formItemLayout} 
+                        {...formItemLayout}
                         style={{ flexBasis: '40%' }}
                         className="cell-center"
                     >
@@ -222,32 +230,31 @@ export default class TransformModal extends Component {
                                 rules: [{
                                     required: form.getFieldValue(`${type}-${item.id}-right`),
                                     message: '需要填充相应规则'
-                                }], 
+                                }],
                                 initialValue: item.left
                             })(
-                                type === 'typeRule' ?
-                                <Select
-                                    allowClear 
-                                    size="large"
-                                    onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
-                                    {
-                                        originTypeTransformRule.map(item => {
-                                            return <Option key={item}>{item}</Option>
-                                        })
-                                    }
-                                </Select>
-                                :
-                                <Input 
-                                    onChange={this.handleInput.bind(this, `${type}-${item.id}-right`)} 
-                                />
+                                type === 'typeRule'
+                                    ? <Select
+                                        allowClear
+                                        size="large"
+                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
+                                        {
+                                            originTypeTransformRule.map(item => {
+                                                return <Option key={item}>{item}</Option>
+                                            })
+                                        }
+                                    </Select>
+                                    : <Input
+                                        onChange={this.handleInput.bind(this, `${type}-${item.id}-right`)}
+                                    />
                             )
                         }
                     </FormItem>
                     <div className="txt-center font-16" style={{ flexBasis: '5%' }}>
                         <Icon type="right" />
                     </div>
-                    <FormItem 
-                        style={{ flexBasis: '40%' }} 
+                    <FormItem
+                        style={{ flexBasis: '40%' }}
                         {...formItemLayoutWithOutLabel}
                         className="cell-center"
                     >
@@ -260,29 +267,28 @@ export default class TransformModal extends Component {
                                     }],
                                     initialValue: item.right
                                 })(
-                                    type === 'typeRule' ?
-                                    <Select 
-                                        allowClear
-                                        size="large" 
-                                        className="col-16"
-                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
-                                        {
-                                            targetTypeTransformRule.map(item => {
-                                                return <Option key={item}>{item}</Option>
-                                            })
-                                        }
-                                    </Select>
-                                    :
-                                    <Input 
-                                        size="large" 
-                                        className="col-16" 
-                                        onChange={this.handleInput.bind(this, `${type}-${item.id}-left`)}
-                                    />
+                                    type === 'typeRule'
+                                        ? <Select
+                                            allowClear
+                                            size="large"
+                                            className="col-16"
+                                            onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
+                                            {
+                                                targetTypeTransformRule.map(item => {
+                                                    return <Option key={item}>{item}</Option>
+                                                })
+                                            }
+                                        </Select>
+                                        : <Input
+                                            size="large"
+                                            className="col-16"
+                                            onChange={this.handleInput.bind(this, `${type}-${item.id}-left`)}
+                                        />
                                 )
                             }
-                            <Icon 
-                                type="plus-circle-o" 
-                                className="edit-icon m-l-8" 
+                            <Icon
+                                type="plus-circle-o"
+                                className="edit-icon m-l-8"
                                 onClick={this.add.bind(this, type, item.id)}
                             />
                         </div>
@@ -290,9 +296,9 @@ export default class TransformModal extends Component {
                 </Row>
             } else {
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>
-                    <FormItem 
+                    <FormItem
                         className="left-item cell-center"
-                        {...formItemLayoutWithOutLabel}     
+                        {...formItemLayoutWithOutLabel}
                         style={{ flexBasis: '40%' }}
                     >
                         <div className="flex flex-right">
@@ -301,27 +307,26 @@ export default class TransformModal extends Component {
                                     rules: [{
                                         required: form.getFieldValue(`${type}-${item.id}-right`),
                                         message: '需要填充相应规则'
-                                    }], 
+                                    }],
                                     initialValue: item.left
                                 })(
-                                    type === 'typeRule' ?
-                                    <Select 
-                                        allowClear
-                                        size="large" 
-                                        className="col-16"
-                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
-                                        {
-                                            originTypeTransformRule.map(item => {
-                                                return <Option key={item}>{item}</Option>
-                                            })
-                                        }
-                                    </Select>
-                                    :
-                                    <Input 
-                                        size="large" 
-                                        className="col-16" 
-                                        onChange={this.handleInput.bind(this, `${type}-${item.id}-right`)}
-                                    />
+                                    type === 'typeRule'
+                                        ? <Select
+                                            allowClear
+                                            size="large"
+                                            className="col-16"
+                                            onChange={this.handleSelect.bind(this, `${type}-${item.id}-right`)}>
+                                            {
+                                                originTypeTransformRule.map(item => {
+                                                    return <Option key={item}>{item}</Option>
+                                                })
+                                            }
+                                        </Select>
+                                        : <Input
+                                            size="large"
+                                            className="col-16"
+                                            onChange={this.handleInput.bind(this, `${type}-${item.id}-right`)}
+                                        />
                                 )
                             }
                         </div>
@@ -329,8 +334,8 @@ export default class TransformModal extends Component {
                     <div className="txt-center font-16" style={{ flexBasis: '5%' }}>
                         <Icon type="right" />
                     </div>
-                    <FormItem 
-                        style={{ flexBasis: '40%' }} 
+                    <FormItem
+                        style={{ flexBasis: '40%' }}
                         {...formItemLayoutWithOutLabel}
                         className="cell-center"
                     >
@@ -340,37 +345,36 @@ export default class TransformModal extends Component {
                                     rules: [{
                                         required: form.getFieldValue(`${type}-${item.id}-left`),
                                         message: '需要填充相应规则'
-                                    }], 
+                                    }],
                                     initialValue: item.right
                                 })(
-                                    type === 'typeRule' ?
-                                    <Select 
-                                        size="large" 
-                                        allowClear
-                                        className="col-16"
-                                        onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
-                                        {
-                                            targetTypeTransformRule.map(item => {
-                                                return <Option key={item}>{item}</Option>
-                                            })
-                                        }
-                                    </Select>
-                                    :
-                                    <Input 
-                                        size="large" 
-                                        className="col-16" 
-                                        onChange={this.handleInput.bind(this, `${type}-${item.id}-left`)}
-                                    />
+                                    type === 'typeRule'
+                                        ? <Select
+                                            size="large"
+                                            allowClear
+                                            className="col-16"
+                                            onChange={this.handleSelect.bind(this, `${type}-${item.id}-left`)}>
+                                            {
+                                                targetTypeTransformRule.map(item => {
+                                                    return <Option key={item}>{item}</Option>
+                                                })
+                                            }
+                                        </Select>
+                                        : <Input
+                                            size="large"
+                                            className="col-16"
+                                            onChange={this.handleInput.bind(this, `${type}-${item.id}-left`)}
+                                        />
                                 )
                             }
-                            <Icon 
-                                type="plus-circle-o" 
-                                className="edit-icon m-l-8" 
+                            <Icon
+                                type="plus-circle-o"
+                                className="edit-icon m-l-8"
                                 onClick={this.add.bind(this, type, item.id)}
                             />
-                            <Icon 
-                                type="delete" 
-                                className="edit-icon m-l-8" 
+                            <Icon
+                                type="delete"
+                                className="edit-icon m-l-8"
                                 onClick={this.remove.bind(this, type, item.id)}
                             />
                         </div>
@@ -386,14 +390,14 @@ export default class TransformModal extends Component {
             this.props.form.resetFields();
 
             return {
-                nameRule: [{id: 1}],
-                columnRule: [{id: 1}],
-                typeRule: [{id: 1}]
+                nameRule: [{ id: 1 }],
+                columnRule: [{ id: 1 }],
+                typeRule: [{ id: 1 }]
             }
         });
     }
 
-    render() {
+    render () {
     	const { visible } = this.props;
         const { nameRule, columnRule, typeRule } = this.state;
 
@@ -405,24 +409,24 @@ export default class TransformModal extends Component {
                 maskClosable={false}
                 onCancel={this.cancel}
                 footer={[
-                    <Button 
-                        key="clear" 
-                        type="primary" 
+                    <Button
+                        key="clear"
+                        type="primary"
                         className="left"
                         onClick={this.clearData}>
                         清除设置
                     </Button>,
-                    <Button 
-                        key="cancel" 
+                    <Button
+                        key="cancel"
                         onClick={this.cancel}>
                         取消
                     </Button>,
-                    <Button 
-                        key="save" 
-                        type="primary" 
+                    <Button
+                        key="save"
+                        type="primary"
                         onClick={this.saveConfig}>
                         保存
-                    </Button>,
+                    </Button>
                 ]}
             >
                 <Form layout="inline" className="config-form">

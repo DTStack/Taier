@@ -1,31 +1,31 @@
-import React from "react";
-import { Row, Col } from "antd";
+import React from 'react';
+import { Row, Col } from 'antd';
 
-import { DATA_SOURCE } from "../../comm/const"
+import { DATA_SOURCE } from '../../comm/const'
 
 const showMapArr = {
     [DATA_SOURCE.MYSQL]: [
         ['jdbcUrl', 'jdbcUrl'],
-        ['username', '用户名'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.ORACLE]: [
         ['jdbcUrl', 'jdbcUrl'],
-        ['username', '用户名'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.SQLSERVER]: [
         ['jdbcUrl', 'jdbcUrl'],
-        ['username', '用户名'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.POSTGRESQL]: [
         ['jdbcUrl', 'jdbcUrl'],
-        ['username', '用户名'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.HDFS]: [
         ['defaultFS', 'defaultFS']
     ],
     [DATA_SOURCE.HIVE]: [
         ['jdbcUrl', 'jdbcUrl'],
-        ['defaultFS', 'defaultFS'],
+        ['defaultFS', 'defaultFS']
     ],
     [DATA_SOURCE.HBASE]: [
         ['hbase_quorum', 'Zookeeper集群地址']
@@ -34,7 +34,7 @@ const showMapArr = {
         ['protocol', 'Protocol'],
         ['host', 'Host'],
         ['port', 'Port'],
-        ['username', '用户名'],
+        ['username', '用户名']
     ],
     [DATA_SOURCE.MAXCOMPUTE]: [
         ['endPoint', 'endPoint'],
@@ -46,11 +46,11 @@ const showMapArr = {
     ],
     [DATA_SOURCE.REDIS]: [
         ['hostPort', '地址'],
-        ['database', '数据库'],
+        ['database', '数据库']
     ],
     [DATA_SOURCE.MONGODB]: [
         ['hostPorts', '集群地址'],
-        ['database', '数据库'],
+        ['database', '数据库']
     ],
     [DATA_SOURCE.KAFKA]: [
         ['address', '集群地址']
@@ -63,15 +63,15 @@ const showMapArr = {
     ]
 }
 
-export function ExtTableCell(props) {
-    const { sourceData,...other } = props;
+export function ExtTableCell (props) {
+    const { sourceData, ...other } = props;
     const arr = showMapArr[sourceData.type];
     if (arr) {
         return <div {...other}>
             {arr.map(([key, text]) => {
-                return <p style={{display:"flex",lineHeight:1.5}}>
-                    <span style={{ color: "#999",flexShrink:0 }}>{text}：</span>
-                    <span style={{display:"inline-block"}}>{sourceData.dataJson[key] || ''}</span>
+                return <p style={{ display: 'flex', lineHeight: 1.5 }}>
+                    <span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
+                    <span style={{ display: 'inline-block' }}>{sourceData.dataJson[key] || ''}</span>
                 </p>
             })}
         </div>
@@ -79,4 +79,3 @@ export function ExtTableCell(props) {
         return null;
     }
 }
-

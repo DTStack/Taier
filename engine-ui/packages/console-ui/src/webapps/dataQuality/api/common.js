@@ -4,10 +4,10 @@ import req from '../consts/reqUrls'
 
 export default {
 
-    getUserList() {
+    getUserList () {
         return http.post(req.DQ_GET_USER_LIST)
     },
-    getAllDict() {
+    getAllDict () {
         return http.post(req.DQ_GET_ALL_DICT)
     }
 

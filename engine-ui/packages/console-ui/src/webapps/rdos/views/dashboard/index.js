@@ -1,20 +1,19 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link, hashHistory } from "react-router";
+import { Link, hashHistory } from 'react-router';
 
 import moment from 'moment'
 
-import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from "antd"
+import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from 'antd'
 
 import ProjectForm from '../project/form'
 import Api from '../../api'
-import * as ProjectAction from "../../store/modules/project";
+import * as ProjectAction from '../../store/modules/project';
 import NoData from '../../components/no-data';
 
 const Search = Input.Search;
 const Option = Select.Option;
 class Index extends Component {
-
     state = {
         visible: false,
         loading: true,
@@ -26,41 +25,41 @@ class Index extends Component {
             fuzzyName: undefined,
             page: 1,
             pageSize: 9,
-            orderBy: undefined,
+            orderBy: undefined
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getProjectListInfo();
     }
-    componentWillUnmount(){
-        this._isUnmounted=true;
+    componentWillUnmount () {
+        this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
-    debounceGetProList(){
-        if(this._isUnmounted){
-            return ;
+    debounceGetProList () {
+        if (this._isUnmounted) {
+            return;
         }
-       this._timeClock=setTimeout(() => {
-            this.getProjectListInfo(null,true);
+        this._timeClock = setTimeout(() => {
+            this.getProjectListInfo(null, true);
         }, 3000);
     }
     setCard = (data) => {
-        if (data.status == 2 || data.status == 3) {//"删除项目" 
+        if (data.status == 2 || data.status == 3) { // "删除项目"
             Api.deleteProject({ projectId: data.id }).then(v => {
                 if (v.code == 1) {
                     message.success('删除项目成功！');
                     this.getProjectListInfo();
                 }
             })
-        } else if (data.stickStatus == 0) {//"置顶"
+        } else if (data.stickStatus == 0) { // "置顶"
             Api.setSticky({ appointProjectId: data.id, stickStatus: 1 }).then(v => {
                 if (v.code == 1) {
                     message.success('置顶成功！');
                     this.getProjectListInfo();
                 }
             })
-        } else if (data.stickStatus == 1) {//"取消置顶"
+        } else if (data.stickStatus == 1) { // "取消置顶"
             Api.setSticky({ appointProjectId: data.id, stickStatus: 0 }).then(v => {
                 if (v.code == 1) {
                     message.success('取消置顶成功！');
@@ -70,20 +69,20 @@ class Index extends Component {
         }
     }
 
-    getProjectListInfo = (params,isSilent) => {
+    getProjectListInfo = (params, isSilent) => {
         const { projectListParams } = this.state;
         const queryParsms = { ...projectListParams, ...params };
-        if(!isSilent){
+        if (!isSilent) {
             this.setState({
-                loading: true,
+                loading: true
             })
         }
         clearTimeout(this._timeClock);
         Api.getProjectListInfo(queryParsms).then((res) => {
             if (res.code === 1) {
-                if(res.data&&res.data.data){
-                    for(let project of res.data.data){
-                        if(project.status==0){
+                if (res.data && res.data.data) {
+                    for (let project of res.data.data) {
+                        if (project.status == 0) {
                             this.debounceGetProList();
                             break;
                         }
@@ -93,7 +92,7 @@ class Index extends Component {
                     projectListInfo: res.data && res.data.data || [],
                     totalSize: res.data && res.data.totalCount || 0,
                     projectListParams: queryParsms,
-                    loading: false,
+                    loading: false
                 })
             } else {
                 this.setState({
@@ -104,19 +103,18 @@ class Index extends Component {
     }
 
     // 选择测试或生产项目搜索
-    changeProjectType(value) {
-        const {projectListParams} = this.state;
+    changeProjectType (value) {
+        const { projectListParams } = this.state;
         this.setState({
             projectListParams: {
                 projectType: value,
                 fuzzyName: undefined,
                 page: 1,
                 pageSize: 9,
-                orderBy: undefined,
+                orderBy: undefined
             }
-        },this.getProjectListInfo.bind(this));
+        }, this.getProjectListInfo.bind(this));
     }
-
 
     createProject = (project) => {
         const { dispatch } = this.props;
@@ -138,10 +136,10 @@ class Index extends Component {
     setRouter = (type, v) => {
         let src;
         const { dispatch } = this.props;
-        if (type === "operation") {
-            src = "/operation"
+        if (type === 'operation') {
+            src = '/operation'
         } else {
-            src = "/offline/task"
+            src = '/offline/task'
         }
         dispatch(ProjectAction.getProject(v.id));
         hashHistory.push(src)
@@ -157,14 +155,14 @@ class Index extends Component {
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
-                data.status == 2 || data.status == 3 ? "删除项目" : "置顶"
+                data.status == 2 || data.status == 3 ? '删除项目' : '置顶'
             }
         </div>
         const tooltipImg = <div onClick={() => { this.setCard(data) }}>
             {
-                (data.status != 2 || data.status != 3) && data.stickStatus == 1 ? //取消置顶非图标,不需要Tooltip提示,过滤掉
-                    cancelTop :
-                    <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
+                (data.status != 2 || data.status != 3) && data.stickStatus == 1 // 取消置顶非图标,不需要Tooltip提示,过滤掉
+                    ? cancelTop
+                    : <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
                         {
                             data.status == 2 || data.status == 3 ? deleteImg : setTopImg
                         }
@@ -178,11 +176,11 @@ class Index extends Component {
                         <Link to={`/offline/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
                                 {data.projectAlias}&nbsp;&nbsp;
-                        </span>
+                            </span>
                         </Link>
                     ) : (<span className="company-name no-hover">
                         {data.projectAlias}&nbsp;&nbsp;
-                </span>)}
+                    </span>)}
                     {this.renderTitleText(data)}
                     {(data.projectType == 1) ? developImg : ((data.projectType == 2) ? produceImg : null)}
                     {/* {produceImg} */}
@@ -194,36 +192,36 @@ class Index extends Component {
         </div>
         return title;
     }
-    renderTitleText(data) {
+    renderTitleText (data) {
         switch (data.status) {
-            case 0: {
-                return (
-                    <span>
-                        <Icon type="loading" style={{ fontSize: 14, color: "#2491F7", paddingLeft: 16 }} />
-                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建中</span>
-                    </span>
-                )
-            }
-            case 1: {
-                return (
-                    <span style={{ color: '#999' }}>
-                        {`(${data.projectName})`}
-                    </span>
-                )
-            }
-            case 2:
-            case 3: {
-                return (
-                    <span>
-                        <Icon type="close-circle" style={{ fontSize: 14, color: "#f00", paddingLeft: 16 }} />
-                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建失败</span>
-                    </span>
-                )
-            }
+        case 0: {
+            return (
+                <span>
+                    <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
+                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
+                </span>
+            )
+        }
+        case 1: {
+            return (
+                <span style={{ color: '#999' }}>
+                    {`(${data.projectName})`}
+                </span>
+            )
+        }
+        case 2:
+        case 3: {
+            return (
+                <span>
+                    <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
+                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
+                </span>
+            )
+        }
         }
     }
     changeSort = (v) => {
-        const status = v === "defaultSort" ? 1 : 2;
+        const status = v === 'defaultSort' ? 1 : 2;
         if (status != this.state.sortTitleStatus) {
             if (status === 1) {
                 this.setState({
@@ -231,12 +229,11 @@ class Index extends Component {
                 }, () => {
                     this.getProjectListInfo({ orderBy: undefined })
                 })
-
             } else {
                 this.setState({
                     sortTitleStatus: status
                 }, () => {
-                    this.getProjectListInfo({ orderBy: "jobSum" })
+                    this.getProjectListInfo({ orderBy: 'jobSum' })
                 })
             }
         }
@@ -251,19 +248,18 @@ class Index extends Component {
     }
 
     handleMouseOver = (e) => {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline3.svg"
+        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline3.svg'
     }
 
     handleMouseOut = (e) => {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/rdos/img/icon/offline2.svg"
+        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline2.svg'
     }
 
-
-    render() {
+    render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, offlineSrc, realtimeSrc } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
+                <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
                     <Row gutter={10}>
                         <Col span="16" >
                             <Select
@@ -280,7 +276,7 @@ class Index extends Component {
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
                             <Button
-                                style={{ float: "left", margin: "10 0 0 15" }}
+                                style={{ float: 'left', margin: '10 0 0 15' }}
                                 type="primary"
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
@@ -288,9 +284,9 @@ class Index extends Component {
                         </Col>
                         <Col span="8" >
                             <div className="sortTitle">
-                                <span className="faileSort" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
+                                <span className="faileSort" style={sortTitleStatus == 2 ? { color: '#2491F7' } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
                                 <span className="faileSort">|</span>
-                                <span className="defaultSort" style={sortTitleStatus == 1 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
+                                <span className="defaultSort" style={sortTitleStatus == 1 ? { color: '#2491F7' } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
                             </div>
                         </Col>
                     </Row>
@@ -309,29 +305,29 @@ class Index extends Component {
                                                         <div className="statistics" >已发布/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
                                                         <div className="statistics" >表数量： <span className="statistics-info">{v.tableCount}</span></div>
                                                         <div className="statistics" >项目占用存储： <span className="statistics-info">{v.totalSize}</span></div>
-                                                        <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
+                                                        <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></div>
                                                     </Col>
                                                     <Col span="8">
                                                         <div style={{ fontSize: 14 }}>今日任务失败数</div>
                                                         {v.status != 1 ? (
                                                             <div className="number no-hover">
                                                                 {
-                                                                    v.jobSum ? <span>{v.jobSum}</span> :
-                                                                        <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
+                                                                    v.jobSum ? <span>{v.jobSum}</span>
+                                                                        : <span style={{ color: '#999' }}>{v.jobSum || 0}</span>
                                                                 }
                                                             </div>
                                                         ) : (
-                                                                <div className="number" onClick={() => { this.setRouter('operation', v) }}>
-                                                                    {
-                                                                        v.jobSum ? <span>{v.jobSum}</span> :
-                                                                            <span style={{ color: "#999" }}>{v.jobSum || 0}</span>
-                                                                    }
-                                                                </div>
-                                                            )}
+                                                            <div className="number" onClick={() => { this.setRouter('operation', v) }}>
+                                                                {
+                                                                    v.jobSum ? <span>{v.jobSum}</span>
+                                                                        : <span style={{ color: '#999' }}>{v.jobSum || 0}</span>
+                                                                }
+                                                            </div>
+                                                        )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {
-                                                            v.status != 1 ? "" : <Row >
+                                                            v.status != 1 ? '' : <Row >
                                                                 <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('offline', v) }}
@@ -343,15 +339,15 @@ class Index extends Component {
                                                                             <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
                                                                         </span>
                                                                         数据开发
-                                                                            </Card>
+                                                                    </Card>
                                                                 </Col>
                                                                 <Col span="12">
-                                                                    <Card className="card-task" style={{ padding: "1.5 0" }}
+                                                                    <Card className="card-task" style={{ padding: '1.5 0' }}
                                                                         onClick={() => { this.setRouter('operation', v) }}
                                                                         noHovering
                                                                     >
                                                                         运维中心
-                                                                            </Card>
+                                                                    </Card>
                                                                 </Col>
                                                             </Row>
                                                         }
@@ -360,7 +356,7 @@ class Index extends Component {
                                                 {
                                                     v.stickStatus == 1 ? <div className="triangle_border_right">
                                                         <span></span>
-                                                    </div> : ""
+                                                    </div> : ''
                                                 }
                                             </Card>
                                         </Col>
@@ -369,7 +365,7 @@ class Index extends Component {
                             </Row>
                             <Row>
                                 <Col >
-                                    <div style={{ float: "right" }}>
+                                    <div style={{ float: 'right' }}>
                                         <Pagination
                                             current={projectListParams.page}
                                             total={totalSize}
@@ -395,6 +391,6 @@ class Index extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        projects: state.projects,
+        projects: state.projects
     }
 })(Index)

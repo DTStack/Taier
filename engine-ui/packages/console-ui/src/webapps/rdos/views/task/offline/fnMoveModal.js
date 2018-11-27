@@ -17,17 +17,17 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 class FnMoveForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    handleSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'nodePid': value});
+    handleSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'nodePid': value });
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
-        const { originFn ,isVisible } = this.props;
+        const { originFn, isVisible } = this.props;
         const { parentId, name, functionId } = originFn;
 
         return !isVisible ? null : (
@@ -39,14 +39,14 @@ class FnMoveForm extends React.Component {
                 >
                     {getFieldDecorator('name', {
                         rules: [{
-                            required: true, message: '函数名称不可为空！',
+                            required: true, message: '函数名称不可为空！'
                         }, {
                             max: 20,
-                            message: '函数名称不得超过20个字符！',
+                            message: '函数名称不得超过20个字符！'
                         }],
                         initialValue: name
                     })(
-                        <Input disabled placeholder="请输入函数名称" />,
+                        <Input disabled placeholder="请输入函数名称" />
                     )}
                 </FormItem>
                 <FormItem
@@ -56,7 +56,7 @@ class FnMoveForm extends React.Component {
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
                         initialValue: parentId
                     })(
@@ -79,16 +79,15 @@ class FnMoveForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id) {
+    getFolderName (id) {
         const { functionTreeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -103,7 +102,7 @@ class FnMoveForm extends React.Component {
 const FnMoveFormWrapper = Form.create()(FnMoveForm);
 
 class FnMoveModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -112,42 +111,42 @@ class FnMoveModal extends React.Component {
         this.dtcount = 0;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return this.props !== nextProps;
     }
 
-    handleSubmit() {
+    handleSubmit () {
         const { doMoveFn, moveFnData } = this.props;
         const functionId = moveFnData.originFn.id;
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) {
+            if (!err) {
                 values.functionId = functionId;
                 delete values.name;
-                
+
                 doMoveFn(values, moveFnData.originFn)
-                .then(
-                    (success)=>{
-                        if(success){
-                            this.closeModal();
+                    .then(
+                        (success) => {
+                            if (success) {
+                                this.closeModal();
+                            }
                         }
-                    }
-                );
+                    );
             }
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         this.closeModal();
     }
 
-    closeModal() {
+    closeModal () {
         this.dtcount++;
         this.props.toggleMoveFn();
     }
 
-    render() {
+    render () {
         const { moveFnData, functionTreeData } = this.props;
         const isVisible = typeof moveFnData !== 'undefined';
 
@@ -178,21 +177,21 @@ class FnMoveModal extends React.Component {
 export default connect(state => {
     return {
         moveFnData: state.offlineTask.modalShow.moveFnData,
-        functionTreeData: state.offlineTask.functionTree,
+        functionTreeData: state.offlineTask.functionTree
     }
 },
 dispatch => {
     return {
-        toggleMoveFn: function() {
+        toggleMoveFn: function () {
             dispatch({
                 type: modalAction.TOGGLE_MOVE_FN
             });
         },
 
-        doMoveFn: function(params, originFn) {
+        doMoveFn: function (params, originFn) {
             return ajax.moveOfflineFn(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         let newData = originFn;
 
                         newData.originPid = originFn.parentId;

@@ -8,7 +8,7 @@ import { updateModal, closeTab, openTab, loadCatalogue } from './comm';
 /**
  * 打开数据库
  */
-export const onGetDB = function(params) {
+export const onGetDB = function (params) {
     return async dispatch => {
         const res = await API.getDBDetail(params);
         if (res.code === 1) {
@@ -20,20 +20,19 @@ export const onGetDB = function(params) {
         } else {
             notification.error({
                 message: '提示',
-                description: res.message,
+                description: res.message
             });
         }
     }
 }
 
-
 /**
  * 创建数据库
  */
-export const onCreateDB = function() {
+export const onCreateDB = function () {
     const modalValue = {
         visibleModal: workbenchAction.OPEN_CREATE_DATABASE,
-        modalData: null,
+        modalData: null
     }
     return updateModal(modalValue);
 }
@@ -42,7 +41,7 @@ export const onCreateDB = function() {
  * 移除数据库
  * @param {Object} params Database参数
  */
-export function onRemoveDB(params) {
+export function onRemoveDB (params) {
     return async dispatch => {
         const res = await API.deleteDB(params);
         if (res.code === 1) {

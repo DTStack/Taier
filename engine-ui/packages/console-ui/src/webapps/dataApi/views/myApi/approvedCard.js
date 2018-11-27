@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import { Menu, Card, Table, Modal, message, Input } from "antd";
+import React, { Component } from 'react';
+import { Menu, Card, Table, Modal, message, Input } from 'antd';
 
-import ApplyBox from "../../components/applyBox"
-import SlidePane from "./approvedSlidePane";
-import SlidePaneDisabled from "./disabledCardSlidePane"
-import SlidePaneDetail from "./detailSlidePane"
-import utils from "utils"
-import { API_USER_STATUS } from "../../consts";
+import ApplyBox from '../../components/applyBox'
+import SlidePane from './approvedSlidePane';
+import SlidePaneDisabled from './disabledCardSlidePane'
+import SlidePaneDetail from './detailSlidePane'
+import utils from 'utils'
+import { API_USER_STATUS } from '../../consts';
 
 const confirm = Modal.confirm;
 const Search = Input.Search;
@@ -20,11 +20,11 @@ const exchangeDic = {
 }
 
 const sortType = {
-    "applyTime": 'gmt_create'
+    'applyTime': 'gmt_create'
 }
 const orderType = {
-    "ascend": 'asc',
-    "descend": 'desc'
+    'ascend': 'asc',
+    'descend': 'desc'
 }
 class ApprovedCard extends Component {
     state = {
@@ -36,12 +36,12 @@ class ApprovedCard extends Component {
         sortedInfo: {},
         filterInfo: {},
         showRecord: {},
-        apiName: utils.getParameterByName("apiName"),
+        apiName: utils.getParameterByName('apiName'),
         applyBox: false,
         applyRecord: {}
 
     }
-    getAppliedList() {
+    getAppliedList () {
         this.setState({
             loading: true
         })
@@ -62,30 +62,29 @@ class ApprovedCard extends Component {
                 }
             );
     }
-    componentDidMount() {
+    componentDidMount () {
         this.getAppliedList()
-        .then(
-            (res)=>{
-                if (this.props.apiId) {
-                    if (res) {
-                        for (let i in res.data.data) {
-                            let item = res.data.data[i];
-                            if (this.props.apiId == item.apiId) {
-                                this.apiClick(item);
-                                break;
+            .then(
+                (res) => {
+                    if (this.props.apiId) {
+                        if (res) {
+                            for (let i in res.data.data) {
+                                let item = res.data.data[i];
+                                if (this.props.apiId == item.apiId) {
+                                    this.apiClick(item);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
-        );
+            );
     }
-    componentWillReceiveProps(nextProps) {
-        if (this.props.nowView != nextProps.nowView && nextProps.nowView == "approved") {
+    componentWillReceiveProps (nextProps) {
+        if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'approved') {
             this.getAppliedList();
         }
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
-
             const res = this.getSource();
             if (res) {
                 for (let i in res.data) {
@@ -96,7 +95,6 @@ class ApprovedCard extends Component {
                     }
                 }
             }
-
         }
     }
     // 表格换页/排序
@@ -107,12 +105,12 @@ class ApprovedCard extends Component {
             sortedInfo: sorter,
             filterInfo: filter
         },
-            () => {
-                this.getAppliedList();
-            });
+        () => {
+            this.getAppliedList();
+        });
     }
-    //关闭pane
-    closeSlidePane() {
+    // 关闭pane
+    closeSlidePane () {
         this.setState({
             slidePaneShowNoApproved: false,
             slidePaneShowDisabled: false,
@@ -120,14 +118,13 @@ class ApprovedCard extends Component {
             showRecord: {}
         })
     }
-    apiClick(record) {
+    apiClick (record) {
         const method = this['state' + exchangeDic[record.status]]
         if (method) {
             method.call(this, record);
         }
-
     }
-    statesuccess(record) {
+    statesuccess (record) {
         this.setState({
             slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
@@ -136,7 +133,7 @@ class ApprovedCard extends Component {
 
         })
     }
-    statenotPass(record) {
+    statenotPass (record) {
         this.setState({
             slidePaneShowSuccess: false,
             slidePaneShowNoApproved: true,
@@ -144,7 +141,7 @@ class ApprovedCard extends Component {
             showRecord: record || {}
         })
     }
-    statestop(record) {
+    statestop (record) {
         this.setState({
             slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
@@ -152,7 +149,7 @@ class ApprovedCard extends Component {
             showRecord: record || {}
         })
     }
-    statedisabled(record) {
+    statedisabled (record) {
         this.setState({
             slidePaneShowSuccess: false,
             slidePaneShowNoApproved: false,
@@ -160,7 +157,7 @@ class ApprovedCard extends Component {
             showRecord: record || {}
         })
     }
-    stateexpired(record) {
+    stateexpired (record) {
         this.setState({
             slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
@@ -169,74 +166,73 @@ class ApprovedCard extends Component {
 
         })
     }
-    dealClick(record) {
+    dealClick (record) {
         const method = this['deal' + exchangeDic[record.status]];
         if (method) {
             method.call(this, record);
         }
     }
-    dealsuccess(record) {
+    dealsuccess (record) {
         confirm({
             title: '确认停止',
             content: '确认停止接口？',
             onOk: () => {
-                this.props.updateApplyStatus(record.id, 3).
-                    then(
+                this.props.updateApplyStatus(record.id, 3)
+                    .then(
                         (res) => {
                             if (res) {
-                                message.success("停止成功")
+                                message.success('停止成功')
                             }
                             this.getAppliedList();
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
 
-    dealstop(record) {
+    dealstop (record) {
         confirm({
             title: '确认开启',
             content: '确认开启接口？',
             onOk: () => {
-                this.props.updateApplyStatus(record.id, 1).
-                    then(
+                this.props.updateApplyStatus(record.id, 1)
+                    .then(
                         (res) => {
                             if (res) {
-                                message.success("开启成功")
+                                message.success('开启成功')
                             }
                             this.getAppliedList();
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
 
-    dealnotPass(record) {
+    dealnotPass (record) {
         this.setState({
             applyBox: true,
             applyRecord: record
         })
     }
-    dealdisabled(record) {
+    dealdisabled (record) {
         this.apiClick(record);
     }
-    dealexpired(record) {
+    dealexpired (record) {
         this.setState({
             applyBox: true,
             applyRecord: record
         })
     }
-    deleteApi(record) {
+    deleteApi (record) {
 
     }
-    initColumns() {
-
+    initColumns () {
         return [{
             title: 'API名称',
             dataIndex: 'apiName',
@@ -245,9 +241,9 @@ class ApprovedCard extends Component {
                 const isDeleted = record.apiDeleted == 1;
                 const disabled = record.apiStatus == 1;
                 if (isDeleted) {
-                    return <a className={'disable-all'} onClick={this.apiClick.bind(this, record)} >{text + "(已删除)"}</a>
+                    return <a className={'disable-all'} onClick={this.apiClick.bind(this, record)} >{text + '(已删除)'}</a>
                 } else if (disabled) {
-                    return <a className={'disable-all'} onClick={this.apiClick.bind(this, record)} >{text + "(全平台禁用)"}</a>
+                    return <a className={'disable-all'} onClick={this.apiClick.bind(this, record)} >{text + '(全平台禁用)'}</a>
                 } else {
                     return <a onClick={this.apiClick.bind(this, record)} >{text}</a>
                 }
@@ -256,14 +252,13 @@ class ApprovedCard extends Component {
             title: '授权状态',
             dataIndex: 'status',
             key: 'status',
-            render(text) {
-
+            render (text) {
                 const dic = {
-                    success: "已通过",
-                    disabled: "取消授权",
-                    stop: "停用",
-                    notPass: "已拒绝",
-                    expired: "已过期"
+                    success: '已通过',
+                    disabled: '取消授权',
+                    stop: '停用',
+                    notPass: '已拒绝',
+                    expired: '已过期'
 
                 }
                 return <span className={`state-${exchangeDic[text]}`}>{dic[exchangeDic[text]]}</span>
@@ -279,29 +274,28 @@ class ApprovedCard extends Component {
         }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
-            key: 'recentCallNum',
-
+            key: 'recentCallNum'
 
         }, {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
-            render(text) {
-                return text + "%"
+            render (text) {
+                return text + '%'
             }
 
         },
         {
             title: '累计调用',
             dataIndex: 'totalCallNum',
-            key: 'totalCallNum',
+            key: 'totalCallNum'
 
         }, {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
             sorter: true,
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text)
             }
         }, {
@@ -311,10 +305,10 @@ class ApprovedCard extends Component {
             render: (text, record) => {
                 const isDeleted = record.apiDeleted == 1;
                 const dic = {
-                    success: "停用",
-                    disabled: "",
-                    stop: "启用",
-                    notPass: "再次申请",
+                    success: '停用',
+                    disabled: '',
+                    stop: '启用',
+                    notPass: '再次申请',
                     expired: '再次申请',
                     disabled: '申请恢复'
                 }
@@ -329,52 +323,51 @@ class ApprovedCard extends Component {
                     return <span><a onClick={this.dealClick.bind(this, record)}>{dic[exchangeDic[record.status]]}</a></span>
                 }
                 return null;
-
             }
         }]
     }
 
-    getSource() {
+    getSource () {
         return this.props.mine.apiList.appliedList.data || [];
     }
 
-    getTotal() {
+    getTotal () {
         return (this.props.mine.apiList.appliedList && this.props.mine.apiList.appliedList.totalCount) || 0
     }
 
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 20,
-            total: this.getTotal(),
+            total: this.getTotal()
         }
     }
 
-    handleApiSearch(key) {
+    handleApiSearch (key) {
         this.setState({
             apiName: key,
             pageIndex: 1
         },
-            () => {
-                this.getAppliedList();
-            })
+        () => {
+            this.getAppliedList();
+        })
     }
 
-    handleOk() {
+    handleOk () {
         this.setState({
             applyBox: false
         });
         this.getAppliedList();
     }
 
-    handleCancel() {
+    handleCancel () {
         this.setState({
             applyBox: false
         })
     }
 
-    render() {
-        const { applyBox, applyRecord,apiName } = this.state;
+    render () {
+        const { applyBox, applyRecord, apiName } = this.state;
 
         return (
             <div>
@@ -387,7 +380,7 @@ class ApprovedCard extends Component {
                     desc={applyRecord.apiDesc}
                     hideJump={true}
                 ></ApplyBox>
-                <div style={{ marginRight: "20px", position: "relative" }}>
+                <div style={{ marginRight: '20px', position: 'relative' }}>
                     <SlidePane
                         {...this.props}
                         isApproved={true}
@@ -403,7 +396,7 @@ class ApprovedCard extends Component {
                     >
                     </SlidePaneDisabled>
                     <SlidePaneDetail
-                        style={{ right: "0px" }}
+                        style={{ right: '0px' }}
                         {...this.props}
                         showRecord={this.state.showRecord}
                         slidePaneShow={this.state.slidePaneShowSuccess}
@@ -417,7 +410,7 @@ class ApprovedCard extends Component {
                     <div className="flex font-12">
                         <Search
                             placeholder="输入API名称搜索"
-                            style={{ width: 150, margin: '10px 0px', marginLeft: "20px" }}
+                            style={{ width: 150, margin: '10px 0px', marginLeft: '20px' }}
                             onSearch={this.handleApiSearch.bind(this)}
                             defaultValue={apiName}
                         />
@@ -426,9 +419,9 @@ class ApprovedCard extends Component {
                         rowClassName={
                             (record, index) => {
                                 if (this.state.showRecord.apiId == record.apiId) {
-                                    return "row-select"
+                                    return 'row-select'
                                 } else {
-                                    return "";
+                                    return '';
                                 }
                             }
                         }

@@ -14,8 +14,7 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {
-
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
@@ -34,7 +33,7 @@ class NormalTaskForm extends React.Component {
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -43,11 +42,11 @@ class NormalTaskForm extends React.Component {
                 {getFieldDecorator('name', {
                     rules: [{
                         max: 64,
-                        message: '任务名称不得超过20个字符！',
+                        message: '任务名称不得超过20个字符！'
                     }],
                     initialValue: taskData.name
                 })(
-                    <Input disabled />,
+                    <Input disabled />
                 )}
             </FormItem>
             <FormItem
@@ -73,10 +72,10 @@ class NormalTaskForm extends React.Component {
                 >
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
-                            required: true, message: '请选择关联资源',
+                            required: true, message: '请选择关联资源'
                         }],
-                        initialValue: taskData.resourceList.length ?
-                            taskData.resourceList[0].id : ''
+                        initialValue: taskData.resourceList.length
+                            ? taskData.resourceList[0].id : ''
                     })(
                         <Input disabled={!couldEdit} type="hidden" ></Input>
                     )}
@@ -101,11 +100,11 @@ class NormalTaskForm extends React.Component {
                 >
                     {getFieldDecorator('mainClass', {
                         rules: [{
-                            required: true, message: 'mainClass 不可为空！',
+                            required: true, message: 'mainClass 不可为空！'
                         }],
                         initialValue: taskData.mainClass
                     })(
-                        <Input disabled={!couldEdit} placeholder="请输入 mainClass" />,
+                        <Input disabled={!couldEdit} placeholder="请输入 mainClass" />
                     )}
                 </FormItem>
             }
@@ -117,7 +116,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('exeArgs', {
                         initialValue: taskData.exeArgs
                     })(
-                        <Input disabled={!couldEdit} placeholder="请输入任务参数" />,
+                        <Input disabled={!couldEdit} placeholder="请输入任务参数" />
                     )}
                 </FormItem>
             }
@@ -130,7 +129,7 @@ class NormalTaskForm extends React.Component {
                         {getFieldDecorator('input', {
                             initialValue: taskData.input
                         })(
-                            <Input disabled={!couldEdit} placeholder="请输入数据输入路径" />,
+                            <Input disabled={!couldEdit} placeholder="请输入数据输入路径" />
                         )}
                     </FormItem>
                     <FormItem
@@ -140,7 +139,7 @@ class NormalTaskForm extends React.Component {
                         {getFieldDecorator('output', {
                             initialValue: taskData.output
                         })(
-                            <Input disabled={!couldEdit} placeholder="请输入模型输出路径" />,
+                            <Input disabled={!couldEdit} placeholder="请输入模型输出路径" />
                         )}
                     </FormItem>
                 </span>
@@ -153,19 +152,19 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('options', {
                         initialValue: taskData.options
                     })(
-                        <Input disabled={!couldEdit} placeholder="请输入命令行参数" />,
+                        <Input disabled={!couldEdit} placeholder="请输入命令行参数" />
                     )}
                 </FormItem>
             }
             {
-                !isWorkflowNode && 
+                !isWorkflowNode &&
                 <FormItem
                     {...formItemLayout}
                     label="存储位置"
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
                         initialValue: taskData.nodePid
                     })(
@@ -190,11 +189,11 @@ class NormalTaskForm extends React.Component {
                 {getFieldDecorator('taskDesc', {
                     rules: [{
                         max: 200,
-                        message: '描述请控制在200个字符以内！',
+                        message: '描述请控制在200个字符以内！'
                     }],
                     initialValue: taskData.taskDesc
                 })(
-                    <Input disabled={!couldEdit} type="textarea" rows={4} placeholder="请输入任务描述" />,
+                    <Input disabled={!couldEdit} type="textarea" rows={4} placeholder="请输入任务描述" />
                 )}
             </FormItem>
             <FormItem style={{ display: 'none' }}>
@@ -207,13 +206,13 @@ class NormalTaskForm extends React.Component {
         </Form>
     }
 
-    handleResChange(value) {
+    handleResChange (value) {
         this.props.form.setFieldsValue({
             resourceIdList: [value]
         });
     }
 
-    handlePathChange(value) {
+    handlePathChange (value) {
         this.props.form.setFieldsValue({
             nodePid: value
         });
@@ -221,7 +220,7 @@ class NormalTaskForm extends React.Component {
 }
 
 const NormalTaskFormWrapper = Form.create({
-    onValuesChange(props, values) {
+    onValuesChange (props, values) {
         const { setFieldsValue, taskCustomParams } = props;
 
         // invalid为一个验证标记，
@@ -242,11 +241,11 @@ const NormalTaskFormWrapper = Form.create({
 })(NormalTaskForm);
 
 class NormalTaskEditor extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
+    render () {
         return <div className="m-taskedit" style={{ padding: 60 }}>
             <NormalTaskFormWrapper {...this.props} />
         </div>
@@ -267,7 +266,7 @@ const mapState = (state, ownProps) => {
 
 const mapDispatch = dispatch => {
     return {
-        setFieldsValue(params) {
+        setFieldsValue (params) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params

@@ -4,8 +4,8 @@ import API from '../../api/mine';
 
 export const mineActions = {
 
-    //获取正在审批的个人api
-    getApplyingList(params) {
+    // 获取正在审批的个人api
+    getApplyingList (params) {
         params = params || {};
         params.status = [0];
         return (dispatch) => {
@@ -16,12 +16,11 @@ export const mineActions = {
                         payload: res.data
                     });
                 }
-
             });
         }
     },
-    //获取已审批个人api
-    getAppliedList(params) {
+    // 获取已审批个人api
+    getAppliedList (params) {
         params = params || {};
         if (!params.status || params.status.length === 0) {
             params.status = [1, 2, 3, 4];
@@ -36,89 +35,80 @@ export const mineActions = {
                     });
                     return res;
                 }
-
             });
         }
     },
-    //停用，启用，禁用api
-    updateApplyStatus(params) {
-        let callFunc = "updateApplyStatusForNormal"
+    // 停用，启用，禁用api
+    updateApplyStatus (params) {
+        let callFunc = 'updateApplyStatusForNormal'
         if (params.useAdmin) {
-            callFunc = "updateApplyStatusForManager"
+            callFunc = 'updateApplyStatusForManager'
         }
         return (dispatch) => {
             return API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
     },
-    //查看调用情况
-    getApiCallInfo(params) {
-        let callFunc = "getApiCallInfoForNormal"
+    // 查看调用情况
+    getApiCallInfo (params) {
+        let callFunc = 'getApiCallInfoForNormal'
         if (params.useAdmin) {
-            callFunc = "getApiCallInfoForManager"
+            callFunc = 'getApiCallInfoForManager'
         }
         return (dispatch) => {
             return API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
     },
-    //查看api错误信息
-    getApiCallErrorInfo(params) {
+    // 查看api错误信息
+    getApiCallErrorInfo (params) {
         return (dispatch) => {
             return API.getApiCallErrorInfoForNormal(params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
     },
-    //查看api调用方式
-    getApiCallUrl(params) {
+    // 查看api调用方式
+    getApiCallUrl (params) {
         return (dispatch) => {
             return API.getApiCallUrl(params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
     },
-    //查看api错误日志
-    queryApiCallLog(params) {
-        let callFunc = "queryApiCallLogForNormal"
+    // 查看api错误日志
+    queryApiCallLog (params) {
+        let callFunc = 'queryApiCallLogForNormal'
         if (params.useAdmin) {
-            callFunc = "queryApiCallLogForManager"
+            callFunc = 'queryApiCallLogForManager'
         }
         return (dispatch) => {
             return API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
     },
-    //获取api联系人
-    getApiCreatorInfo(params) {
+    // 获取api联系人
+    getApiCreatorInfo (params) {
         return (dispatch) => {
             return API.getApiCreatorInfo(params).then((res) => {
                 if (res.code === 1) {
                     return res;
                 }
-
             });
         }
-    },
-
-
+    }
 
 }

@@ -11,7 +11,6 @@ import DCApi from '../../../api/dataCheck';
 const Step = Steps.Step;
 
 export default class DataCheckEdit extends Component {
-
     state = {
         current: 0,
         editParams: {
@@ -21,13 +20,13 @@ export default class DataCheckEdit extends Component {
             executeType: 0,
             setting: {},
             scheduleConf: undefined,
-            notifyVO: null,
+            notifyVO: null
         },
         editStatus: 'new',
         havePart: false
     }
 
-    componentWillMount() {
+    componentWillMount () {
         const { verifyId } = this.props.routeParams;
         const { editParams } = this.state;
 
@@ -37,10 +36,10 @@ export default class DataCheckEdit extends Component {
             DCApi.getCheckDetail({ verifyId }).then((res) => {
                 if (res.code === 1) {
                     let data = res.data;
-                    
-                    this.setState({ 
-                        editParams: { 
-                            ...editParams, 
+
+                    this.setState({
+                        editParams: {
+                            ...editParams,
                             id: data.id,
                             origin: data.origin,
                             target: data.target,
@@ -58,7 +57,7 @@ export default class DataCheckEdit extends Component {
 
     changeParams = (obj) => {
         let editParams = { ...this.state.editParams, ...obj };
-        console.log(obj,editParams)
+        console.log(obj, editParams)
         this.setState({ editParams });
     }
 
@@ -69,12 +68,13 @@ export default class DataCheckEdit extends Component {
     navToStep = (current) => {
         this.setState({ current });
     }
- 
-    render() {
+
+    render () {
         const { current, editParams, editStatus, havePart } = this.state;
         const steps = [
             {
-                title: '选择左侧表', content: <StepOne
+                title: '选择左侧表',
+                content: <StepOne
                     currentStep={current}
                     navToStep={this.navToStep}
                     havePart={havePart}
@@ -85,7 +85,8 @@ export default class DataCheckEdit extends Component {
                 />
             },
             {
-                title: '选择右侧表', content: <StepTwo
+                title: '选择右侧表',
+                content: <StepTwo
                     currentStep={current}
                     navToStep={this.navToStep}
                     havePart={havePart}
@@ -95,7 +96,8 @@ export default class DataCheckEdit extends Component {
                 />
             },
             {
-                title: '选择字段', content: <StepThree
+                title: '选择字段',
+                content: <StepThree
                     currentStep={current}
                     navToStep={this.navToStep}
                     editParams={editParams}
@@ -104,7 +106,8 @@ export default class DataCheckEdit extends Component {
                 />
             },
             {
-                title: '执行配置', content: <StepFour
+                title: '执行配置',
+                content: <StepFour
                     currentStep={current}
                     navToStep={this.navToStep}
                     editParams={editParams}
@@ -113,11 +116,11 @@ export default class DataCheckEdit extends Component {
                 />
             }
         ];
-        
+
         return (
             <div className="box-1 check-setting">
                 <h1 className="box-title">
-                    <GoBack /> 
+                    <GoBack />
                     <span className="m-l-8">
                         { editStatus === 'new' ? '新建逐行校验' : '编辑逐行校验' }
                     </span>
@@ -133,4 +136,3 @@ export default class DataCheckEdit extends Component {
         )
     }
 }
-

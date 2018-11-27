@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
-import { 
+import {
     Card, Table, message,
-    Popconfirm, Button,
+    Popconfirm, Button
 } from 'antd'
 
 import utils from 'utils'
@@ -11,18 +11,17 @@ import utils from 'utils'
 import Api from '../../../api'
 
 class RoleManagement extends Component {
-
     state = {
         roles: [],
         visible: false,
-        loading: false,
+        loading: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadRoles()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -34,7 +33,7 @@ class RoleManagement extends Component {
         const ctx = this
         this.setState({ loading: true })
         Api.getRoleList({
-            currentPage: page || 1,
+            currentPage: page || 1
         }).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ roles: res.data, loading: false })
@@ -43,7 +42,7 @@ class RoleManagement extends Component {
     }
 
     removeRole = (role) => {
-        Api.deleteRole({roleId: role.id }).then((res) => {
+        Api.deleteRole({ roleId: role.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
                 this.loadRoles()
@@ -61,18 +60,18 @@ class RoleManagement extends Component {
             title: '角色',
             dataIndex: 'roleName',
             key: 'roleName',
-            width:"120px"
+            width: '120px'
         }, {
             title: '描述',
             dataIndex: 'roleDesc',
-            key: 'roleDesc',
+            key: 'roleDesc'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             render: text => utils.formatDateTime(text),
-            width:"140px"
-        }, 
+            width: '140px'
+        },
         {
             title: '操作',
             width: 120,
@@ -91,40 +90,40 @@ class RoleManagement extends Component {
                         </Popconfirm> */}
                     </span>
                 )
-            },
+            }
         }
         ]
     }
 
-    render() {
+    render () {
         const { visible, roles, loading } = this.state
         const { project, notProjectUsers, location } = this.props
 
         const pagination = {
             total: roles.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
 
-        const extra = (<Button 
-            type="primary" 
+        const extra = (<Button
+            type="primary"
             style={{ marginTop: '10px' }}
             onClick={this.initAddMember}>
-                <Link to={`${location.pathname}/add`}>新建角色</Link>
-            </Button>
+            <Link to={`${location.pathname}/add`}>新建角色</Link>
+        </Button>
         )
 
         return (
             <div>
-                <h1 className="box-title black" style={{paddingTop: '0'}}>
+                <h1 className="box-title black" style={{ paddingTop: '0' }}>
                     {project.projectName}
                     <span className="box-sub-title">&nbsp;描述：{project.projectDesc}</span>
                 </h1>
                 <div className="box-2 m-card">
-                    <Card 
+                    <Card
                         noHovering
                         bordered={false}
                         loading={false}
-                        title="角色列表" 
+                        title="角色列表"
                         extra={''}
                         className="full-screen-table-70"
                     >
@@ -146,6 +145,6 @@ class RoleManagement extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        project: state.project,
+        project: state.project
     }
 })(RoleManagement)

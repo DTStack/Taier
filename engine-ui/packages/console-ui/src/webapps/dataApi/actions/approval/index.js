@@ -4,8 +4,8 @@ import API from '../../api/approval';
 
 export const approvalActions = {
 
-    //获取市场api列表
-    allApplyList(params) {
+    // 获取市场api列表
+    allApplyList (params) {
         return (dispatch) => {
             return API.allApplyList(params).then((res) => {
                 if (res.code === 1) {
@@ -14,22 +14,17 @@ export const approvalActions = {
                         payload: res.data.data
                     });
                     return res;
-
                 }
-
             });
         }
     },
-    //审批
-    handleApply(params) {
+    // 审批
+    handleApply (params) {
         return (dispatch) => {
             return API.handleApply(params).then((res) => {
                 if (res.code === 1) {
-                
                     return res;
-
                 }
-
             });
         }
     }

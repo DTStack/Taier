@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router'
 
 import {
     Input, Modal, Row, message, Form,
-    Table, DatePicker, Col, Tree,
+    Table, DatePicker, Col, Tree
 } from 'antd'
 
 import Api from '../../../api'
@@ -17,7 +17,7 @@ const TreeNode = Tree.TreeNode
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 
-function replaceTreeNode(treeNode, replace, replaceKey) {
+function replaceTreeNode (treeNode, replace, replaceKey) {
     if (treeNode.key === replaceKey) {
         treeNode = Object.assign(treeNode, replace);
         return;
@@ -31,28 +31,27 @@ function replaceTreeNode(treeNode, replace, replaceKey) {
 }
 
 class PatchData extends Component {
-
     state = {
-        treeData:[],
+        treeData: [],
         selected: [],
         expandedKeys: [],
         checkedKeys: ['0'],
-        confirmLoading:false
+        confirmLoading: false
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const task = nextProps.task
-        if (this.props.visible!=nextProps.visible&&nextProps.visible && task) {
+        if (this.props.visible != nextProps.visible && nextProps.visible && task) {
             this.setState({
-                checkedKeys:['0'],
-                expandedKeys:[],
-                treeData:[],
-                selected:[]
+                checkedKeys: ['0'],
+                expandedKeys: [],
+                treeData: [],
+                selected: []
             })
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
-                directType: 2, // 获取下游
+                directType: 2 // 获取下游
             })
         }
     }
@@ -63,24 +62,24 @@ class PatchData extends Component {
         const reqParams = form.getFieldsValue()
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
         this.setState({
-            confirmLoading:true
+            confirmLoading: true
         })
         this.props.form.validateFields((err) => {
             if (!err) {
                 reqParams.fromDay = reqParams.rangeDate[0].set({
                     'hour': 0,
                     'minute': 0,
-                    'second': 0,
+                    'second': 0
                 }).unix()
                 reqParams.toDay = reqParams.rangeDate[1].set({
                     'hour': 23,
                     'minute': 59,
-                    'second': 59,
+                    'second': 59
                 }).unix()
                 delete reqParams.rangeDate;
                 Api.patchTaskData(reqParams).then((res) => {
                     this.setState({
-                        confirmLoading:false
+                        confirmLoading: false
                     })
                     if (res.code === 1) {
                         this.showAddResult(reqParams.fillName)
@@ -99,12 +98,12 @@ class PatchData extends Component {
             okText: '查看',
             title: '查看补数据结果',
             content: '补数据任务已在执行中，点击下方按钮查看结果',
-            onOk() {
+            onOk () {
                 hashHistory.push(`/operation/task-patch-data/${fillJobName}`)
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
 
@@ -155,53 +154,51 @@ class PatchData extends Component {
 
     cancleModal = () => {
         this.setState({
-            selected: [],
+            selected: []
         })
         this.props.form.resetFields()
         this.props.handCancel()
     }
 
     onCheck = (checkedKeys, checkedNodes) => {
-        const checked=checkedKeys.checked;
-        let checkedSet=new Set(checked);
-        const node=checkedNodes.node;
+        const checked = checkedKeys.checked;
+        let checkedSet = new Set(checked);
+        const node = checkedNodes.node;
         const treeData = this.state.treeData;
 
-        function addParents(key,tree,result){
-            if(!tree){
+        function addParents (key, tree, result) {
+            if (!tree) {
                 return;
             }
-            for(let i=0;i<tree.length;i++){
-                let node=tree[i];
-                let nodeKey=node.key;
-                if(key.indexOf(nodeKey)==0){
+            for (let i = 0; i < tree.length; i++) {
+                let node = tree[i];
+                let nodeKey = node.key;
+                if (key.indexOf(nodeKey) == 0) {
                     result.add(nodeKey);
                 }
-                addParents(key,node.subTaskVOS,result);
+                addParents(key, node.subTaskVOS, result);
             }
-            return;
         }
 
-        function removeChildren(key,tree,result){
-            if(!tree){
+        function removeChildren (key, tree, result) {
+            if (!tree) {
                 return;
             }
-            for(let i=0;i<tree.length;i++){
-                let node=tree[i];
-                let nodeKey=node.key;
-                if(nodeKey.indexOf(key)==0){
+            for (let i = 0; i < tree.length; i++) {
+                let node = tree[i];
+                let nodeKey = node.key;
+                if (nodeKey.indexOf(key) == 0) {
                     result.delete(nodeKey);
                 }
-                removeChildren(key,node.subTaskVOS,result);
+                removeChildren(key, node.subTaskVOS, result);
             }
-            return;
         }
 
-        if(checkedNodes.checked){
-            addParents(node.props.eventKey,treeData,checkedSet);
-        }else{
-            removeChildren(node.props.eventKey,treeData,checkedSet)
-        }   
+        if (checkedNodes.checked) {
+            addParents(node.props.eventKey, treeData, checkedSet);
+        } else {
+            removeChildren(node.props.eventKey, treeData, checkedSet)
+        }
 
         if (checkedSet && checkedSet.size > 0) {
             this.setState({ checkedKeys: [...checkedSet] })
@@ -217,21 +214,20 @@ class PatchData extends Component {
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            
-                 Api.getTaskChildren({
-                    taskId: node.id,
-                    level: 2,
-                    directType: 2, // 获取下游
-                 }).then(res => {
-                    if (res.code === 1) {
-                        const updated = ctx.state.treeData[0]
-                        replaceTreeNode(updated, res.data, node.key)
-                        const arr = [updated]
-                        ctx.wrapTableTree(arr)
-                        ctx.setState({ treeData: arr })
-                    }
-                })
-            
+            Api.getTaskChildren({
+                taskId: node.id,
+                level: 2,
+                directType: 2 // 获取下游
+            }).then(res => {
+                if (res.code === 1) {
+                    const updated = ctx.state.treeData[0]
+                    replaceTreeNode(updated, res.data, node.key)
+                    const arr = [updated]
+                    ctx.wrapTableTree(arr)
+                    ctx.setState({ treeData: arr })
+                }
+            })
+
             resolve();
         })
     }
@@ -240,9 +236,9 @@ class PatchData extends Component {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
                 const content = <Row>
-                        <Col span="12" className="ellipsis" title={item.name}>{item.name}</Col>
-                        <Col span="12"><TaskType value={item.taskType} /></Col>
-                    </Row>
+                    <Col span="12" className="ellipsis" title={item.name}>{item.name}</Col>
+                    <Col span="12"><TaskType value={item.taskType} /></Col>
+                </Row>
                 if (item.subTaskVOS) {
                     return (<TreeNode
                         data={item}
@@ -266,52 +262,51 @@ class PatchData extends Component {
         return []
     }
 
-    expandChange(expandedKeys,expand){
-        if(!expand.expanded){
+    expandChange (expandedKeys, expand) {
+        if (!expand.expanded) {
             const key = expand.node.props.data.key;
-            expandedKeys=expandedKeys.filter(
-                (item)=>{
-                    return item.indexOf(key)!=0
+            expandedKeys = expandedKeys.filter(
+                (item) => {
+                    return item.indexOf(key) != 0
                 }
             )
         }
         this.setState({
-            expandedKeys:expandedKeys
+            expandedKeys: expandedKeys
         })
     }
 
-    render() {
-
+    render () {
         const { visible, handCancel, task } = this.props;
         const { getFieldDecorator } = this.props.form;
         const { treeData, confirmLoading } = this.state;
         const treeNodes = this.getTreeNodes(treeData);
-        const randomNumber = Math.floor(Math.random()*(100 - 1) + 1);
-        const pacthName = `P_${task&&task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
+        const randomNumber = Math.floor(Math.random() * (100 - 1) + 1);
+        const pacthName = `P_${task && task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
 
         return (
             <Modal
-              title="补数据"
-              okText="运行选中任务"
-              visible={visible}
-              onOk={this.addData}
-              onCancel={this.cancleModal}
-              confirmLoading={confirmLoading}
+                title="补数据"
+                okText="运行选中任务"
+                visible={visible}
+                onOk={this.addData}
+                onCancel={this.cancleModal}
+                confirmLoading={confirmLoading}
             >
-                <Row style={{ lineHeight: '30px'  }}>
+                <Row style={{ lineHeight: '30px' }}>
                     <FormItem {...formItemLayout} label="补数据名">
                         {getFieldDecorator('fillName', {
                             initialValue: pacthName,
                             rules: [{
                                 required: true,
-                                message: '请输入补数据名!',
+                                message: '请输入补数据名!'
                             }, {
                                 pattern: /^[A-Za-z0-9_]+$/,
-                                message: '补数据名称只能由字母、数字、下划线组成!',
+                                message: '补数据名称只能由字母、数字、下划线组成!'
                             }, {
                                 max: 64,
-                                message: '补数据名称不得超过64个字符！',
-                            }],
+                                message: '补数据名称不得超过64个字符！'
+                            }]
                         })(
                             <Input placeholder="请输入补数据名"/>
                         )}
@@ -324,13 +319,13 @@ class PatchData extends Component {
                             rules: [{
                                 type: 'array',
                                 required: true,
-                                message: '请选择业务时间!',
-                            }],
+                                message: '请选择业务时间!'
+                            }]
                         })(
                             <RangePicker
                                 disabledDate={this.disabledDate}
                                 format="YYYY-MM-DD"
-                                style={{width: '100%'}}
+                                style={{ width: '100%' }}
                             />
                         )}
                     </FormItem>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-    Modal, Input,
+import {
+    Modal, Input
 } from 'antd';
 import utils from 'utils';
 
-import { 
-    DATA_SOURCE,
+import {
+    DATA_SOURCE
 } from '../../../../../comm/const';
 
 const renderHDFSTypes = () => {
@@ -20,13 +20,12 @@ const renderHDFSTypes = () => {
     </span>
 }
 
-export default function BatchModal(props) {
-
-    const { 
+export default function BatchModal (props) {
+    const {
         title, desc,
-        visible, onOk, 
+        visible, onOk,
         placeholder, value, columns, sourceType,
-        onCancel, onChange, columnFamily,
+        onCancel, onChange, columnFamily
     } = props
 
     let initialVal = '';
@@ -38,24 +37,24 @@ export default function BatchModal(props) {
     } else {
         columns && columns.forEach(item => {
             const field = utils.checkExist(item.key) ? item.key : undefined;
-            if ( field !== undefined ) initialVal += `${item.cf || '-'}:${field}:${item.type},\n`;
+            if (field !== undefined) initialVal += `${item.cf || '-'}:${field}:${item.type},\n`;
         })
     }
 
     return (
-        <Modal 
+        <Modal
             title={title}
             onOk={onOk}
             onCancel={onCancel}
             visible={visible}>
             <p>
                 批量导入的语法格式：
-                <b style={{color: 'rgb(255, 102, 0)'}}>
-                   {desc}
+                <b style={{ color: 'rgb(255, 102, 0)' }}>
+                    {desc}
                 </b>
             </p>
             <p>常用数据类型（type)：
-                <span style={{color: 'rgb(255, 102, 0)'}}>
+                <span style={{ color: 'rgb(255, 102, 0)' }}>
                     {renderHDFSTypes()}
                 </span>
             </p>
@@ -66,9 +65,9 @@ export default function BatchModal(props) {
             </p> : ''}
 
             <br/>
-            <Input 
+            <Input
                 type="textarea"
-                rows={6} 
+                rows={6}
                 value={value || initialVal}
                 onChange={onChange}
                 placeholder={placeholder}

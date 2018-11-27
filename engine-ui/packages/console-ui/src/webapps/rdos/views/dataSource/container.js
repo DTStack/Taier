@@ -7,14 +7,14 @@ import '../../styles/pages/dataSource.scss';
 const { Sider, Content } = Layout;
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="inner-container">

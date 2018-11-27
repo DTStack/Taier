@@ -7,7 +7,7 @@ import {
     Table, message, Modal,
     Card, Input, Button, Select,
     Icon, DatePicker, Tooltip,
-    Form, Checkbox,
+    Form, Checkbox
 } from 'antd'
 
 import utils from 'utils'
@@ -21,13 +21,12 @@ import {
     offlineTaskPeriodFilter,
     PROJECT_TYPE,
     TASK_STATUS,
-    TASK_TYPE,
+    TASK_TYPE
 } from '../../../comm/const'
 
 import {
-    TaskStatus, TaskTimeType, TaskType,
+    TaskStatus, TaskTimeType, TaskType
 } from '../../../components/status'
-
 
 import {
     workbenchActions
@@ -44,17 +43,16 @@ const RangePicker = DatePicker.RangePicker
 const yesterDay = moment().subtract(1, 'days');
 
 class OfflineTaskList extends Component {
-
     state = {
         tasks: {
-            data: [],
+            data: []
         },
         loading: false,
         continue: false,
         current: 1,
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
-        taskStatus: isEmpty(utils.getParameterByName("status")) ? [] : utils.getParameterByName("status").split(','),
+        taskStatus: isEmpty(utils.getParameterByName('status')) ? [] : utils.getParameterByName('status').split(','),
         bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date') || 0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
@@ -70,14 +68,14 @@ class OfflineTaskList extends Component {
         bussinessDateSort: '',
         cycSort: '',
         visibleSlidePane: false,
-        selectedTask: '',
+        selectedTask: ''
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -96,7 +94,7 @@ class OfflineTaskList extends Component {
             cycSort, cycDate
         } = this.state
         const reqParams = {
-            currentPage: current,
+            currentPage: current
         }
         if (jobName) {
             reqParams.taskName = jobName
@@ -135,13 +133,13 @@ class OfflineTaskList extends Component {
         this.loadTaskList(reqParams)
     }
 
-    loadTaskList(params) { // currentPage, pageSize, isTimeSortDesc, status
+    loadTaskList (params) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
         this.setState({ loading: true })
         const reqParams = Object.assign({
             currentPage: 1,
             pageSize: 20,
-            type: 0,
+            type: 0
         }, params)
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
@@ -158,12 +156,11 @@ class OfflineTaskList extends Component {
             ctx.setState({
                 loading: false
             })
-
         })
         this.loadJobStatics(params)
     }
 
-    loadJobStatics(params) {
+    loadJobStatics (params) {
         const ctx = this
         // type:  NORMAL_SCHEDULE(0), FILL_DATA(1);
         params.type = 0;
@@ -181,7 +178,7 @@ class OfflineTaskList extends Component {
         if (!selected || selected.length <= 0) {
             warning({
                 title: '提示',
-                content: '您没有选择任何需要杀死的任务！',
+                content: '您没有选择任何需要杀死的任务！'
             })
             return
         }
@@ -189,7 +186,7 @@ class OfflineTaskList extends Component {
             confirm({
                 title: '确认提示',
                 content: '确定要杀死选择的任务？',
-                onOk() {
+                onOk () {
                     Api.batchStopJob({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             ctx.setState({ selectedRowKeys: [], checkAll: false })
@@ -197,7 +194,7 @@ class OfflineTaskList extends Component {
                             ctx.search()
                         }
                     })
-                },
+                }
             });
         } else {
             warning({
@@ -205,7 +202,7 @@ class OfflineTaskList extends Component {
                 content: `
                     除去“失败”、“取消”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
                     请您重新选择!
-                `,
+                `
             })
         }
     }
@@ -216,7 +213,7 @@ class OfflineTaskList extends Component {
         if (!selected || selected.length <= 0) {
             warning({
                 title: '提示',
-                content: '您没有选择任何需要重跑的任务！',
+                content: '您没有选择任何需要重跑的任务！'
             })
             return
         }
@@ -224,7 +221,7 @@ class OfflineTaskList extends Component {
             confirm({
                 title: '确认提示',
                 content: '确认需要重跑选择的任务？',
-                onOk() {
+                onOk () {
                     Api.batchRestartAndResume({ jobIdList: selected }).then((res) => {
                         if (res.code === 1) {
                             message.success('已经成功重跑所选任务！')
@@ -232,7 +229,7 @@ class OfflineTaskList extends Component {
                             ctx.search()
                         }
                     })
-                },
+                }
             });
         } else {
             warning({
@@ -240,7 +237,7 @@ class OfflineTaskList extends Component {
                 content: `
                     只有“未运行、成功、失败、取消”状态下的任务可以进行重跑操作，
                     请您重新选择!
-                `,
+                `
             })
         }
     }
@@ -283,7 +280,6 @@ class OfflineTaskList extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-
         const params = {
             current: pagination.current,
             taskStatus: filters.status,
@@ -296,33 +292,33 @@ class OfflineTaskList extends Component {
             execStartSort: '',
             execEndSort: '',
             businessDateSort: '',
-            cycSort: '',
+            cycSort: ''
         }
 
         if (sorter) {
             let { field, order } = sorter;
 
             switch (field) {
-                case 'execTime': {
-                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'execStartDate': {
-                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'execEndDate': {
-                    params.execEndSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'cycTime': {
-                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
-                case 'businessDate': {
-                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                    break;
-                }
+            case 'execTime': {
+                params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'execStartDate': {
+                params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'execEndDate': {
+                params.execEndSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'cycTime': {
+                params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
+            case 'businessDate': {
+                params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                break;
+            }
             }
         }
         this.setState(params, () => {
@@ -393,12 +389,11 @@ class OfflineTaskList extends Component {
             width: 120,
             render: (text, record) => {
                 const name = record.batchTask && record.batchTask.name
-                const showName = record.batchTask.isDeleted === 1 ?
-                    `${name} (已删除)`
-                    :
-                    <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                const showName = record.batchTask.isDeleted === 1
+                    ? `${name} (已删除)`
+                    : <a onClick={() => { this.showTask(record) }}>{name}</a>;
                 return showName;
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'status',
@@ -406,16 +401,16 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
-                    {record.isDirty ?
-                        <Tooltip
+                    {record.isDirty
+                        ? <Tooltip
                             title="部分数据未同步成功，建议检查配置"
                         >
-                            <Icon type="info-circle-o" style={{ color: "#EF5350", marginLeft: "5px" }} />
+                            <Icon type="info-circle-o" style={{ color: '#EF5350', marginLeft: '5px' }} />
                         </Tooltip>
                         : null}
                 </span>
             },
-            width: "110px",
+            width: '110px',
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
             filteredValue: taskStatus
@@ -426,8 +421,8 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
-            width: "90px",
-            filters: taskTypeFilter,
+            width: '90px',
+            filters: taskTypeFilter
         }, {
             title: '调度周期',
             dataIndex: 'taskPeriodId',
@@ -435,42 +430,42 @@ class OfflineTaskList extends Component {
             render: (text) => {
                 return <TaskTimeType value={text} />
             },
-            width: "90px",
-            filters: offlineTaskPeriodFilter,
+            width: '90px',
+            filters: offlineTaskPeriodFilter
         }, {
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate',
             sorter: true,
-            width: "90px",
+            width: '90px'
         }, {
             title: '计划时间',
             dataIndex: 'cycTime',
             key: 'cycTime',
-            sorter: true,
+            sorter: true
         }, {
             title: '开始时间',
             dataIndex: 'execStartDate',
             key: 'execStartDate',
-            sorter: true,
+            sorter: true
         }, {
             title: '结束时间',
             dataIndex: 'execEndDate',
             key: 'execEndDate',
-            sorter: true,
+            sorter: true
         }, {
             title: '运行时长',
             dataIndex: 'execTime',
             key: 'execTime',
             sorter: true,
-            width: "90px",
+            width: '90px'
         }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',
             render: (text, record) => {
-                return record.batchTask && record.batchTask.ownerUser
-                    && record.batchTask.ownerUser.userName
+                return record.batchTask && record.batchTask.ownerUser &&
+                    record.batchTask.ownerUser.userName
             }
         }]
     }
@@ -489,14 +484,14 @@ class OfflineTaskList extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 20px 10px 23px', display: "inline-block" }}>
+                <div style={{ padding: '15px 20px 10px 23px', display: 'inline-block' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
                 </div>
-                <div style={{ display: "inline-block" }}>
+                <div style={{ display: 'inline-block' }}>
                     <Button type="primary" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
                     <Button type="primary" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                 </div>
@@ -516,14 +511,14 @@ class OfflineTaskList extends Component {
                 jobId
             }).then((res) => {
                 if (res.code == 1) {
-                    const index=newTasks.data.findIndex((task) => {
+                    const index = newTasks.data.findIndex((task) => {
                         return task.jobId == jobId
                     });
-                    if(index||index==0){
-                        newTasks.data[index]={
+                    if (index || index == 0) {
+                        newTasks.data[index] = {
                             ...res.data,
-                            children:res.data.relatedJobs,
-                            relatedJobs:undefined
+                            children: res.data.relatedJobs,
+                            relatedJobs: undefined
                         };
                     }
                     this.setState({
@@ -532,11 +527,11 @@ class OfflineTaskList extends Component {
                 }
             })
         } else {
-            console.log("record")
+            console.log('record')
         }
     }
 
-    render() {
+    render () {
         const {
             tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
@@ -545,8 +540,8 @@ class OfflineTaskList extends Component {
 
         const { projectUsers, project } = this.props
 
-        const userItems = projectUsers && projectUsers.length > 0 ?
-            projectUsers.map((item) => {
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
                 return (<Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
                     {item.user.userName}
                 </Option>)
@@ -555,7 +550,7 @@ class OfflineTaskList extends Component {
         const pagination = {
             total: tasks.totalCount,
             defaultPageSize: 20,
-            current,
+            current
         };
 
         // rowSelection object indicates the need for row selection
@@ -608,7 +603,7 @@ class OfflineTaskList extends Component {
                                 <Circle className="status_overview_frozen" />&nbsp;
                             冻结: &nbsp;{statistics.FROZEN || 0}
                             </span>&nbsp;
-                    </span>
+                        </span>
                     </div>
                 </h1>
                 <div className="box-2 m-card task-manage">
@@ -689,9 +684,9 @@ class OfflineTaskList extends Component {
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
-                                        return "row-select"
+                                        return 'row-select'
                                     } else {
-                                        return "";
+                                        return '';
                                     }
                                 }
                             }

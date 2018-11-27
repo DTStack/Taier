@@ -1,13 +1,11 @@
-import React, { Component } from "react";
-import { Row, Col } from "antd";
+import React, { Component } from 'react';
+import { Row, Col } from 'antd';
 
 class Default extends Component {
-
-    render() {
-
+    render () {
         const {
             onSQLQuery,
-            onCreateTable,
+            onCreateTable
         } = this.props;
 
         const iconBaseUrl = '/public/analyticsEngine/img';
@@ -15,7 +13,7 @@ class Default extends Component {
         return (
             <Row
                 className="box-card txt-left"
-                style={{ paddingTop: "30px" }}
+                style={{ paddingTop: '30px' }}
             >
                 <Col className="operation-card">
                     <div

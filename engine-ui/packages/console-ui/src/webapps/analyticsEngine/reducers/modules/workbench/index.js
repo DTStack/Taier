@@ -5,7 +5,7 @@ import folderTree from './folderTree';
 
 const workbenchReducer = combineReducers({
     mainBench,
-    folderTree,
+    folderTree
 })
 
 export default workbenchReducer;

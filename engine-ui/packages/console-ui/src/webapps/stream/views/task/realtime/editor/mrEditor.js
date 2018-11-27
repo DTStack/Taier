@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import {
-    Form, Input, Radio,
+    Form, Input, Radio
 } from 'antd'
-import { connect } from "react-redux"
+import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { formItemLayout, PROJECT_TYPE } from '../../../../comm/const'
@@ -12,13 +12,12 @@ import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
-
 class MrEditor extends Component {
-    componentWillMount() {
+    componentWillMount () {
         this.props.realtimeGetTaskTypes();
     }
 
-    render() {
+    render () {
         const { form, currentPage, taskTypes } = this.props
         const { getFieldDecorator } = form
 
@@ -32,14 +31,14 @@ class MrEditor extends Component {
                     >
                         {getFieldDecorator('name', {
                             rules: [{
-                                required: true, message: '任务名称不可为空！',
+                                required: true, message: '任务名称不可为空！'
                             }, {
                                 max: 64,
-                                message: '任务名称不得超过64个字符！',
+                                message: '任务名称不得超过64个字符！'
                             }],
-                            initialValue: currentPage ? currentPage.name : '',
+                            initialValue: currentPage ? currentPage.name : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -48,13 +47,13 @@ class MrEditor extends Component {
                     >
                         {getFieldDecorator('taskType', {
                             rules: [],
-                            initialValue: currentPage ? currentPage.taskType : 0,
+                            initialValue: currentPage ? currentPage.taskType : 0
                         })(
                             <RadioGroup disabled>
                                 {taskTypes.map(item =>
                                     <Radio key={item.key} value={item.key}>{item.value}</Radio>
                                 )}
-                            </RadioGroup>,
+                            </RadioGroup>
                         )}
                     </FormItem>
                     <FormItem
@@ -62,9 +61,9 @@ class MrEditor extends Component {
                         label="资源"
                         hasFeedback
                     >
-                        {currentPage && currentPage.resourceList
-                            && currentPage.resourceList.length > 0 ?
-                            currentPage.resourceList[0].resourceName : ''}
+                        {currentPage && currentPage.resourceList &&
+                            currentPage.resourceList.length > 0
+                            ? currentPage.resourceList[0].resourceName : ''}
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
@@ -72,9 +71,9 @@ class MrEditor extends Component {
                     >
                         {getFieldDecorator('mainClass', {
                             rules: [{}],
-                            initialValue: currentPage && currentPage.mainClass,
+                            initialValue: currentPage && currentPage.mainClass
                         })(
-                            <Input placeholder="请输入mainClass" />,
+                            <Input placeholder="请输入mainClass" />
                         )}
                     </FormItem>
                     <FormItem
@@ -83,9 +82,9 @@ class MrEditor extends Component {
                     >
                         {getFieldDecorator('exeArgs', {
                             rules: [{}],
-                            initialValue: currentPage && currentPage.exeArgs,
+                            initialValue: currentPage && currentPage.exeArgs
                         })(
-                            <Input placeholder="请输入任务参数" />,
+                            <Input placeholder="请输入任务参数" />
                         )}
                     </FormItem>
                     <FormItem
@@ -95,9 +94,9 @@ class MrEditor extends Component {
                     >
                         {getFieldDecorator('taskDesc', {
                             rules: [],
-                            initialValue: currentPage ? currentPage.taskDesc : '',
+                            initialValue: currentPage ? currentPage.taskDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />,
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                 </Form>
@@ -121,11 +120,11 @@ const taskValueChange = (props, values) => {
 }
 
 const wrappedForm = Form.create({
-    onValuesChange: taskValueChange,
+    onValuesChange: taskValueChange
 })(MrEditor);
 export default connect(state => {
     return {
-        taskTypes: state.realtimeTask.comm.taskTypes,
+        taskTypes: state.realtimeTask.comm.taskTypes
     }
 }, dispatch => {
     return bindActionCreators({

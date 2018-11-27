@@ -13,15 +13,14 @@ import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
@@ -31,7 +30,7 @@ class Container extends Component {
         this.initProject()
     }
 
-    initProject() {
+    initProject () {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname
         if (pathname !== '/') {
@@ -42,14 +41,14 @@ class Container extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {
             this.props.dispatch(ProjectAction.getProject(nowId))
         }
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="dt-dev-tools" id="JS_APP">
@@ -64,13 +63,13 @@ class Container extends Component {
 Container.propTypes = propType
 Container.defaultProps = defaultPro
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
     return {
         user: state.user,
         projects: state.projects,
         project: state.project,
         apps: state.apps,
-        app: state.app,
+        app: state.app
     }
 }
 export default connect(mapStateToProps)(Container)

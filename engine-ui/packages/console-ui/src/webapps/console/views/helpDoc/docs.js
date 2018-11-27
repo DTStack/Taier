@@ -6,5 +6,3 @@ export const docExample = (
        docExample.
     </div>
 )
-
-

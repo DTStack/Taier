@@ -6,7 +6,6 @@ import { isSelectedProject } from './interceptor'
 
 import NotFund from 'widgets/notFund'
 
-
 // 继承主应用的的公共View组件
 import Main from 'main/views'
 import MsgCenter from 'main/views/message'
@@ -22,14 +21,12 @@ import GRoleEdit from 'main/views/admin/role/edit'
 import Container from './views/container'
 import Dashboard from './views/dashboard'
 
-
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
 import ProjectMember from './views/project/member'
 import RoleManagement from './views/project/role'
 import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
-
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
@@ -77,42 +74,40 @@ import DataModelConfig from './views/dataModel/configure';
 // .then(module => module.default), { name: 'dashboard' })
 
 const ProjectContainer = asyncComponent(() => import('./views/project/container')
-.then(module => module.default), { name: 'projectContainer' })
-
-
+    .then(module => module.default), { name: 'projectContainer' })
 
 // ======= 离线任务 =========
 const TaskOffline = asyncComponent(() => import('./views/task/offline')
-.then(module => module.default), { name: 'offlineTaskPage' });
+    .then(module => module.default), { name: 'offlineTaskPage' });
 const OfflineDefault = asyncComponent(() => import('./views/task/offline/default')
-.then(module => module.default), { name: 'offlineTaskPage' });
+    .then(module => module.default), { name: 'offlineTaskPage' });
 
 // ======= 运维 =======
 const Operation = asyncComponent(() => import('./views/operation/container')
-.then(module => module.default), { name: 'operationPage' })
+    .then(module => module.default), { name: 'operationPage' })
 
 const OperationOverview = asyncComponent(() => import('./views/operation/overview')
-.then(module => module.default), { name: 'operationAbstract' })
+    .then(module => module.default), { name: 'operationAbstract' })
 
 // ======= 数据管理 =======
 const DataManageContainer = asyncComponent(() => import('./views/dataManage/container')
-.then(module => module.default), { name: 'dataManageContainer' })
+    .then(module => module.default), { name: 'dataManageContainer' })
 
 // ======= 数据源管理 =======
 const DataSourceContainer = asyncComponent(() => import('./views/dataSource/container')
-.then(module => module.default), { name: 'dataSourceContainer' })
+    .then(module => module.default), { name: 'dataSourceContainer' })
 
 // ======= 数据源管理 =======
 const DataModelContainer = asyncComponent(() => import('./views/dataModel/index')
-.then(module => module.default), { name: 'dataModelContainer' })
+    .then(module => module.default), { name: 'dataModelContainer' })
 
 // ======= 测试 =======
 const Test = asyncComponent(() => import('./views/test')
-.then(module => module.default), { name: 'testPage' })
+    .then(module => module.default), { name: 'testPage' })
 
 // ======= 发布 =======
 const PackageContainer = asyncComponent(() => import('./views/operation/package/container')
-.then(module => module.default), { name: 'packageContainer' })
+    .then(module => module.default), { name: 'packageContainer' })
 
 export default (
     <Route path="/" component={Main}>
@@ -181,7 +176,7 @@ export default (
                 <Route path="overview" component={DataModelOverview} />
                 <Route path="check" component={DataModelCheckCenter}></Route>
                 <Route path="table" component={DataModelDesign} />
-                <Route path="table/create" component={TableCreator} />                
+                <Route path="table/create" component={TableCreator} />
                 <Route path="table/design" component={DataModelCreate} />
                 <Route path="table/modify/:tableId" component={DataModelModify} />
                 <Route path="config" component={DataModelConfig} />

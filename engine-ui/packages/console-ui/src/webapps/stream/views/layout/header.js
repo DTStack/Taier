@@ -1,12 +1,12 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Menu, Icon, Dropdown, Modal } from "antd";
+import { Menu, Icon, Dropdown, Modal } from 'antd';
 
-import { MenuRight } from "main/components/nav";
+import { MenuRight } from 'main/components/nav';
 
-import Api from "../../api";
+import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
-import * as ProjectAction from "../../store/modules/project";
+import * as ProjectAction from '../../store/modules/project';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || "";

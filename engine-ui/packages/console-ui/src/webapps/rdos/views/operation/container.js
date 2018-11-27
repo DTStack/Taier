@@ -10,45 +10,44 @@ import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 const { Sider, Content } = Layout;
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-
     state = {
         collapsed: false,
-        mode: 'inline',
+        mode: 'inline'
     };
 
-    componentDidMount() {
+    componentDidMount () {
         this.initUsers(this.props.project);
         this.props.dispatch(getTaskTypes());
     }
-    componentWillReceiveProps(nextProps){
-        const {project={}} = nextProps;
-        const {project:old_project={}} = this.props;
-        if(old_project.id!=project.id){
-            console.log(old_project.id,project.id)
+    componentWillReceiveProps (nextProps) {
+        const { project = {} } = nextProps;
+        const { project: old_project = {} } = this.props;
+        if (old_project.id != project.id) {
+            console.log(old_project.id, project.id)
             this.initUsers(project);
         }
     }
-    initUsers(project){
-        const {id} = project;
-        if(id){
+    initUsers (project) {
+        const { id } = project;
+        if (id) {
             this.props.dispatch(UserAction.getProjectUsers());
         }
     }
     onCollapse = (collapsed) => {
         this.setState({
             collapsed,
-            mode: collapsed ? 'vertical' : 'inline',
+            mode: collapsed ? 'vertical' : 'inline'
         });
     }
 
-    render() {
+    render () {
         const { children } = this.props
         const collapsed = this.state.collapsed
         return (
@@ -65,8 +64,8 @@ class Container extends Component {
 }
 Container.propTypes = propType
 Container.defaultProps = defaultPro
-export default connect(state=>{
+export default connect(state => {
     return {
-        project:state.project
+        project: state.project
     }
 })(Container)

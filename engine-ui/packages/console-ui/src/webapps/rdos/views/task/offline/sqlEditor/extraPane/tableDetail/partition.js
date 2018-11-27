@@ -1,33 +1,31 @@
-import React from "react";
+import React from 'react';
 
-import { Icon, Tabs } from "antd";
+import { Icon, Tabs } from 'antd';
 
-import TablePartition from "../../../../../dataManage/tablePartition"
-
+import TablePartition from '../../../../../dataManage/tablePartition'
 
 class ExtraPaneTableDetailPartition extends React.Component {
-
     state = {
         data: []
     }
 
-    initColumns() {
+    initColumns () {
         return [{
             title: '字段',
             dataIndex: 'columnName',
-            width: "100px"
+            width: '100px'
         }, {
             title: '类型',
             dataIndex: 'columnType',
-            width: "80px"
+            width: '80px'
         }, {
             title: '描述',
             dataIndex: 'comment',
-            width: "80px"
+            width: '80px'
         }]
     }
 
-    getTableId() {
+    getTableId () {
         const { columns } = this.props;
         if (columns && columns.length) {
             return columns[0].tableId;
@@ -36,7 +34,7 @@ class ExtraPaneTableDetailPartition extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { data } = this.state;
         return (
             <div>

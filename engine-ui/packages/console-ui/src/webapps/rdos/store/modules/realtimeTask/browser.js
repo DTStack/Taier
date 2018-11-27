@@ -1,18 +1,18 @@
 import { hashHistory } from 'react-router'
-import { cloneDeep } from "lodash";
+import { cloneDeep } from 'lodash';
 
 import localDb from 'utils/localDb'
 import Api from '../../../api'
 import { browserAction } from './actionTypes'
 
-export function publishTask(params){
+export function publishTask (params) {
     const succCallback = (res) => {
         if (res.code === 1) {
             return res
         }
     }
     return Api.publishRealtimeTask(params)
-            .then(succCallback);
+        .then(succCallback);
 }
 
 // Action

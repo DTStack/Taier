@@ -2,23 +2,22 @@ import React, { Component } from 'react'
 
 import {
     Input, Button, Card,
-    Select, Form, Checkbox,
- } from 'antd'
+    Select, Form, Checkbox
+} from 'antd'
 
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
- 
+
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 class EditRoleForm extends Component {
-
-    render() {
+    render () {
         const { roles, form, user } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
-        const selectedRoles = user && user.roles 
-        ? user.roles.map(role => role.id) : [];
+        const selectedRoles = user && user.roles
+            ? user.roles.map(role => role.id) : [];
 
         let roleOptions = [];
         if (roles) {
@@ -34,20 +33,19 @@ class EditRoleForm extends Component {
         return (
             <Form>
                 <FormItem
-                {...formItemLayout}
-                label="请选择用户角色"
+                    {...formItemLayout}
+                    label="请选择用户角色"
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: selectedRoles,
+                        initialValue: selectedRoles
                     })(
-                        <CheckboxGroup options={roleOptions} />,
+                        <CheckboxGroup options={roleOptions} />
                     )}
                 </FormItem>
             </Form>
         )
     }
-
 }
 
 const FormWrapper = Form.create()(EditRoleForm)

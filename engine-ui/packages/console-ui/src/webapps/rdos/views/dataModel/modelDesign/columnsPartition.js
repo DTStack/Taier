@@ -10,12 +10,11 @@ import RowItem from './rowItem';
  * @extends {React.Component}
  */
 export default class ColumnsPartition extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    addRow(type) {
+    addRow (type) {
         this.props.addRow({
             columnName: '',
             columnType: 'STRING',
@@ -24,19 +23,19 @@ export default class ColumnsPartition extends React.Component {
         }, type);
     }
 
-    delRow(type, uuid) {
+    delRow (type, uuid) {
         this.props.delRow(uuid, type);
     }
 
-    replaceRow(type, newCol) {
+    replaceRow (type, newCol) {
         this.props.replaceRow(newCol, type);
     }
 
-    moveRow(type, uuid, isUp) {
+    moveRow (type, uuid, isUp) {
         this.props.moveRow(uuid, type, isUp);
     }
 
-    render() {
+    render () {
         const { columns, partition_keys, isEdit, columnFileds } = this.props;
 
         return <div className="m-columnspartition">
@@ -75,7 +74,7 @@ export default class ColumnsPartition extends React.Component {
                     </Row>
                     { partition_keys.map((partition, i) => <RowItem
                         columnFileds={columnFileds}
-                        data={{...partition, isPartition: true}}
+                        data={{ ...partition, isPartition: true }}
                         key={ partition.uuid || i }
                         delRow={ this.delRow.bind(this, 2) }
                         replaceRow={ this.replaceRow.bind(this, 2) }

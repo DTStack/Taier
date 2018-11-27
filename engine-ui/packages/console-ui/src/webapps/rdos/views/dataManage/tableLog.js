@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs,Spin
+    Form, DatePicker, Select, Icon, Card, Tabs, Spin
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -13,7 +13,6 @@ import SlidePane from 'widgets/slidePane';
 import ajax from '../../api/dataManage';
 import * as UserAction from '../../store/modules/user'
 
-
 const Search = Input.Search;
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
@@ -21,7 +20,7 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 
 class LogSearchForm extends React.Component {
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { projectUsers } = this.props;
 
@@ -71,29 +70,29 @@ class LogSearchForm extends React.Component {
 
 const FormWrapper = Form.create()(LogSearchForm);
 class TableLog extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             logs: {},
-            isDeleted: 1,
+            isDeleted: 1
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
         this.props.getUsers()
     }
 
-    render() {
+    render () {
         const { tableId, tableName, projectUsers } = this.props;
-        
+
         const { logs } = this.state;
         const columns = [{
             title: '变更时间',
             width: 200,
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(text, record) {
+            render (text, record) {
                 return moment(text).format('YYYY-MM-DD HH:mm:ss')
             }
         }, {
@@ -101,7 +100,7 @@ class TableLog extends React.Component {
             width: 200,
             dataIndex: 'userId',
             key: 'userId',
-            render(text, record) {
+            render (text, record) {
                 let userName;
 
                 projectUsers.forEach(function (o) {
@@ -114,7 +113,7 @@ class TableLog extends React.Component {
             title: '操作语句',
             dataIndex: 'actionSql',
             key: 'actionSql',
-            render(text) {
+            render (text) {
                 return <code style={{ maxWidth: '400px', maxHeight: '100px' }}>{text}</code>
             }
         }];
@@ -157,7 +156,7 @@ class TableLog extends React.Component {
         </div>
     }
 
-    showPage(pageIndex, pageSize) {
+    showPage (pageIndex, pageSize) {
         const form = this.getFormParams();
         const params = Object.assign(form, {
             pageIndex, pageSize
@@ -166,12 +165,12 @@ class TableLog extends React.Component {
         this.doSearch(params);
     }
 
-    search() {
+    search () {
         const params = this.getFormParams();
         this.doSearch(params);
     }
 
-    getFormParams() {
+    getFormParams () {
         const params = this.searchForm.getFieldsValue();
         if (params.range) {
             var [startTime, endTime] = params.range;
@@ -183,7 +182,7 @@ class TableLog extends React.Component {
         return { startTime, endTime, ...params };
     }
 
-    doSearch(params) {
+    doSearch (params) {
         ajax.searchLog(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -199,7 +198,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    getUsers() {
+    getUsers () {
         dispatch(UserAction.getProjectUsers())
     }
 });

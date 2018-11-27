@@ -9,10 +9,10 @@ export const DATA_SOURCE = {
     HBASE: 8,
     FTP: 9,
     MAXCOMPUTE: 10,
-    ADS:11,
+    ADS: 11,
     POSTAGERSQL: 15,
-    RDS:16,
-    DB2:17,
+    RDS: 16,
+    DB2: 17
 }
 
 export const API_MODE = {
@@ -21,30 +21,30 @@ export const API_MODE = {
 }
 export const API_METHOD = {
     POST: 1,
-    GET:0
+    GET: 0
 }
 export const API_METHOD_key = {
-    1: "POST",
-    0: "GET"
+    1: 'POST',
+    0: 'GET'
 }
 
 export const API_STATUS = {
-    "-1": 'NO_APPLY',
-    "0": 'IN_HAND',
-    "1": 'PASS',
-    "2": 'REJECT',
-    "3": 'STOPPED',
-    "4": 'DISABLE',
-    "5": 'EXPIRED'
+    '-1': 'NO_APPLY',
+    '0': 'IN_HAND',
+    '1': 'PASS',
+    '2': 'REJECT',
+    '3': 'STOPPED',
+    '4': 'DISABLE',
+    '5': 'EXPIRED'
 }
 export const API_USER_STATUS = {
-    "NO_APPLY": -1,
-    "IN_HAND": 0,
-    "PASS": 1,
-    "REJECT": 2,
-    "STOPPED": 3,
-    "DISABLE": 4,
-    "EXPIRED": 5
+    'NO_APPLY': -1,
+    'IN_HAND': 0,
+    'PASS': 1,
+    'REJECT': 2,
+    'STOPPED': 3,
+    'DISABLE': 4,
+    'EXPIRED': 5
 }
 export const API_SYSTEM_STATUS = {
     SUCCESS: 0,
@@ -52,11 +52,11 @@ export const API_SYSTEM_STATUS = {
     EDITTING: 2
 }
 export const API_DELETE = {
-    "YES": 0,
-    "NO": 1
+    'YES': 0,
+    'NO': 1
 }
 export const EXCHANGE_API_STATUS = {
-    '-1': "nothing",
+    '-1': 'nothing',
     0: 'inhand',
     1: 'success',
     2: 'notPass',
@@ -96,39 +96,39 @@ export const dataSourceTypes = [ // 数据源类型
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-    },
+        sm: { span: 14 }
+    }
 };
 
 export const tailFormItemLayout = { // 表单末尾布局
     wrapperCol: {
         xs: {
             span: 24,
-            offset: 0,
+            offset: 0
         },
         sm: {
             span: 14,
-            offset: 6,
-        },
-    },
+            offset: 6
+        }
+    }
 }
 
 export const rowFormItemLayout = { // 单行末尾布局
     labelCol: { span: 0 },
-    wrapperCol: { span: 24 },
+    wrapperCol: { span: 24 }
 }
 
 export const lineAreaChartOptions = {// 堆叠折现图默认选项
     title: {
         text: '堆叠区域图',
         textStyle: {
-            fontSize: 12,
+            fontSize: 12
         },
-        textAlign: 'left',
+        textAlign: 'left'
     },
     tooltip: {
         trigger: 'axis',
@@ -145,7 +145,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     toolbox: {
         feature: {
             saveAsImage: {
-                show: false,
+                show: false
             }
         }
     },
@@ -161,7 +161,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             boundaryGap: false,
             data: [],
             axisTick: {
-                show: true,
+                show: true
             },
             axisLine: {
                 lineStyle: {
@@ -170,14 +170,14 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
             },
             axisLabel: {
                 textStyle: {
-                    color: '#666666',
-                },
+                    color: '#666666'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             splitLine: {
-                color: '#666666',
+                color: '#666666'
             }
         }
     ],
@@ -188,11 +188,11 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
                 formatter: '{value} 个',
                 textStyle: {
                     color: '#666666',
-                    baseline: 'bottom',
-                },
+                    baseline: 'bottom'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             nameLocation: 'end',
             nameGap: 20,
@@ -200,7 +200,7 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
                 show: false
             },
             axisTick: {
-                show: false,
+                show: false
             },
             splitLine: {
                 lineStyle: {
@@ -230,7 +230,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
     toolbox: {
         feature: {
             saveAsImage: {
-                show: false,
+                show: false
             }
         }
     },
@@ -248,7 +248,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
             boundaryGap: false,
             data: [],
             axisTick: {
-                show: true,
+                show: true
             },
             axisLine: {
                 lineStyle: {
@@ -257,14 +257,14 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
             },
             axisLabel: {
                 textStyle: {
-                    color: '#666666',
-                },
+                    color: '#666666'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             splitLine: {
-                color: '#666666',
+                color: '#666666'
             }
         }
     ],
@@ -272,12 +272,12 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
         {
             nameGap: 25,
             type: 'value',
-            name: "调用次数",
+            name: '调用次数',
             axisLabel: {
                 textStyle: {
                     color: '#666666',
-                    baseline: 'bottom',
-                },
+                    baseline: 'bottom'
+                }
             },
             nameTextStyle: {
                 color: '#666666'
@@ -287,7 +287,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
                 show: false
             },
             axisTick: {
-                show: false,
+                show: false
             },
             splitLine: false,
             minInterval: 1
@@ -295,22 +295,22 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
         {
             nameGap: 25,
             type: 'value',
-            name: "失败率 (%)",
+            name: '失败率 (%)',
             axisLabel: {
                 textStyle: {
                     color: '#666666',
-                    baseline: 'bottom',
-                },
+                    baseline: 'bottom'
+                }
             },
             nameTextStyle: {
-                color: '#666666',
+                color: '#666666'
             },
             nameLocation: 'end',
             axisLine: {
                 show: false
             },
             axisTick: {
-                show: false,
+                show: false
             },
             splitLine: {
                 lineStyle: {
@@ -327,7 +327,7 @@ export const doubleLineAreaChartOptions = {// 堆叠折现图默认选项
 export const pieOption = {
     tooltip: {
         trigger: 'item',
-        formatter: "{a} <br/>{b}: {c} ({d}%)"
+        formatter: '{a} <br/>{b}: {c} ({d}%)'
     },
     legend: {
         orient: 'horizontal',
@@ -337,7 +337,7 @@ export const pieOption = {
         itemWidth: 5,
         itemHeight: 5,
         textStyle: {
-            color: "#666"
+            color: '#666'
         }
     },
     series: [
@@ -363,7 +363,7 @@ export const pieOption = {
                     name: '参数错误',
                     itemStyle: {
                         normal: {
-                            color: "#1C86EE"
+                            color: '#1C86EE'
                         }
                     }
                 },
@@ -373,43 +373,47 @@ export const pieOption = {
                     itemStyle: {
                         normal: {
 
-                            color: "#EE9A00"
+                            color: '#EE9A00'
                         }
                     }
                 },
                 {
-                    value: 234, name: '异常访问',
+                    value: 234,
+                    name: '异常访问',
                     itemStyle: {
                         normal: {
 
-                            color: "#EE4000"
+                            color: '#EE4000'
                         }
                     }
                 },
                 {
-                    value: 535, name: '超出限额',
+                    value: 535,
+                    name: '超出限额',
                     itemStyle: {
                         normal: {
 
-                            color: "#40E0D0"
+                            color: '#40E0D0'
                         }
                     }
                 },
                 {
-                    value: 1158, name: '禁用',
+                    value: 1158,
+                    name: '禁用',
                     itemStyle: {
                         normal: {
 
-                            color: "#71C671"
+                            color: '#71C671'
                         }
                     }
                 },
                 {
-                    value: 548, name: '其他',
+                    value: 548,
+                    name: '其他',
                     itemStyle: {
                         normal: {
 
-                            color: "#A2B5CD"
+                            color: '#A2B5CD'
                         }
                     }
                 }

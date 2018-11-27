@@ -1,68 +1,63 @@
-import React, { Component } from "react";
-import { Menu, Card, Table, Tabs, Radio } from "antd"
+import React, { Component } from 'react';
+import { Menu, Card, Table, Tabs, Radio } from 'antd'
 
-import SlidePane from "widgets/slidePane";
-import { API_USER_STATUS } from "../../consts/index.js";
+import SlidePane from 'widgets/slidePane';
+import { API_USER_STATUS } from '../../consts/index.js';
 
-import ApiCallMethod from "./others/apiCallMethod";
-import ApiCallState from "./others/apiCallState";
-import ErrorLog from "./others/errorLog";
-
+import ApiCallMethod from './others/apiCallMethod';
+import ApiCallState from './others/apiCallState';
+import ErrorLog from './others/errorLog';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 class detailSlidePane extends Component {
     state = {
-        approvedText: "同意",
-        applyText: "申请调用此接口，请批准",
-        nowView: "callMethod",
-        date:"1"
+        approvedText: '同意',
+        applyText: '申请调用此接口，请批准',
+        nowView: 'callMethod',
+        date: '1'
 
     }
 
-    callback(key) {
+    callback (key) {
         console.log(key)
         this.setState({
             nowView: key
         })
     }
-    chooseCallStateDate(e) {
+    chooseCallStateDate (e) {
         this.setState({
             date: e.target.value
         });
     }
-    getDateTypeView() {
+    getDateTypeView () {
         switch (this.state.nowView) {
-            case "callState":
-                return (
-                    <div
-                        className="m-radio-group"
-                        key="date"
-                        style={{ marginTop: 4, marginRight: 28 }}
+        case 'callState':
+            return (
+                <div
+                    className="m-radio-group"
+                    key="date"
+                    style={{ marginTop: 4, marginRight: 28 }}
+                >
+                    <RadioGroup
+
+                        name="date"
+                        defaultValue={this.state.date}
+                        className="no-bd nobackground"
+                        onChange={this.chooseCallStateDate.bind(this)}
                     >
-                        <RadioGroup
-
-                            name="date"
-                            defaultValue={this.state.date}
-                            className="no-bd nobackground"
-                            onChange={this.chooseCallStateDate.bind(this)}
-                        >
-                            <RadioButton value='1'>最近24小时</RadioButton>
-                            <RadioButton value='7'>最近7天</RadioButton>
-                            <RadioButton value='30'>最近30天</RadioButton>
-                        </RadioGroup>
-                    </div>
-                );
-            default:
-                return null;
-
+                        <RadioButton value='1'>最近24小时</RadioButton>
+                        <RadioButton value='7'>最近7天</RadioButton>
+                        <RadioButton value='30'>最近30天</RadioButton>
+                    </RadioGroup>
+                </div>
+            );
+        default:
+            return null;
         }
-
     }
 
-
-    render() {
-
+    render () {
         return (
             <SlidePane
                 className="m-tabs tabs-filter-show"
@@ -70,7 +65,7 @@ class detailSlidePane extends Component {
                 style={{ right: '-20px', width: '80%', minHeight: '750px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
-                    animated={false} 
+                    animated={false}
                     activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}
                     tabBarExtraContent={this.getDateTypeView()}

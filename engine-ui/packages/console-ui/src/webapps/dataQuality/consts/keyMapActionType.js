@@ -8,5 +8,5 @@ export const keyMapActionType = mc([
     'SET_NAME_MAP',
     'RESET_LINKED_KEYS',
     'EDIT_KEYMAP_TARGET',
-    'REMOVE_KEYMAP',
-], {prefix: 'dataSource/keyMap/'});
+    'REMOVE_KEYMAP'
+], { prefix: 'dataSource/keyMap/' });

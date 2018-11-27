@@ -2,21 +2,20 @@ import React, { Component } from 'react'
 import { isArray, isNumber } from 'lodash';
 import {
     Form, Input, Select,
-    Radio, Modal,
+    Radio, Modal
 } from 'antd'
 
 import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
-import HelpDoc from "../../helpDoc";
+import HelpDoc from '../../helpDoc';
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
 
 class CloneTaskForm extends Component {
-
     submit = (e) => {
         e.preventDefault()
-        
+
         const { handOk, form, taskInfo } = this.props
         const task = this.props.form.getFieldsValue()
         console.log(task)
@@ -39,11 +38,10 @@ class CloneTaskForm extends Component {
         })
     }
 
-
-    render() {
+    render () {
         const {
-            form, ayncTree, visible, 
-            taskInfo, taskRoot,
+            form, ayncTree, visible,
+            taskInfo, taskRoot
         } = this.props
 
         const { getFieldDecorator } = form
@@ -66,17 +64,17 @@ class CloneTaskForm extends Component {
                         >
                             {getFieldDecorator('taskName', {
                                 rules: [{
-                                    required: true, message: '任务名称不可为空！',
+                                    required: true, message: '任务名称不可为空！'
                                 }, {
                                     pattern: /^[A-Za-z0-9_-]+$/,
-                                    message: '任务名称只能由字母、数字、下划线组成!',
+                                    message: '任务名称只能由字母、数字、下划线组成!'
                                 }, {
                                     max: 64,
-                                    message: '任务名称不得超过64个字符！',
+                                    message: '任务名称不得超过64个字符！'
                                 }],
-                                initialValue: `${cloneName}_copy`,
+                                initialValue: `${cloneName}_copy`
                             })(
-                                <Input />,
+                                <Input />
                             )}
                         </FormItem>
 
@@ -87,9 +85,9 @@ class CloneTaskForm extends Component {
                         >
                             {getFieldDecorator('nodePid', {
                                 rules: [{
-                                    required: true, message: '必须选择存储位置！',
+                                    required: true, message: '必须选择存储位置！'
                                 }],
-                                initialValue: taskInfo.nodePid ,
+                                initialValue: taskInfo.nodePid
                             })(
                                 <FolderPicker
                                     id="nodePid"
@@ -110,14 +108,14 @@ class CloneTaskForm extends Component {
                             {getFieldDecorator('taskDesc', {
                                 rules: [{
                                     max: 200,
-                                    message: '描述请控制在200个字符以内！',
+                                    message: '描述请控制在200个字符以内！'
                                 }],
-                                initialValue: taskInfo.taskDesc,
+                                initialValue: taskInfo.taskDesc
                             })(
-                                <Input type="textarea" rows={4} />,
+                                <Input type="textarea" rows={4} />
                             )}
                         </FormItem>
-                        
+
                         <FormItem style={{ display: 'none' }}>
                             {getFieldDecorator('taskId', {
                                 initialValue: taskInfo.id

@@ -23,10 +23,9 @@ const TabPane = Tabs.TabPane
 const confirm = Modal.confirm;
 
 class TaskBrowser extends Component {
-
     state = {
         selected: '',
-        expanded: false,
+        expanded: false
     }
 
     onChange = (activeKey) => {
@@ -41,7 +40,7 @@ class TaskBrowser extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { id } = nextProps.currentPage || {};
         const { id: old_id } = this.props.currentPage || {};
 
@@ -61,29 +60,29 @@ class TaskBrowser extends Component {
         const { pages, dispatch } = this.props
         const targetPage = pages.filter(v => v.id == targetKey)[0] || {};
         switch (action) {
-            case 'remove': {
-                if (targetPage.notSynced) {
-                    confirm({
-                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                        content: '强制关闭将丢弃这些修改数据',
-                        onOk() {
-                            dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
-                            dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
-                            dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
-                            dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
-                        },
-                        onCancel() { }
-                    });
-                } else {
-                    dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
-                    dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
-                    dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
-                    dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
-                }
-                break;
+        case 'remove': {
+            if (targetPage.notSynced) {
+                confirm({
+                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                    content: '强制关闭将丢弃这些修改数据',
+                    onOk () {
+                        dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                        dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                        dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                        dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
+                    },
+                    onCancel () { }
+                });
+            } else {
+                dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
             }
-            default:
-                break
+            break;
+        }
+        default:
+            break
         }
     }
 
@@ -131,11 +130,11 @@ class TaskBrowser extends Component {
             okText: '确定',
             okType: 'danger', // warning
             cancelText: '取消',
-            onOk() {
+            onOk () {
                 const params = {
                     fileId: currentPage.id,
                     type: LOCK_TYPE.STREAM_TASK,
-                    lockVersion: lockInfo.version,
+                    lockVersion: lockInfo.version
                 };
                 Api.unlockFile(params).then(res => {
                     if (res.code === 1) {
@@ -146,12 +145,12 @@ class TaskBrowser extends Component {
                             Modal.error({
                                 title: '解锁失败',
                                 content: `文件正在被${lockData.lastKeepLockUserName}编辑中!开始编辑时间
-                                ${utils.formatDateTime(lockData.gmtModified)}.`,
+                                ${utils.formatDateTime(lockData.gmtModified)}.`
                             });
                         }
                         // reload task info
                         const reqParams = {
-                            id: currentPage.id,
+                            id: currentPage.id
                         }
                         Api.getTask(reqParams).then(res => {
                             if (res.code === 1) {
@@ -168,11 +167,11 @@ class TaskBrowser extends Component {
                     }
                 })
             },
-            onCancel() { console.log('Cancel'); },
+            onCancel () { console.log('Cancel'); }
         });
     }
 
-    renderLock(tabData) {
+    renderLock (tabData) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         return isLocked ? (
             <div className="lock-layer">
@@ -197,7 +196,7 @@ class TaskBrowser extends Component {
     * @param {any} key
     * @memberof Workbench
     */
-    closeAllorOthers(key) {
+    closeAllorOthers (key) {
         const { pages, currentPage, dispatch } = this.props;
 
         console.log('key:', key);
@@ -216,22 +215,20 @@ class TaskBrowser extends Component {
                 dispatch(BrowserAction.closeAllInputData());
                 dispatch(BrowserAction.closeAllOutputData());
                 dispatch(BrowserAction.closeAllDimensionData());
-            }
-            else {
+            } else {
                 confirm({
                     title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃所有修改数据',
-                    onOk() {
+                    onOk () {
                         dispatch(BrowserAction.clearPages());
                         dispatch(BrowserAction.closeAllInputData());
                         dispatch(BrowserAction.closeAllOutputData());
                         dispatch(BrowserAction.closeAllDimensionData());
                     },
-                    onCancel() { }
+                    onCancel () { }
                 });
             }
-        }
-        else {
+        } else {
             let allClean = true;
 
             for (let tab of pages) {
@@ -246,24 +243,23 @@ class TaskBrowser extends Component {
                 dispatch(BrowserAction.closeOtherInputData(currentPage.id));
                 dispatch(BrowserAction.closeOtherOutputData(currentPage.id));
                 dispatch(BrowserAction.closeOtherDimensionData(currentPage.id));
-            }
-            else {
+            } else {
                 confirm({
                     title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
                     content: '强制关闭将丢弃这些修改数据',
-                    onOk() {
+                    onOk () {
                         dispatch(BrowserAction.closeOtherPages(currentPage));
                         dispatch(BrowserAction.closeOtherInputData(currentPage.id));
                         dispatch(BrowserAction.closeOtherOutputData(currentPage.id));
                         dispatch(BrowserAction.closeOtherDimensionData(currentPage.id));
                     },
-                    onCancel() { }
+                    onCancel () { }
                 });
             }
         }
     }
 
-    editorParamsChange(value) {//切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+    editorParamsChange (value) { // 切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
         if (!this._syncEditor) {
             this.debounceChange(value);
         } else {
@@ -284,7 +280,7 @@ class TaskBrowser extends Component {
     editorParamsChange = (newVal) => {
         const { currentPage, dispatch } = this.props
         currentPage.taskParams = newVal
-        currentPage.notSynced=true;
+        currentPage.notSynced = true;
         dispatch(BrowserAction.setCurrentPage(currentPage))
     }
 
@@ -292,9 +288,9 @@ class TaskBrowser extends Component {
         this.props.editorChange();
     }
 
-    render() {
+    render () {
         const {
-            currentPage, pages, editor,
+            currentPage, pages, editor
         } = this.props;
 
         const panels = this.mapPanels(pages)
@@ -312,10 +308,10 @@ class TaskBrowser extends Component {
                         tabBarExtraContent={<Dropdown overlay={
                             <Menu style={{ marginRight: 2 }}>
                                 <Menu.Item key="OHTERS">
-                                    <a onClick={this.closeAllorOthers.bind(this, "OHTERS")} >关闭其他</a>
+                                    <a onClick={this.closeAllorOthers.bind(this, 'OHTERS')} >关闭其他</a>
                                 </Menu.Item>
                                 <Menu.Item key="ALL">
-                                    <a onClick={this.closeAllorOthers.bind(this, "ALL")} >关闭所有</a>
+                                    <a onClick={this.closeAllorOthers.bind(this, 'ALL')} >关闭所有</a>
                                 </Menu.Item>
                                 <Menu.Divider />
                                 {pages.map((tab) => {
@@ -327,7 +323,7 @@ class TaskBrowser extends Component {
                                                 }
                                                 this.onChange(tab.id)
                                             }}
-                                            style={tab.id == currentPage.id ? { color: "#2491F7" } : {}}
+                                            style={tab.id == currentPage.id ? { color: '#2491F7' } : {}}
                                         >
                                             {tab.name}
                                         </a>
@@ -335,7 +331,7 @@ class TaskBrowser extends Component {
                                 })}
                             </Menu>
                         }>
-                            <Icon type="bars" style={{ margin: '7 0 0 0', fontSize: 18, }} />
+                            <Icon type="bars" style={{ margin: '7 0 0 0', fontSize: 18 }} />
                         </Dropdown>}
                     >
                         {panels}
@@ -355,18 +351,18 @@ class TaskBrowser extends Component {
                             </TabPane>
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>源表</span>} key="params3">
-                                    <InputPanel isShow={this.state.selected=="params3"} {...this.props} tableParamsChange={this.tableParamsChange} />
-                                </TabPane> : ""
+                                    <InputPanel isShow={this.state.selected == 'params3'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ''
                             }
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 5, paddingBottom: 3 }}>结果表</span>} key="params4">
-                                    <OutputPanel isShow={this.state.selected=="params4"} {...this.props} tableParamsChange={this.tableParamsChange} />
-                                </TabPane> : ""
+                                    <OutputPanel isShow={this.state.selected == 'params4'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ''
                             }
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>维表</span>} key="params5">
-                                    <DimensionPanel isShow={this.state.selected=="params5"} {...this.props} tableParamsChange={this.tableParamsChange} />
-                                </TabPane> : ""
+                                    <DimensionPanel isShow={this.state.selected == 'params5'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                </TabPane> : ''
                             }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
@@ -393,6 +389,6 @@ export default connect((state) => {
         currentPage,
         pages,
         resources,
-        editor: state.editor,
+        editor: state.editor
     }
-})(TaskBrowser) 
+})(TaskBrowser)

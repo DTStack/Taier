@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import { Table, Modal,Row,Col } from "antd"
-import utils from "utils"
+import React, { Component } from 'react';
+import { Table, Modal, Row, Col } from 'antd'
+import utils from 'utils'
 
-import ErrorDistributed from "../../../components/errorDistributed";
+import ErrorDistributed from '../../../components/errorDistributed';
 
 const errorType = {
-    1: "禁用",
-    2: "未认证",
-    3: "参数错误",
-    4: "超时",
-    5: "超出限制",
-    6: "其他"
+    1: '禁用',
+    2: '未认证',
+    3: '参数错误',
+    4: '超时',
+    5: '超出限制',
+    6: '其他'
 }
 class errorLog extends Component {
     state = {
@@ -23,15 +23,14 @@ class errorLog extends Component {
         pageIndex: 1,
         total: 0,
         filter: {},
-        recordInfoList:[]
+        recordInfoList: []
     }
-    componentDidMount() {
+    componentDidMount () {
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;
         this.getErrorInfo(apiId, dateType);
-
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;
@@ -40,18 +39,17 @@ class errorLog extends Component {
         if (apiId !== nextApiId || dateType !== nextDateType) {
             this.setState({
                 apiId: nextProps.showRecord.apiId,
-                pageIndex: 1,
+                pageIndex: 1
                 // total:0
             },
-                () => {
-                    if (nextProps.slidePaneShow) {
-                        this.getErrorInfo(nextApiId, nextDateType);
-                    }
-                })
+            () => {
+                if (nextProps.slidePaneShow) {
+                    this.getErrorInfo(nextApiId, nextDateType);
+                }
+            })
         }
     }
-    getErrorInfo(apiId, dateType) {
-
+    getErrorInfo (apiId, dateType) {
         if (!apiId) {
             return;
         }
@@ -74,7 +72,7 @@ class errorLog extends Component {
                         }
                         this.setState({
                             error: dic,
-                            recordInfoList:res.data.recordInfoList
+                            recordInfoList: res.data.recordInfoList
                         })
                     }
                 }
@@ -90,15 +88,14 @@ class errorLog extends Component {
                     }
                 }
             )
-
     }
 
-    initColumns() {
+    initColumns () {
         return [{
             title: '调用时间',
             dataIndex: 'invokeTime',
             key: 'invokeTime',
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text)
             }
 
@@ -106,7 +103,7 @@ class errorLog extends Component {
             title: '错误类型',
             dataIndex: 'bizType',
             key: 'bizType',
-            render(text) {
+            render (text) {
                 return errorType[text]
             },
             filters: [
@@ -122,7 +119,7 @@ class errorLog extends Component {
             title: '错误日志',
             dataIndex: 'content',
             key: 'content',
-            width: "50%"
+            width: '50%'
 
         }, {
             title: '操作',
@@ -135,14 +132,14 @@ class errorLog extends Component {
             }
         }]
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 5,
-            total: this.state.total,
+            total: this.state.total
         }
     }
-    getSource() {
+    getSource () {
         return this.state.data;
     }
     // 表格换页/排序
@@ -151,13 +148,13 @@ class errorLog extends Component {
             pageIndex: page.current,
             filter: filter
         },
-            () => {
-                const { showRecord = {}, dateType } = this.props;
-                const { apiId } = showRecord;
-                this.getErrorInfo(apiId, dateType);
-            });
+        () => {
+            const { showRecord = {}, dateType } = this.props;
+            const { apiId } = showRecord;
+            this.getErrorInfo(apiId, dateType);
+        });
     }
-    lookAllErrorText(text) {
+    lookAllErrorText (text) {
         Modal.info({
             title: '错误日志',
             content: (
@@ -166,23 +163,23 @@ class errorLog extends Component {
 
                 </div>
             ),
-            onOk() { },
+            onOk () { }
         });
     }
-    getErrorPercent(key) {
+    getErrorPercent (key) {
         return this.state.error[key] && this.state.error[key].percent || 0;
     }
-    getErrorCount(key) {
+    getErrorCount (key) {
         return this.state.error[key] && this.state.error[key].count || 0;
     }
-    render() {
-        const {recordInfoList, loading} =this.state;
+    render () {
+        const { recordInfoList, loading } = this.state;
 
         return (
-            <div style={{ padding: "10px 30px" }}>
+            <div style={{ padding: '10px 30px' }}>
                 <Row>
-                    <Col span={16} style={{ paddingRight: "20px" }}>
-                        <p style={{ lineHeight: "30px", paddingLeft: "20px" }} className="child-span-padding-r20">
+                    <Col span={16} style={{ paddingRight: '20px' }}>
+                        <p style={{ lineHeight: '30px', paddingLeft: '20px' }} className="child-span-padding-r20">
                             <span>参数错误: {this.getErrorPercent('参数错误')}% ({this.getErrorCount('参数错误')}次)</span>
                             <span>禁用: {this.getErrorPercent('禁用')}% ({this.getErrorCount('禁用')}次)</span>
                             <span>未认证: {this.getErrorPercent('未认证')}% ({this.getErrorCount('未认证')}次)</span>

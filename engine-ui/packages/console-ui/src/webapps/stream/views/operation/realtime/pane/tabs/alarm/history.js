@@ -1,19 +1,16 @@
-import React from "react"
-import utils from "utils";
+import React from 'react'
+import utils from 'utils';
 
-import { DatePicker, Table } from "antd";
+import { DatePicker, Table } from 'antd';
 
 import {
     AlarmTriggerType
 } from '../../../../../../components/status'
 import Api from '../../../../../../api'
 
-
-
 const { RangePicker } = DatePicker;
 
 class AlarmHistory extends React.Component {
-
     state = {
         pagination: {
             total: 0,
@@ -25,17 +22,17 @@ class AlarmHistory extends React.Component {
         times: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadAlarms();
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const data = nextProps.data
         const oldData = this.props.data
         if (oldData && data && oldData.id !== data.id) {
             this.loadAlarms(data)
         }
     }
-    loadAlarms(data) {
+    loadAlarms (data) {
         const { pagination, times } = this.state;
         data = data || this.props.data || {};
         const reqParams = {
@@ -43,7 +40,7 @@ class AlarmHistory extends React.Component {
             pageIndex: pagination.current,
             taskId: data.id,
             startTime: times.length ? times[0].valueOf() : undefined,
-            endTime: times.length ? times[1].valueOf() : undefined,
+            endTime: times.length ? times[1].valueOf() : undefined
         }
         this.setState({ loading: true })
         Api.getAlarmRecords(reqParams).then((res) => {
@@ -65,28 +62,28 @@ class AlarmHistory extends React.Component {
         this.setState({
             pagination: {
                 ...this.state.pagination,
-                current: pagination.current,
+                current: pagination.current
             }
         }, this.loadAlarms)
     }
-    changeTimes(times) {
+    changeTimes (times) {
         this.setState({
             times: times
         }, this.loadAlarms)
     }
-    initHistoryColumns() {
+    initHistoryColumns () {
         return [{
             title: '时间',
             dataIndex: 'time',
             render: (text) => {
                 return utils.formatDateTime(text)
-            },
+            }
         }, {
             title: '触发方式',
             dataIndex: 'myTrigger',
             render: (text) => {
                 return <AlarmTriggerType value={text} />
-            },
+            }
         }, {
             title: '接收人',
             dataIndex: 'receiveUsers',
@@ -96,26 +93,26 @@ class AlarmHistory extends React.Component {
                     return recivers.map(item => <span>{item.userName};</span>)
                 }
                 return ''
-            },
+            }
         }, {
             title: '告警内容',
             dataIndex: 'alarmContent',
-            width: "400px"
+            width: '400px'
         }]
     }
-    render() {
+    render () {
         const { pagination, times, loading, alarmRecords } = this.state;
         return (
             <section className="pane-alarm-configList">
                 <header>
                     告警历史
-                    </header>
+                </header>
 
                 <RangePicker
-                    showTime={{ format: "HH:mm" }}
-                    style={{ width: "250px", marginBottom: "11px" }}
+                    showTime={{ format: 'HH:mm' }}
+                    style={{ width: '250px', marginBottom: '11px' }}
                     format="YYYY-MM-DD HH:mm"
-                    placeholder={["告警开始时间", "告警结束时间"]}
+                    placeholder={['告警开始时间', '告警结束时间']}
                     onChange={this.changeTimes.bind(this)}
                     value={times}
                     disabledDate={(current) => {
@@ -124,12 +121,12 @@ class AlarmHistory extends React.Component {
                 />
 
                 <Table
-                    rowKey={(record,index)=>{
+                    rowKey={(record, index) => {
                         return index;
                     }}
                     className="m-table border-table"
                     columns={this.initHistoryColumns()}
-                    dataSource={alarmRecords||[]}
+                    dataSource={alarmRecords || []}
                     loading={loading}
                     pagination={pagination}
                     onChange={this.handleTableChange.bind(this)}

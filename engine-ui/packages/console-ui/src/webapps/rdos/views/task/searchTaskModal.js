@@ -8,7 +8,7 @@ import { getContainer } from 'funcs';
 
 import ajax from '../../api';
 
-import { 
+import {
     workbenchActions
 } from '../../store/modules//offlineTask/offlineAction';
 import { showSeach } from '../../store/modules/comm';
@@ -21,8 +21,7 @@ const Option = Select.Option;
 
 @pureRender
 class SearchTaskModal extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             visible: false,
@@ -30,27 +29,25 @@ class SearchTaskModal extends React.Component {
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this._keyStack = {};
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this._keyStack = {};
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
     }
 
     bindEvent = (target) => {
-
         const keyCode = target.keyCode;
         const keyMap = this._keyStack;
 
-        const keyP = 80, ctrlKey = 17;
+        const keyP = 80; const ctrlKey = 17;
 
         if (keyCode === keyP || keyCode === ctrlKey) {
-
             keyMap[keyCode] = target.type == 'keydown';
 
             if (target.type != 'keydown') {
@@ -59,7 +56,6 @@ class SearchTaskModal extends React.Component {
             }
 
             if (inRealtime() || inOffline()) {
-
                 if (keyMap[ctrlKey] && keyMap[keyP]) {
                     target.preventDefault();
                     this.props.showSeach(true)
@@ -82,19 +78,18 @@ class SearchTaskModal extends React.Component {
         const succCall = (res) => {
             if (res.code === 1) {
                 this.setState({
-                    data: res.data,
+                    data: res.data
                 });
             }
         }
 
         if (inOffline()) {
             ajax.searchOfflineTask({
-                taskName: value,
+                taskName: value
             }).then(succCall)
-
         } else if (inRealtime()) {
             ajax.searchRealtimeTask({
-                taskName: value,
+                taskName: value
             }).then(succCall)
         }
     }
@@ -110,11 +105,11 @@ class SearchTaskModal extends React.Component {
                 tabs,
                 currentTab,
                 id: taskId,
-                treeType: MENU_TYPE.TASK_DEV,
+                treeType: MENU_TYPE.TASK_DEV
             })
-        } else if(inRealtime()) {
+        } else if (inRealtime()) {
             const { openRealtimeTaskTab } = this.props
-            openRealtimeTaskTab({id: taskId })
+            openRealtimeTaskTab({ id: taskId })
         }
     }
 
@@ -127,10 +122,10 @@ class SearchTaskModal extends React.Component {
         }
     }
 
-    render() {
+    render () {
         const { data } = this.state;
         const { visibleSearchTask, editor } = this.props;
-        const options = data && data.map(item => 
+        const options = data && data.map(item =>
             <Option key={item.id} data={item} value={item.name}>
                 {item.name}
             </Option>
@@ -148,7 +143,7 @@ class SearchTaskModal extends React.Component {
                     id="My_Search_Select"
                     mode="combobox"
                     showSearch
-                    style={{width: '100%'}}
+                    style={{ width: '100%' }}
                     placeholder="按任务名称搜索"
                     notFoundContent="没有发现相关任务"
                     defaultActiveFirstOption={true}
@@ -169,9 +164,9 @@ class SearchTaskModal extends React.Component {
 export default connect(state => {
     const { workbench } = state.offlineTask;
     const { tabs, currentTab } = workbench;
-    return { 
-        tabs, 
-        currentTab, 
+    return {
+        tabs,
+        currentTab,
         visibleSearchTask: state.visibleSearchTask,
         editor: state.editor
     }
@@ -179,10 +174,10 @@ export default connect(state => {
     const actions = workbenchActions(dispatch)
     return {
         openOfflineTaskTab: actions.openTab,
-        openRealtimeTaskTab: function(params) {
+        openRealtimeTaskTab: function (params) {
             dispatch(openPage(params))
         },
-        showSeach: function(boolFlag) {
+        showSeach: function (boolFlag) {
             dispatch(showSeach(boolFlag))
         }
     }

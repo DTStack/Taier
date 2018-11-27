@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
-import { 
+import {
     Tree, TreeSelect, Icon, message,
     Card, Input, Tooltip, Popconfirm
 } from 'antd'
@@ -9,20 +9,18 @@ import { chunk } from 'lodash';
 const TreeNode = Tree.TreeNode
 
 class CatalogueTree extends Component {
-
     state = {
         expendKeys: [],
         autoExpandParent: false,
-        disabledAdd: false,
+        disabledAdd: false
     }
 
     _expendKeys = []
     _expanded = true
 
-    componentDidMount() {}
+    componentDidMount () {}
 
-    componentDidUpdate() {
-        
+    componentDidUpdate () {
         if (this._active) {
             this._inputEle = document.getElementById(`node_${this._active}`);
             if (this._inputEle) this.initEdit(this._inputEle)
@@ -31,7 +29,7 @@ class CatalogueTree extends Component {
         if (this._expendKeys.length > 0 && this._expanded) {
             this.setState({
                 expendKeys: this._expendKeys,
-                autoExpandParent: false,
+                autoExpandParent: false
             })
             this._expanded = false;
         }
@@ -40,7 +38,7 @@ class CatalogueTree extends Component {
     onExpand = (expendKeys, state) => {
         this.setState({
             expendKeys,
-            autoExpandParent: false,
+            autoExpandParent: false
         })
     }
 
@@ -51,7 +49,6 @@ class CatalogueTree extends Component {
     }
 
     initEdit = (inputEle) => {
-
         inputEle.className = 'edit-node';
         inputEle.setAttribute('contenteditable', 'plaintext-only')
         inputEle.focus();
@@ -59,8 +56,8 @@ class CatalogueTree extends Component {
         const textNode = inputEle.firstChild;
         const range = document.createRange();
         const sel = window.getSelection();
-        const start = inputEle.innerHTML.length > textNode.length ? 
-        textNode.length : inputEle.innerHTML.length
+        const start = inputEle.innerHTML.length > textNode.length
+            ? textNode.length : inputEle.innerHTML.length
 
         range.setStart(textNode, start)
         range.collapse(true);
@@ -70,18 +67,15 @@ class CatalogueTree extends Component {
     }
 
     offEdit = (node) => {
-
         this._inputEle.className = 'normal-node';
         this._inputEle.setAttribute('contenteditable', false)
 
         const value = this._inputEle.innerHTML;
         const originVal = node.bindData.name;
         const callback = (res) => {
-            
-            this.setState({ disabledAdd: false, })
+            this.setState({ disabledAdd: false })
 
-            if (res.code !== 1 && this._inputEle)
-            this._inputEle.innerHTML = originVal
+            if (res.code !== 1 && this._inputEle) { this._inputEle.innerHTML = originVal }
         }
         if (this.checkVal(value)) {
             if (node.isNew) {
@@ -94,7 +88,7 @@ class CatalogueTree extends Component {
                 if (originVal !== value) {
                     const editNode = {
                         id: node.nodeId,
-                        nodeName: value,
+                        nodeName: value
                     }
                     this.props.onTreeNodeEdit(editNode, 'edit', callback)
                 }
@@ -114,7 +108,7 @@ class CatalogueTree extends Component {
     }
 
     onKeyDown = (e) => {
-        const disabled = [13]  // 禁用enter换行
+        const disabled = [13] // 禁用enter换行
         if (disabled.indexOf(e.keyCode) > -1) {
             e.preventDefault();
             return false;
@@ -155,7 +149,7 @@ class CatalogueTree extends Component {
         expendKeys.push(`${data.bindData.id}`)
         this.setState({
             expendKeys,
-            disabledAdd: true,
+            disabledAdd: true
         }, () => {
             this.props.onTreeNodeEdit(data, 'initAdd')
         })
@@ -165,9 +159,7 @@ class CatalogueTree extends Component {
         const { treeData, onTreeNodeEdit, isPicker, isFolderPicker } = this.props
         const { disabledAdd } = this.state
         const loopTree = (tree) => {
-
             return tree && tree.map(data => {
-                
                 const item = data.bindData
                 const key = item.id;
                 const isFolder = item.type === 'folder'
@@ -177,7 +169,7 @@ class CatalogueTree extends Component {
                 if (isFolderPicker && isTable) {
                     return null;
                 }
-                if(this._expendKeys.indexOf(key+'')==-1){
+                if (this._expendKeys.indexOf(key + '') == -1) {
                     this._expendKeys.push(`${key}`)
                 }
                 if (data.isNew) this._active = key
@@ -187,9 +179,9 @@ class CatalogueTree extends Component {
                     onMouseOut={this.mouseOut}
                     className={isLeaf ? 'file-item m-over-tag' : 'folder-item m-over-tag'}>
                     &nbsp;
-                    <span 
-                        className="normal-node" 
-                        contentEditable={false} 
+                    <span
+                        className="normal-node"
+                        contentEditable={false}
                         id={`node_${key}`}
                         onKeyDown={this.onKeyDown}
                         onBlur={this.offEdit.bind(this, data)}>
@@ -198,30 +190,28 @@ class CatalogueTree extends Component {
                     &nbsp;
                     <span className="node-operation">
                         {
-                        !isTable &&
+                            !isTable &&
                         <Tooltip title="添加新目录">
                             {
-                                disabledAdd ? 
-                                <Icon type="plus-square-o" style={{color: '#bfbfbf'}}/>
-                                :
-                                <Icon type="plus-square-o" onClick={this.onInitAdd.bind(this, data)} />
+                                disabledAdd
+                                    ? <Icon type="plus-square-o" style={{ color: '#bfbfbf' }}/>
+                                    : <Icon type="plus-square-o" onClick={this.onInitAdd.bind(this, data)} />
                             }
                         </Tooltip>
                         }
                         {
-                            !isRoot && <span 
-                                >
+                            !isRoot && <span
+                            >
                                 {
                                     !isTable &&
                                     <Tooltip title="编辑目录">
                                         &nbsp;
                                         {
-                                            disabledAdd ? 
-                                            <Icon type="edit" style={{color: '#bfbfbf'}}/>
-                                            :
-                                            <Icon type="edit"
-                                                onLoad={(e) => { this.onLoadEditable(e, data) }}
-                                                onClick={this.onEdit} />
+                                            disabledAdd
+                                                ? <Icon type="edit" style={{ color: '#bfbfbf' }}/>
+                                                : <Icon type="edit"
+                                                    onLoad={(e) => { this.onLoadEditable(e, data) }}
+                                                    onClick={this.onEdit} />
                                         }
                                     </Tooltip>
                                 }
@@ -230,14 +220,13 @@ class CatalogueTree extends Component {
                                     <Tooltip title="删除目录">
                                         &nbsp;
                                         {
-                                            disabledAdd ? 
-                                            <Icon type="minus-square-o" style={{color: '#bfbfbf'}}/>
-                                            :
-                                            <Popconfirm title="您确认删除当前目录及下面的表吗？"
-                                                onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
-                                                okText="确定" cancelText="取消">
-                                                <Icon type="minus-square-o" />
-                                            </Popconfirm>
+                                            disabledAdd
+                                                ? <Icon type="minus-square-o" style={{ color: '#bfbfbf' }}/>
+                                                : <Popconfirm title="您确认删除当前目录及下面的表吗？"
+                                                    onConfirm={onTreeNodeEdit.bind(this, data, 'delete')}
+                                                    okText="确定" cancelText="取消">
+                                                    <Icon type="minus-square-o" />
+                                                </Popconfirm>
                                         }
                                     </Tooltip>
                                 }
@@ -245,13 +234,12 @@ class CatalogueTree extends Component {
                         }
                     </span>
                 </span>
-                :
-                <span 
-                    className={isLeaf ? 'file-item' : 'folder-item'}
-                    title={item.name}
-                >
-                    {item.name}
-                </span>
+                    : <span
+                        className={isLeaf ? 'file-item' : 'folder-item'}
+                        title={item.name}
+                    >
+                        {item.name}
+                    </span>
 
                 return (<TreeNode
                     title={title}
@@ -270,59 +258,61 @@ class CatalogueTree extends Component {
         return loopTree(treeData)
     }
 
-    render() {
+    render () {
         let treeContent = ''
         const {
             onSelect, onChange, id, value, showSearch, multiple,
-            loadData, isPicker, placeholder, defaultValue, treeCheckable,
+            loadData, isPicker, placeholder, defaultValue, treeCheckable
         } = this.props;
-        if (isPicker) treeContent = (
-            <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
-                <TreeSelect
-                    allowClear
-                    defaultExpandAll
-                    key={id || 'tableCatalogue'}
-                    value={value}
-                    showSearch={showSearch}
-                    treeCheckable={treeCheckable}
-                    defaultValue={defaultValue}
-                    onChange={onChange}
+        if (isPicker) {
+            treeContent = (
+                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
+                    <TreeSelect
+                        allowClear
+                        defaultExpandAll
+                        key={id || 'tableCatalogue'}
+                        value={value}
+                        showSearch={showSearch}
+                        treeCheckable={treeCheckable}
+                        defaultValue={defaultValue}
+                        onChange={onChange}
+                        onSelect={onSelect}
+                        getPopupContainer={() => this.selEle }
+                        style={{ width: '100%' }}
+                        treeNodeFilterProp="name"
+                        dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                        placeholder={placeholder || '请选择数据类目'}
+                    >
+                        {
+                            this.renderTreeNodes() && this.renderTreeNodes().filter(v => {
+                                if (v) return v
+                            })
+                        }
+                        {/* {this.renderTreeNodes()} */}
+                    </TreeSelect>
+                </div>
+            )
+        } else {
+            treeContent = (
+                <Tree
+                    showIcon
                     onSelect={onSelect}
-                    getPopupContainer={() => this.selEle }
-                    style={{width: '100%'}}
-                    treeNodeFilterProp="name"
-                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                    placeholder={placeholder || '请选择数据类目'}
+                    onChange={onChange}
+                    onExpand={this.onExpand}
+                    // expandedKeys={ this.state.expendKeys }
+                    autoExpandParent={ this.state.autoExpandParent }
                 >
-                    { 
-                        this.renderTreeNodes()&&this.renderTreeNodes().filter(v=>{
-                            if(v) return v
-                        }) 
-                    }
-                    {/* {this.renderTreeNodes()} */}
-                </TreeSelect>
-            </div>
-        )
-        else treeContent = (
-            <Tree
-                showIcon
-                onSelect={onSelect}
-                onChange={onChange}
-                onExpand={this.onExpand}
-                //expandedKeys={ this.state.expendKeys } 
-                autoExpandParent={ this.state.autoExpandParent }
-            >
-                { this.renderTreeNodes() }
-            </Tree>
-        )
+                    { this.renderTreeNodes() }
+                </Tree>
+            )
+        }
 
-        return <div 
-            className="m-catalogue" 
+        return <div
+            className="m-catalogue"
             style={{ position: 'relative', display: 'block' }}>
             { treeContent }
         </div>
     }
-
 }
 
 export default CatalogueTree

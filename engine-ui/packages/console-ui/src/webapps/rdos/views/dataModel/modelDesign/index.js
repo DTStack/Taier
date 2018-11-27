@@ -2,15 +2,15 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Form, 
+    Input, Button, Table, Form,
     Modal, message, Card, Select
 } from 'antd';
 
 import { Link } from 'react-router';
 
 import Editor from 'widgets/editor';
-import CopyIcon from "main/components/copy-icon";
-import { DDL_placeholder } from "../../../comm/DDLCommon"
+import CopyIcon from 'main/components/copy-icon';
+import { DDL_placeholder } from '../../../comm/DDLCommon'
 import SlidePane from 'widgets/slidePane';
 import TableLog from '../../dataManage/tableLog';
 
@@ -20,9 +20,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 class TableList extends Component {
-
-    constructor(props) {
-
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -32,12 +30,12 @@ class TableList extends Component {
                 pageIndex: 1,
                 tableName: '',
                 isDeleted: 0, // 添加删除标记
-                isDirtyDataTable: 0, // 非脏数据标记
+                isDirtyDataTable: 0 // 非脏数据标记
             },
-            tableLog:{
+            tableLog: {
                 tableId: undefined,
                 tableName: undefined,
-                visible: false,
+                visible: false
             },
             table: { data: [] },
             subjectFields: [],
@@ -45,12 +43,12 @@ class TableList extends Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
         this.loadOptionData();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -65,7 +63,7 @@ class TableList extends Component {
         ajax.getTableList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    table: res.data,
+                    table: res.data
                 })
             }
         })
@@ -75,28 +73,28 @@ class TableList extends Component {
         ajax.getModels({
             currentPage: 1,
             pageSize: 1000,
-            type: 1, // 模型层级
+            type: 1 // 模型层级
         }).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    modelLevels: res.data ? res.data.data : [],
+                    modelLevels: res.data ? res.data.data : []
                 })
             }
         });
         ajax.getModels({
             currentPage: 1,
             pageSize: 1000,
-            type: 2, // 主题域
+            type: 2 // 主题域
         }).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    subjectFields: res.data ? res.data.data : [],
+                    subjectFields: res.data ? res.data.data : []
                 })
             }
         });
     }
 
-    cleanSearch() {
+    cleanSearch () {
         const $input = findDOMNode(this.searchInput).querySelector('input');
 
         if ($input.value.trim() === '') return;
@@ -111,7 +109,7 @@ class TableList extends Component {
             params[field] = value;
         }
         this.setState({
-            params,
+            params
         }, this.search)
     }
 
@@ -124,13 +122,13 @@ class TableList extends Component {
         })
     }
 
-    showModal() {
+    showModal () {
         this.setState({
             visible: true
         });
     }
 
-    handleOk() {
+    handleOk () {
         if (this._DDL) {
             ajax.createTableByDDL({
                 sql: this._DDL
@@ -146,13 +144,12 @@ class TableList extends Component {
                     this.search();
                 }
             })
-        }
-        else {
+        } else {
             message.error('请输入建表语句!');
         }
     }
 
-    handleCancel() {
+    handleCancel () {
         this._DDL = undefined;
         this.DDLEditor.setValue('');
         this.setState({
@@ -160,11 +157,11 @@ class TableList extends Component {
         })
     }
 
-    handleDdlChange(value) {
+    handleDdlChange (value) {
         this._DDL = value;
     }
 
-    showTableLog(table) {
+    showTableLog (table) {
         const { id, tableName } = table;
         const { tableLog } = this.state;
         tableLog.tableId = id;
@@ -185,9 +182,9 @@ class TableList extends Component {
         })
     }
 
-    render() {
+    render () {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels, params,tableLog } = this.state
+        const { subjectFields, modelLevels, params, tableLog } = this.state
         const tableList = this.state.table;
         const { project } = this.props;
         const { totalCount, data } = tableList;
@@ -195,7 +192,7 @@ class TableList extends Component {
         const pagination = {
             total: totalCount,
             defaultPageSize: 10,
-            current: params.pageIndex,
+            current: params.pageIndex
         };
 
         const marginTop10 = { marginTop: '8px' };
@@ -214,7 +211,7 @@ class TableList extends Component {
                 width: 120,
                 key: 'tableName',
                 dataIndex: 'tableName',
-                render(text, record) {
+                render (text, record) {
                     return <Link to={`data-manage/table/view/${record.id}`}>{ text }</Link>
                 }
             },
@@ -223,7 +220,7 @@ class TableList extends Component {
                 width: 150,
                 key: 'tableDesc',
                 dataIndex: 'tableDesc',
-                render(text, record) {
+                render (text, record) {
                     return text
                 }
             },
@@ -231,28 +228,28 @@ class TableList extends Component {
                 title: '所属项目',
                 key: 'project',
                 dataIndex: 'project',
-                render(text, record) {
+                render (text, record) {
                     return project && project.projectName;
-                },
+                }
             },
             {
                 title: '模型层级',
                 key: 'grade',
                 width: 90,
-                dataIndex: 'grade',
+                dataIndex: 'grade'
             },
             {
                 title: '主题域',
                 key: 'subject',
                 width: 90,
-                dataIndex: 'subject',
+                dataIndex: 'subject'
             },
             {
                 title: '生命周期',
                 key: 'lifeDay',
                 width: 90,
                 dataIndex: 'lifeDay',
-                render(text, record) {
+                render (text, record) {
                     return `${text}天`;
                 }
             }, ,
@@ -260,14 +257,14 @@ class TableList extends Component {
                 title: '负责人',
                 key: 'chargeUser',
                 dataIndex: 'chargeUser',
-                render(text, record) {
+                render (text, record) {
                     return text
                 }
             },
             {
                 title: '操作',
                 key: 'action',
-                render(text, record) {
+                render (text, record) {
                     return <span>
                         <Link to={`${ROUTER_BASE}/modify/${record.id}`}>编辑</Link>
                         <span className="ant-divider"></span>
@@ -343,7 +340,7 @@ class TableList extends Component {
                         <Modal className="m-codemodal"
                             width={750}
                             title={(
-                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: "8px" }} copyText={DDL_placeholder} /></span>
+                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_placeholder} /></span>
                             )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
@@ -351,9 +348,9 @@ class TableList extends Component {
                             maskClosable={false}
                         >
                             <Editor
-                                style={{ height: "400px" }}
+                                style={{ height: '400px' }}
                                 placeholder={DDL_placeholder}
-                                options={{readOnly:false}}
+                                options={{ readOnly: false }}
                                 language="dtsql"
                                 options={{ readOnly: false } }
                                 onChange={this.handleDdlChange.bind(this)}
@@ -363,7 +360,7 @@ class TableList extends Component {
                     </div>
                 </Card>
                 {
-                  tableLog.visible ?  <SlidePane
+                    tableLog.visible ? <SlidePane
                         onClose={this.closeSlidePane}
                         visible={tableLog.visible}
                         style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
@@ -371,7 +368,7 @@ class TableList extends Component {
                         <div className="m-loglist">
                             <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
                         </div>
-                    </SlidePane> : ""
+                    </SlidePane> : ''
                 }
             </div>
         </div>
@@ -380,6 +377,6 @@ class TableList extends Component {
 
 export default connect((state) => {
     return {
-        project: state.project,
+        project: state.project
     }
 }, null)(TableList);

@@ -1,24 +1,23 @@
 
-import React from "react";
+import React from 'react';
 
-import { Form, Select, Button } from "antd";
+import { Form, Select, Button } from 'antd';
 
-import ajax from "../../../../../api/index"
-import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE } from "../../../../../comm/const"
+import ajax from '../../../../../api/index'
+import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../../../comm/const'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
 class CollectionTarget extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             topicList: []
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
         if (targetMap.sourceId) {
@@ -26,7 +25,7 @@ class CollectionTarget extends React.Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { targetMap } = collectionData;
         const { collectionData: old_col } = this.props;
@@ -36,11 +35,11 @@ class CollectionTarget extends React.Component {
         }
     }
 
-    prev() {
+    prev () {
         this.props.navtoStep(0)
     }
 
-    next() {
+    next () {
         this._form.validateFields(null, {}, (err, values) => {
             if (!err) {
                 this.props.navtoStep(2)
@@ -48,23 +47,23 @@ class CollectionTarget extends React.Component {
         })
     }
 
-    getTopicType(sourceId){
+    getTopicType (sourceId) {
         ajax.getTopicType({
             sourceId
-        }).then((res)=>{
-            if(res.data){
+        }).then((res) => {
+            if (res.data) {
                 this.setState({
-                    topicList:res.data
+                    topicList: res.data
                 })
             }
         })
     }
 
-    render() {
+    render () {
         const { topicList } = this.state;
         return (
             <div>
-                <WrapCollectionTargetForm ref={(f) => { this._form = f }} topicList={topicList}  {...this.props} />
+                <WrapCollectionTargetForm ref={(f) => { this._form = f }} topicList={topicList} {...this.props} />
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
@@ -77,8 +76,7 @@ class CollectionTarget extends React.Component {
 }
 
 class CollectionTargetForm extends React.Component {
-
-    render() {
+    render () {
         const { collectionData, topicList } = this.props;
         const { dataSourceList = [], isEdit } = collectionData;
         const { getFieldDecorator } = this.props.form;
@@ -90,12 +88,12 @@ class CollectionTargetForm extends React.Component {
                         label="数据源"
                     >
                         {getFieldDecorator('sourceId', {
-                            rules: [{ required: true, message: '请选择数据源' }],
+                            rules: [{ required: true, message: '请选择数据源' }]
                         })(
                             <Select
                                 disabled={isEdit}
                                 placeholder="请选择数据源"
-                                style={{ width: "100%" }}
+                                style={{ width: '100%' }}
                             >
                                 {dataSourceList.map((item) => {
                                     if (item.type != DATA_SOURCE.KAFKA) {
@@ -112,7 +110,7 @@ class CollectionTargetForm extends React.Component {
                     >
                         {getFieldDecorator('topic', {
                             rules: [{
-                                required: true, message: "请选择topic"
+                                required: true, message: '请选择topic'
                             }]
                         })(
                             <Select
@@ -138,7 +136,7 @@ class CollectionTargetForm extends React.Component {
 }
 
 const WrapCollectionTargetForm = Form.create({
-    onValuesChange(props, fields) {
+    onValuesChange (props, fields) {
         /**
          * sourceId改变,则清空表
          */
@@ -148,7 +146,7 @@ const WrapCollectionTargetForm = Form.create({
         }
         props.updateTargetMap(fields, clear);
     },
-    mapPropsToFields(props) {
+    mapPropsToFields (props) {
         const { collectionData } = props;
         const targetMap = collectionData.targetMap;
         return {
@@ -159,7 +157,6 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.topic
             }
         }
-
     }
 })(CollectionTargetForm);
 

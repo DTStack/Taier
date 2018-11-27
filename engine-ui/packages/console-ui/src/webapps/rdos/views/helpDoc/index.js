@@ -5,11 +5,11 @@ import * as Doc from './docs'
 export const relativeStyle = {
     position: 'initial',
     right: 0,
-    top: 0,
+    top: 0
 }
 
 export default class HelpDoc extends React.Component {
-    render() {
+    render () {
         const { doc, style } = this.props
         return (
             <Tooltip title={Doc[doc]}>

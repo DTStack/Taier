@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Tooltip, Spin, Icon,
+    Tooltip, Spin, Icon
 } from 'antd'
 
 import Api from '../../../../api'
@@ -14,7 +14,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 })
 
 const {
@@ -24,12 +24,12 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
-    mxCompactTreeLayout,
+    mxCompactTreeLayout
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 36,
+    height: 36
 }
 
 const getVertexNode = (obj) => {
@@ -37,26 +37,25 @@ const getVertexNode = (obj) => {
 }
 
 export default class TaskView extends Component {
-
     state = {
         selectedTask: '', // 选中的Task
         data: {}, // 数据
         loading: 'success',
         lastVertex: '',
-        visible: false,
+        visible: false
     }
 
-    componentDidMount() {
-        this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.graph = "";
-        
+    componentDidMount () {
+        this.Container.innerHTML = ''; // 清理容器内的Dom元素
+        this.graph = '';
+
         const editor = this.Container
         const currentTask = this.props.tabData
         this.loadEditor(editor)
         this.hideMenu()
         this.loadTaskChidren({
             taskId: currentTask.id,
-            level: 6,
+            level: 6
         })
     }
 
@@ -74,11 +73,9 @@ export default class TaskView extends Component {
     }
 
     preHandGraphTree = (data) => {
-
         const relationTree = [];
 
         const loop = (treeNodeData, parent) => {
-
             if (treeNodeData) {
                 const parentNodes = treeNodeData.taskVOS; // 父节点
                 const childNodes = treeNodeData.subTaskVOS; // 子节点
@@ -93,7 +90,7 @@ export default class TaskView extends Component {
 
                 const dataItem = {
                     parent: parent,
-                    source: currentNodeData,
+                    source: currentNodeData
                 }
 
                 relationTree.push(dataItem);
@@ -110,11 +107,11 @@ export default class TaskView extends Component {
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
-                            target: currentNodeData,
+                            target: currentNodeData
                         });
                     }
                 }
-    
+
                 // 处理被依赖节点
                 if (childNodes && childNodes.length > 0) {
                     for (let i = 0; i < childNodes.length; i++) {
@@ -125,7 +122,7 @@ export default class TaskView extends Component {
                         relationTree.push({
                             parent: parent,
                             source: currentNodeData,
-                            target: nodeData,
+                            target: nodeData
                         });
                     }
                 }
@@ -158,11 +155,11 @@ export default class TaskView extends Component {
 
             const cell = graph.insertVertex(
                 parentCell,
-                data.id, 
-                data, 
+                data.id,
+                data,
                 0, 0,
-                width, height, 
-                style,
+                width, height,
+                style
             )
 
             cell.isPart = data.flowId && data.flowId !== 0;
@@ -221,8 +218,7 @@ export default class TaskView extends Component {
         layout.nodeDistance = 10;
         layout.resizeParent = true;
 
-        this.executeLayout = function(layoutTarget, change, post) {
-
+        this.executeLayout = function (layoutTarget, change, post) {
             model.beginUpdate();
 
             try {
@@ -234,7 +230,7 @@ export default class TaskView extends Component {
                 throw e;
             } finally {
                 graph.getModel().endUpdate();
-                if (post != null) { post();}
+                if (post != null) { post(); }
             }
         }
 
@@ -242,7 +238,6 @@ export default class TaskView extends Component {
         this.renderGraph(arrayData);
         graph.center();
     }
-
 
     loadEditor = (container) => {
         // Disable default context menu
@@ -262,12 +257,12 @@ export default class TaskView extends Component {
         // 禁止连接
         graph.setConnectable(false)
         // 禁止Edge对象移动
-        graph.isCellsMovable = function(cell) {
+        graph.isCellsMovable = function (cell) {
             var cell = graph.getSelectionCell()
             return !(cell && cell.edge)
         }
         // 禁止cell编辑
-        graph.isCellEditable = function() {
+        graph.isCellEditable = function () {
             return false
         }
         // 设置Vertex样式
@@ -297,7 +292,7 @@ export default class TaskView extends Component {
     }
 
     formatTooltip = (cell) => {
-        const task = cell.value || ''; 
+        const task = cell.value || '';
         return task ? task.name : ''
     }
 
@@ -314,9 +309,9 @@ export default class TaskView extends Component {
         return '';
     }
 
-    listenOnClick() {
+    listenOnClick () {
         const ctx = this
-        this.graph.addListener(mxEvent.onClick, function(sender, evt) {
+        this.graph.addListener(mxEvent.onClick, function (sender, evt) {
             const cell = evt.getProperty('cell')
             if (cell) {
                 let data = cell.getAttribute('data')
@@ -330,7 +325,7 @@ export default class TaskView extends Component {
         this.componentDidMount()
     }
 
-    graphEnable() {
+    graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)
     }
@@ -353,10 +348,10 @@ export default class TaskView extends Component {
     }
 
     /* eslint-enable */
-    render() {
+    render () {
         return (
             <div className="graph-editor"
-                style={{ position: 'relative', }}
+                style={{ position: 'relative' }}
             >
                 <Spin
                     tip="Loading..."
@@ -379,7 +374,7 @@ export default class TaskView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
+                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
@@ -392,7 +387,7 @@ export default class TaskView extends Component {
         )
     }
 
-    getDefaultVertexStyle() {
+    getDefaultVertexStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
@@ -406,7 +401,7 @@ export default class TaskView extends Component {
         return style;
     }
 
-    getDefaultEdgeStyle() {
+    getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#9EABB2';

@@ -5,10 +5,10 @@ import localDb from 'utils/localDb';
 
 const KEY_EDITOR_OPTIONS = 'editor_options';
 
-// Console Reducers 
+// Console Reducers
 const console = (state = {}, action) => {
     switch (action.type) {
-    case editorAction.GET_TAB: {// 初始化console
+    case editorAction.GET_TAB: { // 初始化console
         const origin = cloneDeep(state)
         if (action.key) {
             const tab = origin[action.key]
@@ -31,7 +31,7 @@ const console = (state = {}, action) => {
         }
         return obj;
     }
-    case editorAction.APPEND_CONSOLE_LOG: {// 追加日志
+    case editorAction.APPEND_CONSOLE_LOG: { // 追加日志
         const { key, data } = action
         const newLog = cloneDeep(state)
         newLog[key].log = newLog[key] ? `${newLog[key].log} \n${data}` : `${data}`
@@ -44,28 +44,28 @@ const console = (state = {}, action) => {
         newLog[key].showRes = false
         return newLog;
     }
-    case editorAction.UPDATE_RESULTS: {// 更新结果
+    case editorAction.UPDATE_RESULTS: { // 更新结果
         const updatedKey = action.key
         const jobId = action.jobId;
         let updated = cloneDeep(state);
         const update_arr = [...updated[updatedKey].results]
         if (updated[updatedKey] && action.data) {
-            const lastResult=update_arr[update_arr.length-1];
-            let index=1;
-            //根据最后一个结果的id序号来递增序号
-            if(lastResult){
-                index=lastResult.id?(lastResult.id+1):(update_arr.length+1)
+            const lastResult = update_arr[update_arr.length - 1];
+            let index = 1;
+            // 根据最后一个结果的id序号来递增序号
+            if (lastResult) {
+                index = lastResult.id ? (lastResult.id + 1) : (update_arr.length + 1)
             }
-            update_arr.push({...action.data,id:index})
+            update_arr.push({ ...action.data, id: index })
             updated[updatedKey].results = update_arr
             updated[updatedKey].showRes = true
         } else {
             updated[updatedKey].showRes = false
         }
-        
+
         return updated;
     }
-    case editorAction.DELETE_RESULT: {// 删除结果
+    case editorAction.DELETE_RESULT: { // 删除结果
         const key = action.key
         let index = action.data
         const origin = cloneDeep(state)
@@ -83,7 +83,7 @@ const console = (state = {}, action) => {
 
 // 剪贴板
 export const selection = (state = '', action) => {
-    switch(action.type) {
+    switch (action.type) {
     case editorAction.SET_SELECTION_CONTENT: {
         if (action.data) {
             return action.data
@@ -96,46 +96,45 @@ export const selection = (state = '', action) => {
     }
 }
 
-/**running**/
-//运行中的任务
+/** running**/
+// 运行中的任务
 export const running = (state = [], action) => {
-    switch(action.type) {
-        case editorAction.ADD_LOADING_TAB: {
-            const list = cloneDeep(state);
-            list.push(action.data.id);
-            return list
-        }
-        case editorAction.REMOVE_LOADING_TAB: {
-            
-            let list=state.filter(function(value){
-                return value!=action.data.id
-            })
-            return list
-        }
-        case editorAction.REMOVE_ALL_LOAING_TAB: {
-            return []
-        }
+    switch (action.type) {
+    case editorAction.ADD_LOADING_TAB: {
+        const list = cloneDeep(state);
+        list.push(action.data.id);
+        return list
+    }
+    case editorAction.REMOVE_LOADING_TAB: {
+        let list = state.filter(function (value) {
+            return value != action.data.id
+        })
+        return list
+    }
+    case editorAction.REMOVE_ALL_LOAING_TAB: {
+        return []
+    }
     default:
         return state
     }
 }
-/**running**/
+/** running**/
 
 /**
  * 编辑器选项
  */
-const initialEditorOptions = function() {
+const initialEditorOptions = function () {
     const defaultEditorOptions = localDb.get(KEY_EDITOR_OPTIONS);
     return defaultEditorOptions || { theme: 'vs' };
 }
 
 export const options = (state = initialEditorOptions(), action) => {
-    switch(action.type) {
-        case editorAction.UPDATE_OPTIONS: {
-            const nextOptions = assign({}, state, action.data)
-            localDb.set(KEY_EDITOR_OPTIONS, nextOptions);
-            return nextOptions;
-        }
+    switch (action.type) {
+    case editorAction.UPDATE_OPTIONS: {
+        const nextOptions = assign({}, state, action.data)
+        localDb.set(KEY_EDITOR_OPTIONS, nextOptions);
+        return nextOptions;
+    }
     default:
         return state
     }

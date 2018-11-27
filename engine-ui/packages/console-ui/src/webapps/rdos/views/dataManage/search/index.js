@@ -6,7 +6,7 @@ import {
 } from 'antd';
 import { Link, hashHistory } from 'react-router';
 import utils from 'utils';
-import { APPLY_RESOURCE_TYPE } from "../../../comm/const";
+import { APPLY_RESOURCE_TYPE } from '../../../comm/const';
 import CatalogueTree from '../catalogTree';
 import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
@@ -19,19 +19,18 @@ const ROUTER_BASE = '/data-manage/table';
 @connect(state => {
     return {
         allProjects: state.allProjects,
-        dataCatalogues: state.dataManage.dataCatalogues,
+        dataCatalogues: state.dataManage.dataCatalogues
     }
 })
 class SearchTable extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
-        const { pId, pageIndex,permissionStatus,tableName,catalogueId} = this.props.location.query;
+        const { pId, pageIndex, permissionStatus, tableName, catalogueId } = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
             editRecord: {},
-            cardLoading:false,
+            cardLoading: false,
             dataCatalogue: [props.dataCatalogues],
             queryParams: {
                 pId,
@@ -39,40 +38,40 @@ class SearchTable extends Component {
                 catalogueId,
                 permissionStatus,
                 tableName,
-                pageSize: 20,
+                pageSize: 20
             },
             ddlList: [],
             dmlList: [],
-            columnNames: [],
+            columnNames: []
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.search();
         this.getDdlList();
         this.getDmlList();
     }
-    
+
     search = () => {
         this.setState({
             cardLoading: true,
-            table: [],
+            table: []
         })
         const { queryParams } = this.state;
         const pathname = this.props.location.pathname;
         hashHistory.push({
             pathname,
-            query: queryParams,
+            query: queryParams
         })
         ajax.newSearchTable(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
                     table: res.data,
-                    cardLoading: false,
+                    cardLoading: false
                 })
-            }else{
+            } else {
                 this.setState({
-                    cardLoading: false,
+                    cardLoading: false
                 })
             }
         })
@@ -80,7 +79,7 @@ class SearchTable extends Component {
 
     getDdlList = () => {
         ajax.getDdlList().then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const data = res.data;
                 const ddlData = data.map((item) => {
                     return {
@@ -98,7 +97,7 @@ class SearchTable extends Component {
 
     getDmlList = () => {
         ajax.getDmlList().then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const data = res.data;
                 const dmlData = data.map((item) => {
                     return {
@@ -114,17 +113,15 @@ class SearchTable extends Component {
         })
     }
 
-    
-
     apply = (applyData) => {
         const { editRecord } = this.state;
-        const params = {...applyData};
+        const params = { ...applyData };
         params.applyResourceType = APPLY_RESOURCE_TYPE.TABLE;
         params.resourceId = editRecord.id;
         ajax.applyTable(params).then(res => {
             if (res.code === 1) {
                 message.success('申请成功！')
-                this.setState({visible:false},this.search)
+                this.setState({ visible: false }, this.search)
             }
         })
     }
@@ -133,19 +130,19 @@ class SearchTable extends Component {
         let queryParams = Object.assign(this.state.queryParams);
         queryParams.pageIndex = 1;
         if (field) {
-            queryParams[field] = value === " " ? " " : value;
+            queryParams[field] = value === ' ' ? ' ' : value;
         }
         this.setState({
-            queryParams,
+            queryParams
         }, this.search)
     }
-    
+
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current
         })
         this.setState({
-            queryParams,
+            queryParams
         }, this.search)
     }
 
@@ -153,8 +150,8 @@ class SearchTable extends Component {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
                 tableName: e.target.value,
-                pageIndex: 1,
-            }),
+                pageIndex: 1
+            })
         })
     }
 
@@ -164,7 +161,7 @@ class SearchTable extends Component {
             tableName: record.tableName,
             projectId: record.belongProjectId
         }).then(res => {
-            if(res.code ===1 ) {
+            if (res.code === 1) {
                 console.log(res.data);
                 this.setState({
                     columnNames: res.data
@@ -173,25 +170,24 @@ class SearchTable extends Component {
         })
         this.setState({
             visible: true,
-            editRecord: record,
+            editRecord: record
         });
         // console.log(record);
     }
 
-
-    characterProcess = (text="",maxWidth="300px") => {
-        const style ={overflow: "hidden",
+    characterProcess = (text = '', maxWidth = '300px') => {
+        const style = { overflow: 'hidden',
             maxWidth,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap"}
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap' }
         const content = (
-        <Tooltip title={text} >
-            <div style ={style}>{text}</div>
-        </Tooltip>
+            <Tooltip title={text} >
+                <div style ={style}>{text}</div>
+            </Tooltip>
         )
-       
+
         return content
-    } 
+    }
 
     initialColumns = () => {
         const ctx = this;
@@ -201,7 +197,7 @@ class SearchTable extends Component {
                 width: 120,
                 key: 'tableName',
                 dataIndex: 'tableName',
-                render(text, record) {
+                render (text, record) {
                     return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
@@ -209,25 +205,25 @@ class SearchTable extends Component {
                 title: '类目',
                 key: 'catalogue',
                 dataIndex: 'catalogue',
-                render(text, record) {
+                render (text, record) {
                     return text
-                },
+                }
             },
             {
                 title: '项目名称',
                 key: 'project',
-                dataIndex: 'project',
+                dataIndex: 'project'
             },
             {
                 title: '项目显示名称',
                 key: 'projectAlias',
-                dataIndex: 'projectAlias',
+                dataIndex: 'projectAlias'
             },
             {
                 title: '负责人',
                 key: 'chargeUser',
                 dataIndex: 'chargeUser',
-                render(text, record) {
+                render (text, record) {
                     return text
                 }
             },
@@ -236,14 +232,14 @@ class SearchTable extends Component {
                 width: 150,
                 key: 'tableDesc',
                 dataIndex: 'tableDesc',
-                render : text => this.characterProcess(text,"150px"),
-               
+                render: text => this.characterProcess(text, '150px')
+
             },
             {
                 title: '创建时间',
                 key: 'gmtCreate',
                 dataIndex: 'gmtCreate',
-                render(text, record) {
+                render (text, record) {
                     return utils.formatDateTime(text)
                 }
             },
@@ -251,33 +247,33 @@ class SearchTable extends Component {
                 title: '表结构最后变更时间',
                 key: 'lastDdlTime',
                 dataIndex: 'lastDdlTime',
-                render(text) {
+                render (text) {
                     return utils.formatDateTime(text)
-                },
+                }
             },
             {
                 title: '数据最后变更时间',
                 key: 'lastDmlTime',
                 dataIndex: 'lastDmlTime',
-                render(text) {
+                render (text) {
                     return utils.formatDateTime(text)
-                },
+                }
             },
             {
                 title: '操作',
                 key: 'id',
                 dataIndex: 'permissionStatus',
                 width: 100,
-                render(status, record) {
+                render (status, record) {
                     // 授权状态 0-未授权，1-已授权,2-待审批
-                    switch(status) {
-                        case 0:
-                            return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
-                        case 1:
-                            return <span>授权成功</span>
-                        case 2:
-                            return <span>等待授权</span>
-                        default: return '-';
+                    switch (status) {
+                    case 0:
+                        return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
+                    case 1:
+                        return <span>授权成功</span>
+                    case 2:
+                        return <span>等待授权</span>
+                    default: return '-';
                         // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
                     }
                 }
@@ -285,9 +281,7 @@ class SearchTable extends Component {
         ];
     }
 
-
-
-    render() {
+    render () {
         const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList, columnNames } = this.state;
         const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
@@ -307,10 +301,10 @@ class SearchTable extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogueId&&Number(queryParams.catalogueId)}
+                            value={queryParams.catalogueId && Number(queryParams.catalogueId)}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
-                            treeData={dataCatalogue&&dataCatalogue[0].children}
+                            treeData={dataCatalogue && dataCatalogue[0].children}
                         />
                     </span>
                 </FormItem>
@@ -360,34 +354,33 @@ class SearchTable extends Component {
             current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
-                    <div className="box-1 m-card card-tree-select">
-                        <Spin tip="正在加载中..." spinning={cardLoading}>
-                            <Card noHovering bordered={false} title={title} >
-                                <div style={{ marginTop: '1px' }}>
-                                    <Table
-                                        rowKey="id"
-                                        className="m-table full-screen-table-90"
-                                        columns={this.initialColumns()}
-                                        dataSource={table.data}
-                                        pagination={pagination}
-                                        onChange={this.handleTableChange.bind(this)}
-                                    />
-                                </div>
-                            </Card>
-                        </Spin>
-                        <TableApplyModal 
-                            visible={visible}
-                            table={editRecord}
-                            columnNames={columnNames}
-                            onOk={this.apply}
-                            ddlList={ddlList}
-                            dmlList={dmlList}
-                            onCancel={() => {this.setState({visible: false, editRecord: {} })}}
-                        />
-                    </div>
-                </div>
+            <div className="box-1 m-card card-tree-select">
+                <Spin tip="正在加载中..." spinning={cardLoading}>
+                    <Card noHovering bordered={false} title={title} >
+                        <div style={{ marginTop: '1px' }}>
+                            <Table
+                                rowKey="id"
+                                className="m-table full-screen-table-90"
+                                columns={this.initialColumns()}
+                                dataSource={table.data}
+                                pagination={pagination}
+                                onChange={this.handleTableChange.bind(this)}
+                            />
+                        </div>
+                    </Card>
+                </Spin>
+                <TableApplyModal
+                    visible={visible}
+                    table={editRecord}
+                    columnNames={columnNames}
+                    onOk={this.apply}
+                    ddlList={ddlList}
+                    dmlList={dmlList}
+                    onCancel={() => { this.setState({ visible: false, editRecord: {} }) }}
+                />
+            </div>
+        </div>
     }
-
 }
 
 export default SearchTable;

@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { Menu, Card, Table, Input } from "antd"
-import SlidePane from "./approvedSlidePane";
-import utils from "utils"
+import React, { Component } from 'react';
+import { Menu, Card, Table, Input } from 'antd'
+import SlidePane from './approvedSlidePane';
+import utils from 'utils'
 const sortType = {
-    "applyTime": 'gmt_modified'
+    'applyTime': 'gmt_modified'
 }
 const orderType = {
-    "ascend": 'asc',
-    "descend": 'desc'
+    'ascend': 'asc',
+    'descend': 'desc'
 }
 const TextArea = Input.TextArea;
 const Search = Input.Search;
@@ -18,47 +18,43 @@ class NoApprovedCard extends Component {
         sortedInfo: {},
         loading: false,
         showRecord: {},
-        apiName: undefined,
+        apiName: undefined
     }
-    getApplyingList(callback) {
+    getApplyingList (callback) {
         this.setState({
             loading: true
         })
-        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order],this.state.apiName)
+        this.props.getApplyingList(this.state.pageIndex, sortType[this.state.sortedInfo.columnKey], orderType[this.state.sortedInfo.order], this.state.apiName)
             .then(
                 () => {
                     this.setState({
                         loading: false
                     })
                     if (callback) {
-
                         callback();
                     }
                 }
             );
     }
-    componentDidMount() {
+    componentDidMount () {
         this.getApplyingList(
             () => {
                 this.openCard(this.props.apiId);
             }
         );
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
             this.openCard(nextProps.apiId);
         }
     }
-    openCard(apiId) {
-
+    openCard (apiId) {
         const res = this.getSource();
         if (res) {
-
             for (let i in res) {
                 let item = res[i];
 
                 if (apiId == item.apiId) {
-
                     this.openApprovedState(item);
                     break;
                 }
@@ -72,20 +68,17 @@ class NoApprovedCard extends Component {
             pageIndex: page.current,
             sortedInfo: sorter
         },
-            () => {
-                this.getApplyingList();
-            });
-
-
+        () => {
+            this.getApplyingList();
+        });
     }
-    openApprovedState(record) {
+    openApprovedState (record) {
         this.setState({
             slidePaneShow: true,
             showRecord: record || {}
         })
-
     }
-    initColumns() {
+    initColumns () {
         const sortedInfo = this.state.sortedInfo;
         return [{
             title: '标签名称',
@@ -111,40 +104,40 @@ class NoApprovedCard extends Component {
             key: 'applyTime',
             width: '20%',
             sorter: true,
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text);
             }
         }]
     }
-    getSource() {
+    getSource () {
         return this.props.mine.apiList.applyingList.data;
     }
-    getTotal() {
+    getTotal () {
         return (this.props.mine.apiList.applyingList && this.props.mine.apiList.applyingList.totalCount) || 0
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 20,
-            total: this.getTotal(),
+            total: this.getTotal()
         }
     }
-    closeSlidePane() {
+    closeSlidePane () {
         this.setState({
             slidePaneShow: false,
-            showRecord:{}
+            showRecord: {}
         })
     }
-    handleApiSearch(key) {
+    handleApiSearch (key) {
         this.setState({
             apiName: key,
-            pageIndex:1
+            pageIndex: 1
         },
-            () => {
-                this.getApplyingList();
-            })
+        () => {
+            this.getApplyingList();
+        })
     }
-    render() {
+    render () {
         return (
 
             <Card
@@ -161,7 +154,7 @@ class NoApprovedCard extends Component {
 
                     <Search
                         placeholder="输入标签名称搜索"
-                        style={{ width: 150, margin: '10px 0px', marginLeft: "10px" }}
+                        style={{ width: 150, margin: '10px 0px', marginLeft: '10px' }}
                         onSearch={this.handleApiSearch.bind(this)}
                     />
 
@@ -171,9 +164,9 @@ class NoApprovedCard extends Component {
                     rowClassName={
                         (record, index) => {
                             if (this.state.showRecord.apiId == record.apiId) {
-                                return "row-select"
+                                return 'row-select'
                             } else {
-                                return "";
+                                return '';
                             }
                         }
                     }

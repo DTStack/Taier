@@ -2,19 +2,18 @@ import React, { Component } from 'react'
 import { isArray, isNumber } from 'lodash';
 import {
     Form, Input, Select,
-    Radio, Modal,
+    Radio, Modal
 } from 'antd'
 
 import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
-import HelpDoc from "../../helpDoc";
+import HelpDoc from '../../helpDoc';
 import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 
 const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
 class TaskFormModal extends Component {
-
     state = {
         taskType: 0,
         selectedRes: [],
@@ -23,7 +22,7 @@ class TaskFormModal extends Component {
 
     _update = false; // update flag;
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const newTask = nextProps.taskInfo
         const oldTask = this.props.taskInfo
         if (newTask.id !== oldTask.id) {
@@ -41,12 +40,11 @@ class TaskFormModal extends Component {
 
     onChangeResList = (value) => {
         if (isArray(value)) {
-
             const newVals = [...value]
 
             const { taskInfo } = this.props
-            const resourceList = isArray(taskInfo.resourceList) ?
-                taskInfo.resourceList.map(item => item.id) : []
+            const resourceList = isArray(taskInfo.resourceList)
+                ? taskInfo.resourceList.map(item => item.id) : []
 
             newVals.forEach((v, i) => {
                 if (isNumber(v) && resourceList.indexOf(v) < 0) {
@@ -55,15 +53,15 @@ class TaskFormModal extends Component {
             })
 
             this.setState({
-                selectedRes: resourceList,
+                selectedRes: resourceList
             })
         } else {
             this.setState({
-                selectedRes: value,
+                selectedRes: value
             })
         }
         this.props.form.setFieldsValue({
-            resourceIdList: value,
+            resourceIdList: value
         })
         this._update = true;
     }
@@ -88,8 +86,8 @@ class TaskFormModal extends Component {
 
         // 如果为进行过更新操作，忽略资源列表
         if (!this._update) {
-            task.resourceIdList = taskInfo && taskInfo.resourceList ?
-                taskInfo.resourceList.map(res => res.id) : []
+            task.resourceIdList = taskInfo && taskInfo.resourceList
+                ? taskInfo.resourceList.map(res => res.id) : []
         }
 
         this.props.form.validateFields(fileds, (err) => {
@@ -111,7 +109,7 @@ class TaskFormModal extends Component {
         })
     }
 
-    checkNotDir(rule, values, callback) {
+    checkNotDir (rule, values, callback) {
         const { resRoot } = this.props;
 
         let nodeType;
@@ -126,9 +124,7 @@ class TaskFormModal extends Component {
 
                 if (flag && node.type === 'folder') {
                     callback('请选择具体文件, 而非文件夹');
-                    return;
-                }
-                else {
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -137,10 +133,10 @@ class TaskFormModal extends Component {
         callback();
     }
 
-    render() {
+    render () {
         const {
             form, ayncTree, visible, taskTypes,
-            taskInfo, taskRoot, resRoot, type, operation,
+            taskInfo, taskRoot, resRoot, type, operation
         } = this.props
 
         const { getFieldDecorator } = form
@@ -153,19 +149,19 @@ class TaskFormModal extends Component {
             <Radio key={item.key} value={item.key}>{item.value}</Radio>
         )
 
-        const resourceIds = taskInfo && taskInfo.resourceList ?
-            taskInfo.resourceList.map(res => res.id) : []
+        const resourceIds = taskInfo && taskInfo.resourceList
+            ? taskInfo.resourceList.map(res => res.id) : []
 
-        const resouceNames = taskInfo && taskInfo.resourceList ?
-            taskInfo.resourceList.map(res => res.resourceName) : []
+        const resouceNames = taskInfo && taskInfo.resourceList
+            ? taskInfo.resourceList.map(res => res.resourceName) : []
 
         const defaultRes = resRoot[0] && resRoot[0].children &&
             resRoot[0].children.lenght > 0 ? resourceIds : resouceNames;
 
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
-        const isFlinkSql=taskType==TASK_TYPE.SQL;
-        const isShowResource=!isDataCollection&&!isFlinkSql;
-        
+        const isFlinkSql = taskType == TASK_TYPE.SQL;
+        const isShowResource = !isDataCollection && !isFlinkSql;
+
         return (
             <div id="JS_task_modal_realtime">
                 <Modal
@@ -183,17 +179,17 @@ class TaskFormModal extends Component {
                         >
                             {getFieldDecorator('name', {
                                 rules: [{
-                                    required: true, message: '任务名称不可为空！',
+                                    required: true, message: '任务名称不可为空！'
                                 }, {
                                     pattern: /^[A-Za-z0-9_-]+$/,
-                                    message: '任务名称只能由字母、数字、下划线组成!',
+                                    message: '任务名称只能由字母、数字、下划线组成!'
                                 }, {
                                     max: 64,
-                                    message: '任务名称不得超过64个字符！',
+                                    message: '任务名称不得超过64个字符！'
                                 }],
-                                initialValue: taskInfo ? taskInfo.name : '',
+                                initialValue: taskInfo ? taskInfo.name : ''
                             })(
-                                <Input />,
+                                <Input />
                             )}
                         </FormItem>
                         <FormItem
@@ -202,11 +198,11 @@ class TaskFormModal extends Component {
                         >
                             {getFieldDecorator('taskType', {
                                 rules: [],
-                                initialValue: taskInfo.taskType || 0,
+                                initialValue: taskInfo.taskType || 0
                             })(
                                 <RadioGroup onChange={this.taskTypeChange} disabled={isEdit}>
                                     {taskRadios}
-                                </RadioGroup>,
+                                </RadioGroup>
                             )}
                             <HelpDoc doc="newStreamTask" />
                         </FormItem>
@@ -217,7 +213,7 @@ class TaskFormModal extends Component {
                             >
                                 {getFieldDecorator('createModel', {
                                     rules: [],
-                                    initialValue: createModel,
+                                    initialValue: createModel
                                 })(
                                     <RadioGroup onChange={
                                         (e) => {
@@ -226,7 +222,7 @@ class TaskFormModal extends Component {
                                     } disabled={isEdit}>
                                         <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
                                         <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
-                                    </RadioGroup>,
+                                    </RadioGroup>
                                 )}
                             </FormItem>
                         )}
@@ -238,12 +234,12 @@ class TaskFormModal extends Component {
                                 {getFieldDecorator('resourceIdList', {
                                     rules: [{
                                         required: taskType === 1,
-                                        message: '请选择资源！',
+                                        message: '请选择资源！'
                                     },
                                     {
                                         validator: this.checkNotDir.bind(this)
                                     }],
-                                    initialValue: defaultRes,
+                                    initialValue: defaultRes
                                 })(
                                     <FolderPicker
                                         isPicker
@@ -267,9 +263,9 @@ class TaskFormModal extends Component {
                                     required: taskType === 1,
                                     message: '请输入mainClass'
                                 }],
-                                initialValue: taskInfo && taskInfo.mainClass,
+                                initialValue: taskInfo && taskInfo.mainClass
                             })(
-                                <Input placeholder="请输入mainClass" />,
+                                <Input placeholder="请输入mainClass" />
                             )}
                         </FormItem>
                         <FormItem
@@ -279,9 +275,9 @@ class TaskFormModal extends Component {
                         >
                             {getFieldDecorator('exeArgs', {
                                 rules: [{}],
-                                initialValue: taskInfo && taskInfo.exeArgs,
+                                initialValue: taskInfo && taskInfo.exeArgs
                             })(
-                                <Input placeholder="请输入任务参数" />,
+                                <Input placeholder="请输入任务参数" />
                             )}
                         </FormItem>
                         <FormItem
@@ -291,9 +287,9 @@ class TaskFormModal extends Component {
                         >
                             {getFieldDecorator('nodePid', {
                                 rules: [{
-                                    required: true, message: '必须选择存储位置！',
+                                    required: true, message: '必须选择存储位置！'
                                 }],
-                                initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : taskRoot && taskRoot[0] ? taskRoot[0].id : '',
+                                initialValue: taskInfo && taskInfo.nodePid ? taskInfo.nodePid : taskRoot && taskRoot[0] ? taskRoot[0].id : ''
                             })(
                                 <FolderPicker
                                     id="nodePid"
@@ -313,11 +309,11 @@ class TaskFormModal extends Component {
                             {getFieldDecorator('taskDesc', {
                                 rules: [{
                                     max: 200,
-                                    message: '描述请控制在200个字符以内！',
+                                    message: '描述请控制在200个字符以内！'
                                 }],
-                                initialValue: taskInfo ? taskInfo.taskDesc : '',
+                                initialValue: taskInfo ? taskInfo.taskDesc : ''
                             })(
-                                <Input type="textarea" rows={4} />,
+                                <Input type="textarea" rows={4} />
                             )}
                         </FormItem>
                     </Form>

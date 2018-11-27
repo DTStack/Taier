@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import {
     Form, Input,
-    Select, Modal, Checkbox,
- } from 'antd'
-import { isEmpty } from "lodash";
+    Select, Modal, Checkbox
+} from 'antd'
+import { isEmpty } from 'lodash';
 
 import { formItemLayout } from '../../../comm/const'
 
@@ -12,16 +12,15 @@ const Option = Select.Option
 const CheckboxGroup = Checkbox.Group
 
 class AlarmForm extends Component {
-
     state = {
-        senderTypes:[],
+        senderTypes: []
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { alarmInfo , visible } = nextProps;
-        if (visible&&this.props.visible!=visible) {
+    componentWillReceiveProps (nextProps) {
+        const { alarmInfo, visible } = nextProps;
+        if (visible && this.props.visible != visible) {
             this.setState({
-                senderTypes:alarmInfo.senderTypes||[],
+                senderTypes: alarmInfo.senderTypes || []
             })
         }
     }
@@ -50,97 +49,97 @@ class AlarmForm extends Component {
         onCancel()
     }
 
-    senderTypesChange(values){
+    senderTypesChange (values) {
         this.setState({
-            senderTypes:values
+            senderTypes: values
         });
     }
 
-    render() {
+    render () {
         const {
             form, title, projectUsers,
-            visible, alarmInfo, taskList, user,
+            visible, alarmInfo, taskList, user
         } = this.props
         const { getFieldDecorator } = form
 
         const { senderTypes } = this.state;
-        
-        const taskItems = taskList && taskList.length > 0 ?
-        taskList.map((item) => {
-            return (<Option key={item.id} value={item.id} name={item.name}>
-                {item.name}
-            </Option>)
-        }) : []
 
-        const userItems = projectUsers && projectUsers.length > 0 ?
-        projectUsers.map((item) => {
-            return (<Option key={item.id} value={item.userId} name={item.user.userName}>
-                {item.user.userName}
-            </Option>)
-        }) : []
+        const taskItems = taskList && taskList.length > 0
+            ? taskList.map((item) => {
+                return (<Option key={item.id} value={item.id} name={item.name}>
+                    {item.name}
+                </Option>)
+            }) : []
 
-        const receivers = alarmInfo.receiveUsers ?
-        alarmInfo.receiveUsers.map(item => item.userId) : []
+        const userItems = projectUsers && projectUsers.length > 0
+            ? projectUsers.map((item) => {
+                return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+                    {item.user.userName}
+                </Option>)
+            }) : []
 
-        let showDD=false;
-        if(senderTypes.indexOf(4)>-1){
-            showDD=true;
+        const receivers = alarmInfo.receiveUsers
+            ? alarmInfo.receiveUsers.map(item => item.userId) : []
+
+        let showDD = false;
+        if (senderTypes.indexOf(4) > -1) {
+            showDD = true;
         }
         return (
             <Modal
-              title={title}
-              wrapClassName="vertical-center-modal"
-              visible={visible}
-              onOk={this.submit}
-              onCancel={this.cancle}
+                title={title}
+                wrapClassName="vertical-center-modal"
+                visible={visible}
+                onOk={this.submit}
+                onCancel={this.cancle}
             >
                 <Form>
                     <FormItem
-                      {...formItemLayout}
-                      label="告警规则名称"
+                        {...formItemLayout}
+                        label="告警规则名称"
                     >
                         {getFieldDecorator('name', {
                             rules: [{
-                                required: true, message: '告警规则名称不可为空！',
+                                required: true, message: '告警规则名称不可为空！'
                             }, {
                                 max: 30,
-                                message: '告警规则名称不得超过30个字符！',
+                                message: '告警规则名称不得超过30个字符！'
                             }],
-                            initialValue: alarmInfo.alarmName || '',
+                            initialValue: alarmInfo.alarmName || ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="任务名称"
+                        {...formItemLayout}
+                        label="任务名称"
                     >
                         {getFieldDecorator('taskId', {
                             rules: [{
-                                required: true, message: '请您选择所要告警的任务！',
+                                required: true, message: '请您选择所要告警的任务！'
                             }],
-                            initialValue: alarmInfo.taskId || '',
+                            initialValue: alarmInfo.taskId || ''
                         })(
                             <Select
-                              showSearch
-                              size='Default'
-                              style={{ width: "100%" }}
-                              placeholder="任务任务"
-                              optionFilterProp="name"
+                                showSearch
+                                size='Default'
+                                style={{ width: '100%' }}
+                                placeholder="任务任务"
+                                optionFilterProp="name"
                             >
                                 { taskItems }
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="告警方式"
+                        {...formItemLayout}
+                        label="告警方式"
                     >
                         {getFieldDecorator('senderTypes', {
                             rules: [{
-                                required: true, message: '请您选择所要告警的任务！',
+                                required: true, message: '请您选择所要告警的任务！'
                             }],
-                            initialValue: alarmInfo.senderTypes || [1], // 1-邮件， 2-短信
+                            initialValue: alarmInfo.senderTypes || [1] // 1-邮件， 2-短信
                         })(
                             <CheckboxGroup onChange={this.senderTypesChange.bind(this)}>
                                 <Checkbox value={1}>邮件</Checkbox>
@@ -149,54 +148,54 @@ class AlarmForm extends Component {
                             </CheckboxGroup>
                         )}
                     </FormItem>
-                    {showDD&&<FormItem
-                      {...formItemLayout}
-                      label="webhook"
+                    {showDD && <FormItem
+                        {...formItemLayout}
+                        label="webhook"
                     >
                         {getFieldDecorator('webhook', {
                             rules: [{
-                                required: true, message: 'webhook不能为空',
+                                required: true, message: 'webhook不能为空'
                             }],
-                            initialValue: alarmInfo.webhook || '', 
+                            initialValue: alarmInfo.webhook || ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>}
                     <FormItem
-                      {...formItemLayout}
-                      label="触发方式"
+                        {...formItemLayout}
+                        label="触发方式"
                     >
                         {getFieldDecorator('myTrigger', {
                             rules: [{
-                                required: true, message: '请您选择任务触发方式！',
+                                required: true, message: '请您选择任务触发方式！'
                             }],
-                            initialValue: alarmInfo.myTrigger || 0, // 任务失败
+                            initialValue: alarmInfo.myTrigger || 0 // 任务失败
                         })(
                             <Select>
                                 <Option value={0}>任务失败</Option>
                                 <Option value={3}>任务停止</Option>
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="接收人"
+                        {...formItemLayout}
+                        label="接收人"
                     >
                         {getFieldDecorator('receiveUsers', {
                             rules: [{
-                                required: true, message: '请您选择接收人!',
+                                required: true, message: '请您选择接收人!'
                             }],
-                            initialValue: receivers || user.id,
+                            initialValue: receivers || user.id
                         })(
                             <Select
-                              showSearch
-                              mode="multiple"
-                              style={{ width: "100%" }}
-                              placeholder="请选择接收人"
-                              optionFilterProp="name"
+                                showSearch
+                                mode="multiple"
+                                style={{ width: '100%' }}
+                                placeholder="请选择接收人"
+                                optionFilterProp="name"
                             >
                                 {userItems}
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                 </Form>

@@ -2,7 +2,7 @@ import React from 'react'
 
 import './style.scss'
 
-export function Warning(props) {
+export function Warning (props) {
     return (
         <span className="font-warning">
             { props.children }
@@ -10,7 +10,7 @@ export function Warning(props) {
     )
 }
 
-export function Normal(props) {
+export function Normal (props) {
     return (
         <span className="font-normal">
             { props.children }

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
     Row,
     Col,
@@ -14,17 +14,17 @@ import {
     Switch,
     Tooltip,
     InputNumber
-} from "antd";
+} from 'antd';
 import { debounce } from 'lodash';
 
-import Api from "../../../api";
-import * as BrowserAction from "../../../store/modules/realtimeTask/browser";
-import { DATA_SOURCE } from "../../../comm/const";
-import { havaTableList } from "./sidePanel/panelCommonUtil";
+import Api from '../../../api';
+import * as BrowserAction from '../../../store/modules/realtimeTask/browser';
+import { DATA_SOURCE } from '../../../comm/const';
+import { havaTableList } from './sidePanel/panelCommonUtil';
 
-import Editor from "widgets/code-editor";
-import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from "./sidePanel/customParams";
-import { switchPartition } from "../../../views/helpDoc/docs";
+import Editor from 'widgets/code-editor';
+import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
+import { switchPartition } from '../../../views/helpDoc/docs';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -33,22 +33,22 @@ const { Column, ColumnGroup } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends Component {
-    componentDidMount() {
+    componentDidMount () {
         this.props.onRef(this);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (!this.props.isShow && nextProps.isShow) {
             this.refreshEditor();
         }
     }
-    refreshEditor() {
+    refreshEditor () {
         if (this._editorRef) {
-            console.log("refresh")
+            console.log('refresh')
             this._editorRef.refresh();
         }
     }
     checkParams = v => {
-        //手动检测table参数
+        // 手动检测table参数
         const { index, panelColumn } = this.props;
         const tableColumns = panelColumn[index].columns;
 
@@ -65,51 +65,51 @@ class OutputOrigin extends Component {
 
     originOption = (type, arrData) => {
         switch (type) {
-            case "originType":
-                return arrData.map(v => {
-                    return (
-                        <Option key={v} value={`${v.id}`}>
-                            {v.name}
-                        </Option>
-                    );
-                });
-            case "currencyType":
-                return arrData.map(v => {
-                    return (
-                        <Option key={v} value={`${v}`}>
-                            {v}
-                        </Option>
-                    );
-                });
-            case "columnType":
-                return arrData.map((v, index) => {
-                    return (
-                        <Option key={index} value={`${v.key}`}>
-                            {v.key}
-                        </Option>
-                    );
-                });
-            case "primaryType":
-                return arrData.map((v, index) => {
-                    return (
-                        <Option key={index} value={`${v.column}`}>
-                            {v.column}
-                        </Option>
-                    );
-                });
-            default:
-                return null;
+        case 'originType':
+            return arrData.map(v => {
+                return (
+                    <Option key={v} value={`${v.id}`}>
+                        {v.name}
+                    </Option>
+                );
+            });
+        case 'currencyType':
+            return arrData.map(v => {
+                return (
+                    <Option key={v} value={`${v}`}>
+                        {v}
+                    </Option>
+                );
+            });
+        case 'columnType':
+            return arrData.map((v, index) => {
+                return (
+                    <Option key={index} value={`${v.key}`}>
+                        {v.key}
+                    </Option>
+                );
+            });
+        case 'primaryType':
+            return arrData.map((v, index) => {
+                return (
+                    <Option key={index} value={`${v.column}`}>
+                        {v.column}
+                    </Option>
+                );
+            });
+        default:
+            return null;
         }
     }
 
-    editorParamsChange(a, b, c) {
+    editorParamsChange (a, b, c) {
         const { handleInputChange, index, textChange } = this.props;
         textChange();
-        handleInputChange("columnsText", index, b);
-        //this.props.editorParamsChange(...arguments);
+        handleInputChange('columnsText', index, b);
+        // this.props.editorParamsChange(...arguments);
     }
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
-    render() {
+    render () {
         const {
             handleInputChange,
             index,
@@ -121,19 +121,19 @@ class OutputOrigin extends Component {
         } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption(
-            "originType",
+            'originType',
             originOptionType[index] || []
         );
         const tableOptionTypes = this.originOption(
-            "currencyType",
+            'currencyType',
             tableOptionType[index] || []
         );
         const tableColumnOptionTypes = this.originOption(
-            "columnType",
+            'columnType',
             tableColumnOptionType[index] || []
         );
         const primaryKeyOptionTypes = this.originOption(
-            "primaryType",
+            'primaryType',
             panelColumn[index].columns || []
         );
         const customParams = panelColumn[index].customParams || [];
@@ -150,13 +150,13 @@ class OutputOrigin extends Component {
         return (
             <Row className="title-content">
                 <FormItem {...formItemLayout} label="存储类型">
-                    {getFieldDecorator("type", {
-                        rules: [{ required: true, message: "请选择存储类型" }]
+                    {getFieldDecorator('type', {
+                        rules: [{ required: true, message: '请选择存储类型' }]
                     })(
                         <Select
                             className="right-select"
                             onChange={v => {
-                                handleInputChange("type", index, v);
+                                handleInputChange('type', index, v);
                             }}
                             showSearch
                             filterOption={(input, option) =>
@@ -174,14 +174,14 @@ class OutputOrigin extends Component {
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="数据源">
-                    {getFieldDecorator("sourceId", {
-                        initialValue: "disabled",
-                        rules: [{ required: true, message: "请选择数据源" }]
+                    {getFieldDecorator('sourceId', {
+                        initialValue: 'disabled',
+                        rules: [{ required: true, message: '请选择数据源' }]
                     })(
                         <Select
                             className="right-select"
                             onChange={v => {
-                                handleInputChange("sourceId", index, v);
+                                handleInputChange('sourceId', index, v);
                             }}
                             showSearch
                             filterOption={(input, option) =>
@@ -196,56 +196,56 @@ class OutputOrigin extends Component {
                 </FormItem>
                 {(() => {
                     switch (panelColumn[index].type) {
-                        case DATA_SOURCE.REDIS: {
-                            return (
-                                <FormItem
-                                    {...formItemLayout}
-                                    label="表"
-                                >
-                                    {getFieldDecorator('table-input', {
-                                        initialValue: "disabled",
-                                        rules: [
-                                            { required: true, message: '请输入表名', }
-                                        ],
-                                    })(
-                                        <Input onChange={(v) => { handleInputChange("table", index, v.target.value) }} />
-                                    )}
-                                </FormItem>
-                            )
-                        }
-                        default: {
-                            return (
-                                <FormItem {...formItemLayout} label="表">
-                                    {getFieldDecorator("table", {
-                                        rules: [{ required: true, message: "请选择表" }]
-                                    })(
-                                        <Select
-                                            className="right-select"
-                                            onChange={v => {
-                                                handleInputChange("table", index, v);
-                                            }}
-                                            showSearch
-                                            filterOption={(input, option) =>
-                                                option.props.children
-                                                    .toLowerCase()
-                                                    .indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {tableOptionTypes}
-                                        </Select>
-                                    )}
-                                </FormItem>
-                            )
-                        }
+                    case DATA_SOURCE.REDIS: {
+                        return (
+                            <FormItem
+                                {...formItemLayout}
+                                label="表"
+                            >
+                                {getFieldDecorator('table-input', {
+                                    initialValue: 'disabled',
+                                    rules: [
+                                        { required: true, message: '请输入表名' }
+                                    ]
+                                })(
+                                    <Input onChange={(v) => { handleInputChange('table', index, v.target.value) }} />
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    default: {
+                        return (
+                            <FormItem {...formItemLayout} label="表">
+                                {getFieldDecorator('table', {
+                                    rules: [{ required: true, message: '请选择表' }]
+                                })(
+                                    <Select
+                                        className="right-select"
+                                        onChange={v => {
+                                            handleInputChange('table', index, v);
+                                        }}
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.props.children
+                                                .toLowerCase()
+                                                .indexOf(input.toLowerCase()) >= 0
+                                        }
+                                    >
+                                        {tableOptionTypes}
+                                    </Select>
+                                )}
+                            </FormItem>
+                        )
+                    }
                     }
                 })()}
                 <FormItem {...formItemLayout} label="映射表">
-                    {getFieldDecorator("tableName")(
+                    {getFieldDecorator('tableName')(
                         <Input
                             placeholder="请输入映射表名"
                             onChange={e =>
                                 handleInputChange(
-                                    "tableName",
+                                    'tableName',
                                     index,
                                     e.target.value
                                 )
@@ -262,7 +262,7 @@ class OutputOrigin extends Component {
                             span="18"
                             className="bd"
                             style={{
-                                marginBottom: 20,
+                                marginBottom: 20
                             }}
                         >
                             <Table
@@ -283,7 +283,7 @@ class OutputOrigin extends Component {
                                                 value={text}
                                                 onChange={v => {
                                                     handleInputChange(
-                                                        "subColumn",
+                                                        'subColumn',
                                                         index,
                                                         subIndex,
                                                         v
@@ -320,11 +320,11 @@ class OutputOrigin extends Component {
                                                 type="close"
                                                 style={{
                                                     fontSize: 16,
-                                                    color: "#888"
+                                                    color: '#888'
                                                 }}
                                                 onClick={() => {
                                                     handleInputChange(
-                                                        "deleteColumn",
+                                                        'deleteColumn',
                                                         index,
                                                         subIndex
                                                     );
@@ -334,13 +334,13 @@ class OutputOrigin extends Component {
                                     }}
                                 />
                             </Table>
-                            <div style={{ padding: "0 20 20" }}>
+                            <div style={{ padding: '0 20 20' }}>
                                 <Button
                                     className="stream-btn"
                                     type="dashed"
                                     style={{ borderRadius: 5 }}
                                     onClick={() => {
-                                        handleInputChange("columns", index, {});
+                                        handleInputChange('columns', index, {});
                                     }}
                                 >
                                     <Icon type="plus" />
@@ -349,120 +349,120 @@ class OutputOrigin extends Component {
                             </div>
                         </Col>
                     ) : (
-                            <Col
-                                span="18"
-                                style={{ marginBottom: 20, height: 200 }}
-                            >
-                                <Editor
-                                    style={{
-                                        minHeight: 202,
-                                        border: "1px solid #ddd"
-                                    }}
-                                    key="params-editor"
-                                    sync={sync}
-                                    placeholder="字段 类型, 比如 id int 一行一个字段"
-                                    // options={jsonEditorOptions}
-                                    value={panelColumn[index].columnsText}
-                                    onChange={this.debounceEditorChange.bind(this)}
-                                    editorRef={(ref) => {
-                                        this._editorRef = ref;
-                                    }}
-                                />
-                            </Col>
-                        )}
+                        <Col
+                            span="18"
+                            style={{ marginBottom: 20, height: 200 }}
+                        >
+                            <Editor
+                                style={{
+                                    minHeight: 202,
+                                    border: '1px solid #ddd'
+                                }}
+                                key="params-editor"
+                                sync={sync}
+                                placeholder="字段 类型, 比如 id int 一行一个字段"
+                                // options={jsonEditorOptions}
+                                value={panelColumn[index].columnsText}
+                                onChange={this.debounceEditorChange.bind(this)}
+                                editorRef={(ref) => {
+                                    this._editorRef = ref;
+                                }}
+                            />
+                        </Col>
+                    )}
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
-                        case DATA_SOURCE.MYSQL: {
-                            return (
-                                <FormItem {...formItemLayout} label="主键">
-                                    {getFieldDecorator("primaryKey", {
-                                        rules: [{ required: true, message: "请选择主键" }]
-                                    })(
-                                        <Select
-                                            className="right-select"
-                                            onChange={v => {
-                                                handleInputChange("primaryKey", index, v);
-                                            }}
-                                            mode="multiple"
-                                            showSearch
-                                            filterOption={(input, option) =>
-                                                option.props.children
-                                                    .toLowerCase()
-                                                    .indexOf(input.toLowerCase()) >= 0
-                                            }
-                                        >
-                                            {primaryKeyOptionTypes}
-                                        </Select>
-                                    )}
-                                </FormItem>
-                            )
-                        }
-                        case DATA_SOURCE.MONGODB: {
-                            return (
-                                <FormItem {...formItemLayout} label="主键">
-                                    {getFieldDecorator("primaryKey-input", {
-                                        rules: [{ required: true, message: "请选择主键" }]
-                                    })(
-                                        <Input
-                                            placeholder="请输入主键"
-                                            onChange={e =>
-                                                handleInputChange(
-                                                    "primaryKey",
-                                                    index,
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                    )}
-                                </FormItem>
-                            )
-                        }
-                        case DATA_SOURCE.HBASE: {
-                            return (
-                                <FormItem {...formItemLayout} label="主键">
-                                    {getFieldDecorator("hbasePrimaryKey", {
-                                        rules: [{ required: true, message: "请输入主键" }]
-                                    })(
-                                        <Input
-                                            placeholder="请输入主键"
-                                            onChange={e =>
-                                                handleInputChange(
-                                                    "hbasePrimaryKey",
-                                                    index,
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                    )}
-                                </FormItem>
-                            )
-                        }
-                        default: {
-                            return null;
-                        }
+                    case DATA_SOURCE.MYSQL: {
+                        return (
+                            <FormItem {...formItemLayout} label="主键">
+                                {getFieldDecorator('primaryKey', {
+                                    rules: [{ required: true, message: '请选择主键' }]
+                                })(
+                                    <Select
+                                        className="right-select"
+                                        onChange={v => {
+                                            handleInputChange('primaryKey', index, v);
+                                        }}
+                                        mode="multiple"
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.props.children
+                                                .toLowerCase()
+                                                .indexOf(input.toLowerCase()) >= 0
+                                        }
+                                    >
+                                        {primaryKeyOptionTypes}
+                                    </Select>
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    case DATA_SOURCE.MONGODB: {
+                        return (
+                            <FormItem {...formItemLayout} label="主键">
+                                {getFieldDecorator('primaryKey-input', {
+                                    rules: [{ required: true, message: '请选择主键' }]
+                                })(
+                                    <Input
+                                        placeholder="请输入主键"
+                                        onChange={e =>
+                                            handleInputChange(
+                                                'primaryKey',
+                                                index,
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    case DATA_SOURCE.HBASE: {
+                        return (
+                            <FormItem {...formItemLayout} label="主键">
+                                {getFieldDecorator('hbasePrimaryKey', {
+                                    rules: [{ required: true, message: '请输入主键' }]
+                                })(
+                                    <Input
+                                        placeholder="请输入主键"
+                                        onChange={e =>
+                                            handleInputChange(
+                                                'hbasePrimaryKey',
+                                                index,
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                )}
+                            </FormItem>
+                        )
+                    }
+                    default: {
+                        return null;
+                    }
                     }
                 })()}
                 <FormItem {...formItemLayout} label="并行度">
-                    {getFieldDecorator("parallelism")(
+                    {getFieldDecorator('parallelism')(
                         <InputNumber
                             className="number-input"
                             min={1}
                             onChange={value =>
-                                handleInputChange("parallelism", index, value)
+                                handleInputChange('parallelism', index, value)
                             }
                         />
                     )}
                 </FormItem>
                 <FormItem {...formItemLayout} label="缓存策略">
-                    {getFieldDecorator("cache", {
-                        rules: [{ required: true, message: "请选择缓存策略" }]
+                    {getFieldDecorator('cache', {
+                        rules: [{ required: true, message: '请选择缓存策略' }]
                     })(
                         <Select
                             placeholder="请选择"
                             className="right-select"
                             onChange={v => {
-                                handleInputChange("cache", index, v);
+                                handleInputChange('cache', index, v);
                             }}
                             showSearch
                             filterOption={(input, option) =>
@@ -483,11 +483,11 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                {panelColumn[index].cache === "LRU" ? ([
+                {panelColumn[index].cache === 'LRU' ? ([
                     <FormItem {...formItemLayout} label="缓存大小(行)">
-                        {getFieldDecorator("cacheSize", {
+                        {getFieldDecorator('cacheSize', {
                             rules: [
-                                { required: true, message: "请输入缓存大小" }
+                                { required: true, message: '请输入缓存大小' }
                                 // { validator: this.checkConfirm }
                             ]
                         })(
@@ -495,17 +495,17 @@ class OutputOrigin extends Component {
                                 className="number-input"
                                 min={0}
                                 onChange={value =>
-                                    handleInputChange("cacheSize", index, value)
+                                    handleInputChange('cacheSize', index, value)
                                 }
                             />
                         )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="缓存超时时间(ms)">
-                        {getFieldDecorator("cacheTTLMs", {
+                        {getFieldDecorator('cacheTTLMs', {
                             rules: [
                                 {
                                     required: true,
-                                    message: "请输入缓存超时时间"
+                                    message: '请输入缓存超时时间'
                                 }
                                 // { validator: this.checkConfirm }
                             ]
@@ -515,7 +515,7 @@ class OutputOrigin extends Component {
                                 min={0}
                                 onChange={value =>
                                     handleInputChange(
-                                        "cacheTTLMs",
+                                        'cacheTTLMs',
                                         index,
                                         value
                                     )
@@ -527,31 +527,31 @@ class OutputOrigin extends Component {
                         label={(
                             <span >
                                 开启分区&nbsp;
-                            <Tooltip title={switchPartition}>
+                                <Tooltip title={switchPartition}>
                                     <Icon type="question-circle-o" />
                                 </Tooltip>
                             </span>)}
                     >
-                        {getFieldDecorator("partitionedJoin", {})(
+                        {getFieldDecorator('partitionedJoin', {})(
                             <Switch
                                 defaultChecked={false}
                                 onChange={checked =>
-                                    handleInputChange("partitionedJoin", index, checked)
+                                    handleInputChange('partitionedJoin', index, checked)
                                 }
-                            />,
+                            />
                         )}
                     </FormItem>
                 ]) : (
-                        undefined
-                    )}
-                {panelColumn[index].cache === "ALL" ?
-                    (
+                    undefined
+                )}
+                {panelColumn[index].cache === 'ALL'
+                    ? (
                         <FormItem {...formItemLayout} label="缓存超时时间(ms)">
-                            {getFieldDecorator("cacheTTLMs", {
+                            {getFieldDecorator('cacheTTLMs', {
                                 rules: [
                                     {
                                         required: true,
-                                        message: "请输入缓存超时时间"
+                                        message: '请输入缓存超时时间'
                                     }
                                     // { validator: this.checkConfirm }
                                 ]
@@ -561,7 +561,7 @@ class OutputOrigin extends Component {
                                     min={0}
                                     onChange={value =>
                                         handleInputChange(
-                                            "cacheTTLMs",
+                                            'cacheTTLMs',
                                             index,
                                             value
                                         )
@@ -574,7 +574,7 @@ class OutputOrigin extends Component {
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
                     customParams={customParams}
-                    onChange={(type, id, value) => { handleInputChange("customParams", index, value, { id, type }) }}
+                    onChange={(type, id, value) => { handleInputChange('customParams', index, value, { id, type }) }}
                 />}
             </Row>
         );
@@ -582,7 +582,7 @@ class OutputOrigin extends Component {
 }
 
 const OutputForm = Form.create({
-    mapPropsToFields(props) {
+    mapPropsToFields (props) {
         const {
             type,
             sourceId,
@@ -602,7 +602,7 @@ const OutputForm = Form.create({
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             table: { value: table },
-            "table-input": { value: table },
+            'table-input': { value: table },
             tableName: { value: tableName },
             columns: { value: columns },
             parallelism: { value: parallelism },
@@ -611,7 +611,7 @@ const OutputForm = Form.create({
             cacheSize: { value: cacheSize },
             cacheTTLMs: { value: cacheTTLMs },
             primaryKey: { value: primaryKey },
-            "primaryKey-input": { value: primaryKey },
+            'primaryKey-input': { value: primaryKey },
             hbasePrimaryKey: { value: hbasePrimaryKey },
             ...generateMapValues(customParams)
         };
@@ -620,33 +620,33 @@ const OutputForm = Form.create({
 
 const initialData = {
     popoverVisible: false,
-    tabTemplate: [], //模版存储,所有输出源(记录个数)
-    panelActiveKey: [], //输出源是打开或关闭状态
-    popoverVisible: [], //删除显示按钮状态
-    panelColumn: [], //存储数据
-    checkFormParams: [], //存储要检查的参数from
-    originOptionType: [], //数据源选择数据
-    tableOptionType: [], //表选择数据
-    tableColumnOptionType: [] //表字段选择的类型
+    tabTemplate: [], // 模版存储,所有输出源(记录个数)
+    panelActiveKey: [], // 输出源是打开或关闭状态
+    popoverVisible: [], // 删除显示按钮状态
+    panelColumn: [], // 存储数据
+    checkFormParams: [], // 存储要检查的参数from
+    originOptionType: [], // 数据源选择数据
+    tableOptionType: [], // 表选择数据
+    tableColumnOptionType: [] // 表字段选择的类型
 };
 
 export default class OutputPanel extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             popoverVisible: false,
-            tabTemplate: [], //模版存储,所有输出源(记录个数)
-            panelActiveKey: [], //输出源是打开或关闭状态
-            popoverVisible: [], //删除显示按钮状态
-            panelColumn: [], //存储数据
-            checkFormParams: [], //存储要检查的参数from
-            originOptionType: [], //数据源选择数据
-            tableOptionType: [], //表选择数据
-            tableColumnOptionType: [] //表字段选择的类型
+            tabTemplate: [], // 模版存储,所有输出源(记录个数)
+            panelActiveKey: [], // 输出源是打开或关闭状态
+            popoverVisible: [], // 删除显示按钮状态
+            panelColumn: [], // 存储数据
+            checkFormParams: [], // 存储要检查的参数from
+            originOptionType: [], // 数据源选择数据
+            tableOptionType: [], // 表选择数据
+            tableColumnOptionType: [] // 表字段选择的类型
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { side } = this.props.currentPage;
         if (side && side.length > 0) {
             this.currentInitData(side);
@@ -656,7 +656,7 @@ export default class OutputPanel extends Component {
     currentInitData = side => {
         const { tabTemplate, panelColumn } = this.state;
         side.map((v, index) => {
-            tabTemplate.push("OutputForm");
+            tabTemplate.push('OutputForm');
             initCustomParam(v)
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
@@ -696,7 +696,7 @@ export default class OutputPanel extends Component {
         const tableOptionType = [];
         const tableColumnOptionType = [];
         side.map(v => {
-            tabTemplate.push("OutputForm");
+            tabTemplate.push('OutputForm');
             panelColumn.push(v);
         });
         dispatch(
@@ -742,7 +742,7 @@ export default class OutputPanel extends Component {
     getTypeOriginData = (index, type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({ type }).then(v => {
-            if (index === "add") {
+            if (index === 'add') {
                 if (v.code === 1) {
                     originOptionType.push(v.data);
                 } else {
@@ -766,7 +766,7 @@ export default class OutputPanel extends Component {
         const { tableOptionType } = this.state;
         if (sourceId) {
             Api.getStremTableType({ sourceId, isSys: false }).then(v => {
-                if (index === "add") {
+                if (index === 'add') {
                     if (v.code === 1) {
                         tableOptionType.push(v.data);
                     } else {
@@ -785,7 +785,7 @@ export default class OutputPanel extends Component {
                 });
             });
         } else {
-            if ((index = "add")) {
+            if ((index = 'add')) {
                 tableOptionType.push([]);
             } else {
                 tableOptionType[index] = [];
@@ -812,7 +812,7 @@ export default class OutputPanel extends Component {
         });
     };
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage;
         const oldPage = this.props.currentPage;
         if (currentPage.id !== oldPage.id) {
@@ -834,7 +834,7 @@ export default class OutputPanel extends Component {
             primaryKey: undefined,
             hbasePrimaryKey: undefined,
             parallelism: 1,
-            cache: "LRU",
+            cache: 'LRU',
             cacheSize: 10000,
             cacheTTLMs: 60000
         };
@@ -848,11 +848,11 @@ export default class OutputPanel extends Component {
             tableOptionType,
             tableColumnOptionType
         } = this.state;
-        if (type === "add") {
-            tabTemplate.push("OutputForm");
+        if (type === 'add') {
+            tabTemplate.push('OutputForm');
             panelColumn.push(inputData);
-            this.getTypeOriginData("add", inputData.type);
-            this.getTableType("add", inputData.table);
+            this.getTypeOriginData('add', inputData.type);
+            this.getTableType('add', inputData.table);
             tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex);
@@ -866,7 +866,7 @@ export default class OutputPanel extends Component {
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
-        this.props.tableParamsChange(); //添加数据改变标记
+        this.props.tableParamsChange(); // 添加数据改变标记
         this.setOutputData({
             tabTemplate,
             panelActiveKey,
@@ -924,7 +924,7 @@ export default class OutputPanel extends Component {
 
     tableColumnType = (index, column) => {
         const { tableColumnOptionType } = this.state;
-        console.log("tableColumnOptionType", tableColumnOptionType);
+        console.log('tableColumnOptionType', tableColumnOptionType);
 
         const filterColumn = tableColumnOptionType[index].filter(v => {
             return v.key === column;
@@ -933,8 +933,8 @@ export default class OutputPanel extends Component {
     };
 
     filterPrimaryKey = (columns, primaryKeys) => {
-        //删除导致原始的primaryKey不存在
-        console.log("primaryKeys", primaryKeys);
+        // 删除导致原始的primaryKey不存在
+        console.log('primaryKeys', primaryKeys);
         return primaryKeys.filter(v => {
             let flag = false;
             columns.map(value => {
@@ -947,7 +947,7 @@ export default class OutputPanel extends Component {
     };
 
     handleInputChange = (type, index, value, subValue) => {
-        //监听数据改变
+        // 监听数据改变
 
         const {
             panelColumn,
@@ -955,104 +955,104 @@ export default class OutputPanel extends Component {
             tableOptionType,
             tableColumnOptionType
         } = this.state;
-        if (type === "columns") {
+        if (type === 'columns') {
             panelColumn[index][type].push(value);
-        } else if (type === "deleteColumn") {
-            panelColumn[index]["columns"].splice(value, 1);
+        } else if (type === 'deleteColumn') {
+            panelColumn[index]['columns'].splice(value, 1);
             const filterPrimaryKeys = this.filterPrimaryKey(
-                panelColumn[index]["columns"],
+                panelColumn[index]['columns'],
                 panelColumn[index].primaryKey || []
             );
             panelColumn[index].primaryKey = filterPrimaryKeys;
-        } else if (type === "subColumn") {
-            panelColumn[index]["columns"][value].column = subValue;
+        } else if (type === 'subColumn') {
+            panelColumn[index]['columns'][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
-            panelColumn[index]["columns"][value].type = subType;
-        } else if (type == "customParams") {
+            panelColumn[index]['columns'][value].type = subType;
+        } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
         }
-        if (type === "columnsText") {
-            //this.parseColumnsText(index,value)
+        if (type === 'columnsText') {
+            // this.parseColumnsText(index,value)
         }
         const allParamsType = [
-            "type",
-            "sourceId",
-            "table",
-            "columns",
-            "columnsText",
-            "parallelism",
-            "cache",
-            "cacheSize",
-            "hbasePrimaryKey",
-            "cacheTTLMs",
-            "tableName",
-            "primaryKey",
-            "customParams"
+            'type',
+            'sourceId',
+            'table',
+            'columns',
+            'columnsText',
+            'parallelism',
+            'cache',
+            'cacheSize',
+            'hbasePrimaryKey',
+            'cacheTTLMs',
+            'tableName',
+            'primaryKey',
+            'customParams'
         ];
-        if (type === "type") {
+        if (type === 'type') {
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v != "type") {
-                    if (v == "parallelism") {
+                if (v != 'type') {
+                    if (v == 'parallelism') {
                         panelColumn[index][v] = 1;
-                    } else if (v == "columns") {
+                    } else if (v == 'columns') {
                         panelColumn[index][v] = [];
-                    } else if (v == "cache") {
-                        panelColumn[index][v] = "LRU";
-                    } else if (v == "cacheSize") {
+                    } else if (v == 'cache') {
+                        panelColumn[index][v] = 'LRU';
+                    } else if (v == 'cacheSize') {
                         panelColumn[index][v] = 10000;
-                    } else if (v == "cacheTTLMs") {
+                    } else if (v == 'cacheTTLMs') {
                         panelColumn[index][v] = 60000;
                     } else {
                         panelColumn[index][v] = undefined;
                     }
                 }
             });
-            //this.clearCurrentInfo(type,index,value)
+            // this.clearCurrentInfo(type,index,value)
             this.getTypeOriginData(index, value);
-        } else if (type === "sourceId") {
+        } else if (type === 'sourceId') {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
             panelColumn[index].columns = [];
 
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId" && v != "customParams") {
-                    if (v == "parallelism") {
+                if (v != 'type' && v != 'sourceId' && v != 'customParams') {
+                    if (v == 'parallelism') {
                         panelColumn[index][v] = 1;
-                    } else if (v == "columns") {
+                    } else if (v == 'columns') {
                         panelColumn[index][v] = [];
-                    } else if (v == "cache") {
-                        panelColumn[index][v] = "LRU";
-                    } else if (v == "cacheSize") {
+                    } else if (v == 'cache') {
+                        panelColumn[index][v] = 'LRU';
+                    } else if (v == 'cacheSize') {
                         panelColumn[index][v] = 10000;
-                    } else if (v == "cacheTTLMs") {
+                    } else if (v == 'cacheTTLMs') {
                         panelColumn[index][v] = 60000;
                     } else {
                         panelColumn[index][v] = undefined;
                     }
                 }
             });
-            //this.clearCurrentInfo(type,index,value)
+            // this.clearCurrentInfo(type,index,value)
             if (havaTableList(panelColumn[index].type)) {
                 this.getTableType(index, value, type);
             }
-        } else if (type === "table") {
+        } else if (type === 'table') {
             tableColumnOptionType[index] = [];
             allParamsType.map(v => {
-                if (v != "type" && v != "sourceId" && v != "table" && v != "customParams") {
-                    if (v == "parallelism") {
+                if (v != 'type' && v != 'sourceId' && v != 'table' && v != 'customParams') {
+                    if (v == 'parallelism') {
                         panelColumn[index][v] = 1;
-                    } else if (v == "columns") {
+                    } else if (v == 'columns') {
                         panelColumn[index][v] = [];
-                    } else if (v == "cache") {
-                        panelColumn[index][v] = "LRU";
-                    } else if (v == "cacheSize") {
+                    } else if (v == 'cache') {
+                        panelColumn[index][v] = 'LRU';
+                    } else if (v == 'cacheSize') {
                         panelColumn[index][v] = 10000;
-                    } else if (v == "cacheTTLMs") {
+                    } else if (v == 'cacheTTLMs') {
                         panelColumn[index][v] = 60000;
                     } else {
                         panelColumn[index][v] = undefined;
@@ -1064,7 +1064,7 @@ export default class OutputPanel extends Component {
                 this.getTableColumns(index, sourceId, value);
             }
         }
-        this.props.tableParamsChange(); //添加数据改变标记
+        this.props.tableParamsChange(); // 添加数据改变标记
         this.setOutputData({ panelColumn });
         this.setState({
             panelColumn
@@ -1080,17 +1080,17 @@ export default class OutputPanel extends Component {
             table: undefined,
             tableName: undefined,
             parallelism: 1,
-            cache: "LRU",
+            cache: 'LRU',
             cacheSize: 10000,
             cacheTTLMs: 60000
         };
-        if (type === "type") {
+        if (type === 'type') {
             inputData.type = value;
             panelColumn[index] = inputData;
             originOptionType[index] = [];
             tableOptionType[index] = [];
-        } else if (type === "sourceId") {
-            inputData.type = panelColumn[index]["type"];
+        } else if (type === 'sourceId') {
+            inputData.type = panelColumn[index]['type'];
             inputData.sourceId = value;
             panelColumn[index] = inputData;
             tableOptionType[index] = [];
@@ -1103,11 +1103,11 @@ export default class OutputPanel extends Component {
         let { popoverVisible } = this.state;
         popoverVisible[index] = visible;
         if (e) {
-            e.stopPropagation(); //阻止删除按钮点击后冒泡到panel
+            e.stopPropagation(); // 阻止删除按钮点击后冒泡到panel
             if (visible) {
-                //只打开一个Popover提示
+                // 只打开一个Popover提示
                 popoverVisible = popoverVisible.map((v, i) => {
-                    return index == i ? true : false;
+                    return index == i;
                 });
             }
         }
@@ -1119,15 +1119,15 @@ export default class OutputPanel extends Component {
         const { popoverVisible } = this.state;
         const popoverContent = (
             <div className="input-panel-title">
-                <div style={{ padding: "8 0 12" }}>
-                    {" "}
+                <div style={{ padding: '8 0 12' }}>
+                    {' '}
                     <Icon
                         type="exclamation-circle"
-                        style={{ color: "#faad14" }}
-                    />{" "}
+                        style={{ color: '#faad14' }}
+                    />{' '}
                     你确定要删除此输出源吗？
                 </div>
-                <div style={{ textAlign: "right", padding: "0 0 8" }}>
+                <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                     <Button
                         style={{ marginRight: 8 }}
                         size="small"
@@ -1141,7 +1141,7 @@ export default class OutputPanel extends Component {
                         type="primary"
                         size="small"
                         onClick={() => {
-                            this.changeInputTabs("delete", index);
+                            this.changeInputTabs('delete', index);
                         }}
                     >
                         确定
@@ -1174,7 +1174,7 @@ export default class OutputPanel extends Component {
     };
 
     recordForm = ref => {
-        //存储子组建的所有要检查的form表单
+        // 存储子组建的所有要检查的form表单
         const { checkFormParams } = this.state;
         checkFormParams.push(ref);
         this.setOutputData({ checkFormParams });
@@ -1183,7 +1183,7 @@ export default class OutputPanel extends Component {
         });
     };
 
-    render() {
+    render () {
         const {
             tabTemplate,
             panelActiveKey,
@@ -1237,7 +1237,7 @@ export default class OutputPanel extends Component {
                 <Button
                     className="stream-btn"
                     onClick={() => {
-                        this.changeInputTabs("add");
+                        this.changeInputTabs('add');
                     }}
                     style={{ borderRadius: 5 }}
                 >

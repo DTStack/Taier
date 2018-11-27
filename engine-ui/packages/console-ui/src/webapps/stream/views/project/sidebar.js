@@ -3,19 +3,18 @@ import { Menu } from 'antd'
 import { Link } from 'react-router'
 require('../iconfont/iconfont');
 export default class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
-            current: 'config',
+            current: 'config'
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected()
     }
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps () {
         this.updateSelected()
     }
 
@@ -29,30 +28,30 @@ export default class Sidebar extends Component {
 
     handleClick = (e) => {
         this.setState({
-            current: e.key,
+            current: e.key
         });
     }
 
-    render() {
+    render () {
         const props = this.props
         const base = `/project/${props.params.pid}`
         return (
             <div className="sidebar m-ant-menu">
                 <Menu
-                  onClick={this.handleClick}
-                  style={{ width: 200, height: '100%' }}
-                  selectedKeys={[this.state.current]}
-                  defaultSelectedKeys={[this.state.current]}
-                  mode="inline"
+                    onClick={this.handleClick}
+                    style={{ width: 200, height: '100%' }}
+                    selectedKeys={[this.state.current]}
+                    defaultSelectedKeys={[this.state.current]}
+                    mode="inline"
                 >
-                
+
                     <Menu.Item key="config">
-                        <Link to={`${base}/config`}> 
+                        <Link to={`${base}/config`}>
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-project_set"></use>
                             </svg>
                             <span>项目配置</span>
-                         </Link>
+                        </Link>
                     </Menu.Item>
                     <Menu.Item key="member">
                         <Link to={`${base}/member`}>

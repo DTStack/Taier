@@ -10,8 +10,8 @@ import Resize from 'widgets/resize'
 import Api from '../../../api'
 import { lineAreaChartOptions } from '../../../comm/const'
 
-import { 
-    OfflineTaskStatus, TaskTimeType, TaskType 
+import {
+    OfflineTaskStatus, TaskTimeType, TaskType
 } from '../../../components/status'
 
 // 引入 ECharts 主模块
@@ -27,28 +27,27 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
 export default class TaskLog extends Component {
-
     state = {
-        data: {},
+        data: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const currentTask = this.props.tabData
         if (currentTask) {
             this.loadRuntimeInfo({
                 taskId: currentTask.id,
-                count: 30,
+                count: 30
             })
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const currentTask = this.props.tabData
-        const { tabData, visibleSlidePane} = nextProps
+        const { tabData, visibleSlidePane } = nextProps
         if (tabData && currentTask && visibleSlidePane && tabData.id !== currentTask.id) {
             this.loadRuntimeInfo({
                 taskId: tabData.id,
-                count: 30,
+                count: 30
             })
         }
     }
@@ -68,15 +67,14 @@ export default class TaskLog extends Component {
         const { tabData } = this.props
         this.loadRuntimeInfo({
             taskId: tabData.id,
-            count: e.target.value,
+            count: e.target.value
         })
     }
 
     handData = (data) => {
-        
-        let arr = [], xAxis = [], series = [];
+        let arr = []; let xAxis = []; let series = [];
         const legend = ['执行时长', '读取数据', '脏数据'];
-        const stayTiming = [], readData = [], dirtyData = [];
+        const stayTiming = []; const readData = []; const dirtyData = [];
 
         if (data) {
             for (let i = data.length - 1; i >= 0; i--) {
@@ -93,35 +91,35 @@ export default class TaskLog extends Component {
             series: [
                 {
                     name: '执行时长',
-                    type:'line',
+                    type: 'line',
                     yAxisIndex: 0,
                     markLine: {
-                        precision: 1,
+                        precision: 1
                     },
-                    data: stayTiming,
+                    data: stayTiming
                 }, {
                     name: '读取数据',
-                    type:'line',
+                    type: 'line',
                     yAxisIndex: 1,
                     markLine: {
-                        precision: 1,
+                        precision: 1
                     },
-                    data: readData,
+                    data: readData
                 }, {
                     name: '脏数据',
                     yAxisIndex: 1,
                     markLine: {
-                        precision: 1,
+                        precision: 1
                     },
-                    type:'line',
-                    data: dirtyData,
+                    type: 'line',
+                    data: dirtyData
                 }
             ]
         }
     }
 
     handNullData = (data) => {
-        const xAxis = [moment(new Date).format('YYYY-MM-DD HH:mm:ss')];
+        const xAxis = [moment(new Date()).format('YYYY-MM-DD HH:mm:ss')];
         const legend = ['无数据'];
         const noData = [0]
         return {
@@ -130,23 +128,22 @@ export default class TaskLog extends Component {
             series: [
                 {
                     name: '无数据',
-                    type:'line',
+                    type: 'line',
                     yAxisIndex: 0,
                     markLine: {
-                        precision: 1,
+                        precision: 1
                     },
-                    data: noData,
+                    data: noData
                 }
             ]
         }
     }
 
-    initLineChart(chartData) {
+    initLineChart (chartData) {
         let data;
-        if(chartData.length>0){
-          data = this.handData(chartData);
-
-        }else{
+        if (chartData.length > 0) {
+            data = this.handData(chartData);
+        } else {
             data = this.handNullData();
         }
 
@@ -164,7 +161,7 @@ export default class TaskLog extends Component {
 
         option.legend = {
             data: data.legend,
-            y: 'bottom',
+            y: 'bottom'
         }
 
         option.tooltip.formatter = function (params) {
@@ -176,11 +173,11 @@ export default class TaskLog extends Component {
         }
         option.xAxis[0].axisTick = {
             show: false,
-            alignWithLabel: true,
+            alignWithLabel: true
         }
 
         option.xAxis[0].boundaryGap = ['5%', '5%'];
-        option.xAxis[0].axisLabel ={
+        option.xAxis[0].axisLabel = {
             align: 'center',
             color: '#666666',
             margin: 12,
@@ -191,7 +188,7 @@ export default class TaskLog extends Component {
 
         option.yAxis[0].name = '执行时长（秒）'
         option.yAxis[0].axisLabel.formatter = '{value}'
-        
+
         option.yAxis[1] = cloneDeep(option.yAxis[0])
         option.yAxis[1].name = '数据量（条）'
         option.yAxis[1].axisLine.show = false
@@ -212,25 +209,24 @@ export default class TaskLog extends Component {
         }
     }
 
-    render() {
-
+    render () {
         const { data } = this.state
 
         const tStyle = {
             width: '55px',
             margin: 0,
-            marginTop: '10px',
+            marginTop: '10px'
         }
 
         return (
             <div className="m-card m-radio-group">
-                <Card 
+                <Card
                     noHovering
                     bordered={false}
                     loading={false}
                     title="执行时长分析"
                     extra={
-                        <RadioGroup 
+                        <RadioGroup
                             defaultValue={30}
                             className="no-bd"
                             onChange={this.onRadioChange}
@@ -241,7 +237,7 @@ export default class TaskLog extends Component {
                             <RadioButton value={60}>近60次</RadioButton>
                         </RadioGroup>
                     }
-                > 
+                >
                     <Row className="m-count" style={{ height: '70px', padding: '0 20px' }}>
                         <Col span={4}>
                             <section className="m-count-section" style={tStyle}>
@@ -263,7 +259,7 @@ export default class TaskLog extends Component {
                         </Col>
                     </Row>
                     <Resize onResize={this.resizeChart}>
-                        <div id="RunTimeTrend" style={{width: '100%', height: '350px'}}></div>
+                        <div id="RunTimeTrend" style={{ width: '100%', height: '350px' }}></div>
                     </Resize>
                 </Card>
             </div>

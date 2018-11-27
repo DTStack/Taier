@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { isArray, isNumber, isEmpty } from 'lodash';
 import {
     Form, Input, Icon, Select,
-    Radio, Modal,
+    Radio, Modal
 } from 'antd'
 
 import Api from '../../../api/dataModel'
@@ -14,35 +14,33 @@ const RadioGroup = Radio.Group
 const Option = Select.Option;
 
 class AtomIndexDefineModal extends Component {
-
-    state = { 
-        columnTypes:[],
-        types: [],
+    state = {
+        columnTypes: [],
+        types: []
     }
 
-    
-    componentDidMount() {
+    componentDidMount () {
         this.getColumnType();
         this.getType();
     }
 
-    getColumnType() {
-        Api.getColumnType().then(res =>{
-            if(res.code === 1){
+    getColumnType () {
+        Api.getColumnType().then(res => {
+            if (res.code === 1) {
                 this.setState({
-                    columnTypes: res.data||[]
+                    columnTypes: res.data || []
                 })
-            } 
+            }
         })
     }
 
-    getType() {
-        Api.getType().then(res =>{
-            if(res.code === 1){
+    getType () {
+        Api.getType().then(res => {
+            if (res.code === 1) {
                 this.setState({
-                    types: res.data||[]
+                    types: res.data || []
                 })
-            } 
+            }
         })
     }
 
@@ -73,13 +71,13 @@ class AtomIndexDefineModal extends Component {
         })
     }
 
-    render() {
+    render () {
         const { form, visible, data } = this.props;
-        const { columnTypes,types } = this.state;
+        const { columnTypes, types } = this.state;
         const { getFieldDecorator } = form;
 
         const isEdit = data && !isEmpty(data);
-        const title = isEdit ? '编辑原子指标': '创建原子指标'
+        const title = isEdit ? '编辑原子指标' : '创建原子指标'
 
         return (
             <Modal
@@ -97,14 +95,14 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnNameZh', {
                             rules: [{
-                                required: true, message: '原子指标名称不可为空！',
+                                required: true, message: '原子指标名称不可为空！'
                             }, {
                                 max: 64,
-                                message: '原子指标名称不得超过64个字符！',
+                                message: '原子指标名称不得超过64个字符！'
                             }],
-                            initialValue: data ? data.columnNameZh : '',
+                            initialValue: data ? data.columnNameZh : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -114,17 +112,17 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnName', {
                             rules: [{
-                                required: true, message: '原子指标命名不可为空！',
+                                required: true, message: '原子指标命名不可为空！'
                             }, {
                                 pattern: /^[A-Za-z0-9_]+$/,
-                                message: '原子指标命名只能由字母、数字、下划线组成!',
+                                message: '原子指标命名只能由字母、数字、下划线组成!'
                             }, {
                                 max: 64,
-                                message: '原子指标命名不得超过64个字符！',
+                                message: '原子指标命名不得超过64个字符！'
                             }],
-                            initialValue: data ? data.columnName : '',
+                            initialValue: data ? data.columnName : ''
                         })(
-                            <Input />,
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -135,11 +133,11 @@ class AtomIndexDefineModal extends Component {
                         {getFieldDecorator('modelDesc', {
                             rules: [{
                                 max: 200,
-                                message: '指标口径请控制在200个字符以内！',
+                                message: '指标口径请控制在200个字符以内！'
                             }],
-                            initialValue: data ? data.modelDesc : '',
+                            initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />,
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                     <FormItem
@@ -148,13 +146,13 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('columnType', {
                             rules: [],
-                            initialValue: data ? data.columnType : 1,
+                            initialValue: data ? data.columnType : 1
                         })(
                             <Select>
                                 {
-                                    types.map((v,index)=><Option value={index+1}>{v}</Option>)
+                                    types.map((v, index) => <Option value={index + 1}>{v}</Option>)
                                 }
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
@@ -163,13 +161,13 @@ class AtomIndexDefineModal extends Component {
                     >
                         {getFieldDecorator('dataType', {
                             rules: [],
-                            initialValue: data ? data.dataType : 'STRING',
+                            initialValue: data ? data.dataType : 'STRING'
                         })(
                             <Select>
                                 {
-                                    columnTypes.map(v=> <Option value={v}>{v}</Option>)
+                                    columnTypes.map(v => <Option value={v}>{v}</Option>)
                                 }
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                 </Form>

@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Menu, Card, Table, Tabs } from "antd"
-import { connect } from "react-redux";
+import { Menu, Card, Table, Tabs } from 'antd'
+import { connect } from 'react-redux';
 import { mineActions } from '../../actions/mine';
-import NoApprovedCard from "./noApprovedCard"
-import ApprovedCard from "./approvedCard"
+import NoApprovedCard from './noApprovedCard'
+import ApprovedCard from './approvedCard'
 
 const mapStateToProps = state => {
     const { user, mine } = state;
@@ -11,7 +11,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApplyingList(currentPage, orderBy, sort, apiName) {
+    getApplyingList (currentPage, orderBy, sort, apiName) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
@@ -20,7 +20,7 @@ const mapDispatchToProps = dispatch => ({
             apiName: apiName
         }));
     },
-    getAppliedList(currentPage, orderBy, sort, status, apiName) {
+    getAppliedList (currentPage, orderBy, sort, status, apiName) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
@@ -30,31 +30,31 @@ const mapDispatchToProps = dispatch => ({
             apiName: apiName
         }));
     },
-    updateApplyStatus(id, status) {
+    updateApplyStatus (id, status) {
         return dispatch(mineActions.updateApplyStatus({
             applyId: id,
             status: status
         }));
     },
 
-    getApiCallInfo(id, time) {
+    getApiCallInfo (id, time) {
         return dispatch(mineActions.getApiCallInfo({
             apiId: id,
             time: time
         }));
     },
 
-    getApiCallErrorInfo(id) {
+    getApiCallErrorInfo (id) {
         return dispatch(mineActions.getApiCallErrorInfo({
             apiId: id
         }));
     },
-    getApiCallUrl(id) {
+    getApiCallUrl (id) {
         return dispatch(mineActions.getApiCallUrl({
             apiId: id
         }));
     },
-    queryApiCallLog(id, currentPage, bizType) {
+    queryApiCallLog (id, currentPage, bizType) {
         return dispatch(mineActions.queryApiCallLog({
             apiId: id,
             currentPage: currentPage,
@@ -62,7 +62,7 @@ const mapDispatchToProps = dispatch => ({
             pageSize: 5
         }));
     },
-    getApiCreatorInfo(apiId) {
+    getApiCreatorInfo (apiId) {
         return dispatch(mineActions.getApiCreatorInfo({
             apiId: apiId
         }));
@@ -71,24 +71,22 @@ const mapDispatchToProps = dispatch => ({
 
 @connect(mapStateToProps, mapDispatchToProps)
 class MyAPI extends Component {
-
     state = {
-        nowView: "notApproved",
+        nowView: 'notApproved',
         pageIndex: 1
     }
-    handleClick(e) {
-
+    handleClick (e) {
         this.setState({
             nowView: e
         })
 
-        if (e == "approved") {
-            this.props.router.replace("/dl/mine/approved")
+        if (e == 'approved') {
+            this.props.router.replace('/dl/mine/approved')
         } else {
-            this.props.router.replace("/dl/mine")
+            this.props.router.replace('/dl/mine')
         }
     }
-    componentWillMount() {
+    componentWillMount () {
         const view = this.props.router.params.view;
 
         if (view) {
@@ -97,13 +95,13 @@ class MyAPI extends Component {
             })
         }
     }
-    getCardView() {
-        if (this.state.nowView && this.state.nowView == "notApproved") {
+    getCardView () {
+        if (this.state.nowView && this.state.nowView == 'notApproved') {
             return <NoApprovedCard {...this.props}></NoApprovedCard>
         }
         return <ApprovedCard {...this.props}></ApprovedCard>
     }
-    render() {
+    render () {
         const { children } = this.props;
         return (
             <div style={{ height: '100%', overflowX: 'hidden' }}>

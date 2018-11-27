@@ -6,7 +6,7 @@ import {
 
 import utils from 'utils'
 import Api from '../../../api'
-import { TASK_TYPE } from "../../../comm/const"
+import { TASK_TYPE } from '../../../comm/const'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import TaskVersion from '../taskVersion/taskVersion';
 
@@ -14,20 +14,19 @@ const Option = Select.Option;
 const Panel = Collapse.Panel;
 
 export default class TaskDetail extends Component {
-
     state = {
         visibleAlterRes: false,
-        resList: [],
+        resList: []
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
-            const resVal = currentPage.resourceList.length > 0 ?
-                currentPage.resourceList.map(item => item.id) : []
+            const resVal = currentPage.resourceList.length > 0
+                ? currentPage.resourceList.map(item => item.id) : []
             this.setState({
-                resList: resVal,
+                resList: resVal
             })
         }
     }
@@ -49,7 +48,7 @@ export default class TaskDetail extends Component {
         if (task && task.id && resList.length > 0) {
             Api.updateTaskRes({
                 id: task.id,
-                resources: resList,
+                resources: resList
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('资源修改成功！')
@@ -60,7 +59,7 @@ export default class TaskDetail extends Component {
         }
     }
 
-    reloadTask(id) {
+    reloadTask (id) {
         const { dispatch } = this.props
         Api.getTask({ taskId: id }).then((res) => {
             if (res.code === 1) {
@@ -69,20 +68,20 @@ export default class TaskDetail extends Component {
             }
         })
     }
-    getTaskName(type) {
+    getTaskName (type) {
         switch (type) {
-            case TASK_TYPE.SQL: {
-                return "FlinkSQL"
-            }
-            case TASK_TYPE.MR: {
-                return "FlinkMR"
-            }
-            case TASK_TYPE.DATA_COLLECTION: {
-                return "实时采集"
-            }
+        case TASK_TYPE.SQL: {
+            return 'FlinkSQL'
+        }
+        case TASK_TYPE.MR: {
+            return 'FlinkMR'
+        }
+        case TASK_TYPE.DATA_COLLECTION: {
+            return '实时采集'
+        }
         }
     }
-    render() {
+    render () {
         const { visibleAlterRes, resList } = this.state
         const { resources, currentPage, editorChange } = this.props
         const taskRes = currentPage.resourceList && currentPage.resourceList.map((item) => {
@@ -112,7 +111,7 @@ export default class TaskDetail extends Component {
                             {showResource && <Row>
                                 <Col span="10" className="txt-right">资源：</Col>
                                 <Col span="14" style={{ marginTop: '10px' }}>{taskRes}
-                                    {/* <a onClick={() => { this.setState({ visibleAlterRes: true }) }}>修改</a>*/}
+                                    {/* <a onClick={() => { this.setState({ visibleAlterRes: true }) }}>修改</a> */}
                                 </Col>
                             </Row>}
                             <Row>

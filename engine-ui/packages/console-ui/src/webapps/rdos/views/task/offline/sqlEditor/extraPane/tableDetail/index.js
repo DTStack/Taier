@@ -1,24 +1,23 @@
-import React from "react";
+import React from 'react';
 
-import { Icon, Tabs } from "antd";
+import { Icon, Tabs } from 'antd';
 
-import ColumnView from "./column";
-import PartitionView from "./partition";
+import ColumnView from './column';
+import PartitionView from './partition';
 
 const TabPane = Tabs.TabPane;
 
 const TAB_KEYS = {
-    COLUMN: "column",
-    PARTITION: "partition"
+    COLUMN: 'column',
+    PARTITION: 'partition'
 }
 
 class ExtraPaneTableDetail extends React.Component {
-
     state = {
         activeKey: TAB_KEYS.COLUMN
     }
 
-    render() {
+    render () {
         const { tableName, columns } = this.props;
         const { activeKey } = this.state;
         return (
@@ -33,7 +32,7 @@ class ExtraPaneTableDetail extends React.Component {
                 </header>
                 <Tabs
                     activeKey={activeKey}
-                    style={{ marginTop: "5px",marginBottom:"30px" }}
+                    style={{ marginTop: '5px', marginBottom: '30px' }}
                     onChange={(key) => {
                         this.setState({
                             activeKey: key
@@ -52,8 +51,8 @@ class ExtraPaneTableDetail extends React.Component {
                         tab="分区"
                         key={TAB_KEYS.PARTITION}
                     >
-                        <PartitionView 
-                         columns={columns}
+                        <PartitionView
+                            columns={columns}
                         />
                     </TabPane>
                 </Tabs>

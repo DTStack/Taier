@@ -1,10 +1,9 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import { API_USER_STATUS } from "../../../consts/index.js";
-import Content from "../../../components/apiContent";
+import { API_USER_STATUS } from '../../../consts/index.js';
+import Content from '../../../components/apiContent';
 import { apiMarketActions } from '../../../actions/apiMarket';
-
 
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
@@ -12,14 +11,14 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getApiDetail(apiId) {
+    getApiDetail (apiId) {
         dispatch(
             apiMarketActions.getApiDetail({
                 apiId: apiId
             })
         )
     },
-    getApiExtInfo(apiId) {
+    getApiExtInfo (apiId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId
@@ -31,15 +30,13 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class ApiCallMethod extends Component {
     state = {
-        callUrl: "",
+        callUrl: '',
         beginTime: undefined,
         endTime: undefined,
         callLimit: 0
     }
 
-    getApiCallUrl(apiId) {
-      
-
+    getApiCallUrl (apiId) {
         this.props.getApiCallUrl(apiId)
             .then(
                 (res) => {
@@ -54,14 +51,14 @@ class ApiCallMethod extends Component {
                 }
             );
     }
-    componentDidMount() {
+    componentDidMount () {
         const { showRecord = {}, mode } = this.props;
         let { apiId, status, id } = showRecord;
         apiId = mode == 'manage' ? id : apiId;
 
         this.updateData(apiId, status, mode);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { showRecord = {} } = this.props;
         let { apiId, status, id } = showRecord;
         const { showRecord: nextShowRecord = {}, slidePaneShow, mode } = nextProps;
@@ -76,9 +73,9 @@ class ApiCallMethod extends Component {
             }
         }
     }
-    updateData(apiId, status, mode) {
+    updateData (apiId, status, mode) {
         this.setState({
-            callUrl: "",
+            callUrl: '',
             beginTime: undefined,
             endTime: undefined,
             callLimit: 0
@@ -94,7 +91,7 @@ class ApiCallMethod extends Component {
         this.props.getApiDetail(apiId);
         this.props.getApiExtInfo(apiId);
     }
-    render() {
+    render () {
         const { callUrl, beginTime, endTime, callLimit } = this.state;
         const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
         let { apiId, id } = showRecord;
@@ -102,7 +99,7 @@ class ApiCallMethod extends Component {
 
         return (
             <div>
-                <div style={{ paddingLeft: 30, marginTop: "20px" }}>
+                <div style={{ paddingLeft: 30, marginTop: '20px' }}>
                     <Content showUserInfo={showUserInfo} callLimit={callLimit} beginTime={beginTime} endTime={endTime} showRecord={showRecord} mode={mode} callUrl={callUrl} apiMarket={apiMarket} apiId={apiId} />
                 </div>
             </div>

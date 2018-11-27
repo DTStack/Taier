@@ -11,7 +11,7 @@ import ajax from '../../../api/dataManage'
 import {
     formItemLayout,
     tableModelRules,
-    TABLE_MODEL_RULE,
+    TABLE_MODEL_RULE
 } from '../../../comm/const';
 
 import CatalogueTree from '../../dataManage/catalogTree';
@@ -27,13 +27,11 @@ const RadioGroup = Radio.Group;
  * @extends {React.Component}
  */
 export default class BaseForm extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         const { tableName, tableNameRules, location } = this.props;
-        const tableNamePropArr = tableName ? tableName.split("_") : [];
-
+        const tableNamePropArr = tableName ? tableName.split('_') : [];
 
         this.state = {
             type: location ? '2' : '1', // 1: 内部表 2:外部表
@@ -63,15 +61,14 @@ export default class BaseForm extends React.Component {
         this.props.form.setFieldsValue(fields)
     }
 
-    validateDelim(rule, value, callback) {
+    validateDelim (rule, value, callback) {
         value = value.trim();
 
         if (value[0] === '\\') {
             if (value.length > 2) {
                 callback('分隔符长度只能为1（不包括转义字符"\\"）')
             }
-        }
-        else {
+        } else {
             if (value.length > 1) {
                 callback('分隔符长度只能为1')
             }
@@ -79,7 +76,7 @@ export default class BaseForm extends React.Component {
         callback();
     }
 
-    validateTableName(rule, value, callback) {
+    validateTableName (rule, value, callback) {
         const ctx = this;
         const { tableNameArr } = this.state;
         const haveFilledTables = tableNameArr.filter((item) => {
@@ -102,7 +99,7 @@ export default class BaseForm extends React.Component {
         callback();
     }
 
-    validateLoc(rule, value, callback) {
+    validateLoc (rule, value, callback) {
         value ? ajax.checkHdfsLocExist({
             hdfsUri: 'hdfs://' + value
         }).then(res => {
@@ -113,7 +110,7 @@ export default class BaseForm extends React.Component {
             .then(callback) : callback();
     }
 
-    handleChange(e) {
+    handleChange (e) {
         const type = e.target.value;
 
         this.setState({ type });
@@ -130,29 +127,29 @@ export default class BaseForm extends React.Component {
         const renderRules = (rule, index) => {
             let data = [];
             switch (rule.value) {
-                case TABLE_MODEL_RULE.LEVEL: {
-                    data = modelLevels; break;
-                }
-                case TABLE_MODEL_RULE.SUBJECT: {
-                    data = subjectFields; break;
-                }
-                case TABLE_MODEL_RULE.INCREMENT: {
-                    data = incrementCounts; break;
-                }
-                case TABLE_MODEL_RULE.FREQUENCY: {
-                    data = freshFrequencies; break;
-                }
-                case TABLE_MODEL_RULE.CUSTOM:
-                default: {
-                    return (
-                        <Input
-                            placeholder="自定义"
-                            value={tableNameArr[index]}
-                            onChange={(e) => this.changeTableName(e.target.value, index)}
-                            style={inlineStyle}
-                        />
-                    )
-                }
+            case TABLE_MODEL_RULE.LEVEL: {
+                data = modelLevels; break;
+            }
+            case TABLE_MODEL_RULE.SUBJECT: {
+                data = subjectFields; break;
+            }
+            case TABLE_MODEL_RULE.INCREMENT: {
+                data = incrementCounts; break;
+            }
+            case TABLE_MODEL_RULE.FREQUENCY: {
+                data = freshFrequencies; break;
+            }
+            case TABLE_MODEL_RULE.CUSTOM:
+            default: {
+                return (
+                    <Input
+                        placeholder="自定义"
+                        value={tableNameArr[index]}
+                        onChange={(e) => this.changeTableName(e.target.value, index)}
+                        style={inlineStyle}
+                    />
+                )
+            }
             }
 
             return (
@@ -195,7 +192,7 @@ export default class BaseForm extends React.Component {
             wordBreak: 'break-all',
             lineHeight: '18px',
             display: 'inline-block',
-            marginTop: '5px',
+            marginTop: '5px'
         }
 
         return <div>
@@ -204,8 +201,7 @@ export default class BaseForm extends React.Component {
         </div>
     }
 
-
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
 
         const {
@@ -229,10 +225,10 @@ export default class BaseForm extends React.Component {
                     }, {
                         validator: this.validateTableName.bind(this)
                     }],
-                    initialValue: tableNameArr.join("_"),
-                    validateTrigger: 'onBlur',
+                    initialValue: tableNameArr.join('_'),
+                    validateTrigger: 'onBlur'
                 })(
-                    <Input type="hidden" />,
+                    <Input type="hidden" />
                 )}
                 {this.renderTableRules()}
             </FormItem>
@@ -256,14 +252,14 @@ export default class BaseForm extends React.Component {
                 {getFieldDecorator('location', {
                     rules: [{
                         required: true,
-                        message: '外部表地址不可为空！',
+                        message: '外部表地址不可为空！'
                     }, {
                         validator: this.validateLoc.bind(this)
                     }],
                     initialValue: location,
-                    validateTrigger: 'onBlur',
+                    validateTrigger: 'onBlur'
                 })(
-                    <Input placeholder="外部表地址" />,
+                    <Input placeholder="外部表地址" />
                 )}
             </FormItem>}
             <FormItem
@@ -275,7 +271,7 @@ export default class BaseForm extends React.Component {
                         required: true,
                         message: '表所在类目不可为空！'
                     }],
-                    initialValue: catalogueId || undefined,
+                    initialValue: catalogueId || undefined
                 })(
                     <CatalogueTree
                         isPicker
@@ -308,9 +304,9 @@ export default class BaseForm extends React.Component {
             >
                 {getFieldDecorator('storedType', {
                     rules: [{
-                        required: true, message: '存储格式不可为空！',
+                        required: true, message: '存储格式不可为空！'
                     }],
-                    initialValue: storedType,
+                    initialValue: storedType
                 })(
                     <Select onChange={(value) => {
                         this.setState({
@@ -331,7 +327,7 @@ export default class BaseForm extends React.Component {
                 >
                     {getFieldDecorator('delim', {
                         rules: [],
-                        initialValue: delim,
+                        initialValue: delim
                     })(
                         <Input placeholder="分隔符" autoComplete="off" />
                     )}
@@ -344,7 +340,7 @@ export default class BaseForm extends React.Component {
                 {getFieldDecorator('tableDesc', {
                     rules: [{
                         max: 200,
-                        message: '描述不得超过200个字符！',
+                        message: '描述不得超过200个字符！'
                     }],
                     initialValue: tableDesc
                 })(
@@ -359,7 +355,7 @@ export default class BaseForm extends React.Component {
             >
                 {getFieldDecorator('subject', {
                     rules: [],
-                    initialValue: subject,
+                    initialValue: subject
                 })(
                     <Input />
                 )}
@@ -372,7 +368,7 @@ export default class BaseForm extends React.Component {
             >
                 {getFieldDecorator('grade', {
                     rules: [],
-                    initialValue: grade,
+                    initialValue: grade
                 })(
                     <Input />
                 )}

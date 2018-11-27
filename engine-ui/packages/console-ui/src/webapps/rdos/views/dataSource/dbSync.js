@@ -19,16 +19,15 @@ const RadioGroup = Radio.Group;
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 3 },
+        sm: { span: 3 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 10 },
-    },
+        sm: { span: 10 }
+    }
 }
 
 export default class DBSync extends Component {
-
     state = {
         percent: 0,
         loading: false,
@@ -41,7 +40,7 @@ export default class DBSync extends Component {
         failNum: 0
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getTableList(this.props.routeParams.sourceId);
     }
 
@@ -65,13 +64,13 @@ export default class DBSync extends Component {
         this.setState({ transformFields: value });
     }
 
-    exchangeIdeTableName(text) {
+    exchangeIdeTableName (text) {
         const { transformFields } = this.state;
         const exchangeArr = transformFields.filter((field) => {
             return field.convertObject == 1;
         });
         for (let i = 0; i < exchangeArr.length; i++) {
-            text = text.replace(new RegExp(exchangeArr[i].convertSrc,"g"),exchangeArr[i].convertDest);
+            text = text.replace(new RegExp(exchangeArr[i].convertSrc, 'g'), exchangeArr[i].convertDest);
         }
         return text;
     }
@@ -82,7 +81,7 @@ export default class DBSync extends Component {
             title: '表名',
             dataIndex: 'tableName',
             key: 'tableName',
-            width: '32%',
+            width: '32%'
         }, {
             title: 'DTinsight.IDE',
             dataIndex: 'tableName',
@@ -96,18 +95,17 @@ export default class DBSync extends Component {
             width: '28%',
             render: (text, record) => {
                 if (record.status) {
-                    return record.status === 1 ?
-                        <div>
+                    return record.status === 1
+                        ? <div>
                             <Icon type="check-circle" style={{ color: 'green', marginRight: 10 }} />
                             成功
-                    </div>
-                        :
-                        <div>
+                        </div>
+                        : <div>
                             <Icon type="close-circle" style={{ color: 'red', marginRight: 10 }} />
                             {record.report}
                         </div>
                 }
-            },
+            }
         }]
     }
 
@@ -185,7 +183,7 @@ export default class DBSync extends Component {
                         endDate: values.beginDate[1].format('YYYY-MM-DD'),
                         periodType: '2',
                         hour: parseInt(values.hour),
-                        min: 0,
+                        min: 0
                     }),
                     syncType: values.syncType,
                     timeFieldIdentifier: values.syncType == 1 ? values.timeFieldIdentifier : undefined,
@@ -222,16 +220,18 @@ export default class DBSync extends Component {
     publishSyncTask = async (params, mid) => {
         const { selectedTable, tableList } = this.state;
 
-        let times = 1,
-            scheduleConf = JSON.parse(params.scheduleConf),
-            parallelConfig = params.parallelConfig;
+        let times = 1;
+
+        let scheduleConf = JSON.parse(params.scheduleConf);
+
+        let parallelConfig = params.parallelConfig;
 
         for (let tableName of selectedTable) {
             let index = selectedTable.indexOf(tableName);
 
             params.table = tableName;
             params.oldTable = tableName;
-            params.migrationId = mid ? mid : undefined;
+            params.migrationId = mid || undefined;
 
             // 任务调度时间的变化
             if (parallelConfig && index >= parallelConfig.tableNum * times) {
@@ -241,13 +241,16 @@ export default class DBSync extends Component {
 
             params.scheduleConf = JSON.stringify(scheduleConf);
 
-            let res = await Api.publishSyncTask(params),
-                isFail = res.code != 1 || res.data.status != 1,
-                percent = parseInt(((index + 1) / selectedTable.length) * 100);
+            let res = await Api.publishSyncTask(params);
+
+            let isFail = res.code != 1 || res.data.status != 1;
+
+            let percent = parseInt(((index + 1) / selectedTable.length) * 100);
 
             if (res.code === 1) {
-                let newTableList = [...tableList],
-                    curIndex = newTableList.indexOf(newTableList.filter(item => item.tableName === tableName)[0]);
+                let newTableList = [...tableList];
+
+                let curIndex = newTableList.indexOf(newTableList.filter(item => item.tableName === tableName)[0]);
 
                 newTableList[curIndex].status = res.data.status;
                 newTableList[curIndex].report = res.data.report;
@@ -271,10 +274,11 @@ export default class DBSync extends Component {
     checkParallelConfig = (config, startTime) => {
         const { selectedTable } = this.state;
 
-        let time = 24 - parseInt(startTime),
-            canSyncNum = Math.floor(time / config.hourTime) * config.tableNum;
+        let time = 24 - parseInt(startTime);
 
-        return selectedTable.length > canSyncNum ? false : true;
+        let canSyncNum = Math.floor(time / config.hourTime) * config.tableNum;
+
+        return !(selectedTable.length > canSyncNum);
     }
 
     openConfigModal = () => {
@@ -285,7 +289,7 @@ export default class DBSync extends Component {
         this.setState({ visible: false });
     }
 
-    render() {
+    render () {
         const { form, routeParams } = this.props;
         const { getFieldDecorator } = form;
         const { percent, loading, visible, tableList, selectedTable, successNum, failNum, transformFields } = this.state;
@@ -369,7 +373,7 @@ export default class DBSync extends Component {
                                     getFieldDecorator('syncType', {
                                         rules: [{
                                             required: true,
-                                            message: '选择同步方式',
+                                            message: '选择同步方式'
                                         }],
                                         initialValue: 1
                                     })(
@@ -382,15 +386,14 @@ export default class DBSync extends Component {
                             </FormItem>
 
                             {
-                                form.getFieldValue('syncType') === 1
-                                &&
+                                form.getFieldValue('syncType') === 1 &&
                                 <FormItem {...formItemLayout} label="根据日期字段">
                                     {
                                         getFieldDecorator('timeFieldIdentifier', {
                                             rules: [{
                                                 required: true,
-                                                message: '日期字段不能为空',
-                                            }],
+                                                message: '日期字段不能为空'
+                                            }]
                                         })(
                                             <Input
                                                 style={{ width: 300, height: 32 }}
@@ -411,7 +414,7 @@ export default class DBSync extends Component {
                                     getFieldDecorator('parallelType', {
                                         rules: [{
                                             required: true,
-                                            message: '选择并发配置',
+                                            message: '选择并发配置'
                                         }],
                                         initialValue: 1
                                     })(
@@ -427,8 +430,7 @@ export default class DBSync extends Component {
                             </FormItem>
 
                             {
-                                form.getFieldValue('parallelType') === 1
-                                &&
+                                form.getFieldValue('parallelType') === 1 &&
                                 <FormItem {...formItemLayout} label="从启动时间开始，每隔" colon={false}>
                                     {
                                         this.generateHours()
@@ -438,8 +440,8 @@ export default class DBSync extends Component {
                                         getFieldDecorator('tableNum', {
                                             rules: [{
                                                 required: true,
-                                                message: '不可为空',
-                                            }],
+                                                message: '不可为空'
+                                            }]
                                         })(
                                             <InputNumber
                                                 min={1}
@@ -457,7 +459,7 @@ export default class DBSync extends Component {
                             <FormItem {...formItemLayout} label="是否保存配置">
                                 {
                                     getFieldDecorator('saveConfig', {
-                                        rules: [],
+                                        rules: []
                                     })(
                                         <Checkbox onChange={this.onSaveChange}>保存</Checkbox>
                                     )

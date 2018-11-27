@@ -2,7 +2,7 @@ import React from 'react';
 import { cloneDeep } from 'lodash';
 
 import {
-    Table, Tabs, Radio, Icon, Input,
+    Table, Tabs, Radio, Icon, Input
 } from 'antd';
 
 import ajax from '../../../../api/dataManage';
@@ -12,25 +12,24 @@ import TablePartition from '../../../dataManage/tablePartition';
 const TabPane = Tabs.TabPane;
 
 export default class TableInfoPane extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             tableData: '',
             previewData: '',
             tabKey: '',
-            filterDropdownVisible: false,
+            filterDropdownVisible: false
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const tbId = this.props.tableId
         if (tbId) {
             this.getTable(tbId)
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const tbId = nextProps.tableId
         if (tbId && tbId !== this.props.tableId) {
             this.getTable(tbId)
@@ -42,7 +41,7 @@ export default class TableInfoPane extends React.Component {
         this.getTable(this.props.tableId)
     }
 
-    getTable(tableId) {
+    getTable (tableId) {
         if (!tableId) return;
         ajax.getTable({ tableId }).then(res => {
             if (res.code === 1) {
@@ -53,8 +52,8 @@ export default class TableInfoPane extends React.Component {
         });
     }
 
-    getPreview(key, tableId) {
-        if ( +key === 3) {
+    getPreview (key, tableId) {
+        if (+key === 3) {
             ajax.previewTable({ tableId: tableId || this.props.tableId }).then(res => {
                 if (res.code === 1 && res.data) {
                     this.setState({
@@ -66,7 +65,7 @@ export default class TableInfoPane extends React.Component {
         }
     }
 
-    formatPreviewData(arr) {
+    formatPreviewData (arr) {
         const cols = arr.shift();
 
         this.previewCols = cols;
@@ -113,12 +112,12 @@ export default class TableInfoPane extends React.Component {
             ),
             onFilterDropdownVisibleChange: (visible) => {
                 this.setState({
-                    filterDropdownVisible: visible,
+                    filterDropdownVisible: visible
                 }, () => this.searchInput.focus());
                 if (!visible) {
                     this.reset();
                 }
-            },
+            }
         }, {
             title: '类型',
             dataIndex: 'columnType',
@@ -127,19 +126,19 @@ export default class TableInfoPane extends React.Component {
             title: '注释',
             dataIndex: 'columnDesc',
             key: 'columnDesc',
-            render(text) {
+            render (text) {
                 return text
             }
         }];
     }
-    getScrollX(previewCols) {
+    getScrollX (previewCols) {
         let l = 500;
         for (let str of previewCols) {
             l = 20 + l + str.length * 10;
         }
         return Math.max(l, 600);
     }
-    render() {
+    render () {
         const { tableData, previewData } = this.state;
 
         return <div className="g-tableviewer">
@@ -173,7 +172,7 @@ export default class TableInfoPane extends React.Component {
                                 title: str,
                                 dataIndex: str,
                                 key: str,
-                                render(text) {
+                                render (text) {
                                     return <TableCell style={{ minWidth: 80 }} value={text} />
                                 }
                             }))}
@@ -182,8 +181,7 @@ export default class TableInfoPane extends React.Component {
                             dataSource={previewData}
                             scroll={{ x: this.getScrollX(this.previewCols) }}
                         />
-                            :
-                            <p style={{
+                            : <p style={{
                                 marginTop: 20,
                                 textAlign: 'center',
                                 fontSize: 12,

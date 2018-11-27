@@ -1,24 +1,23 @@
 import React from 'react';
-import { isEmpty }  from 'lodash';
+import { isEmpty } from 'lodash';
 import { Modal, Button, Form, Input } from 'antd';
 
 import { getContainer } from 'funcs';
 import { MENU_TYPE, formItemLayout } from '../../../../comm/const';
-
 
 import FolderPicker from '../folderTree';
 
 const FormItem = Form.Item;
 
 class FnMoveForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
-        const { 
-            defaultData, fnTreeData, loadTreeData, 
+        const {
+            defaultData, fnTreeData, loadTreeData
         } = this.props;
 
         return (
@@ -44,7 +43,7 @@ class FnMoveForm extends React.Component {
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
                         initialValue: !isEmpty(defaultData) ? defaultData.parentId : ''
                     })(
@@ -64,22 +63,22 @@ class FnMoveForm extends React.Component {
 const FnMoveFormWrapper = Form.create()(FnMoveForm);
 
 class FnMoveModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         return this.props !== nextProps;
     }
 
-    handleSubmit() {
+    handleSubmit () {
         const { handOk, defaultData } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
-            if(!err) {
+            if (!err) {
                 values.funcId = defaultData.id;
                 handOk(values);
                 setTimeout(() => {
@@ -89,16 +88,15 @@ class FnMoveModal extends React.Component {
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         this.form.resetFields();
         this.props.handCancle();
     }
 
-    render() {
-
+    render () {
         const {
-            visible, defaultData, 
-            fnTreeData, loadTreeData, 
+            visible, defaultData,
+            fnTreeData, loadTreeData
         } = this.props;
 
         const customFuncs = fnTreeData && fnTreeData.find(item => {

@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { debounce } from 'lodash';
 
-import { commonFileEditDelegator } from "widgets/editor/utils";
+import { commonFileEditDelegator } from 'widgets/editor/utils';
 
-import IDEEditor from "main/components/ide";
+import IDEEditor from 'main/components/ide';
 
-import API from "../../../../api";
+import API from '../../../../api';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
 import { PROJECT_TYPE } from '../../../../comm/const';
@@ -26,7 +26,6 @@ import { PROJECT_TYPE } from '../../../../comm/const';
     return actions;
 })
 class CodeEditor extends Component {
-
     onContentChange = (value, editorInstance) => {
         const { editorChange } = this.props;
         editorChange({
@@ -37,10 +36,9 @@ class CodeEditor extends Component {
     }
 
     sqlFormat = () => {
-
         const { currentPage, setCurrentPage } = this.props;
         const params = {
-            sql: currentPage.sqlText || ""
+            sql: currentPage.sqlText || ''
         };
 
         API.streamSqlFormat(params).then(res => {
@@ -48,7 +46,7 @@ class CodeEditor extends Component {
                 const data = {
                     merged: true,
                     sqlText: res.data,
-                    id: currentPage.id,
+                    id: currentPage.id
                 };
                 const updatedData = Object.assign(currentPage, data);
                 setCurrentPage(updatedData);
@@ -58,11 +56,10 @@ class CodeEditor extends Component {
 
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
 
-    render() {
-
+    render () {
         const {
             currentPage,
-            editor,
+            editor
         } = this.props;
 
         const cursorPosition = currentPage.cursorPosition || undefined;
@@ -71,13 +68,13 @@ class CodeEditor extends Component {
             value: currentPage.sqlText,
             language: 'dtflink',
             options: {
-                readOnly: isLocked,
+                readOnly: isLocked
             },
             cursorPosition: cursorPosition,
-            theme: editor.options.theme || "white",
+            theme: editor.options.theme || 'white',
             onChange: this.onContentChange,
             sync: currentPage.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange,
+            onCursorSelection: this.debounceSelectionChange
         };
 
         const toolbarOpts = {
@@ -88,7 +85,7 @@ class CodeEditor extends Component {
             onFormat: this.sqlFormat,
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
-            },
+            }
         }
 
         return (

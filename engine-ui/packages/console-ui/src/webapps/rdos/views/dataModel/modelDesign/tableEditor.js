@@ -4,7 +4,7 @@ import { Link, browserHistory, hashHistory } from 'react-router';
 import SplitPane from 'react-split-pane';
 import {
     Input, Button, message,
-    Modal, Form, Row, Col,
+    Modal, Form, Row, Col
 } from 'antd';
 
 import { isEmpty } from 'lodash';
@@ -24,18 +24,17 @@ const FormItem = Form.Item
 const confirm = Modal.confirm;
 
 class TableEditor extends Component {
-
     state = {
         dataCatalogue: [],
-        columnFileds: [], // 指标字段
+        columnFileds: [] // 指标字段
     }
 
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.tableId = this.props.routeParams.tableId;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getTableDetail({
             tableId: this.tableId
         });
@@ -45,7 +44,7 @@ class TableEditor extends Component {
     loadTableInfo = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
-                dataCatalogue: res.data && [res.data],
+                dataCatalogue: res.data && [res.data]
             })
         })
 
@@ -53,27 +52,27 @@ class TableEditor extends Component {
         dateModelAPI.getTablePartitions().then(res => {
             if (res.code === 1) {
                 this.setState({
-                    columnFileds: res.data || [],
+                    columnFileds: res.data || []
                 })
             }
         });
     }
 
-    render() {
+    render () {
         const { tableData, modifyDesc } = this.props;
         const { getFieldDecorator } = this.props.form;
 
-        const { 
+        const {
             tableName, project, gmtCreate,
-            desc, chargeUser, lifeDay, catalogueId,
+            desc, chargeUser, lifeDay, catalogueId
         } = tableData;
 
         const formItemLayout = {
             labelCol: { span: 2 },
-            wrapperCol: { span: 12 },
+            wrapperCol: { span: 12 }
         };
-        console.log('tableEditor',tableData);
-        
+        console.log('tableEditor', tableData);
+
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
@@ -107,20 +106,20 @@ class TableEditor extends Component {
                             >
                                 {getFieldDecorator('belongCatalogue', {
                                     rules: [{
-                                    required: true,
-                                    message: '请选择所属类目',
+                                        required: true,
+                                        message: '请选择所属类目'
                                     }],
                                     initialValue: catalogueId
                                 })(
                                     <CatalogueTree
-                                    id="catalogue"
-                                    value={catalogueId}
-                                    isPicker
-                                    isFolderPicker
-                                    treeData={this.state.dataCatalogue}
-                                    onChange={(val) => {
-                                        modifyDesc({name: 'catalogueId', value: val})
-                                    }}
+                                        id="catalogue"
+                                        value={catalogueId}
+                                        isPicker
+                                        isFolderPicker
+                                        treeData={this.state.dataCatalogue}
+                                        onChange={(val) => {
+                                            modifyDesc({ name: 'catalogueId', value: val })
+                                        }}
                                     />
                                 )}
                             </FormItem>
@@ -133,7 +132,7 @@ class TableEditor extends Component {
                                     width={80}
                                     value={lifeDay}
                                     onChange={(val) => {
-                                        modifyDesc({name: 'lifeDay', value: val < 0 ? 1 : val })
+                                        modifyDesc({ name: 'lifeDay', value: val < 0 ? 1 : val })
                                     }}
                                 />
                             </FormItem>
@@ -144,7 +143,7 @@ class TableEditor extends Component {
                                 {getFieldDecorator('tableDesc', {
                                     rules: [{
                                         max: 200,
-                                        message: '描述不得超过200个字符！',
+                                        message: '描述不得超过200个字符！'
                                     }],
                                     initialValue: desc
                                 })(
@@ -169,7 +168,7 @@ class TableEditor extends Component {
                         />}
                     </Row>
                     <Row className="box-card txt-right">
-                        <Button 
+                        <Button
                             type="danger"
                             style={{ marginRight: '20px' }}
                             onClick={this.delTable.bind(this)}
@@ -194,7 +193,7 @@ class TableEditor extends Component {
      * @param {number} type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    addRow(data, type) {
+    addRow (data, type) {
         this.props.addRow({
             data, type
         });
@@ -206,7 +205,7 @@ class TableEditor extends Component {
      * @param {number} type type 1: columns 2: partitions
      * @memberof TableCreator
      */
-    delRow(uuid, type) {
+    delRow (uuid, type) {
         this.props.delRow({
             uuid, type
         });
@@ -218,7 +217,7 @@ class TableEditor extends Component {
      * @param {number} type  1: columns 2: partitions
      * @memberof TableCreator
      */
-    replaceRow(newCol, type) {
+    replaceRow (newCol, type) {
         this.props.replaceRow({
             newCol, type
         });
@@ -231,23 +230,23 @@ class TableEditor extends Component {
      * @param {boolean} isUp
      * @memberof TableCreator
      */
-    moveRow(uuid, type, isUp) {
+    moveRow (uuid, type, isUp) {
         this.props.moveRow({
             uuid, type, isUp
         });
     }
 
-    changeTable(evt) {
+    changeTable (evt) {
         const { name, value } = evt.target;
         this.props.modifyDesc({ name, value });
     }
 
-    delTable() {
+    delTable () {
         const the = this;
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',
-            onOk() {
+            onOk () {
                 dateModelAPI.deleteTable({
                     tableId: the.tableId
                 }).then(res => {
@@ -259,14 +258,14 @@ class TableEditor extends Component {
                     }
                 })
             },
-            onCancel() { },
+            onCancel () { }
         });
     }
 
-    saveTable() {
+    saveTable () {
         const { tableData, form } = this.props;
         const ctx = this;
-        //组装参数
+        // 组装参数
         const queryParams = {};
         queryParams.tableId = tableData.id;
         queryParams.tableName = tableData.tableName;
@@ -297,19 +296,16 @@ class TableEditor extends Component {
     goBack = () => {
         const { url, history } = this.props
         if (url) {
-            if (history)
-                browserHistory.push(url)
-            else
-                hashHistory.push(url)
+            if (history) { browserHistory.push(url) } else { hashHistory.push(url) }
         } else {
             browserHistory.go(-1)
         }
     }
 
-    checkColumnsIsNull(cols) {
+    checkColumnsIsNull (cols) {
         if (cols && cols.length > 0) {
             for (let i = 0; i < cols.length; i++) {
-                if (utils.trim(cols[i].name) === "") {
+                if (utils.trim(cols[i].name) === '') {
                     return true
                 }
             }
@@ -319,29 +315,28 @@ class TableEditor extends Component {
 }
 
 const mapDispatch = dispatch => ({
-    getTableDetail(params) {
+    getTableDetail (params) {
         dispatch(actions.getTableDetail(params));
     },
-    modifyDesc(params) {
+    modifyDesc (params) {
         dispatch(actions.modifyDesc(params));
     },
-    addRow(params) {
+    addRow (params) {
         dispatch(actions.addRow(params));
     },
-    delRow(params) {
+    delRow (params) {
         dispatch(actions.delRow(params));
     },
-    replaceRow(params) {
+    replaceRow (params) {
         dispatch(actions.replaceRow(params));
     },
-    moveRow(params) {
+    moveRow (params) {
         dispatch(actions.moveRow(params));
     },
-    saveTable(params) {
+    saveTable (params) {
         dispatch(actions.saveTable(params));
     }
 });
-
 
 const BaseFormWrapper = Form.create()(TableEditor);
 

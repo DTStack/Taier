@@ -1,14 +1,14 @@
-import React from "react";
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox, Collapse } from "antd";
-import { cloneDeep } from "lodash";
-import { connect } from "react-redux"
-import {hashHistory} from "react-router"
+import React from 'react';
+import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox, Collapse } from 'antd';
+import { cloneDeep } from 'lodash';
+import { connect } from 'react-redux'
+import { hashHistory } from 'react-router'
 
-import { getUser } from "../../../actions/console"
-import Api from "../../../api/console"
-import { longLabelFormLayout, formItemLayout } from "../../../consts"
-import GoBack from "main/components/go-back";
-import utils from "utils";
+import { getUser } from '../../../actions/console'
+import Api from '../../../api/console'
+import { longLabelFormLayout, formItemLayout } from '../../../consts'
+import GoBack from 'main/components/go-back';
+import utils from 'utils';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -19,17 +19,17 @@ const TEST_STATUS = {
     SUCCESS: 1,
     FAIL: 2
 }
-function giveMeAKey() {
+function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
-function mapStateToProps(state) {
+function mapStateToProps (state) {
     return {
         consoleUser: state.consoleUser
     }
 }
-function mapDispatchToProps(dispatch) {
+function mapDispatchToProps (dispatch) {
     return {
-        getTenantList() {
+        getTenantList () {
             dispatch(getUser())
         }
     }
@@ -38,10 +38,10 @@ function mapDispatchToProps(dispatch) {
 class EditCluster extends React.Component {
     state = {
         selectUserMap: {},
-        selectUser: "",//select输入value
-        file: "",//上传的文件
-        zipConfig: "",//解析的配置文件信息
-        uploadLoading: false,//上传loading
+        selectUser: '', // select输入value
+        file: '', // 上传的文件
+        zipConfig: '', // 解析的配置文件信息
+        uploadLoading: false, // 上传loading
         testLoading: false,
         testStatus: TEST_STATUS.NOTHING,
         flink_params: [],
@@ -59,22 +59,22 @@ class EditCluster extends React.Component {
         firstIptValue: undefined,
         secondIptValue: undefined,
         thirdIptValue: undefined,
-        firstOption: "FALSE",
-        secondOption: "TRUE",
-        flinkPrometheus: undefined, //配置Prometheus参数
-        flinkData: undefined, //获取Prometheus参数
+        firstOption: 'FALSE',
+        secondOption: 'TRUE',
+        flinkPrometheus: undefined, // 配置Prometheus参数
+        flinkData: undefined // 获取Prometheus参数
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getDataList();
         // this.props.getTenantList();
     }
 
     // 填充表单数据
-    getDataList() {
+    getDataList () {
         const { location, form } = this.props;
         const params = location.state || {};
-        if (params.mode == "edit" || params.mode == "view") {
+        if (params.mode == 'edit' || params.mode == 'view') {
             Api.getClusterInfo({
                 clusterId: params.cluster.id
             })
@@ -96,7 +96,7 @@ class EditCluster extends React.Component {
                                 zipConfig: JSON.stringify({
                                     yarnConf: clusterConf.yarnConf,
                                     hadoopConf: clusterConf.hadoopConf,
-                                    hiveMeta:clusterConf.hiveMeta
+                                    hiveMeta: clusterConf.hiveMeta
                                 }),
                                 flink_params: extParams.flinkKeys,
                                 spark_params: extParams.sparkKeys,
@@ -127,12 +127,11 @@ class EditCluster extends React.Component {
         }
     }
 
-
     /**
      * 从服务端配置中抽取出自定义参数
      * @param {Map} config 服务端接收到的配置
      */
-    exchangeServerParams(config) {
+    exchangeServerParams (config) {
         let result = {
             flinkKeys: [],
             sparkKeys: [],
@@ -140,25 +139,25 @@ class EditCluster extends React.Component {
             dtyarnshellKeys: [],
             default: {}
         };
-        let notExtKeys_flink = ["typeName", "flinkZkAddress",
-            "flinkHighAvailabilityStorageDir", "flinkZkNamespace", "flinkYarnMode","reporterClass",
-            "gatewayHost", "gatewayPort", "gatewayJobName", "deleteOnShutdown", "randomJobNameSuffix",
-            "jarTmpDir", "flinkPluginRoot", "remotePluginRootDir", "clusterMode", "flinkJarPath", "flinkJobHistory"];
-        let notExtKeys_spark = ["typeName", "sparkYarnArchive",
-            "sparkSqlProxyPath", "sparkPythonExtLibPath"];
-        // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path", 
+        let notExtKeys_flink = ['typeName', 'flinkZkAddress',
+            'flinkHighAvailabilityStorageDir', 'flinkZkNamespace', 'flinkYarnMode', 'reporterClass',
+            'gatewayHost', 'gatewayPort', 'gatewayJobName', 'deleteOnShutdown', 'randomJobNameSuffix',
+            'jarTmpDir', 'flinkPluginRoot', 'remotePluginRootDir', 'clusterMode', 'flinkJarPath', 'flinkJobHistory'];
+        let notExtKeys_spark = ['typeName', 'sparkYarnArchive',
+            'sparkSqlProxyPath', 'sparkPythonExtLibPath'];
+        // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path",
         // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
         // let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
 
-        let notExtKeys_learning = ["typeName","learning.python3.path", "learning.python2.path", 
-        "learning.history.address", "learning.history.webapp.address", "learning.history.webapp.https.address"];
-        let notExtKeys_dtyarnshell = ["typeName","jlogstash.root", "java.home", "python2.path", "python3.path"]
+        let notExtKeys_learning = ['typeName', 'learning.python3.path', 'learning.python2.path',
+            'learning.history.address', 'learning.history.webapp.address', 'learning.history.webapp.https.address'];
+        let notExtKeys_dtyarnshell = ['typeName', 'jlogstash.root', 'java.home', 'python2.path', 'python3.path']
 
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
-        let learningConfig = config.learningConf||{};
+        let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtyarnshellConf || {};
-        function setDefault(config, notExtKeys, type, keys) {
+        function setDefault (config, notExtKeys, type, keys) {
             const keyAndValue = Object.entries(config);
             keyAndValue.map(
                 ([key, value]) => {
@@ -174,74 +173,79 @@ class EditCluster extends React.Component {
             )
         }
 
-        setDefault(sparkConfig, notExtKeys_spark, "spark", result.sparkKeys)
-        setDefault(flinkConfig, notExtKeys_flink, "flink", result.flinkKeys)
-        setDefault(learningConfig, notExtKeys_learning, "learning", result.learningKeys)
-        setDefault(dtyarnshellConfig, notExtKeys_dtyarnshell, "dtyarnshell", result.dtyarnshellKeys)
+        setDefault(sparkConfig, notExtKeys_spark, 'spark', result.sparkKeys)
+        setDefault(flinkConfig, notExtKeys_flink, 'flink', result.flinkKeys)
+        setDefault(learningConfig, notExtKeys_learning, 'learning', result.learningKeys)
+        setDefault(dtyarnshellConfig, notExtKeys_dtyarnshell, 'dtyarnshell', result.dtyarnshellKeys)
         return result;
     }
     // 表单字段. => 驼峰转化
     myUpperCase (obj) {
-        var after = {},
-            keys = [],
-            values = [],
-            newKeys = [];
+        var after = {};
+
+        var keys = [];
+
+        var values = [];
+
+        var newKeys = [];
         // . --> 驼峰
-          for (let i in obj){
+        for (let i in obj) {
             if (obj.hasOwnProperty(i)) {
-              keys.push(i);
-              values.push(obj[i]);
+                keys.push(i);
+                values.push(obj[i]);
             }
-          }
-          keys.forEach(function (item, index) {
+        }
+        keys.forEach(function (item, index) {
             var itemSplit = item.split('.');
             var newItem = itemSplit[0];
             for (let i = 1; i < itemSplit.length; i++) {
-              var letters = itemSplit[i].split('');
-              var firstLetter = letters.shift();
-              firstLetter = firstLetter.toUpperCase();
-              letters.unshift(firstLetter);
-              newItem += letters.join("")
+                var letters = itemSplit[i].split('');
+                var firstLetter = letters.shift();
+                firstLetter = firstLetter.toUpperCase();
+                letters.unshift(firstLetter);
+                newItem += letters.join('')
             }
             newKeys[index] = newItem;
-          })
-          for (let i = 0; i < values.length; i++){
+        })
+        for (let i = 0; i < values.length; i++) {
             after[newKeys[i]] = values[i]
-          }
+        }
         //   console.log(after)
         return after;
     }
 
     // 驼峰 => .转化
     myLowerCase (obj) {
-        var after = {},
-            keys = [],
-            newKeys = [],
-            alphabet = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
-        for (let i in obj){
-          if (obj.hasOwnProperty(i)) {
-            let keySplit = "";
-            keySplit = i.split('');
-            for (var j = 0; j < keySplit.length; j++) {
-              if (keySplit[j] == ".") {
-                keySplit.splice(j,1);
-                keySplit[j] = keySplit[j].toUpperCase();
-              } else if (alphabet.indexOf(keySplit[j]) != -1) {
-                keySplit[j] = keySplit[j].toLowerCase();
-                keySplit.splice(j,0,'.');
-                j++;
-              }
+        var after = {};
+
+        var keys = [];
+
+        var newKeys = [];
+
+        var alphabet = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
+        for (let i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                let keySplit = '';
+                keySplit = i.split('');
+                for (var j = 0; j < keySplit.length; j++) {
+                    if (keySplit[j] == '.') {
+                        keySplit.splice(j, 1);
+                        keySplit[j] = keySplit[j].toUpperCase();
+                    } else if (alphabet.indexOf(keySplit[j]) != -1) {
+                        keySplit[j] = keySplit[j].toLowerCase();
+                        keySplit.splice(j, 0, '.');
+                        j++;
+                    }
+                }
+                keySplit = keySplit.join('');
+                after[keySplit] = obj[i];
             }
-            keySplit = keySplit.join('');
-            after[keySplit] = obj[i];
-          }
         }
         // console.log(after)
         return after;
     }
 
-
-    getUserOptions() {
+    getUserOptions () {
         const { consoleUser } = this.props;
         const { selectUserMap } = this.state;
         const userList = consoleUser.userList;
@@ -254,24 +258,24 @@ class EditCluster extends React.Component {
         }
         return result;
     }
-    changeUserValue(value) {
+    changeUserValue (value) {
         this.setState({
             selectUser: value
         })
     }
-    selectUser(value, option) {
+    selectUser (value, option) {
         const { selectUserMap } = this.state;
         this.setState({
-            selectUser: "",
+            selectUser: '',
             selectUserMap: {
                 ...selectUserMap,
-                [value.split("$$")[0]]: {
+                [value.split('$$')[0]]: {
                     name: option.props.children
                 }
             }
         })
     }
-    getTableDataSource() {
+    getTableDataSource () {
         const { selectUserMap } = this.state;
         const keyAndValue = Object.entries(selectUserMap);
         return keyAndValue.map((item) => {
@@ -280,9 +284,8 @@ class EditCluster extends React.Component {
                 name: item[1].name
             }
         })
-
     }
-    removeUser(id) {
+    removeUser (id) {
         let { selectUserMap } = this.state;
         selectUserMap = cloneDeep(selectUserMap);
         delete selectUserMap[id];
@@ -290,23 +293,23 @@ class EditCluster extends React.Component {
             selectUserMap: selectUserMap
         })
     }
-    initColumns() {
+    initColumns () {
         return [
             {
-                title: "租户名称",
-                dataIndex: "name",
-                width: "150px"
+                title: '租户名称',
+                dataIndex: 'name',
+                width: '150px'
             },
             {
-                title: "操作",
-                dataIndex: "deal",
+                title: '操作',
+                dataIndex: 'deal',
                 render: (text, record) => {
                     return (<a onClick={this.removeUser.bind(this, record.id)}>删除</a>)
                 }
             }
         ]
     }
-    validateFileType(rule, value, callback) {
+    validateFileType (rule, value, callback) {
         const reg = /\.(zip)$/
 
         if (value && !reg.test(value.toLocaleLowerCase())) {
@@ -314,9 +317,9 @@ class EditCluster extends React.Component {
         }
         callback();
     }
-    fileChange(e) {
+    fileChange (e) {
         const file = e.target;
-        this.setState({ file: {}, uploadLoading: true, zipConfig: "", fileHaveChange: true });
+        this.setState({ file: {}, uploadLoading: true, zipConfig: '', fileHaveChange: true });
         Api.uploadClusterResource({
             config: file.files[0]
         })
@@ -341,37 +344,37 @@ class EditCluster extends React.Component {
 
         // this.props.handleFileChange(file);
     }
-    renderTestResult() {
+    renderTestResult () {
         const { testStatus } = this.state;
         switch (testStatus) {
-            case TEST_STATUS.NOTHING: {
-                return null
-            }
-            case TEST_STATUS.SUCCESS: {
-                return <Tag color="#87d068">连通成功</Tag>
-            }
-            case TEST_STATUS.FAIL: {
-                return <span>
-                    <Tag color="red">连通失败</Tag>
-                </span>
-            }
+        case TEST_STATUS.NOTHING: {
+            return null
+        }
+        case TEST_STATUS.SUCCESS: {
+            return <Tag color="#87d068">连通成功</Tag>
+        }
+        case TEST_STATUS.FAIL: {
+            return <span>
+                <Tag color="red">连通失败</Tag>
+            </span>
+        }
         }
     }
-    addParam(type, ) {
-        const { flink_params, spark_params, learning_params, dtyarnshell_params} = this.state;
-        if (type == "flink") {
+    addParam (type) {
+        const { flink_params, spark_params, learning_params, dtyarnshell_params } = this.state;
+        if (type == 'flink') {
             this.setState({
                 flink_params: [...flink_params, {
                     id: giveMeAKey()
                 }]
             })
-        } else if(type == "spark") {
+        } else if (type == 'spark') {
             this.setState({
                 spark_params: [...spark_params, {
                     id: giveMeAKey()
                 }]
             })
-        } else if(type == "learning") {
+        } else if (type == 'learning') {
             this.setState({
                 learning_params: [...learning_params, {
                     id: giveMeAKey()
@@ -385,21 +388,21 @@ class EditCluster extends React.Component {
             })
         }
     }
-    deleteParam(id, type) {
+    deleteParam (id, type) {
         const { flink_params, spark_params, learning_params, dtyarnshell_params } = this.state;
         let tmpParams;
         let tmpStateName;
-        if (type == "flink") {
-            tmpStateName = "flink_params";
+        if (type == 'flink') {
+            tmpStateName = 'flink_params';
             tmpParams = flink_params;
-        } else if (type == "spark") {
-            tmpStateName = "spark_params";
+        } else if (type == 'spark') {
+            tmpStateName = 'spark_params';
             tmpParams = spark_params;
-        } else if(type == "learning") {
-            tmpStateName = "learning_params";
+        } else if (type == 'learning') {
+            tmpStateName = 'learning_params';
             tmpParams = learning_params;
         } else {
-            tmpStateName = "dtyarnshell_params";
+            tmpStateName = 'dtyarnshell_params';
             tmpParams = dtyarnshell_params;
         }
         tmpParams = tmpParams.filter(
@@ -411,17 +414,17 @@ class EditCluster extends React.Component {
             [tmpStateName]: tmpParams
         })
     }
-    renderExtraParam(type) {
+    renderExtraParam (type) {
         const { flink_params, spark_params, learning_params, dtyarnshell_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
-        const isView = mode == "view"
+        const isView = mode == 'view'
         let tmpParams;
-        if (type == "flink") {
+        if (type == 'flink') {
             tmpParams = flink_params;
-        } else if(type == "spark") {
+        } else if (type == 'spark') {
             tmpParams = spark_params;
-        } else if(type == "learning") {
+        } else if (type == 'learning') {
             tmpParams = learning_params;
         } else {
             tmpParams = dtyarnshell_params;
@@ -434,11 +437,11 @@ class EditCluster extends React.Component {
                             {getFieldDecorator(type + '%' + param.id + '-name', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入参数属性名"
+                                    message: '请输入参数属性名'
                                 }],
                                 initialValue: extDefaultValue[param.id] && extDefaultValue[param.id].name
                             })(
-                                <Input disabled={isView} style={{ width: "calc(100% - 12px)" }} />
+                                <Input disabled={isView} style={{ width: 'calc(100% - 12px)' }} />
                             )}
                             :
                         </FormItem>
@@ -448,7 +451,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator(type + '%' + param.id + '-value', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入参数属性值"
+                                    message: '请输入参数属性值'
                                 }],
                                 initialValue: extDefaultValue[param.id] && extDefaultValue[param.id].value
                             })(
@@ -462,43 +465,43 @@ class EditCluster extends React.Component {
             }
         )
     }
-    renderZipConfig(type) {
+    renderZipConfig (type) {
         let { zipConfig } = this.state;
         zipConfig = JSON.parse(zipConfig);
         let keyAndValue;
-        if (type == "hdfs") {
+        if (type == 'hdfs') {
             keyAndValue = Object.entries(zipConfig.hadoopConf)
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
-                    if (key == "fs.defaultFS") {
+                    if (key == 'fs.defaultFS') {
                         return -1;
                     }
-                    if (compareKey == "fs.defaultFS") {
+                    if (compareKey == 'fs.defaultFS') {
                         return 1;
                     }
                     return 0;
                 },
                 ([key, value], [compareKey, compareValue]) => {
-                    if (key == "dfs.nameservices") {
+                    if (key == 'dfs.nameservices') {
                         return -1;
                     }
-                    if (compareKey == "dfs.nameservices") {
+                    if (compareKey == 'dfs.nameservices') {
                         return 1;
                     }
                     return 0;
                 },
                 ([key, value], [compareKey, compareValue]) => {
-                    if (key.indexOf("dfs.ha.namenodes") > -1) {
+                    if (key.indexOf('dfs.ha.namenodes') > -1) {
                         return -1;
                     }
-                    if (compareKey.indexOf("dfs.ha.namenodes") > -1) {
+                    if (compareKey.indexOf('dfs.ha.namenodes') > -1) {
                         return 1;
                     }
                     return 0;
                 },
                 ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf("dfs.namenode.rpc-address") > -1
-                    const checkCompareKey = compareKey.indexOf("dfs.namenode.rpc-address") > -1
+                    const checkKey = key.indexOf('dfs.namenode.rpc-address') > -1
+                    const checkCompareKey = compareKey.indexOf('dfs.namenode.rpc-address') > -1
                     if (checkKey && checkCompareKey) {
                         return key > compareKey ? 1 : -1
                     } else if (checkKey) {
@@ -513,18 +516,17 @@ class EditCluster extends React.Component {
             keyAndValue = Object.entries(zipConfig.yarnConf)
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
-                    if (key == "yarn.resourcemanager.ha.rm-ids") {
+                    if (key == 'yarn.resourcemanager.ha.rm-ids') {
                         return -1;
                     }
-                    if (compareKey == "yarn.resourcemanager.ha.rm-ids") {
+                    if (compareKey == 'yarn.resourcemanager.ha.rm-ids') {
                         return 1;
                     }
                     return 0;
                 },
                 ([key, value], [compareKey, compareValue]) => {
-                    
-                    const checkKey = key.indexOf("yarn.resourcemanager.address") > -1
-                    const checkCompareKey = compareKey.indexOf("yarn.resourcemanager.address") > -1
+                    const checkKey = key.indexOf('yarn.resourcemanager.address') > -1
+                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.address') > -1
                     if (checkKey && checkCompareKey) {
                         return key > compareKey ? 1 : -1
                     } else if (checkKey) {
@@ -536,8 +538,8 @@ class EditCluster extends React.Component {
                     }
                 },
                 ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf("yarn.resourcemanager.webapp.address") > -1
-                    const checkCompareKey = compareKey.indexOf("yarn.resourcemanager.webapp.address") > -1
+                    const checkKey = key.indexOf('yarn.resourcemanager.webapp.address') > -1
+                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.webapp.address') > -1
                     if (checkKey && checkCompareKey) {
                         return key > compareKey ? 1 : -1
                     } else if (checkKey) {
@@ -554,8 +556,8 @@ class EditCluster extends React.Component {
             ([key, value]) => {
                 return (<Row className="zipConfig-item">
                     <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
-                        {key.length > 40 ?
-                            <Tooltip title={key}>{key.substr(0, 40) + "..."}</Tooltip>
+                        {key.length > 40
+                            ? <Tooltip title={key}>{key.substr(0, 40) + '...'}</Tooltip>
                             : key}：
                     </Col>
                     <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
@@ -565,7 +567,7 @@ class EditCluster extends React.Component {
             }
         )
     }
-    exchangeMemory(totalMemory) {
+    exchangeMemory (totalMemory) {
         if (!totalMemory) {
             return '--';
         }
@@ -573,19 +575,19 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    save() {
+    save () {
         const { mode } = this.props.location.state || {};
         this.props.form.validateFieldsAndScroll(null, {}, (err, values) => {
             if (!err) {
-                let functionName = "createCluster"
-                if (mode == "edit") {
-                    functionName = "updateCluster"
+                let functionName = 'createCluster'
+                if (mode == 'edit') {
+                    functionName = 'updateCluster'
                 }
                 Api[functionName](this.getServerParams(values, true))
                     .then(
                         (res) => {
                             if (res.code == 1) {
-                                message.success("保存成功")
+                                message.success('保存成功')
                                 this.props.router.goBack();
                             }
                         }
@@ -593,11 +595,11 @@ class EditCluster extends React.Component {
             }
         })
     }
-    test() {
+    test () {
         this.props.form.validateFieldsAndScroll(null, {}, (err, values) => {
             if (!err) {
                 this.setState({
-                    testLoading: true,
+                    testLoading: true
                 })
                 Api.testCluster(this.getServerParams(values))
                     .then(
@@ -610,7 +612,7 @@ class EditCluster extends React.Component {
                                     core: res.data.totalCores,
                                     memory: res.data.totalMemory
                                 })
-                                message.success("连通成功")
+                                message.success('连通成功')
                             } else {
                                 this.setState({
                                     testLoading: false,
@@ -622,7 +624,7 @@ class EditCluster extends React.Component {
             }
         })
     }
-    getServerParams(formValues, haveFile) {
+    getServerParams (formValues, haveFile) {
         const { mode, cluster } = this.props.location.state || {};
         const clusterConf = this.getClusterConf(formValues);
         // console.log(clusterConf);
@@ -636,50 +638,50 @@ class EditCluster extends React.Component {
                 params.config = file.files[0]
             }
         }
-        if (mode == "edit") {
+        if (mode == 'edit') {
             params.id = cluster.id
         }
         return params;
     }
-    getClusterConf(formValues) {
+    getClusterConf (formValues) {
         let { zipConfig } = this.state;
         zipConfig = JSON.parse(zipConfig);
         let clusterConf = {};
-        const sparkExtParams = this.getCustomParams(formValues, "spark")
-        const flinkExtParams = this.getCustomParams(formValues, "flink")
-        const learningExtParams = this.getCustomParams(formValues, "learning");
-        const dtyarnshellExtParams = this.getCustomParams(formValues, "dtyarnshell")
+        const sparkExtParams = this.getCustomParams(formValues, 'spark')
+        const flinkExtParams = this.getCustomParams(formValues, 'flink')
+        const learningExtParams = this.getCustomParams(formValues, 'learning');
+        const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell')
         const learningTypeName = {
-            typeName: "learning"
+            typeName: 'learning'
         }
         const dtyarnshellTypeName = {
-            typeName: "dtyarnshell"
+            typeName: 'dtyarnshell'
         }
-        clusterConf["hadoopConf"] = zipConfig.hadoopConf;
-        clusterConf["yarnConf"] = zipConfig.yarnConf;
-        clusterConf["hiveMeta"] = zipConfig.hiveMeta;
-        clusterConf["hiveConf"] = formValues.hiveConf;
-        clusterConf["carbonConf"] = formValues.carbonConf;
-        clusterConf["sparkConf"] = { ...formValues.sparkConf, ...sparkExtParams };
-        clusterConf["flinkConf"] = { ...formValues.flinkConf, ...flinkExtParams };
-        clusterConf["learningConf"] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
-        clusterConf["dtyarnshellConf"] = { ...dtyarnshellTypeName, ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
-        //服务端兼容，不允许null
-        clusterConf["hiveConf"].username = clusterConf["hiveConf"].username || '';
-        clusterConf["hiveConf"].password = clusterConf["hiveConf"].password || '';
+        clusterConf['hadoopConf'] = zipConfig.hadoopConf;
+        clusterConf['yarnConf'] = zipConfig.yarnConf;
+        clusterConf['hiveMeta'] = zipConfig.hiveMeta;
+        clusterConf['hiveConf'] = formValues.hiveConf;
+        clusterConf['carbonConf'] = formValues.carbonConf;
+        clusterConf['sparkConf'] = { ...formValues.sparkConf, ...sparkExtParams };
+        clusterConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
+        clusterConf['learningConf'] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
+        clusterConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
+        // 服务端兼容，不允许null
+        clusterConf['hiveConf'].username = clusterConf['hiveConf'].username || '';
+        clusterConf['hiveConf'].password = clusterConf['hiveConf'].password || '';
 
-        clusterConf["carbonConf"].username = clusterConf["carbonConf"].username || '';
-        clusterConf["carbonConf"].password = clusterConf["carbonConf"].password || '';
+        clusterConf['carbonConf'].username = clusterConf['carbonConf'].username || '';
+        clusterConf['carbonConf'].password = clusterConf['carbonConf'].password || '';
         return clusterConf;
     }
-    getCustomParams(data, ParamKey) {
+    getCustomParams (data, ParamKey) {
         let params = {};
         let tmpParam = {};
         for (let key in data) {
-            //key的数据结构为flink%1532398855125918-name,flink%1532398855125918-value
-            if (key.startsWith(ParamKey + "%")) {
-                let tmpKeys = key.split("%")[1].split("-");
-                let id = tmpKeys[0];//自定义参数的id
+            // key的数据结构为flink%1532398855125918-name,flink%1532398855125918-value
+            if (key.startsWith(ParamKey + '%')) {
+                let tmpKeys = key.split('%')[1].split('-');
+                let id = tmpKeys[0];// 自定义参数的id
                 let idParam = tmpKeys[1];
                 if (!tmpParam[id]) {
                     tmpParam[id] = {};
@@ -695,40 +697,39 @@ class EditCluster extends React.Component {
     }
 
     getPrometheusValue = () => {
-        const { flinkPrometheus, flinkData} = this.state;
+        const { flinkPrometheus, flinkData } = this.state;
         const { form } = this.props;
         const { mode } = this.props.location.state || {};
-        if( mode == "edit" && flinkData.hasOwnProperty('gatewayHost')) {
+        if (mode == 'edit' && flinkData.hasOwnProperty('gatewayHost')) {
             form.setFieldsValue({
                 'flinkConf.gatewayHost': flinkPrometheus.gatewayHost,
                 'flinkConf.gatewayPort': flinkPrometheus.gatewayPort,
                 'flinkConf.gatewayJobName': flinkPrometheus.gatewayJobName,
                 'flinkConf.deleteOnShutdown': flinkPrometheus.deleteOnShutdown,
-                'flinkConf.randomJobNameSuffix': flinkPrometheus.randomJobNameSuffix,
+                'flinkConf.randomJobNameSuffix': flinkPrometheus.randomJobNameSuffix
             });
         }
     }
 
-    changeCheckbox(e) {
+    changeCheckbox (e) {
         this.setState({
             checked: e.target.checked
-        },()=>{this.getPrometheusValue()})
+        }, () => { this.getPrometheusValue() })
     }
 
-
-    flinkYarnModes(flinkVersion) {
-        const flinkYarnMode14 = ["PER_JOB","LEGACY"];
-        const flinkYarnMode15 = ["PER_JOB","LEGACY","NEW"];
-        console.log(flinkVersion)  // finlk140
-        if(flinkVersion == "flink140") {
-            return flinkYarnMode14.map((item,index) => {
+    flinkYarnModes (flinkVersion) {
+        const flinkYarnMode14 = ['PER_JOB', 'LEGACY'];
+        const flinkYarnMode15 = ['PER_JOB', 'LEGACY', 'NEW'];
+        console.log(flinkVersion) // finlk140
+        if (flinkVersion == 'flink140') {
+            return flinkYarnMode14.map((item, index) => {
                 return <Option value={item}>{item}</Option>
             })
-        } else if(flinkVersion == "flink150") {
-            return flinkYarnMode15.map((item,index) => {
+        } else if (flinkVersion == 'flink150') {
+            return flinkYarnMode15.map((item, index) => {
                 return <Option value={item}>{item}</Option>
             })
-        } 
+        }
         // else {
         //     return flinkYarnMode14.map((item,index) => {
         //         return <Option value={item}>{item}</Option>
@@ -737,55 +738,55 @@ class EditCluster extends React.Component {
     }
 
     // 获取每项Input的值
-    getFirstInputValue(e) {
+    getFirstInputValue (e) {
         this.setState({
             firstIptValue: e.target.value
         })
     }
-    getSecondInputValue(e) {
+    getSecondInputValue (e) {
         this.setState({
             secondIptValue: e.target.value
         })
     }
-    getThirdInputValue(e) {
+    getThirdInputValue (e) {
         this.setState({
             thirdIptValue: e.target.value
         })
     }
-    changeFirstOption(value) {
+    changeFirstOption (value) {
         // const { setFieldsValue } = this.props.form;
         this.setState({
             firstOption: value
         })
         // console.log(this.state.firstOption)
     }
-    changeSecondOption(value) {
+    changeSecondOption (value) {
         this.setState({
             secondOption: value
         })
     }
 
-    render() {
+    render () {
         const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {};
-        const isView = mode == "view";
-        const isNew= !(mode=="view"||mode=="edit");
+        const isView = mode == 'view';
+        const isNew = !(mode == 'view' || mode == 'edit');
         const columns = this.initColumns();
         // 获取flink版本
-        const flinkVersion = getFieldValue("flinkConf.typeName") || "flink140";
-        const {firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption} = this.state;
+        const flinkVersion = getFieldValue('flinkConf.typeName') || 'flink140';
+        const { firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption } = this.state;
         // 获取flinkYarnMode
-        const flinkYarnMode = getFieldValue("flinkConf.flinkYarnMode") || "PER_JOB"
+        const flinkYarnMode = getFieldValue('flinkConf.flinkYarnMode') || 'PER_JOB'
         // const havedata = this.getFieldValue()
         return (
             <div className="contentBox">
-                <p className="box-title" style={{ height: "auto", marginTop:"10px", paddingLeft: "20px" }}><GoBack size="default" type="textButton"></GoBack></p>
+                <p className="box-title" style={{ height: 'auto', marginTop: '10px', paddingLeft: '20px' }}><GoBack size="default" type="textButton"></GoBack></p>
                 <Card
                     noHovering
                     className="contentBox shadow">
                     <p className="config-title">集群信息</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="集群标识"
                             {...formItemLayout}
@@ -793,16 +794,16 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('clusterName', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入集群标识"
+                                    message: '请输入集群标识'
                                 }, {
                                     pattern: /^[a-z0-9_]{1,64}$/i,
-                                    message: "集群标识不能超过64字符，支持英文、数字、下划线"
+                                    message: '集群标识不能超过64字符，支持英文、数字、下划线'
                                 }]
                             })(
-                                <Input disabled={!isNew} placeholder="请输入集群标识" style={{ width: "40%" }} />
+                                <Input disabled={!isNew} placeholder="请输入集群标识" style={{ width: '40%' }} />
                             )}
-                            <span style={{ marginLeft: "20px" }}>节点数：{nodeNumber || '--'} </span>
-                            <span style={{ marginLeft: "5px" }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
+                            <span style={{ marginLeft: '20px' }}>节点数：{nodeNumber || '--'} </span>
+                            <span style={{ marginLeft: '5px' }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
                         </FormItem>
                         {/* <FormItem
                             label="绑定租户"
@@ -836,8 +837,8 @@ class EditCluster extends React.Component {
                     {isView ? null : (
                         <div>
                             <p className="config-title">上传配置文件</p>
-                            <div className="config-content" style={{ width: "750px" }}>
-                                <p style={{ marginBottom: "24px" }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
+                            <div className="config-content" style={{ width: '750px' }}>
+                                <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
 
                                 <FormItem
                                     label="配置文件"
@@ -845,15 +846,15 @@ class EditCluster extends React.Component {
                                 >
                                     {getFieldDecorator('file', {
                                         rules: [{
-                                            required: !fileHaveChange && mode == "edit" ? false : true, message: '请选择上传文件',
+                                            required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
                                         }, {
-                                            validator: this.validateFileType,
-                                        }],
+                                            validator: this.validateFileType
+                                        }]
                                     })(
                                         <div>
                                             {
-                                                uploadLoading ?
-                                                    <label
+                                                uploadLoading
+                                                    ? <label
                                                         style={{ lineHeight: '28px' }}
                                                         className="ant-btn disble"
                                                     >选择文件</label>
@@ -881,21 +882,20 @@ class EditCluster extends React.Component {
                         </div>
                     )}
                     {
-                        zipConfig ?
-                            <div><p className="config-title">HDFS</p>
-                                <div className="config-content" style={{ width: "800px" }}>
-                                    {this.renderZipConfig("hdfs")}
+                        zipConfig
+                            ? <div><p className="config-title">HDFS</p>
+                                <div className="config-content" style={{ width: '800px' }}>
+                                    {this.renderZipConfig('hdfs')}
                                 </div>
                                 <p className="config-title">YARN</p>
-                                <div className="config-content" style={{ width: "800px" }}>
-                                    {this.renderZipConfig("yarn")}
+                                <div className="config-content" style={{ width: '800px' }}>
+                                    {this.renderZipConfig('yarn')}
                                 </div>
                             </div>
-                            :
-                            null
+                            : null
                     }
                     <p className="config-title">Hive JDBC信息</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="JDBC URL"
                             {...formItemLayout}
@@ -903,7 +903,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('hiveConf.jdbcUrl', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入jdbcUrl"
+                                    message: '请输入jdbcUrl'
                                 }]
                             })(
                                 <Input disabled={isView} />
@@ -926,9 +926,9 @@ class EditCluster extends React.Component {
                             )}
                         </FormItem>
                     </div>
-                    
+
                     <p className="config-title">CarbonData JDBC信息</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="JDBC URL"
                             {...formItemLayout}
@@ -936,7 +936,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('carbonConf.jdbcUrl', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入jdbcUrl"
+                                    message: '请输入jdbcUrl'
                                 }]
                             })(
                                 <Input disabled={isView} />
@@ -960,9 +960,8 @@ class EditCluster extends React.Component {
                         </FormItem>
                     </div>
 
-
                     <p className="config-title">Spark</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="版本选择"
                             {...formItemLayout}
@@ -970,11 +969,11 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('sparkConf.typeName', {
                                 rules: [{
                                     required: true,
-                                    message: "请选择Spark版本"
+                                    message: '请选择Spark版本'
                                 }],
-                                initialValue: "spark_yarn"
+                                initialValue: 'spark_yarn'
                             })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: '100px' }}>
                                     <Option value="spark_yarn">2.X</Option>
                                 </Select>
                             )}
@@ -986,9 +985,9 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('sparkConf.sparkYarnArchive', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入sparkYarnArchive"
+                                    message: '请输入sparkYarnArchive'
                                 }],
-                                initialValue: "/sparkjars/jars"
+                                initialValue: '/sparkjars/jars'
                             })(
                                 <Input disabled={isView} />
                             )}
@@ -1000,9 +999,9 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('sparkConf.sparkSqlProxyPath', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入sparkSqlProxyPath"
+                                    message: '请输入sparkSqlProxyPath'
                                 }],
-                                initialValue: "/user/spark/spark-0.0.1-SNAPSHOT.jar"
+                                initialValue: '/user/spark/spark-0.0.1-SNAPSHOT.jar'
                             })(
                                 <Input disabled={isView} />
                             )}
@@ -1014,27 +1013,26 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('sparkConf.sparkPythonExtLibPath', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入sparkPythonExtLibPath"
+                                    message: '请输入sparkPythonExtLibPath'
                                 }],
-                                initialValue: "/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip"
+                                initialValue: '/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip'
                             })(
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
-                        {this.renderExtraParam("spark")}
+                        {this.renderExtraParam('spark')}
                         {isView ? null : (
                             <Row>
                                 <Col span={formItemLayout.labelCol.sm.span}></Col>
                                 <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, "spark")}>添加自定义参数</a>
+                                    <a onClick={this.addParam.bind(this, 'spark')}>添加自定义参数</a>
                                 </Col>
                             </Row>
                         )}
                     </div>
 
-
                     <p className="config-title">Flink</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="flinkZkAddress"
                             {...formItemLayout}
@@ -1042,8 +1040,8 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkZkAddress', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入flinkZkAddress"
-                                }],
+                                    message: '请输入flinkZkAddress'
+                                }]
 
                             })(
                                 <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
@@ -1056,7 +1054,7 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkHighAvailabilityStorageDir', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入flinkHighAvailabilityStorageDir"
+                                    message: '请输入flinkHighAvailabilityStorageDir'
                                 }]
                             })(
                                 <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
@@ -1069,13 +1067,13 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkZkNamespace', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入flinkZkNamespace"
+                                    message: '请输入flinkZkNamespace'
                                 }]
                             })(
                                 <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
                             )}
                         </FormItem>
-                        
+
                         <div className="checkboxStyle">
                             <Checkbox
                                 checked={checked}
@@ -1086,111 +1084,110 @@ class EditCluster extends React.Component {
                                 配置Prometheus Metric地址
                             </Checkbox>
                         </div>
-                        
+
                         {checked ? (<div>
-                                <FormItem
-                                    label="reporterClass"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.reporterClass', {
-                                        initialValue: "org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter"
-                                    })(
-                                        <Input disabled={true} />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="gatewayHost"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.gatewayHost', {
-                                        rules: [{
-                                            required: true,
-                                            message: "请输入gatewayHost"
-                                        }],
-                                        initialValue: firstIptValue
-                                    })(
-                                        <Input disabled={isView}  onChange={(e) => {this.getFirstInputValue(e)}} />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="gatewayPort"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.gatewayPort', {
-                                        rules: [{
-                                            required: true,
-                                            message: "请输入gatewayPort"
-                                        }],
-                                        initialValue: secondIptValue
-                                    })(
-                                        <Input disabled={isView} onChange={(e) => {this.getSecondInputValue(e)}} />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="gatewayJobName"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.gatewayJobName', {
-                                        rules: [{
-                                            required: true,
-                                            message: "请输入gatewayJobName"
-                                        }],
-                                        initialValue: thirdIptValue
-                                    })(
-                                        <Input disabled={isView} onChange={(e) => {this.getThirdInputValue(e)}} />
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="deleteOnShutdown"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.deleteOnShutdown', {
-                                        rules: [{
-                                            required: true,
-                                            message: "deleteOnShutdown"
-                                        }],
-                                        initialValue: firstOption
-                                    })(
-                                        <Select disabled={isView} style={{ width: "100px" }}  onChange={this.changeFirstOption.bind(this)} >
-                                            <Option value="FALSE">FALSE</Option>
-                                            <Option value="TRUE">TRUE</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                                <FormItem
-                                    label="randomJobNameSuffix"
-                                    {...formItemLayout}
-                                >
-                                    {getFieldDecorator('flinkConf.randomJobNameSuffix', {
-                                        rules: [{
-                                            required: true,
-                                            message: "randomJobNameSuffix"
-                                        }],
-                                        initialValue: secondOption
-                                    })(
-                                        <Select disabled={isView} style={{ width: "100px" }} onChange={this.changeSecondOption.bind(this)}>
-                                            <Option value="FALSE">FALSE</Option>
-                                            <Option value="TRUE">TRUE</Option>
-                                        </Select>
-                                    )}
-                                </FormItem>
-                             </div>):null
+                            <FormItem
+                                label="reporterClass"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.reporterClass', {
+                                    initialValue: 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter'
+                                })(
+                                    <Input disabled={true} />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label="gatewayHost"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.gatewayHost', {
+                                    rules: [{
+                                        required: true,
+                                        message: '请输入gatewayHost'
+                                    }],
+                                    initialValue: firstIptValue
+                                })(
+                                    <Input disabled={isView} onChange={(e) => { this.getFirstInputValue(e) }} />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label="gatewayPort"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.gatewayPort', {
+                                    rules: [{
+                                        required: true,
+                                        message: '请输入gatewayPort'
+                                    }],
+                                    initialValue: secondIptValue
+                                })(
+                                    <Input disabled={isView} onChange={(e) => { this.getSecondInputValue(e) }} />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label="gatewayJobName"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.gatewayJobName', {
+                                    rules: [{
+                                        required: true,
+                                        message: '请输入gatewayJobName'
+                                    }],
+                                    initialValue: thirdIptValue
+                                })(
+                                    <Input disabled={isView} onChange={(e) => { this.getThirdInputValue(e) }} />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label="deleteOnShutdown"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.deleteOnShutdown', {
+                                    rules: [{
+                                        required: true,
+                                        message: 'deleteOnShutdown'
+                                    }],
+                                    initialValue: firstOption
+                                })(
+                                    <Select disabled={isView} style={{ width: '100px' }} onChange={this.changeFirstOption.bind(this)} >
+                                        <Option value="FALSE">FALSE</Option>
+                                        <Option value="TRUE">TRUE</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+                            <FormItem
+                                label="randomJobNameSuffix"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('flinkConf.randomJobNameSuffix', {
+                                    rules: [{
+                                        required: true,
+                                        message: 'randomJobNameSuffix'
+                                    }],
+                                    initialValue: secondOption
+                                })(
+                                    <Select disabled={isView} style={{ width: '100px' }} onChange={this.changeSecondOption.bind(this)}>
+                                        <Option value="FALSE">FALSE</Option>
+                                        <Option value="TRUE">TRUE</Option>
+                                    </Select>
+                                )}
+                            </FormItem>
+                        </div>) : null
                         }
 
-                        {this.renderExtraParam("flink")}
+                        {this.renderExtraParam('flink')}
                         {isView ? null : (
                             <Row>
                                 <Col span={formItemLayout.labelCol.sm.span}></Col>
                                 <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, "flink")}>添加自定义参数</a>
+                                    <a onClick={this.addParam.bind(this, 'flink')}>添加自定义参数</a>
                                 </Col>
                             </Row>
                         )}
                     </div>
 
-                    
                     <p className="config-title">Flink Engine</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="版本选择"
                             {...formItemLayout}
@@ -1198,11 +1195,11 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.typeName', {
                                 rules: [{
                                     required: true,
-                                    message: "请选择flink版本"
+                                    message: '请选择flink版本'
                                 }],
-                                initialValue: "flink140"
+                                initialValue: 'flink140'
                             })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: '100px' }}>
                                     <Option value="flink140">1.4</Option>
                                     <Option value="flink150">1.5</Option>
                                 </Select>
@@ -1215,11 +1212,11 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.clusterMode', {
                                 rules: [{
                                     required: true,
-                                    message: "请选择clusterMode"
+                                    message: '请选择clusterMode'
                                 }],
-                                initialValue: "yarn"
+                                initialValue: 'yarn'
                             })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: '100px' }}>
                                     <Option value="standalone">standalone</Option>
                                     <Option value="yarn">yarn</Option>
                                 </Select>
@@ -1232,11 +1229,11 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkYarnMode', {
                                 rules: [{
                                     required: true,
-                                    message: "flinkYarnMode"
+                                    message: 'flinkYarnMode'
                                 }],
-                                initialValue: "PER_JOB"
+                                initialValue: 'PER_JOB'
                             })(
-                                <Select disabled={isView} style={{ width: "100px" }}>
+                                <Select disabled={isView} style={{ width: '100px' }}>
                                     {this.flinkYarnModes(flinkVersion)}
                                 </Select>
                             )}
@@ -1246,7 +1243,7 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('flinkConf.jarTmpDir', {
-                                initialValue: "../tmp140"
+                                initialValue: '../tmp140'
                             })(
                                 <Input disabled={isView} />
                             )}
@@ -1256,7 +1253,7 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('flinkConf.flinkPluginRoot', {
-                                initialValue: "/opt/dtstack/flinkplugin"
+                                initialValue: '/opt/dtstack/flinkplugin'
                             })(
                                 <Input disabled={isView} />
                             )}
@@ -1266,26 +1263,26 @@ class EditCluster extends React.Component {
                             {...formItemLayout}
                         >
                             {getFieldDecorator('flinkConf.remotePluginRootDir', {
-                                initialValue: "/opt/dtstack/flinkplugin"
+                                initialValue: '/opt/dtstack/flinkplugin'
                             })(
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
 
-                        {flinkYarnMode == "PER_JOB" ? <FormItem
-                                label="flinkJarPath"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.flinkJarPath', {
-                                    rules: [{
-                                        required: true,
-                                        message: "请输入flinkJarPath"
-                                    }],
-                                    // initialValue: "/opt/dtstack/flinkplugin"
-                                })(
-                                    <Input disabled={isView} />
-                                )}
-                            </FormItem> : null } 
+                        {flinkYarnMode == 'PER_JOB' ? <FormItem
+                            label="flinkJarPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkJarPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入flinkJarPath'
+                                }]
+                                // initialValue: "/opt/dtstack/flinkplugin"
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem> : null }
 
                         <FormItem
                             label="flinkJobHistory"
@@ -1294,8 +1291,8 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('flinkConf.flinkJobHistory', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入flinkJobHistory"
-                                }],
+                                    message: '请输入flinkJobHistory'
+                                }]
                                 // initialValue: "/opt/dtstack/flinkplugin"
                             })(
                                 <Input disabled={isView} />
@@ -1303,10 +1300,9 @@ class EditCluster extends React.Component {
                         </FormItem>
                     </div>
 
-                    
                     {/* Learning */}
                     <p className="config-title">Learning</p>
-                    <div className="config-content" style={{ width: "680px"}}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="learning.python3.path"
                             {...formItemLayout}
@@ -1372,21 +1368,20 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="rdos1:19885" />
                             )}
                         </FormItem>
-                        {this.renderExtraParam("learning")}
+                        {this.renderExtraParam('learning')}
                         {isView ? null : (
                             <Row>
                                 <Col span={formItemLayout.labelCol.sm.span}></Col>
                                 <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, "learning")}>添加自定义参数</a>
+                                    <a onClick={this.addParam.bind(this, 'learning')}>添加自定义参数</a>
                                 </Col>
                             </Row>
                         )}
                     </div>
 
-                    
                     {/* DTYarnShell */}
                     <p className="config-title">DTYarnShell</p>
-                    <div className="config-content" style={{ width: "680px" }}>
+                    <div className="config-content" style={{ width: '680px' }}>
                         <FormItem
                             label="jlogstash.root"
                             {...formItemLayout}
@@ -1394,8 +1389,8 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('dtyarnshellConf.jlogstashRoot', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入jlogstash.root"
-                                }],
+                                    message: '请输入jlogstash.root'
+                                }]
                                 // initialValue: "/opt/dtstack/jlogstash"
                             })(
                                 <Input disabled={isView} placeholder="/opt/dtstack/jlogstash" />
@@ -1408,8 +1403,8 @@ class EditCluster extends React.Component {
                             {getFieldDecorator('dtyarnshellConf.javaHome', {
                                 rules: [{
                                     required: true,
-                                    message: "请输入java.home"
-                                }],
+                                    message: '请输入java.home'
+                                }]
                                 // initialValue: "/opt/java/bin"
                             })(
                                 <Input disabled={isView} placeholder="/opt/java/bin" />
@@ -1441,30 +1436,28 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                             )}
                         </FormItem>
-                        {this.renderExtraParam("dtyarnshell")}
+                        {this.renderExtraParam('dtyarnshell')}
                         {isView ? null : (
                             <Row>
                                 <Col span={formItemLayout.labelCol.sm.span}></Col>
                                 <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, "dtyarnshell")}>添加自定义参数</a>
+                                    <a onClick={this.addParam.bind(this, 'dtyarnshell')}>添加自定义参数</a>
                                 </Col>
                             </Row>
                         )}
                     </div>
 
-
-
                     <p className="config-title"></p>
                     {isView ? null : (
-                        <div className="config-content" style={{ width: "100%" }}>
+                        <div className="config-content" style={{ width: '100%' }}>
                             <Button onClick={this.test.bind(this)} loading={testLoading} type="primary">测试连通性</Button>
-                            <span style={{ marginLeft: "18px" }}>
+                            <span style={{ marginLeft: '18px' }}>
                                 {this.renderTestResult()}
                             </span>
 
-                            <span style={{ float: "right", marginRight: "18px" }}>
+                            <span style={{ float: 'right', marginRight: '18px' }}>
                                 <Button onClick={this.save.bind(this)} type="primary">保存</Button>
-                                <Button onClick={hashHistory.goBack} style={{ marginLeft: "8px" }}>取消</Button>
+                                <Button onClick={hashHistory.goBack} style={{ marginLeft: '8px' }}>取消</Button>
                             </span>
                         </div>
                     )}

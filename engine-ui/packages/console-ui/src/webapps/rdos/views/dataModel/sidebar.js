@@ -4,31 +4,30 @@ import { Link, hashHistory } from 'react-router'
 import { isProjectCouldEdit } from '../../comm';
 
 export default class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
-            current: 'table',
+            current: 'table'
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected()
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { project_obj={}, user } = nextProps;
-        const { project_obj_old={}, user_old } = this.props;
-        if(project_obj_old.id!=project_obj.id){
+    componentWillReceiveProps (nextProps) {
+        const { project_obj = {}, user } = nextProps;
+        const { project_obj_old = {}, user_old } = this.props;
+        if (project_obj_old.id != project_obj.id) {
             const couldEdit = isProjectCouldEdit(project_obj, user);
-            if(!couldEdit){
+            if (!couldEdit) {
                 this.checkPath(nextProps);
             }
         }
         this.updateSelected()
     }
 
-    checkPath(props){
+    checkPath (props) {
         const routes = props.router.routes
         if (routes.length > 3) {
             let current = routes[3].path;
@@ -36,8 +35,8 @@ export default class Sidebar extends Component {
             if (current) {
                 current = current.split('/')[0];
             }
-            if(current=='table'||current=='config'){
-                hashHistory.push("/data-model/overview")
+            if (current == 'table' || current == 'config') {
+                hashHistory.push('/data-model/overview')
             }
         }
     }
@@ -56,11 +55,11 @@ export default class Sidebar extends Component {
 
     handleClick = (e) => {
         this.setState({
-            current: e.key,
+            current: e.key
         });
     }
 
-    render() {
+    render () {
         const props = this.props
         const { project_obj, user } = props;
         const couldEdit = isProjectCouldEdit(project_obj, user);
@@ -88,14 +87,14 @@ export default class Sidebar extends Component {
                         <Menu.Item key="table">
                             <Link to={`${base}/table`}>
                                 <Icon type="api" />模型设计
-                        </Link>
+                            </Link>
                         </Menu.Item>
                     )}
                     {couldEdit && (
                         <Menu.Item key="config">
                             <Link to={`${base}/config`}>
                                 <Icon type="tool" />配置中心
-                        </Link>
+                            </Link>
                         </Menu.Item>
                     )}
 

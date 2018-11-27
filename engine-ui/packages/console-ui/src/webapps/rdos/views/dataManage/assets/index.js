@@ -1,31 +1,28 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { Checkbox } from "antd" 
+import { Checkbox } from 'antd'
 
 import Api from '../../../api'
 import Overview from './overview'
 
 export default class Index extends Component {
-
     state = {
         isAdmin: false,
-        projects: [],
+        projects: []
     }
 
-    
-    componentDidMount() {
+    componentDidMount () {
         this.getAllProjects()
     }
-    
 
     onChange = (e) => {
-        this.setState({total: !e.target.checked},this.getAllProjects)
+        this.setState({ total: !e.target.checked }, this.getAllProjects)
     }
 
-    getAllProjects(){
+    getAllProjects () {
         const { total } = this.state;
-        Api.getAllProjects({total}).then((res) => {
+        Api.getAllProjects({ total }).then((res) => {
             if (res.code == 1) {
                 this.setState({
                     projects: res.data
@@ -34,7 +31,7 @@ export default class Index extends Component {
         })
     }
 
-    render() {
+    render () {
         const { projects, total } = this.state;
         return (
             <div className="project-dashboard">
@@ -50,4 +47,3 @@ export default class Index extends Component {
         )
     }
 }
-

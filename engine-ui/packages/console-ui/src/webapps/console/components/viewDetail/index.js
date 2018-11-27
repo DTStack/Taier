@@ -5,18 +5,18 @@
 * @Last Modified time: 2018-09-28 11:43:51
 */
 import React, { Component } from 'react';
-import { Modal, Table } from "antd";
-import moment from "moment";
-import CodeEditor from "widgets/editor";
+import { Modal, Table } from 'antd';
+import moment from 'moment';
+import CodeEditor from 'widgets/editor';
 class ViewDetail extends Component {
     state = {
         editor: {
-            sql: "",
+            sql: '',
             cursor: undefined,
             sync: true
         }
     }
-    render() {
+    render () {
         const { editor } = this.state;
         return (
             <Modal
@@ -27,7 +27,7 @@ class ViewDetail extends Component {
                 visible={this.props.visible}
             >
                 <CodeEditor
-                    style={{ height: "400px", marginTop: "1px" }}
+                    style={{ height: '400px', marginTop: '1px' }}
                     // onChange={this.props.sqlOnChange}
                     value={JSON.stringify(this.props.resource, null, 2)}
                     language="ini"
@@ -35,8 +35,8 @@ class ViewDetail extends Component {
                         {
                             readOnly: true,
                             minimap: {
-                                enabled: false,
-                            },
+                                enabled: false
+                            }
                         }
                     }
                     // // cursor={this.props.editor.cursor}

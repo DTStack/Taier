@@ -3,35 +3,33 @@ import { debounce } from 'lodash'
 
 import {
     Input, Button, Card, Radio,
-    Select, Form, Checkbox,
- } from 'antd'
+    Select, Form, Checkbox
+} from 'antd'
 
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
- 
+
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group;
 
-
 class MemberForm extends Component {
-
-    render() {
+    render () {
         const { roles, form, notProjectUsers } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
-        .map(item => 
-            <Option 
-                key={item.userId}
-                name={item.userName}
-                value={`${item.userId}`}
-            >
-                {item.userName}
-            </Option>
-        )
+            .map(item =>
+                <Option
+                    key={item.userId}
+                    name={item.userName}
+                    value={`${item.userId}`}
+                >
+                    {item.userName}
+                </Option>
+            )
 
-        let roleOptions = [], defaultRoles = [];
+        let roleOptions = []; let defaultRoles = [];
         if (roles) {
             roles.forEach(role => {
                 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
@@ -52,14 +50,14 @@ class MemberForm extends Component {
         return (
             <Form>
                 <FormItem
-                {...formItemLayout}
-                label="请选择用户"
-                hasFeedback
+                    {...formItemLayout}
+                    label="请选择用户"
+                    hasFeedback
                 >
                     {getFieldDecorator('targetUserIds', {
                         rules: [{
-                            required: true, message: '用户不可为空！',
-                        }],
+                            required: true, message: '用户不可为空！'
+                        }]
                     })(
                         <Select
                             mode="multiple"
@@ -68,27 +66,26 @@ class MemberForm extends Component {
                             optionFilterProp="name"
                         >
                             {userOptions}
-                        </Select>,
+                        </Select>
                     )}
                 </FormItem>
                 <FormItem
-                {...formItemLayout}
-                label="角色设置"
+                    {...formItemLayout}
+                    label="角色设置"
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: defaultRoles,
+                        initialValue: defaultRoles
                     })(
-                        <CheckboxGroup 
+                        <CheckboxGroup
                             options={roleOptions}
                             onChange={this.roleChange}
-                        />,
+                        />
                     )}
                 </FormItem>
             </Form>
         )
     }
-
 }
 
 const FormWrapper = Form.create()(MemberForm)

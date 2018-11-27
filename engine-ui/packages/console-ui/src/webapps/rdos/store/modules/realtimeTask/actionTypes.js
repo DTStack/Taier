@@ -23,13 +23,13 @@ export const browserAction = mc([
     'GET_DIMESION_DATA',
     'CLEAR_CURRENT_DIMESION_DATA',
     'CLEAR_OTHER_DIMESION_DATA',
-    'CLEAR_ALL_DIMESION_DATA',
+    'CLEAR_ALL_DIMESION_DATA'
 ], { prefix: 'realtimeTask/browser/' })
 
 export const modalAction = mc([
     'ADD_TASK_VISIBLE',
     'ADD_RES_VISIBLE',
-    
+
     'EDIT_TASK_VISIBLE',
     'ADD_TASK_CATA_VISIBLE',
     'EDIT_TASK_CATA_VISIBLE',
@@ -38,13 +38,13 @@ export const modalAction = mc([
     'ADD_FUNC_CATA_VISIBLE',
     'EDIT_FUNC_CATA_VISIBLE',
     'UPDATE_MODAL_ACTION',
-    'MODAL_HIDDEN',
+    'MODAL_HIDDEN'
 ], { prefix: 'realtimeTask/modal/' })
 
 export const resAction = mc([
     'GET_RESOURCE',
     'REMOVE_RESOURCE',
-    'ADD_RESOURCE',
+    'ADD_RESOURCE'
 ], { prefix: 'realtimeTask/res/' })
 
 export const treeAction = mc([
@@ -52,18 +52,18 @@ export const treeAction = mc([
     'UPDATE_REALTIME_TREE_NODE',
     'UPDATE_REALTIME_TREE',
     'REMOVE_REALTIME_TREE_NODE',
-    'MERGE_REALTIME_TREE',
+    'MERGE_REALTIME_TREE'
 ], { prefix: 'realtimeTask/tree/' })
 
 export const commAction = mc([
     'GET_TASK_TYPES',
-    'GET_TASK_TYPE_FILTER',
-], {prefix: 'realtimeTask/comm/'});
+    'GET_TASK_TYPE_FILTER'
+], { prefix: 'realtimeTask/comm/' });
 
 export const dataSourceListAction = mc([
     'LOAD_DATASOURCE',
     'RESET_DATASOURCE'
-], {prefix: 'realtimeTask/collection/dataSourceList/'});
+], { prefix: 'realtimeTask/collection/dataSourceList/' });
 
 export const collectionAction = mc([
     'INIT_JOBDATA',
@@ -75,4 +75,4 @@ export const collectionAction = mc([
     'SET_TABID',
     'RESET_TABID',
     'GET_DATASYNC_SAVED'
-], {prefix: 'realtimeTask/collection/'});
+], { prefix: 'realtimeTask/collection/' });

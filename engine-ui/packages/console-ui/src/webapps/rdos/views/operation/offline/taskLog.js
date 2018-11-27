@@ -5,7 +5,6 @@ import { isArray } from 'lodash'
 
 import utils from 'utils'
 
-
 import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'
 
@@ -15,18 +14,18 @@ const editorOptions = {
     readOnly: true,
     autofocus: false,
     indentWithTabs: true,
-    lineWrapping:true,
+    lineWrapping: true,
     smartIndent: true,
-    scrollbarStyle: "simple"
+    scrollbarStyle: 'simple'
 }
 const titleStyle = { height: '45px', color: '#333' }
 const editorStyle = { height: '300px' }
 
-function wrappTitle(title) {
+function wrappTitle (title) {
     return `====================${title}====================`
 }
 
-function getLogsInfo(title, data) {
+function getLogsInfo (title, data) {
     let res = '';
     if (data && data.length > 0) {
         for (let i = 0; i < data.length; ++i) {
@@ -36,16 +35,16 @@ function getLogsInfo(title, data) {
     return res
 }
 
-export function LogInfo(props) {
+export function LogInfo (props) {
     window.loggg = props.log;
     /**
      * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
      */
-    const safeSpace = " ";
-    const log = props.log ? JSON.parse(props.log.replace(/\n/g, "\\n").replace(/\r/g, "\\r")) : {};
+    const safeSpace = ' ';
+    const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
     const syncJobInfo = props.syncJobInfo;
     const logStyle = Object.assign(editorStyle, {
-        height: props.height,
+        height: props.height
     });
 
     const errors = log['all-exceptions'] || ''
@@ -74,8 +73,8 @@ export function LogInfo(props) {
     }
 
     if (log.msg_info) {
-        let log_sql = log["sql"];
-        if (log_sql && typeof log_sql == "object") {
+        let log_sql = log['sql'];
+        if (log_sql && typeof log_sql == 'object') {
             log_sql = JSON.stringify(log_sql, null, 2);
         }
         if (log_sql) {
@@ -85,18 +84,17 @@ export function LogInfo(props) {
     return (
         <div>
             {
-                syncJobInfo ?
-                    <Row style={{ marginBottom: '14px' }}>
+                syncJobInfo
+                    ? <Row style={{ marginBottom: '14px' }}>
                         <p>运行时长：{syncJobInfo.execTime}秒</p>
                         <p>
                             <span>读取数据：{syncJobInfo.readNum}条</span>&nbsp;&nbsp;
                             <span>写入数据：{syncJobInfo.writeNum}条</span>&nbsp;&nbsp;
                             <span>脏数据：{syncJobInfo.dirtyPercent}%</span>&nbsp;&nbsp;
-                        {/* <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span> */}
+                            {/* <span><Link to={`/data-manage/dirty-data/table/${syncJobInfo.tableId}`}>查看脏数据</Link></span> */}
                         </p>
                     </Row>
-                    :
-                    ''
+                    : ''
             }
             <Row style={logStyle}>
                 <Editor sync value={logText} options={editorOptions} />

@@ -6,13 +6,12 @@
 */
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card, Tooltip, Icon, Button } from 'antd';
-import moment from "moment";
-import utils from "utils"
+import moment from 'moment';
+import utils from 'utils'
 
-import Api from "../../api/console";
+import Api from '../../api/console';
 import '../../styles/main.scss';
 import TaskDetail from './taskDetail';
-
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;
@@ -24,7 +23,7 @@ class QueueManage extends Component {
             total: 0,
             loading: true
         },
-        nowView: utils.getParameterByName("tab") || "overview",
+        nowView: utils.getParameterByName('tab') || 'overview',
         clusterList: [],
         clusterId: undefined,
         nodeList: [],
@@ -35,16 +34,16 @@ class QueueManage extends Component {
         resetKey: Math.random()
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getClusterSelect();
         this.getNodeAddressSelect();
         this.getClusterDetail();
     }
     // 渲染集群
-    getClusterDetail() {
+    getClusterDetail () {
         const { table, clusterId, node } = this.state;
         const { pageIndex } = table;
-        if(node) {
+        if (node) {
             this.setState({
                 table: {
                     ...table,
@@ -78,7 +77,7 @@ class QueueManage extends Component {
         }
     }
     // 获取集群下拉数据
-    getClusterSelect() {
+    getClusterSelect () {
         return Api.getClusterSelect().then((res) => {
             if (res.code == 1) {
                 const data = res.data;
@@ -89,16 +88,16 @@ class QueueManage extends Component {
         })
     }
     // 获取集群下拉视图
-    getClusterOptionView() {
+    getClusterOptionView () {
         const clusterList = this.state.clusterList;
         return clusterList.map((item, index) => {
             return <Option key={item.id} value={item.id}>{item.clusterName}</Option>
         })
     }
     // 集群option改变
-    clusterOptionChange(clusterId) {
-        const {node} = this.state;
-        const {table} =  this.state;
+    clusterOptionChange (clusterId) {
+        const { node } = this.state;
+        const { table } = this.state;
         if (!clusterId) {
             this.setState({
                 dataSource: [],
@@ -118,33 +117,33 @@ class QueueManage extends Component {
         }
     }
     // 获取节点下拉数据
-    getNodeAddressSelect() {
+    getNodeAddressSelect () {
         return Api.getNodeAddressSelect().then((res) => {
-            const {nodeList, node} = this.state;
-            if(res.code == 1) {
+            const { nodeList, node } = this.state;
+            if (res.code == 1) {
                 const data = res.data;
                 this.setState({
                     nodeList: data || [],
-                    node:data&&data.length?data[0]:undefined
-                },this.getClusterDetail.bind(this))
+                    node: data && data.length ? data[0] : undefined
+                }, this.getClusterDetail.bind(this))
                 console.log(data);
             }
         })
     }
     // 获取节点下拉视图
-    getNodeAddressOptionView() {
-        const {nodeList} = this.state;
-        return nodeList.map((item,index) => {
+    getNodeAddressOptionView () {
+        const { nodeList } = this.state;
+        return nodeList.map((item, index) => {
             return <Option key={index} value={item}>{item}</Option>
         })
     }
     // 节点option改变
-    nodeAddressrOptionChange(value) {
-        const {table} = this.state;
-        if(!value) {
+    nodeAddressrOptionChange (value) {
+        const { table } = this.state;
+        if (!value) {
             this.setState({
                 dataSource: [],
-                node:value,
+                node: value,
                 table: {
                     ...table,
                     loading: false,
@@ -154,12 +153,11 @@ class QueueManage extends Component {
         } else {
             this.setState({
                 node: value
-            },this.getClusterDetail.bind(this))
+            }, this.getClusterDetail.bind(this))
         }
-        
     }
     // 页表
-    getPagination() {
+    getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
             currentPage: pageIndex,
@@ -174,45 +172,45 @@ class QueueManage extends Component {
                 pageIndex: page.current
             }
         },
-            () => {
-                this.getClusterDetail();
-            })
+        () => {
+            this.getClusterDetail();
+        })
     }
 
-    initTableColumns() {
+    initTableColumns () {
         return [
             {
-                title: "引擎",
-                dataIndex: "engine",
-                render(text, record) {
+                title: '引擎',
+                dataIndex: 'engine',
+                render (text, record) {
                     return record.engineType;
                 }
             },
             {
-                title: "group名称",
-                dataIndex: "groupName",
-                render(text, record) {
+                title: 'group名称',
+                dataIndex: 'groupName',
+                render (text, record) {
                     return record.groupName;
                 }
             },
             {
-                title: "头部等待时长",
-                dataIndex: "headWait",
-                render(text, record) {
+                title: '头部等待时长',
+                dataIndex: 'headWait',
+                render (text, record) {
                     // return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
                     return record.waitTime
                 }
             },
             {
-                title: "总任务数",
-                dataIndex: "totalCount",
-                render(text, record) {
+                title: '总任务数',
+                dataIndex: 'totalCount',
+                render (text, record) {
                     return record.groupSize;
                 }
             },
             {
-                title: "操作",
-                dataIndex: "deal",
+                title: '操作',
+                dataIndex: 'deal',
                 render: (text, record) => {
                     return (
                         <div>
@@ -224,56 +222,56 @@ class QueueManage extends Component {
         ]
     }
     // 查看明细(需要传入参数 集群,引擎,group) detailInfo
-    viewDetails(record) {
-        const {node} = this.state;
+    viewDetails (record) {
+        const { node } = this.state;
         this.props.router.push({
-            pathname: "/console/queueManage",
+            pathname: '/console/queueManage',
             query: {
                 tab: 'detail',
                 clusterName: record.clusterName,
                 engineType: record.engineType,
-                groupName: record.groupName,
+                groupName: record.groupName
             }
         });
         this.setState({
-            nowView: "detail",
+            nowView: 'detail',
             resetKey: Math.random()
         })
     }
     // 面板切换
-    handleClick(e) {
+    handleClick (e) {
         this.setState({
-            nowView: e,
+            nowView: e
         })
-        if (e == "detail") {
+        if (e == 'detail') {
             this.setState({
                 resetKey: Math.random()
             })
         }
         this.props.router.push({
-            pathname: "/console/queueManage",
+            pathname: '/console/queueManage',
             query: {
                 tab: e
             }
         });
     }
 
-    render() {
+    render () {
         const columns = this.initTableColumns();
         const { dataSource, table, clusterList } = this.state;
-        const {nodeList, node} = this.state;
+        const { nodeList, node } = this.state;
         const { loading } = table;
         const { nowView } = this.state;
         const query = this.props.router.location.query;
         return (
-            <div className=" api-mine nobackground m-card height-auto m-tabs" style={{ marginTop: "20px" }}>
+            <div className=" api-mine nobackground m-card height-auto m-tabs" style={{ marginTop: '20px' }}>
                 <Card
-                    style={{ marginTop: "0px" }}
+                    style={{ marginTop: '0px' }}
                     className="box-1"
                     noHovering
                 >
                     <Tabs
-                        style={{ overflow: "unset" }}
+                        style={{ overflow: 'unset' }}
                         animated={false}
                         onChange={this.handleClick.bind(this)}
                         activeKey={nowView}
@@ -293,9 +291,9 @@ class QueueManage extends Component {
                         // }
                     >
                         <Tabs.TabPane tab="概览" key="overview">
-                            <div style={{ margin: "20px" }}>
+                            <div style={{ margin: '20px' }}>
                                 集群：
-		                   		<Select style={{ width: 150, marginRight: "10px" }}
+		                   		<Select style={{ width: 150, marginRight: '10px' }}
                                     placeholder="选择集群"
                                     allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
@@ -318,7 +316,7 @@ class QueueManage extends Component {
                                         this.getNodeAddressOptionView()
                                     }
                                 </Select>
-                                <div style={{ float: "right" }}>
+                                <div style={{ float: 'right' }}>
                                     <Button onClick={this.getClusterDetail.bind(this)}>刷新</Button>
                                 </div>
                             </div>

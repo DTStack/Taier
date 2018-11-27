@@ -23,9 +23,8 @@ import Container from './views'
 import QueueManage from './views/queueManage'
 import TaskDetail from './views/queueManage/taskDetail'
 import ResourceManage from './views/resourceManage'
-import ClusterManage from "./views/clusterManage"
-import EditCluster from "./views/clusterManage/edit"
-
+import ClusterManage from './views/clusterManage'
+import EditCluster from './views/clusterManage/edit'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')

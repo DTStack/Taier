@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import {cloneDeep} from "lodash";
+import { cloneDeep } from 'lodash';
 import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip, Menu,
@@ -19,35 +19,34 @@ import { isRDB } from '../../../comm';
 import { DatabaseType } from '../../../components/status';
 import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
 import DataSourceTaskListModal from '../dataSourceTaskListModal';
-import LinkModal from "../linkModal";
-import { ExtTableCell } from "../extDataSourceMsg"
+import LinkModal from '../linkModal';
+import { ExtTableCell } from '../extDataSourceMsg'
 
 const Search = Input.Search
 const MenuItem = Menu.Item;
 
 class DataSourceMana extends Component {
-
     state = {
         dataSource: {
-            data: [],
+            data: []
         },
         visible: false,
         syncModalVisible: false,
         loading: false,
         title: '新增数据源',
         status: 'add',
-        source: {},
+        source: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadDataSources({
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 1
         })
         this.props.getSourceTypes();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -60,11 +59,11 @@ class DataSourceMana extends Component {
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 1
         }, params)
         Api.queryDataSource(reqParams).then((res) => {
             this.setState({
-                loading:false
+                loading: false
             })
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data })
@@ -74,7 +73,7 @@ class DataSourceMana extends Component {
 
     searchDataSources = (query) => {
         this.loadDataSources({
-            name: query,
+            name: query
         })
     }
 
@@ -90,7 +89,7 @@ class DataSourceMana extends Component {
                 formObj.resetFields()
                 message.success(`${title}成功！`)
                 ctx.setState({
-                    visible: false,
+                    visible: false
                 })
                 ctx.loadDataSources()
                 callBack();
@@ -138,24 +137,24 @@ class DataSourceMana extends Component {
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source:cloneDeep(source),
+            source: cloneDeep(source)
         })
     }
-    getTypeName(type){
-        const { sourceTypes=[] } = this.props;
-        const source=sourceTypes.find((source)=>{
-            return source.value==type
+    getTypeName (type) {
+        const { sourceTypes = [] } = this.props;
+        const source = sourceTypes.find((source) => {
+            return source.value == type
         })
-        return source?source.name:''
+        return source ? source.name : ''
     }
     initColumns = () => {
-        const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
+        const text = '系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。';
         const { sourceTypes } = this.props;
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width:"180px"
+            width: '180px'
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -164,16 +163,16 @@ class DataSourceMana extends Component {
             render: (text, record) => {
                 return this.getTypeName(text);
             },
-            filters: sourceTypes.map((source)=>{
-                source.text=source.name;
+            filters: sourceTypes.map((source) => {
+                source.text = source.name;
                 return source;
-            }), 
-            filterMultiple: false,
+            }),
+            filterMultiple: false
         },
         {
             title: '描述',
             dataIndex: 'dataDesc',
-            key: 'dataDesc',
+            key: 'dataDesc'
         },
         {
             title: '连接信息',
@@ -181,7 +180,7 @@ class DataSourceMana extends Component {
             key: 'ext',
             render: (empty, record) => {
                 return <ExtTableCell sourceData={record} />
-            },
+            }
         },
         // {
         //     title: '最近修改人',
@@ -197,7 +196,7 @@ class DataSourceMana extends Component {
         //     key: 'gmtModified',
         //     width: '120px',
         //     render: text => utils.formatDateTime(text),
-        // }, 
+        // },
         {
             title: '应用状态',
             dataIndex: 'active',
@@ -205,22 +204,22 @@ class DataSourceMana extends Component {
             width: '70px',
             render: (active, record) => {
                 return active === 1 ? <DataSourceTaskListModal type="offline" dataSource={record}>使用中</DataSourceTaskListModal> : '未使用'
-            },
+            }
         },
         {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
                 <span>连接状态 &nbsp;
-                            <Icon type="question-circle-o" />
+                    <Icon type="question-circle-o" />
                 </span>
             </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
             width: '100px',
             render: (linkState) => {
-                return linkState === 1 ?
-                    <span><Circle style={{ background: '#00A755' }} /> 正常</span> :
-                    <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
-            },
+                return linkState === 1
+                    ? <span><Circle style={{ background: '#00A755' }} /> 正常</span>
+                    : <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
+            }
         },
         {
             title: '映射状态',
@@ -228,10 +227,10 @@ class DataSourceMana extends Component {
             key: 'linkSourceName',
             render: (linkSourceName, record) => {
                 return linkSourceName ? '已配置' : '未配置';
-            },
+            }
         },
         {
-            title: "操作",
+            title: '操作',
             width: '120px',
             key: 'operation',
             render: (text, record) => {
@@ -248,16 +247,16 @@ class DataSourceMana extends Component {
                 let extAction = null;
                 const splitView = (<span className="ant-divider" />);
                 const deleteView = isActive ? (
-                    <span style={{ color: "#ccc" }}>删除</span>
+                    <span style={{ color: '#ccc' }}>删除</span>
                 ) : (
-                        <Popconfirm
-                            title="确定删除此数据源？"
-                            okText="确定" cancelText="取消"
-                            onConfirm={() => { this.remove(record) }}
-                        >
-                            <a>删除</a>
-                        </Popconfirm>
-                    );
+                    <Popconfirm
+                        title="确定删除此数据源？"
+                        okText="确定" cancelText="取消"
+                        onConfirm={() => { this.remove(record) }}
+                    >
+                        <a>删除</a>
+                    </Popconfirm>
+                );
                 const editView = (<a onClick={() => { this.initEdit(record) }}>编辑</a>);
                 const linkView = (<a onClick={() => { this.setState({ linkModalVisible: true, source: record }) }} >映射配置</a>);
 
@@ -327,7 +326,7 @@ class DataSourceMana extends Component {
                 return (
                     <span>
                         {extAction}
-                        {menuItem.length? (
+                        {menuItem.length ? (
                             <Dropdown overlay={(
                                 <Menu>
                                     {menuItem}
@@ -335,11 +334,11 @@ class DataSourceMana extends Component {
                             )} trigger={['click']}>
                                 <a>操作<Icon type="down" /></a>
                             </Dropdown>
-                        ):null}
+                        ) : null}
                     </span>
 
                 )
-            },
+            }
         }]
     }
 
@@ -357,12 +356,12 @@ class DataSourceMana extends Component {
         });
     }
 
-    render() {
+    render () {
         const { visible, title, status, source, syncModalVisible, dataSource, linkModalVisible } = this.state
         const { sourceTypes, project } = this.props;
         const pagination = {
             total: dataSource.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
@@ -385,7 +384,7 @@ class DataSourceMana extends Component {
                         visible: true,
                         source: {},
                         status: 'add',
-                        title: '添加数据源',
+                        title: '添加数据源'
                     })
                 }}
             >新增数据源</Button>
@@ -447,7 +446,7 @@ export default connect((state) => {
 
     return {
         project: state.project,
-        sourceTypes: state.dataSource.sourceTypes,
+        sourceTypes: state.dataSource.sourceTypes
     }
 }, dispatch => {
     return {

@@ -14,21 +14,20 @@ import { commonActions } from '../actions'
 import { updateApp } from 'main/actions/app'
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 @connect()
 class Main extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props;
         dispatch(updateApp(aeApp));
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="app-analytics main header-fixed">

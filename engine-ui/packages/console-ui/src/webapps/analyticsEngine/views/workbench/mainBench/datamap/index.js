@@ -8,32 +8,31 @@ import { CATALOGUE_TYPE } from '../../../../consts';
 const confirm = Modal.confirm;
 
 class DataMap extends Component {
-
     state = {
         tableData: undefined,
-        loading: false,
+        loading: false
     }
 
     // 查询语句
     _selectSQL = undefined;
-    
-    componentDidMount() {
+
+    componentDidMount () {
         const data = this.props.data;
         this.loadTable({
             id: data.tableId,
-            databaseId: data.databaseId,
+            databaseId: data.databaseId
         })
     }
 
     loadTable = async (params) => {
         const result = await API.getTableById(params);
         this.setState({
-            loading: true,
+            loading: true
         })
         if (result.code === 1) {
             this.setState({
                 tableData: result.data,
-                loading: false,
+                loading: false
             })
         }
     }
@@ -42,7 +41,7 @@ class DataMap extends Component {
         const { loadCatalogue, data } = this.props;
         const params = {
             id: data.tableId,
-            databaseId: data.databaseId,
+            databaseId: data.databaseId
         };
         // 重新加载DataMap
         loadCatalogue(params, CATALOGUE_TYPE.TABLE);
@@ -51,9 +50,9 @@ class DataMap extends Component {
     onCreate = () => {
         const form = this.formInstance.props.form;
         this.setState({
-            loading: true,
+            loading: true
         });
-        form.validateFields( async (err, values) => {
+        form.validateFields(async (err, values) => {
             if (!err) {
                 values.configJSON.selectSql = this._selectSQL;
                 if (values.configJSON.columns) {
@@ -62,15 +61,15 @@ class DataMap extends Component {
                 const res = await API.createDataMap(values);
                 if (res.code === 1) {
                     message.success('创建DataMap成功！');
-                   this.reloadDataMapCatalogue();
-                   if (res.data) {
-                       this.props.onGetDataMap({
-                           id: res.data.id
-                       });
-                   }
+                    this.reloadDataMapCatalogue();
+                    if (res.data) {
+                        this.props.onGetDataMap({
+                            id: res.data.id
+                        });
+                    }
                 }
             }
-            this.setState({ loading: false, })
+            this.setState({ loading: false })
         });
     }
 
@@ -78,7 +77,7 @@ class DataMap extends Component {
         this._selectSQL = value;
         const form = this.formInstance.props.form;
         form.setFieldsValue({
-            'configJSON.selectSql': value,
+            'configJSON.selectSql': value
         });
     }
 
@@ -90,16 +89,16 @@ class DataMap extends Component {
             okText: '确定',
             okType: 'danger',
             cancelText: '取消',
-            onOk() {
+            onOk () {
                 onRemoveDataMap({
                     databaseId: data.databaseId,
                     tableId: data.tableId,
-                    id: data.id,
+                    id: data.id
                 });
             },
-            onCancel() {
-              console.log('Cancel');
-            },
+            onCancel () {
+                console.log('Cancel');
+            }
         });
     }
 
@@ -108,7 +107,7 @@ class DataMap extends Component {
         const { tableData, loading } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
-                <DataMapForm 
+                <DataMapForm
                     data={data}
                     isCreate={isCreate}
                     tableData={tableData}
@@ -116,18 +115,17 @@ class DataMap extends Component {
                     onQueryTextChange={this.onQueryTextChange}
                     wrappedComponentRef={(e) => { this.formInstance = e }}
                 />
-                <Row style={{paddingLeft: 130}}>
+                <Row style={{ paddingLeft: 130 }}>
                     {
-                        isCreate ? 
-                            <Button
+                        isCreate
+                            ? <Button
                                 disabled={loading}
                                 style={{ width: 90, height: 30 }} type="primary"
                                 onClick={this.onCreate}
                             >
                                 创建
                             </Button>
-                        :
-                            <Button 
+                            : <Button
                                 disabled={loading}
                                 style={{ width: 90, height: 30, color: 'red' }}
                                 onClick={this.onRemove}

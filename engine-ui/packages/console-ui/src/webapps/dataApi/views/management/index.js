@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
-import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message, Cascader } from "antd"
-import { connect } from "react-redux";
-import utils from "utils"
+import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message, Cascader } from 'antd'
+import { connect } from 'react-redux';
+import utils from 'utils'
 
-import ApiSlidePane from "./apiDetail/apiSlide";
+import ApiSlidePane from './apiDetail/apiSlide';
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
-import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS } from "../../consts"
+import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS } from '../../consts'
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -18,25 +18,25 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getCatalogue(pid) {
+    getCatalogue (pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getAllApiList(params) {
+    getAllApiList (params) {
         return dispatch(apiManageActions.getAllApiList(params));
     },
-    getDataSourceList(type) {
+    getDataSourceList (type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
-    deleteApi(apiId) {
+    deleteApi (apiId) {
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(apiId) {
+    openApi (apiId) {
         return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(apiId) {
+    closeApi (apiId) {
         return dispatch(apiManageActions.closeApi(apiId));
     },
-    getDataSourcesType() {
+    getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
@@ -51,20 +51,20 @@ class APIMana extends Component {
         total: 0,
         dataSourceType: undefined,
         dataSource: undefined,
-        searchName: this.props.location.state&&this.props.location.state.apiName,
+        searchName: this.props.location.state && this.props.location.state.apiName,
         filter: {},
         sortedInfo: {},
-        showRecord:{},
+        showRecord: {},
         changeMan: null,
         loading: false,
-        cascaderData: []//存储级联选择框数据
+        cascaderData: []// 存储级联选择框数据
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.getCatalogue(0);
         this.getAllApi()
-        .then((res)=>{
-            const apiId=this.props.location.state&&this.props.location.state.apiId;
-            if(res&&apiId){
+            .then((res) => {
+                const apiId = this.props.location.state && this.props.location.state.apiId;
+                if (res && apiId) {
                     for (let i in res.data.data) {
                         let item = res.data.data[i];
                         if (apiId == item.id) {
@@ -72,12 +72,12 @@ class APIMana extends Component {
                             break;
                         }
                     }
-            }
-        });
+                }
+            });
         this.getDataSource(null);
         this.props.getDataSourcesType();
     }
-    exchangeSourceType() {
+    exchangeSourceType () {
         let arr = [];
         let dic = {};
 
@@ -92,24 +92,23 @@ class APIMana extends Component {
         }
 
         return { typeList: arr, typeDic: dic };
-
     }
-    getAllApi() {
+    getAllApi () {
         const sortType = {
-            "gmtModified": 'gmt_modified'
+            'gmtModified': 'gmt_modified'
         }
         const orderType = {
-            "ascend": 'asc',
-            "descend": 'desc'
+            'ascend': 'asc',
+            'descend': 'desc'
         }
         let params = {};
-        params.apiName = this.state.searchName;//查询名
-        params.pid = this.state.type1;//一级目录
-        params.cid = this.state.type2;//二级目录
-        params.status=this.state.filter.status;
-        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);//数据源类型
-        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);//数据源
-        params.modifyUserId = this.state.changeMan;//修改人id
+        params.apiName = this.state.searchName;// 查询名
+        params.pid = this.state.type1;// 一级目录
+        params.cid = this.state.type2;// 二级目录
+        params.status = this.state.filter.status;
+        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);// 数据源类型
+        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);// 数据源
+        params.modifyUserId = this.state.changeMan;// 修改人id
         params.orderBy = sortType[this.state.sortedInfo.columnKey];
         params.sort = orderType[this.state.sortedInfo.order];
         params.currentPage = this.state.pageIndex;
@@ -133,8 +132,7 @@ class APIMana extends Component {
             );
     }
 
-
-    handleSearch(value) {
+    handleSearch (value) {
         this.setState({
             searchName: value,
             pageIndex: 1
@@ -150,31 +148,30 @@ class APIMana extends Component {
             filter: filter,
             sortedInfo: sorter
         },
-            () => {
-                this.getAllApi();
-            });
+        () => {
+            this.getAllApi();
+        });
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 20,
-            total: this.state.total,
+            total: this.state.total
         }
     }
-    openDetail(record) {
+    openDetail (record) {
         this.setState({
             showRecord: record,
             slidePaneShow: true
         })
     }
-    closeSlidePane() {
+    closeSlidePane () {
         this.setState({
             showRecord: {},
             slidePaneShow: false
         })
     }
-    initColumns() {
-
+    initColumns () {
         return [{
             title: 'API名称',
             dataIndex: 'name',
@@ -188,55 +185,55 @@ class APIMana extends Component {
             key: 'status',
             render: (text, record) => {
                 const dic = {
-                    success: "正常",
-                    stop: "已禁用",
-                    editting:"未发布"
+                    success: '正常',
+                    stop: '已禁用',
+                    editting: '未发布'
                 }
                 return <span className={`state-${EXCHANGE_ADMIN_API_STATUS[text]}`}>{dic[EXCHANGE_ADMIN_API_STATUS[text]]}</span>
             },
-            filters:[{
-                text:"正常",
-                value:API_SYSTEM_STATUS.SUCCESS
-            },{
-                text:"未发布",
-                value:API_SYSTEM_STATUS.EDITTING
-            },{
-                text:"已禁用",
-                value:API_SYSTEM_STATUS.STOP
+            filters: [{
+                text: '正常',
+                value: API_SYSTEM_STATUS.SUCCESS
+            }, {
+                text: '未发布',
+                value: API_SYSTEM_STATUS.EDITTING
+            }, {
+                text: '已禁用',
+                value: API_SYSTEM_STATUS.STOP
             }]
         },
         {
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
-            render(text, record) {
-                if(!record.dataSourceType&&!record.dataSourceName){
+            render (text, record) {
+                if (!record.dataSourceType && !record.dataSourceName) {
                     return null;
                 }
-                return (record.dataSourceType||"无") + ' / ' + (record.dataSourceName||"无");
+                return (record.dataSourceType || '无') + ' / ' + (record.dataSourceName || '无');
             }
         }, {
             title: '最近24小时调用',
             dataIndex: 'total1d',
-            key: "total1d",
-            width: "150px",
+            key: 'total1d',
+            width: '150px'
         },
         {
             title: '累计调用',
             dataIndex: 'invokeTotal',
-            key: "invokeTotal",
-            width: "150px",
+            key: 'invokeTotal',
+            width: '150px'
         },
         {
             title: '创建人',
             dataIndex: 'createUser',
-            key: "createUser"
+            key: 'createUser'
         },
         {
             title: '操作',
             dataIndex: 'deal',
-            key: "deal",
-            width: "150px",
+            key: 'deal',
+            width: '150px',
             render: (text, record) => {
                 if (API_SYSTEM_STATUS.SUCCESS == record.status) {
                     return <a onClick={this.closeApi.bind(this, record.id)}>禁用</a>
@@ -253,14 +250,13 @@ class APIMana extends Component {
             }
         }]
     }
-    getSource() {
+    getSource () {
         return this.props.apiManage.apiList;
-
     }
-    editApi(id) {
-        this.props.router.push("/api/manage/newApi?apiId=" + id);
+    editApi (id) {
+        this.props.router.push('/api/manage/newApi?apiId=' + id);
     }
-    openApi(apiId) {
+    openApi (apiId) {
         confirm({
             title: '确认发布?',
             content: '确认发布api',
@@ -275,18 +271,18 @@ class APIMana extends Component {
                                 loading: false
                             })
                             if (res) {
-                                message.success("发布成功")
+                                message.success('发布成功')
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    closeApi(apiId) {
+    closeApi (apiId) {
         confirm({
             title: '确认禁用?',
             content: '确认禁用api',
@@ -300,20 +296,20 @@ class APIMana extends Component {
                             this.setState({
                                 loading: false
                             })
-                            message.success("禁用成功")
+                            message.success('禁用成功')
                             if (res) {
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    //删除api
-    deleteApi(apiId) {
+    // 删除api
+    deleteApi (apiId) {
         confirm({
             title: '确认删除?',
             content: '确认删除api',
@@ -328,20 +324,19 @@ class APIMana extends Component {
                                 loading: false
                             })
                             if (res) {
-                                message.success("删除成功")
+                                message.success('删除成功')
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
-
     }
-    //获取数据源视图
-    gerDataSourceView() {
+    // 获取数据源视图
+    gerDataSourceView () {
         const type = this.state.dataSourceList;
         if (!type) {
             return null;
@@ -350,8 +345,8 @@ class APIMana extends Component {
             return <Option key={item.id}>{item.name}</Option>
         })
     }
-    //获取数据源
-    getDataSource() {
+    // 获取数据源
+    getDataSource () {
         this.props.getDataSourceList(this.state.dataSourceType)
             .then(
                 (res) => {
@@ -364,40 +359,38 @@ class APIMana extends Component {
                 }
             )
     }
-    //获取类型视图
-    getDataSourceTypeView() {
+    // 获取类型视图
+    getDataSourceTypeView () {
         const { typeList, typeDic } = this.exchangeSourceType();
-
 
         if (!typeList || typeList.length < 1) {
             return null;
         }
         return typeList.map(function (item) {
-
             return <Option key={item.value}>{item.text}</Option>
         })
     }
-    //数据源类型改变
-    dataSourceTypeChange(key) {
+    // 数据源类型改变
+    dataSourceTypeChange (key) {
         this.setState({
             dataSourceType: key,
             dataSource: undefined
         },
-            () => {
-                this.getDataSource();
-                this.getAllApi();
-            })
+        () => {
+            this.getDataSource();
+            this.getAllApi();
+        })
     }
-    //数据源改变
-    dataSourceChange(key) {
+    // 数据源改变
+    dataSourceChange (key) {
         this.setState({
             dataSource: key
         },
-            () => {
-                this.getAllApi();
-            })
+        () => {
+            this.getAllApi();
+        })
     }
-    changeManCheck(e) {
+    changeManCheck (e) {
         let changeMan = null;
         if (e.target.checked) {
             changeMan = this.props.user.id;
@@ -405,11 +398,11 @@ class APIMana extends Component {
         this.setState({
             changeMan: changeMan
         },
-            () => {
-                this.getAllApi();
-            })
+        () => {
+            this.getAllApi();
+        })
     }
-    getCascaderData() {//处理级联选择数据
+    getCascaderData () { // 处理级联选择数据
         const cascaderData = [];
         const { apiCatalogue } = this.props.apiMarket;
         if (apiCatalogue.length > 0) {
@@ -420,7 +413,7 @@ class APIMana extends Component {
                 if (v.childCatalogue.length > 0) {
                     option.children = [];
                     v.childCatalogue.map(v => {
-                        if(v.api){
+                        if (v.api) {
                             return;
                         }
                         const childOpt = {};
@@ -428,8 +421,8 @@ class APIMana extends Component {
                         childOpt.cid = v.id;
                         option.children.push(childOpt);
                     })
-                    if(option.children.length==0){
-                        option.children=undefined;
+                    if (option.children.length == 0) {
+                        option.children = undefined;
                     }
                 }
                 cascaderData.push(option)
@@ -438,7 +431,7 @@ class APIMana extends Component {
         console.log(cascaderData);
         return cascaderData;
     }
-    cascaderOnChange(value, data) {//API类型改变
+    cascaderOnChange (value, data) { // API类型改变
         let { type1, type2 } = this.state;
         type1 = data[0] ? data[0].pid : undefined;
         type2 = data[1] ? data[1].cid : undefined;
@@ -449,8 +442,8 @@ class APIMana extends Component {
             this.getAllApi();
         })
     }
-    getCardTitle() {
-        const {searchName} = this.state;
+    getCardTitle () {
+        const { searchName } = this.state;
         const cascaderData = this.getCascaderData();
         return (
             <div className="flex font-12">
@@ -486,28 +479,28 @@ class APIMana extends Component {
             </div>
         )
     }
-    openApiType() {
-        this.props.router.push("/api/manage/apiType");
+    openApiType () {
+        this.props.router.push('/api/manage/apiType');
     }
-    newApi() {
-        this.props.router.push("/api/manage/newApi");
+    newApi () {
+        this.props.router.push('/api/manage/newApi');
     }
-    getCardExtra() {
+    getCardExtra () {
         return (
-            <div style={{ paddingTop: "10px" }}>
-                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: "8px" }} type="primary">类目管理</Button>
+            <div style={{ paddingTop: '10px' }}>
+                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: '8px' }} type="primary">类目管理</Button>
                 <Button type="primary" onClick={this.newApi.bind(this)}>生成API</Button>
 
             </div>
         )
     }
-    render() {
+    render () {
         const { slidePaneShow, showRecord } = this.state
 
         return (
             <div className="api-management">
-                <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
-                <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
+                <div style={{ marginTop: '20px' }} className="margin-0-20 m-card box-2">
+                    <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                     <Card
 
                         noHovering
@@ -518,9 +511,9 @@ class APIMana extends Component {
                             rowClassName={
                                 (record, index) => {
                                     if (showRecord.id == record.id) {
-                                        return "row-select"
+                                        return 'row-select'
                                     } else {
-                                        return "";
+                                        return '';
                                     }
                                 }
                             }

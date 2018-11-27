@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import {
-    Form, Input, Modal,
- } from 'antd'
- import { isEmpty }  from 'lodash'
+    Form, Input, Modal
+} from 'antd'
+import { isEmpty } from 'lodash'
 
- import { getContainer } from 'funcs';
+import { getContainer } from 'funcs';
 
 import { formItemLayout } from '../../../comm/const'
 import FolderPicker from './folderTree'
@@ -12,7 +12,6 @@ import FolderPicker from './folderTree'
 const FormItem = Form.Item;
 
 class CataFormModal extends Component {
-
     onSelect = (value) => {
         this.props.form.setFieldsValue({ nodePid: value })
     }
@@ -30,15 +29,15 @@ class CataFormModal extends Component {
         })
     }
 
-    render() {
-        const { 
+    render () {
+        const {
             handCancel, visible, treeData, form,
             loadTreeData, operation, defaultData
         } = this.props
         const { getFieldDecorator } = form
 
         const isEdit = operation && operation.indexOf('EDIT') > -1;
-        const title = isEdit ? '编辑目录': '创建目录'
+        const title = isEdit ? '编辑目录' : '创建目录'
 
         let savePath = treeData[0] && treeData[0].id;
         if (!isEmpty(defaultData)) {
@@ -63,14 +62,14 @@ class CataFormModal extends Component {
                         >
                             {getFieldDecorator('nodeName', {
                                 rules: [{
-                                    required: true, message: '目录名称不可为空！',
+                                    required: true, message: '目录名称不可为空！'
                                 }, {
                                     max: 20,
-                                    message: '项目名称不得超过20个字符！',
+                                    message: '项目名称不得超过20个字符！'
                                 }],
-                                initialValue: isEdit ? defaultData.name : '',
+                                initialValue: isEdit ? defaultData.name : ''
                             })(
-                                <Input />,
+                                <Input />
                             )}
                         </FormItem>
                         <FormItem
@@ -80,9 +79,9 @@ class CataFormModal extends Component {
                         >
                             {getFieldDecorator('nodePid', {
                                 rules: [{
-                                    required: true, message: '请您选择存储位置！',
+                                    required: true, message: '请您选择存储位置！'
                                 }],
-                                initialValue: savePath,
+                                initialValue: savePath
                             })(
                                 <FolderPicker
                                     isPicker

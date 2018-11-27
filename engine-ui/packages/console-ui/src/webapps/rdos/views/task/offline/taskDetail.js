@@ -22,10 +22,10 @@ import SchedulingConfig from './schedulingConfig';
 
 const Panel = Collapse.Panel;
 
-function TaskInfo(props) {
+function TaskInfo (props) {
     const taskInfo = props.taskInfo
-    const isPro=props.isPro;
-    const couldEdit=props.couldEdit;
+    const isPro = props.isPro;
+    const couldEdit = props.couldEdit;
     const labelPrefix = props.labelPrefix || '任务';
     return (
         <Row className="task-info">
@@ -46,17 +46,17 @@ function TaskInfo(props) {
                 <Col span="14t">{taskInfo.resourceList.map(o =>
                     <Tag key={o.id} color="blue" style={{ marginTop: 10 }}>
                         {o.resourceName}
-                    </Tag>)} 
+                    </Tag>)}
                 </Col>
             </Row>}
 
             <Row>
                 <Col span="10" className="txt-right">责任人：</Col>
-                <Col span="14" style={{position: 'relative'}}>
+                <Col span="14" style={{ position: 'relative' }}>
                     <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
-                    }&nbsp;{couldEdit&&<a onClick={props.modifyTaskOwner}>修改</a>} 
+                    }&nbsp;{couldEdit && <a onClick={props.modifyTaskOwner}>修改</a>}
                 </Col>
             </Row>
             <Row>
@@ -76,32 +76,31 @@ function TaskInfo(props) {
             <Row>
                 <Col span="10" className="txt-right">描述：</Col>
                 <Col span="14" style={{
-                        lineHeight: '20px',
-                        padding: '10 0'
-                    }}>{taskInfo.taskDesc}</Col>
+                    lineHeight: '20px',
+                    padding: '10 0'
+                }}>{taskInfo.taskDesc}</Col>
             </Row>
         </Row>
     )
 }
 
 class TaskDetail extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
     state = {
         visible: false,
-        selectedUser: '',
+        selectedUser: ''
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.dispatch(getProjectUsers())
     }
 
     onSelectUser = (value) => {
         this.setState({
-            selectedUser: value,
+            selectedUser: value
         })
     }
 
@@ -111,14 +110,14 @@ class TaskDetail extends React.Component {
         if (ownerId) {
             Api.updateTaskOwner({
                 ownerUserId: ownerId,
-                taskId,
+                taskId
             }).then((res) => {
                 if (res.code === 1) {
                     message.success('修改成功！');
                     this.props.reloadTaskTab(taskId)
                     this.setState({
                         visible: false,
-                        selectedUser: '',
+                        selectedUser: ''
                     });
                 }
             })
@@ -131,42 +130,42 @@ class TaskDetail extends React.Component {
         this.props.updateTaskField({ sqlText, merged: true })
     }
 
-    render() {
+    render () {
         const { visible } = this.state;
         const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit, editor } = this.props;
-        const isPro=project.projectType==PROJECT_TYPE.PRO;
+        const isPro = project.projectType == PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
-        const pre=isPro?'发布':'提交'
+        const pre = isPro ? '发布' : '提交'
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>
-                    <TaskInfo 
+                    <TaskInfo
                         couldEdit={couldEdit}
                         isPro={isPro}
-                        taskInfo={tabData} 
+                        taskInfo={tabData}
                         labelPrefix={labelPrefix}
-                        modifyTaskOwner={() => {this.setState({visible: true})}}
+                        modifyTaskOwner={() => { this.setState({ visible: true }) }}
                     />
-                    <UpdateTaskOwnerModal 
+                    <UpdateTaskOwnerModal
                         visible={visible}
                         projectUsers={projectUsers}
                         onSelect={this.onSelectUser}
                         onOk={this.modifyTaskOwner}
                         defaultValue={`${tabData.ownerUserId || ''}`}
-                        onCancel={() => {this.setState({visible: false})}}
+                        onCancel={() => { this.setState({ visible: false }) }}
                     />
                 </Panel>
             </Collapse>
             {
-                isWorkflowNode ? 
-                <SchedulingConfig 
-                    couldEdit={couldEdit}
-                    isWorkflowNode={isWorkflowNode}
-                    tabData={tabData}
-                    tabs={tabs}
-                >
-                </SchedulingConfig> : ''
+                isWorkflowNode
+                    ? <SchedulingConfig
+                        couldEdit={couldEdit}
+                        isWorkflowNode={isWorkflowNode}
+                        tabData={tabData}
+                        tabs={tabs}
+                    >
+                    </SchedulingConfig> : ''
             }
             <Collapse bordered={false} defaultActiveKey={['3']}>
                 <Panel key="3" header={`历史版本`}>
@@ -186,9 +185,8 @@ export default connect((state, ownProps) => {
     const { workbench } = state.offlineTask;
     return {
         projectUsers: state.projectUsers,
-        project:state.project,
+        project: state.project,
         tabs: workbench.tabs,
-        editor: state.editor,
+        editor: state.editor
     };
-
 }, workbenchActions)(TaskDetail);

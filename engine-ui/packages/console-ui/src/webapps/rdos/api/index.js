@@ -6,7 +6,7 @@ import http from './http'
 import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
-import {publishType} from "../comm/const";
+import { publishType } from '../comm/const';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''

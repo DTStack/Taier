@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
-import { 
+import {
     Row, Table, Card, Input, Modal, Popconfirm,
-    Button, Dropdown, Menu, message, Pagination,
+    Button, Dropdown, Menu, message, Pagination
 } from 'antd';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -21,7 +21,6 @@ const Search = Input.Search;
 const confirm = Modal.confirm;
 
 class DatabaseDetail extends Component {
-
     state = {
         loading: 'success',
         selectedItem: undefined,
@@ -38,8 +37,8 @@ class DatabaseDetail extends Component {
             pageSize: 10,
             currentPage: 1,
             name: undefined,
-            databaseId: (this.props.data && this.props.data.id) || undefined,
-        },
+            databaseId: (this.props.data && this.props.data.id) || undefined
+        }
     }
 
     componentDidMount () {
@@ -50,16 +49,16 @@ class DatabaseDetail extends Component {
     }
 
     loadDBUsers = async (params) => {
-        this.setState({ loading: 'loading', });
+        this.setState({ loading: 'loading' });
         const reqParams = Object.assign(this.state.queryParams, params);
         const res = await API.getDBUsers(reqParams);
         if (res.code === 1) {
             this.setState({
-                userList: res.data || {},
+                userList: res.data || {}
             })
         }
         this.setState({
-            loading: 'success',
+            loading: 'success'
         })
     }
 
@@ -67,7 +66,7 @@ class DatabaseDetail extends Component {
         const res = await API.getDBUserRoles();
         if (res.code === 1) {
             this.setState({
-                userRoles: res.data.data || [],
+                userRoles: res.data.data || []
             })
         }
     }
@@ -75,7 +74,7 @@ class DatabaseDetail extends Component {
     initEdit = (selectedItem) => {
         this.setState({
             selectedItem,
-            visibleEditRole: true,
+            visibleEditRole: true
         })
     }
 
@@ -90,12 +89,12 @@ class DatabaseDetail extends Component {
                 data.targetUsers.push(user);
             }
         })
-        
+
         const res = await API.addDBUser(data);
         if (res.code === 1) {
             message.success('添加成功！');
             this.setState({
-                visibleAddUser: false,
+                visibleAddUser: false
             })
             this.loadDBUsers({ name: undefined });
         }
@@ -105,7 +104,7 @@ class DatabaseDetail extends Component {
         const { data } = this.props;
         const res = await API.removeDBUser({
             targetUserId: removeTarget.id,
-            databaseId: data.id,
+            databaseId: data.id
         });
         if (res.code === 1) {
             message.success('删除成功！');
@@ -115,23 +114,22 @@ class DatabaseDetail extends Component {
 
     onSearchUsers = async (value) => {
         const res = await API.searchUsersNotInDB({
-            userName: value,
+            userName: value
         });
         if (res.code === 1) {
             this.setState({
-                usersNotInDB: res.data || [],
+                usersNotInDB: res.data || []
             })
         }
     }
 
     onEditUserRole = async () => {
-
         const { data } = this.props;
         const ctx = this;
         const { selectedItem } = this.state;
         const editForm = this._eidtRoleForm.props.form;
 
-        editForm.validateFields( async (err, values) => {
+        editForm.validateFields(async (err, values) => {
             if (!err) {
                 values.targetUserId = selectedItem.userId;
                 values.databaseId = data.id;
@@ -141,7 +139,7 @@ class DatabaseDetail extends Component {
                     message.success('更新成功！');
                     ctx.setState({
                         visibleEditRole: false,
-                        selectedItem: '',
+                        selectedItem: ''
                     });
                     ctx.loadDBUsers({ name: undefined })
                 }
@@ -153,19 +151,20 @@ class DatabaseDetail extends Component {
      * 获取我当前的角色
      */
     getOwnRoles = async (user) => {
+        let isVisitor = false;
 
-        let isVisitor = false,
-            isProjectAdmin = false,
-            isProjectOwner = false;
-        
+        let isProjectAdmin = false;
+
+        let isProjectOwner = false;
+
         const reqParams = Object.assign(this.state.queryParams, {
-            name: user.userName,
+            name: user.userName
         });
 
         const res = await API.getDBUsers(reqParams);
         if (res.code === 1) {
-            const roles = res.data.data && res.data.data.length > 0 ?
-            res.data.data[0].roles : [];
+            const roles = res.data.data && res.data.data.length > 0
+                ? res.data.data[0].roles : [];
 
             for (let role of roles) {
                 const roleValue = role.roleValue;
@@ -187,10 +186,10 @@ class DatabaseDetail extends Component {
 
     onSelectMenu = ({ key }) => {
         const { data, onRemoveDB } = this.props;
-        
+
         if (key === 'RESET') {
             this.setState({
-                visibleResetPwd: true,
+                visibleResetPwd: true
             })
         } else if (key === 'DELETE') {
             confirm({
@@ -199,14 +198,14 @@ class DatabaseDetail extends Component {
                 okText: '确定',
                 okType: 'danger',
                 cancelText: '取消',
-                onOk() {
+                onOk () {
                     onRemoveDB({
-                        databaseId: data.id,
+                        databaseId: data.id
                     });
                 },
-                onCancel() {
-                  console.log('Cancel');
-                },
+                onCancel () {
+                    console.log('Cancel');
+                }
             });
         }
     }
@@ -218,7 +217,7 @@ class DatabaseDetail extends Component {
         return [{
             title: '账号',
             dataIndex: 'user.userName',
-            key: 'account',
+            key: 'account'
         },
         {
             title: '邮箱',
@@ -228,12 +227,12 @@ class DatabaseDetail extends Component {
             title: '手机号',
             dataIndex: 'user.phoneNumber',
             key: 'phoneNumber',
-            width: 100,
+            width: 100
         }, {
             title: '角色',
             dataIndex: 'roles',
             key: 'roles',
-            render(roles) {
+            render (roles) {
                 const roleNames = roles.map(role => role && role.roleName)
                 return roleNames.join(',')
             }
@@ -242,7 +241,7 @@ class DatabaseDetail extends Component {
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
             width: 150,
-            render(time) {
+            render (time) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -252,7 +251,7 @@ class DatabaseDetail extends Component {
             key: 'id',
             render: (id, record) => {
                 // active '0：未启用，1：使用中'。 只有为0时，可以修改
-                const canRemove = myRoles.isProjectAdmin || 
+                const canRemove = myRoles.isProjectAdmin ||
                 myRoles.isProjectOwner; // 项目管理员，所有者可移除
                 return (
                     <span key={id}>
@@ -260,22 +259,22 @@ class DatabaseDetail extends Component {
                             编辑角色
                         </a>
                         {
-                            canRemove ? 
-                            <span>
-                                <span className="ant-divider" />
-                                <Popconfirm
-                                    title="确定移出此用户？"
-                                    okText="确定" cancelText="取消"
-                                    onConfirm={() => { this.removeUser(record) }}
-                                >
-                                    <a>移出数据库</a>
-                                </Popconfirm>
-                            </span>
-                            : ''
+                            canRemove
+                                ? <span>
+                                    <span className="ant-divider" />
+                                    <Popconfirm
+                                        title="确定移出此用户？"
+                                        okText="确定" cancelText="取消"
+                                        onConfirm={() => { this.removeUser(record) }}
+                                    >
+                                        <a>移出数据库</a>
+                                    </Popconfirm>
+                                </span>
+                                : ''
                         }
                     </span>
                 )
-            },
+            }
         }]
     }
 
@@ -295,11 +294,13 @@ class DatabaseDetail extends Component {
                     </Menu.Item>
                 </Menu>
             }>
-                <MyIcon type="more" style={{ 
-                        margin: '8 10 0 0', fontSize: 18, color: '#333333',
-                        float: 'right',
-                        cursor: 'pointer',
-                    }}
+                <MyIcon type="more" style={{
+                    margin: '8 10 0 0',
+                    fontSize: 18,
+                    color: '#333333',
+                    float: 'right',
+                    cursor: 'pointer'
+                }}
                 />
             </Dropdown>
         )
@@ -308,9 +309,9 @@ class DatabaseDetail extends Component {
     render () {
         const { data, user } = this.props;
 
-        const { 
+        const {
             loading, userList, userRoles, queryParams,
-            usersNotInDB, selectedItem, myRoles 
+            usersNotInDB, selectedItem, myRoles
         } = this.state;
 
         const pagination = {
@@ -319,7 +320,7 @@ class DatabaseDetail extends Component {
             current: queryParams.currentPage,
             style: {
                 float: 'right',
-                marginTop: 15,
+                marginTop: 15
             }
         };
 
@@ -349,10 +350,10 @@ class DatabaseDetail extends Component {
                                 <td>
                                     {data.dbUserName}
                                     <CopyToClipboard key="copy" text={data.dbUserName}
-                                            onCopy={this.copyOk}>
-                                            <a style={{ marginLeft: 4 }}>复制</a>
-                                        </CopyToClipboard>
-                                    </td>
+                                        onCopy={this.copyOk}>
+                                        <a style={{ marginLeft: 4 }}>复制</a>
+                                    </CopyToClipboard>
+                                </td>
                                 <td>表数量</td>
                                 <td>{data.tableNum}</td>
                             </tr>
@@ -373,14 +374,14 @@ class DatabaseDetail extends Component {
                         noHovering={true}
                         bodyStyle={
                             {
-                                padding: '0',
+                                padding: '0'
                             }
                         }
                         title={
                             <Search
                                 placeholder="输入用户名搜索"
                                 style={{ width: 160 }}
-                                onSearch={(value) => this.loadDBUsers({ name: value })} 
+                                onSearch={(value) => this.loadDBUsers({ name: value })}
                             />
                         }
                         extra={
@@ -388,7 +389,7 @@ class DatabaseDetail extends Component {
                                 type="primary"
                                 onClick={() => {
                                     this.setState({
-                                        visibleAddUser: true,
+                                        visibleAddUser: true
                                     })
                                 }}
                                 style={{ marginRight: 8 }}
@@ -410,7 +411,7 @@ class DatabaseDetail extends Component {
                             onChange={(current) => {
                                 this.loadDBUsers({
                                     currentPage: current,
-                                    name: undefined,
+                                    name: undefined
                                 })
                             }}
                         />
@@ -424,18 +425,22 @@ class DatabaseDetail extends Component {
                     initialData={data}
                     onSubmit={this.addUser}
                     onSearch={this.debounceSearch}
-                    onCancel={() => {this.setState({
-                        visibleAddUser: false,
-                    })}}
+                    onCancel={() => {
+                        this.setState({
+                            visibleAddUser: false
+                        })
+                    }}
                     visible={this.state.visibleAddUser}
                 />
                 <Modal
                     title="编辑角色"
                     visible={this.state.visibleEditRole}
                     onOk={this.onEditUserRole}
-                    onCancel={() => {this.setState({
-                        visibleEditRole: false,
-                    })}}
+                    onCancel={() => {
+                        this.setState({
+                            visibleEditRole: false
+                        })
+                    }}
                 >
                     <EditUserRole
                         user={selectedItem}
@@ -446,12 +451,14 @@ class DatabaseDetail extends Component {
                         app={MY_APPS.ANALYTICS_ENGINE}
                     />
                 </Modal>
-                <UpdateDBModal 
+                <UpdateDBModal
                     defaultData={data}
                     visible={this.state.visibleResetPwd}
-                    onCancel={() => {this.setState({
-                        visibleResetPwd: false,
-                    })}}
+                    onCancel={() => {
+                        this.setState({
+                            visibleResetPwd: false
+                        })
+                    }}
                 />
             </div>
         )

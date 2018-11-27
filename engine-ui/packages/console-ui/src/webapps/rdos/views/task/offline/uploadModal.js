@@ -17,7 +17,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 
 class ResForm extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.changeFileType = this.changeFileType.bind(this);
@@ -25,20 +25,20 @@ class ResForm extends React.Component {
         this.state = {
             file: '',
             accept: '.jar',
-            fileType: RESOURCE_TYPE.JAR,
+            fileType: RESOURCE_TYPE.JAR
         };
     }
 
-    handleSelectTreeChange(value) {
-        this.props.form.setFieldsValue({'nodePid': value});
+    handleSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'nodePid': value });
     }
 
-    handleCoverTargetChange(value) {
+    handleCoverTargetChange (value) {
         this.props.form.setFieldsValue({ 'id': value });
         this.props.form.validateFields(['id']);
     }
 
-    validateFileType(rule, value, callback) {
+    validateFileType (rule, value, callback) {
         const reg = /\.(jar|sql|py|egg|zip)$/
 
         if (value && !reg.test(value.toLocaleLowerCase())) {
@@ -47,23 +47,23 @@ class ResForm extends React.Component {
         callback();
     }
 
-    changeFileType(value) {
+    changeFileType (value) {
         let acceptType = ''
-        switch(value) {
-            case RESOURCE_TYPE.JAR:
-                acceptType = '.jar'; break;
-            case RESOURCE_TYPE.PY:
-                acceptType = '.py,.zip,.egg'; break;
-            default:
-                acceptType = ''; break;
+        switch (value) {
+        case RESOURCE_TYPE.JAR:
+            acceptType = '.jar'; break;
+        case RESOURCE_TYPE.PY:
+            acceptType = '.py,.zip,.egg'; break;
+        default:
+            acceptType = ''; break;
         }
         this.setState({
             accept: acceptType,
-            fileType: value,
+            fileType: value
         });
     }
 
-    fileChange(e) {
+    fileChange (e) {
         const file = e.target;
 
         this.setState({ file });
@@ -77,7 +77,7 @@ class ResForm extends React.Component {
             defaultData, isEditExist, isCreateFromMenu,
             isCreateNormal, isCoverUpload
         } = this.props;
-        
+
         if (!isCoverUpload) {
             return [
                 <FormItem
@@ -85,19 +85,19 @@ class ResForm extends React.Component {
                     label="资源名称"
                     hasFeedback
                     key="resourceName"
-                    >
+                >
                     {getFieldDecorator('resourceName', {
                         rules: [{
-                            required: true, message: '资源名称不可为空!',
+                            required: true, message: '资源名称不可为空!'
                         }, {
                             pattern: /^[A-Za-z0-9_-]+$/,
-                            message: '资源名称只能由字母、数字、下划线组成!',
+                            message: '资源名称只能由字母、数字、下划线组成!'
                         }, {
                             max: 20,
-                            message: '资源名称不得超过20个字符!',
-                        }],
+                            message: '资源名称不得超过20个字符!'
+                        }]
                     })(
-                        <Input placeholder="请输入资源名称" />,
+                        <Input placeholder="请输入资源名称" />
                     )}
                 </FormItem>,
                 <FormItem
@@ -108,14 +108,14 @@ class ResForm extends React.Component {
                 >
                     {getFieldDecorator('resourceType', {
                         rules: [{
-                            required: true, message: '资源类型必选！',
+                            required: true, message: '资源类型必选！'
                         }],
-                        initialValue: RESOURCE_TYPE.JAR,
+                        initialValue: RESOURCE_TYPE.JAR
                     })(
                         <Select onChange={this.changeFileType}>
                             <Option key={RESOURCE_TYPE.JAR} value={RESOURCE_TYPE.JAR}>jar</Option>
                             <Option key={RESOURCE_TYPE.PY} value={RESOURCE_TYPE.PY}>python</Option>
-                        </Select>,
+                        </Select>
                     )}
                 </FormItem>,
                 <FormItem
@@ -126,10 +126,10 @@ class ResForm extends React.Component {
                 >
                     {getFieldDecorator('file', {
                         rules: [{
-                            required: true, message: '请选择上传文件',
+                            required: true, message: '请选择上传文件'
                         }, {
-                            validator: this.validateFileType,
-                        }],
+                            validator: this.validateFileType
+                        }]
                     })(
                         <div>
                             <label
@@ -145,7 +145,7 @@ class ResForm extends React.Component {
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
                             />
-                        </div>,
+                        </div>
                     )}
                 </FormItem>,
                 <FormItem
@@ -156,10 +156,10 @@ class ResForm extends React.Component {
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
-                            required: true, message: '存储位置必选！',
+                            required: true, message: '存储位置必选！'
                         }],
-                        //@TODO: 编辑时最后的undefined为obj
-                        initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu 
+                        // @TODO: 编辑时最后的undefined为obj
+                        initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu
                             ? defaultData.parentId : undefined
                     })(
                         <Input type="hidden"></Input>
@@ -169,9 +169,9 @@ class ResForm extends React.Component {
                         ispicker
                         treeData={this.props.treeData}
                         onChange={this.handleSelectTreeChange.bind(this)}
-                        defaultNode={isCreateNormal ? this.props.treeData.name :
-                            isCreateFromMenu ? this.getFolderName(defaultData.parentId) :
-                                undefined
+                        defaultNode={isCreateNormal ? this.props.treeData.name
+                            : isCreateFromMenu ? this.getFolderName(defaultData.parentId)
+                                : undefined
                         }
                     />
                 </FormItem>,
@@ -184,11 +184,11 @@ class ResForm extends React.Component {
                     {getFieldDecorator('resourceDesc', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }],
-                        initialValue: '',
+                        initialValue: ''
                     })(
-                        <Input type="textarea" rows={4} />,
+                        <Input type="textarea" rows={4} />
                     )}
                 </FormItem>,
                 <FormItem key="computeType" style={{ display: 'none' }}>
@@ -196,7 +196,7 @@ class ResForm extends React.Component {
                         initialValue: 1
                     })(
                         <Input type="hidden"></Input>
-                        )}
+                    )}
                 </FormItem>
             ];
         } else {
@@ -209,24 +209,24 @@ class ResForm extends React.Component {
                 >
                     {getFieldDecorator('id', {
                         rules: [{
-                            required: true, message: '替换资源为必选！',
+                            required: true, message: '替换资源为必选！'
                         }, {
                             validator: this.checkNotDir.bind(this)
                         }],
-                        initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu 
+                        initialValue: isCreateNormal ? this.props.treeData.id : isCreateFromMenu
                             ? defaultData.parentId : isEditExist ? defaultData.id : undefined
                     })(
                         <Input type="hidden"></Input>
-                        )}
+                    )}
                     <FolderPicker
                         type={MENU_TYPE.RESOURCE}
                         ispicker
                         isFilepicker
                         treeData={this.props.treeData}
                         onChange={this.handleCoverTargetChange.bind(this)}
-                        defaultNode={isCreateNormal ? this.props.treeData.name :
-                            isCreateFromMenu ? this.getFolderName(defaultData.parentId) :
-                                isEditExist ? defaultData.name : undefined
+                        defaultNode={isCreateNormal ? this.props.treeData.name
+                            : isCreateFromMenu ? this.getFolderName(defaultData.parentId)
+                                : isEditExist ? defaultData.name : undefined
                         }
                     />
                 </FormItem>,
@@ -238,10 +238,10 @@ class ResForm extends React.Component {
                 >
                     {getFieldDecorator('file', {
                         rules: [{
-                            required: true, message: '请选择上传文件',
+                            required: true, message: '请选择上传文件'
                         }, {
-                            validator: this.validateFileType,
-                        }],
+                            validator: this.validateFileType
+                        }]
                     })(
                         <div>
                             <label
@@ -256,7 +256,7 @@ class ResForm extends React.Component {
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
                             />
-                        </div>,
+                        </div>
                     )}
                 </FormItem>,
                 <FormItem
@@ -268,18 +268,18 @@ class ResForm extends React.Component {
                     {getFieldDecorator('resourceDesc', {
                         rules: [{
                             max: 200,
-                            message: '描述请控制在200个字符以内！',
+                            message: '描述请控制在200个字符以内！'
                         }],
-                        initialValue: '',
+                        initialValue: ''
                     })(
-                        <Input type="textarea" rows={4} />,
+                        <Input type="textarea" rows={4} />
                     )}
                 </FormItem>
             ]
         }
     }
 
-    render() {
+    render () {
         return (
             <Form>
                 {this.renderFormItem()}
@@ -292,16 +292,15 @@ class ResForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id) {
+    getFolderName (id) {
         const { treeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === id) {
+                if (node.id === id) {
                     name = node.name;
-                }
-                else{
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -318,7 +317,7 @@ class ResForm extends React.Component {
      * @param {any} value
      * @param {any} cb
      */
-    checkNotDir(rule, value, callback) {
+    checkNotDir (rule, value, callback) {
         const { treeData } = this.props;
         let nodeType;
 
@@ -326,8 +325,7 @@ class ResForm extends React.Component {
             arr.forEach((node, i) => {
                 if (node.id === value) {
                     nodeType = node.type;
-                }
-                else {
+                } else {
                     loop(node.children || []);
                 }
             });
@@ -345,7 +343,7 @@ class ResForm extends React.Component {
 const ResFormWrapper = Form.create()(ResForm);
 
 class ResModal extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -361,18 +359,18 @@ class ResModal extends React.Component {
     //     return this.props !== nextProps;
     // }
 
-    handleSubmit() {
+    handleSubmit () {
         const form = this.form;
         form.validateFields((err, values) => {
-            if(!err) {
+            if (!err) {
                 values.file = this.state.file.files[0];
                 this.setState({
-                    loading:true
+                    loading: true
                 })
                 this.props.addResource(values)
                     .then(success => {
                         this.setState({
-                            loading:false
+                            loading: false
                         })
                         if (success) {
                             this.closeModal();
@@ -384,27 +382,27 @@ class ResModal extends React.Component {
         });
     }
 
-    handleCancel() {
+    handleCancel () {
         const { isModalShow, toggleUploadModal } = this.props;
         this.closeModal();
     }
 
-    closeModal() {
+    closeModal () {
         this.dtcount++;
         this.props.toggleUploadModal();
         this.props.emptyModalDefault();
     }
 
-    handleFileChange(file) {
+    handleFileChange (file) {
         this.setState({ file });
     }
 
-    render() {
-        const { 
-            isModalShow, toggleUploadModal, 
-            resourceTreeData, defaultData, isCoverUpload, 
+    render () {
+        const {
+            isModalShow, toggleUploadModal,
+            resourceTreeData, defaultData, isCoverUpload
         } = this.props;
-        const {loading} = this.state;
+        const { loading } = this.state;
         const isCreateNormal = typeof defaultData === 'undefined';
         const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
         const isEditExist = !isCreateNormal && !isCreateFromMenu;
@@ -443,23 +441,23 @@ export default connect(state => {
         isModalShow: state.offlineTask.modalShow.upload,
         isCoverUpload: state.offlineTask.modalShow.isCoverUpload,
         resourceTreeData: state.offlineTask.resourceTree,
-        defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
+        defaultData: state.offlineTask.modalShow.defaultData // 表单默认数据
     }
 },
 dispatch => {
     return {
-        toggleUploadModal: function() {
+        toggleUploadModal: function () {
             dispatch({
                 type: modalAction.TOGGLE_UPLOAD
             });
         },
 
-        addResource: function(params) {
+        addResource: function (params) {
             return ajax.addOfflineResource(params)
                 .then(res => {
-                    let {data} = res;
+                    let { data } = res;
 
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         message.success('资源上传成功！');
 
                         dispatch({
@@ -468,10 +466,10 @@ dispatch => {
                         });
 
                         return true;
-                    } 
+                    }
                 })
         },
-        emptyModalDefault() {
+        emptyModalDefault () {
             dispatch({
                 type: modalAction.EMPTY_MODAL_DEFAULT
             });

@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 
-import { 
+import {
     Tooltip, Icon, message,
-    Button, Modal, Select, 
+    Button, Modal, Select
 } from 'antd';
 
 import utils from 'utils';
@@ -16,7 +16,7 @@ import { taskTypeText } from '../../../../components/display';
 import LockPanel from '../../../../components/lockPanel';
 
 import {
-    workbenchActions,
+    workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
@@ -26,7 +26,7 @@ const Mx = require('public/rdos/mxgraph')({
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 });
 
 const {
@@ -52,12 +52,12 @@ const {
     mxEventObject,
     mxConstraintHandler,
     mxConnectionConstraint,
-    mxHierarchicalLayout,
+    mxHierarchicalLayout
 } = Mx;
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 40,
+    height: 40
 }
 
 const BASE_COLOR = '#2491F7';
@@ -85,7 +85,7 @@ const getTaskBaseData = (task) => {
         preSave: task.preSave,
         submitStatus: task.submitStatus,
         version: task.version,
-        readWriteLockVO: task.readWriteLockVO,
+        readWriteLockVO: task.readWriteLockVO
     }
 }
 
@@ -101,18 +101,17 @@ const getTaskBaseData = (task) => {
         currentTab,
         editor,
         taskTypes: offlineTask.comm.taskTypes,
-        project: project,
+        project: project
     }
-}, workbenchActions )
+}, workbenchActions)
 class WorkflowEditor extends Component {
-
     state = {
         showSearch: false,
-        showGuidePic: false,
+        showGuidePic: false
     }
 
-    componentDidMount() {
-        this.Container.innerHTML = ""; // 清理容器内的Dom元素
+    componentDidMount () {
+        this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = null;
         const editor = this.Container;
         this._cacheCells = {};
@@ -127,7 +126,7 @@ class WorkflowEditor extends Component {
             this.listenGraphUpdate();
             this.initGraphView();
         } else {
-            this.setState({ showGuidePic: true, });
+            this.setState({ showGuidePic: true });
         }
     }
 
@@ -144,7 +143,7 @@ class WorkflowEditor extends Component {
         return false;
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const old = this.props.workflow;
         const next = nextProps.workflow;
 
@@ -163,7 +162,6 @@ class WorkflowEditor extends Component {
     }
 
     loadEditor = (container) => {
-
         mxConstants.DEFAULT_VALID_COLOR = 'none';
         mxConstants.HANDLE_STROKECOLOR = '#C5C5C5';
         mxConstants.CONSTRAINT_HIGHLIGHT_SIZE = 4;
@@ -181,7 +179,7 @@ class WorkflowEditor extends Component {
 
         // Disable default context menu
         mxGraphView.prototype.optimizeVmlReflows = false;
-        mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
+        mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
         // 启用辅助线
         mxGraphHandler.prototype.guidesEnabled = true;
         mxEvent.disableContextMenu(container);
@@ -193,7 +191,7 @@ class WorkflowEditor extends Component {
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.keepEdgesInBackground = false;
         graph.allowLoops = false;
-        // // Enable cell resize 
+        // // Enable cell resize
         graph.cellsResizable = false;
         graph.setPanning(true);
         graph.setConnectable(true);
@@ -204,12 +202,12 @@ class WorkflowEditor extends Component {
         // // 启用/禁止连接
 
         // 禁止Edge对象移动
-        graph.isCellsMovable = function(cell) {
+        graph.isCellsMovable = function (cell) {
             var cell = graph.getSelectionCell()
             return !(cell && cell.edge)
         }
         // 禁止cell编辑
-        graph.isCellEditable = function() {
+        graph.isCellEditable = function () {
             return false
         }
 
@@ -289,7 +287,7 @@ class WorkflowEditor extends Component {
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
         const { saveTask, loadTreeNode } = this.props;
 
-        const checkNodeName = function(name) {
+        const checkNodeName = function (name) {
             const reg = /^[A-Za-z0-9_]+$/;
             if (name === '') {
                 message.error('子节点名称不可为空！')
@@ -303,7 +301,7 @@ class WorkflowEditor extends Component {
             }
             return true;
         }
-   
+
         const editSucc = (evt) => {
             const originName = task.name;
             if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
@@ -311,17 +309,17 @@ class WorkflowEditor extends Component {
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
                     const taskData = Object.assign({}, getTaskBaseData(task), {
-                        name: value,
+                        name: value
                     });
                     saveTask(taskData, true).then(res => {
                         const fileStatus = res.data && res.data.readWriteLockVO && res.data.readWriteLockVO.result;
-                        if ( res.code === 1 && fileStatus === 0 ) {
+                        if (res.code === 1 && fileStatus === 0) {
                             loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
                             ctx.updateCellData(cell, taskData);
                             ctx.updateGraphData();
                         }
                     });
-                } 
+                }
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);
             }
@@ -330,18 +328,18 @@ class WorkflowEditor extends Component {
         if (editTarget) {
             editTarget.style.display = 'inline-block';
             editTarget.focus();
-            editTarget.addEventListener("blur", editSucc, false);
-            editTarget.addEventListener("keypress", editSucc, false)
+            editTarget.addEventListener('blur', editSucc, false);
+            editTarget.addEventListener('keypress', editSucc, false)
         }
     }
 
     onkeyDown = (evt) => {
         const keyCode = evt.keyCode;
-        switch(keyCode) {
-            case KEY_CODE.BACKUP: {
-                break;
-            }
-            default:
+        switch (keyCode) {
+        case KEY_CODE.BACKUP: {
+            break;
+        }
+        default:
         }
     }
 
@@ -351,7 +349,7 @@ class WorkflowEditor extends Component {
             workflowId: data.id,
             data: data,
             taskType: taskType,
-            status: 'create',
+            status: 'create'
         }
         toggleCreateTask();
         updateWorkflow(workflow);
@@ -364,14 +362,14 @@ class WorkflowEditor extends Component {
 
         data.sqlText = JSON.stringify(workflow);
         saveTask(data, 'noMsg');
-        
+
         loadTreeNode(data.id, MENU_TYPE.TASK_DEV, {
             taskType: TASK_TYPE.WORKFLOW,
-            parentId: data.nodePid,
+            parentId: data.nodePid
         });
 
         this.setState({
-            showGuidePic: false,
+            showGuidePic: false
         })
     }
 
@@ -389,13 +387,13 @@ class WorkflowEditor extends Component {
                         <p>确定是否要删除节点: <a>{taskData.name}</a></p>
                     </div>
                 ),
-                onOk() {
-                    delOfflineTask({taskId: taskData.id }, data.id).then(res => {
+                onOk () {
+                    delOfflineTask({ taskId: taskData.id }, data.id).then(res => {
                         if (res.code === 1 || res.code === 250) {
                             ctx.removeCell([cell]);
                         }
                     })
-                },
+                }
             });
         } else {
             this.removeCell([cell]);
@@ -465,7 +463,6 @@ class WorkflowEditor extends Component {
     }
 
     insertItemVertex = (graph, evt, target, x, y) => {
-
         const taskType = this._currentSourceType.key;
         const newCell = new mxCell(
             '新节点',
@@ -474,7 +471,7 @@ class WorkflowEditor extends Component {
         newCell.vertex = true;
         newCell.data = {
             taskType: taskType,
-            name: '新节点',
+            name: '新节点'
         }
 
         const cells = graph.importCells([newCell], x, y, target);
@@ -497,7 +494,7 @@ class WorkflowEditor extends Component {
         return null;
     }
 
-    removeCell(cells) {
+    removeCell (cells) {
         const ctx = this;
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
@@ -506,11 +503,11 @@ class WorkflowEditor extends Component {
         }
     }
 
-    initUndoManager() {
+    initUndoManager () {
         const undoManager = new mxUndoManager()
         const graph = this.graph
         this.undoMana = undoManager
-        const listener = function(sender, evt) {
+        const listener = function (sender, evt) {
             undoManager.undoableEditHappened(evt.getProperty('edit'));
         }
         graph.getModel().addListener(mxEvent.UNDO, listener);
@@ -549,7 +546,7 @@ class WorkflowEditor extends Component {
         const { openTaskInDev, data, project, user } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
-        mxPopupMenu.prototype.showMenu = function() {
+        mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
             if (cells.length > 0) {
                 mxPopupMenuShowMenu.apply(this, arguments);
@@ -557,30 +554,29 @@ class WorkflowEditor extends Component {
         };
 
         graph.popupMenuHandler.autoExpand = true
-        graph.popupMenuHandler.factoryMethod = function(menu, cell, evt) {
-
+        graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
             if (!cell) return;
             const currentNode = cell.data || {};
-           
+
             const isLocked = data.readWriteLockVO && !data.readWriteLockVO.getLock;
-            if (isLocked||!couldEdit) return;
+            if (isLocked || !couldEdit) return;
 
             if (cell.vertex) {
-                menu.addItem('保存节点', null, function() {
+                menu.addItem('保存节点', null, function () {
                     ctx.saveTask(cell);
                 }, null, null, true) // 正常状态
-                menu.addItem('编辑名称', null, function() {
+                menu.addItem('编辑名称', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true) // 正常状态
-    
-                menu.addItem('查看节点内容', null, function() {
+
+                menu.addItem('查看节点内容', null, function () {
                     openTaskInDev(currentNode.id);
                 }, null, null, true) // 正常状态
-                menu.addItem('删除节点', null, function() {
+                menu.addItem('删除节点', null, function () {
                     ctx.deleteTask(cell);
                 }, null, null, true) // 正常状态
             } else {
-                menu.addItem('删除依赖关系', null, function() {
+                menu.addItem('删除依赖关系', null, function () {
                     ctx.deleteTask(cell);
                 }, null, null, true) // 正常状态
             }
@@ -598,11 +594,10 @@ class WorkflowEditor extends Component {
         return previewDragTarget;
     }
 
-    listenConnection() { // 仅仅限制有效的链接
+    listenConnection () { // 仅仅限制有效的链接
         const graph = this.graph
 
         graph.isValidConnection = (source, target) => {
-
             // 限制，只能vertex可连接
             if (!source.vertex || !target.vertex) return false;
 
@@ -612,7 +607,7 @@ class WorkflowEditor extends Component {
 
             // 限制循环依赖
             let isLoop = false;
-            graph.traverse(target, true, function(vertex, edge) {
+            graph.traverse(target, true, function (vertex, edge) {
                 if (source.id === vertex.id) {
                     isLoop = true;
                     return false;
@@ -624,13 +619,12 @@ class WorkflowEditor extends Component {
         }
     }
 
-    initDraggableToolBar() {
-
+    initDraggableToolBar () {
         const ctx = this;
         const graph = this.graph;
         const { taskTypes } = this.props;
-        
-        for (let i = 0; i < taskTypes.length; i++ ) {
+
+        for (let i = 0; i < taskTypes.length; i++) {
             const type = taskTypes[i];
             const dragTarget = document.getElementById(`${WIDGETS_PREFIX}${type.key}`);
             if (dragTarget) {
@@ -644,10 +638,10 @@ class WorkflowEditor extends Component {
                     null,
                     null,
                     graph.autoscroll,
-                    true,
+                    true
                 );
 
-                draggabledEle.createPreviewElement = function(graph, event) {
+                draggabledEle.createPreviewElement = function (graph, event) {
                     ctx._currentSourceType = type;
                     return previewDragTarget;
                 }
@@ -662,33 +656,32 @@ class WorkflowEditor extends Component {
     }
 
     updateGraphData = () => {
-        const { 
-            updateTaskField,
-         } = this.props;
+        const {
+            updateTaskField
+        } = this.props;
 
         const workflow = this.getGraphData();
         const view = this.graph.getView();
         const graph = {
             translate: view.getTranslate(),
-            scale: view.getScale(),
+            scale: view.getScale()
         }
         const toUpdateTasks = workflow.filter(item => {
             return item.vertex && item.data && item.data.notSynced === true;
         });
         this.setState({
-            showGuidePic: workflow.length > 0 ? false : true,
+            showGuidePic: !(workflow.length > 0)
         })
         updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks, graph });
     }
 
     initGraphEvent = () => {
-
         const graph = this.graph;
         let selectedCell = null;
-        const { openTaskInDev, } = this.props;
+        const { openTaskInDev } = this.props;
         let highlightEdges = [];
-        
-        graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
+
+        graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const event = evt.getProperty('event');
 
             if (event.target.className.indexOf('vertex-input') > -1) {
@@ -702,7 +695,7 @@ class WorkflowEditor extends Component {
             }
         });
 
-        graph.addListener(mxEvent.CLICK, function(sender, evt) {
+        graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
 
@@ -714,14 +707,13 @@ class WorkflowEditor extends Component {
             }
 
             if (cell && cell.vertex) {
-
                 graph.clearSelection();
                 const cellState = graph.view.getState(cell);
                 const style = {}
                 style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
                 style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
-                
+
                 const outEdges = graph.getOutgoingEdges(cell);
                 const inEdges = graph.getIncomingEdges(cell);
                 const edges = outEdges.concat(inEdges);
@@ -738,7 +730,7 @@ class WorkflowEditor extends Component {
             }
         });
 
-        graph.clearSelection = function(evt) {
+        graph.clearSelection = function (evt) {
             if (selectedCell) {
                 const cellState = graph.view.getState(selectedCell);
                 const style = {}
@@ -773,7 +765,7 @@ class WorkflowEditor extends Component {
                 x: cell.geometry.x,
                 y: cell.geometry.y,
                 value: cell.value,
-                id: cell.id,
+                id: cell.id
             }
         }
         for (let i = 0; i < cells.length; i++) {
@@ -799,12 +791,12 @@ class WorkflowEditor extends Component {
                 const item = data[i];
                 if (item.vertex) {
                     const cell = graph.insertVertex(
-                        rootCell, 
-                        item.id, 
-                        null, 
+                        rootCell,
+                        item.id,
+                        null,
                         item.x, item.y,
-                        VertexSize.width, VertexSize.height, 
-                        cellStyle,
+                        VertexSize.width, VertexSize.height,
+                        cellStyle
                     )
                     cell.data = item.data;
                     cellMap[item.id] = cell;
@@ -829,13 +821,13 @@ class WorkflowEditor extends Component {
                     if (data.name.indexOf(searchText) > -1) {
                         result.push({
                             id: data.id,
-                            name: data.name,
+                            name: data.name
                         })
                     }
                 }
             }
             this.setState({
-                searchResult: result,
+                searchResult: result
             })
         }
     }
@@ -845,7 +837,7 @@ class WorkflowEditor extends Component {
     initShowSearch = (e) => {
         this.setState({
             showSearch: true,
-            searchText: '',
+            searchText: ''
         }, () => {
             const selectEle = document.getElementById('JS_Search_Node');
             if (selectEle) {
@@ -864,7 +856,7 @@ class WorkflowEditor extends Component {
             this.graph.fireEvent(mxe);
             this.setState({
                 showSearch: false,
-                searchText: '',
+                searchText: ''
             })
         }
     }
@@ -876,23 +868,23 @@ class WorkflowEditor extends Component {
         const couldEdit = !isPro || isRoot;
 
         const showTitle = (type, title) => {
-            switch(type) {
-                case TASK_TYPE.SQL:
-                    return '以Spark作为计算引擎，兼容HiveSQL语法';
-                case TASK_TYPE.MR:
-                    return '基于Java、Scala的Spark节点任务';
-                case TASK_TYPE.ML:
-                    return '基于Spark MLLib的机器学习节点任务';
-                case TASK_TYPE.DEEP_LEARNING:
+            switch (type) {
+            case TASK_TYPE.SQL:
+                return '以Spark作为计算引擎，兼容HiveSQL语法';
+            case TASK_TYPE.MR:
+                return '基于Java、Scala的Spark节点任务';
+            case TASK_TYPE.ML:
+                return '基于Spark MLLib的机器学习节点任务';
+            case TASK_TYPE.DEEP_LEARNING:
                 return '基于TensorFlow、MXNet的深度学习节点任务';
-                default:
-                    return title;
+            default:
+                return title;
             }
         }
         const widgets = taskTypes.map(item => {
-                return item.key !== TASK_TYPE.WORKFLOW && 
-                <Tooltip 
-                    placement="right" 
+            return item.key !== TASK_TYPE.WORKFLOW &&
+                <Tooltip
+                    placement="right"
                     title={showTitle(item.key, item.value)}
                 >
                     <Button
@@ -903,7 +895,7 @@ class WorkflowEditor extends Component {
                         {item.value}
                     </Button>
                 </Tooltip>
-            }
+        }
         )
 
         return (
@@ -920,8 +912,7 @@ class WorkflowEditor extends Component {
     }
 
     /* eslint-enable */
-    render() {
-
+    render () {
         const { searchResult, showGuidePic } = this.state;
         const options = searchResult && searchResult.map(d => {
             return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
@@ -931,31 +922,32 @@ class WorkflowEditor extends Component {
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
 
         return (
-            <KeyEventListener 
-                onKeyDown={this.onkeyDown} 
+            <KeyEventListener
+                onKeyDown={this.onkeyDown}
             >
-                <div className="graph-editor" 
-                    style={{ 
+                <div className="graph-editor"
+                    style={{
                         position: 'relative',
-                        overflow: 'hidden',
+                        overflow: 'hidden'
                     }}
                 >
                     { this.renderToolBar() }
-                    { showGuidePic ? <div 
-                        className="absolute-middle" 
-                        style={{ 
-                            width: '100%', height: '100%', 
+                    { showGuidePic ? <div
+                        className="absolute-middle"
+                        style={{
+                            width: '100%',
+                            height: '100%',
                             background: 'url(/public/rdos/img/graph_guide_pic.png)',
                             backgroundPosition: 'center center',
                             backgroundSize: '700px 500px',
-                            backgroundRepeat: 'no-repeat',
+                            backgroundRepeat: 'no-repeat'
                         }} /> : null
                     }
-                    <div className="editor pointer graph-bg" 
+                    <div className="editor pointer graph-bg"
                         style={{
-                            height: '100%',
+                            height: '100%'
                         }}
-                        ref={(e) => { this.Container = e }} 
+                        ref={(e) => { this.Container = e }}
                     />
                     <div className="graph-toolbar">
                         <Tooltip placement="bottom" title="布局">
@@ -968,34 +960,34 @@ class WorkflowEditor extends Component {
                             <MyIcon onClick={this.zoomOut} type="zoom-out" themeDark={themeDark}/>
                         </Tooltip>
                         <Tooltip placement="bottom" title="搜索节点">
-                            <Icon 
-                                type="search" 
-                                onClick={this.initShowSearch} 
-                                style={{fontSize: '17px', color: themeDark ? '#ADADAD' :'#333333'}}
+                            <Icon
+                                type="search"
+                                onClick={this.initShowSearch}
+                                style={{ fontSize: '17px', color: themeDark ? '#ADADAD' : '#333333' }}
                             />
                         </Tooltip>
                     </div>
-                    <Modal 
+                    <Modal
                         closable={false}
                         mask={false}
                         style={{
                             width: '400px',
                             height: '80px',
                             top: '150px',
-                            left: '100px',
+                            left: '100px'
                         }}
                         bodyStyle={{
-                            padding: '10px',
+                            padding: '10px'
                         }}
                         visible={this.state.showSearch}
-                        onCancel={() => this.setState({showSearch: false})}
+                        onCancel={() => this.setState({ showSearch: false })}
                         footer={null}
                     >
-                         <Select
+                        <Select
                             id="JS_Search_Node"
                             mode="combobox"
                             showSearch
-                            style={{width: '100%'}}
+                            style={{ width: '100%' }}
                             placeholder="按子节点名称搜索"
                             notFoundContent="没有发现相关节点"
                             defaultActiveFirstOption={false}
@@ -1026,7 +1018,7 @@ class WorkflowEditor extends Component {
         this.graph.refresh()
     }
 
-    graphEnable() {
+    graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)
     }
@@ -1054,7 +1046,7 @@ class WorkflowEditor extends Component {
         this.undoMana.undo()
     }
 
-    getDefaultVertexStyle() {
+    getDefaultVertexStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
@@ -1068,7 +1060,7 @@ class WorkflowEditor extends Component {
         return style;
     }
 
-    getDefaultEdgeStyle() {
+    getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#999';

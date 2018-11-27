@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
-import { connect } from "react-redux";
-import { Card, Input, Select, Cascader, Table, Modal, Tabs, Tooltip } from "antd"
+import { connect } from 'react-redux';
+import { Card, Input, Select, Cascader, Table, Modal, Tabs, Tooltip } from 'antd'
 import { apiMarketActions } from '../../actions/apiMarket';
-import utils from "utils";
+import utils from 'utils';
 
-import SlidePane from "widgets/slidePane";
-import ApplyBox from "../../components/applyBox"
-import Content from "../../components/apiContent"
+import SlidePane from 'widgets/slidePane';
+import ApplyBox from '../../components/applyBox'
+import Content from '../../components/apiContent'
 
 const Option = Select.Option;
 const Search = Input.Search;
 let modal;
-
 
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
@@ -19,53 +18,51 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getCatalogue(pid) {
+    getCatalogue (pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getApiMarketList(params) {
+    getApiMarketList (params) {
         return dispatch(apiMarketActions.getApiMarketList(params));
     },
-    getApiDetail(params) {
+    getApiDetail (params) {
         dispatch(apiMarketActions.getApiDetail(params));
-
     },
-    getApiExtInfo(params) {
+    getApiExtInfo (params) {
         dispatch(apiMarketActions.getApiExtInfo(params));
     }
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
 class APIMarket extends Component {
-
     state = {
-        searchValue: "",
+        searchValue: '',
         pageIndex: 1,
         loading: true,
         applyBox: false,
         apply: {
-            apiId: "",
-            apiName: "",
-            desc: ""
+            apiId: '',
+            apiName: '',
+            desc: ''
         },
         detailRecord: {},
         type1: undefined,
         type2: undefined,
-        apiName: "",
+        apiName: '',
         pageSize: 20,
         total: 0,
         sorter: {},
         slidePaneShow: false
     }
-    getMarketApi() {
+    getMarketApi () {
         this.setState({
             loading: true
         })
         const dic = {
-            updateTime: "gmt_modified"
+            updateTime: 'gmt_modified'
         }
         const orderType = {
-            "ascend": 'asc',
-            "descend": 'desc'
+            'ascend': 'asc',
+            'descend': 'desc'
         }
 
         this.props.getApiMarketList({
@@ -77,27 +74,25 @@ class APIMarket extends Component {
             orderBy: dic[this.state.sorter.columnKey],
             sort: orderType[this.state.sorter.order]
         }).then((res) => {
-            console.log("apigetOver");
+            console.log('apigetOver');
 
             this.setState({
                 loading: false,
                 total: res.data.totalCount
             })
         }).catch((e) => {
-
             this.setState({
                 loading: false
             })
         })
     }
-    getCatagoryName(value, catagorys) {
+    getCatagoryName (value, catagorys) {
         if (!value && value != 0) {
             return null;
         }
         const tree = catagorys || this.props.apiMarket.apiCatalogue;
         let arr = [];
-        function exchangeTree(data) {
-
+        function exchangeTree (data) {
             if (!data || data.length < 1) {
                 return null;
             }
@@ -118,12 +113,11 @@ class APIMarket extends Component {
             return null;
         }
         if (exchangeTree(tree)) {
-            return arr.reverse().join(" / ");
+            return arr.reverse().join(' / ');
         }
         return null;
-
     }
-    getCascaderData() {//处理级联选择数据
+    getCascaderData () { // 处理级联选择数据
         const cascaderData = [];
         const { apiCatalogue } = this.props.apiMarket;
         if (apiCatalogue.length > 0) {
@@ -134,7 +128,7 @@ class APIMarket extends Component {
                 if (v.childCatalogue.length > 0) {
                     option.children = [];
                     v.childCatalogue.map(v => {
-                        if(v.api){
+                        if (v.api) {
                             return;
                         }
                         const childOpt = {};
@@ -142,8 +136,8 @@ class APIMarket extends Component {
                         childOpt.cid = v.id;
                         option.children.push(childOpt);
                     })
-                    if(option.children.length==0){
-                        option.children=undefined;
+                    if (option.children.length == 0) {
+                        option.children = undefined;
                     }
                 }
                 cascaderData.push(option)
@@ -151,29 +145,26 @@ class APIMarket extends Component {
         }
         return cascaderData;
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.getCatalogue(0);
         this.getMarketApi();
     }
-    onSourceChange(key) {
+    onSourceChange (key) {
         this.setState({
             type1: key,
             type2: undefined
         }, () => {
             this.getMarketApi();
         })
-
     }
-    onUserSourceChange(key) {
+    onUserSourceChange (key) {
         this.setState({
             type2: key
         }, () => {
             this.getMarketApi();
         })
-
     }
-    handleSearch(value) {
-
+    handleSearch (value) {
         this.setState({
             searchValue: value,
             pageIndex: 1
@@ -182,31 +173,30 @@ class APIMarket extends Component {
         }
         )
     }
-    getDealType(type) {
+    getDealType (type) {
         const dic = {
-            "complete": "已审批",
-            "nothing": "申请",
-            "applying": "审批中"
+            'complete': '已审批',
+            'nothing': '申请',
+            'applying': '审批中'
         }
         return dic[type || 'nothing']
     }
-    deal(record) {
+    deal (record) {
         const method = this['deal' + record.deal]
         if (method) {
             method.call(this, record);
         }
-
     }
-    dealcomplete(record) {
+    dealcomplete (record) {
         this.props.router.push({
-            pathname:"/api/mine/approved",
-            query:{
-                apiId:record.key,
-                apiName:record.apiName
+            pathname: '/api/mine/approved',
+            query: {
+                apiId: record.key,
+                apiName: record.apiName
             }
         });
     }
-    dealnothing(record) {
+    dealnothing (record) {
         this.setState({
             applyBox: true,
             apply: {
@@ -215,14 +205,14 @@ class APIMarket extends Component {
                 desc: record.description
             }
         })
-        console.log("dealnothing", record);
+        console.log('dealnothing', record);
     }
-    dealapplying(record) {
+    dealapplying (record) {
         this.props.router.push({
-            pathname:"/api/mine/notApproved",
-            query:{
-                apiId:record.key,
-                apiName:record.apiName
+            pathname: '/api/mine/notApproved',
+            query: {
+                apiId: record.key,
+                apiName: record.apiName
             }
         });
     }
@@ -236,7 +226,7 @@ class APIMarket extends Component {
             this.getMarketApi();
         });
     }
-    openDetail(record) {
+    openDetail (record) {
         const { getApiDetail, getApiExtInfo } = this.props;
         this.setState({
             detailRecord: record,
@@ -244,10 +234,8 @@ class APIMarket extends Component {
         });
         getApiDetail({ apiId: record.key });
         getApiExtInfo({ apiId: record.key });
-
     }
-    initColumns() {
-
+    initColumns () {
         return [{
             title: 'API名称',
             dataIndex: 'apiName',
@@ -268,7 +256,7 @@ class APIMarket extends Component {
             dataIndex: 'description',
             key: 'description',
             width: 300,
-            render(text) {
+            render (text) {
                 const desc = (text && text.length > 21) ? (<Tooltip title={text}>
                     <span>{`${text.substr(0, 21)}......`}</span>
                 </Tooltip>) : text;
@@ -283,7 +271,7 @@ class APIMarket extends Component {
             title: '最近更新时间',
             dataIndex: 'updateTime',
             key: 'updateTime',
-            render(time) {
+            render (time) {
                 return utils.formatDateTime(time);
             },
             sorter: true
@@ -295,15 +283,15 @@ class APIMarket extends Component {
             }
         }]
     }
-    getSource() {
+    getSource () {
         const errorDic = {
-            5: "nothing",
-            4: "complete",
-            3: "complete",
-            2: "nothing",
-            1: "complete",
-            0: "applying",
-            "-1": "nothing",
+            5: 'nothing',
+            4: 'complete',
+            3: 'complete',
+            2: 'nothing',
+            1: 'complete',
+            0: 'applying',
+            '-1': 'nothing'
         }
         const apiList = this.props.apiMarket.apiList;
         let arr = [];
@@ -320,15 +308,15 @@ class APIMarket extends Component {
         }
         return arr;
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: this.state.pageSize,
-            total: this.state.total,
+            total: this.state.total
         }
     }
 
-    cascaderOnChange(value, data) {//API类型改变
+    cascaderOnChange (value, data) { // API类型改变
         let { type1, type2 } = this.state;
         type1 = data[0] ? data[0].pid : undefined;
         type2 = data[1] ? data[1].cid : undefined;
@@ -340,7 +328,7 @@ class APIMarket extends Component {
         })
     }
 
-    getCardTitle() {
+    getCardTitle () {
         const cascaderData = this.getCascaderData();
 
         return (
@@ -358,38 +346,37 @@ class APIMarket extends Component {
         )
     }
 
-    jumpToMine() {
+    jumpToMine () {
         modal.destroy();
-        this.props.router.push("/api/mine");
-
+        this.props.router.push('/api/mine');
     }
-    showApplySuccessModal() {
+    showApplySuccessModal () {
         modal = Modal.success({
             title: '申请提交成功',
             content: (
                 <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的API</a> 中查看审批进度</span>
             ),
-            okText: "确定"
+            okText: '确定'
         });
     }
-    handleOk() {
+    handleOk () {
         this.setState({
             applyBox: false
         });
         this.getMarketApi();
     }
-    handleCancel() {
+    handleCancel () {
         this.setState({
             applyBox: false
         })
     }
-    closeSlide() {
+    closeSlide () {
         this.setState({
             slidePaneShow: false
         })
     }
 
-    render() {
+    render () {
         const { apiMarket } = this.props
         const { slidePaneShow, detailRecord } = this.state;
 
@@ -413,7 +400,7 @@ class APIMarket extends Component {
                             animated={false}
                         >
                             <Tabs.TabPane tab="API详情" key="callMethod">
-                                <div style={{ paddingLeft: "40px", paddingTop: "20px" }}>
+                                <div style={{ paddingLeft: '40px', paddingTop: '20px' }}>
                                     <Content apiMarket={apiMarket} apiId={detailRecord.key} showMarketInfo={true} />
                                 </div>
                             </Tabs.TabPane>

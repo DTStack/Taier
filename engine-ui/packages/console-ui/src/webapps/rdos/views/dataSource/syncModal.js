@@ -6,20 +6,19 @@ import Api from '../../api';
 import { workbenchActions } from '../../store/modules/offlineTask/offlineAction';
 
 class dbSyncHistoryModal extends Component {
-
     state = {
     	listData: {},
     	showDetail: false,
     	syncDetail: {}
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
     	if (nextProps.source.id) {
     		Api.getSyncHistoryList({
     			dataSourceId: nextProps.source.id,
     			currentPage: 1,
     			pageSize: 5
-    		}).then(res =>{
+    		}).then(res => {
     			if (res.code === 1) {
     				this.setState({ listData: res.data });
     			}
@@ -63,7 +62,7 @@ class dbSyncHistoryModal extends Component {
                         查看详情
                     </a>
                 );
-            },
+            }
         }];
     }
 
@@ -84,30 +83,29 @@ class dbSyncHistoryModal extends Component {
             width: '20%',
             render: (text, record) => {
             	if (record.status) {
-                    return record.status === 1 ? 
-                    <div>
-                        <span className="m-r-8">
-	                        <Icon type="check-circle" style={{ color: 'green', marginRight: 8 }} /> 
-	                        成功 
-                        </span>
-                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
-	                        查看任务 
-                        </a>
-                    </div>
-                    : 
-                    <div>
+                    return record.status === 1
+                        ? <div>
+                            <span className="m-r-8">
+	                        <Icon type="check-circle" style={{ color: 'green', marginRight: 8 }} />
+	                        成功
+                            </span>
+                            <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
+	                        查看任务
+                            </a>
+                        </div>
+                        : <div>
                     	<span className="m-r-8">
-	                        <Icon type="close-circle" style={{ color: 'red', marginRight: 8 }} /> 
+	                        <Icon type="close-circle" style={{ color: 'red', marginRight: 8 }} />
 	                        <Tooltip overlayClassName="sync-tooltip" placement="bottom" title={record.report}>
 	                        	失败
 	                        </Tooltip>
-                        </span>
-                        <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
+                            </span>
+                            <a className="m-l-8" onClick={this.checkTask.bind(this, record.taskId)}>
 	                        查看任务
-                        </a>
-                    </div>
+                            </a>
+                        </div>
                 }
-            },
+            }
         }];
     }
 
@@ -116,7 +114,7 @@ class dbSyncHistoryModal extends Component {
     }
 
     back = () => {
-    	this.setState({ 
+    	this.setState({
     		showDetail: false,
     		syncDetail: {}
     	});
@@ -131,11 +129,11 @@ class dbSyncHistoryModal extends Component {
  				<div className="sync-list">
 	 				<h2>{source.dataName}</h2>
 
-		            <Table 
+		            <Table
 	                    rowKey="id"
 	                    className="m-table"
 	                    style={{ marginTop: 10 }}
-	                    columns={this.initColumns()} 
+	                    columns={this.initColumns()}
 	                    pagination={false}
 	                    dataSource={listData.data}
 	                />
@@ -146,15 +144,15 @@ class dbSyncHistoryModal extends Component {
 
     		return (
     			<div className="sync-detail">
-	            	<Icon 
-	            		type="left-circle" 
+	            	<Icon
+	            		type="left-circle"
 	            		style={{ cursor: 'pointer', fontSize: 14 }}
 	            		onClick={this.back} /> 返回
 
-		            <Table 
+		            <Table
 	                    rowKey="id"
 	                    className="m-table m-v-10"
-	                    columns={this.initDbTableColumns()} 
+	                    columns={this.initDbTableColumns()}
 	                    pagination={false}
 	                    dataSource={syncDetail.migrationTasks}
 	                />
@@ -166,14 +164,13 @@ class dbSyncHistoryModal extends Component {
 	                	调度周期：天
 	                </p>
 	                <p>
-	                	选择时间：{scheduleConf.hour < 10 ? `0${scheduleConf.hour} : 00`: `${scheduleConf.hour} : 00`}
+	                	选择时间：{scheduleConf.hour < 10 ? `0${scheduleConf.hour} : 00` : `${scheduleConf.hour} : 00`}
 	                </p>
 	                <p>
 	                	同步方式：{syncDetail.syncType === 1 ? '增量' : '全量'}
 	                </p>
 	                {
-	                	syncDetail.syncType === 1
-	                	&&
+	                	syncDetail.syncType === 1 &&
 	                	<p>
 	                		根据日期字段：{syncDetail.timeFieldIdentifier}
 	                	</p>
@@ -182,27 +179,26 @@ class dbSyncHistoryModal extends Component {
 	                	并发配置：{syncDetail.parallelType === 1 ? '分批上传' : '整批上传'}
 	                </p>
 	                {
-	                	syncDetail.parallelType === 1
-	                	&&
+	                	syncDetail.parallelType === 1 &&
 	                	<p>
 	                		从启动时间开始，每{syncDetail.parallelConfig.hourTime}小时同步{syncDetail.parallelConfig.tableNum}张表
 	                	</p>
 	                }
 	            </div>
-    		) 
+    		)
     	}
     }
 
     closeModal = () => {
     	this.props.cancel();
 
-    	this.setState({ 
+    	this.setState({
     		syncDetail: {},
     		showDetail: false
     	});
     }
 
-    render() {
+    render () {
     	const { visible } = this.props;
 
     	return (
@@ -213,9 +209,9 @@ class dbSyncHistoryModal extends Component {
 	            visible={visible}
 	            maskClosable={false}
 	            onCancel={this.closeModal}
-	            footer={<Button 
-	            	key="back" 
-	            	type="primary" 
+	            footer={<Button
+	            	key="back"
+	            	type="primary"
 	            	onClick={this.closeModal}>
 	            	关闭
 	            </Button>}
@@ -231,7 +227,7 @@ class dbSyncHistoryModal extends Component {
 export default connect((state) => {
     return {
         project: state.project,
-        projectUsers: state.projectUsers,
+        projectUsers: state.projectUsers
     }
 }, dispatch => {
     const actions = workbenchActions(dispatch)
@@ -241,4 +237,3 @@ export default connect((state) => {
         }
     }
 })(dbSyncHistoryModal)
-		

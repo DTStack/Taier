@@ -1,32 +1,27 @@
-import React, { Component } from "react";
-import { Menu, Card, Table, Input } from "antd"
-import SlidePane from "widgets/slidePane";
+import React, { Component } from 'react';
+import { Menu, Card, Table, Input } from 'antd'
+import SlidePane from 'widgets/slidePane';
 const TextArea = Input.TextArea;
 class DisabledCardSlidePane extends Component {
     state = {
-        phone: "",
-        dtuicUserId: "",
-        email: ""
+        phone: '',
+        dtuicUserId: '',
+        email: ''
     }
 
-
-    componentDidMount() {
-
+    componentDidMount () {
         this.getApiCreatorInfo();
-
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
         ) {
             if (nextProps.slidePaneShow) {
                 this.getApiCreatorInfo(nextProps.showRecord.apiId);
             }
-
-
         }
     }
-    getApiCreatorInfo(apiId) {
+    getApiCreatorInfo (apiId) {
         apiId = apiId || this.props.showRecord.apiId;
         if (!apiId) {
             return;
@@ -45,10 +40,8 @@ class DisabledCardSlidePane extends Component {
             )
     }
 
-
-    render() {
+    render () {
         return (
-
 
             <SlidePane visible={this.props.slidePaneShow}
                 style={{ right: '-20px', width: '80%', minHeight: '300px' }}
@@ -62,8 +55,6 @@ class DisabledCardSlidePane extends Component {
                 </div>
 
             </SlidePane>
-
-
 
         )
     }

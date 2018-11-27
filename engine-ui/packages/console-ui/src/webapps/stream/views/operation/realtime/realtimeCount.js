@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { isEmpty } from "lodash"
+import { isEmpty } from 'lodash'
 
 import {
     Card, Button, Row, Col
@@ -12,17 +12,16 @@ import Api from '../../../api'
 import { taskStatus, PROJECT_TYPE } from '../../../comm/const'
 
 class RealtimeCount extends Component {
-
     state = {
         data: {},
-        chart: '',
+        chart: ''
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadRealtimeData()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -30,7 +29,7 @@ class RealtimeCount extends Component {
         }
     }
 
-    loadRealtimeData() {
+    loadRealtimeData () {
         const ctx = this
         Api.taskStatistics().then((res) => {
             if (res.code === 1) {
@@ -61,27 +60,27 @@ class RealtimeCount extends Component {
         }]
     }
 
-    jumpToRealList(status) {
+    jumpToRealList (status) {
         hashHistory.push({
-            pathname: "/operation/realtime",
+            pathname: '/operation/realtime',
             query: {
                 status: (status || status == 0) ? status : undefined
             }
         })
     }
 
-    render() {
+    render () {
         const { data } = this.state
         const { project } = this.props;
         return (
             <div>
-                <h1 className="box-title box-title-bolder" style={{ padding: "0 20 0 10" }}>
+                <h1 className="box-title box-title-bolder" style={{ padding: '0 20 0 10' }}>
                     实时任务
                     <Button type="primary" className="right" style={{ marginTop: '8px', fontWeight: 200 }}>
                         <Link to="/operation/realtime">实时任务运维</Link>
                     </Button>
                 </h1>
-                <div className="box-4 m-card m-card-small" style={{ margin: "0 20 0 10" }}>
+                <div className="box-4 m-card m-card-small" style={{ margin: '0 20 0 10' }}>
                     <Card
                         noHovering
                         bordered={false}
@@ -108,7 +107,7 @@ class RealtimeCount extends Component {
                                 </section>
                             </Col>
                             <Col span={6}>
-                                <section className="m-count-section" style={{ width: "60px" }}>
+                                <section className="m-count-section" style={{ width: '60px' }}>
                                     <span className="m-count-title">等待提交</span>
                                     <a onClick={this.jumpToRealList.bind(this, taskStatus.UNSUBMIT)} className="m-count-content font-organge">{data.UNSUBMIT || 0}</a>
                                 </section>
@@ -128,6 +127,6 @@ class RealtimeCount extends Component {
 }
 export default connect((state) => {
     return {
-        project: state.project,
+        project: state.project
     }
 })(RealtimeCount)

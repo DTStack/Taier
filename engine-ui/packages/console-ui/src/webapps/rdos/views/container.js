@@ -11,30 +11,29 @@ import Header from './layout/header'
 import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
-import  DataManageAction from '../store/modules/dataManage/actionCreator';
+import DataManageAction from '../store/modules/dataManage/actionCreator';
 import { getTaskTypes } from '../store/modules/offlineTask/comm';
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
 
 class Container extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
-        dispatch(DataManageAction.getCatalogues({isGetFile:false}))
+        dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
         dispatch(updateApp(rdosApp))
         this.initProject()
     }
 
-    initProject() {
+    initProject () {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname
         if (pathname !== '/') {
@@ -45,14 +44,14 @@ class Container extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {
             this.props.dispatch(ProjectAction.getProject(nowId))
         }
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="dt-dev-tools" id="JS_APP">
@@ -67,13 +66,13 @@ class Container extends Component {
 Container.propTypes = propType
 Container.defaultProps = defaultPro
 
-function mapStateToProps(state) {
+function mapStateToProps (state) {
     return {
         user: state.user,
         projects: state.projects,
         project: state.project,
         apps: state.apps,
-        app: state.app,
+        app: state.app
     }
 }
 export default connect(mapStateToProps)(Container)

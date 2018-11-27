@@ -15,14 +15,14 @@ import { Row,
     Input,
     message,
     Button
- } from 'antd';
+} from 'antd';
 
 import ajax from '../../../api';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
 import HelpDoc from '../../helpDoc';
-import RecommentTaskModal from "./recommentTaskModal";
+import RecommentTaskModal from './recommentTaskModal';
 
 const Panel = Collapse.Panel;
 const Option = Select.Option;
@@ -32,74 +32,72 @@ const RadioGroup = Radio.Group;
 const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-    },
+        sm: { span: 18 }
+    }
 }
 
-
 class ScheduleForm extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.changeScheduleStatus = this.props.handleScheduleStatus;
         this.changeScheduleConf = this.props.handleScheduleConf;
         this.changeScheduleType = this.props.handleScheduleType;
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
         const { periodType } = scheduleConf;
-        
+
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
-            wFScheduleConf.periodType === "0" ||
-            wFScheduleConf.periodType === "1" );
-        
+            wFScheduleConf.periodType === '0' ||
+            wFScheduleConf.periodType === '1');
+
         console.log('disabledInvoke:', disabledInvokeTime, wFScheduleConf)
         const generateHours = () => {
             let options = [];
-            for(let i = 0; i <= 23; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`:i}</Option>)
+            for (let i = 0; i <= 23; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
-            return <Select 
-                    disabled={disabledInvokeTime}
-                    onChange={ this.changeScheduleConf.bind(this) }
-                >
-                    { options }
-                </Select>;
+            return <Select
+                disabled={disabledInvokeTime}
+                onChange={ this.changeScheduleConf.bind(this) }
+            >
+                { options }
+            </Select>;
         };
         const generateMins = () => {
             let options = [];
-            for(let i = 0, l = 59; i <= l; i++) {
-                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}`: i}</Option>)
+            for (let i = 0, l = 59; i <= l; i++) {
+                options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
-            return <Select 
-                    disabled={disabledInvokeTime}
-                    onChange={ this.changeScheduleConf.bind(this) }
-                >
-                    { options }
-                </Select>;
+            return <Select
+                disabled={disabledInvokeTime}
+                onChange={ this.changeScheduleConf.bind(this) }
+            >
+                { options }
+            </Select>;
         };
         const generateDate = () => {
             let options = [];
-            for(let i = 1; i <= 31; i++) {
+            for (let i = 1; i <= 31; i++) {
                 options.push(<Option key={i} value={`${i}`}>{`每月${i}号`}</Option>)
             }
             return <Select
                 mode="multiple"
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
                 onChange={ this.changeScheduleConf.bind(this) }
             >{ options }</Select>;
         };
         const generateDays = () => {
             return <Select
                 mode="multiple"
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
                 onChange={ this.changeScheduleConf.bind(this) }
             >
                 <Option key={1} value="1">星期一</Option>
@@ -116,39 +114,39 @@ class ScheduleForm extends React.Component {
                 {...formItemLayout}
                 label="调度状态"
             >
-            {getFieldDecorator('scheduleStatus', {
-                valuePropName: 'checked',
-                initialValue: status === 0 || status === 2,
-            })(
-                <Checkbox
-                    onChange={ this.changeScheduleStatus.bind(this) }
-                >冻结</Checkbox>
-            )}
+                {getFieldDecorator('scheduleStatus', {
+                    valuePropName: 'checked',
+                    initialValue: status === 0 || status === 2
+                })(
+                    <Checkbox
+                        onChange={ this.changeScheduleStatus.bind(this) }
+                    >冻结</Checkbox>
+                )}
             </FormItem>
             {
                 !isWorkflowNode && <div>
 
-                    <FormItem 
+                    <FormItem
                         {...formItemLayout}
                         label="生效日期"
                     >
-                    {getFieldDecorator('beginDate', {
-                        initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
-                    })(
-                        <DatePicker
-                            style={{width:"140px"}}
-                            onChange={ this.changeScheduleConf.bind(this) }
-                        />
-                    )}
-                    <span className="split-text" style={{float:"none"}} >-</span>
-                    {getFieldDecorator('endDate', {
-                        initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
-                    })(
-                        <DatePicker
-                        style={{width:"140px"}}
-                            onChange={ this.changeScheduleConf.bind(this) }
-                        />
-                    )}
+                        {getFieldDecorator('beginDate', {
+                            initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
+                        })(
+                            <DatePicker
+                                style={{ width: '140px' }}
+                                onChange={ this.changeScheduleConf.bind(this) }
+                            />
+                        )}
+                        <span className="split-text" style={{ float: 'none' }} >-</span>
+                        {getFieldDecorator('endDate', {
+                            initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
+                        })(
+                            <DatePicker
+                                style={{ width: '140px' }}
+                                onChange={ this.changeScheduleConf.bind(this) }
+                            />
+                        )}
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
@@ -158,7 +156,7 @@ class ScheduleForm extends React.Component {
                             {getFieldDecorator('periodType', {
                                 initialValue: `${scheduleConf.periodType}`,
                                 rules: [{
-                                    required: true,
+                                    required: true
                                 }]
                             })(
                                 <Select onChange={ this.changeScheduleType.bind(this) }>
@@ -174,39 +172,39 @@ class ScheduleForm extends React.Component {
                 </div>
             }
 
-            <FormItem style={{display: 'none'}}>
+            <FormItem style={{ display: 'none' }}>
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
                 })(
                     <Input type="hidden"></Input>
                 )}
             </FormItem>
-            {(function(type, ctx) {
+            {(function (type, ctx) {
                 let dom;
-                switch(type) {
-                    case 0:  { // 分钟
-                        dom = <span key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="开始时间"
-                            >
-                                <Col span="6">
+                switch (type) {
+                case 0: { // 分钟
+                    dom = <span key={type}>
+                        <FormItem
+                            {...formItemLayout}
+                            label="开始时间"
+                        >
+                            <Col span="6">
 
                                 {getFieldDecorator('beginHour', {
                                     rules: [{
-                                            required: true
-                                        },{
-                                            validator: ctx.checkTimeS.bind(ctx)
-                                        }
+                                        required: true
+                                    }, {
+                                        validator: ctx.checkTimeS.bind(ctx)
+                                    }
                                     ],
                                     initialValue: `${scheduleConf.beginHour}`
                                 })(
-                                     generateHours()
+                                    generateHours()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('beginMin', {
                                     rules: [{
@@ -214,19 +212,19 @@ class ScheduleForm extends React.Component {
                                     }],
                                     initialValue: '0'
                                 })(
-                                        <Select disabled>
-                                            <Option value="0">0</Option>
-                                        </Select>
+                                    <Select disabled>
+                                        <Option value="0">0</Option>
+                                    </Select>
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">分</span>
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="间隔时间"
-                            >
-                                <Col span="6">
+                            <span className="split-text">分</span>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="间隔时间"
+                        >
+                            <Col span="6">
                                 {getFieldDecorator('gapMin', {
                                     rules: [{
                                         required: true
@@ -236,22 +234,22 @@ class ScheduleForm extends React.Component {
                                     <Select
                                         onChange={ ctx.changeScheduleConf.bind(ctx) }
                                     >
-                                    {(function() {
-                                        let options = [];
-                                        for(let i = 5; i <= 55; i+=5) {
-                                            options.push(<Option key={i} value={`${i}`}>{i}分钟</Option>)
-                                        }
-                                        return options;
-                                    })()}
+                                        {(function () {
+                                            let options = [];
+                                            for (let i = 5; i <= 55; i += 5) {
+                                                options.push(<Option key={i} value={`${i}`}>{i}分钟</Option>)
+                                            }
+                                            return options;
+                                        })()}
                                     </Select>
                                 )}
-                                </Col>
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="结束时间"
-                            >
-                                <Col span="6">
+                            </Col>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="结束时间"
+                        >
+                            <Col span="6">
 
                                 {getFieldDecorator('endHour', {
                                     rules: [{
@@ -264,9 +262,9 @@ class ScheduleForm extends React.Component {
                                     generateHours()
                                 )}
 
-                                </Col>
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            </Col>
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('endMin', {
                                     initialValue: '59'
@@ -275,20 +273,20 @@ class ScheduleForm extends React.Component {
                                         <Option value="59">59</Option>
                                     </Select>
                                 )}
-                                </Col>
-                                <span className="split-text">分</span>
-                            </FormItem>
-                        </span>;
-                    }
+                            </Col>
+                            <span className="split-text">分</span>
+                        </FormItem>
+                    </span>;
+                }
                     break;
 
-                    case 1: { //小时
-                        dom = <span key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="开始时间"
-                            >
-                                <Col span="6">
+                case 1: { // 小时
+                    dom = <span key={type}>
+                        <FormItem
+                            {...formItemLayout}
+                            label="开始时间"
+                        >
+                            <Col span="6">
 
                                 {getFieldDecorator('beginHour', {
                                     rules: [{
@@ -300,10 +298,10 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateHours()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('beginMin', {
                                     rules: [{
@@ -315,15 +313,15 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateMins()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">分</span>
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="间隔时间"
-                            >
-                                <Col span="6">
+                            <span className="split-text">分</span>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="间隔时间"
+                        >
+                            <Col span="6">
 
                                 {getFieldDecorator('gapHour', {
                                     rules: [{
@@ -334,60 +332,60 @@ class ScheduleForm extends React.Component {
                                     <Select
                                         onChange={ ctx.changeScheduleConf.bind(ctx) }
                                     >
-                                        {(function() {
+                                        {(function () {
                                             let options = [];
-                                            for(let i = 1, l = 23; i <= l; i++) {
+                                            for (let i = 1, l = 23; i <= l; i++) {
                                                 options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
                                             }
                                             return options;
                                         })()}
                                     </Select>
                                 )}
-                                </Col>
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="结束时间"
-                            >
+                            </Col>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="结束时间"
+                        >
                             <Col span="6">
-                            {getFieldDecorator('endHour', {
-                                rules: [{
-                                    required: true
-                                }, {
-                                    validator: ctx.checkTimeE1.bind(ctx)
-                                }],
-                                initialValue: `${scheduleConf.endHour}`
-                            })(
+                                {getFieldDecorator('endHour', {
+                                    rules: [{
+                                        required: true
+                                    }, {
+                                        validator: ctx.checkTimeE1.bind(ctx)
+                                    }],
+                                    initialValue: `${scheduleConf.endHour}`
+                                })(
                                     generateHours()
-                            )}
+                                )}
                             </Col>
                             <span className="split-text">时</span>
                             <Col span="6">
-                            {getFieldDecorator('endMin', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: '59'
-                            })(
+                                {getFieldDecorator('endMin', {
+                                    rules: [{
+                                        required: true
+                                    }],
+                                    initialValue: '59'
+                                })(
                                     <Select disabled>
                                         <Option value="59">59</Option>
                                     </Select>
-                            )}
+                                )}
                             </Col>
                             <span className="split-text">分</span>
-                            </FormItem>
-                        </span>;
-                    }
+                        </FormItem>
+                    </span>;
+                }
                     break;
 
-                    case 2: { // 天
-                        const prefix = isWorkflowNode ? '起调' : '具体';
-                        dom = <span key={type}>
-                                <FormItem
-                                    {...formItemLayout}
-                                    label={`${prefix}时间`}
-                                >
-                                <Col span="6">
+                case 2: { // 天
+                    const prefix = isWorkflowNode ? '起调' : '具体';
+                    dom = <span key={type}>
+                        <FormItem
+                            {...formItemLayout}
+                            label={`${prefix}时间`}
+                        >
+                            <Col span="6">
                                 {getFieldDecorator('hour', {
                                     rules: [{
                                         required: true
@@ -396,10 +394,10 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateHours()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('min', {
                                     rules: [{
@@ -408,22 +406,22 @@ class ScheduleForm extends React.Component {
                                     initialValue: `${scheduleConf.min}`
 
                                 })(
-                                        generateMins()
+                                    generateMins()
                                 )}
-                                </Col>
-                                <span className="split-text">分</span>
-                            </FormItem>
-                        </span>;
-                    }
+                            </Col>
+                            <span className="split-text">分</span>
+                        </FormItem>
+                    </span>;
+                }
                     break;
 
-                    case 3: { // 周
-                        dom = <span key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="选择时间"
-                            >
-                                <Col span="13">
+                case 3: { // 周
+                    dom = <span key={type}>
+                        <FormItem
+                            {...formItemLayout}
+                            label="选择时间"
+                        >
+                            <Col span="13">
                                 {getFieldDecorator('weekDay', {
                                     rules: [{
                                         required: true
@@ -432,13 +430,13 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateDays()
                                 )}
-                                </Col>
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="具体时间"
-                            >
-                                <Col span="6">
+                            </Col>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="具体时间"
+                        >
+                            <Col span="6">
                                 {getFieldDecorator('hour', {
                                     rules: [{
                                         required: true
@@ -447,10 +445,10 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateHours()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('min', {
                                     rules: [{
@@ -460,21 +458,21 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateMins()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">分</span>
-                            </FormItem>
-                        </span>;
-                    }
+                            <span className="split-text">分</span>
+                        </FormItem>
+                    </span>;
+                }
                     break;
 
-                    case 4: { // 月
-                        dom = <span key={type}>
-                            <FormItem
-                                {...formItemLayout}
-                                label="选择时间"
-                            >
-                                <Col span="13">
+                case 4: { // 月
+                    dom = <span key={type}>
+                        <FormItem
+                            {...formItemLayout}
+                            label="选择时间"
+                        >
+                            <Col span="13">
 
                                 {getFieldDecorator('day', {
                                     rules: [{
@@ -484,14 +482,14 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateDate()
                                 )}
-                                </Col>
+                            </Col>
 
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="具体时间"
-                            >
-                                <Col span="6">
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="具体时间"
+                        >
+                            <Col span="6">
 
                                 {getFieldDecorator('hour', {
                                     rules: [{
@@ -501,10 +499,10 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateHours()
                                 )}
-                                </Col>
+                            </Col>
 
-                                <span className="split-text">时</span>
-                                <Col span="6">
+                            <span className="split-text">时</span>
+                            <Col span="6">
 
                                 {getFieldDecorator('min', {
                                     rules: [{
@@ -514,14 +512,14 @@ class ScheduleForm extends React.Component {
                                 })(
                                     generateMins()
                                 )}
-                                </Col>
-                                <span className="split-text">分</span>
-                            </FormItem>
-                        </span>;
-                    }
+                            </Col>
+                            <span className="split-text">分</span>
+                        </FormItem>
+                    </span>;
+                }
                     break;
 
-                    default: dom = <span>something wrong</span>;
+                default: dom = <span>something wrong</span>;
                 }
 
                 return dom;
@@ -529,42 +527,42 @@ class ScheduleForm extends React.Component {
         </Form>
     }
 
-    checkTimeS(rule, value, callback) {
+    checkTimeS (rule, value, callback) {
         const { form } = this.props;
         const endHour = form.getFieldValue('endHour');
 
-        if(+value > +endHour) {
+        if (+value > +endHour) {
             callback('开始时间不能晚于结束时间');
         }
         callback();
     }
-    checkTimeE(rule, value, callback) {
+    checkTimeE (rule, value, callback) {
         const { form } = this.props;
         const beginHour = form.getFieldValue('beginHour');
 
-        if(+value < +beginHour) {
+        if (+value < +beginHour) {
             callback('结束时间不能早于开始时间');
         }
         callback();
     }
-    checkTimeS1(rule, value, callback) {
+    checkTimeS1 (rule, value, callback) {
         const { form } = this.props;
         const beginHour = +form.getFieldValue('beginHour');
         const beginMin = +form.getFieldValue('beginMin');
         const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
-        if(beginHour*60+beginMin > endHour) {
+        if (beginHour * 60 + beginMin > endHour) {
             callback('开始时间不能晚于结束时间');
         }
         callback();
     }
-    checkTimeE1(rule, value, callback) {
+    checkTimeE1 (rule, value, callback) {
         const { form } = this.props;
         const beginHour = +form.getFieldValue('beginHour');
         const beginMin = +form.getFieldValue('beginMin');
         const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
-        if(beginHour*60+beginMin > endHour) {
+        if (beginHour * 60 + beginMin > endHour) {
             callback('结束时间不能早于开始时间');
         }
         callback();
@@ -574,19 +572,18 @@ class ScheduleForm extends React.Component {
 const FormWrap = Form.create()(ScheduleForm);
 
 class SchedulingConfig extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
 
         this.state = {
             recommentTaskModalVisible: false,
             recommentTaskList: [],
             wFScheduleConf: undefined,
-            selfReliance: undefined,
+            selfReliance: undefined
         }
     }
-    
-    componentDidMount() {
+
+    componentDidMount () {
         this.loadWorkflowConfig();
         const { tabData } = this.props;
         let scheduleConf = JSON.parse(tabData.scheduleConf);
@@ -601,16 +598,15 @@ class SchedulingConfig extends React.Component {
             } else if (scheduleConf.selfReliance) {
                 selfReliance = scheduleConf.selfReliance;
             }
-        }  
+        }
         this.setState({
-            selfReliance: selfReliance,
+            selfReliance: selfReliance
         });
 
         this.loadWorkflowConfig();
     }
 
     loadWorkflowConfig = () => {
-
         const { tabData, isWorkflowNode, tabs } = this.props;
         if (!isWorkflowNode) return;
         const workflowId = tabData.flowId;
@@ -619,7 +615,7 @@ class SchedulingConfig extends React.Component {
         const setWfConf = (task) => {
             const wFScheduleConf = JSON.parse(task.scheduleConf);
             this.setState({
-                wFScheduleConf,
+                wFScheduleConf
             })
         }
         if (workflow) {
@@ -635,67 +631,67 @@ class SchedulingConfig extends React.Component {
         }
     }
 
-    showRecommentTask() {
+    showRecommentTask () {
         const { tabData } = this.props;
         this.setState({
-            loading:true
+            loading: true
         })
         ajax.getRecommentTask({
-            taskId:tabData.id
+            taskId: tabData.id
         })
-        .then(
-            (res)=>{
-                this.setState({
-                    loading:false
-                })
-                if(res.code==1){
+            .then(
+                (res) => {
                     this.setState({
-                        recommentTaskModalVisible:true,
-                        recommentTaskList:res.data,
+                        loading: false
                     })
+                    if (res.code == 1) {
+                        this.setState({
+                            recommentTaskModalVisible: true,
+                            recommentTaskList: res.data
+                        })
+                    }
                 }
-            }
-        )
+            )
     }
 
-    recommentTaskChoose(list){
+    recommentTaskChoose (list) {
         console.log(list);
-        for(let i =0;i<list.length;i++){
+        for (let i = 0; i < list.length; i++) {
             this.props.addVOS(list[i]);
         }
         this.setState({
-            recommentTaskModalVisible:false,
+            recommentTaskModalVisible: false
         })
     }
 
-    recommentTaskClose(){
+    recommentTaskClose () {
         this.setState({
-            recommentTaskModalVisible:false,
+            recommentTaskModalVisible: false
         })
     }
 
-    handleScheduleStatus(evt) {
+    handleScheduleStatus (evt) {
         const { checked } = evt.target;
         // mutate
         this.props.changeScheduleStatus(checked ? 2 : 1);
     }
 
-    handleScheduleStatus(evt) {
+    handleScheduleStatus (evt) {
         const { checked } = evt.target;
         const status = checked ? 2 : 1;
-        const { tabData }  = this.props;
-        const succInfo = checked ? "冻结成功" : "解冻成功";
-        const errInfo = checked ? "冻结失败" : "解冻失败";
+        const { tabData } = this.props;
+        const succInfo = checked ? '冻结成功' : '解冻成功';
+        const errInfo = checked ? '冻结失败' : '解冻失败';
 
         ajax.forzenTask({
-            taskIdList: [tabData.id], 
-            scheduleStatus: status  //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
+            taskIdList: [tabData.id],
+            scheduleStatus: status //  1正常调度, 2暂停 NORMAL(1), PAUSE(2),
         }).then((res) => {
             if (res.code === 1) {
-                 // mutate
+                // mutate
                 this.props.changeScheduleStatus(status);
                 message.info(succInfo)
-            }else{
+            } else {
                 message.err(errInfo)
             }
         })
@@ -709,7 +705,7 @@ class SchedulingConfig extends React.Component {
         }
         setTimeout(() => {
             this.form.validateFields((err, values) => {
-                if(!err) {
+                if (!err) {
                     let formData = this.form.getFieldsValue();
                     formData.selfReliance = this.state.selfReliance;
                     formData = Object.assign(defaultScheduleConf, formData);
@@ -720,7 +716,7 @@ class SchedulingConfig extends React.Component {
         }, 0);
     }
 
-    handleScheduleType(type) {
+    handleScheduleType (type) {
         const dft = this.getDefaultScheduleConf(type);
         const values = assign({}, dft, {
             scheduleStatus: this.form.getFieldValue('scheduleStatus'),
@@ -732,7 +728,7 @@ class SchedulingConfig extends React.Component {
         this.props.changeScheduleConf(values);
     }
 
-    getDefaultScheduleConf(value) {
+    getDefaultScheduleConf (value) {
         const scheduleConf = {
             0: {
                 beginHour: 0,
@@ -766,42 +762,42 @@ class SchedulingConfig extends React.Component {
                 day: 5,
                 hour: 0,
                 min: 23,
-                periodType: 4,
+                periodType: 4
             }
         };
 
         return scheduleConf[value];
     }
 
-    handleDelVOS(o) {
+    handleDelVOS (o) {
         this.props.delVOS(o.id);
     }
 
-    handleAddVOS(task) {
+    handleAddVOS (task) {
         this.props.addVOS(task);
     }
 
-    goEdit(task) {
+    goEdit (task) {
         this.props.getTaskDetail(task.id)
     }
 
-    setSelfReliance(evt) {
+    setSelfReliance (evt) {
         const value = evt.target.value;
         this.setState({
-            selfReliance: value,
+            selfReliance: value
         })
         this.handleScheduleConf();
     }
 
-    render() {
-        const { 
-            recommentTaskModalVisible, recommentTaskList, 
+    render () {
+        const {
+            recommentTaskModalVisible, recommentTaskList,
             loading, wFScheduleConf, selfReliance
         } = this.state;
-        
+
         const { tabData, isWorkflowNode, couldEdit } = this.props;
         console.log('tabData', tabData, isWorkflowNode);
-        
+
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
 
@@ -812,7 +808,7 @@ class SchedulingConfig extends React.Component {
             endDate: '2021-01-01'
         });
 
-        if(initConf !== '') {
+        if (initConf !== '') {
             scheduleConf = Object.assign(scheduleConf, JSON.parse(initConf));
         }
         // 工作流更改默认调度时间配置
@@ -822,7 +818,7 @@ class SchedulingConfig extends React.Component {
                 endDate: '2021-01-01'
             }, scheduleConf);
             scheduleConf.periodType = 2;
-        } 
+        }
 
         console.log('isLocked:', isLocked);
 
@@ -831,15 +827,15 @@ class SchedulingConfig extends React.Component {
                 title: '任务名称',
                 dataIndex: 'name',
                 key: 'name',
-                render: (text, record) => <a 
+                render: (text, record) => <a
                     href="javascript:void(0)"
                     onClick={ this.goEdit.bind(this, record) }
-                    >{text}</a>,
+                >{text}</a>
             },
             {
                 title: '责任人',
                 dataIndex: 'createUser.userName',
-                key: 'createUser.userName',
+                key: 'createUser.userName'
             },
             {
                 title: '操作',
@@ -850,18 +846,18 @@ class SchedulingConfig extends React.Component {
                             onClick={ this.handleDelVOS.bind(this, record) }
                         >删除</a>
                     </span>
-                ),
+                )
             }
         ];
 
         const radioStyle = {
             display: 'block',
             height: '30px',
-            lineHeight: '30px',
+            lineHeight: '30px'
         };
-        
-        return <div className="m-scheduling" style={{position: 'relative'}}>
-            { isLocked || !couldEdit? <div className="cover-mask"></div> : null } 
+
+        return <div className="m-scheduling" style={{ position: 'relative' }}>
+            { isLocked || !couldEdit ? <div className="cover-mask"></div> : null }
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap
@@ -878,13 +874,13 @@ class SchedulingConfig extends React.Component {
                 </Panel>
                 {
                     !isWorkflowNode &&
-                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE && 
+                    tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
                     <Panel key="2" header="任务间依赖">
-                        {isSql&&<Button loading={loading} type="primary" style={{marginBottom:"20px", marginLeft: '12px'}} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
+                        {isSql && <Button loading={loading} type="primary" style={{ marginBottom: '20px', marginLeft: '12px' }} onClick={this.showRecommentTask.bind(this)}>自动推荐</Button>}
                         <Form>
                             <FormItem
-                            {...formItemLayout}
-                            label="上游任务"
+                                {...formItemLayout}
+                                label="上游任务"
                             >
                                 <TaskSelector
                                     onSelect={ this.handleAddVOS.bind(this) }
@@ -893,18 +889,18 @@ class SchedulingConfig extends React.Component {
                             </FormItem>
                         </Form>
                         {
-                            tabData.taskVOS&&tabData.taskVOS.length>0 ?  
-                            <Row>
-                                <Col>
-                                    <Table
-                                        className="m-table"
-                                        columns={columns}
-                                        bordered={false}
-                                        dataSource={ tabData.taskVOS }
-                                        rowKey={record => record.id.lable}
-                                    />
-                                </Col>
-                            </Row> : ''
+                            tabData.taskVOS && tabData.taskVOS.length > 0
+                                ? <Row>
+                                    <Col>
+                                        <Table
+                                            className="m-table"
+                                            columns={columns}
+                                            bordered={false}
+                                            dataSource={ tabData.taskVOS }
+                                            rowKey={record => record.id.lable}
+                                        />
+                                    </Col>
+                                </Row> : ''
                         }
                     </Panel>
                 }
@@ -921,12 +917,12 @@ class SchedulingConfig extends React.Component {
                                     <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                     <Radio style={radioStyle} value={3}>
                                         自依赖，等待上一调度周期结束，才能继续运行&nbsp;
-                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                        <HelpDoc style={{ position: 'inherit' }} doc="taskDependentTypeDesc" />
                                     </Radio>
                                     <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
                                     <Radio style={radioStyle} value={4}>
                                         等待下游任务的上一周期结束，才能继续运行&nbsp;
-                                        <HelpDoc style={{position: 'inherit'}} doc="taskDependentTypeDesc" />
+                                        <HelpDoc style={{ position: 'inherit' }} doc="taskDependentTypeDesc" />
                                     </Radio>
                                 </RadioGroup>
                             </Col>
@@ -934,7 +930,7 @@ class SchedulingConfig extends React.Component {
                     </Panel>
                 }
             </Collapse>
-            <RecommentTaskModal 
+            <RecommentTaskModal
                 visible={recommentTaskModalVisible}
                 taskList={recommentTaskList}
                 onOk={this.recommentTaskChoose.bind(this)}
@@ -945,21 +941,20 @@ class SchedulingConfig extends React.Component {
     }
 }
 
-
 class TaskSelector extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.searchVOS = this.fetchVOS.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.selectVOS = this.props.onSelect;
         this.taskId = this.props.taskId;
 
-        this.state = { list: [],emptyError:false };
+        this.state = { list: [], emptyError: false };
     }
 
-    fetchVOS(evt) {
+    fetchVOS (evt) {
         const value = evt.target.value;
-        if(value.trim() === '') {
+        if (value.trim() === '') {
             this.setState({
                 list: []
             });
@@ -971,9 +966,9 @@ class TaskSelector extends React.Component {
             name: value,
             taskId: this.taskId
         }).then(res => {
-            if(res.code === 1) {
-                res.data.length === 0&&this.setState({
-                    emptyError:true
+            if (res.code === 1) {
+                res.data.length === 0 && this.setState({
+                    emptyError: true
                 })
                 // res.data.length === 0 && message.warning('没有符合条件的任务');
                 this.setState({
@@ -984,51 +979,51 @@ class TaskSelector extends React.Component {
         })
     }
 
-    handleClick(task) {
+    handleClick (task) {
         ajax.checkIsLoop({
             taskId: this.taskId,
             dependencyTaskId: task.id
         })
-        .then(res => {
-            if(res.code === 1) {
-                if(res.data) message.error(`添加失败，该任务循环依赖任务${res.data.name || ''}!`)
-                else {
-                    this.selectVOS(task);
-                    this.$input.value = '';
-                    this.setState({
-                        list: []
-                    });
+            .then(res => {
+                if (res.code === 1) {
+                    if (res.data) message.error(`添加失败，该任务循环依赖任务${res.data.name || ''}!`)
+                    else {
+                        this.selectVOS(task);
+                        this.$input.value = '';
+                        this.setState({
+                            list: []
+                        });
+                    }
                 }
-            }
-        })
+            })
     }
-    resetError(){
+    resetError () {
         this.setState({
-            emptyError:false
+            emptyError: false
         })
     }
-    render() {
+    render () {
         const { list, emptyError } = this.state;
-        const emptyErrorStyle={
-            position: "absolute",
-            width: "100%",
-            bottom: "-28px",
-            left: "0px",
-            color:"red"
+        const emptyErrorStyle = {
+            position: 'absolute',
+            width: '100%',
+            bottom: '-28px',
+            left: '0px',
+            color: 'red'
         }
         return <div className="m-taskselector">
-            <input onInput={(event)=>{
+            <input onInput={(event) => {
                 this.resetError();
-                debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event); 
+                debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event);
             }}
-                ref={el => this.$input = el}
-                className="ant-input"
-                placeholder="根据任务名称搜索"
+            ref={el => this.$input = el}
+            className="ant-input"
+            placeholder="根据任务名称搜索"
             />
-            {emptyError&&<span style={emptyErrorStyle}>没有符合条件的任务</span>}
+            {emptyError && <span style={emptyErrorStyle}>没有符合条件的任务</span>}
             {list.length > 0 && <ul className="tasklist">
                 {list.map(o => <li className="taskitem"
-                    onClick={ ()=>{ this.handleClick(o) } }
+                    onClick={ () => { this.handleClick(o) } }
                     key={ o.id }
                 >
                     {o.name}
@@ -1072,7 +1067,7 @@ const mapDispatch = dispatch => {
             ajax.getOfflineTaskDetail({
                 id: id
             }).then(res => {
-                if(res.code === 1) {
+                if (res.code === 1) {
                     dispatch({
                         type: workbenchAction.LOAD_TASK_DETAIL,
                         payload: res.data
@@ -1088,4 +1083,3 @@ const mapDispatch = dispatch => {
 };
 
 export default connect(mapState, mapDispatch)(SchedulingConfig);
-

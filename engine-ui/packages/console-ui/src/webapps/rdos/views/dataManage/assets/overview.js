@@ -31,7 +31,6 @@ const { RangePicker } = DatePicker;
 const Option = Select.Option;
 
 export default class ProjectList extends Component {
-
     state = {
         total: this.props.total || true,
         project: {},
@@ -45,12 +44,12 @@ export default class ProjectList extends Component {
         topStyle: {
             width: '50%',
             height: '100%',
-            display: 'inline-block',
+            display: 'inline-block'
         },
-        chartSpan: 12,
+        chartSpan: 12
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { selectedProject } = this.state;
         this.loadProjectStoreTop5()
         this.loadProjectTableTop5()
@@ -59,7 +58,7 @@ export default class ProjectList extends Component {
         this.loadDataOverview(selectedProject)
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const nextProjects = nextProps.projects
         const old = this.props.projects
         if (old.length !== nextProjects.length) {
@@ -74,11 +73,10 @@ export default class ProjectList extends Component {
             this.setState({
                 total: nextProps.total
             }, this.componentDidMount)
-
         }
     }
 
-    loadProjectCount() {
+    loadProjectCount () {
         const ctx = this
         const { total } = this.state;
         const params = {};
@@ -88,22 +86,22 @@ export default class ProjectList extends Component {
         const userId = utils.getCookie('dt_user_id')
         Api.getProjectInfo(params).then((res) => {
             ctx.setState({
-                project: res.data,
+                project: res.data
             })
         })
         TableDataApi.countProjectTable(params).then((res) => {
             ctx.setState({
-                projectTable: res.data,
+                projectTable: res.data
             })
         })
         TableDataApi.countProjectStore(params).then((res) => {
             ctx.setState({
-                projectStore: res.data,
+                projectStore: res.data
             })
         })
     }
 
-    loadDataOverview(projectId) { // 默认最近7天
+    loadDataOverview (projectId) { // 默认最近7天
         const ctx = this
         const { selectedDate } = this.state
         if (!projectId) return;
@@ -120,7 +118,7 @@ export default class ProjectList extends Component {
         })
     }
 
-    loadProjectStoreTop5() {
+    loadProjectStoreTop5 () {
         const ctx = this;
         const { total } = this.state;
         const params = { top: 5 };
@@ -132,7 +130,7 @@ export default class ProjectList extends Component {
         })
     }
 
-    loadProjectTableTop5() {
+    loadProjectTableTop5 () {
         const ctx = this
         const { total } = this.state;
         const params = { top: 5 };
@@ -157,7 +155,7 @@ export default class ProjectList extends Component {
                     precision: 1,
                     label: {
                         normal: {
-                            show: false,
+                            show: false
                         }
                     }
                 },
@@ -173,7 +171,7 @@ export default class ProjectList extends Component {
                 yAxisIndex: 1,
                 areaStyle: { normal: { opacity: 0.4 } },
                 markLine: {
-                    precision: 1,
+                    precision: 1
                 },
                 data: data.projectSize.y.data || []
             })
@@ -181,13 +179,13 @@ export default class ProjectList extends Component {
         return arr
     }
 
-    drawOverviewChart(chartData) {
+    drawOverviewChart (chartData) {
         let myChart = echarts.init(document.getElementById('DataOverview'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = '数据概览'
         option.legend.show = false
-        option.color[0] = '#F5A623'; //'#69e3be'
-        option.color[1] = '#2491F7'; //'#F5A623'
+        option.color[0] = '#F5A623'; // '#69e3be'
+        option.color[1] = '#2491F7'; // '#F5A623'
 
         option.tooltip.formatter = function (params) {
             const showVal = utils.convertBytes(params[1].value)
@@ -221,8 +219,8 @@ export default class ProjectList extends Component {
         this.setState({ chart1: myChart })
     }
 
-    drawStoreTop5(chartData) {
-        //const { topStyle } = this.state;
+    drawStoreTop5 (chartData) {
+        // const { topStyle } = this.state;
         let myChart = echarts.init(document.getElementById('StoreTop5'));
         const option = cloneDeep(defaultBarOption);
         const data = this.getPieData(chartData)
@@ -252,7 +250,6 @@ export default class ProjectList extends Component {
                 }
             })
             if (projectId) hashHistory.push(`/data-manage/search?pId=${projectId}`)
-
         });
         // const ctx = this;
 
@@ -271,7 +268,7 @@ export default class ProjectList extends Component {
         this.setState({ chart2: myChart })
     }
 
-    drawTableTop5(chartData) {
+    drawTableTop5 (chartData) {
         let myChart = echarts.init(document.getElementById('TableTop5'));
         const option = cloneDeep(defaultBarOption);
         const data = this.getPieData(chartData, 'drawTable')
@@ -281,9 +278,9 @@ export default class ProjectList extends Component {
         option.legend.show = false
 
         option.tooltip.formatter = function (params) {
-            const param=params[0];
-            const data=param.data.data;
-            const {projectname, tableName} = data;
+            const param = params[0];
+            const data = param.data.data;
+            const { projectname, tableName } = data;
             const showVal = utils.convertBytes(params[0].value)
             return `项目:${projectname}<br/>表:${tableName}<br/>${params[0].seriesName}: ${showVal}`
         }
@@ -298,8 +295,8 @@ export default class ProjectList extends Component {
         option.yAxis.axisLabel.formatter = (item) => {
             const { value } = item;
             if (value.length > 16) {
-                return value.slice(0, 16) + "...";
-                //return "..." + value.slice(-20) ;
+                return value.slice(0, 16) + '...';
+                // return "..." + value.slice(-20) ;
             } else {
                 return value;
             }
@@ -307,19 +304,19 @@ export default class ProjectList extends Component {
         // 绘制图表
         myChart.setOption(option);
         myChart.on('click', (params) => {
-            const {data} = params.value;
-            const {tableId}=data;
-            if (tableId||tableId==0) hashHistory.push(`/data-manage/table/view/${tableId}`)
+            const { data } = params.value;
+            const { tableId } = data;
+            if (tableId || tableId == 0) hashHistory.push(`/data-manage/table/view/${tableId}`)
         });
         this.setState({ chart3: myChart })
     }
 
-    getPieData(data, type) {
-        const y = [], x = []
+    getPieData (data, type) {
+        const y = []; const x = []
         if (type == 'drawTable') {
             if (data && data.length > 0) {
                 for (let i = data.length - 1; i >= 0; i--) {
-                    y.push({ value: { value: `${data[i].projectname}.${data[i].tableName}`, data: data[i] }})
+                    y.push({ value: { value: `${data[i].projectname}.${data[i].tableName}`, data: data[i] } })
                     x.push({ value: parseInt(data[i].size, 10), data: data[i] })
                 }
             }
@@ -370,7 +367,7 @@ export default class ProjectList extends Component {
         })
     }
 
-    render() {
+    render () {
         const { project, selectedProject, projectTable, projectStore, topStyle, total, chartSpan } = this.state
         const { projects } = this.props
         const projectOptions = projects ? projects.map(item => {
@@ -403,7 +400,7 @@ export default class ProjectList extends Component {
                                         {projectOptions}
                                     </Select>
                                     &nbsp;&nbsp;
-                                        <RangePicker
+                                    <RangePicker
                                         style={{ width: '230px' }}
                                         format="YYYY-MM-DD"
                                         defaultValue={[moment().subtract(6, 'days'), moment()]}
@@ -438,10 +435,10 @@ export default class ProjectList extends Component {
     }
 }
 
-function Abstract(props) {
+function Abstract (props) {
     const { project, projectTable, projectStore, total } = props
     return (
-        <Row gutter={32} style={{ padding: "0 10" }} type="flex" justify="space-between">
+        <Row gutter={32} style={{ padding: '0 10' }} type="flex" justify="space-between">
             <Col span={8} >
                 <div className="indicator-col shadow">
                     <div className="left indicator-icon">

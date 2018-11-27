@@ -1,6 +1,6 @@
-import React, { Component } from "react";
-import { Modal, Form, Input, Spin, message, Button } from "antd"
-import { connect } from "react-redux";
+import React, { Component } from 'react';
+import { Modal, Form, Input, Spin, message, Button } from 'antd'
+import { connect } from 'react-redux';
 
 import { apiMarketActions } from '../../actions/apiMarket';
 import { formItemLayout } from '../../consts';
@@ -9,10 +9,10 @@ const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
 const mapDispatchToProps = dispatch => ({
-    apiApply(apiId, applyContent) {
+    apiApply (apiId, applyContent) {
         return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
     },
-    getApiExtInfo(tagId) {
+    getApiExtInfo (tagId) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 tagId: tagId
@@ -27,7 +27,7 @@ class ApplyBox extends Component {
         loading: false
     }
 
-    handleOk() {
+    handleOk () {
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 this.setState({
@@ -40,26 +40,24 @@ class ApplyBox extends Component {
                                 loading: false
                             })
                             // this.props.getApiExtInfo(this.props.tagId);
-                            if(this.props.getMarketApi){
+                            if (this.props.getMarketApi) {
                                 this.props.getMarketApi();
                             }
-                            
+
                             if (res) {
                                 message.success('操作成功')
                                 this.props.successCallBack();
                             }
                         }
                     )
-
             }
         });
-
     }
-    handleCancel() {
+    handleCancel () {
         this.props.form.resetFields();
         this.props.cancelCallback();
     }
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         return (
             <div>
@@ -73,7 +71,7 @@ class ApplyBox extends Component {
                         <Button key="back" size="large" onClick={this.handleCancel.bind(this)}>取消</Button>,
                         <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={this.handleOk.bind(this)}>
                             提交
-                        </Button>,
+                        </Button>
                     ]}
                 >
 
@@ -100,17 +98,17 @@ class ApplyBox extends Component {
                         >
                             {
                                 getFieldDecorator('applyMsg', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '请输入申请信息' 
+                                    rules: [{
+                                        required: true,
+                                        message: '请输入申请信息'
                                     }, {
                                         max: 200,
-                                        message:"最大字符不能超过200"
+                                        message: '最大字符不能超过200'
                                     }]
                                 })(
-                                    <TextArea 
+                                    <TextArea
                                         placeholder="请输入申请信息"
-                                        autosize={{ minRows: 4, maxRows: 8 }} 
+                                        autosize={{ minRows: 4, maxRows: 8 }}
                                     />
                                 )
                             }
@@ -119,7 +117,6 @@ class ApplyBox extends Component {
                 </Modal>
 
             </div>
-
 
         )
     }

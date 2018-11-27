@@ -1,33 +1,30 @@
 import React, { Component } from 'react'
-import { connect } from "react-redux";
-import { Card, Icon, Row, Col, Button, Modal } from "antd"
+import { connect } from 'react-redux';
+import { Card, Icon, Row, Col, Button, Modal } from 'antd'
 
-import utils from "utils";
+import utils from 'utils';
 let modal;
 class TopCard extends Component {
     state = {
         applyBox: false,
         apply: {
-            apiId: "",
-            apiName: "",
-            desc: ""
+            apiId: '',
+            apiName: '',
+            desc: ''
         }
     }
-    getTopRightButton() {
+    getTopRightButton () {
         const status = this.getValue('applyStatus');
-        if (status == 1||status == 3) {
+        if (status == 1 || status == 3) {
             // return <Button onClick={this.jumpToMineApproved.bind(this)} size="large" type="primary">查看使用情况</Button>
             return null;
-
         }
         if (status == 0) {
             return <Button onClick={this.jumpToMine.bind(this)} size="large" type="primary">查看审批情况</Button>
-
         }
         return <Button onClick={this.doApply.bind(this)} size="large" type="primary">立即订购</Button>
-
     }
-    doApply() {
+    doApply () {
         this.setState({
             applyBox: true,
             apply: {
@@ -37,64 +34,59 @@ class TopCard extends Component {
             }
         })
     }
-    back() {
-        this.props.router.replace("/api/market");
+    back () {
+        this.props.router.replace('/api/market');
     }
-    getValue(key) {
+    getValue (key) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
         if (api) {
             return api[key]
         } else {
             return null;
         }
-
     }
-    getApiValue(key) {
+    getApiValue (key) {
         const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.apiId];
         if (api) {
             return api[key]
         } else {
             return null;
         }
-
     }
-    showApplySuccessModal() {
+    showApplySuccessModal () {
         modal = Modal.success({
             title: '申请提交成功',
             content: (
                 <span>您可以在 <a onClick={this.jumpToMine.bind(this)}>我的API</a> 中查看审批进度</span>
             ),
-            okText: "确定"
+            okText: '确定'
         });
     }
 
-    jumpToMine() {
+    jumpToMine () {
         if (modal) {
             modal.destroy();
         }
 
-        this.props.router.push("/api/mine");
-
-
+        this.props.router.push('/api/mine');
     }
-    jumpToMineApproved() {
-        this.props.router.push("/api/mine/approved?apiId="+this.props.apiId);
+    jumpToMineApproved () {
+        this.props.router.push('/api/mine/approved?apiId=' + this.props.apiId);
     }
-    handleOk() {
-
+    handleOk () {
         this.setState({
             applyBox: false
         });
         this.showApplySuccessModal();
     }
-    handleCancel() {
+    handleCancel () {
         this.setState({
             applyBox: false
         })
     }
-    render() {
+    render () {
         const back = !(this.props.router.location.query && this.props.router.location.query.isHideBack) ? (
-            <Col span={1} ><Icon type="left-circle-o" onClick={this.back.bind(this)} style={{ fontSize: 18, cursor: "pointer" }} /></Col>
+            <Col span={1} ><Icon type="left-circle-o" onClick={this.back.bind(this)} style={{ fontSize: 18, cursor: 'pointer' }} /></Col>
         ) : null;
         return (
             <Card className="box-1" noHovering>
@@ -105,7 +97,7 @@ class TopCard extends Component {
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
                 ></ApplyBox>
-                <Row className="m-count" style={{ height: "auto" }}>
+                <Row className="m-count" style={{ height: 'auto' }}>
                     {back}
                     <Col span={12}>
                         <Row className="header-title">

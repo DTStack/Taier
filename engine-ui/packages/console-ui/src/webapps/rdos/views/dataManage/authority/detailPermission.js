@@ -6,34 +6,32 @@ import '../../../styles/pages/dataManage.scss';
 const FormItem = Form.Item;
 
 const CheckboxGroup = Checkbox.Group;
-const pageSize =20;
+const pageSize = 20;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 20 },
-    },
+        sm: { span: 20 }
+    }
 }
 
 class DetailPermission extends Component {
-
     state = {
         currentPage: 1,
-        arr: [],
+        arr: []
         // permissionParams: undefined,
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const firstArr = nextProps.permissionParams;
-        if(this.props.permissionParams != nextProps.permissionParams) {
+        if (this.props.permissionParams != nextProps.permissionParams) {
             this.setState({
-                arr: firstArr.fullColumnsData.slice(0,pageSize)
+                arr: firstArr.fullColumnsData.slice(0, pageSize)
             })
         }
-        
     }
     submit = (e) => {
         e.preventDefault()
@@ -41,11 +39,11 @@ class DetailPermission extends Component {
         const formData = form.getFieldsValue()
         form.validateFields((err) => {
             if (!err) {
-                setTimeout(() => { 
+                setTimeout(() => {
                     this.setState({
                         currentPage: 1
                     })
-                    form.resetFields() 
+                    form.resetFields()
                 }, 200)
                 onOk(formData)
             }
@@ -60,32 +58,31 @@ class DetailPermission extends Component {
             currentPage: 1
         })
     }
-    
 
-    handleResource(type){
+    handleResource (type) {
         const { table } = this.props;
         let data;
-        if(type === "resourceName"){
-            const resourceName =  table.map(v=>{
+        if (type === 'resourceName') {
+            const resourceName = table.map(v => {
                 return v.resourceName
             })
-            data = resourceName.join(" 、")
-        }else{
-            data =  table.map(v=>{
+            data = resourceName.join(' 、')
+        } else {
+            data = table.map(v => {
                 return v.applyId
             })
         }
         return data
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
-        const { visible, agreeApply, table, permissionParams} = this.props;
+        const { visible, agreeApply, table, permissionParams } = this.props;
         // const title = agreeApply ? '通过申请' : '驳回申请';
-        
+
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
         // const {permissionParams} = this.state;
-        const { arr, currentPage} = this.state;
+        const { arr, currentPage } = this.state;
         // const ddlCheck = permissionParams.fullDdlsData.filter(item => {
         //     return item.status === true
         // })
@@ -123,8 +120,8 @@ class DetailPermission extends Component {
                 width="750px"
                 footer={
                     this.props.listType == 0 ? [
-                        <Button  size="large" onClick={this.cancle}>取消</Button>,
-                        <Button  type="primary" size="large" onClick={this.submit}>
+                        <Button size="large" onClick={this.cancle}>取消</Button>,
+                        <Button type="primary" size="large" onClick={this.submit}>
                           确定
                         </Button>
                     ] : <Button type="primary" size="large" onClick={this.cancle}>关闭</Button>
@@ -137,19 +134,19 @@ class DetailPermission extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('tableName', {
-                            rules: [],
+                            rules: []
                         })(
-                            <span style={{marginRight: "10px"}}>{ this.handleResource('resourceName') }</span>
-                           
+                            <span style={{ marginRight: '10px' }}>{ this.handleResource('resourceName') }</span>
+
                         )}
                         <Checkbox disabled checked={permissionParams.ischeckAll}>All</Checkbox>
                     </FormItem>
 
-                     {/* 表段权限 */}
+                    {/* 表段权限 */}
                     <FormItem
                         {...formItemLayout1}
                         label="DDL"
-                        style={{marginLeft:"20px",marginTop:"-20px"}}
+                        style={{ marginLeft: '20px', marginTop: '-20px' }}
                     >
                         <div className="content">
                             <CheckboxGroup options={permissionParams.fullDdlsData} value={permissionParams.ddlCheckArray} disabled></CheckboxGroup>
@@ -158,7 +155,7 @@ class DetailPermission extends Component {
                     <FormItem
                         {...formItemLayout1}
                         label="DML"
-                        style={{marginLeft:"20px",marginTop:"-20px"}}
+                        style={{ marginLeft: '20px', marginTop: '-20px' }}
                     >
                         <div className="content">
                             <CheckboxGroup options={permissionParams.fullDmlsData} value={permissionParams.dmlCheckArray} disabled ></CheckboxGroup>
@@ -169,7 +166,7 @@ class DetailPermission extends Component {
                     <FormItem
                         {...formItemLayout1}
                         label="字段权限"
-                        style={{background: "#FAFAFA"}}
+                        style={{ background: '#FAFAFA' }}
                     >
                         <Checkbox disabled checked={permissionParams.idCheckIds}>All(包括新增字段)</Checkbox>
                         <div className="content">
@@ -183,80 +180,79 @@ class DetailPermission extends Component {
                             total={permissionParams.total}
                             pageSize={pageSize}
                             current={currentPage}
-                            onChange={(currentPage,pageSize) => {
+                            onChange={(currentPage, pageSize) => {
                                 const fullColumnsCheck = permissionParams.fullColumnsData;
-                                const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
+                                const arr = fullColumnsCheck.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + pageSize)
                                 this.setState({
                                     currentPage,
                                     arr
                                 })
                                 console.log(currentPage)
                             }}
-                            style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
-                        /> : ""}
+                            style={{ marginLeft: '70%', marginTop: '10px', marginBottom: '20px' }}
+                        /> : ''}
                     </FormItem>
 
-
                     <FormItem
-                        style={{display: 'none'}}
+                        style={{ display: 'none' }}
                     >
                         {getFieldDecorator('ids', {
                             rules: [],
                             initialValue: this.handleResource('ids')
                         })(
-                            <Input type="hidden" />,
+                            <Input type="hidden" />
                         )}
                     </FormItem>
 
                     <FormItem
-                        style={{display: 'none'}}
+                        style={{ display: 'none' }}
                     >
                         {getFieldDecorator('status', {
                             rules: [],
                             initialValue: agreeApply ? 1 : 2
                         })(
-                            <Input type="hidden" />,
+                            <Input type="hidden" />
                         )}
                     </FormItem>
 
                     {/* 申请记录 */}
                     {
-                        this.props.listType == 1  ? <FormItem
-                        {...formItemLayout1}
-                        label={'申请理由'}
-                        hasFeedback
+                        this.props.listType == 1 ? <FormItem
+                            {...formItemLayout1}
+                            label={'申请理由'}
+                            hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.applyReason} style={{width: "80%"}}/>,
-                        </FormItem> : ""
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.applyReason} style={{ width: '80%' }}/>,
+                        </FormItem> : ''
                     }
-                    {/* 已处理  权限回收*/}
+                    {/* 已处理  权限回收 */}
                     {
-                        this.props.listType == 2 || this.props.listType == 3  ? <FormItem
-                        {...formItemLayout1}
-                        label={'审批意见'}
-                        hasFeedback
+                        this.props.listType == 2 || this.props.listType == 3 ? <FormItem
+                            {...formItemLayout1}
+                            label={'审批意见'}
+                            hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.reply} style={{width: "80%"}}/>,
-                        </FormItem> : ""
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.reply} style={{ width: '80%' }}/>,
+                        </FormItem> : ''
                     }
 
                     {/* 待我审批 */}
-                    {  this.props.listType == 0 ? <FormItem
-                            {...formItemLayout1}
-                            label={agreeApply ? '请输入审批意见' : '请输入驳回原因'}
-                            hasFeedback
-                        >
-                            {getFieldDecorator('reply', {
-                                rules: [{
-                                    required: agreeApply ? false : true,
-                                    max: 200,
-                                    message: '请控制在200个字符以内！',
-                                }],
-                                // initialValue: this.props.listType == 1 ? 123 : null
-                            })(
-                                <Input type="textarea" rows={4} placeholder="回复内容" style={{width: "80%"}} />,
-                            )}
-                        </FormItem> : ""
+                    { this.props.listType == 0 ? <FormItem
+                        {...formItemLayout1}
+                        label={agreeApply ? '请输入审批意见' : '请输入驳回原因'}
+                        hasFeedback
+                    >
+                        {getFieldDecorator('reply', {
+                            rules: [{
+                                required: !agreeApply,
+                                max: 200,
+                                message: '请控制在200个字符以内！'
+                            }]
+                            // initialValue: this.props.listType == 1 ? 123 : null
+                        })(
+                            <Input type="textarea" rows={4} placeholder="回复内容" style={{ width: '80%' }} />
+                        )}
+                    </FormItem> : ''
                     }
                 </Form>
             </Modal>

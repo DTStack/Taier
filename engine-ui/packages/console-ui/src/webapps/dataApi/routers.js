@@ -31,9 +31,7 @@ import MyAPI from './views/myApi'
 import APIDetail from './views/market/detail'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
-import NewApi from "./views/management/createApi"
-
-
+import NewApi from './views/management/createApi'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')

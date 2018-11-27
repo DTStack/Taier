@@ -1,22 +1,22 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { debounce } from "lodash";
-import { bindActionCreators } from "redux";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { debounce } from 'lodash';
+import { bindActionCreators } from 'redux';
 import { Select } from 'antd';
 
-import utils from "utils";
-import { filterComments, splitSql } from "funcs";
-import { commonFileEditDelegator } from "widgets/editor/utils";
-import { language } from "widgets/editor/languages/dtsql/dtsql";
+import utils from 'utils';
+import { filterComments, splitSql } from 'funcs';
+import { commonFileEditDelegator } from 'widgets/editor/utils';
+import { language } from 'widgets/editor/languages/dtsql/dtsql';
 
-import IDEEditor from "main/components/ide";
+import IDEEditor from 'main/components/ide';
 
-import API from "../../../../api";
+import API from '../../../../api';
 import reqUrls from '../../../../consts/reqUrls';
 
-import workbenchActions from "../../../../actions/workbenchActions";
-import * as editorActions from "../../../../actions/editorActions";
-import commActions from "../../../../actions";
+import workbenchActions from '../../../../actions/workbenchActions';
+import * as editorActions from '../../../../actions/editorActions';
+import commActions from '../../../../actions';
 
 const Option = Select.Option;
 
@@ -28,7 +28,7 @@ const Option = Select.Option;
             editor,
             workbench,
             databaseList,
-            currentTab: workbench.mainBench.currentTab,
+            currentTab: workbench.mainBench.currentTab
         };
     },
     dispatch => {
@@ -39,7 +39,6 @@ const Option = Select.Option;
     }
 )
 class EditorContainer extends Component {
-
     state = {
         tableList: [],
         funcList: [],
@@ -47,21 +46,21 @@ class EditorContainer extends Component {
         funcCompleteItems: [],
         selectedDatabase: '', // 选中的数据库数据库
         tables: [],
-        columns: {}, // 暂时不支持字段AutoComplete
+        columns: {} // 暂时不支持字段AutoComplete
     };
 
     _tableColumns = {};
     _tableLoading = {};
 
-    componentDidMount() {
+    componentDidMount () {
         const { data, databaseList } = this.props;
         if (data) {
-            this.props.getTab(data.id); //初始化console所需的数据结构
+            this.props.getTab(data.id); // 初始化console所需的数据结构
         }
         this.initEditorData(data, databaseList);
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const current = nextProps.data;
         const old = this.props.data;
         if (current && current.id !== old.id) {
@@ -73,37 +72,35 @@ class EditorContainer extends Component {
     }
 
     initEditorData = (data, databaseList) => {
-    
-        const defaultDBValue = data && data.databaseId ? data.databaseId : 
-        databaseList.length > 0 ? databaseList[0].id : '';
+        const defaultDBValue = data && data.databaseId ? data.databaseId
+            : databaseList.length > 0 ? databaseList[0].id : '';
 
         console.log('defaultDb:', defaultDBValue);
         this.setState({
-            selectedDatabase: `${defaultDBValue}`,
+            selectedDatabase: `${defaultDBValue}`
         })
         this.initTableList(defaultDBValue);
     }
 
-    async initTableList(databaseId) {
+    async initTableList (databaseId) {
         if (databaseId) {
             const res = await API.getTablesByDB({
-                databaseId,
+                databaseId
             })
             if (res.code === 1) {
                 const tableList = res.data;
                 const items = tableList.map(table => {
-                    return [table.tableName, "表名", "1200", "Field"];
+                    return [table.tableName, '表名', '1200', 'Field'];
                 })
                 this.setState({
                     tableList: tableList,
-                    tableCompleteItems: items,
+                    tableCompleteItems: items
                 });
-
             }
         }
     }
 
-    initFuncList() {
+    initFuncList () {
         API.getAllFunction().then(res => {
             if (res.code == 1) {
                 let { data } = res;
@@ -112,7 +109,7 @@ class EditorContainer extends Component {
                     funcCompleteItems:
                         data &&
                         data.map(funcName => {
-                            return [funcName, "函数", "2000", "Function"];
+                            return [funcName, '函数', '2000', 'Function'];
                         })
                 });
             }
@@ -142,7 +139,7 @@ class EditorContainer extends Component {
             for (let i = 0; i < sqls.length; i++) {
                 let sql = sqls[i];
                 const trimed = utils.trim(sql);
-                if (trimed !== "") {
+                if (trimed !== '') {
                     // 过滤语句前后空格
                     arr.push(utils.trimlr(sql));
                 }
@@ -152,7 +149,6 @@ class EditorContainer extends Component {
     };
 
     execSQL = () => {
-
         const {
             editor,
             currentTab,
@@ -160,7 +156,7 @@ class EditorContainer extends Component {
         } = this.props;
 
         const params = {
-            databaseId: this.state.selectedDatabase,
+            databaseId: this.state.selectedDatabase
         };
 
         const code =
@@ -200,14 +196,14 @@ class EditorContainer extends Component {
     sqlFormat = () => {
         const { data, updateTab } = this.props;
         const params = {
-            sql: data.sqlText,
+            sql: data.sqlText
         };
         API.formatSQL(params).then(res => {
             if (res.data) {
                 const result = {
                     merged: true,
                     sqlText: res.data,
-                    id: data.id,
+                    id: data.id
                 };
                 updateTab(result);
             }
@@ -224,7 +220,7 @@ class EditorContainer extends Component {
         this.props.resetConsole(currentTab);
     };
 
-    completeProvider(
+    completeProvider (
         completeItems,
         resolve,
         customCompletionItemsCreater,
@@ -239,7 +235,7 @@ class EditorContainer extends Component {
 
         const { tableCompleteItems, funcCompleteItems } = this.state;
 
-        //初始完成项：默认项+所有表+所有函数
+        // 初始完成项：默认项+所有表+所有函数
         let defaultItems = completeItems
             .concat(customCompletionItemsCreater(tableCompleteItems))
             .concat(customCompletionItemsCreater(funcCompleteItems));
@@ -250,12 +246,12 @@ class EditorContainer extends Component {
      * 获取表的字段
      * @param {表名} tableName
      */
-    getTableColumns(tableName) {
+    getTableColumns (tableName) {
         let _tableColumns = this._tableColumns;
         if (_tableColumns[tableName]) {
             return Promise.resolve(_tableColumns[tableName]);
         }
-        //共用现有请求线程
+        // 共用现有请求线程
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName];
         }
@@ -267,20 +263,20 @@ class EditorContainer extends Component {
                 _tableColumns[tableName] = [tableName, res.data];
                 return _tableColumns[tableName];
             } else {
-                console.log("get table columns error");
+                console.log('get table columns error');
             }
         });
         return this._tableLoading[tableName];
     }
 
-    onSyntaxChange(autoComplete, syntax) {
+    onSyntaxChange (autoComplete, syntax) {
         const locations = autoComplete.locations;
         let promiseList = [];
         let tables = [];
         let columns = {};
         let tmp_tables = {};
         for (let location of locations) {
-            if (location.type == "table") {
+            if (location.type == 'table') {
                 for (let identifierChain of location.identifierChain) {
                     if (tmp_tables[identifierChain.name]) {
                         continue;
@@ -297,7 +293,7 @@ class EditorContainer extends Component {
 
     onDatabaseChange = (value) => {
         this.setState({
-            selectedDatabase: value,
+            selectedDatabase: value
         }, () => {
             this.initTableList(value);
         })
@@ -308,7 +304,7 @@ class EditorContainer extends Component {
         const dbOptions = databaseList && databaseList.map(opt => (
             <Option key={`${opt.id}`} value={`${opt.id}`}>{opt.name}</Option>
         ))
-        
+
         return (
             <Select
                 className="ide-toobar-select"
@@ -331,7 +327,7 @@ class EditorContainer extends Component {
         maxWait: 2000
     });
 
-    render() {
+    render () {
         const { editor, data } = this.props;
 
         const currentTab = data.id;
@@ -339,8 +335,8 @@ class EditorContainer extends Component {
         const consoleData = editor.console;
 
         const resultData = consoleData && consoleData[currentTab]
-                ? consoleData[currentTab]
-                : { results: [] };
+            ? consoleData[currentTab]
+            : { results: [] };
 
         const { funcList } = this.state;
 
@@ -348,7 +344,7 @@ class EditorContainer extends Component {
 
         const editorOpts = {
             value: data.sqlText,
-            language: "dtsql",
+            language: 'dtsql',
             disabledSyntaxCheck: true,
             customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
@@ -377,7 +373,7 @@ class EditorContainer extends Component {
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
             onFileEdit: commonFileEditDelegator(this._editor),
-            customToobar: this.customToolbar(),
+            customToobar: this.customToolbar()
         };
 
         const consoleOpts = {
@@ -388,7 +384,7 @@ class EditorContainer extends Component {
         };
 
         return (
-            <div className="m-editor" style={{ height: "100%" }}>
+            <div className="m-editor" style={{ height: '100%' }}>
                 <IDEEditor
                     editorInstanceRef={instance => {
                         this._editor = instance;

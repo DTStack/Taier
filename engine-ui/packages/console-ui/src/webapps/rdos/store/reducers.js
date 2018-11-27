@@ -40,7 +40,7 @@ const rootReducer = combineReducers({
     dataManage: dataManageReducer,
     dataSource,
     visibleSearchTask,
-    dataModel,
+    dataModel
 })
 
 export default rootReducer

@@ -4,25 +4,24 @@ import {
     Table, Input, Button, Card,
     Select, Form, message,
     Radio, Modal, Tree
- } from 'antd'
+} from 'antd'
 
- import Api from '../../../api'
- import { formItemLayout } from '../../../comm/const' 
- 
- const FormItem = Form.Item
- const Option = Select.Option
- const TreeNode = Tree.TreeNode
+import Api from '../../../api'
+import { formItemLayout } from '../../../comm/const'
 
- class RoleForm extends Component {
+const FormItem = Form.Item
+const Option = Select.Option
+const TreeNode = Tree.TreeNode
 
+class RoleForm extends Component {
     state = {
         expandedKeys: [],
         autoExpandParent: true,
         checkedKeys: [],
-        roleTree: [],
+        roleTree: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         Api.getRoleTree().then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -35,8 +34,8 @@ import {
     componentWillMount () {
         this.props.form.resetFields()
     }
-    
-    componentWillReceiveProps(nextProps) {
+
+    componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && nextProps.roleInfo.permissionIds || []
             ids = ids && ids.map(id => `${id}`)
@@ -55,18 +54,16 @@ import {
     getLeafNodes = (checkedKeys) => {
         let arr = [...checkedKeys]
         const { roleTree } = this.state
-        
+
         const loop = (data) => {
-            
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
-                
+
                 // 有子节点的需要移除
                 if (item.children && item.children.length > 0) {
-
                     const index = arr.indexOf(`${item.nodeId}`)
                     if (index > -1) {
-                        arr.splice(index, 1) // remove nouse 
+                        arr.splice(index, 1) // remove nouse
                     }
 
                     loop(item.children)
@@ -85,10 +82,10 @@ import {
             const key = `${item.nodeId}`
             if (item.children && item.children.length > 0) {
                 return (
-                    <TreeNode 
+                    <TreeNode
                         key={key}
                         dataRef={role}
-                        title={role.display} 
+                        title={role.display}
                     >
                         {this.renderTreeNodes(item.children)}
                     </TreeNode>
@@ -98,7 +95,7 @@ import {
         })
     }
 
-    render() {
+    render () {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
@@ -112,11 +109,11 @@ import {
                 >
                     {getFieldDecorator('roleName', {
                         rules: [{
-                            required: true, message: '角色名称不可为空！',
+                            required: true, message: '角色名称不可为空！'
                         }],
-                        initialValue: roleInfo && roleInfo.roleName || '',
+                        initialValue: roleInfo && roleInfo.roleName || ''
                     })(
-                        <Input />,
+                        <Input />
                     )}
                 </FormItem>
                 <FormItem
@@ -125,9 +122,9 @@ import {
                 >
                     {getFieldDecorator('roleDesc', {
                         rules: [],
-                        initialValue: roleInfo && roleInfo.roleDesc || '',
+                        initialValue: roleInfo && roleInfo.roleDesc || ''
                     })(
-                        <Input type="textarea" />,
+                        <Input type="textarea" />
                     )}
                 </FormItem>
                 <FormItem
@@ -138,9 +135,9 @@ import {
                     {getFieldDecorator('permissionIds', {
                         rules: [{
                             required: true,
-                            message: '请选择相应的角色权限！',
+                            message: '请选择相应的角色权限！'
                         }],
-                        initialValue: roleInfo && roleInfo.permissionIds || '',
+                        initialValue: roleInfo && roleInfo.permissionIds || ''
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}
@@ -150,13 +147,13 @@ import {
                             checkedKeys={checkedKeys}
                         >
                             {this.renderTreeNodes(roleTree)}
-                        </Tree>,
+                        </Tree>
                     )}
                 </FormItem>
             </Form>
         )
     }
- }
+}
 
- const RoleFormWrapper = Form.create()(RoleForm)
- export default RoleFormWrapper;
+const RoleFormWrapper = Form.create()(RoleForm)
+export default RoleFormWrapper;

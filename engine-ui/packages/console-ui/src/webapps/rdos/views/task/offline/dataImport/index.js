@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Modal, Button, message,
+    Modal, Button, message
 } from 'antd';
 
 import DataSource from './source'
@@ -30,11 +30,10 @@ const defaultState = {
     queryTable: '', // 查询表
     overwriteFlag: 0, // 导入模式
     originLineCount: 0, // 原数据总条数
-    targetExchangeWarning: false,//target界面是否提示未选择源字段
+    targetExchangeWarning: false// target界面是否提示未选择源字段
 }
 
 export default class ImportLocalData extends Component {
-
     state = Object.assign({}, defaultState)
 
     importData = () => {
@@ -43,17 +42,17 @@ export default class ImportLocalData extends Component {
             params.partitions = JSON.stringify(params.partitions)
             params.keyRef = JSON.stringify(params.keyRef)
             this.setState({
-                loading:true
+                loading: true
             })
             API.importLocalData(params).then((res) => {
                 this.setState({
-                    loading:false
+                    loading: false
                 })
                 if (res.code === 1) {
                     const msg = `您已经成功导入${res.data}条数据！`
                     message.success(msg);
                     this.setState({
-                        visible: false,
+                        visible: false
                     })
                 }
             })
@@ -110,7 +109,7 @@ export default class ImportLocalData extends Component {
             file, targetTable, splitSymbol,
             charset, startLine, asTitle,
             matchType, columnMap, partitions,
-            overwriteFlag,
+            overwriteFlag
         } = this.state
         return {
             tableId: targetTable.id,
@@ -122,7 +121,7 @@ export default class ImportLocalData extends Component {
             matchType,
             startLine,
             partitions,
-            overwriteFlag,
+            overwriteFlag
         }
     }
 
@@ -151,7 +150,7 @@ export default class ImportLocalData extends Component {
             reader.onload = ((data) => {
                 return (e) => {
                     this.setState({
-                        sourceFile: e.target.result,
+                        sourceFile: e.target.result
                     })
                     this.parseFile(e.target.result)
                 }
@@ -160,16 +159,16 @@ export default class ImportLocalData extends Component {
         }
     }
 
-    parseFile(data) {
+    parseFile (data) {
         const { splitSymbol, startLine } = this.state
         const arr = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
 
         data = data.split('\n');
 
-        //防卡死
-        if(data&&data[0].length > 5000){
-            message.error("文件内容不正确！");
+        // 防卡死
+        if (data && data[0].length > 5000) {
+            message.error('文件内容不正确！');
             return;
         }
 
@@ -181,22 +180,20 @@ export default class ImportLocalData extends Component {
         const subArr = arr.slice(startLine - 1)
 
         this.setState({
-            data: subArr||[],
+            data: subArr || [],
             step: 'source',
             visible: true,
-            originLineCount: data.length,
+            originLineCount: data.length
         })
-        
     }
 
-    parseSplitSymbol(value) {
+    parseSplitSymbol (value) {
         switch (value) {
-            case 'blank':
-                value = ' '
-                break;
-            case 'tab':
-                value = '\t'
-
+        case 'blank':
+            value = ' '
+            break;
+        case 'tab':
+            value = '\t'
         }
         return value
     }
@@ -216,7 +213,7 @@ export default class ImportLocalData extends Component {
         this.setState({ step: 'source' })
     }
 
-    footer() {
+    footer () {
         const { step, loading } = this.state
         return (
             <div>
@@ -255,7 +252,7 @@ export default class ImportLocalData extends Component {
         )
     }
 
-    render() {
+    render () {
         const { data, file, visible, step, targetExchangeWarning } = this.state
         return (
             <div id="JS_import_modal">
@@ -299,5 +296,4 @@ export default class ImportLocalData extends Component {
             </div>
         )
     }
-
 }

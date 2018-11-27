@@ -25,8 +25,8 @@ export default {
     PUBLISH_TASK: `${RDOS_BASE_URL}/batch/batchTask/publishTask`, // 发布任务
     GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/batch/batchTask/getSysParams`, // 获取任务自定义参数
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务
-    TASK_VERSION_SCHEDULE_CONF :`${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
-    UPDATE_TASK_OWNER :`${RDOS_BASE_URL}/batch/batchTask/setOwnerUser `,
+    TASK_VERSION_SCHEDULE_CONF: `${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
+    UPDATE_TASK_OWNER: `${RDOS_BASE_URL}/batch/batchTask/setOwnerUser `,
 
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本
@@ -36,7 +36,6 @@ export default {
     DELETE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/deleteScript`, // 删除脚本
     GET_SCRIPT_BY_ID: `${RDOS_BASE_URL}/batch/batchScript/getScriptById`, // 根据脚本获取ID
     GET_SCRIPT_TYPES: `${RDOS_BASE_URL}/batch/batchScript/getTypes`, // 脚本类型
-
 
     // ===== Job调度模块 ===== //
     QUERY_JOBS: `${RDOS_BASE_URL}/batch/batchJob/queryJobs`, // 任务运维 - 补数据搜索
@@ -59,17 +58,17 @@ export default {
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
     STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
-    SELECT_SQL_RESULT_DATA:`${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`,//轮询调度查询sql结果
+    SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 轮询调度查询sql结果
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
     QUERY_JOB_SUB_NODES: `${RDOS_BASE_URL}/batch/batchJob/getAllChildJobWithSameDay`, // 查询子job子节点
     STATISTICS_TASK_RUNTIME: `${RDOS_BASE_URL}/batch/batchJob/statisticsTaskRecentInfo`, // 统计任务运行信息
     STOP_FILL_DATA_JOBS: `${RDOS_BASE_URL}/batch/batchJob/stopFillDataJobs`, // 停止补数据任务
-    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batch/batchTask/getJsonTemplate`,//获取数据同步脚本模式的模版
+    GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batch/batchTask/getJsonTemplate`, // 获取数据同步脚本模式的模版
     GET_RESTART_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRestartChildJob`, // 获取restart job列表
-    DOWNLOAD_SQL_RESULT:`${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`,//下载运行结果
-    
+    DOWNLOAD_SQL_RESULT: `${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`, // 下载运行结果
+
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
     GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getCatalogue`,
@@ -83,12 +82,12 @@ export default {
     GET_OFFLINE_DATASOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/list`,
     GET_OFFLINE_TABLELIST: `${RDOS_BASE_URL}/batch/batchDataSource/tablelist`,
     GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batch/batchDataSource/tablecolumn`,
-    GET_OFFLINE_COLUMNFORSYNCOPATE:  `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
+    GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
     GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
     SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,
-    LINK_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`,//关联映射数据源
-    GET_WORKFLOW_RELATED_JOBS:`${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`,//获取工作流的任务
+    LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`, // 关联映射数据源
+    GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流的任务
 
     // 离线文件操作
     DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`,
@@ -118,7 +117,7 @@ export default {
     TEST_DATA_SOURCE_CONNECTION: `${RDOS_BASE_URL}/batch/batchDataSource/checkConnection`, // 测试数据源连通性
     GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
-    GET_TASK_LIST_OF_OFFLINE_SOURCE:`${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`,//获取离线数据源的任务
+    GET_TASK_LIST_OF_OFFLINE_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`, // 获取离线数据源的任务
 
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
     ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
@@ -127,17 +126,17 @@ export default {
     ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
 
-    SAVE_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/saveConfig`,             // 保存整库同步配置
-    GET_SYNC_HISTORY: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/list`,                   // 获取整库同步历史
-    GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`,               // 获取整库同步详情
-    PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`,                  // 发布单表
-    CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`,  // 检查高级配置
+    SAVE_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/saveConfig`, // 保存整库同步配置
+    GET_SYNC_HISTORY: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/list`, // 获取整库同步历史
+    GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`, // 获取整库同步详情
+    PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`, // 发布单表
+    CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`, // 检查高级配置
 
     // ===== 项目统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量
     PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/totalSize`, // 表总存储量
     PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/projectSizeTopOrder`, // 项目占用排行
     PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/hiveTableCount/tableSizeTopOrder`, // 表占用排行
-    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/hiveTableCount/dataHistory`, // 数据趋势概览
+    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/hiveTableCount/dataHistory` // 数据趋势概览
 
 }

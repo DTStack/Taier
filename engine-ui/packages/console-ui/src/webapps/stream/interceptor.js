@@ -5,8 +5,8 @@ import utils from 'utils'
 import Api from './api'
 
 const maxHeightStyle = {
-    maxHeight: "500px",
-    overflowY: "auto"
+    maxHeight: '500px',
+    overflowY: 'auto'
 }
 
 /* eslint-disable */

@@ -6,19 +6,19 @@ import Target from './target';
 import Keymap from './keymap';
 import Channel from './channel';
 
-function Mask() {
+function Mask () {
     return <div className="mask-lock-layer" />
 }
 
-export default class Save extends React.Component{
-    constructor(props) {
+export default class Save extends React.Component {
+    constructor (props) {
         super(props);
         this.navtoStep = this.props.navtoStep;
     }
 
-    render() {
+    render () {
         const { navtoStep } = this;
-        const { notSynced } =this.props;
+        const { notSynced } = this.props;
 
         return <div className="g-step5">
             <div className="m-preview"
@@ -72,11 +72,11 @@ export default class Save extends React.Component{
         </div>
     }
 
-    prev(cb) {
+    prev (cb) {
         cb.call(null, 3);
     }
 
-    save(cb) {
+    save (cb) {
         this.props.saveJob(cb);
     }
 }

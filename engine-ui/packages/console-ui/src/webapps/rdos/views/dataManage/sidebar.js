@@ -3,19 +3,18 @@ import { Menu, Icon } from 'antd'
 import { Link } from 'react-router'
 
 export default class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
-            current: 'table',
+            current: 'table'
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected()
     }
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps () {
         this.updateSelected()
     }
 
@@ -33,11 +32,11 @@ export default class Sidebar extends Component {
 
     handleClick = (e) => {
         this.setState({
-            current: e.key,
+            current: e.key
         });
-    } 
+    }
 
-    render() {
+    render () {
         const base = `/data-manage`
         return (
             <div className="sidebar m-ant-menu">

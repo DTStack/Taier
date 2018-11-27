@@ -8,13 +8,13 @@ import Root from './root'
 
 const render = (Component) => {
     const rootReducer = require('./reducers').default;
-    const { store , history } = getStore(rootReducer, 'hash');
-    
+    const { store, history } = getStore(rootReducer, 'hash');
+
     ReactDOM.render(
         <AppContainer>
-           <Component store={store} history={history} />
+            <Component store={store} history={history} />
         </AppContainer>
-        , document.getElementById('app'),
+        , document.getElementById('app')
     )
 }
 

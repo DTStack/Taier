@@ -6,5 +6,5 @@ export const dataCheckActionType = mc([
     'GET_CHECK_DETAIL',
     'CHANGE_PARAMS',
     'GET_SOURCE_PART',
-    'RESET_SOURCE_PART',
+    'RESET_SOURCE_PART'
 ], { prefix: 'dataCheck/' });

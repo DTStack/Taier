@@ -1,32 +1,31 @@
-import React from "react"
-import utils from "utils"
-import moment from "moment"
-import { range } from "lodash"
+import React from 'react'
+import utils from 'utils'
+import moment from 'moment'
+import { range } from 'lodash'
 
-import { Table, DatePicker } from "antd"
+import { Table, DatePicker } from 'antd'
 
-import Api from "../../../../../api"
+import Api from '../../../../../api'
 
 const { RangePicker } = DatePicker;
 
 class CheckPoint extends React.Component {
-
     state = {
         dates: [],
         list: [],
         overview: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getList();
     }
-    initPage() {
+    initPage () {
         this.setState({
-            dates:[],
-            overview:{},
+            dates: [],
+            overview: {}
         })
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -35,7 +34,7 @@ class CheckPoint extends React.Component {
             this.getList(nextData);
         }
     }
-    getList(data) {
+    getList (data) {
         const { dates } = this.state;
         data = data || this.props.data;
 
@@ -63,7 +62,7 @@ class CheckPoint extends React.Component {
                 if (res.code == 1) {
                     this.setState({
                         list: res.data.checkpointList,
-                        overview:{...res.data,checkpointList:undefined}
+                        overview: { ...res.data, checkpointList: undefined }
                     })
                 }
                 this.setState({
@@ -72,22 +71,22 @@ class CheckPoint extends React.Component {
             }
         )
     }
-    initCheckPointColumns() {
+    initCheckPointColumns () {
         return [{
             title: 'StartTime',
             dataIndex: 'time',
-            render(time) {
+            render (time) {
                 return utils.formatDateHours(time);
             }
-        },{
+        }, {
             title: '持续时间',
             dataIndex: 'duration',
-            render(text){
+            render (text) {
                 return `${text}ms`
             }
-        }, ]
+        } ]
     }
-    changeDate(dates) {
+    changeDate (dates) {
         this.setState({
             dates: dates
         }, this.getList.bind(this))
@@ -106,12 +105,12 @@ class CheckPoint extends React.Component {
 
         const now = new moment();
 
-        if (type == "start") {
+        if (type == 'start') {
             current = current.length > 1 ? current[0] : current
-        } else if (type == "end") {
+        } else if (type == 'end') {
             current = current.length > 1 ? current[1] : current
         }
-        let disabledHours = [], disabledMinutes = [];
+        let disabledHours = []; let disabledMinutes = [];
         if (now.format('YYYY-MM-DD') == current.format('YYYY-MM-DD')) {
             disabledHours = range(0, 24).map((num) => {
                 return now.hour() < num ? num : null
@@ -122,7 +121,7 @@ class CheckPoint extends React.Component {
                 return now.minute() < num ? num : null
             }).filter(Boolean)
         }
-        console.log(disabledHours,disabledMinutes,type)
+        console.log(disabledHours, disabledMinutes, type)
         return {
             disabledHours: () => {
                 return disabledHours;
@@ -135,16 +134,16 @@ class CheckPoint extends React.Component {
     getTableTitle = () => {
         const { overview, dates } = this.state;
         return (
-            <div style={{ padding: "10px 10px 11px 0px" }}>
+            <div style={{ padding: '10px 10px 11px 0px' }}>
                 <RangePicker
                     onChange={this.changeDate.bind(this)}
                     showTime={{
                         disabledSeconds: true,
-                        format: "HH:mm",
-                        defaultValue: [moment('00:00:00', 'HH:mm:ss'),moment()],
-                        hideDisabledOptions:true
+                        format: 'HH:mm',
+                        defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
+                        hideDisabledOptions: true
                     }}
-                    style={{ width: "250px" }}
+                    style={{ width: '250px' }}
                     format="YYYY-MM-DD HH:mm"
                     value={dates}
                     disabledDate={this.disabledDate}
@@ -158,20 +157,20 @@ class CheckPoint extends React.Component {
             </div>
         )
     }
-    render() {
+    render () {
         const { list } = this.state;
         return (
-            <div style={{ padding: "0px 20px 20px 25px" }}>
+            <div style={{ padding: '0px 20px 20px 25px' }}>
                 {this.getTableTitle()}
                 <Table
-                    rowKey={(record,index)=>{
+                    rowKey={(record, index) => {
                         return index
                     }}
                     className="m-table border-table"
                     columns={this.initCheckPointColumns()}
                     dataSource={list}
                     pagination={{
-                        pageSize:15
+                        pageSize: 15
                     }}
                 />
             </div>

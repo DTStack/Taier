@@ -1,16 +1,16 @@
 import React, { Component } from 'react'
-import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message } from "antd"
-import { connect } from "react-redux";
-import utils from "utils";
+import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message } from 'antd'
+import { connect } from 'react-redux';
+import utils from 'utils';
 
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
 
-import { 
+import {
     dataSourceTypes, TAG_TYPE, TAG_STATUS, API_OPEN_STATUS,
     EXCHANGE_ADMIN_API_STATUS
-} from "../../consts";
+} from '../../consts';
 
 import { dataSourceText } from '../../components/display';
 
@@ -24,25 +24,25 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
-    getCatalogue(pid) {
+    getCatalogue (pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getAllApiList(params) {
+    getAllApiList (params) {
         return dispatch(apiManageActions.getAllApiList(params));
     },
-    getDataSourceList(type) {
+    getDataSourceList (type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
-    deleteApi(apiId) {
+    deleteApi (apiId) {
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(apiId) {
+    openApi (apiId) {
         return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(apiId) {
+    closeApi (apiId) {
         return dispatch(apiManageActions.closeApi(apiId));
     },
-    getDataSourcesType() {
+    getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     }
 });
@@ -64,13 +64,13 @@ class APIMana extends Component {
         loading: false
 
     }
-    componentDidMount() {
+    componentDidMount () {
         this.props.getCatalogue(0);
         this.getAllApi();
         this.getDataSource(null);
         this.props.getDataSourcesType();
     }
-    exchangeSourceType() {
+    exchangeSourceType () {
         let arr = [];
         let dic = {};
 
@@ -85,23 +85,22 @@ class APIMana extends Component {
         }
 
         return { typeList: arr, typeDic: dic };
-
     }
-    getAllApi() {
+    getAllApi () {
         const sortType = {
-            "gmtModified": 'gmt_modified'
+            'gmtModified': 'gmt_modified'
         }
         const orderType = {
-            "ascend": 'asc',
-            "descend": 'desc'
+            'ascend': 'asc',
+            'descend': 'desc'
         }
         let params = {};
-        params.name = this.state.searchName;//查询名
-        params.pid = this.state.type1;//一级目录
-        params.cid = this.state.type2;//二级目录
-        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);//数据源类型
-        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);//数据源
-        params.modifyUserId = this.state.changeMan;//修改人id
+        params.name = this.state.searchName;// 查询名
+        params.pid = this.state.type1;// 一级目录
+        params.cid = this.state.type2;// 二级目录
+        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);// 数据源类型
+        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);// 数据源
+        params.modifyUserId = this.state.changeMan;// 修改人id
         params.orderBy = sortType[this.state.sortedInfo.columnKey];
         params.sort = orderType[this.state.sortedInfo.order];
         params.currentPage = this.state.pageIndex;
@@ -124,8 +123,8 @@ class APIMana extends Component {
             );
     }
 
-    renderSourceType(id, root) {
-        function arrToOptions(arr) {
+    renderSourceType (id, root) {
+        function arrToOptions (arr) {
             if (!arr || arr.length < 1) {
                 return null;
             }
@@ -136,10 +135,10 @@ class APIMana extends Component {
             )
         }
         let arr = [];
-        //获取子节点
+        // 获取子节点
         const items = this.props.apiMarket.apiCatalogue;
 
-        //一级目录
+        // 一级目录
         if (root) {
             if (!items) {
                 return null;
@@ -152,20 +151,19 @@ class APIMana extends Component {
             }
 
             return arrToOptions(arr);
-        } else {//二级目录
-
+        } else { // 二级目录
             if (!items) {
                 return null;
             }
-            let item_child;//二级目录
-            //查找二级目录
+            let item_child;// 二级目录
+            // 查找二级目录
             for (let i = 0; i < items.length; i++) {
                 if (items[i].id == id) {
                     item_child = items[i].childCatalogue;
                     break;
                 }
             }
-            //找不到，则返回null
+            // 找不到，则返回null
             if (!item_child) {
                 return null;
             }
@@ -190,19 +188,17 @@ class APIMana extends Component {
         }, () => {
             this.getAllApi();
         })
-
     }
-    onUserSourceChange(key) {
+    onUserSourceChange (key) {
         this.setState({
             type2: key
         }, () => {
             this.getAllApi();
         })
-
     }
-    handleSearch(value) {
+    handleSearch (value) {
         this.setState({
-            searchName: value ? value : undefined,
+            searchName: value || undefined,
             pageIndex: 1
         }, () => {
             this.getAllApi();
@@ -215,21 +211,21 @@ class APIMana extends Component {
             filter: filter,
             sortedInfo: sorter
         },
-            () => {
-                this.getAllApi();
-            });
+        () => {
+            this.getAllApi();
+        });
     }
-    getPagination() {
+    getPagination () {
         return {
             current: this.state.pageIndex,
             pageSize: 20,
-            total: this.state.total,
+            total: this.state.total
         }
     }
-    openDetail(text) {
-        this.props.router.push("/dl/manage/detail/" + text)
+    openDetail (text) {
+        this.props.router.push('/dl/manage/detail/' + text)
     }
-    initColumns() {
+    initColumns () {
         return [{
             width: '10%',
             title: '标签名称',
@@ -250,44 +246,44 @@ class APIMana extends Component {
             width: '10%',
             title: '描述',
             dataIndex: 'tagDesc',
-            key: 'tagDesc',
+            key: 'tagDesc'
         }, {
             width: '10%',
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
-            render(text, record) {
+            render (text, record) {
                 return dataSourceText(record.dataSourceType) + ' / ' + record.dataSourceName
             }
         }, {
             width: '10%',
             title: '最近24小时调用',
             dataIndex: 'total1d',
-            key: "total1d"
+            key: 'total1d'
         }, {
             width: '8%',
             title: '累计调用',
             dataIndex: 'invokeTotal',
-            key: "invokeTotal"
+            key: 'invokeTotal'
         }, {
             width: '10%',
             title: '最近修改人',
             dataIndex: 'modifyUser',
-            key: "modifyUser"
+            key: 'modifyUser'
         }, {
             width: '10%',
             title: '最近修改时间',
             dataIndex: 'gmtModified',
-            key: "gmtModified",
+            key: 'gmtModified',
             sorter: true,
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text);
             }
         }, {
             width: '10%',
             title: '创建人',
             dataIndex: 'createUser',
-            key: "createUser"
+            key: 'createUser'
         }, {
             width: 100,
             title: '启用状态',
@@ -300,12 +296,12 @@ class APIMana extends Component {
             width: 120,
             title: '操作',
             dataIndex: 'deal',
-            key: "deal",
+            key: 'deal',
             render: (text, record) => {
                 if (record.apiStatus == 0) {
                     return <a onClick={this.closeApi.bind(this, record.apiId)}>禁用</a>
                 }
-             
+
                 return (
                     <div>
                         <a onClick={this.openApi.bind(this, record.apiId)}>开启</a>
@@ -318,14 +314,13 @@ class APIMana extends Component {
             }
         }]
     }
-    getSource() {
+    getSource () {
         return this.props.apiManage.apiList;
-
     }
-    editApi(id) {
-        this.props.router.push("/dl/manage/editApi/" + id);
+    editApi (id) {
+        this.props.router.push('/dl/manage/editApi/' + id);
     }
-    openApi(apiId) {
+    openApi (apiId) {
         confirm({
             title: '确认开启?',
             content: '确认开启标签',
@@ -339,19 +334,19 @@ class APIMana extends Component {
                             this.setState({
                                 loading: false
                             })
-                            message.success("开启成功")
+                            message.success('开启成功')
                             if (res) {
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    closeApi(apiId) {
+    closeApi (apiId) {
         confirm({
             title: '确认禁用?',
             content: '确认禁用标签',
@@ -366,20 +361,20 @@ class APIMana extends Component {
                             this.setState({
                                 loading: false
                             })
-                            message.success("禁用成功")
+                            message.success('禁用成功')
                             if (res) {
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
     }
-    //删除api
-    deleteApi(apiId) {
+    // 删除api
+    deleteApi (apiId) {
         confirm({
             title: '确认删除?',
             content: '确认删除标签',
@@ -394,20 +389,19 @@ class APIMana extends Component {
                                 loading: false
                             })
                             if (res.code === 1) {
-                                message.success("删除成功");
+                                message.success('删除成功');
                                 this.getAllApi();
                             }
                         }
                     )
             },
-            onCancel() {
+            onCancel () {
                 console.log('Cancel');
-            },
+            }
         });
-
     }
-    //获取数据源视图
-    gerDataSourceView() {
+    // 获取数据源视图
+    gerDataSourceView () {
         const type = this.state.dataSourceList;
         if (!type) {
             return null;
@@ -416,8 +410,8 @@ class APIMana extends Component {
             return <Option key={item.id}>{item.name}</Option>
         })
     }
-    //获取数据源
-    getDataSource() {
+    // 获取数据源
+    getDataSource () {
         this.props.getDataSourceList(this.state.dataSourceType)
             .then(
                 (res) => {
@@ -430,40 +424,38 @@ class APIMana extends Component {
                 }
             )
     }
-    //获取类型视图
-    getDataSourceTypeView() {
+    // 获取类型视图
+    getDataSourceTypeView () {
         const { typeList, typeDic } = this.exchangeSourceType();
-
 
         if (!typeList || typeList.length < 1) {
             return null;
         }
         return typeList.map(function (item) {
-
             return <Option key={item.value}>{item.text}</Option>
         })
     }
-    //数据源类型改变
+    // 数据源类型改变
     dataSourceTypeChange = (key) => {
         this.setState({
             dataSourceType: key,
             dataSource: undefined
         },
-            () => {
-                this.getDataSource();
-                this.getAllApi();
-            })
+        () => {
+            this.getDataSource();
+            this.getAllApi();
+        })
     }
-    //数据源改变
-    dataSourceChange(key) {
+    // 数据源改变
+    dataSourceChange (key) {
         this.setState({
             dataSource: key
         },
-            () => {
-                this.getAllApi();
-            })
+        () => {
+            this.getAllApi();
+        })
     }
-    changeManCheck(e) {
+    changeManCheck (e) {
         let changeMan = null;
         if (e.target.checked) {
             changeMan = this.props.user.id;
@@ -471,19 +463,19 @@ class APIMana extends Component {
         this.setState({
             changeMan: changeMan
         },
-            () => {
-                this.getAllApi();
-            })
+        () => {
+            this.getAllApi();
+        })
     }
-    
-    openApiType() {
-        this.props.router.push("/dl/manage/apiType");
+
+    openApiType () {
+        this.props.router.push('/dl/manage/apiType');
     }
-    newApi() {
-        this.props.router.push("/dl/manage/newApi");
+    newApi () {
+        this.props.router.push('/dl/manage/newApi');
     }
-    
-    render() {
+
+    render () {
         const { children } = this.props;
 
         const cardTitle = (
@@ -496,9 +488,9 @@ class APIMana extends Component {
 
                 <div className="m-l-8">
                     标签分类：
-                    <Select 
-                        allowClear 
-                        value={this.state.type1} 
+                    <Select
+                        allowClear
+                        value={this.state.type1}
                         style={{ width: 150 }}
                         onChange={this.onSourceChange}>
                         {
@@ -509,9 +501,9 @@ class APIMana extends Component {
 
                 <div className="m-l-8">
                     类型：
-                    <Select 
-                        allowClear 
-                        value={this.state.dataSourceType} 
+                    <Select
+                        allowClear
+                        value={this.state.dataSourceType}
                         style={{ width: 150 }}
                         onChange={this.dataSourceTypeChange}>
                         {
@@ -534,7 +526,7 @@ class APIMana extends Component {
                             this.renderSourceType(this.state.type1, false)
                         }
                     </Select>
-                </div> 
+                </div>
                 <div className="m-l-8">
                     <Checkbox onChange={this.changeManCheck.bind(this)}>我修改的</Checkbox>
                 </div> */}
@@ -542,15 +534,15 @@ class APIMana extends Component {
         )
 
         const cardExtra = (
-            <div style={{ paddingTop: "10px" }}>
-                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: "8px" }} type="primary">类目管理</Button>
+            <div style={{ paddingTop: '10px' }}>
+                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: '8px' }} type="primary">类目管理</Button>
                 {/* <Button type="primary" onClick={this.newApi.bind(this)}>新建API</Button> */}
             </div>
         )
 
         return (
             <div className="api-management">
-                <div style={{ marginTop: "20px" }} className="margin-0-20 m-card box-2">
+                <div style={{ marginTop: '20px' }} className="margin-0-20 m-card box-2">
                     <Card
                         noHovering
                         title={cardTitle}

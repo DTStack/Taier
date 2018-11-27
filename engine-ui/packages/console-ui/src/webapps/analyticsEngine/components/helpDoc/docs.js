@@ -10,7 +10,6 @@ export const dataMapTypeSummary = (
     </div>
 )
 
-
 export const bloomSizeSummary = (
     <div>
         <p>
@@ -25,7 +24,7 @@ export const bloomSizeSummary = (
 export const bloomFPPSummary = (
     <div>
         <p>
-            BloomFPP：该值在 BloomFilter 内部被用作为假阳性概率（False-Positive Probability），它将影响 bloomfilter 索引的大小以及 BloomFilter 的哈希函数的数量。该值的范围应该在 (0, 100) 之间的整数。       
+            BloomFPP：该值在 BloomFilter 内部被用作为假阳性概率（False-Positive Probability），它将影响 bloomfilter 索引的大小以及 BloomFilter 的哈希函数的数量。该值的范围应该在 (0, 100) 之间的整数。
         </p>
     </div>
 )

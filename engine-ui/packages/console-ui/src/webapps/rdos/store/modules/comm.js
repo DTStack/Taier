@@ -5,15 +5,14 @@ const commAction = mc([
     'SET_SEARCH_TASK_VISIBLE', // 获取当前用户信息
     'REQ_LOADING',
     'REQ_SUCCESS',
-    'REQ_ERROR',
+    'REQ_ERROR'
 ], { prefix: 'comm/' })
 
-
-// Actions 
+// Actions
 export const showSeach = (boolFlag) => {
-    return { 
-        type: commAction.SET_SEARCH_TASK_VISIBLE, 
-        data: boolFlag,
+    return {
+        type: commAction.SET_SEARCH_TASK_VISIBLE,
+        data: boolFlag
     }
 }
 
@@ -21,15 +20,15 @@ export const showSeach = (boolFlag) => {
 // 全局搜索框
 export const visibleSearchTask = (state = false, action) => {
     switch (action.type) {
-        case commAction.SET_SEARCH_TASK_VISIBLE:
-            return action.data;
-        default:
-            return state;
+    case commAction.SET_SEARCH_TASK_VISIBLE:
+        return action.data;
+    default:
+        return state;
     }
 }
 
 // 请状态
-export function req(state = 'success', action) {
+export function req (state = 'success', action) {
     switch (action.type) {
     case commAction.REQ_LOADING:
         return 'loading';
@@ -41,5 +40,3 @@ export function req(state = 'success', action) {
         return state;
     }
 }
-
-

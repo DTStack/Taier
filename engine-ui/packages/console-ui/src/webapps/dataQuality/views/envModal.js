@@ -1,14 +1,13 @@
-import React, { Component } from "react";
-import { Modal } from "antd";
+import React, { Component } from 'react';
+import { Modal } from 'antd';
 
-import Editor from "widgets/code-editor";
+import Editor from 'widgets/code-editor';
 
-import { propEditorOptions } from "widgets/code-editor/config";
+import { propEditorOptions } from 'widgets/code-editor/config';
 
 class EnvModal extends Component {
-
     state = {
-        changeVal: ""
+        changeVal: ''
     };
 
     onChange = (old, value) => {
@@ -22,7 +21,7 @@ class EnvModal extends Component {
         this.props.onOk(value);
     };
 
-    render() {
+    render () {
         const { value, visible, title, key, onCancel } = this.props;
         return (
             <Modal

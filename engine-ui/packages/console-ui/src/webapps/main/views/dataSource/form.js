@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import {
     Input, Button,
     Select, Form, Checkbox,
-    Radio, Modal,
+    Radio, Modal
 } from 'antd'
 
 import {

@@ -5,22 +5,21 @@ import { Menu, Icon } from 'antd'
 const SubMenu = Menu.SubMenu;
 
 export default class Sidebar extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props)
         this.state = {
-            current: 'overview',
+            current: 'overview'
         }
-    } 
+    }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected()
     }
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps () {
         this.updateSelected()
     }
- 
+
     updateSelected = () => {
         const routes = this.props.router.routes
         if (routes.length > 3) {
@@ -34,21 +33,21 @@ export default class Sidebar extends Component {
 
     handleClick = (e) => {
         this.setState({
-            current: e.key,
+            current: e.key
         });
     }
 
-    render() {
+    render () {
         const base = '/operation'
         return (
             <div className="sidebar m-ant-menu" style={{ borderRight: 'none' }}>
                 <Menu
-                  onClick={this.handleClick}
-                  selectedKeys={[this.state.current]}
-                  defaultOpenKeys={['offline', 'alarm']}
-                  defaultSelectedKeys={[this.state.current]}
-                  style={{ height: '100%' }}
-                  mode={this.props.mode}
+                    onClick={this.handleClick}
+                    selectedKeys={[this.state.current]}
+                    defaultOpenKeys={['offline', 'alarm']}
+                    defaultSelectedKeys={[this.state.current]}
+                    style={{ height: '100%' }}
+                    mode={this.props.mode}
                 >
                     <Menu.Item key="overview">
                         <Link to={`${base}`}><Icon type="line-chart" />

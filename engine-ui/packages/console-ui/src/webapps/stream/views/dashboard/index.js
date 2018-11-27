@@ -1,22 +1,21 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Link, hashHistory } from "react-router";
+import { Link, hashHistory } from 'react-router';
 
 import moment from 'moment'
 
-import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from "antd"
+import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin } from 'antd'
 
 import ProjectForm from '../project/form'
-import { Circle } from "widgets/circle"
+import { Circle } from 'widgets/circle'
 import Api from '../../api'
-import * as ProjectAction from "../../store/modules/project";
+import * as ProjectAction from '../../store/modules/project';
 import NoData from '../../components/no-data';
-import { PROJECT_STATUS, TASK_STATUS } from "../../comm/const";
+import { PROJECT_STATUS, TASK_STATUS } from '../../comm/const';
 
 const Search = Input.Search;
 
 class Index extends Component {
-
     state = {
         visible: false,
         loading: true,
@@ -27,18 +26,18 @@ class Index extends Component {
             fuzzyName: undefined,
             page: 1,
             pageSize: 9,
-            orderBy: undefined,
+            orderBy: undefined
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getProjectListInfo();
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
-    debounceGetProList() {
+    debounceGetProList () {
         if (this._isUnmounted) {
             return;
         }
@@ -47,21 +46,21 @@ class Index extends Component {
         }, 3000);
     }
     setCard = (data) => {
-        if (data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL) {//"删除项目" 
+        if (data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL) { // "删除项目"
             Api.deleteProject({ projectId: data.id }).then(v => {
                 if (v.code == 1) {
                     message.success('删除项目成功！');
                     this.getProjectListInfo();
                 }
             })
-        } else if (data.stickStatus == 0) {//"置顶"
+        } else if (data.stickStatus == 0) { // "置顶"
             Api.setSticky({ appointProjectId: data.id, stickStatus: 1 }).then(v => {
                 if (v.code == 1) {
                     message.success('置顶成功！');
                     this.getProjectListInfo();
                 }
             })
-        } else if (data.stickStatus == 1) {//"取消置顶"
+        } else if (data.stickStatus == 1) { // "取消置顶"
             Api.setSticky({ appointProjectId: data.id, stickStatus: 0 }).then(v => {
                 if (v.code == 1) {
                     message.success('取消置顶成功！');
@@ -76,7 +75,7 @@ class Index extends Component {
         const queryParsms = { ...projectListParams, ...params };
         if (!isSilent) {
             this.setState({
-                loading: true,
+                loading: true
             })
         }
         clearTimeout(this._timeClock);
@@ -94,7 +93,7 @@ class Index extends Component {
                     projectListInfo: res.data && res.data.data || [],
                     totalSize: res.data && res.data.totalCount || 0,
                     projectListParams: queryParsms,
-                    loading: false,
+                    loading: false
                 })
             } else {
                 this.setState({
@@ -124,16 +123,16 @@ class Index extends Component {
     setRouter = (type, v, filterError) => {
         let src;
         const { dispatch } = this.props;
-        if (type === "operation") {
-            src = "/operation"
-        } else {//realtime
-            src = "/realtime"
+        if (type === 'operation') {
+            src = '/operation'
+        } else { // realtime
+            src = '/realtime'
         }
         dispatch(ProjectAction.getProject(v.id));
         hashHistory.push({
-            pathname:src,
-            state:{
-                statusList:filterError?[''+TASK_STATUS.RUN_FAILED,''+TASK_STATUS.SUBMIT_FAILED]:undefined
+            pathname: src,
+            state: {
+                statusList: filterError ? ['' + TASK_STATUS.RUN_FAILED, '' + TASK_STATUS.SUBMIT_FAILED] : undefined
             }
         })
     }
@@ -144,14 +143,14 @@ class Index extends Component {
         const cancelTop = <span className="cancel-top">取消置顶</span>;
         const tooltipTittle = <div>
             {
-                data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL ? "删除项目" : "置顶"
+                data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL ? '删除项目' : '置顶'
             }
         </div>
         const tooltipImg = <div onClick={() => { this.setCard(data) }}>
             {
-                (data.status != PROJECT_STATUS.DISABLE || data.status != PROJECT_STATUS.FAIL) && data.stickStatus == 1 ? //取消置顶非图标,不需要Tooltip提示,过滤掉
-                    cancelTop :
-                    <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
+                (data.status != PROJECT_STATUS.DISABLE || data.status != PROJECT_STATUS.FAIL) && data.stickStatus == 1 // 取消置顶非图标,不需要Tooltip提示,过滤掉
+                    ? cancelTop
+                    : <Tooltip title={tooltipTittle} mouseEnterDelay={0.5}>
                         {
                             data.status == PROJECT_STATUS.DISABLE || data.status == PROJECT_STATUS.FAIL ? deleteImg : setTopImg
                         }
@@ -165,11 +164,11 @@ class Index extends Component {
                         <Link to={`/realtime/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
                                 {data.projectAlias}&nbsp;&nbsp;
-                        </span>
+                            </span>
                         </Link>
                     ) : (<span className="company-name no-hover">
                         {data.projectAlias}&nbsp;&nbsp;
-                </span>)}
+                    </span>)}
                     {this.renderTitleText(data)}
                 </Col>
                 <Col span="4">
@@ -179,36 +178,36 @@ class Index extends Component {
         </div>
         return title;
     }
-    renderTitleText(data) {
+    renderTitleText (data) {
         switch (data.status) {
-            case PROJECT_STATUS.INITIALIZE: {
-                return (
-                    <span>
-                        <Icon type="loading" style={{ fontSize: 14, color: "#2491F7", paddingLeft: 16 }} />
-                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建中</span>
-                    </span>
-                )
-            }
-            case PROJECT_STATUS.NORMAL: {
-                return (
-                    <span style={{ color: '#999' }}>
-                        {`(${data.projectName})`}
-                    </span>
-                )
-            }
-            case PROJECT_STATUS.DISABLE:
-            case PROJECT_STATUS.FAIL: {
-                return (
-                    <span>
-                        <Icon type="close-circle" style={{ fontSize: 14, color: "#f00", paddingLeft: 16 }} />
-                        <span style={{ color: '#999', paddingLeft: "8px" }}>创建失败</span>
-                    </span>
-                )
-            }
+        case PROJECT_STATUS.INITIALIZE: {
+            return (
+                <span>
+                    <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
+                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
+                </span>
+            )
+        }
+        case PROJECT_STATUS.NORMAL: {
+            return (
+                <span style={{ color: '#999' }}>
+                    {`(${data.projectName})`}
+                </span>
+            )
+        }
+        case PROJECT_STATUS.DISABLE:
+        case PROJECT_STATUS.FAIL: {
+            return (
+                <span>
+                    <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
+                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
+                </span>
+            )
+        }
         }
     }
     changeSort = (v) => {
-        const status = v === "defaultSort" ? 1 : 2;
+        const status = v === 'defaultSort' ? 1 : 2;
         if (status != this.state.sortTitleStatus) {
             if (status === 1) {
                 this.setState({
@@ -216,12 +215,11 @@ class Index extends Component {
                 }, () => {
                     this.getProjectListInfo({ orderBy: undefined })
                 })
-
             } else {
                 this.setState({
                     sortTitleStatus: status
                 }, () => {
-                    this.getProjectListInfo({ orderBy: "jobSum" })
+                    this.getProjectListInfo({ orderBy: 'jobSum' })
                 })
             }
         }
@@ -236,27 +234,26 @@ class Index extends Component {
     }
 
     handleMouseOver = (type, e) => {
-        if (type == "operation") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation2.svg"
+        if (type == 'operation') {
+            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/operation2.svg'
         } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime2.svg"
+            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/realtime2.svg'
         }
     }
 
     handleMouseOut = (type, e) => {
-        if (type == "operation") {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/operation.svg"
+        if (type == 'operation') {
+            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/operation.svg'
         } else {
-            e.currentTarget.getElementsByTagName('img')[0].src = "/public/stream/img/icon/realtime.svg"
+            e.currentTarget.getElementsByTagName('img')[0].src = '/public/stream/img/icon/realtime.svg'
         }
     }
 
-
-    render() {
-        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, } = this.state;
+    render () {
+        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: "20 35" }}>
+                <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
                     <div className="project-header" >
                         <div className="project-search-box">
                             <div className="project-search" >
@@ -269,9 +266,9 @@ class Index extends Component {
                             </Button>
                         </div>
                         <div className="sortTitle">
-                            <span className="sort-item" style={sortTitleStatus == 1 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
+                            <span className="sort-item" style={sortTitleStatus == 1 ? { color: '#2491F7' } : {}} onClick={() => { this.changeSort('defaultSort') }}>默认排序</span>
                             <span className="sort-item">|</span>
-                            <span className="sort-item" style={sortTitleStatus == 2 ? { color: "#2491F7" } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
+                            <span className="sort-item" style={sortTitleStatus == 2 ? { color: '#2491F7' } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
                         </div>
                     </div>
                     <Row >
@@ -288,37 +285,37 @@ class Index extends Component {
                                                 <Row className="card-content" >
                                                     <Col span="17">
                                                         <div className="statistics" >已提交/总任务数： <span className="statistics-info">{`${taskCountMap.submitCount} / ${taskCountMap.allCount}`}</span></div>
-                                                        <div className="statistics" >项目创建时间： <span className="statistics-info">{moment(v.gmtCreate).format("YYYY-MM-DD HH:mm:ss")}</span></div>
+                                                        <div className="statistics" >项目创建时间： <span className="statistics-info">{moment(v.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></div>
                                                         <div className="statistics" >
-                                                            <Circle style={{ background: "#00A755", marginRight: "5px" }} />运行中任务：
+                                                            <Circle style={{ background: '#00A755', marginRight: '5px' }} />运行中任务：
                                                             <span className="statistics-info">{taskCountMap.runningCount}</span>
                                                         </div>
                                                         <div className="statistics" >
-                                                            <Circle style={{ background: "#F5A623", marginRight: "5px" }} />停止/取消：
+                                                            <Circle style={{ background: '#F5A623', marginRight: '5px' }} />停止/取消：
                                                             <span className="statistics-info">{taskCountMap.cancelCount}</span>
                                                         </div>
                                                     </Col>
                                                     <Col span="7">
-                                                        <div style={{ fontSize: 12, lineHeight: "26px" }}>任务失败数</div>
+                                                        <div style={{ fontSize: 12, lineHeight: '26px' }}>任务失败数</div>
                                                         {v.status != PROJECT_STATUS.NORMAL ? (
                                                             <div className="number no-hover">
                                                                 {
-                                                                    taskCountMap.failCount ? <span>{taskCountMap.failCount}</span> :
-                                                                        <span style={{ color: "#999" }}>{taskCountMap.failCount || 0}</span>
+                                                                    taskCountMap.failCount ? <span>{taskCountMap.failCount}</span>
+                                                                        : <span style={{ color: '#999' }}>{taskCountMap.failCount || 0}</span>
                                                                 }
                                                             </div>
                                                         ) : (
-                                                                <div className="number" onClick={() => { this.setRouter('operation', v, true) }}>
-                                                                    {
-                                                                        taskCountMap.failCount ? <span>{taskCountMap.failCount}</span> :
-                                                                            <span style={{ color: "#999" }}>{taskCountMap.failCount || 0}</span>
-                                                                    }
-                                                                </div>
-                                                            )}
+                                                            <div className="number" onClick={() => { this.setRouter('operation', v, true) }}>
+                                                                {
+                                                                    taskCountMap.failCount ? <span>{taskCountMap.failCount}</span>
+                                                                        : <span style={{ color: '#999' }}>{taskCountMap.failCount || 0}</span>
+                                                                }
+                                                            </div>
+                                                        )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {
-                                                            v.status != PROJECT_STATUS.NORMAL ? "" : <Row gutter={10} >
+                                                            v.status != PROJECT_STATUS.NORMAL ? '' : <Row gutter={10} >
                                                                 <Col span="12">
                                                                     <Card className="card-task"
                                                                         onClick={() => { this.setRouter('realtime', v) }}
@@ -330,7 +327,7 @@ class Index extends Component {
                                                                             <img className="task-img" src="/public/stream/img/icon/realtime.svg" />
                                                                         </span>
                                                                         数据开发
-                                                                            </Card>
+                                                                    </Card>
                                                                 </Col >
                                                                 <Col span="12">
                                                                     <Card className="card-task"
@@ -343,7 +340,7 @@ class Index extends Component {
                                                                             <img className="task-img" src="/public/stream/img/icon/operation.svg" />
                                                                         </span>
                                                                         运维中心
-                                                                            </Card>
+                                                                    </Card>
                                                                 </Col>
                                                             </Row>
                                                         }
@@ -352,7 +349,7 @@ class Index extends Component {
                                                 {
                                                     v.stickStatus == 1 ? <div className="triangle_border_right">
                                                         <span></span>
-                                                    </div> : ""
+                                                    </div> : ''
                                                 }
                                             </Card>
                                         </Col>
@@ -361,7 +358,7 @@ class Index extends Component {
                             </Row>
                             <Row>
                                 <Col >
-                                    <div style={{ float: "right" }}>
+                                    <div style={{ float: 'right' }}>
                                         <Pagination
                                             current={projectListParams.page}
                                             total={totalSize}
@@ -387,6 +384,6 @@ class Index extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        projects: state.projects,
+        projects: state.projects
     }
 })(Index)
