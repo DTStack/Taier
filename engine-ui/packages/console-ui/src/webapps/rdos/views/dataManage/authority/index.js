@@ -369,11 +369,12 @@ class AuthMana extends Component {
     }
     // 通过
     passClick = (record) => {
-        console.log(record);
         this.getPermissionData(record);
+        const { queryParams } = this.state;
+        console.log(queryParams.listType)
         this.setState({
             isShowPermission: true,
-            agreeApply: true,
+            agreeApply: queryParams.listType == 0 ? true : undefined,
             editRecord: [record],
             applyReason: record.applyReason,
             reply: record.reply
@@ -904,6 +905,7 @@ class AuthMana extends Component {
                             {this.renderPane()}
                             <DetailPermission
                                 visible={isShowPermission}
+                                agreeApply={agreeApply}
                                 table={editRecord}
                                 applyReason={applyReason}
                                 reply={reply}
@@ -927,6 +929,7 @@ class AuthMana extends Component {
                             {this.renderPane()}
                             <DetailPermission
                                 visible={isShowPermission}
+                                agreeApply={agreeApply}
                                 table={editRecord}
                                 applyReason={applyReason}
                                 reply={reply}
@@ -949,6 +952,7 @@ class AuthMana extends Component {
                             {this.renderPane(true)}
                             <DetailPermission
                                 visible={isShowPermission}
+                                agreeApply={agreeApply}
                                 table={editRecord}
                                 applyReason={applyReason}
                                 reply={reply}

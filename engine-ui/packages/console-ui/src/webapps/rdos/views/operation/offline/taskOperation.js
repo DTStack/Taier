@@ -401,11 +401,11 @@ class OfflineTaskList extends Component {
             render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
-                    {record.isDirty
+                    {record.isDirty && text == TASK_STATUS.FINISHED
                         ? <Tooltip
                             title="部分数据未同步成功，建议检查配置"
                         >
-                            <Icon type="info-circle-o" style={{ color: '#EF5350', marginLeft: '5px' }} />
+                            <Icon type="info-circle-o" style={{ color: '#ee9b1e', marginLeft: '5px' }} />
                         </Tooltip>
                         : null}
                 </span>

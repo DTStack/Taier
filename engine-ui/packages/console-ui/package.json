@@ -98,7 +98,8 @@
     "release": "./scripts/build.sh",
     "ssh": "./scripts/ssh_server.sh",
     "hotfix": "./scripts/hotfix.sh --b",
-    "scp": "./scripts/scp.sh"
+    "scp": "./scripts/scp.sh",
+    "esfix": "eslint src/**/*.js --fix"
   },
   "keywords": [
     "generator",

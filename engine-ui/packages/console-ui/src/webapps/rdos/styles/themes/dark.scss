@@ -677,9 +677,11 @@ $fontColor1: #2491F7;
         }
     
     }
-    .ide-editor .ide-content .editor-pane-box{
-        .extra-view{
-            border-color: $color2;
+    .ide-editor .ide-content {
+        .SplitPane.border{
+            .Pane2{
+                border-color: #000;
+            }
         }
     }
     .ant-tabs-bar{

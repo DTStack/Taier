@@ -5,6 +5,7 @@ import { Form, Select, Button } from 'antd';
 
 import ajax from '../../../../../api/index'
 import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../../../comm/const'
+import { isKafka } from '../../../../../comm'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -96,7 +97,7 @@ class CollectionTargetForm extends React.Component {
                                 style={{ width: '100%' }}
                             >
                                 {dataSourceList.map((item) => {
-                                    if (item.type != DATA_SOURCE.KAFKA) {
+                                    if (!isKafka(item.type)) {
                                         return null
                                     }
                                     return <Option key={item.id} value={item.id}>{item.dataName}({DATA_SOURCE_TEXT[item.type]})</Option>

@@ -8,6 +8,10 @@ import { getUser } from '../../../actions/console'
 import Api from '../../../api/console'
 import { longLabelFormLayout, formItemLayout } from '../../../consts'
 import GoBack from 'main/components/go-back';
+import ZipConfig from './zipConfig';
+import SparkConfig from './sparkConfig'
+import FlinkConfig from './flinkConfig';
+import { HiveConfig, CarbonDataConfig } from './hiveAndCarbonData'
 import utils from 'utils';
 
 const FormItem = Form.Item;
@@ -56,11 +60,11 @@ class EditCluster extends React.Component {
         fileHaveChange: false,
         checked: false,
         // 以下字段为填补关闭复选框数据无法获取输入数据情况
-        firstIptValue: undefined,
-        secondIptValue: undefined,
-        thirdIptValue: undefined,
-        firstOption: 'FALSE',
-        secondOption: 'TRUE',
+        gatewayHostValue: undefined,
+        gatewayPortValue: undefined,
+        gatewayJobNameValue: undefined,
+        deleteOnShutdownOption: 'FALSE',
+        randomJobNameSuffixOption: 'TRUE',
         flinkPrometheus: undefined, // 配置Prometheus参数
         flinkData: undefined // 获取Prometheus参数
     }
@@ -139,19 +143,37 @@ class EditCluster extends React.Component {
             dtyarnshellKeys: [],
             default: {}
         };
-        let notExtKeys_flink = ['typeName', 'flinkZkAddress',
-            'flinkHighAvailabilityStorageDir', 'flinkZkNamespace', 'flinkYarnMode', 'reporterClass',
-            'gatewayHost', 'gatewayPort', 'gatewayJobName', 'deleteOnShutdown', 'randomJobNameSuffix',
-            'jarTmpDir', 'flinkPluginRoot', 'remotePluginRootDir', 'clusterMode', 'flinkJarPath', 'flinkJobHistory'];
-        let notExtKeys_spark = ['typeName', 'sparkYarnArchive',
-            'sparkSqlProxyPath', 'sparkPythonExtLibPath'];
+        let notExtKeys_flink = [
+            'typeName', 'flinkZkAddress',
+            'flinkHighAvailabilityStorageDir',
+            'flinkZkNamespace',
+            'flinkYarnMode', 'reporterClass',
+            'gatewayHost', 'gatewayPort',
+            'gatewayJobName', 'deleteOnShutdown',
+            'randomJobNameSuffix', 'jarTmpDir',
+            'flinkPluginRoot', 'remotePluginRootDir',
+            'clusterMode', 'flinkJarPath',
+            'flinkJobHistory'
+        ];
+        let notExtKeys_spark = [
+            'typeName', 'sparkYarnArchive',
+            'sparkSqlProxyPath', 'sparkPythonExtLibPath'
+        ];
         // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path",
         // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
         // let notExtKeys_dtyarnshell = ["jlogstashRoot", "javaHome", "python2Path", "python3Path"]
 
-        let notExtKeys_learning = ['typeName', 'learning.python3.path', 'learning.python2.path',
-            'learning.history.address', 'learning.history.webapp.address', 'learning.history.webapp.https.address'];
-        let notExtKeys_dtyarnshell = ['typeName', 'jlogstash.root', 'java.home', 'python2.path', 'python3.path']
+        let notExtKeys_learning = [
+            'typeName', 'learning.python3.path',
+            'learning.python2.path',
+            'learning.history.address', 'learning.history.webapp.address',
+            'learning.history.webapp.https.address'
+        ];
+        let notExtKeys_dtyarnshell = [
+            'typeName', 'jlogstash.root',
+            'java.home', 'python2.path',
+            'python3.path'
+        ]
 
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
@@ -253,7 +275,7 @@ class EditCluster extends React.Component {
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
             if (!selectUserMap[user.tenantId]) {
-                result.push(<Option value={user.tenantId + '$$' + user.tenantName}>{user.tenantName}</Option>)
+                result.push(<Option key={user.tenantId + '$$' + user.tenantName} value={user.tenantId + '$$' + user.tenantName}>{user.tenantName}</Option>)
             }
         }
         return result;
@@ -465,108 +487,6 @@ class EditCluster extends React.Component {
             }
         )
     }
-    renderZipConfig (type) {
-        let { zipConfig } = this.state;
-        zipConfig = JSON.parse(zipConfig);
-        let keyAndValue;
-        if (type == 'hdfs') {
-            keyAndValue = Object.entries(zipConfig.hadoopConf)
-            utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'fs.defaultFS') {
-                        return -1;
-                    }
-                    if (compareKey == 'fs.defaultFS') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'dfs.nameservices') {
-                        return -1;
-                    }
-                    if (compareKey == 'dfs.nameservices') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key.indexOf('dfs.ha.namenodes') > -1) {
-                        return -1;
-                    }
-                    if (compareKey.indexOf('dfs.ha.namenodes') > -1) {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('dfs.namenode.rpc-address') > -1
-                    const checkCompareKey = compareKey.indexOf('dfs.namenode.rpc-address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-        } else {
-            keyAndValue = Object.entries(zipConfig.yarnConf)
-            utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'yarn.resourcemanager.ha.rm-ids') {
-                        return -1;
-                    }
-                    if (compareKey == 'yarn.resourcemanager.ha.rm-ids') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('yarn.resourcemanager.address') > -1
-                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('yarn.resourcemanager.webapp.address') > -1
-                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.webapp.address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-        }
-
-        return keyAndValue.map(
-            ([key, value]) => {
-                return (<Row className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
-                        {key.length > 40
-                            ? <Tooltip title={key}>{key.substr(0, 40) + '...'}</Tooltip>
-                            : key}：
-                    </Col>
-                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
-                        {value}
-                    </Col>
-                </Row>)
-            }
-        )
-    }
     exchangeMemory (totalMemory) {
         if (!totalMemory) {
             return '--';
@@ -714,7 +634,11 @@ class EditCluster extends React.Component {
     changeCheckbox (e) {
         this.setState({
             checked: e.target.checked
-        }, () => { this.getPrometheusValue() })
+        }, () => {
+            if (this.state.checked) {
+                this.getPrometheusValue()
+            }
+        })
     }
 
     flinkYarnModes (flinkVersion) {
@@ -723,46 +647,39 @@ class EditCluster extends React.Component {
         console.log(flinkVersion) // finlk140
         if (flinkVersion == 'flink140') {
             return flinkYarnMode14.map((item, index) => {
-                return <Option value={item}>{item}</Option>
+                return <Option key={item} value={item}>{item}</Option>
             })
         } else if (flinkVersion == 'flink150') {
             return flinkYarnMode15.map((item, index) => {
-                return <Option value={item}>{item}</Option>
+                return <Option key={item} value={item}>{item}</Option>
             })
         }
-        // else {
-        //     return flinkYarnMode14.map((item,index) => {
-        //         return <Option value={item}>{item}</Option>
-        //     })
-        // }
     }
 
     // 获取每项Input的值
-    getFirstInputValue (e) {
+    getGatewayHostValue (e) {
         this.setState({
-            firstIptValue: e.target.value
+            gatewayHostValue: e.target.value
         })
     }
-    getSecondInputValue (e) {
+    getGatewayPortValue (e) {
         this.setState({
-            secondIptValue: e.target.value
+            gatewayPortValue: e.target.value
         })
     }
-    getThirdInputValue (e) {
+    getGatewayJobNameValue (e) {
         this.setState({
-            thirdIptValue: e.target.value
+            gatewayJobNameValue: e.target.value
         })
     }
-    changeFirstOption (value) {
-        // const { setFieldsValue } = this.props.form;
+    changeDeleteOnShutdownOption (value) {
         this.setState({
-            firstOption: value
+            deleteOnShutdownOption: value
         })
-        // console.log(this.state.firstOption)
     }
-    changeSecondOption (value) {
+    changeRandomJobNameSuffixOption (value) {
         this.setState({
-            secondOption: value
+            randomJobNameSuffixOption: value
         })
     }
 
@@ -775,7 +692,7 @@ class EditCluster extends React.Component {
         const columns = this.initColumns();
         // 获取flink版本
         const flinkVersion = getFieldValue('flinkConf.typeName') || 'flink140';
-        const { firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption } = this.state;
+        const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
         // 获取flinkYarnMode
         const flinkYarnMode = getFieldValue('flinkConf.flinkYarnMode') || 'PER_JOB'
         // const havedata = this.getFieldValue()
@@ -881,309 +798,69 @@ class EditCluster extends React.Component {
                             </div>
                         </div>
                     )}
-                    {
-                        zipConfig
-                            ? <div><p className="config-title">HDFS</p>
-                                <div className="config-content" style={{ width: '800px' }}>
-                                    {this.renderZipConfig('hdfs')}
-                                </div>
-                                <p className="config-title">YARN</p>
-                                <div className="config-content" style={{ width: '800px' }}>
-                                    {this.renderZipConfig('yarn')}
-                                </div>
-                            </div>
-                            : null
-                    }
+
+                    <ZipConfig zipConfig={zipConfig} />
                     <p className="config-title">Hive JDBC信息</p>
-                    <div className="config-content" style={{ width: '680px' }}>
-                        <FormItem
-                            label="JDBC URL"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('hiveConf.jdbcUrl', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入jdbcUrl'
-                                }]
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="用户名"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('hiveConf.username')(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="密码"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('hiveConf.password')(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                    </div>
+                    <HiveConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                    />
 
                     <p className="config-title">CarbonData JDBC信息</p>
-                    <div className="config-content" style={{ width: '680px' }}>
-                        <FormItem
-                            label="JDBC URL"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('carbonConf.jdbcUrl', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入jdbcUrl'
-                                }]
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="用户名"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('carbonConf.username')(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="密码"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('carbonConf.password')(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                    </div>
+                    <CarbonDataConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                    />
 
                     <p className="config-title">Spark</p>
-                    <div className="config-content" style={{ width: '680px' }}>
-                        <FormItem
-                            label="版本选择"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('sparkConf.typeName', {
-                                rules: [{
-                                    required: true,
-                                    message: '请选择Spark版本'
-                                }],
-                                initialValue: 'spark_yarn'
-                            })(
-                                <Select disabled={isView} style={{ width: '100px' }}>
-                                    <Option value="spark_yarn">2.X</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="sparkYarnArchive"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('sparkConf.sparkYarnArchive', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入sparkYarnArchive'
-                                }],
-                                initialValue: '/sparkjars/jars'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="sparkSqlProxyPath"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('sparkConf.sparkSqlProxyPath', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入sparkSqlProxyPath'
-                                }],
-                                initialValue: '/user/spark/spark-0.0.1-SNAPSHOT.jar'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="sparkPythonExtLibPath"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('sparkConf.sparkPythonExtLibPath', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入sparkPythonExtLibPath'
-                                }],
-                                initialValue: '/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        {this.renderExtraParam('spark')}
-                        {isView ? null : (
-                            <Row>
-                                <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, 'spark')}>添加自定义参数</a>
-                                </Col>
-                            </Row>
+                    <SparkConfig
+                        getFieldDecorator={getFieldDecorator}
+                        isView={isView}
+                        customView={(
+                            <div>
+                                {this.renderExtraParam('spark')}
+                                {isView ? null : (
+                                    <Row>
+                                        <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                        <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                            <a onClick={this.addParam.bind(this, 'spark')}>添加自定义参数</a>
+                                        </Col>
+                                    </Row>
+                                )}
+                            </div>
                         )}
-                    </div>
-
+                    />
                     <p className="config-title">Flink</p>
                     <div className="config-content" style={{ width: '680px' }}>
-                        <FormItem
-                            label="flinkZkAddress"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkZkAddress', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入flinkZkAddress'
-                                }]
-
-                            })(
-                                <Input disabled={isView} placeholder="hostname1:port,hostname2:port，多个地址用英文逗号隔开" />
+                        <FlinkConfig
+                            isView={isView}
+                            getFieldDecorator={getFieldDecorator}
+                            checked={checked}
+                            changeCheckbox={this.changeCheckbox.bind(this)}
+                            gatewayHostValue={gatewayHostValue}
+                            gatewayPortValue={gatewayPortValue}
+                            gatewayJobNameValue={gatewayJobNameValue}
+                            deleteOnShutdownOption={deleteOnShutdownOption}
+                            randomJobNameSuffixOption={randomJobNameSuffixOption}
+                            getGatewayHostValue={this.getGatewayHostValue.bind(this)}
+                            getGatewayPortValue={this.getGatewayPortValue.bind(this)}
+                            getGatewayJobNameValue={this.getGatewayJobNameValue.bind(this)}
+                            changeDeleteOnShutdownOption={this.changeDeleteOnShutdownOption.bind(this)}
+                            changeRandomJobNameSuffixOption={this.changeRandomJobNameSuffixOption.bind(this)}
+                            customView={(
+                                <div>
+                                    {this.renderExtraParam('flink')}
+                                    {isView ? null : (
+                                        <Row>
+                                            <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                            <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                                <a onClick={this.addParam.bind(this, 'flink')}>添加自定义参数</a>
+                                            </Col>
+                                        </Row>
+                                    )}
+                                </div>
                             )}
-                        </FormItem>
-                        <FormItem
-                            label={<Tooltip title="flinkHighAvailabilityStorageDir">flinkHighAvailabilityStorageDir</Tooltip>}
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkHighAvailabilityStorageDir', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入flinkHighAvailabilityStorageDir'
-                                }]
-                            })(
-                                <Input disabled={isView} placeholder="Flink高可用存储地址，例如：/flink140/ha" />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkZkNamespace"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkZkNamespace', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入flinkZkNamespace'
-                                }]
-                            })(
-                                <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
-                            )}
-                        </FormItem>
-
-                        <div className="checkboxStyle">
-                            <Checkbox
-                                checked={checked}
-                                // disabled={isView}
-                                onChange={this.changeCheckbox.bind(this)}
-                                disabled={isView}
-                            >
-                                配置Prometheus Metric地址
-                            </Checkbox>
-                        </div>
-
-                        {checked ? (<div>
-                            <FormItem
-                                label="reporterClass"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.reporterClass', {
-                                    initialValue: 'org.apache.flink.metrics.prometheus.PrometheusPushGatewayReporter'
-                                })(
-                                    <Input disabled={true} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="gatewayHost"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.gatewayHost', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入gatewayHost'
-                                    }],
-                                    initialValue: firstIptValue
-                                })(
-                                    <Input disabled={isView} onChange={(e) => { this.getFirstInputValue(e) }} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="gatewayPort"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.gatewayPort', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入gatewayPort'
-                                    }],
-                                    initialValue: secondIptValue
-                                })(
-                                    <Input disabled={isView} onChange={(e) => { this.getSecondInputValue(e) }} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="gatewayJobName"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.gatewayJobName', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入gatewayJobName'
-                                    }],
-                                    initialValue: thirdIptValue
-                                })(
-                                    <Input disabled={isView} onChange={(e) => { this.getThirdInputValue(e) }} />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="deleteOnShutdown"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.deleteOnShutdown', {
-                                    rules: [{
-                                        required: true,
-                                        message: 'deleteOnShutdown'
-                                    }],
-                                    initialValue: firstOption
-                                })(
-                                    <Select disabled={isView} style={{ width: '100px' }} onChange={this.changeFirstOption.bind(this)} >
-                                        <Option value="FALSE">FALSE</Option>
-                                        <Option value="TRUE">TRUE</Option>
-                                    </Select>
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="randomJobNameSuffix"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('flinkConf.randomJobNameSuffix', {
-                                    rules: [{
-                                        required: true,
-                                        message: 'randomJobNameSuffix'
-                                    }],
-                                    initialValue: secondOption
-                                })(
-                                    <Select disabled={isView} style={{ width: '100px' }} onChange={this.changeSecondOption.bind(this)}>
-                                        <Option value="FALSE">FALSE</Option>
-                                        <Option value="TRUE">TRUE</Option>
-                                    </Select>
-                                )}
-                            </FormItem>
-                        </div>) : null
-                        }
-
-                        {this.renderExtraParam('flink')}
-                        {isView ? null : (
-                            <Row>
-                                <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                    <a onClick={this.addParam.bind(this, 'flink')}>添加自定义参数</a>
-                                </Col>
-                            </Row>
-                        )}
+                        />
                     </div>
 
                     <p className="config-title">Flink Engine</p>
@@ -1282,7 +959,7 @@ class EditCluster extends React.Component {
                             })(
                                 <Input disabled={isView} />
                             )}
-                        </FormItem> : null }
+                        </FormItem> : null}
 
                         <FormItem
                             label="flinkJobHistory"
@@ -1339,7 +1016,7 @@ class EditCluster extends React.Component {
                                 // }],
                                 // initialValue: "rdos1:10021"
                             })(
-                                <Input disabled={isView} placeholder="rdos1:10021"/>
+                                <Input disabled={isView} placeholder="rdos1:10021" />
                             )}
                         </FormItem>
                         <FormItem
@@ -1420,7 +1097,7 @@ class EditCluster extends React.Component {
                                 // }],
                                 // initialValue: "/root/anaconda3/bin/python3"
                             })(
-                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python2"/>
+                                <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
                             )}
                         </FormItem>
                         <FormItem

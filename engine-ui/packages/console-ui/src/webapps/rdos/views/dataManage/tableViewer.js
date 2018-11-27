@@ -37,13 +37,17 @@ export default class TableViewer extends React.Component {
             applyModal: {
                 visible: false,
                 data: {}
-            }
-
+            },
+            ddlList: [],
+            dmlList: [],
+            columnNames: []
         };
     }
 
     componentDidMount () {
         this.getTable();
+        this.getDdlList();
+        this.getDmlList();
     }
 
     changeMark () {
@@ -81,7 +85,8 @@ export default class TableViewer extends React.Component {
                 this.setState({
                     tableData: res.data,
                     isMark,
-                    applyButton
+                    applyButton,
+                    columnNames: [...res.data.column, ...res.data.partition]
                 });
             }
         });
@@ -196,8 +201,49 @@ export default class TableViewer extends React.Component {
         })
     }
 
+    getDdlList = () => {
+        ajax.getDdlList().then(res => {
+            if (res.code === 1) {
+                const data = res.data;
+                const ddlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                console.log(ddlData)
+                this.setState({
+                    ddlList: ddlData
+                })
+            }
+        })
+    }
+
+    getDmlList = () => {
+        ajax.getDmlList().then(res => {
+            if (res.code === 1) {
+                const data = res.data;
+                const dmlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                console.log(dmlData)
+                this.setState({
+                    dmlList: dmlData
+                })
+            }
+        })
+    }
+
     render () {
         const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
+        const { ddlList, dmlList, columnNames } = this.state;
+        const columnNameValue = columnNames.map(item => {
+            return item.columnName
+        })
+        console.log(columnNameValue)
 
         const columns = [{
             title: '序号',
@@ -223,7 +269,7 @@ export default class TableViewer extends React.Component {
             }
         }];
 
-        return <div className="g-tableviewer box-1">
+        return <div className="box-1">
             <div className="box-card full-screen-table-40">
                 <main>
                     <div >
@@ -409,6 +455,9 @@ export default class TableViewer extends React.Component {
                 table={applyModal.data}
                 onOk={this.apply}
                 onCancel={this.cancelApply}
+                ddlList={ddlList}
+                dmlList={dmlList}
+                columnNames={columnNameValue}
             />
         </div>
     }

@@ -18,7 +18,8 @@ const propType = {
 class IDEEditor extends Component {
     state = {
         changeTab: true,
-        size: undefined
+        size: undefined,
+        editorSize: undefined
     };
 
     changeTab = state => {
@@ -37,18 +38,38 @@ class IDEEditor extends Component {
 
     renderEditorPane () {
         const { editor, editorInstanceRef, extraPane } = this.props;
+        const { editorSize } = this.state;
         const editorView = <Editor editorInstanceRef={editorInstanceRef} {...editor} />;
         const extraView = extraPane;
-
         if (extraPane) {
-            return <div className="editor-pane-box">
-                <div className="editor-view">
-                    {editorView}
-                </div>
+            return <SplitPane
+                split="vertical"
+                minSize={500}
+                maxSize={-200}
+                defaultSize="calc(100% - 250px)"
+                primary="first"
+                key="editor-split-pane"
+                className="remove-default border"
+                size={editorSize}
+                onDragFinished={(newSize) => {
+                    this.setState({
+                        editorSize: newSize
+                    })
+                }}
+            >
+                {editorView}
                 <div className="extra-view">
                     {extraView}
                 </div>
-            </div>
+            </SplitPane>
+            // return <div className="editor-pane-box">
+            //     <div className="editor-view">
+
+            //     </div>
+            //     <div className="extra-view">
+
+            //     </div>
+            // </div>
         } else {
             return editorView;
         }
@@ -81,6 +102,7 @@ class IDEEditor extends Component {
                             maxSize={-77}
                             defaultSize="60%"
                             primary="first"
+                            key="ide-split-pane"
                             size={size}
                             onDragStarted={() => {
                                 this.setState({
