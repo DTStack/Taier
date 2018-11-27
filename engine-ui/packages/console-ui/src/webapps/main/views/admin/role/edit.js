@@ -31,9 +31,11 @@ export default class RoleEdit extends Component {
 
     submit = () => {
         const ctx = this
+
         ctx.form.validateFieldsAndScroll((err, roleData) => {
             if (!err) {
                 const updateData = assign(this.state.roleInfo, roleData)
+
                 Api.updateRole(app, updateData).then((res) => {
                     if (res.code === 1) {
                         message.success('角色更新成功！')
@@ -48,6 +50,7 @@ export default class RoleEdit extends Component {
         const ctx = this
         const app = this.state.app
         const { params } = ctx.props
+
         ctx.setState({ loading: true })
         Api.getRoleInfo(app, { roleId: params.roleId }).then(res => {
             if (res.code === 1) {

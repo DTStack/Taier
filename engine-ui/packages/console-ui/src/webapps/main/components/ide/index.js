@@ -23,11 +23,13 @@ class IDEEditor extends Component {
 
     changeTab = state => {
         let { changeTab } = this.state;
+
         if (state) {
             changeTab = true;
         } else {
             changeTab = false;
         }
+
         this.setState({
             changeTab
         });
@@ -37,6 +39,7 @@ class IDEEditor extends Component {
         const { editor, editorInstanceRef, extraPane } = this.props;
         const editorView = <Editor editorInstanceRef={editorInstanceRef} {...editor} />;
         const extraView = extraPane;
+
         if (extraPane) {
             return <div className="editor-pane-box">
                 <div className="editor-view">

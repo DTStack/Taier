@@ -32,6 +32,7 @@ class AdminRole extends Component {
 
     componentDidMount () {
         const { apps } = this.props
+
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
 
@@ -51,11 +52,11 @@ class AdminRole extends Component {
 
         const { active, selectedProject, streamSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
-        let haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
-        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
+        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
+        const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params = {
             pageSize: 10,
-            currentPage: currentPage
+            currentPage
         }
 
         if (!haveSelected && hasProject(app)) {
@@ -75,6 +76,7 @@ class AdminRole extends Component {
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
             }
+
             // else if(MY_APPS.ANALYTICS_ENGINE == active) {
             //     params.databaseId = selecteDatabase;
             // }
@@ -97,6 +99,7 @@ class AdminRole extends Component {
     // 获取数据库
     getDatabase = (app) => {
         const ctx = this
+
         Api.getDatabase(app).then((res) => {
             if (res.code === 1) {
                 if (app == MY_APPS.ANALYTICS_ENGINE) {
@@ -111,13 +114,15 @@ class AdminRole extends Component {
 
     getProjects = (app) => {
         const ctx = this
+
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
                 const selectedProject = res.data[0].id
+
                 if (MY_APPS.RDOS == app) {
                     ctx.setState({
                         projects: res.data,
-                        selectedProject: selectedProject
+                        selectedProject
                     }, this.loadData)
                 } else if (MY_APPS.STREAM == app) {
                     ctx.setState({
@@ -131,6 +136,7 @@ class AdminRole extends Component {
 
     removeRole = (role) => {
         const appKey = this.state.active;
+
         Api.deleteRole(appKey, { roleId: role.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
@@ -180,6 +186,7 @@ class AdminRole extends Component {
     initColums = () => {
         const { active } = this.state;
         const removeRole = this.removeRole;
+
         return [{
             title: '角色名称',
             dataIndex: 'roleName',
@@ -238,6 +245,7 @@ class AdminRole extends Component {
         let databaseOptions = [];
         let selectValue;
         let onSelectChange;
+
         if (active == MY_APPS.RDOS) {
             selectValue = selectedProject;
             projectsOptions = projects;
@@ -250,6 +258,7 @@ class AdminRole extends Component {
             databaseOptions = dataBase;
             onSelectChange = this.onDatabaseSelect;
         }
+
         const projectOpts = projectsOptions && projectsOptions.map(project =>
             <Option value={project.id} key={project.id}>
                 {project.projectAlias}
@@ -343,6 +352,7 @@ class AdminRole extends Component {
         // 融合API管理后
         const { apps } = this.props
         const content = this.renderPane();
+
         return (
             <div className="user-admin">
                 <h1 className="box-title">角色管理</h1>

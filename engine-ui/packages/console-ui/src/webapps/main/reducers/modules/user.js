@@ -17,6 +17,7 @@ export function user (state = initalUser, action) {
         if (action.data !== null) {
             return { ...state, ...action.data }
         }
+
         return state;
     }
     default:

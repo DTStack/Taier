@@ -24,8 +24,10 @@ class Dashboard extends Component {
 
     listenUserStatus = () => {
         const { dispatch } = this.props;
+
         setInterval(() => {
             const id = utils.getCookie('dt_user_id');
+
             if (!this._userLoaded && id && id !== 0) {
                 this._userLoaded = true;
                 dispatch(getInitUser())
@@ -37,6 +39,7 @@ class Dashboard extends Component {
         const { apps, user } = this.props;
         const sections = apps.map(app => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
+
             return isShow && app.id !== MY_APPS.MAIN && (
                 <a href={app.link} className="app-tag" key={app.id}>
                     <img className="app-logo" src={app.icon} />
@@ -45,11 +48,13 @@ class Dashboard extends Component {
                 </a>
             )
         })
+
         return sections
     }
 
     render () {
         const { children } = this.props
+
         return (
             <div className="portal">
                 <Header />

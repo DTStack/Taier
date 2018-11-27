@@ -26,11 +26,13 @@ class Main extends Component {
     componentDidMount () {
         const { user } = this.props;
         const userAction = getInitUser()
+
         this.props.dispatch(userAction);
         this.checkRoot(user);
     }
     componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
+
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {
             this.checkRoot(user);
         }

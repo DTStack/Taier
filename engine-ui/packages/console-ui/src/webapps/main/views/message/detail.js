@@ -17,6 +17,7 @@ class MsgDetail extends Component {
 
     componentDidMount () {
         const { msgId } = this.props.router.params
+
         this.loadMsg(msgId);
     }
 
@@ -25,6 +26,7 @@ class MsgDetail extends Component {
             this.setState({
                 msgInfo: res.data
             })
+
             if (res.data.readStatus !== 1) { // 如果未读，则标记为已读
                 this.markAsRead(msgId);
             }
@@ -33,6 +35,7 @@ class MsgDetail extends Component {
 
     markAsRead = (msgId) => {
         const { app } = this.state;
+
         Api.markAsRead(app, {
             notifyRecordIds: [msgId]
         });
@@ -49,6 +52,7 @@ class MsgDetail extends Component {
                 {msgInfo.content}
             </p>
         )
+
         return (
             <div className="box-1">
                 <div className="box-card msg-box">

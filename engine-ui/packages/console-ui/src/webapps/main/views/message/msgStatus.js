@@ -4,6 +4,7 @@ import { Circle } from 'widgets/circle'
 export default function msgStatus (props) {
     const { value } = props;
     let color = '';
+
     switch (value) {
     case 0: // 未读
         color = '#EF5350'; break;
@@ -12,5 +13,6 @@ export default function msgStatus (props) {
         color = '#d9d9d9';
         break;
     }
+
     return <Circle style={{ background: color }} />
 }

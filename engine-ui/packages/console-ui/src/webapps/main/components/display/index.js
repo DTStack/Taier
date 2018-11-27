@@ -1,6 +1,8 @@
+import React from 'react'
 import { MY_APPS } from '../../consts'
 export function DatabaseType (props) {
     const value = props.value
+
     switch (value) {
     case 1:
         return <span>MySQL</span>

@@ -15,6 +15,7 @@ export function app (state = {}, action) {
         if (action.data !== null) {
             return assign({}, state, action.data)
         }
+
         return state;
     }
     default:

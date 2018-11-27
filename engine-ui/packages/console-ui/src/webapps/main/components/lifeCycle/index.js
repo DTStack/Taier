@@ -34,6 +34,7 @@ class LifeCycle extends React.Component {
 
     componentDidMount () {
         const value = this.props.value
+
         if (value) {
             this.initState(value)
         }
@@ -41,6 +42,7 @@ class LifeCycle extends React.Component {
 
     componentWillReceiveProps (nextProps) {
         const value = nextProps.value
+
         if (value && this.state.value !== value && !this.state.showCustom) {
             this.initState(value)
         }
@@ -48,6 +50,7 @@ class LifeCycle extends React.Component {
 
     initState = (value) => {
         const res = options.find(opt => opt.value == value)
+
         if (!res) { // 自定义
             this.setState({
                 value: -1,
@@ -77,6 +80,7 @@ class LifeCycle extends React.Component {
 
     customChange = (e) => {
         const value = e.target.value
+
         this.props.onChange(value < 0 ? 1 : value)
     }
 
@@ -92,6 +96,7 @@ class LifeCycle extends React.Component {
     render () {
         const { width, value } = this.props
         const display = this.state.showCustom ? 'visible' : 'hidden'
+
         return (
             <div>
                 <Select

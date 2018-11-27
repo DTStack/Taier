@@ -22,6 +22,7 @@ class Result extends Component {
 
     generateCols (data) {
         const { currentPage } = this.state;
+
         if (data && data.length > 0) {
             const arr = [
                 {
@@ -32,6 +33,7 @@ class Result extends Component {
                     }
                 }
             ];
+
             data.forEach((item, index) => {
                 arr.push({
                     title: item,
@@ -43,8 +45,10 @@ class Result extends Component {
                     }
                 });
             });
+
             return arr;
         }
+
         return [];
     }
 
@@ -52,6 +56,7 @@ class Result extends Component {
         const data = this.props.data;
         const showData = data.slice(1, data.length);
         const columns = this.generateCols(data[0]);
+
         return (
             <Table
                 rowKey="id"
@@ -74,6 +79,7 @@ class Console extends Component {
     componentWillReceiveProps (nextProps) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
+
         if (
             newConsole.showRes &&
             newConsole.results.length > 0 &&
@@ -93,6 +99,7 @@ class Console extends Component {
 
     onTabChange = activeKey => {
         const { onConsoleTabChange } = this.props;
+
         this.setState({ activeKey }, () => {
             if (activeKey === defaultConsoleTab) {
                 this.focusEditor();
@@ -106,11 +113,13 @@ class Console extends Component {
     focusEditor = () => {
         const editor = this.editor.self;
         const doc = editor.doc;
+
         doc.setCursor(editor.lineCount(), null); // 控制滚动条在底部
     };
 
     remove = targetKey => {
         const { onRemoveTab } = this.props;
+
         if (onRemoveTab) onRemoveTab(parseInt(targetKey, 10));
     };
 
@@ -123,6 +132,7 @@ class Console extends Component {
                     top: tab.data && tab.data.length > 1 ? '-45px' : '10px',
                     height: '30px'
                 };
+
                 return (
                     <TabPane
                         style={{ minHeight: '100%', position: 'relative' }}
@@ -144,6 +154,7 @@ class Console extends Component {
                 );
             });
         }
+
         return [];
     }
 

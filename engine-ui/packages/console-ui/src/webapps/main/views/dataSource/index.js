@@ -39,6 +39,7 @@ class DataSource extends Component {
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
+
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
             this.loadDataSources()
         }
@@ -46,11 +47,13 @@ class DataSource extends Component {
 
     loadDataSources = (params) => {
         const ctx = this
+
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageSize: 10,
             currentPage: 1
         }, params)
+
         Api.queryDataSource(reqParams).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data, loading: false })
@@ -68,9 +71,11 @@ class DataSource extends Component {
         const ctx = this
         const { title, status, source } = this.state
         let reqSource = sourceFormData
+
         if (status === 'edit') { // 编辑数据
             reqSource = Object.assign(source, sourceFormData)
         }
+
         Api.addOrUpdateSource(reqSource).then((res) => {
             if (res.code === 1) {
                 formObj.resetFields()
@@ -85,10 +90,13 @@ class DataSource extends Component {
 
     remove = (source) => {
         const ctx = this
+
         if (source.active === 1) {
             message.info('此数据源已在任务中被引用，无法删除!')
+
             return;
         }
+
         Api.deleteDataSource({ sourceId: source.id }).then((res) => {
             if (res.code === 1) {
                 message.success('移除数据源成功！')
@@ -99,6 +107,7 @@ class DataSource extends Component {
 
     testConnection = (source) => { // 测试数据源连通性
         const ctx = this
+
         Api.testDSConnection(source).then((res) => {
             if (res.code === 1) {
                 message.success('数据源连接正常！')
@@ -108,9 +117,11 @@ class DataSource extends Component {
 
     handleTableChange = (pagination, filters) => {
         const params = {}
+
         if (filters.type) {
             params.type = filters.type[0]
         }
+
         params.currentPage = pagination.current
         this.setState({ current: pagination.current })
         this.loadDataSources(params)
@@ -222,6 +233,7 @@ class DataSource extends Component {
                 }}
             >新增数据源</Button>
         )
+
         return (
             <div className="project-member">
                 <article className="section">
@@ -260,7 +272,7 @@ export default connect((state) => {
     }
 }, dispatch => {
     return {
-        getSourceTypes: function () {
+        getSourceTypes () {
             dispatch(getSourceTypes())
         }
     }

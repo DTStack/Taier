@@ -75,15 +75,17 @@ class AdminUser extends Component {
         const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects, dataBase, selecteDatabase } = this.state;
         const params = {
             pageSize: 10,
-            currentPage: currentPage
+            currentPage
         }
-        let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length);
-        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && dataBase.length);
+        const projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length);
+        const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && dataBase.length);
+
         this.setState({
             users: {
                 data: []
             }
         })
+
         if (!projectsExsit && hasProject(active) && !isGetProjectsBack) {
             this.getProjects(active);
         } else if (!databaseExsit && this.hasDatabase(active) && !isGetDatabaseBack) {
@@ -100,6 +102,7 @@ class AdminUser extends Component {
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
             }
+
             // else if (MY_APPS.ANALYTICS_ENGINE == active) {
             //     params.databaseId = selecteDatabase;
             // }
@@ -108,6 +111,7 @@ class AdminUser extends Component {
                 currentPage: 1
             }));
         }
+
         this.getOwnRole(active, params);
     }
 
@@ -118,10 +122,12 @@ class AdminUser extends Component {
             pageSize: 1,
             name: this.props.user.userName
         }
+
         Api.queryUser(app, queryParams).then((res) => {
             if (res.code != 1) {
                 return;
             }
+
             // const roles = res.data && res.data.data[0].roles;
             const roles = res.data.data.length > 0 ? res.data.data[0].roles : [];
             let isVisitor = false;
@@ -129,8 +135,10 @@ class AdminUser extends Component {
             let isProjectAdmin = false;
 
             let isProjectOwner = false;
-            for (let role of roles) {
+
+            for (const role of roles) {
                 const roleValue = role.roleValue;
+
                 switch (app) {
                 case MY_APPS.RDOS:
                 case MY_APPS.STREAM: {
@@ -154,6 +162,7 @@ class AdminUser extends Component {
                 }
                 }
             }
+
             this.setState({
                 myRoles: {
                     isVisitor,
@@ -166,6 +175,7 @@ class AdminUser extends Component {
     loadUsers = (app, params) => {
         const { searchName } = this.state;
         const ctx = this
+
         this.setState({
             loading: true,
             users: {
@@ -173,11 +183,13 @@ class AdminUser extends Component {
             }
         })
         const queryParams = { ...params }// 复制一份
+
         queryParams.name = searchName;
         Api.queryUser(app, queryParams).then((res) => {
             ctx.setState({
                 loading: false
             })
+
             if (res.code == 1) {
                 ctx.setState({ users: res.data })
             }
@@ -186,6 +198,7 @@ class AdminUser extends Component {
 
     loadRoles = (app, params) => {
         const ctx = this;
+
         Api.queryRole(app, params).then((res) => {
             if (res.code == 1) {
                 ctx.setState({ roles: res.data && res.data.data })
@@ -196,6 +209,7 @@ class AdminUser extends Component {
     // 获取数据库
     getDatabase = (app) => {
         const ctx = this
+
         Api.getDatabase(app).then((res) => {
             if (res.code === 1) {
                 if (app == MY_APPS.ANALYTICS_ENGINE) {
@@ -210,9 +224,11 @@ class AdminUser extends Component {
 
     getProjects = (app) => {
         const ctx = this
+
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
                 let cookiesProject;
+
                 /**
                  * 不同应用设置不同的state
                  */
@@ -239,6 +255,7 @@ class AdminUser extends Component {
         const params = {
             userName
         }
+
         if (hasProject(active)) {
             if (MY_APPS.RDOS == active) {
                 params.projectId = selectedProject;
@@ -246,11 +263,13 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject;
             }
         }
+
         if (this.hasDatabase(active)) {
             if (MY_APPS.ANALYTICS_ENGINE == active) {
                 params.databaseId = selecteDatabase;
             }
         }
+
         Api.loadUsersNotInProject(active, params).then((res) => {
             this.setState({ notProjectUsers: res.data })
         })
@@ -265,12 +284,15 @@ class AdminUser extends Component {
         // 塞入要添加的用户列表
         const targetUsers = [];
         const uids = projectRole.targetUserIds;
+
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+
             if (user) {
                 targetUsers.push(user);
             }
         }
+
         projectRole.targetUsers = targetUsers;
 
         form.validateFields((err) => {
@@ -282,11 +304,13 @@ class AdminUser extends Component {
                         projectRole.projectId = streamSelectedProject
                     }
                 }
+
                 if (this.hasDatabase(active)) {
                     if (active == MY_APPS.ANALYTICS_ENGINE) {
                         projectRole.databaseId = selecteDatabase
                     }
                 }
+
                 Api.addRoleUser(active, projectRole).then((res) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
@@ -306,6 +330,7 @@ class AdminUser extends Component {
         const params = {
             targetUserId: member.userId
         }
+
         if (hasProject(active)) {
             if (active == MY_APPS.RDOS) {
                 params.projectId = selectedProject
@@ -313,11 +338,13 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject
             }
         }
+
         if (this.hasDatabase(active)) {
             if (active == MY_APPS.ANALYTICS_ENGINE) {
                 params.databaseId = selecteDatabase
             }
         }
+
         Api.removeProjectUser(active, params).then((res) => {
             if (res.code === 1) {
                 ctx.loadData()
@@ -334,6 +361,7 @@ class AdminUser extends Component {
 
         if (memberRole.roleIds.length === 0) {
             message.error('用户角色不可为空！');
+
             return;
         }
 
@@ -349,11 +377,13 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject
             }
         }
+
         if (this.hasDatabase(active)) {
             if (active == MY_APPS.ANALYTICS_ENGINE) {
                 params.databaseId = selecteDatabase
             }
         }
+
         Api.updateUserRole(active, params).then((res) => {
             if (res.code === 1) {
                 message.success('设置成功！')
@@ -379,6 +409,7 @@ class AdminUser extends Component {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
             }
+
             if (this.memberForm) {
                 this.memberForm.props.form.resetFields()
             }
@@ -424,6 +455,7 @@ class AdminUser extends Component {
 
     initAddMember = () => {
         const { params } = this.props
+
         this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
@@ -433,6 +465,7 @@ class AdminUser extends Component {
         const { active } = this.state;
         const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE);
         const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM);
+
         return [{
             title: '账号',
             dataIndex: 'user.userName',
@@ -460,6 +493,7 @@ class AdminUser extends Component {
             key: 'roles',
             render (roles) {
                 const roleNames = roles.map(role => role && role.roleName)
+
                 return roleNames.join(',')
             }
         }, {
@@ -643,6 +677,7 @@ class AdminUser extends Component {
         } = this.state
 
         const content = this.renderPane();
+
         return (
             <div className="user-admin">
                 <h1 className="box-title">用户管理</h1>

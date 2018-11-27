@@ -4,6 +4,7 @@ import { Button, Dropdown, Menu, Icon } from 'antd';
 class ThemeSwitcher extends Component {
     viewMenu = () => {
         const { onThemeChange, editorTheme } = this.props;
+
         return (
             <Menu selectedKeys={[editorTheme]} onClick={({ key }) => { onThemeChange(key) }}>
                 <Menu.Item key="vs">默认</Menu.Item>

@@ -5,6 +5,7 @@ import { Button, Dropdown, Menu, Icon } from 'antd';
 export default class Toolbar extends Component {
     editMenu = () => {
         const { onFileEdit } = this.props;
+
         return (
             <Menu onClick={({ key }) => { onFileEdit(key) }}>
                 <Menu.Item key="find">查找（Cmd/Ctrl）+ F</Menu.Item>

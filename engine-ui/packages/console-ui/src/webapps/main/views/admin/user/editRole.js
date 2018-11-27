@@ -41,6 +41,7 @@ class EditRoleForm extends Component {
     setFields = (user) => {
         const selectedRoles = user && user.roles
             ? user.roles.map(role => role.id) : [];
+
         this.props.form.setFieldsValue({ roleIds: selectedRoles });
     }
 
@@ -48,10 +49,12 @@ class EditRoleForm extends Component {
         const { roles, form, app, loginUser, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
-        let roleOptions = [];
+        const roleOptions = [];
+
         if (roles) {
             roles.forEach(role => {
                 const disabled = isDisabledRole(app, role.roleValue, loginUser, myRoles)
+
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }

@@ -6,6 +6,7 @@ const imgBase = 'public/main/img/icon'
 export default class Icon extends Component {
     render () {
         const props = this.props
+
         return (<img
             {...props}
             className={`m-icon ${props.className || ''}`}

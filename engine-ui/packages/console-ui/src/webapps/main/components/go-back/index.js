@@ -5,6 +5,7 @@ import { browserHistory, hashHistory } from 'react-router'
 export default class GoBack extends Component {
     go = () => {
         const { url, history, autoClose } = this.props
+
         if (url) {
             if (history) { browserHistory.push(url) } else { hashHistory.push(url) }
         } else {
@@ -32,10 +33,12 @@ export default class GoBack extends Component {
             position: 'relative',
             top: '2px'
         }
+
         if (style) {
             mStyle = Object.assign(mStyle, style)
             iconStyle = Object.assign(iconStyle, style)
         }
+
         // switch (type) {
         //     case "textButton":
         //         mStyle.marginRight = '5px';

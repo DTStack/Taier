@@ -25,6 +25,7 @@ class RoleForm extends Component {
 
     componentDidMount () {
         const app = utils.getParameterByName('app')
+
         Api.getRoleTree(app).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -37,6 +38,7 @@ class RoleForm extends Component {
     componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && nextProps.roleInfo.permissionIds || []
+
             ids = ids && ids.map(id => `${id}`)
             this.onCheck(ids)
         }
@@ -51,7 +53,7 @@ class RoleForm extends Component {
     }
 
     getLeafNodes = (checkedKeys) => {
-        let arr = [...checkedKeys]
+        const arr = [...checkedKeys]
         const { roleTree } = this.state
 
         const loop = (data) => {
@@ -61,6 +63,7 @@ class RoleForm extends Component {
                 // 有子节点的需要移除, 只需要添加权限子节点ID
                 if (item.children && item.children.length > 0) {
                     const index = arr.indexOf(`${item.nodeId}`)
+
                     if (index > -1) {
                         arr.splice(index, 1) // remove nouse
                     }
@@ -79,6 +82,7 @@ class RoleForm extends Component {
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
+
             if (item.children && item.children.length > 0) {
                 return (
                     <TreeNode
@@ -90,6 +94,7 @@ class RoleForm extends Component {
                     </TreeNode>
                 )
             }
+
             return <TreeNode key={key} dataRef={role} title={role.display}/>;
         })
     }
@@ -155,4 +160,5 @@ class RoleForm extends Component {
 }
 
 const RoleFormWrapper = Form.create()(RoleForm)
+
 export default RoleFormWrapper;

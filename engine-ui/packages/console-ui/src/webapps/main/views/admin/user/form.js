@@ -70,20 +70,24 @@ class UserRoleForm extends Component {
                 </Option>
             )
 
-        let roleOptions = [];
-        let initialValue = [];
+        const roleOptions = [];
+        const initialValue = [];
+
         if (roles) {
             roles.forEach(role => {
                 const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
-                let isRdosOrStream = MY_APPS.RDOS == app || MY_APPS.STREAM == app
+                const isRdosOrStream = MY_APPS.RDOS == app || MY_APPS.STREAM == app
+
                 if (role.roleValue == APP_ROLE.VISITOR && !isRdosOrStream) {
                     initialValue.push(role.id)
                 } else if (role.roleValue == RDOS_ROLE.VISITOR && isRdosOrStream) {
                     initialValue.push(role.id)
                 }
+
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
             })
         }
+
         return (
             <Form>
                 <FormItem
@@ -116,7 +120,7 @@ class UserRoleForm extends Component {
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: initialValue
+                        initialValue
                     })(
                         <CheckboxGroup
                             options={roleOptions}

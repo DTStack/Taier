@@ -12,6 +12,7 @@ class Footer extends Component {
             color: #999999;
             letter-spacing: 0.65px;
         `
+
         return (
             <Footer className="footer">
                 <p>{window.APP_CONF.showCopyright ? '©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1' : ''}版本：v{APP.VERSION}</p>

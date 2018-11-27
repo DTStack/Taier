@@ -1,6 +1,9 @@
 {
     "parser": "babel-eslint",
-    "extends":["standard", "plugin:react/recommended"],
+    "extends":[
+        "standard", 
+        "plugin:react/recommended"
+    ],
     "plugins": [ 
         "import",
         "react",
@@ -25,7 +28,7 @@
         "eqeqeq": 0,
         "no-console": 0,
         "no-param-reassign": 0,
-        "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
+        "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
         
         "react/jsx-indent": 0,

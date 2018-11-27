@@ -17,6 +17,7 @@ export function getUser () {
 
 export function getInitUser () {
     const user = UserApi.getInitUser()
+
     return {
         type: userActions.GET_USER,
         data: user

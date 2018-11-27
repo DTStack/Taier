@@ -17,6 +17,7 @@ export default function AppTabs (props) {
 
     const tabPanes = enableApps.length > 0 && enableApps.map(app => {
         const isShow = !app.disableExt || !app.disableMessage;
+
         return isShow && (<TabPane tab={app.name} key={app.id} data={app}>
             {content}
         </TabPane>)

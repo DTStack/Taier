@@ -13,6 +13,7 @@ export function msgList (state = initalMsg, action) {
         if (action.data !== null) {
             return assign({}, state, action.data)
         }
+
         return state;
     }
     default:

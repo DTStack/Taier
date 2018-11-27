@@ -73,6 +73,7 @@ class DataSourceForm extends Component {
 
     componentWillReceiveProps (nextProps) {
         const newData = nextProps.sourceData
+
         if (newData && newData.id !== this.props.sourceData.id) {
             if (newData.dataJson && newData.dataJson.hadoopConfig) {
                 this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true })
@@ -95,6 +96,7 @@ class DataSourceForm extends Component {
         const { handOk, form } = this.props
         const source = form.getFieldsValue()
         const { sourceType } = this.state
+
         // let fields = fields = ['dataName', 'type', 'dataJson']
         form.validateFields((err) => {
             if (!err) {
@@ -105,6 +107,7 @@ class DataSourceForm extends Component {
 
     testConnection = (e) => {
         const { testConnection } = this.props
+
         this.props.form.validateFields((err, source) => {
             if (!err) {
                 testConnection(source)
@@ -114,6 +117,7 @@ class DataSourceForm extends Component {
 
     cancle = () => {
         const { form, handCancel } = this.props
+
         form.resetFields()
         handCancel()
     }
@@ -132,9 +136,11 @@ class DataSourceForm extends Component {
     hadoopConfigChange = (e) => {
         const { hadoopConfig, hasHdfsConfig, hadoopConfigStr } = this.state
         const value = e.target.value.split('//')[1]
+
         if (hasHdfsConfig && value) {
             const reg = new RegExp(`${hadoopConfig}`, 'g')
             const newStr = hadoopConfigStr.replace(reg, value)
+
             this.setState({
                 hadoopConfig: value,
                 hadoopConfigStr: newStr
@@ -148,6 +154,7 @@ class DataSourceForm extends Component {
     setHadoopConf = (value) => {
         const editor = this.editor.self
         const doc = editor.doc
+
         doc.setValue(value)
     }
 
@@ -511,6 +518,7 @@ class DataSourceForm extends Component {
             )
         )
         const sourceType = types[0] && types[0].value
+
         return (
             <Modal
                 title={title}

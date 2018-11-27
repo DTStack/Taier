@@ -31,7 +31,8 @@ export default class CopyIcon extends Component {
         this.fakeElem.style.left = '-9999px';
 
         // Move element to the same position vertically
-        let yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        const yPosition = window.pageYOffset || document.documentElement.scrollTop;
+
         this.fakeElem.style.top = `${yPosition}px`;
 
         this.fakeElem.setAttribute('readonly', '');

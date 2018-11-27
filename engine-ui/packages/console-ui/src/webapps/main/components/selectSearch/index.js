@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Tooltip, message, Select } from 'antd';
 
 const Option = Select.Option;
+
 export default class SelectSearch extends Component {
     state = {
         searchValue: ''

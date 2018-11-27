@@ -33,6 +33,7 @@ class MessageList extends Component {
         const { apps } = this.props;
         const initialApp = utils.getParameterByName('app');
         const defaultApp = apps.find(app => app.default)
+
         if (defaultApp) {
             this.setState({
                 selectedApp: initialApp || defaultApp.id
@@ -60,11 +61,13 @@ class MessageList extends Component {
     getUnreadRows = () => {
         const { selectedRows } = this.state;
         const ids = []
+
         selectedRows.forEach(item => {
             if (item.readStatus === 0) { // 获取未读数据
                 ids.push(item.id)
             }
         })
+
         return ids
     }
 
@@ -110,6 +113,7 @@ class MessageList extends Component {
 
     deleteMsg = () => {
         const { selectedApp, selectedRowKeys } = this.state;
+
         if (this.selectedNotNull(selectedRowKeys)) {
             Api.deleteMsgs(selectedApp, {
                 notifyRecordIds: selectedRowKeys
@@ -138,8 +142,10 @@ class MessageList extends Component {
     selectedNotNull (selected) {
         if (!selected || selected.length <= 0) {
             message.error('请选择要操作的消息！')
+
             return false
         }
+
         return true
     }
 
@@ -166,14 +172,18 @@ class MessageList extends Component {
     onCheckAllChange = (e) => {
         const selectedRowKeys = []
         const selectedRows = []
+
         if (e.target.checked) {
             const data = this.state.table.data
+
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
+
                 selectedRowKeys.push(item.id)
                 selectedRows.push(item)
             }
         }
+
         this.setState({
             selectedRowKeys,
             selectedRows,
@@ -185,6 +195,7 @@ class MessageList extends Component {
         const { msgList } = this.props
         const { selectedAll, table } = this.state
         const disabled = !table || !table.data || (table.data.length === 0);
+
         return (
             <tr className="ant-table-row  ant-table-row-level-0">
                 <td style={{ padding: '0 24px' }}>
@@ -232,8 +243,9 @@ class MessageList extends Component {
         const menuItem = []
 
         if (apps && apps.length > 0) {
-            for (var i = 0; i < apps.length; i++) {
+            for (let i = 0; i < apps.length; i++) {
                 const app = apps[i];
+
                 if (app.enable && app.id !== 'main' && !app.disableExt && !app.disableMessage) {
                     menuItem.push(
                         <MenuItem app={app} key={app.id}>{app.name}</MenuItem>
@@ -258,9 +270,11 @@ class MessageList extends Component {
             key: 'readStatus',
             render (status) {
                 let display = '未读'
+
                 if (status === 1) { // 已读
                     display = '已读'
                 }
+
                 return display
             }
         }, {
