@@ -8,15 +8,12 @@ import './style.scss'
 const Search = Input.Search;
 
 class SearchInput extends React.PureComponent {
-
-
-
     render () {
         const { placeholder, onSearch, onClose, display, className, style, id } = this.props;
 
         let myClass = 'search-control';
-        let myStyle = { 
-            display,
+        let myStyle = {
+            display
         }
 
         if (className) myClass = `${myClass} ${className}`;
@@ -24,7 +21,7 @@ class SearchInput extends React.PureComponent {
 
         return (
             <div className="search-input">
-                 <div className={ myClass } style={ myStyle }>
+                <div className={ myClass } style={ myStyle }>
                     <Search
                         ref={(self) => this._input = self }
                         id={id}
@@ -33,7 +30,7 @@ class SearchInput extends React.PureComponent {
                     />
                 </div>
                 <div
-                    className="search-mask-layer" 
+                    className="search-mask-layer"
                     style={{ display }}
                     onClick={onClose}></div>
             </div>

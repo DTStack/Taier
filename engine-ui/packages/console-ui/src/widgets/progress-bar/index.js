@@ -1,7 +1,7 @@
 import './style.scss'
 
 class ProcessBar {
-    constructor() {
+    constructor () {
         this.className = 'progress-bar'
         this.hodor = document.createElement('div')
         this.hodor.className = this.className
@@ -22,19 +22,19 @@ class ProcessBar {
                       </svg>`
     }
 
-    show() {
+    show () {
         document.body.appendChild(this.hodor)
         document.body.appendChild(this.img)
     }
 
-    hide() {
+    hide () {
         if (this.hasAdded()) {
             document.body.removeChild(this.hodor)
             document.body.removeChild(this.img)
         }
     }
 
-    hasAdded() {
+    hasAdded () {
         return document.getElementsByClassName(this.className).length > 0
     }
 }

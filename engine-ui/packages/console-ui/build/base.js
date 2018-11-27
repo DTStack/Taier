@@ -72,7 +72,8 @@ module.exports = function () {
                     // loader: ['babel-loader?cacheDirectory']
                     loader: [
                         "react-hot-loader/webpack",
-                        "happypack/loader?id=happy-babel-js"
+                        "happypack/loader?id=happy-babel-js",
+                        // "eslint-loader"
                     ]
                 },
                 {

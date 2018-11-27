@@ -1,4 +1,4 @@
-import { debounce, endsWith, cloneDeep } from 'lodash';
+import { debounce, endsWith } from 'lodash';
 import { notification } from 'antd'
 
 /**
@@ -6,7 +6,7 @@ import { notification } from 'antd'
 */
 
 // 请求防抖动
-export function debounceEventHander(...args) {
+export function debounceEventHander (...args) {
     const debounced = debounce(...args)
     return function (e) {
         e.persist()
@@ -17,8 +17,8 @@ export function debounceEventHander(...args) {
 /**
  * 查找树中的某个节点
  */
-export function findTreeNode(treeNode, node) {
-    let result = ""
+export function findTreeNode (treeNode, node) {
+    let result = ''
     if (treeNode.id === parseInt(node.id, 10)) {
         return treeNode;
     }
@@ -32,11 +32,11 @@ export function findTreeNode(treeNode, node) {
 }
 
 /**
- * 
+ *
  * @param {Array} treeNodes 树状节点数据
  * @param {Object} target 目标节点
  */
-export function removeTreeNode(treeNodes, target) {
+export function removeTreeNode (treeNodes, target) {
     for (let i = 0; i < treeNodes.length; i += 1) {
         if (treeNodes[i].id === target.id) {
             treeNodes.splice(i, 1) // remove节点
@@ -51,7 +51,7 @@ export function removeTreeNode(treeNodes, target) {
 /**
  * 追加子节点
  */
-export function appendTreeNode(treeNode, append, target) {
+export function appendTreeNode (treeNode, append, target) {
     const targetId = parseInt(target.id, 10)
     if (treeNode.children) {
         const children = treeNode.children
@@ -67,9 +67,9 @@ export function appendTreeNode(treeNode, append, target) {
 /**
  * 遍历树形节点，用新节点替换老节点
 */
-export function replaceTreeNode(treeNode, replace) {
+export function replaceTreeNode (treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10)&&treeNode.type==replace.type
+        treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
     ) {
         treeNode = Object.assign(treeNode, replace);
         return;
@@ -83,11 +83,11 @@ export function replaceTreeNode(treeNode, replace) {
 }
 
 /**
- * 
+ *
  * @param {*} origin
  * @param {*} mergeTo
  */
-export function mergeTreeNodes(origin, target) {
+export function mergeTreeNodes (origin, target) {
     replaceTreeNode(origin, target);
     if (target.children) {
         const children = target.children
@@ -99,35 +99,33 @@ export function mergeTreeNodes(origin, target) {
 
 /**
  * 打开新窗口
- * @param {*} url 
- * @param {*} target 
+ * @param {*} url
+ * @param {*} target
  */
-export function openNewWindow(url, target) {
+export function openNewWindow (url, target) {
     window.open(url, target || '_blank')
 }
 
 /**
  * 检验改应用是否包含项目选项
- * @param {s} app 
+ * @param {s} app
  */
-export function hasProject(app) {
+export function hasProject (app) {
     return app === 'rdos' || app === 'stream'
 }
-
 
 /**
  * 字符串替换
  */
-export function replaceStrFormBeginToEnd(str, replaceStr, begin, end) {
+export function replaceStrFormBeginToEnd (str, replaceStr, begin, end) {
     return str.substring(0, begin) + replaceStr + str.substring(end + 1)
 }
 
 /**
  * 字符串替换（根据索引数组）
  */
-export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
-    let arr = [];
-    let result = "";
+export function replaceStrFormIndexArr (str, replaceStr, indexArr) {
+    let result = '';
     let index = 0;
 
     if (!indexArr || indexArr.length < 1) {
@@ -150,9 +148,9 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
 
 /**
  * 过滤sql中的注释
- * @param {s} app 
+ * @param {s} app
  */
-export function filterComments(sql) {
+export function filterComments (sql) {
     let tmpArr = [];
     const comments = [];
     if (!sql) {
@@ -161,16 +159,16 @@ export function filterComments(sql) {
     for (let i = 0; i < sql.length; i++) {
         let char = sql[i];
 
-        //读取字符
-        //推入数组
+        // 读取字符
+        // 推入数组
         tmpArr.push({
             index: i,
             char: char
         });
         let firstChar = tmpArr[0];
-        //校验数组是否有匹配语法
+        // 校验数组是否有匹配语法
         if (tmpArr.length < 2) {
-            if (firstChar.char != "'" && firstChar.char != "\"" && firstChar.char != "-") {
+            if (firstChar.char != "'" && firstChar.char != '"' && firstChar.char != '-') {
                 tmpArr = [];
             }
             continue;
@@ -178,30 +176,24 @@ export function filterComments(sql) {
 
         let lastChar = tmpArr[tmpArr.length - 1];
 
-        if (firstChar.char == "'" || firstChar.char == "\"") {
-            //引号匹配，则清空
+        if (firstChar.char == "'" || firstChar.char == '"') {
+            // 引号匹配，则清空
             if (lastChar.char == firstChar.char) {
                 tmpArr = [];
                 continue;
             }
-        } else if (firstChar.char == "-") {
-            //假如第一个是横线，则开始校验注释规则
-            //判断是否为两个注释符号，不是，则清空
-            if (tmpArr[1].char != "-") {
-                tmpArr = [];
-                continue;
-            }
-            //为注释作用域，遇到换行符，则结束注释
-            else if (lastChar.char == "\n") {
+        } else if (firstChar.char == '-') {
+            // 假如第一个是横线，则开始校验注释规则
+            // 判断是否为两个注释符号，不是，则清空
+            if (tmpArr[1].char != '-') {
+                tmpArr = []; continue;
+            } else if (lastChar.char == '\n') { // 为注释作用域，遇到换行符，则结束注释
                 comments.push({
                     begin: firstChar.index,
                     end: lastChar.index
                 })
-                tmpArr = [];
-                continue;
-            }
-            //解析结束
-            else if (i == sql.length - 1) {
+                tmpArr = []; continue;
+            } else if (i == sql.length - 1) { // 解析结束
                 comments.push({
                     begin: firstChar.index,
                     end: i
@@ -219,9 +211,9 @@ export function filterComments(sql) {
 
 /**
  * 分割sql
- * @param {String} sqlText 
+ * @param {String} sqlText
  */
-export function splitSql(sqlText) {
+export function splitSql (sqlText) {
     if (!sqlText) {
         return sqlText;
     }
@@ -253,34 +245,33 @@ export function splitSql(sqlText) {
     return results;
 }
 
-
-export function getRandomInt(min, max) {
+export function getRandomInt (min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    return Math.floor(Math.random() * (max - min)) + min; // The maximum is exclusive and the minimum is inclusive
 }
 
 /**
  * 滚动元素到视窗范围内
  */
-export function scrollToView(id) {
+export function scrollToView (id) {
     const ele = document.getElementById(id);
     if (ele && ele.scrollIntoViewIfNeeded) {
         ele.scrollIntoViewIfNeeded()
     } else if (ele && ele.scrollIntoView) {
-        ele.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+        ele.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
     }
 }
 
 /**
  * Promise超时应用
- * @param {} promise 
- * @param {*} ms 
+ * @param {} promise
+ * @param {*} ms
  */
-export function timeout(promise, ms) {
+export function timeout (promise, ms) {
     return new Promise(function (resolve, reject) {
         setTimeout(function () {
-            reject(new Error("timeout"))
+            reject(new Error('timeout'))
         }, ms)
         promise.then(resolve, reject);
     })
@@ -288,21 +279,21 @@ export function timeout(promise, ms) {
 
 /**
  * 全局唯一的notification实例
- * @param {*} title 
- * @param {*} message 
+ * @param {*} title
+ * @param {*} message
  */
-export function singletonNotification(title, message, type, style) {
+export function singletonNotification (title, message, type, style) {
     const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
     if (notifyMsgs.length === 0) {
         notification[type || 'error']({
             message: title,
             description: message,
-            style,
+            style
         });
     }
 }
 
-export function getContainer(id) {
+export function getContainer (id) {
     const container = document.createElement('div');
     document.getElementById(id).appendChild(container);
     return container;
@@ -310,11 +301,11 @@ export function getContainer(id) {
 
 /**
  * 替换对象数组中某个对象的字段名称
- * @param {} data 
- * @param {*} targetField 
- * @param {*} replaceName 
+ * @param {} data
+ * @param {*} targetField
+ * @param {*} replaceName
  */
-export function replaceObjectArrayFiledName(data, targetField, replaceName) {
+export function replaceObjectArrayFiledName (data, targetField, replaceName) {
     data && data.map(item => {
         if (item[targetField] && item[targetField].length > 0) {
             item[replaceName] = [...item[targetField]];
@@ -327,10 +318,10 @@ export function replaceObjectArrayFiledName(data, targetField, replaceName) {
 /**
  * 初始化APP_CONF和COMMON_CONF
  */
-export function initConfig(){
-    const app_conf=window.APP_CONF||{};
-    const common_conf=window.COMMON_CONF||{};
-    window.APP_CONF={
+export function initConfig () {
+    const app_conf = window.APP_CONF || {};
+    const common_conf = window.COMMON_CONF || {};
+    window.APP_CONF = {
         ...common_conf,
         ...app_conf
     }

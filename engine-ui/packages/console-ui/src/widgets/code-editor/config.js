@@ -4,9 +4,8 @@ export const defaultEditorOptions = {
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    autofocus: false,
+    autofocus: false
 };
-
 
 export const propEditorOptions = { // 编辑器选项
     mode: 'text/x-properties',
@@ -14,7 +13,7 @@ export const propEditorOptions = { // 编辑器选项
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    autofocus: false,
+    autofocus: false
 }
 
 export const jsonEditorOptions = { // json编辑器选项

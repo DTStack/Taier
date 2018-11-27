@@ -7,39 +7,38 @@ import './style.scss'
 
 const strOrNum = PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number,
+    PropTypes.number
 ])
 
 const propType = {
     children: PropTypes.node,
     left: strOrNum,
     width: strOrNum,
-    visible: PropTypes.bool,
+    visible: PropTypes.bool
 }
 
 class SlidePane extends Component {
-    
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    render() {
-        const { children, visible, style, className, onClose,  } = this.props
+    render () {
+        const { children, visible, style, className, onClose } = this.props
 
         let myClass = 'slide-pane';
-        let myStyle = { 
-            top: 0, 
-            transform: visible ? undefined : 'translate3d(150%, 0, 0)',
+        let myStyle = {
+            top: 0,
+            transform: visible ? undefined : 'translate3d(150%, 0, 0)'
         }
-        if(!visible){
-            myStyle["pointerEvents"]="none"
+        if (!visible) {
+            myStyle['pointerEvents'] = 'none'
         }
         if (className) myClass = `${myClass} ${className}`;
         if (style) myStyle = assign(myStyle, style);
 
         return (
             <div className={ myClass } style={myStyle} >
-                <div className="slide-pane-conent" style={{display:visible?"block":"none"}}>
+                <div className="slide-pane-conent" style={{ display: visible ? 'block' : 'none' }}>
                     { children }
                 </div>
                 <span className="slide-pane-toggle" onClick={onClose}>
@@ -48,7 +47,6 @@ class SlidePane extends Component {
             </div>
         )
     }
-
 }
 
 SlidePane.propTypes = propType

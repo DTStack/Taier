@@ -6,10 +6,10 @@ import pureRender from 'utils/pureRender'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/lint/lint.css'
 import 'codemirror/addon/scroll/simplescrollbars.css'
-import "./style.css"
+import './style.css'
+import { getLinkMark } from './utils'
 
 const codemirror = require('codemirror')
-import { getLinkMark } from "./utils"
 
 // require('codemirror/addon/fold/foldcode')
 // require('codemirror/addon/fold/foldgutter')
@@ -21,16 +21,15 @@ require('codemirror/mode/python/python')
 require('codemirror/mode/javascript/javascript')
 require('codemirror/mode/properties/properties')
 require('codemirror/addon/display/placeholder')
-require("codemirror/addon/edit/matchbrackets")
-require("codemirror/addon/scroll/simplescrollbars")
+require('codemirror/addon/edit/matchbrackets')
+require('codemirror/addon/scroll/simplescrollbars')
 
 // require('codemirror/addon/lint/lint')
 // require('../../assets/js/sql-lint')
 
 @pureRender
 class CodeEditor extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
@@ -73,13 +72,13 @@ class CodeEditor extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options={} } = nextProps
-        if (options){
+    componentWillReceiveProps (nextProps) {
+        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options = {} } = nextProps
+        if (options) {
             this.self.setOption('readOnly', options.readOnly)
-        } 
-        if(placeholder!=this.props.placeholder){
-            this.self.setOption('placeholder',placeholder)
+        }
+        if (placeholder != this.props.placeholder) {
+            this.self.setOption('placeholder', placeholder)
         }
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
@@ -93,8 +92,7 @@ class CodeEditor extends Component {
                 console.log(isInBottom);
                 if (!value) {
                     this.self.setValue('')
-                }
-                else {
+                } else {
                     this.self.setValue(value);
                 }
                 if (cursorAlwaysInEnd) {
@@ -103,7 +101,7 @@ class CodeEditor extends Component {
                     /**
                    * 在底部并且不设置自动滚到底部，则滚到原来位置
                    */
-                    Promise.resolve().then(()=>{
+                    Promise.resolve().then(() => {
                         this.self.scrollTo(scrollInfo.left, scrollInfo.top)
                     })
                 }
@@ -111,9 +109,9 @@ class CodeEditor extends Component {
             this.renderTextMark();
         }
     }
-    renderTextMark() {
+    renderTextMark () {
         const marks = this.self.doc.getAllMarks();
-        for (let mark of marks) {//重置marks
+        for (let mark of marks) { // 重置marks
             mark.clear();
         }
         const value = this.self.getValue();
@@ -127,18 +125,18 @@ class CodeEditor extends Component {
             )
         }
     }
-    getCodeMirrorIns() {
+    getCodeMirrorIns () {
         return this.self || codemirror
     }
 
-    render() {
+    render () {
         const { className, style } = this.props
         let renderClass = 'code-editor'
-        renderClass = className ?
-            `${renderClass} ${className}` : renderClass
+        renderClass = className
+            ? `${renderClass} ${className}` : renderClass
         let renderStyle = {
             position: 'relative',
-            minHeight: "400px"
+            minHeight: '400px'
         }
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle
 

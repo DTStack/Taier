@@ -1,31 +1,23 @@
 import React, { Component } from 'react'
-import { Button, Icon } from 'antd'
+import { Button } from 'antd'
 
 import MyIcon from 'rdos/components/icon';
 import KeyCombiner from 'widgets/keyCombiner';
 
-const isFullScreen = function () {
-    return document.fullscreenEnabled ||
-        document.webkitFullscreenEnabled ||
-        document.mozFullscreenEnabled ||
-        document.msFullscrrenEnabled;
-}
-
 export default class FullScreenButton extends Component {
-
     state = {
-        isFullScreen: false,
+        isFullScreen: false
     }
     /**
      * 在一定情况下chrome不会触发resize事件，所以手动触发一下resize。
      */
-    dispatchResizeEvent(){
-        const event=new Event("resize");
+    dispatchResizeEvent () {
+        const event = new Event('resize');
         window.dispatchEvent(event);
     }
-    componentDidMount() {
+    componentDidMount () {
         const domEle = document.body;
-        let callBack = (event) => {
+        let callBack = () => {
             let node;
             if (domEle.requestFullscreen) {
                 node = document.fullscreenElement;
@@ -37,8 +29,8 @@ export default class FullScreenButton extends Component {
                 node = document.webkitFullscreenElement;
             }
             this.setState({
-                isFullScreen: node ? true : false
-            },this.dispatchResizeEvent)
+                isFullScreen: !!node
+            }, this.dispatchResizeEvent)
         }
         if (domEle.requestFullscreen) {
             domEle.onfullscreenchange = callBack;
@@ -50,7 +42,7 @@ export default class FullScreenButton extends Component {
             domEle.onwebkitfullscreenchange = callBack;
         }
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         const domEle = document.body;
         if (domEle.requestFullscreen) {
             document.onfullscreenchange = null;
@@ -81,7 +73,7 @@ export default class FullScreenButton extends Component {
                 document.msExitFullscreen();
             }
         } else {
-            const propsDom=document.getElementById(target)
+            const propsDom = document.getElementById(target)
             const domEle = propsDom || document.body;
             if (domEle.requestFullscreen) {
                 domEle.requestFullscreen();
@@ -96,27 +88,26 @@ export default class FullScreenButton extends Component {
         this.setState({ isFullScreen: !this.state.isFullScreen });
     }
 
-    render() {
+    render () {
         const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
-        const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
+        const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
         const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
         return (
             <KeyCombiner onTrigger={this.keyPressFullScreen} keyMap={{
                 70: true,
                 91: true,
-                16: true,
+                16: true
             }}>
-                {customIcon ?<span onClick={this.fullScreen}>{customIcon}</span> 
-                 : 
-                <Button {...other} onClick={this.fullScreen}>
-                    <MyIcon
-                        className="my-icon"
-                        type={iconType}
-                        themeDark={themeDark}
-                    />
-                    {title}
-                </Button>}
+                {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
+                    : <Button {...other} onClick={this.fullScreen}>
+                        <MyIcon
+                            className="my-icon"
+                            type={iconType}
+                            themeDark={themeDark}
+                        />
+                        {title}
+                    </Button>}
             </KeyCombiner>
         )
     }

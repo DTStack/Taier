@@ -1,18 +1,18 @@
 import React from 'react';
 
-export default function TableCell(props) {
+export default function TableCell (props) {
     const originStyle = {
         textIndent: '5px',
         backgroundColor: 'transparent',
         backgroundImage: 'none',
         width: '100%',
-        border: 'none',
+        border: 'none'
     }
 
     const { style } = props;
-    let newStyle = {...originStyle, ...style};
+    let newStyle = { ...originStyle, ...style };
 
-    return <textarea 
+    return <textarea
         {...props}
         style={newStyle}
     />

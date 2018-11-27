@@ -18,6 +18,7 @@ baseConf.output = {
     sourceMapFilename: "[name].map",
     publicPath: "/"
 };
+
 /**
  * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
  *  **/
@@ -44,11 +45,7 @@ baseConf.plugins.push(
         filename: "[file].map",
         columns: false
     }),
-    // new webpack.DefinePlugin({
-    //     'process.env': {
-    //         'NODE_ENV': JSON.stringify('development')
-    //     }
-    // }),
+    new webpack.LoaderOptionsPlugin({ options: {} }),
     new webpack.HotModuleReplacementPlugin() // 开启全局的模块热替换(HMR)
 );
 

@@ -1,28 +1,25 @@
 import React from 'react';
 
-
 export default class KeyCombiner extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
-            currentKeys: {},
+            currentKeys: {}
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
-        this.setState({  currentKeys: {} })
+        this.setState({ currentKeys: {} })
     }
 
     bindEvent = (target) => {
-
         const { onTrigger, keyMap } = this.props;
 
         const keyCode = target.keyCode;
@@ -33,15 +30,15 @@ export default class KeyCombiner extends React.Component {
                 currentKeys: {}
             })
             return;
-        }; 
-      
+        };
+
         if (keyMap[keyCode] === true) {
             const currentKeys = Object.assign(this.state.currentKeys, {
-                [keyCode]: isKeyDown,
+                [keyCode]: isKeyDown
             });
 
             this.setState({
-                currentKeys,
+                currentKeys
             })
 
             let keyAllRight = true;
@@ -57,8 +54,7 @@ export default class KeyCombiner extends React.Component {
         }
     }
 
-    render() {
+    render () {
         return this.props.children;
     }
-
 }

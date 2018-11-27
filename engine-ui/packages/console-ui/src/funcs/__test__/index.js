@@ -1,4 +1,4 @@
-function filterComments(sql) {
+function filterComments (sql) {
     return sql.replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
 }
 
@@ -12,12 +12,12 @@ PARTITIONED BY( dt STRING)
 lifecycle 365;
 `;
 
-function testFilterComments() {
+function testFilterComments () {
     const res = filterComments(testStr);
     console.log('comments:', res);
 }
 
-function testSQLExtract() {
+function testSQLExtract () {
     // const sqls = testStr.split(/(;)/);
     const regx = /^(.)+(\n|\w|\s)+(;)+$/g;
     // const sqls = regx.exec(testStr);
@@ -30,4 +30,3 @@ function testSQLExtract() {
 
 testSQLExtract();
 // testFilterComments();
-

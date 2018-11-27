@@ -9,8 +9,8 @@ export const DQ_BASE_URL = '/api/dq/service';
 export const DATA_API_BASE_URL = '/api/da/service';
 export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
-export const CONSOLE_BASE_UPLOAD_URL='/api/console';
-export const ANALYTICS_ENGINE_BASE_URL='/api/analysis/service';
+export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
+export const ANALYTICS_ENGINE_BASE_URL = '/api/analysis/service';
 
 export const rdosApp = {
     id: 'rdos',
@@ -21,8 +21,8 @@ export const rdosApp = {
     enable: true,
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
-    apiBase: '/rdos',
-} 
+    apiBase: '/rdos'
+}
 
 export const streamApp = {
     id: 'stream',
@@ -33,7 +33,7 @@ export const streamApp = {
     enable: true,
     hasProject: true, // 是否拥有项目选择
     default: true, // 是否为默认应用选项
-    apiBase: '/streamapp',
+    apiBase: '/streamapp'
 }
 
 export const dqApp = {
@@ -43,7 +43,7 @@ export const dqApp = {
     filename: 'dataQuality.html',
     target: '_blank',
     enable: true,
-    apiBase: '/dq',
+    apiBase: '/dq'
 }
 
 export const daApp = {
@@ -53,7 +53,7 @@ export const daApp = {
     filename: 'dataApi.html',
     target: '_blank',
     enable: true,
-    apiBase: '/dataApi',
+    apiBase: '/dataApi'
 }
 
 export const dlApp = {
@@ -63,7 +63,7 @@ export const dlApp = {
     filename: 'dataLabel.html',
     target: '_blank',
     enable: true,
-    apiBase: '/tag',
+    apiBase: '/tag'
 }
 
 export const consoleApp = {
@@ -74,8 +74,8 @@ export const consoleApp = {
     target: '_blank',
     enable: false,
     apiBase: '/console',
-    needRoot:true,
-    disableExt:true
+    needRoot: true,
+    disableExt: true
 }
 
 export const aeApp = {
@@ -86,5 +86,5 @@ export const aeApp = {
     target: '_blank',
     enable: true,
     apiBase: '/analytics',
-    disableMessage: true, //禁用消息
+    disableMessage: true // 禁用消息
 }

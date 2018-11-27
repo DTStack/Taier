@@ -23,13 +23,13 @@ this.addEventListener('activate', function (e) {
 
 // 网络优先
 function firstNet (cacheName, request) {
-     return fetch(request).then(function(response) {
-        caches.open(cacheName).then(function(cache) {
+    return fetch(request).then(function (response) {
+        caches.open(cacheName).then(function (cache) {
             cache.put(request, response);
         });
         return response.clone();
-    }).catch(function() {
-        return caches.open(cacheName).then(function(cache) {
+    }).catch(function () {
+        return caches.open(cacheName).then(function (cache) {
             return cache.match(request);
         });
     });
@@ -49,7 +49,7 @@ function firstCache (cacheName, request) {
     //                 if (response && response.status == 200) {
     //                     var oldTime = new Date (response.headers.get('Last-Modified')),
     //                         newTime = new Date (newResponse.headers.get('Last-Modified'));
-                        
+
     //                     // 判断是否缓存是否有问题。
     //                     if (oldTime.valueOf() != newTime.valueOf()) {
     //                         newResponse.clone().blob().then(function (res) {
@@ -60,7 +60,7 @@ function firstCache (cacheName, request) {
     //                         });
     //                     }
     //                 }
-                    
+
     //                 cache.put(request, newResponse.clone());
     //                 return newResponse;
     //             });
@@ -75,10 +75,10 @@ function firstCache (cacheName, request) {
     //     });
     // })
 
-    return caches.open(cacheName).then(function(cache) {
-        return cache.match(request).then(function(response) {
+    return caches.open(cacheName).then(function (cache) {
+        return cache.match(request).then(function (response) {
             var fetchServer = function () {
-                return fetch(request).then(function(newResponse) {
+                return fetch(request).then(function (newResponse) {
                     cache.put(request, newResponse.clone());
                     return newResponse;
                 });
@@ -98,8 +98,8 @@ function postMsg (data) {
     self.clients.matchAll().then(function (clientList) {
         clientList.forEach(function (client) {
             client.postMessage({
-                src : data.src,
-                blob : data.blob
+                src: data.src,
+                blob: data.blob
             });
         });
     });
@@ -108,37 +108,38 @@ function postMsg (data) {
 // 竞速模式
 // 网络好的时候优先使用
 function networkCacheRace (cacheName, request) {
-    var timeId, TIMEOUT = 500,
-        options = {};
-    
-    return Promise.race([new Promise(function(resolve, reject) {
-        timeId = setTimeout(function() {
-            caches.open(cacheName).then(function(cache) {
-                cache.match(request).then(function(response) {
+    var timeId; var TIMEOUT = 500;
+
+    var options = {};
+
+    return Promise.race([new Promise(function (resolve, reject) {
+        timeId = setTimeout(function () {
+            caches.open(cacheName).then(function (cache) {
+                cache.match(request).then(function (response) {
                     if (response) {
                         resolve(response);
                     }
                 });
             });
         }, TIMEOUT);
-    }), fetch(request).then(function(response) {
+    }), fetch(request).then(function (response) {
         clearTimeout(timeId);
-        caches.open(cacheName).then(function(cache) {
+        caches.open(cacheName).then(function (cache) {
             cache.put(request, response);
         });
         return response.clone();
-    }).catch(function() {
+    }).catch(function () {
         clearTimeout(timeId);
-        return caches.open(cacheName).then(function(cache) {
+        return caches.open(cacheName).then(function (cache) {
             return cache.match(request);
         });
     })]);
 }
 
-function matchRules(url, rules) {
+function matchRules (url, rules) {
     var match = false;
     for (var i = 0, reg; !match && (reg = rules[i]); ++i) {
-        match = match || reg.test && reg.test(url);
+        match = match || (reg.test && reg.test(url));
     }
     return match;
 }
@@ -146,10 +147,11 @@ function matchRules(url, rules) {
 // 监听页面的请求。
 // 只能缓存get请求。
 this.addEventListener('fetch', function (e) {
-    
-    var request = e.request,
-        url = request.url,
-        cacheName = cacheWhitelist[0];
+    var request = e.request;
+
+    var url = request.url;
+
+    var cacheName = cacheWhitelist[0];
     // 页面，js，css等资源网络优先
     // 当500毫秒还没返回就直接使用缓存。
     // if (matchRules(url, [/.(js|html|css)(\?|#|$)/i]) && matchRules(url, [/^https:\/\/(y.qq.com|c.y.qq.com|y.gtimg)/i])) {
@@ -157,12 +159,11 @@ this.addEventListener('fetch', function (e) {
     // }
     if (matchRules(url, [/.(js|html|css|txt)(\?|#|$)/i])) {
         e.respondWith(networkCacheRace(cacheName, request));
-    }
-    // 图片缓存优先
-    // else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i]) && matchRules(url, [/^https:\/\/(y.qq.com|c.y.qq.com|y.gtimg)/i])) {
-    //     e.respondWith(firstCache(cacheName, request));
-    // }
-    else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i])) {
+    } else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i])) {
+        // 图片缓存优先
+        // else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i]) && matchRules(url, [/^https:\/\/(y.qq.com|c.y.qq.com|y.gtimg)/i])) {
+        //     e.respondWith(firstCache(cacheName, request));
+        // }
         e.respondWith(firstCache(cacheName, request));
     }
 });

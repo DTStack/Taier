@@ -1,18 +1,16 @@
 import React from 'react';
 
-
 export default class KeyEventListener extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         removeEventListener('keydown', this.bindEvent, false)
         removeEventListener('keyup', this.bindEvent, false)
     }
@@ -23,13 +21,12 @@ export default class KeyEventListener extends React.Component {
 
         if (isKeyDown && onKeyDown) {
             onKeyDown(target)
-        } else if ( !isKeyDown && onKeyUp) {
+        } else if (!isKeyDown && onKeyUp) {
             onKeyUp(target)
         }
     }
 
-    render() {
+    render () {
         return this.props.children;
     }
-
 }

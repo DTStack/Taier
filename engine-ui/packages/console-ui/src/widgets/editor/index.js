@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 // import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
 // import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
@@ -13,15 +13,15 @@ import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 // import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
-import "./languages/shell/shell.contribution.js";
-import * as dtsql from "./languages/dtsql/dtsql.contribution.js"
-import "./languages/dt-flink/dtflink.contribution.js"
-import "./languages/dtlog/dtlog.contribution.js"
+import './languages/shell/shell.contribution.js';
+import * as dtsql from './languages/dtsql/dtsql.contribution.js'
+import './languages/dt-flink/dtflink.contribution.js'
+import './languages/dtlog/dtlog.contribution.js'
 
-import "./style.scss";
-import whiteTheme from "./theme/whiteTheme";
+import './style.scss';
+import whiteTheme from './theme/whiteTheme';
 import { defaultOptions } from './config';
-import {jsonEqual} from "./utils";
+import { jsonEqual } from './utils';
 
 const provideCompletionItemsMap = {
     dtsql: {
@@ -41,9 +41,9 @@ const provideCompletionItemsMap = {
 }
 /**
  * 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
- * @param {function} func 
+ * @param {function} func
  */
-function delayFunctionWrap(func) {
+function delayFunctionWrap (func) {
     /**
      * 最小执行间隔，每隔一段时间强制执行一次函数
      * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
@@ -59,7 +59,7 @@ function delayFunctionWrap(func) {
     return function () {
         const arg = arguments;
         _timeClock && clearTimeout(_timeClock);
-        //这边设置在一定时间内，必须执行一次函数
+        // 这边设置在一定时间内，必须执行一次函数
         if (outTime) {
             let now = new Date();
             if (now - outTime > freshTime) {
@@ -75,23 +75,21 @@ function delayFunctionWrap(func) {
     }
 }
 class Editor extends React.Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.monacoDom = null;
         this.monacoInstance = null;
         this._linkId = null;
     }
 
-
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate (nextProps, nextState) {
         // // 此处禁用render， 直接用editor实例更新编辑器
         return false;
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.initMonaco();
-        if (typeof this.props.editorInstanceRef == "function") {
+        if (typeof this.props.editorInstanceRef === 'function') {
             this.props.editorInstanceRef(this.monacoInstance)
         }
     }
@@ -107,22 +105,22 @@ class Editor extends React.Component {
         }
     }
 
-    initProviderProxy() {
+    initProviderProxy () {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
         for (let [type, language] of keyAndValues) {
             /**
              * 每个函数的补全函数都由该组件统一代理
              */
-            language.register(this.providerProxy,this.monacoInstance);
+            language.register(this.providerProxy, this.monacoInstance);
         }
     }
-    disposeProviderProxy() {
+    disposeProviderProxy () {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
         for (let [type, language] of keyAndValues) {
             language.dispose(this.monacoInstance);
         }
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { sync, value, theme, languageConfig, language, download } = nextProps;
         if (this.props.value !== value && sync) {
             /**
@@ -132,7 +130,7 @@ class Editor extends React.Component {
             this.updateValueWithNoEvent(editorText);
         }
         if (languageConfig !== this.props.languageConfig) {
-            if(!jsonEqual(languageConfig,this.props.languageConfig)){
+            if (!jsonEqual(languageConfig, this.props.languageConfig)) {
                 this.updateMonarch(languageConfig, language)
             }
         }
@@ -151,26 +149,26 @@ class Editor extends React.Component {
         // }
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.disposeProviderProxy();
         this.destroyMonaco();
     }
     /**
      * 提供下载链接。ps:不是很好用，屏蔽了
-     * @param {string} link 
+     * @param {string} link
      */
-    initLink(link) {
+    initLink (link) {
         this.monacoInstance.changeViewZones(
             (changeAccessor) => {
                 if (this._linkId) {
                     changeAccessor.removeZone(this._linkId);
                 }
-                let boxNode = document.createElement("div");
-                let domNode = document.createElement("a");
-                domNode.innerHTML = "完整下载链接";
-                domNode.className = "dt-monaco-link";
-                domNode.setAttribute("href", link);
-                domNode.setAttribute("download", '');
+                let boxNode = document.createElement('div');
+                let domNode = document.createElement('a');
+                domNode.innerHTML = '完整下载链接';
+                domNode.className = 'dt-monaco-link';
+                domNode.setAttribute('href', link);
+                domNode.setAttribute('download', '');
                 boxNode.appendChild(domNode);
                 this._linkId = changeAccessor.addZone({
                     afterLineNumber: 0,
@@ -180,42 +178,40 @@ class Editor extends React.Component {
             }
         )
     }
-    updateMonarch(config, language) {
+    updateMonarch (config, language) {
         if (config && language) {
-            if(config)
-            monaco.languages.setMonarchTokensProvider(language, config);
+            if (config) { monaco.languages.setMonarchTokensProvider(language, config); }
         }
     }
-    isValueExist(props) {
+    isValueExist (props) {
         const keys = Object.keys(props);
-        if (keys.includes("value")) {
+        if (keys.includes('value')) {
             return true;
         }
         return false;
     }
 
-    log() {
+    log () {
         const { isLog } = this.props;
         isLog && console.log(...arguments);
     }
 
-    destroyMonaco() {
+    destroyMonaco () {
         if (this.monacoInstance) {
             this.monacoInstance.dispose();
         }
     }
 
-    initMonaco() {
+    initMonaco () {
         const { value, language, options, cursorPosition } = this.props;
         if (!this.monacoDom) {
-            console.error("初始化dom节点出错");
+            console.error('初始化dom节点出错');
             return;
         }
 
-
         const editorOptions = Object.assign({}, defaultOptions, options, {
             value,
-            language: language || "sql"
+            language: language || 'sql'
         });
 
         this.monacoInstance = monaco.editor.create(this.monacoDom, editorOptions);
@@ -229,20 +225,20 @@ class Editor extends React.Component {
         this.initEditor();
     }
 
-    initEditor() {
+    initEditor () {
         this.initTheme();
         this.initEditorEvent();
         this.initProviderProxy();
         // this.initLink();
     }
-    initTheme() {
-        monaco.editor.defineTheme("white", whiteTheme);
+    initTheme () {
+        monaco.editor.defineTheme('white', whiteTheme);
         this.props.theme && monaco.editor.setTheme(this.props.theme);
     }
-    updateValueWithNoEvent(value) {
+    updateValueWithNoEvent (value) {
         this.monacoInstance.setValue(value);
     }
-    languageValueOnChange(callback) {
+    languageValueOnChange (callback) {
         if (this.props.disabledSyntaxCheck) {
             return;
         }
@@ -255,22 +251,22 @@ class Editor extends React.Component {
 
     delayLanguageValueOnChange = delayFunctionWrap(this.languageValueOnChange.bind(this))
 
-    initEditorEvent() {
+    initEditorEvent () {
         this.languageValueOnChange(this.props.onSyntaxChange);
         this.monacoInstance.onDidChangeModelContent(event => {
-            this.log("编辑器事件");
+            this.log('编辑器事件');
             const { onChange, value, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
-            //考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
+            // 考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
             this.delayLanguageValueOnChange(onSyntaxChange);
             if (onChange) {
-                this.log("订阅事件触发");
+                this.log('订阅事件触发');
                 onChange(newValue, this.monacoInstance);
             }
         });
 
         this.monacoInstance.onDidBlurEditor(event => {
-            this.log("编辑器事件 onDidBlur");
+            this.log('编辑器事件 onDidBlur');
             const { onBlur, value } = this.props;
             if (onBlur) {
                 const oldValue = this.monacoInstance.getValue();
@@ -279,7 +275,7 @@ class Editor extends React.Component {
         });
 
         this.monacoInstance.onDidFocusEditor(event => {
-            this.log("编辑器事件 onDidFocus");
+            this.log('编辑器事件 onDidFocus');
             const { onFocus, value } = this.props;
             if (onFocus) {
                 const oldValue = this.monacoInstance.getValue();
@@ -288,7 +284,7 @@ class Editor extends React.Component {
         });
 
         this.monacoInstance.onDidChangeCursorSelection(event => {
-            this.log("编辑器事件 onDidChangeCursorSelection");
+            this.log('编辑器事件 onDidChangeCursorSelection');
             const { onCursorSelection } = this.props;
             const ranges = this.monacoInstance.getSelections();
             const model = this.monacoInstance.getModel();
@@ -302,7 +298,7 @@ class Editor extends React.Component {
         });
     }
 
-    render() {
+    render () {
         const { className, style, editorInstance } = this.props;
 
         let renderClass = 'code-editor';
@@ -310,9 +306,9 @@ class Editor extends React.Component {
 
         let renderStyle = {
             position: 'relative',
-            minHeight: "400px",
+            minHeight: '400px',
             height: '100%',
-            width: '100%',
+            width: '100%'
         };
 
         renderStyle = style ? Object.assign(renderStyle, style) : renderStyle;
