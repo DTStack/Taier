@@ -63,18 +63,13 @@ module.exports = function () {
                 {
                     test: /\.js$/,
                     enforce: "pre",
-                    exclude: [
-                        path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
-                        path.resolve(MY_PATH.WEB_PUBLIC)
-                    ],
                     include: [
-                        MY_PATH.MAIN_APP_FILE,
+                        MY_PATH.MAIN_APP_PATH,
                     ],
                     loader: "eslint-loader",
                 },
                 {
                     test: /\.js$/,
-                    enforce: "pre",
                     include: MY_PATH.APP_PATH,
                     exclude: [
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules"),

@@ -1,7 +1,7 @@
 {
     "parser": "babel-eslint",
     "extends":[
-        "standard", 
+        "standard",
         "plugin:react/recommended"
     ],
     "plugins": [ 
@@ -31,7 +31,6 @@
         "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
         
-        "react/jsx-indent": 0,
         "react/sort-comp": 0,
         "react/jsx-uses-react": 1,
         "react/prefer-stateless-function": 0,
