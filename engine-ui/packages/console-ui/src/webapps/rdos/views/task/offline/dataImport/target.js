@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux"
-import { isObject, debounce } from 'lodash'
+import { debounce } from 'lodash'
 import {
     Modal, Button, Form, Radio, message,
-    Icon, Input, Select, Row, Table,
+    Input, Select, Row, Table,
 } from 'antd';
 import utils from 'utils'
 
@@ -14,6 +14,7 @@ import CopyIcon from "main/components/copy-icon";
 import { formItemLayout } from '../../../../comm/const'
 import { DDL_ide_placeholder } from "../../../../comm/DDLCommon"
 import { getTableList } from "../../../../store/modules/offlineTask/comm";
+import HelpDoc, { relativeStyle } from '../../../helpDoc';
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
@@ -95,7 +96,7 @@ export default class ImportTarget extends Component {
                     const index = fileColumns.indexOf(columnName);
 
                     if (index > -1) {
-                        return columnName;
+                        return { key: columnName };
                     }
                     return "";
                 })
@@ -170,15 +171,31 @@ export default class ImportTarget extends Component {
         })
     }
 
-    mapChange = (value, key) => {
+    mapChange = (value, index) => {
         const { formState, changeStatus } = this.props
-        const arr = [...formState.columnMap]
-        arr[key] = value
+        const arr = [...formState.columnMap];
+        arr[index] = {
+            key: value
+        }
         changeStatus({
             columnMap: arr,
             targetExchangeWarning: false
         })
     }
+
+    onFormatChange = (value, index) => {
+        const { formState, changeStatus } = this.props
+        const arr = [...formState.columnMap];
+        arr[index] = Object.assign({}, arr[index], {
+            format: value,
+        });
+        changeStatus({
+            columnMap: arr,
+            targetExchangeWarning: false
+        })
+    }
+
+    debounceFormatChange = debounce(this.onFormatChange, 500, { 'maxWait': 2000 })
 
     onTableChange(pagination) {
         this.setState({
@@ -220,13 +237,15 @@ export default class ImportTarget extends Component {
         })
     }
 
+    
+
     generateCols = (data) => {
         const { formState, warning } = this.props;
         const { pagination } = this.state;
         const { columnMap } = formState;
         const options = data && data.length ? data[0].map((item, index) => {
             return (
-                <Option key={`col-${index}`} value={item}>
+                <Option key={`item`} value={item}>
                     {item}
                 </Option>
             )
@@ -251,7 +270,7 @@ export default class ImportTarget extends Component {
                 let columnIndex = index + (pagination.current - 1) * pagination.pageSize;
                 return (<span>
                     <Select
-                        value={formState.matchType === 0 ? '' : columnMap[columnIndex]}
+                        value={ formState.matchType === 0 ? '' : columnMap[columnIndex] && columnMap[columnIndex].key }
                         disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, columnIndex) }}
                         style={{ width: '200px' }}
@@ -263,6 +282,24 @@ export default class ImportTarget extends Component {
                     </Select>
                 </span>)
             },
+        }, {
+            title: '操作',
+            key: 'operation',
+            render: (text, record, index) => {
+                const colmunType = record.columnType && record.columnType.toLowerCase();
+                const showFormat = colmunType === 'date' || colmunType === 'datetime' 
+                || colmunType === 'time' || colmunType === 'timestamp';
+                return showFormat ? (
+                    <span>
+                        <Input
+                            placeholder="字段格式化"
+                            style={{ width: 100, marginRight: 5 }}
+                            onChange={e => this.debounceFormatChange(e.target.value, index)}
+                        />
+                        <HelpDoc style={ relativeStyle } doc="dateTimeFormat" />
+                    </span>
+                ) : ''
+            }
         }]
         return arr
     }
@@ -390,6 +427,7 @@ export default class ImportTarget extends Component {
                 <Row>
                     <Table
                         className="m-table"
+                        rowKey="id"
                         bordered
                         columns={columns}
                         dataSource={dataSource}

@@ -199,3 +199,9 @@ export const stringColumnFormat = (
         如果源库的一个字符串类型，映射到了目标库的date或time类型，则需要配置转换规则
     </span>
 )
+
+export const dateTimeFormat = (
+    <span>
+        修改Date类型的格式
+    </span>
+)

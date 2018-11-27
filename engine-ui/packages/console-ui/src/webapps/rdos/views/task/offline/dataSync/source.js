@@ -131,13 +131,12 @@ class SourceForm extends React.Component {
             return;
         }
 
-        const sourceId = form.getFieldValue('sourceId');
         if (type && isRDB(type)) {
-            this.getCopate(sourceId, tableName)
+            this.getCopate(sourceMap.sourceId, tableName)
         }
 
         ajax.getOfflineTableColumn({
-            sourceId,
+            sourceId: sourceMap.sourceId,
             tableName
         }).then(res => {
             if (res.code === 1) {
