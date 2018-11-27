@@ -17,7 +17,6 @@ const Option = Select.Option
 const TabPane = Tabs.TabPane
 
 class AdminRole extends Component {
-
     state = {
         active: '',
         data: '',
@@ -28,10 +27,10 @@ class AdminRole extends Component {
         dataBase: [],
         selecteDatabase: undefined,
         currentPage: 1,
-        loading: 'success',
+        loading: 'success'
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { apps } = this.props
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
@@ -43,43 +42,39 @@ class AdminRole extends Component {
         }
     }
 
-    hasDatabase(app) {
+    hasDatabase (app) {
         return app === 'analyticsEngine';
     }
 
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject,streamSelectedProject, selecteDatabase, currentPage } = this.state
+        const { active, selectedProject, streamSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
         let haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
-        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase); 
+        let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params = {
             pageSize: 10,
-            currentPage: currentPage,
+            currentPage: currentPage
         }
 
         if (!haveSelected && hasProject(app)) {
             this.getProjects(app)
-        } 
-        else if (!databaseExsit && this.hasDatabase(app)) {
+        } else if (!databaseExsit && this.hasDatabase(app)) {
             this.getDatabase(app)
-        }
-        else if (!databaseExsit && !this.hasDatabase(app)) {
+        } else if (!databaseExsit && !this.hasDatabase(app)) {
             this.loadRoles(app, params)
-        }
-        else if(MY_APPS.ANALYTICS_ENGINE == active) {
+        } else if (MY_APPS.ANALYTICS_ENGINE == active) {
             params.databaseId = selecteDatabase;
             this.loadRoles(app, params)
-        }
-        else if (!haveSelected && !hasProject(app)) {
+        } else if (!haveSelected && !hasProject(app)) {
             this.loadRoles(app, params)
         } else {
             if (MY_APPS.RDOS == active) {
                 params.projectId = selectedProject
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
-            } 
+            }
             // else if(MY_APPS.ANALYTICS_ENGINE == active) {
             //     params.databaseId = selecteDatabase;
             // }
@@ -90,7 +85,7 @@ class AdminRole extends Component {
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
             this.setState({
-                data: res.data,
+                data: res.data
             })
 
             this.setState({
@@ -147,16 +142,16 @@ class AdminRole extends Component {
     onPaneChange = (key) => {
         this.setState({
             active: key,
-            currentPage: 1,
+            currentPage: 1
         }, () => {
-            this.props.router.replace("/admin/role?app=" + key)
+            this.props.router.replace('/admin/role?app=' + key)
             this.loadData();
         })
     }
 
     handleTableChange = (pagination, filters) => {
         this.setState({
-            currentPage: pagination.current,
+            currentPage: pagination.current
         }, this.loadData)
     }
 
@@ -165,20 +160,20 @@ class AdminRole extends Component {
         this.setState({
             selecteDatabase: value,
             currentPage: 1
-        },this.loadData)
+        }, this.loadData)
     }
 
     onProjectSelect = (value) => {
         this.setState({
             selectedProject: value,
-            currentPage: 1,
+            currentPage: 1
         }, this.loadData)
     }
 
     onStreamProjectSelect = (value) => {
         this.setState({
             streamSelectedProject: value,
-            currentPage: 1,
+            currentPage: 1
         }, this.loadData)
     }
 
@@ -189,19 +184,19 @@ class AdminRole extends Component {
             title: '角色名称',
             dataIndex: 'roleName',
             key: 'roleName',
-            render(text, record) {
+            render (text, record) {
                 return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
-            width: "150px"
+            width: '150px'
         }, {
             title: '角色描述',
             dataIndex: 'roleDesc',
-            key: 'roleDesc',
+            key: 'roleDesc'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render(time) {
+            render (time) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -209,7 +204,7 @@ class AdminRole extends Component {
             dataIndex: 'person',
             key: 'person',
             width: 120,
-            render(text) {
+            render (text) {
                 return text || '-'
             }
         }, {
@@ -217,7 +212,7 @@ class AdminRole extends Component {
             dataIndex: 'id',
             key: 'id',
             width: 80,
-            render(id, record) {
+            render (id, record) {
                 return <span>
                     <Link to={`/admin/role/edit/${id}?app=${active}`}>查看</Link>
                     {/* <span className="ant-divider" />
@@ -234,12 +229,11 @@ class AdminRole extends Component {
     }
 
     renderPane = () => {
-
         const {
-            data, loading, projects,streamProjects,
-            active, selectedProject,streamSelectedProject, dataBase, selecteDatabase
+            data, loading, projects, streamProjects,
+            active, selectedProject, streamSelectedProject, dataBase, selecteDatabase
         } = this.state;
-        let projectsOptions=[];
+        let projectsOptions = [];
 
         let databaseOptions = [];
         let selectValue;
@@ -252,9 +246,9 @@ class AdminRole extends Component {
             selectValue = streamSelectedProject;
             projectsOptions = streamProjects;
             onSelectChange = this.onStreamProjectSelect
-        } else if( active == MY_APPS.ANALYTICS_ENGINE) {
+        } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
-            onSelectChange=this.onDatabaseSelect;
+            onSelectChange = this.onDatabaseSelect;
         }
         const projectOpts = projectsOptions && projectsOptions.map(project =>
             <Option value={project.id} key={project.id}>
@@ -262,10 +256,10 @@ class AdminRole extends Component {
             </Option>
         )
 
-        const databaseOpts = databaseOptions && databaseOptions.map(item => 
+        const databaseOpts = databaseOptions && databaseOptions.map(item =>
             <Option value={`${item.id}`} key={`${item.id}`}>
                 {item.name}
-            </Option> 
+            </Option>
         )
 
         const title = (
@@ -298,7 +292,7 @@ class AdminRole extends Component {
                             选择数据库：
                             <Select
                                 showSearch
-                                value={selecteDatabase?`${selecteDatabase}`:selecteDatabase}
+                                value={selecteDatabase ? `${selecteDatabase}` : selecteDatabase}
                                 style={{ width: 200, marginRight: 10 }}
                                 placeholder="按数据库名称搜索"
                                 optionFilterProp="name"
@@ -312,8 +306,6 @@ class AdminRole extends Component {
 
             </span>
         )
-        
-        
 
         const extra = (
             <Button style={{ marginTop: '10px' }} type="primary">
@@ -324,7 +316,7 @@ class AdminRole extends Component {
         const pagination = {
             total: data && data.totalCount,
             defaultPageSize: 10,
-            current: data.currentPage,
+            current: data.currentPage
         };
 
         return (
@@ -347,7 +339,7 @@ class AdminRole extends Component {
         )
     }
 
-    render() {
+    render () {
         // 融合API管理后
         const { apps } = this.props
         const content = this.renderPane();

@@ -17,20 +17,19 @@ const TabPane = Tabs.TabPane;
 const MenuItem = Menu.Item;
 
 class MessageList extends Component {
-
     state = {
 
         selectedApp: '',
         table: {
-            data: [],
+            data: []
         },
 
         selectedRowKeys: [],
         selectedRows: [],
-        selectedAll: false,
+        selectedAll: false
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { apps } = this.props;
         const initialApp = utils.getParameterByName('app');
         const defaultApp = apps.find(app => app.default)
@@ -48,12 +47,12 @@ class MessageList extends Component {
         const reqParams = assign({
             currentPage: msgList.currentPage,
             pageSize: 10,
-            mode: msgList.msgType,
+            mode: msgList.msgType
         }, params);
 
         Api.getMessage(selectedApp, reqParams).then(res => {
             this.setState({
-                table: res.data,
+                table: res.data
             })
         })
     }
@@ -73,7 +72,7 @@ class MessageList extends Component {
         this.setState({
             selectedRowKeys: [],
             selectedRows: [],
-            selectedAll: false,
+            selectedAll: false
         })
     }
 
@@ -119,7 +118,7 @@ class MessageList extends Component {
                     this.loadMsg()
                     this.setState({
                         selectedAll: false,
-                        selectedRowKeys: [],
+                        selectedRowKeys: []
                     })
                 }
             })
@@ -128,15 +127,15 @@ class MessageList extends Component {
 
     handleTableChange = (pagination, filters) => {
         this.props.updateMsg({
-            currentPage: pagination.current,
+            currentPage: pagination.current
         })
         this.setState({
             selectedRowKeys: [],
-            selectedAll: false,
+            selectedAll: false
         }, this.loadMsg)
     }
 
-    selectedNotNull(selected) {
+    selectedNotNull (selected) {
         if (!selected || selected.length <= 0) {
             message.error('请选择要操作的消息！')
             return false
@@ -147,20 +146,20 @@ class MessageList extends Component {
     onPaneChange = (key) => {
         this.props.updateMsg({
             currentPage: 1,
-            msgType: key,
+            msgType: key
         });
         this.loadMsg({
-            mode: key,
+            mode: key
         });
     }
 
     onAppSelect = ({ key }) => {
         this.props.updateMsg({
-            currentPage: 1,
+            currentPage: 1
         });
         this.setState({
             selectedApp: key,
-            selectedRowKeys: [],
+            selectedRowKeys: []
         }, this.loadMsg)
     }
 
@@ -178,7 +177,7 @@ class MessageList extends Component {
         this.setState({
             selectedRowKeys,
             selectedRows,
-            selectedAll: e.target.checked,
+            selectedAll: e.target.checked
         })
     }
 
@@ -228,7 +227,6 @@ class MessageList extends Component {
     }
 
     renderPane = () => {
-
         const { apps, msgList } = this.props;
         const { table, selectedApp, selectedRowKeys } = this.state;
         const menuItem = []
@@ -248,19 +246,19 @@ class MessageList extends Component {
             title: '标题与内容',
             dataIndex: 'content',
             key: 'content',
-            render(text, record) {
+            render (text, record) {
                 return <Link to={`message/detail/${record.id}?app=${selectedApp}`}>
                     <MsgStatus value={record.readStatus} /> {text}
                 </Link>
-            },
+            }
         }, {
             width: 100,
             title: '状态',
             dataIndex: 'readStatus',
             key: 'readStatus',
-            render(status) {
+            render (status) {
                 let display = '未读'
-                if (status === 1) {// 已读
+                if (status === 1) { // 已读
                     display = '已读'
                 }
                 return display
@@ -270,7 +268,7 @@ class MessageList extends Component {
             title: '发送时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(text) {
+            render (text) {
                 return utils.formatDateTime(text)
             }
         }, {
@@ -278,7 +276,7 @@ class MessageList extends Component {
             title: '类型描述',
             dataIndex: 'status',
             key: 'status',
-            render(type) {
+            render (type) {
                 return MsgTypeDesc(selectedApp, type)
             }
         }]
@@ -288,15 +286,15 @@ class MessageList extends Component {
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
                     selectedRowKeys,
-                    selectedRows,
+                    selectedRows
                 })
-            },
+            }
         };
 
         const pagination = {
             total: table && table.totalCount,
             defaultPageSize: 10,
-            current: msgList.currentPage,
+            current: msgList.currentPage
         };
 
         return (
@@ -324,7 +322,7 @@ class MessageList extends Component {
         )
     }
 
-    render() {
+    render () {
         const { msgList } = this.props;
 
         const paneContent = this.renderPane();

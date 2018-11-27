@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { 
+import {
     Input, Button, Popconfirm,
-    Table, message, Card,
- } from 'antd'
+    Table, message, Card
+} from 'antd'
 
 import utils from 'utils'
 
@@ -14,30 +14,29 @@ import { DatabaseType } from '../../components/status'
 import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes'
 
 const Search = Input.Search
- 
-class DataSource extends Component {
 
+class DataSource extends Component {
     state = {
         dataSource: {
-            data: [],
+            data: []
         },
         visible: false,
         visibleEdit: false,
         loading: false,
         title: '新增数据源',
         status: 'add',
-        source: {},
+        source: {}
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadDataSources({
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 1
         })
         // this.props.getSourceTypes();
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -50,7 +49,7 @@ class DataSource extends Component {
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageSize: 10,
-            currentPage: 1,
+            currentPage: 1
         }, params)
         Api.queryDataSource(reqParams).then((res) => {
             if (res.code === 1) {
@@ -61,7 +60,7 @@ class DataSource extends Component {
 
     searchDataSources = (query) => {
         this.loadDataSources({
-            name: query,
+            name: query
         })
     }
 
@@ -77,7 +76,7 @@ class DataSource extends Component {
                 formObj.resetFields()
                 message.success(`${title}成功！`)
                 ctx.setState({
-                    visible: false,
+                    visible: false
                 })
                 ctx.loadDataSources()
             }
@@ -122,7 +121,7 @@ class DataSource extends Component {
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source,
+            source
         })
     }
 
@@ -131,7 +130,7 @@ class DataSource extends Component {
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
-            width: 80,
+            width: 80
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -141,13 +140,13 @@ class DataSource extends Component {
                 return <DatabaseType value={record.type} />
             },
             filters: DataSourceTypeFilter,
-            filterMultiple: false,
-        }, 
+            filterMultiple: false
+        },
         {
             title: '描述',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: 100,
+            width: 100
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserId',
@@ -159,7 +158,7 @@ class DataSource extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '状态',
             dataIndex: 'active',
@@ -167,16 +166,16 @@ class DataSource extends Component {
             width: 100,
             render: (text, record) => {
                 return record.active === 1 ? '使用中' : '未启用'
-            },
+            }
         }, {
             title: '操作',
             width: 100,
             key: 'operation',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
+                // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        <a onClick={() => {this.initEdit(record)}}>
+                        <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
                         <span className="ant-divider" />
@@ -189,16 +188,16 @@ class DataSource extends Component {
                         </Popconfirm>
                     </span>
                 )
-            },
+            }
         }]
     }
 
-    render() {
+    render () {
         const { visible, dataSource } = this.state
         const { project } = this.props
         const pagination = {
             total: dataSource.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
         const title = (
             <div>
@@ -215,17 +214,18 @@ class DataSource extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, source: {},
+                        visible: true,
+                        source: {},
                         status: 'add',
-                        title: '添加数据源',
+                        title: '添加数据源'
                     })
                 }}
             >新增数据源</Button>
         )
         return (
             <div className="project-member">
-               <article className="section">
-                    <h1 className="title black" style={{paddingTop: '0'}}>
+                <article className="section">
+                    <h1 className="title black" style={{ paddingTop: '0' }}>
                         离线数据源
                     </h1>
                     <Card title={title} extra={extra}>
@@ -256,12 +256,12 @@ class DataSource extends Component {
 export default connect((state) => {
     return {
         project: state.project,
-        sourceTypes: state.dataSource.sourceTypes,
+        sourceTypes: state.dataSource.sourceTypes
     }
 }, dispatch => {
     return {
-        getSourceTypes: function() {
+        getSourceTypes: function () {
             dispatch(getSourceTypes())
         }
     }
-})(DataSourceMana)
+})(DataSource)

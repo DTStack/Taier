@@ -17,8 +17,7 @@ import '../../styles/views/portal.scss';
     }
 })
 class Dashboard extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         this._userLoaded = false;
         // this.listenUserStatus();
     }
@@ -36,7 +35,7 @@ class Dashboard extends Component {
 
     renderApps = () => {
         const { apps, user } = this.props;
-        const sections = apps.map(app =>{
+        const sections = apps.map(app => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
             return isShow && app.id !== MY_APPS.MAIN && (
                 <a href={app.link} className="app-tag" key={app.id}>
@@ -49,7 +48,7 @@ class Dashboard extends Component {
         return sections
     }
 
-    render() {
+    render () {
         const { children } = this.props
         return (
             <div className="portal">

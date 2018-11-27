@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 
 import {
     Input, Button, Card,
-    Select, Form, Checkbox,
- } from 'antd'
+    Select, Form, Checkbox
+} from 'antd'
 
-import { 
-    RDOS_ROLE, 
+import {
+    RDOS_ROLE,
     APP_ROLE,
-    MY_APPS,
+    MY_APPS
 } from 'main/consts'
 
 import { isDisabledRole } from './form'
@@ -16,37 +16,35 @@ import { isDisabledRole } from './form'
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
 
-const formItemLayout={
+const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 18 },
-    },
+        sm: { span: 18 }
+    }
 }
 
-
 class EditRoleForm extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         this.setFields(this.props.user)
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.user !== nextProps.user) {
             this.setFields(nextProps.user)
         }
     }
 
     setFields = (user) => {
-        const selectedRoles = user && user.roles 
-        ? user.roles.map(role => role.id) : [];
+        const selectedRoles = user && user.roles
+            ? user.roles.map(role => role.id) : [];
         this.props.form.setFieldsValue({ roleIds: selectedRoles });
     }
 
-    render() {
+    render () {
         const { roles, form, app, loginUser, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
@@ -66,12 +64,12 @@ class EditRoleForm extends Component {
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [{
-                            required:  true,
-                            message: '用户角色不可为空！',
+                            required: true,
+                            message: '用户角色不可为空！'
                         }],
-                        initialValue: [],
+                        initialValue: []
                     })(
-                        <CheckboxGroup options={roleOptions} />,
+                        <CheckboxGroup options={roleOptions} />
                     )}
                 </FormItem>
             </Form>

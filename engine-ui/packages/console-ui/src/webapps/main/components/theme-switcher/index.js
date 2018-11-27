@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Dropdown, Menu, Icon } from "antd";
+import { Button, Dropdown, Menu, Icon } from 'antd';
 
 class ThemeSwitcher extends Component {
-
     viewMenu = () => {
         const { onThemeChange, editorTheme } = this.props;
         return (
@@ -17,7 +16,7 @@ class ThemeSwitcher extends Component {
     render () {
         return (
             <Dropdown overlay={this.viewMenu()} trigger={['click']}>
-                <Button icon="skin" title="主题" style={{paddingLeft: 0}}>
+                <Button icon="skin" title="主题" style={{ paddingLeft: 0 }}>
                     主题<Icon type="down" />
                 </Button>
             </Dropdown>

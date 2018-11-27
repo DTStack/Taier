@@ -22,17 +22,16 @@ const Search = Input.Search;
 
 @connect(state => {
     return {
-        user: state.user,
+        user: state.user
     }
 })
 class AdminUser extends Component {
-
     state = {
         active: '',
         loading: 'success',
 
         users: {
-            data: [],
+            data: []
         },
 
         projects: [],
@@ -49,10 +48,10 @@ class AdminUser extends Component {
         visible: false,
         visibleEditRole: false,
 
-        searchName: undefined,
+        searchName: undefined
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { apps } = this.props
 
         if (apps && apps.length > 0) {
@@ -66,56 +65,53 @@ class AdminUser extends Component {
             })
         }
     }
-    hasDatabase(app) {
+    hasDatabase (app) {
         return app === 'analyticsEngine';
     }
     /**
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
-    loadData = (isGetProjectsBack,isGetDatabaseBack) => {
+    loadData = (isGetProjectsBack, isGetDatabaseBack) => {
         const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects, dataBase, selecteDatabase } = this.state;
         const params = {
             pageSize: 10,
-            currentPage: currentPage,
+            currentPage: currentPage
         }
         let projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length);
         let databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && dataBase.length);
-        this.setState({ 
+        this.setState({
             users: {
-                data: [],
-            },
-         })
-        if (!projectsExsit && hasProject(active)&&!isGetProjectsBack) {
+                data: []
+            }
+        })
+        if (!projectsExsit && hasProject(active) && !isGetProjectsBack) {
             this.getProjects(active);
-        }
-        else if(!databaseExsit && this.hasDatabase(active)&&!isGetDatabaseBack) {
+        } else if (!databaseExsit && this.hasDatabase(active) && !isGetDatabaseBack) {
             this.getDatabase(active);
-        }
-        else if (MY_APPS.ANALYTICS_ENGINE == active) {
+        } else if (MY_APPS.ANALYTICS_ENGINE == active) {
             params.databaseId = selecteDatabase;
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
-                currentPage: 1,
+                currentPage: 1
             }));
-        }
-        else {
+        } else {
             if (MY_APPS.RDOS == active) {
                 params.projectId = selectedProject;
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
-            } 
+            }
             // else if (MY_APPS.ANALYTICS_ENGINE == active) {
             //     params.databaseId = selecteDatabase;
             // }
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
-                currentPage: 1,
+                currentPage: 1
             }));
         }
         this.getOwnRole(active, params);
     }
-    
-    getOwnRole(app, params) {
+
+    getOwnRole (app, params) {
         const queryParams = {
             ...params,
             currentPage: 1,
@@ -128,32 +124,34 @@ class AdminUser extends Component {
             }
             // const roles = res.data && res.data.data[0].roles;
             const roles = res.data.data.length > 0 ? res.data.data[0].roles : [];
-            let isVisitor = false,
-                isProjectAdmin = false,
-                isProjectOwner = false;
+            let isVisitor = false;
+
+            let isProjectAdmin = false;
+
+            let isProjectOwner = false;
             for (let role of roles) {
                 const roleValue = role.roleValue;
                 switch (app) {
-                    case MY_APPS.RDOS:
-                    case MY_APPS.STREAM: {
-                        if (roleValue == RDOS_ROLE.VISITOR) {
-                            isVisitor = true
-                        } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
-                            isProjectAdmin = true;
-                        } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
-                            isProjectOwner = true;
-                        }
+                case MY_APPS.RDOS:
+                case MY_APPS.STREAM: {
+                    if (roleValue == RDOS_ROLE.VISITOR) {
+                        isVisitor = true
+                    } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
+                        isProjectAdmin = true;
+                    } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
+                        isProjectOwner = true;
                     }
-                    case MY_APPS.API:
-                    case MY_APPS.LABEL:
-                    case MY_APPS.ANALYTICS_ENGINE:
-                    case MY_APPS.DATA_QUALITY: {
-                        if (roleValue == APP_ROLE.VISITOR) {
-                            isVisitor = true
-                        } else if (roleValue == APP_ROLE.ADMIN) {
-                            isProjectAdmin = true;
-                        }
+                }
+                case MY_APPS.API:
+                case MY_APPS.LABEL:
+                case MY_APPS.ANALYTICS_ENGINE:
+                case MY_APPS.DATA_QUALITY: {
+                    if (roleValue == APP_ROLE.VISITOR) {
+                        isVisitor = true
+                    } else if (roleValue == APP_ROLE.ADMIN) {
+                        isProjectAdmin = true;
                     }
+                }
                 }
             }
             this.setState({
@@ -168,13 +166,13 @@ class AdminUser extends Component {
     loadUsers = (app, params) => {
         const { searchName } = this.state;
         const ctx = this
-        this.setState({ 
+        this.setState({
             loading: true,
             users: {
-                data: [],
-            },
+                data: []
+            }
         })
-        const queryParams = { ...params }//复制一份
+        const queryParams = { ...params }// 复制一份
         queryParams.name = searchName;
         Api.queryUser(app, queryParams).then((res) => {
             ctx.setState({
@@ -194,7 +192,6 @@ class AdminUser extends Component {
             }
         })
     }
-
 
     // 获取数据库
     getDatabase = (app) => {
@@ -224,13 +221,13 @@ class AdminUser extends Component {
                     ctx.setState({
                         streamProjects: res.data,
                         streamSelectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData.bind(this,true))
+                    }, this.loadData.bind(this, true))
                 } else if (app == MY_APPS.RDOS) {
                     cookiesProject = utils.getCookie('project_id')
                     ctx.setState({
                         projects: res.data,
                         selectedProject: cookiesProject || res.data[0].id
-                    }, this.loadData.bind(this,true))
+                    }, this.loadData.bind(this, true))
                 }
             }
         })
@@ -240,7 +237,7 @@ class AdminUser extends Component {
         const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
         // userName : utils.trimlr(userName)
         const params = {
-            userName,
+            userName
         }
         if (hasProject(active)) {
             if (MY_APPS.RDOS == active) {
@@ -249,8 +246,8 @@ class AdminUser extends Component {
                 params.projectId = streamSelectedProject;
             }
         }
-        if(this.hasDatabase(active)) {
-            if(MY_APPS.ANALYTICS_ENGINE == active) {
+        if (this.hasDatabase(active)) {
+            if (MY_APPS.ANALYTICS_ENGINE == active) {
                 params.databaseId = selecteDatabase;
             }
         }
@@ -285,8 +282,8 @@ class AdminUser extends Component {
                         projectRole.projectId = streamSelectedProject
                     }
                 }
-                if(this.hasDatabase(active)) {
-                    if(active == MY_APPS.ANALYTICS_ENGINE) {
+                if (this.hasDatabase(active)) {
+                    if (active == MY_APPS.ANALYTICS_ENGINE) {
                         projectRole.databaseId = selecteDatabase
                     }
                 }
@@ -307,7 +304,7 @@ class AdminUser extends Component {
         const ctx = this
         const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state
         const params = {
-            targetUserId: member.userId,
+            targetUserId: member.userId
         }
         if (hasProject(active)) {
             if (active == MY_APPS.RDOS) {
@@ -342,7 +339,7 @@ class AdminUser extends Component {
 
         const params = {
             targetUserId: editTarget.userId,
-            roleIds: memberRole.roleIds,
+            roleIds: memberRole.roleIds
         }
 
         if (hasProject(active)) {
@@ -368,7 +365,7 @@ class AdminUser extends Component {
 
     onRoleIdsChange = (roleIds) => {
         this.setState({
-            roleIds,
+            roleIds
         })
     }
 
@@ -377,7 +374,7 @@ class AdminUser extends Component {
             visible: false,
             visibleEditRole: false,
             editTarget: '',
-            notProjectUsers: [],
+            notProjectUsers: []
         }, () => {
             if (this.eidtRoleForm) {
                 this.eidtRoleForm.props.form.resetFields()
@@ -390,7 +387,7 @@ class AdminUser extends Component {
 
     handleTableChange = (pagination) => {
         this.setState({
-            currentPage: pagination.current,
+            currentPage: pagination.current
         }, this.loadData)
     }
 
@@ -400,7 +397,7 @@ class AdminUser extends Component {
             currentPage: 1,
             roleIds: [],
             notProjectUsers: [],
-            searchName: undefined,
+            searchName: undefined
         }, this.loadData)
     }
 
@@ -409,19 +406,19 @@ class AdminUser extends Component {
         this.setState({
             selecteDatabase: value,
             currentPage: 1
-        },this.loadData)
+        }, this.loadData)
     }
 
     onProjectSelect = (value) => {
         this.setState({
             selectedProject: value,
-            currentPage: 1,
+            currentPage: 1
         }, this.loadData)
     }
     onStreamProjectSelect = (value) => {
         this.setState({
             streamSelectedProject: value,
-            currentPage: 1,
+            currentPage: 1
         }, this.loadData)
     }
 
@@ -433,35 +430,35 @@ class AdminUser extends Component {
 
     initColums = () => {
         const ctx = this;
-        const {active} = this.state;
-        const hideDel = (active == MY_APPS.RDOS ||active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE );
-        const isProject = (active == MY_APPS.RDOS ||active == MY_APPS.STREAM);
+        const { active } = this.state;
+        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE);
+        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM);
         return [{
             title: '账号',
             dataIndex: 'user.userName',
             key: 'account',
-            render(text, record) {
+            render (text, record) {
                 return <a onClick={() => {
                     ctx.setState({
                         visibleEditRole: true,
                         editTarget: record
                     })
                 }}>{text}</a>
-            },
+            }
         }, {
             title: '邮箱',
             dataIndex: 'user.email',
-            key: 'email',
+            key: 'email'
         }, {
             title: '手机号',
             dataIndex: 'user.phoneNumber',
-            key: 'phoneNumber',
+            key: 'phoneNumber'
         }, {
             title: '角色',
             width: 120,
             dataIndex: 'roles',
             key: 'roles',
-            render(roles) {
+            render (roles) {
                 const roleNames = roles.map(role => role && role.roleName)
                 return roleNames.join(',')
             }
@@ -469,7 +466,7 @@ class AdminUser extends Component {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(time) {
+            render (time) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -477,7 +474,7 @@ class AdminUser extends Component {
             dataIndex: 'id',
             width: 140,
             key: 'id',
-            render(id, record) {
+            render (id, record) {
                 return <span>
                     <a onClick={() => {
                         ctx.setState({
@@ -489,7 +486,7 @@ class AdminUser extends Component {
                         hideDel ? <span>
                             <span className="ant-divider" />
                             <Popconfirm
-                                title={isProject ? "确认将该成员从项目中移除？" : "确认将该成员从数据库中移除？"}
+                                title={isProject ? '确认将该成员从项目中移除？' : '确认将该成员从数据库中移除？'}
                                 okText="确定" cancelText="取消"
                                 onConfirm={() => { ctx.removeUserFromProject(record) }}
                             >
@@ -515,26 +512,25 @@ class AdminUser extends Component {
     }
 
     renderTitle = () => {
-
-        const { projects,streamProjects, active, selectedProject, searchName, streamSelectedProject, dataBase, selecteDatabase } = this.state;
+        const { projects, streamProjects, active, selectedProject, searchName, streamSelectedProject, dataBase, selecteDatabase } = this.state;
 
         let selectValue;
         let onSelectChange;
-        let projectsOptions=[];
+        let projectsOptions = [];
 
         let databaseOptions = [];
 
         if (active == MY_APPS.RDOS) {
             selectValue = selectedProject;
-            projectsOptions=projects;
-            onSelectChange=this.onProjectSelect
+            projectsOptions = projects;
+            onSelectChange = this.onProjectSelect
         } else if (active == MY_APPS.STREAM) {
             selectValue = streamSelectedProject;
-            projectsOptions=streamProjects;
-            onSelectChange=this.onStreamProjectSelect
-        } else if(active == MY_APPS.ANALYTICS_ENGINE) {
+            projectsOptions = streamProjects;
+            onSelectChange = this.onStreamProjectSelect
+        } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
-            onSelectChange=this.onDatabaseSelect;
+            onSelectChange = this.onDatabaseSelect;
         }
 
         const projectOpts = projectsOptions && projectsOptions.map(project =>
@@ -542,12 +538,11 @@ class AdminUser extends Component {
                 {project.projectAlias}
             </Option>
         )
-        const databaseOpts = databaseOptions && databaseOptions.map(item => 
+        const databaseOpts = databaseOptions && databaseOptions.map(item =>
             <Option value={`${item.id}`} key={`${item.id}`}>
                 {item.name}
-            </Option> 
+            </Option>
         )
-
 
         const title = (
             <span>
@@ -557,7 +552,7 @@ class AdminUser extends Component {
                             选择项目：
                             <Select
                                 showSearch
-                                value={selectValue?`${selectValue}`:selectValue}
+                                value={selectValue ? `${selectValue}` : selectValue}
                                 style={{ width: 200, marginRight: 10 }}
                                 placeholder="按项目名称搜索"
                                 optionFilterProp="name"
@@ -575,7 +570,7 @@ class AdminUser extends Component {
                             选择数据库：
                             <Select
                                 showSearch
-                                value={selecteDatabase?`${selecteDatabase}`:selecteDatabase}
+                                value={selecteDatabase ? `${selecteDatabase}` : selecteDatabase}
                                 style={{ width: 200, marginRight: 10 }}
                                 placeholder="按数据库名称搜索"
                                 optionFilterProp="name"
@@ -616,7 +611,7 @@ class AdminUser extends Component {
         const pagination = {
             total: users.totalCount,
             defaultPageSize: 10,
-            current: users.currentPage,
+            current: users.currentPage
         };
 
         return (
@@ -639,7 +634,7 @@ class AdminUser extends Component {
         )
     }
 
-    render() {
+    render () {
         const { apps, user } = this.props
 
         const {
@@ -682,7 +677,7 @@ class AdminUser extends Component {
                     visible={visibleEditRole}
                     onOk={this.updateMemberRole}
                     onCancel={this.onCancel}
-                    width={Math.min(1000, Math.max(520, (400 + (roles ? roles.length * 60 : 0)))) + "px"}
+                    width={Math.min(1000, Math.max(520, (400 + (roles ? roles.length * 60 : 0)))) + 'px'}
                 >
                     <EditMemberRoleForm
                         myRoles={myRoles}

@@ -1,19 +1,19 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { Tooltip, message, Select } from 'antd';
 
 const Option = Select.Option;
 export default class SelectSearch extends Component {
     state = {
-        searchValue: ""
+        searchValue: ''
     }
 
-    wrapOption() {
+    wrapOption () {
         const searchValue = this.state.searchValue;
         const { children } = this.props;
-        
+
         if (children && children.length > 0) {
-            for (let i=0;i<children.length;i++) {
-                if(children[i].props.title?children[i].props.title == searchValue:children[i].props.value == searchValue){
+            for (let i = 0; i < children.length; i++) {
+                if (children[i].props.title ? children[i].props.title == searchValue : children[i].props.value == searchValue) {
                     return null;
                 }
             }
@@ -29,15 +29,15 @@ export default class SelectSearch extends Component {
         ) : null
     }
 
-    onSearch(value) {
+    onSearch (value) {
         this.setState({
             searchValue: value
         })
     }
 
-    render() {
+    render () {
         const { children, ...otherProps } = this.props;
-        const wrapOption=this.wrapOption();
+        const wrapOption = this.wrapOption();
 
         return (
             <Select

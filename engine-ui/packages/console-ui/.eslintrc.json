@@ -25,6 +25,7 @@
         "eqeqeq": 0,
         "no-console": 0,
         "no-param-reassign": 0,
+        "no-undef": ["warning"],
         "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": false }],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
         

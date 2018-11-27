@@ -3,61 +3,58 @@ import { debounce } from 'lodash'
 
 import {
     Input, Button, Card, Radio,
-    Select, Form, Checkbox,
+    Select, Form, Checkbox
 } from 'antd'
-
 
 import {
     MY_APPS,
     RDOS_ROLE,
     APP_ROLE,
-    formItemLayout,
+    formItemLayout
 } from '../../../consts';
 
 const FormItem = Form.Item
 const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
-
 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-export const isDisabledRole = (app, value, loginUser, myRoles={}) => {
-    switch(app) {
-        case MY_APPS.RDOS:
-        case MY_APPS.STREAM: {
-            if (loginUser.isTenantAdmin||myRoles.isProjectOwner) {//租户管理员和项目拥有者
-                return (value === RDOS_ROLE.PROJECT_OWNER ||
+export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
+    switch (app) {
+    case MY_APPS.RDOS:
+    case MY_APPS.STREAM: {
+        if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+            return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER)
-            } else if(myRoles.isProjectAdmin){//项目管理员
-                return value === RDOS_ROLE.PROJECT_OWNER ||
+        } else if (myRoles.isProjectAdmin) { // 项目管理员
+            return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
                 value === RDOS_ROLE.PROJECT_ADMIN
-            }else{
-                return true;
-            }
+        } else {
+            return true;
         }
-        case MY_APPS.API:
-        case MY_APPS.LABEL:
-        case MY_APPS.ANALYTICS_ENGINE:
-        case MY_APPS.DATA_QUALITY: {
-            if (loginUser.isTenantAdmin) {//租户管理员
-                return value === APP_ROLE.TENANT_OWVER 
-            } else if (myRoles.isProjectAdmin){//产品管理员
-                return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
-            } else {
-                return true;
-            }
+    }
+    case MY_APPS.API:
+    case MY_APPS.LABEL:
+    case MY_APPS.ANALYTICS_ENGINE:
+    case MY_APPS.DATA_QUALITY: {
+        if (loginUser.isTenantAdmin) { // 租户管理员
+            return value === APP_ROLE.TENANT_OWVER
+        } else if (myRoles.isProjectAdmin) { // 产品管理员
+            return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
+        } else {
+            return true;
         }
-        default: {
-            return false;
-        }
+    }
+    default: {
+        return false;
+    }
     }
 }
 
 class UserRoleForm extends Component {
-
     debounceSearch = debounce(this.props.onSearchUsers, 300, { 'maxWait': 2000 })
 
-    render() {
+    render () {
         const { roles, form, notProjectUsers, app, user, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
@@ -74,14 +71,14 @@ class UserRoleForm extends Component {
             )
 
         let roleOptions = [];
-        let initialValue=[];
+        let initialValue = [];
         if (roles) {
             roles.forEach(role => {
                 const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
-                let isRdosOrStream=MY_APPS.RDOS==app||MY_APPS.STREAM==app
-                if(role.roleValue==APP_ROLE.VISITOR&&!isRdosOrStream){
+                let isRdosOrStream = MY_APPS.RDOS == app || MY_APPS.STREAM == app
+                if (role.roleValue == APP_ROLE.VISITOR && !isRdosOrStream) {
                     initialValue.push(role.id)
-                }else if(role.roleValue==RDOS_ROLE.VISITOR&&isRdosOrStream){
+                } else if (role.roleValue == RDOS_ROLE.VISITOR && isRdosOrStream) {
                     initialValue.push(role.id)
                 }
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
@@ -96,8 +93,8 @@ class UserRoleForm extends Component {
                 >
                     {getFieldDecorator('targetUserIds', {
                         rules: [{
-                            required: true, message: '用户不可为空！',
-                        }],
+                            required: true, message: '用户不可为空！'
+                        }]
                     })(
                         <Select
                             mode="multiple"
@@ -110,7 +107,7 @@ class UserRoleForm extends Component {
                             onSearch={this.debounceSearch}
                         >
                             {userOptions}
-                        </Select>,
+                        </Select>
                     )}
                 </FormItem>
                 <FormItem
@@ -119,12 +116,12 @@ class UserRoleForm extends Component {
                 >
                     {getFieldDecorator('roleIds', {
                         rules: [],
-                        initialValue: initialValue,
+                        initialValue: initialValue
                     })(
                         <CheckboxGroup
                             options={roleOptions}
                             onChange={this.roleChange}
-                        />,
+                        />
                     )}
                 </FormItem>
             </Form>

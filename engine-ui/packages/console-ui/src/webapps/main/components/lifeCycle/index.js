@@ -6,7 +6,7 @@ import pureRender from 'utils/pureRender'
 const Option = Select.Option;
 
 const options = [{
-    name:'3天',
+    name: '3天',
     value: 3
 }, {
     name: '7天',
@@ -20,27 +20,26 @@ const options = [{
 }, {
     name: '365天',
     value: 365
-},{
+}, {
     name: '自定义',
-    value: -1,
+    value: -1
 }]
 
 @pureRender
 class LifeCycle extends React.Component {
-
     state = {
         showCustom: false,
-        value: 90,
+        value: 90
     }
-    
-    componentDidMount() {
+
+    componentDidMount () {
         const value = this.props.value
         if (value) {
             this.initState(value)
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const value = nextProps.value
         if (value && this.state.value !== value && !this.state.showCustom) {
             this.initState(value)
@@ -49,14 +48,14 @@ class LifeCycle extends React.Component {
 
     initState = (value) => {
         const res = options.find(opt => opt.value == value)
-        if (!res) {// 自定义
+        if (!res) { // 自定义
             this.setState({
                 value: -1,
-                showCustom: true,
+                showCustom: true
             })
         } else {
             this.setState({
-                value,
+                value
             })
         }
     }
@@ -65,12 +64,12 @@ class LifeCycle extends React.Component {
         if (value === '-1') {
             this.setState({
                 showCustom: true,
-                value: -1,
+                value: -1
             })
         } else {
             this.setState({
                 value: parseInt(value, 10),
-                showCustom: false,
+                showCustom: false
             })
             this.props.onChange(value)
         }
@@ -82,15 +81,15 @@ class LifeCycle extends React.Component {
     }
 
     renderOptions = () => {
-        return options.map(option => <Option 
-            key={option.value} 
+        return options.map(option => <Option
+            key={option.value}
             value={`${option.value}`}
         >
             {option.name}
         </Option>)
     }
 
-    render() {
+    render () {
         const { width, value } = this.props
         const display = this.state.showCustom ? 'visible' : 'hidden'
         return (
@@ -104,10 +103,10 @@ class LifeCycle extends React.Component {
                     {this.renderOptions()}
                 </Select>
                 &nbsp;
-                <span style={{visibility: display}}>
-                    <Input 
+                <span style={{ visibility: display }}>
+                    <Input
                         value={value}
-                        style={{ width: '45%'}}
+                        style={{ width: '45%' }}
                         type="number"
                         min={0}
                         onChange={this.customChange}
@@ -117,7 +116,6 @@ class LifeCycle extends React.Component {
             </div>
         )
     }
-
 }
 
 export default LifeCycle

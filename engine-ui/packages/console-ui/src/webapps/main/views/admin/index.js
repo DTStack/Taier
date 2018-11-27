@@ -5,7 +5,7 @@ import { Icon } from 'antd'
 
 import NotFund from 'widgets/notFund'
 
-import { Navigator, Title, MyIcon }  from '../../components/nav'
+import { Navigator, Title, MyIcon } from '../../components/nav'
 
 @connect(state => {
     return {
@@ -15,10 +15,9 @@ import { Navigator, Title, MyIcon }  from '../../components/nav'
     }
 })
 class SysAdmin extends Component {
+    componentDidMount () {}
 
-    componentDidMount() {}
-
-    render() {
+    render () {
         const { user, apps, children } = this.props;
         const logo = (<Link to="/admin/user">
             <MyIcon>
@@ -28,24 +27,24 @@ class SysAdmin extends Component {
         </Link>)
 
         const content = children ? React.cloneElement(children, {
-            apps,
+            apps
         }) : <NotFund />;
 
         const menuItems = [{
             id: 'admin/user',
             name: '用户管理',
             link: '/admin/user',
-            enable: true,
+            enable: true
         }, {
             id: 'admin/role',
             name: '角色管理',
             link: '/admin/role',
-            enable: true,
+            enable: true
         }]
 
         return (
             <div className="message">
-                <Navigator 
+                <Navigator
                     logo={logo}
                     menuItems={menuItems}
                     {...this.props}

@@ -10,13 +10,12 @@ import { tabBarStyle } from '../../consts'
 import Api from '../../api'
 
 class MsgDetail extends Component {
-
     state = {
         msgInfo: '',
-        app: utils.getParameterByName('app'),
+        app: utils.getParameterByName('app')
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const { msgId } = this.props.router.params
         this.loadMsg(msgId);
     }
@@ -24,7 +23,7 @@ class MsgDetail extends Component {
     loadMsg = (msgId) => {
         Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then(res => {
             this.setState({
-                msgInfo: res.data,
+                msgInfo: res.data
             })
             if (res.data.readStatus !== 1) { // 如果未读，则标记为已读
                 this.markAsRead(msgId);
@@ -39,16 +38,15 @@ class MsgDetail extends Component {
         });
     }
 
-    render() {
-       
+    render () {
         const { msgInfo, app } = this.state
-        const msgView=this.props.router.location.query.app=="dataApi"?(
-            <p dangerouslySetInnerHTML={{__html:msgInfo.content}} >
-                            
+        const msgView = this.props.router.location.query.app == 'dataApi' ? (
+            <p dangerouslySetInnerHTML={{ __html: msgInfo.content }} >
+
             </p>
-        ):(
+        ) : (
             <p >
-                   {msgInfo.content}         
+                {msgInfo.content}
             </p>
         )
         return (
@@ -56,7 +54,7 @@ class MsgDetail extends Component {
                 <div className="box-card msg-box">
                     <main>
                         <h1 className="card-title"><GoBack history url={`message?app=${app}`}/> 消息详情 </h1>
-                        
+
                     </main>
                     {msgView}
                     <footer>

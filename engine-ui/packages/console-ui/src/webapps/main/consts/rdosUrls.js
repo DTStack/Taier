@@ -10,6 +10,5 @@ export default {
     GET_MASSAGE_BY_ID: `${RDOS_BASE_URL}/common/notifyRecord/getOne`,
     MASSAGE_MARK_AS_READ: `${RDOS_BASE_URL}/common/notifyRecord/tabRead`,
     MASSAGE_MARK_AS_ALL_READ: `${RDOS_BASE_URL}/common/notifyRecord/allRead`,
-    MASSAGE_DELETE: `${RDOS_BASE_URL}/common/notifyRecord/delete`,
+    MASSAGE_DELETE: `${RDOS_BASE_URL}/common/notifyRecord/delete`
 }
-

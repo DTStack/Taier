@@ -11,8 +11,7 @@ import DqApi from 'dataQuality/api/sysAdmin'
 
 const TabPane = Tabs.TabPane
 
-export default function AppTabs(props) {
-
+export default function AppTabs (props) {
     const { apps, content, onPaneChange, activeKey } = props
     const enableApps = apps.filter(app => app.enable && app.id !== 'main')
 
@@ -26,8 +25,8 @@ export default function AppTabs(props) {
     return (
         <div className="m-tabs">
             {
-                enableApps.length < 2 ? content :
-                    <Tabs
+                enableApps.length < 2 ? content
+                    : <Tabs
                         animated={false}
                         activeKey={activeKey}
                         onChange={onPaneChange}

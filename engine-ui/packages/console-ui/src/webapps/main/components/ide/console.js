@@ -1,13 +1,13 @@
-import React, { Component } from "react";
-import { isEqual } from "lodash";
-import { Table, Tabs, Icon, Tooltip, Button } from "antd";
+import React, { Component } from 'react';
+import { isEqual } from 'lodash';
+import { Table, Tabs, Icon, Tooltip, Button } from 'antd';
 
-import CodeEditor from "widgets/code-editor";
-import { defaultEditorOptions } from "widgets/code-editor/config";
+import CodeEditor from 'widgets/code-editor';
+import { defaultEditorOptions } from 'widgets/code-editor/config';
 
 const TabPane = Tabs.TabPane;
 
-const defaultConsoleTab = "console-log";
+const defaultConsoleTab = 'console-log';
 
 class Result extends Component {
     state = {
@@ -20,13 +20,13 @@ class Result extends Component {
         });
     };
 
-    generateCols(data) {
+    generateCols (data) {
         const { currentPage } = this.state;
         if (data && data.length > 0) {
             const arr = [
                 {
-                    title: "序号",
-                    key: "t-id",
+                    title: '序号',
+                    key: 't-id',
                     render: (text, item, index) => {
                         return (currentPage - 1) * 10 + (index + 1);
                     }
@@ -48,7 +48,7 @@ class Result extends Component {
         return [];
     }
 
-    render() {
+    render () {
         const data = this.props.data;
         const showData = data.slice(1, data.length);
         const columns = this.generateCols(data[0]);
@@ -71,7 +71,7 @@ class Console extends Component {
         activeKey: defaultConsoleTab
     };
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
         if (
@@ -114,19 +114,18 @@ class Console extends Component {
         if (onRemoveTab) onRemoveTab(parseInt(targetKey, 10));
     };
 
-    renderTabs(tabs) {
-        
+    renderTabs (tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
-                const title = <span>结果{tab.id?tab.id:(index+1)}</span>;
+                const title = <span>结果{tab.id ? tab.id : (index + 1)}</span>;
                 const exportStyle = {
-                    position: "relative",
-                    top: tab.data && tab.data.length > 1 ? "-45px" : "10px",
-                    height: "30px"
+                    position: 'relative',
+                    top: tab.data && tab.data.length > 1 ? '-45px' : '10px',
+                    height: '30px'
                 };
                 return (
                     <TabPane
-                        style={{ minHeight: "100%", position: "relative" }}
+                        style={{ minHeight: '100%', position: 'relative' }}
                         tab={title}
                         key={`${index}`}
                     >
@@ -148,7 +147,7 @@ class Console extends Component {
         return [];
     }
 
-    render() {
+    render () {
         const {
             data,
             setSplitMax,
@@ -157,7 +156,7 @@ class Console extends Component {
             onConsoleClose
         } = this.props;
 
-        const activeKey = activedTab ? "console-log" : this.state.activeKey;
+        const activeKey = activedTab ? 'console-log' : this.state.activeKey;
 
         defaultEditorOptions.readOnly = true;
         defaultEditorOptions.lineNumbers = false;
@@ -172,13 +171,13 @@ class Console extends Component {
                     onEdit={this.onEdit}
                 >
                     <TabPane tab="日志" key="console-log">
-                        <div style={{ position: "relative" }}>
+                        <div style={{ position: 'relative' }}>
                             <CodeEditor
-                                style={{ minHeight: "auto" }}
+                                style={{ minHeight: 'auto' }}
                                 ref={e => {
                                     this.editor = e;
                                 }}
-                                options={{...defaultEditorOptions,mode:"text/x-textile"}}
+                                options={{ ...defaultEditorOptions, mode: 'text/x-textile' }}
                                 key="output-log"
                                 sync={true}
                                 value={data.log}

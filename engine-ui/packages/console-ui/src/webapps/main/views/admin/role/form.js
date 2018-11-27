@@ -4,27 +4,26 @@ import {
     Table, Input, Button, Card,
     Select, Form, message,
     Radio, Modal, Tree
- } from 'antd'
+} from 'antd'
 
- import utils from 'utils'
- import { formItemLayout } from '../../../consts'
+import utils from 'utils'
+import { formItemLayout } from '../../../consts'
 
- import Api from '../../../api'
+import Api from '../../../api'
 
- const FormItem = Form.Item
- const Option = Select.Option
- const TreeNode = Tree.TreeNode
+const FormItem = Form.Item
+const Option = Select.Option
+const TreeNode = Tree.TreeNode
 
- class RoleForm extends Component {
-
+class RoleForm extends Component {
     state = {
         expandedKeys: [],
         autoExpandParent: true,
         checkedKeys: [],
-        roleTree: [],
+        roleTree: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         const app = utils.getParameterByName('app')
         Api.getRoleTree(app).then(res => {
             if (res.code === 1) {
@@ -35,7 +34,7 @@ import {
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && nextProps.roleInfo.permissionIds || []
             ids = ids && ids.map(id => `${id}`)
@@ -54,18 +53,16 @@ import {
     getLeafNodes = (checkedKeys) => {
         let arr = [...checkedKeys]
         const { roleTree } = this.state
-        
+
         const loop = (data) => {
-            
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
-                
+
                 // 有子节点的需要移除, 只需要添加权限子节点ID
                 if (item.children && item.children.length > 0) {
-
                     const index = arr.indexOf(`${item.nodeId}`)
                     if (index > -1) {
-                        arr.splice(index, 1) // remove nouse 
+                        arr.splice(index, 1) // remove nouse
                     }
 
                     loop(item.children)
@@ -79,7 +76,6 @@ import {
     }
 
     renderTreeNodes = (data) => {
-
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
@@ -98,7 +94,7 @@ import {
         })
     }
 
-    render() {
+    render () {
         const { roleTree, checkedKeys } = this.state
         const { roleInfo, form } = this.props;
         const { getFieldDecorator } = form;
@@ -112,11 +108,11 @@ import {
                 >
                     {getFieldDecorator('roleName', {
                         rules: [{
-                            required: true, message: '角色名称不可为空！',
+                            required: true, message: '角色名称不可为空！'
                         }],
-                        initialValue: roleInfo && roleInfo.roleName || '',
+                        initialValue: roleInfo && roleInfo.roleName || ''
                     })(
-                        <Input />,
+                        <Input />
                     )}
                 </FormItem>
                 <FormItem
@@ -125,9 +121,9 @@ import {
                 >
                     {getFieldDecorator('roleDesc', {
                         rules: [],
-                        initialValue: roleInfo && roleInfo.roleDesc || '',
+                        initialValue: roleInfo && roleInfo.roleDesc || ''
                     })(
-                        <Input type="textarea" />,
+                        <Input type="textarea" />
                     )}
                 </FormItem>
                 <FormItem
@@ -138,9 +134,9 @@ import {
                     {getFieldDecorator('permissionIds', {
                         rules: [{
                             required: true,
-                            message: '请选择相应的角色权限！',
+                            message: '请选择相应的角色权限！'
                         }],
-                        initialValue: [],
+                        initialValue: []
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}
@@ -150,13 +146,13 @@ import {
                             checkedKeys={checkedKeys}
                         >
                             {this.renderTreeNodes(roleTree)}
-                        </Tree>,
+                        </Tree>
                     )}
                 </FormItem>
             </Form>
         )
     }
- }
+}
 
- const RoleFormWrapper = Form.create()(RoleForm)
- export default RoleFormWrapper;
+const RoleFormWrapper = Form.create()(RoleForm)
+export default RoleFormWrapper;

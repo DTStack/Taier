@@ -11,7 +11,7 @@ import NotFund from 'widgets/notFund'
 import Header from './../layout/header'
 import * as MsgActions from '../../actions/message'
 
-import { Navigator, Logo, Title, MyIcon }  from '../../components/nav'
+import { Navigator, Logo, Title, MyIcon } from '../../components/nav'
 
 import '../../styles/views/message.scss';
 
@@ -20,14 +20,13 @@ import '../../styles/views/message.scss';
         user: state.user,
         apps: state.apps,
         routing: state.routing,
-        msgList: state.msgList,
+        msgList: state.msgList
     }
 }, dispatch => bindActionCreators(MsgActions, dispatch))
 class MessageCenter extends Component {
+    componentDidMount () {}
 
-    componentDidMount() {}
-
-    render() {
+    render () {
         const { user, apps, children, msgList, updateMsg } = this.props;
         const logo = (<Link to="/message">
             <MyIcon>
@@ -39,12 +38,12 @@ class MessageCenter extends Component {
         const content = children ? React.cloneElement(children, {
             msgList,
             updateMsg,
-            apps,
-        }) : <NotFund /> 
+            apps
+        }) : <NotFund />
 
         return (
             <div className="message">
-                <Navigator 
+                <Navigator
                     logo={logo}
                     menuItems={[]}
                     {...this.props}

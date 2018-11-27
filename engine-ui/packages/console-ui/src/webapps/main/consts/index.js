@@ -1,6 +1,6 @@
 // 常量
 
-/** 
+/**
  * 所有应用的唯一ID
 */
 export const MY_APPS = {
@@ -12,7 +12,7 @@ export const MY_APPS = {
     LABEL: 'dataLabel',
     DATA_MAP: 'map',
     META_DATA: 'metaData',
-    ANALYTICS_ENGINE: 'analyticsEngine',
+    ANALYTICS_ENGINE: 'analyticsEngine'
 }
 
 export const mainApp = {
@@ -22,10 +22,10 @@ export const mainApp = {
     filename: 'index.html',
     target: '_self',
     enable: true,
-    apiBase: '/main',
+    apiBase: '/main'
 }
 
-/** 
+/**
  * 数据源类型
 */
 export const DATA_SOURCE = {
@@ -35,7 +35,7 @@ export const DATA_SOURCE = {
     HDFS: 6,
     HIVE: 7,
     HBASE: 8,
-    FTP: 9,
+    FTP: 9
 }
 
 /**
@@ -48,14 +48,14 @@ export const RDOS_ROLE = { // 项目角色
     VISITOR: 4, // 访客
     OPERATION: 5, // 运维
     DEVELOPER: 6, // 开发者
-    CUSTOM: 7, // 自定义
+    CUSTOM: 7 // 自定义
 }
 
 export const ANALYTICS_ENGINE_ROLE = { // 项目角色
     TENANT_OWVER: 1, // 租户所有者
     PROJECT_ADMIN: 3, // 项目管理员
     VISITOR: 4, // 访客
-    DEVELOPER: 6, // 开发者
+    DEVELOPER: 6 // 开发者
 }
 /**
  * 应用角色
@@ -65,30 +65,29 @@ export const APP_ROLE = { // 项目角色
     ADMIN: 2, // 应用管理者
     VISITOR: 3, // 访客
     DEVELOPER: 4, // 开发者
-    CUSTOM: 5, // 自定义
+    CUSTOM: 5 // 自定义
 }
-
 
 export const formItemLayout = { // 表单正常布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 },
+        sm: { span: 6 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 },
-    },
+        sm: { span: 14 }
+    }
 }
 
 export const tailFormItemLayout = { // 表单末尾布局
     wrapperCol: {
         xs: {
             span: 24,
-            offset: 0,
+            offset: 0
         },
         sm: {
             span: 14,
-            offset: 6,
-        },
-    },
+            offset: 6
+        }
+    }
 }

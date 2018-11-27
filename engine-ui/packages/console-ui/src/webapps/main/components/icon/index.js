@@ -4,12 +4,12 @@ import './style.scss'
 const imgBase = 'public/main/img/icon'
 
 export default class Icon extends Component {
-    render() {
+    render () {
         const props = this.props
         return (<img
-          {...props}
-          className={`m-icon ${props.className || ''}`}
-          alt={props.alt} src={`${imgBase}/${props.type}.svg`} />
+            {...props}
+            className={`m-icon ${props.className || ''}`}
+            alt={props.alt} src={`${imgBase}/${props.type}.svg`} />
         )
     }
 }

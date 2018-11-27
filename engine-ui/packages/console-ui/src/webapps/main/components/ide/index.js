@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import SplitPane from "react-split-pane";
-import "./ide.scss";
+import SplitPane from 'react-split-pane';
+import './ide.scss';
 
-import Editor from "widgets/editor";
-import ToolBar from "./toolbar";
+import Editor from 'widgets/editor';
+import ToolBar from './toolbar';
 import Console from './console';
 
 // import './style.scss';
@@ -12,11 +12,10 @@ import Console from './console';
 const propType = {
     editor: PropTypes.object,
     toolbar: PropTypes.object,
-    console: PropTypes.object,
+    console: PropTypes.object
 }
 
 class IDEEditor extends Component {
-
     state = {
         changeTab: true,
         size: undefined
@@ -34,11 +33,11 @@ class IDEEditor extends Component {
         });
     };
 
-    renderEditorPane(){
+    renderEditorPane () {
         const { editor, editorInstanceRef, extraPane } = this.props;
-        const editorView=<Editor editorInstanceRef={editorInstanceRef} {...editor} />;
-        const extraView=extraPane;
-        if(extraPane){
+        const editorView = <Editor editorInstanceRef={editorInstanceRef} {...editor} />;
+        const extraView = extraPane;
+        if (extraPane) {
             return <div className="editor-pane-box">
                 <div className="editor-view">
                     {editorView}
@@ -47,15 +46,13 @@ class IDEEditor extends Component {
                     {extraView}
                 </div>
             </div>
-        }else{
+        } else {
             return editorView;
         }
-
     }
 
-    render() {
-
-        const {  toolbar, console } = this.props;
+    render () {
+        const { toolbar, console } = this.props;
 
         const { size } = this.state;
 
@@ -64,16 +61,16 @@ class IDEEditor extends Component {
         return (
             <div className="ide-editor">
                 {
-                    toolbar && toolbar.enable ? 
-                    <div className="ide-header bd-bottom">
-                        <ToolBar
-                            {...toolbar}
-                            changeTab={this.changeTab}
-                        /> 
-                    </div>
-                    : ""
+                    toolbar && toolbar.enable
+                        ? <div className="ide-header bd-bottom">
+                            <ToolBar
+                                {...toolbar}
+                                changeTab={this.changeTab}
+                            />
+                        </div>
+                        : ''
                 }
-                <div style={{zIndex:901}} className="ide-content">
+                <div style={{ zIndex: 901 }} className="ide-content">
                     {console && console.data && console.data.log ? (
                         <SplitPane
                             split="horizontal"
@@ -94,12 +91,12 @@ class IDEEditor extends Component {
                                 activedTab={this.state.changeTab}
                                 setSplitMax={() => {
                                     this.setState({
-                                        size: "100px"
+                                        size: '100px'
                                     });
                                 }}
                                 setSplitMin={() => {
                                     this.setState({
-                                        size: "calc(100% - 40px)"
+                                        size: 'calc(100% - 40px)'
                                     });
                                 }}
                                 {...console}

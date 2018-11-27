@@ -2,9 +2,7 @@ import React, { Component } from 'react'
 import styled from 'styled-components';
 
 class Footer extends Component {
-
-    
-    render() {
+    render () {
         const Footer = styled.footer`
             width: 100%;
             text-align: center;
@@ -16,7 +14,7 @@ class Footer extends Component {
         `
         return (
             <Footer className="footer">
-               <p>{window.APP_CONF.showCopyright?"©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1":""}版本：v{APP.VERSION}</p>
+                <p>{window.APP_CONF.showCopyright ? '©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1' : ''}版本：v{APP.VERSION}</p>
             </Footer>
         )
     }

@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import { routerReducer as routing } from 'react-router-redux'
 
-
 import { user } from './modules/user'
 import { apps, app } from './modules/apps'
 import { msgList } from './modules/message'
@@ -12,7 +11,7 @@ const rootReducer = combineReducers({
     user,
     app,
     apps,
-    msgList,
+    msgList
 })
 
 export default rootReducer

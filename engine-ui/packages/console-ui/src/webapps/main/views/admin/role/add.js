@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { 
+import {
     Row, Col, Button,
-    Card, message,
+    Card, message
 } from 'antd'
 
 import utils from 'utils'
@@ -13,7 +13,6 @@ import { formItemLayout } from '../../../consts'
 import { AppName } from '../../../components/display'
 
 export default class RoleAdd extends Component {
-
     state = {
         app: utils.getParameterByName('app')
     }
@@ -39,7 +38,7 @@ export default class RoleAdd extends Component {
         })
     }
 
-    render() {
+    render () {
         const app = this.state.app
 
         return (
@@ -52,7 +51,7 @@ export default class RoleAdd extends Component {
                             <Col {...formItemLayout.labelCol}></Col>
                             <Col {...formItemLayout.wrapperCol}>
                                 <Button type="primary" onClick={this.submit}>确认添加</Button>
-                                <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
+                                <Button style={{ marginLeft: '20px' }} onClick={this.goIndex}>取消</Button>
                             </Col>
                         </Row>
                     </article>
@@ -61,4 +60,3 @@ export default class RoleAdd extends Component {
         )
     }
 }
-

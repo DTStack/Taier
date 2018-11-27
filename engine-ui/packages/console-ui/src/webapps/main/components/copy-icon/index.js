@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import { Icon, Tooltip, message } from 'antd'
-import "./style.css"
+import './style.css'
 
 export default class CopyIcon extends Component {
-
     state = {
-        
+
     }
 
-    componentWillUnmount() {
+    componentWillUnmount () {
         this.removeFake();
     }
 
@@ -44,7 +43,7 @@ export default class CopyIcon extends Component {
         this.copyText();
     }
 
-    removeFake() {
+    removeFake () {
         if (this.fakeHandler) {
             document.body.removeEventListener('click', this.fakeHandlerCallback);
             this.fakeHandler = null;
@@ -57,39 +56,38 @@ export default class CopyIcon extends Component {
         }
     }
 
-    copyText() {
+    copyText () {
         let succeeded;
 
         try {
             succeeded = document.execCommand('copy');
-        }
-        catch (err) {
+        } catch (err) {
             succeeded = false;
         }
 
         this.handleResult(succeeded);
     }
 
-    handleResult(succeeded) {
+    handleResult (succeeded) {
         if (succeeded) {
-             message.success('复制成功');
+            message.success('复制成功');
         } else {
-             message.error('不支持');
+            message.error('不支持');
         }
     }
 
-    render() {
+    render () {
         let { copyText, style, title, ...otherProps } = this.props
 
         style = {
-            "cursor":"pointer",
-            "fontSize":"13px",
+            'cursor': 'pointer',
+            'fontSize': '13px',
             ...style
         }
 
         return (
-            <Tooltip   placement="right" title={title||"复制"}>
-                <Icon className="copy-hover" onClick={this.copy.bind(this,copyText)} style={style} {...otherProps} type="copy" />
+            <Tooltip placement="right" title={title || '复制'}>
+                <Icon className="copy-hover" onClick={this.copy.bind(this, copyText)} style={style} {...otherProps} type="copy" />
             </Tooltip>
         )
     }

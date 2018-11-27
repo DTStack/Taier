@@ -4,10 +4,10 @@ import msgActions from 'main/consts/msgActions'
 
 const initalMsg = {
     currentPage: 1,
-    msgType: '1',
+    msgType: '1'
 }
 
-export function msgList(state = initalMsg, action) {
+export function msgList (state = initalMsg, action) {
     switch (action.type) {
     case msgActions.UPDATE_MSG: {
         if (action.data !== null) {

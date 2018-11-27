@@ -9,17 +9,17 @@ const initalUser = {
     isRoot: false
 }
 
-export function user(state = initalUser, action) {
+export function user (state = initalUser, action) {
     switch (action.type) {
-        case userActions.GET_USER:
-            return action.data
-        case userActions.UPDATE_USER: {
-            if (action.data !== null) {
-                return {...state,...action.data}
-            }
-            return state;
+    case userActions.GET_USER:
+        return action.data
+    case userActions.UPDATE_USER: {
+        if (action.data !== null) {
+            return { ...state, ...action.data }
         }
-        default:
-            return state
+        return state;
+    }
+    default:
+        return state
     }
 }

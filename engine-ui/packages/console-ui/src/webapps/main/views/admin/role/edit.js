@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { assign } from 'lodash'
-import { 
+import {
     Row, Col, Button,
-    Card, message, Spin,
+    Card, message, Spin
 } from 'antd'
 
 import utils from 'utils'
@@ -15,14 +15,13 @@ import { AppName } from '../../../components/display'
 import RoleForm from './form'
 
 export default class RoleEdit extends Component {
-
     state = {
         roleInfo: {},
         loading: false,
-        app: utils.getParameterByName('app'),
+        app: utils.getParameterByName('app')
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getRoleInfo()
     }
 
@@ -49,7 +48,7 @@ export default class RoleEdit extends Component {
         const ctx = this
         const app = this.state.app
         const { params } = ctx.props
-        ctx.setState({loading: true})
+        ctx.setState({ loading: true })
         Api.getRoleInfo(app, { roleId: params.roleId }).then(res => {
             if (res.code === 1) {
                 ctx.setState({ roleInfo: res.data, loading: false })
@@ -57,7 +56,7 @@ export default class RoleEdit extends Component {
         })
     }
 
-    render() {
+    render () {
         const { app, roleInfo } = this.state;
 
         return (
@@ -66,15 +65,15 @@ export default class RoleEdit extends Component {
                     <h1 className="card-title"><GoBack /> 查看 {AppName(app)}角色</h1>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <article className="section">
-                            <RoleForm 
+                            <RoleForm
                                 roleInfo={roleInfo}
-                                ref={(e) => this.form = e} 
+                                ref={(e) => this.form = e}
                             />
                             <Row>
                                 <Col {...formItemLayout.labelCol}></Col>
                                 <Col {...formItemLayout.wrapperCol}>
                                     <Button type="primary" disabled onClick={this.submit}>确认更新</Button>
-                                    <Button style={{marginLeft: '20px'}} onClick={this.goIndex}>取消</Button>
+                                    <Button style={{ marginLeft: '20px' }} onClick={this.goIndex}>取消</Button>
                                 </Col>
                             </Row>
                         </article>
@@ -84,4 +83,3 @@ export default class RoleEdit extends Component {
         )
     }
 }
-

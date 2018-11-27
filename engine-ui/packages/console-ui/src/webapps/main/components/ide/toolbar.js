@@ -1,9 +1,8 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import { Button, Dropdown, Menu, Icon } from "antd";
+import { Button, Dropdown, Menu, Icon } from 'antd';
 
 export default class Toolbar extends Component {
-
     editMenu = () => {
         const { onFileEdit } = this.props;
         return (
@@ -28,9 +27,9 @@ export default class Toolbar extends Component {
                 disabled={isRunning}
                 title="立即运行"
                 icon="play-circle-o"
-                style={{ marginLeft: "0px" }}
+                style={{ marginLeft: '0px' }}
             >
-                {" "}
+                {' '}
                 运行
             </Button>,
             <Button
@@ -45,8 +44,7 @@ export default class Toolbar extends Component {
         ] : '';
     }
 
-
-    render() {
+    render () {
         const {
             onFormat, enableFormat, disAbleEdit,
             leftCustomButton, rightCustomButton, customToobar
@@ -78,7 +76,7 @@ export default class Toolbar extends Component {
                         编辑<Icon type="down" />
                     </Button>
                 </Dropdown>}
-                <span style={{ float: "right", position: "relative", marginRight: "18px", lineHeight: "28px", zIndex: "901" }}>
+                <span style={{ float: 'right', position: 'relative', marginRight: '18px', lineHeight: '28px', zIndex: '901' }}>
                     {rightCustomButton}
                 </span>
             </div>

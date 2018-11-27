@@ -5,39 +5,37 @@ import { connect } from 'react-redux'
 import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
-import {initConfig} from "funcs";
+import { initConfig } from 'funcs';
 import { getInitUser } from '../actions/user'
-import userActions from "../consts/userActions"
+import userActions from '../consts/userActions'
 import http from '../api';
 
 const propType = {
-    children: PropTypes.node,
+    children: PropTypes.node
 }
 const defaultPro = {
-    children: [],
+    children: []
 }
-
 
 @connect(state => {
     return {
-        user: state.user,
+        user: state.user
     }
 })
 class Main extends Component {
-
-    componentDidMount() {
+    componentDidMount () {
         const { user } = this.props;
         const userAction = getInitUser()
         this.props.dispatch(userAction);
         this.checkRoot(user);
     }
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {
             this.checkRoot(user);
         }
     }
-    checkRoot(user) {
+    checkRoot (user) {
         if (user && user.dtuicUserId) {
             http.checkRoot({ userId: user.dtuicUserId })
                 .then(
@@ -60,13 +58,13 @@ class Main extends Component {
                     }
                 )
                 .catch(
-                    (e)=>{
-                        console.log("控制台权限")
+                    (e) => {
+                        console.log('控制台权限')
                     }
                 );
         }
     }
-    render() {
+    render () {
         return this.props.children || <NotFund />
     }
 }

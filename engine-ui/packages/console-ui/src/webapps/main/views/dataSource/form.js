@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 
 import {
-    Table, Input, Button, Row, Col,
-    Select, Form, message, Checkbox,
-    Radio, Modal, Popconfirm,
+    Input, Button,
+    Select, Form, Checkbox,
+    Radio, Modal,
 } from 'antd'
 
-import { 
-    formItemLayout, 
-    tailFormItemLayout, 
-    DataSourceTypeFilter,
-    DATA_SOURCE,
+import {
+    formItemLayout,
+    tailFormItemLayout,
+    DATA_SOURCE
 } from '../../comm/const'
 
 import Api from '../../api'
@@ -20,13 +19,13 @@ const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 
-const defaultConf = 
+const defaultConf =
 `{
 "jdbcUrl": "", 
 "username": "", 
 "password": ""
 }`
-const hdfsConf = 
+const hdfsConf =
 `{
 "defaultFS": "",
 "hadoopConfig": {
@@ -36,7 +35,7 @@ const hdfsConf =
     "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }
 }`
-const hBaseConf = 
+const hBaseConf =
 `{
 "zookeeper.cluster": "ip1:port,ip2:port/子目录",
 "hbase.rootdir": "hdfs: //ip:9000/hbase",
@@ -44,43 +43,41 @@ const hBaseConf =
 "hbase.zookeeper.quorum": "***"
 }`
 
-function getConnectionConfig(sourceType) {
-    switch(sourceType) {
-        case DATA_SOURCE.HDFS:
-            return hdfsConf
-        case DATA_SOURCE.HBASE:
-            return hBaseConf
-        case DATA_SOURCE.MYSQL:
-        case DATA_SOURCE.ORACLE:
-        case DATA_SOURCE.SQLSERVER:
-        case DATA_SOURCE.HIVE:
-        default:
-            return defaultConf
+function getConnectionConfig (sourceType) {
+    switch (sourceType) {
+    case DATA_SOURCE.HDFS:
+        return hdfsConf
+    case DATA_SOURCE.HBASE:
+        return hBaseConf
+    case DATA_SOURCE.MYSQL:
+    case DATA_SOURCE.ORACLE:
+    case DATA_SOURCE.SQLSERVER:
+    case DATA_SOURCE.HIVE:
+    default:
+        return defaultConf
     }
 }
 
-
 class DataSourceForm extends Component {
-
     state = {
         sourceType: '',
         types: [],
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
-        hadoopConfigStr: hdfsConf,
+        hadoopConfigStr: hdfsConf
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.loadSourceTypes()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const newData = nextProps.sourceData
         if (newData && newData.id !== this.props.sourceData.id) {
             if (newData.dataJson && newData.dataJson.hadoopConfig) {
-                this.setState({sourceType: newData.type || 1, hasHdfsConfig: true})
+                this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true })
             } else {
-                this.setState({sourceType: newData.type || 1 })
+                this.setState({ sourceType: newData.type || 1 })
             }
         }
     }
@@ -88,7 +85,7 @@ class DataSourceForm extends Component {
     loadSourceTypes = () => {
         Api.getDataSourceTypes().then(res => {
             this.setState({
-                types: res.data || [],
+                types: res.data || []
             })
         })
     }
@@ -107,7 +104,7 @@ class DataSourceForm extends Component {
     }
 
     testConnection = (e) => {
-        const { testConnection, form } = this.props
+        const { testConnection } = this.props
         this.props.form.validateFields((err, source) => {
             if (!err) {
                 testConnection(source)
@@ -122,13 +119,13 @@ class DataSourceForm extends Component {
     }
 
     sourceChange = (value) => {
-        this.setState({sourceType: value})
+        this.setState({ sourceType: value })
         this.props.form.resetFields();
     }
 
     enableHdfsConfig = (e) => {
         this.setState({
-            hasHdfsConfig: !e.target.value,
+            hasHdfsConfig: !e.target.value
         })
     }
 
@@ -138,12 +135,12 @@ class DataSourceForm extends Component {
         if (hasHdfsConfig && value) {
             const reg = new RegExp(`${hadoopConfig}`, 'g')
             const newStr = hadoopConfigStr.replace(reg, value)
-            this.setState({ 
-                hadoopConfig: value, 
+            this.setState({
+                hadoopConfig: value,
                 hadoopConfigStr: newStr
             })
             this.props.form.setFieldsValue({
-                hadoopConfig: newStr,
+                hadoopConfig: newStr
             })
         }
     }
@@ -154,354 +151,354 @@ class DataSourceForm extends Component {
         doc.setValue(value)
     }
 
-    getHelpDoc(type) {
-        switch(type) {
-            case DATA_SOURCE.HDFS:
-                return 'hdfsConfig'
-            case DATA_SOURCE.HBASE:
-                return 'hBaseConfig'
-            default:
-                return 'rdbConfig'
+    getHelpDoc (type) {
+        switch (type) {
+        case DATA_SOURCE.HDFS:
+            return 'hdfsConfig'
+        case DATA_SOURCE.HBASE:
+            return 'hBaseConfig'
+        default:
+            return 'rdbConfig'
         }
     }
 
-    renderDynamic() {
+    renderDynamic () {
         const { hasHdfsConfig, sourceType } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
 
-        switch(sourceType) {
-            case DATA_SOURCE.HDFS: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="DefaultFS"
-                        key="defaultFS"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.defaultFS', {
-                            rules: [{
-                                required: true, message: 'defaultFS不可为空！',
-                            }],
-                            initialValue: config.defaultFS || '',
-                        })(
-                            <Input placeholder="hdfs://host:port"/>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="hasHdfsConfig"
-                        {...tailFormItemLayout}
-                    >
-                        {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
-                        })(
-                            <Checkbox 
-                                checked={hasHdfsConfig}
-                                onChange={this.enableHdfsConfig}>
+        switch (sourceType) {
+        case DATA_SOURCE.HDFS: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="DefaultFS"
+                    key="defaultFS"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.defaultFS', {
+                        rules: [{
+                            required: true, message: 'defaultFS不可为空！'
+                        }],
+                        initialValue: config.defaultFS || ''
+                    })(
+                        <Input placeholder="hdfs://host:port"/>
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="hasHdfsConfig"
+                    {...tailFormItemLayout}
+                >
+                    {getFieldDecorator('hasHdfsConfig', {
+                        initialValue: false
+                    })(
+                        <Checkbox
+                            checked={hasHdfsConfig}
+                            onChange={this.enableHdfsConfig}>
                                 高可用配置
-                            </Checkbox>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="高可用配置"
-                        key="hadoopConfig"
-                        hasFeedback
-                        style={{display: hasHdfsConfig ? 'block' : 'none'}}
-                    >
-                        {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [{
-                                required: true, message: 'Hadoop配置不可为空！',
-                            }],
-                            initialValue: config.hadoopConfig || ''
-                        })(
-                            <Input type="textarea" rows={5} placeholder={hdfsConf} />,
-                        )}
-                        <HelpDoc doc="hdfsConfig" />
-                    </FormItem>
-                ]
-            }
-            case DATA_SOURCE.HIVE: {
-                return [
-                    <FormItem
-                      {...formItemLayout}
-                      label="JDBC URL"
-                      hasFeedback
-                      key="jdbcUrl"
-                    >
-                        {getFieldDecorator('dataJson.jdbcUrl', {
-                            rules: [{
-                                required: true, message: 'jdbcUrl不可为空！',
-                            }],
-                            initialValue: config.jdbcUrl || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="用户名"
-                        key="username"
-                    >
-                        {getFieldDecorator('dataJson.username', {
-                            rules: [],
-                            initialValue: config.username || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="password"
-                        {...formItemLayout}
-                        label="密码"
-                    >
-                        {getFieldDecorator('dataJson.password', {
-                            rules: [],
-                            initialValue: '',
-                        })(
-                            <Input type="password"/>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="defaultFS"
-                        key="defaultFS"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.defaultFS', {
-                            rules: [{
-                                required: true, message: 'defaultFS不可为空！',
-                            }],
-                            initialValue: config.defaultFS || '',
-                        })(
-                            <Input placeholder="hdfs://host:port"/>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="hasHdfsConfig"
-                        {...tailFormItemLayout}
-                    >
-                        {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false,
-                        })(
-                            <Checkbox 
-                                checked={hasHdfsConfig}
-                                onChange={this.enableHdfsConfig}>
+                        </Checkbox>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="高可用配置"
+                    key="hadoopConfig"
+                    hasFeedback
+                    style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                >
+                    {getFieldDecorator('dataJson.hadoopConfig', {
+                        rules: [{
+                            required: true, message: 'Hadoop配置不可为空！'
+                        }],
+                        initialValue: config.hadoopConfig || ''
+                    })(
+                        <Input type="textarea" rows={5} placeholder={hdfsConf} />
+                    )}
+                    <HelpDoc doc="hdfsConfig" />
+                </FormItem>
+            ]
+        }
+        case DATA_SOURCE.HIVE: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="JDBC URL"
+                    hasFeedback
+                    key="jdbcUrl"
+                >
+                    {getFieldDecorator('dataJson.jdbcUrl', {
+                        rules: [{
+                            required: true, message: 'jdbcUrl不可为空！'
+                        }],
+                        initialValue: config.jdbcUrl || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="用户名"
+                    key="username"
+                >
+                    {getFieldDecorator('dataJson.username', {
+                        rules: [],
+                        initialValue: config.username || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="password"
+                    {...formItemLayout}
+                    label="密码"
+                >
+                    {getFieldDecorator('dataJson.password', {
+                        rules: [],
+                        initialValue: ''
+                    })(
+                        <Input type="password"/>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="defaultFS"
+                    key="defaultFS"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.defaultFS', {
+                        rules: [{
+                            required: true, message: 'defaultFS不可为空！'
+                        }],
+                        initialValue: config.defaultFS || ''
+                    })(
+                        <Input placeholder="hdfs://host:port"/>
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="hasHdfsConfig"
+                    {...tailFormItemLayout}
+                >
+                    {getFieldDecorator('hasHdfsConfig', {
+                        initialValue: false
+                    })(
+                        <Checkbox
+                            checked={hasHdfsConfig}
+                            onChange={this.enableHdfsConfig}>
                                 高可用配置
-                            </Checkbox>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="高可用配置"
-                        key="hadoopConfig"
-                        style={{display: hasHdfsConfig ? 'block' : 'none'}}
-                    >
-                        {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [],
-                            initialValue: config.hadoopConfig || ''
-                        })(
-                            <Input type="textarea" rows={5} placeholder={hdfsConf} />,
-                        )}
-                        <HelpDoc doc="hdfsConfig" />
-                    </FormItem>
-                ]
-            }
-            case DATA_SOURCE.HBASE: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="Zookeeper集群地址"
-                        key="hbase_quorum"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.hbase_quorum', {
-                            rules: [{
-                                required: true, message: 'Zookeeper配置不可为空！',
-                            }],
-                            initialValue: config.hbase_quorum || ''
-                        })(
-                            <Input 
-                                type="textarea" 
-                                rows={5} 
-                                placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
-                            />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="其他参数"
-                        key="hbase_other"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.hbase_other', {
-                            rules: [],
-                            initialValue: config.hbase_other || ''
-                        })(
-                            <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`}/>,
-                        )}
-                    </FormItem>
-                ]
-            }
-            case DATA_SOURCE.FTP: {
-                return [
-                    <FormItem
-                        {...formItemLayout}
-                        label="主机名/IP"
-                        hasFeedback
-                        key="host"
-                    >
-                        {getFieldDecorator('dataJson.host', {
-                            rules: [{
-                                required: true, message: '主机名/IP不可为空！',
-                            }],
-                            initialValue: config.host || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="端口"
-                        hasFeedback
-                        key="port"
-                    >
-                        {getFieldDecorator('dataJson.port', {
-                            rules: [{
-                                required: true, message: '端口不可为空！',
-                            }],
-                            initialValue: config.port || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="username"
-                        {...formItemLayout}
-                        label="用户名"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.username', {
-                            rules: [{
-                                required: true, message: '用户名不可为空！',
-                            }],
-                            initialValue: '',
-                        })(
-                            <Input/>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="password"
-                        {...formItemLayout}
-                        label="密码"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！',
-                            }],
-                            initialValue: '',
-                        })(
-                            <Input type="password"/>,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="connectMode"
-                        {...formItemLayout}
-                        label="连接模式"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.connectMode', {
-                            rules: [{
-                                required: true, message: '连接模式不可为空！',
-                            }],
-                            initialValue: config.connectMode || '',
-                        })(
-                            <RadioGroup>
-                                <Radio value={1}>PORT (主动)</Radio>
-                                <Radio value={2}>PASV（被动）</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="protocol"
-                        {...formItemLayout}
-                        label="协议"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.protocol', {
-                            rules: [{
-                                required: true, message: '协议不可为空！',
-                            }],
-                            initialValue: config.protocol || '',
-                        })(
-                            <RadioGroup>
-                                <Radio value={1}>Standard</Radio>
-                                <Radio value={2}>SFTP</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem>,
-                ]
-            }
-            case DATA_SOURCE.MYSQL:
-            case DATA_SOURCE.ORACLE:
-            case DATA_SOURCE.SQLSERVER:
-            default: {
-                return [
-                    <FormItem
-                      {...formItemLayout}
-                      label="JDBC URL"
-                      hasFeedback
-                      key="jdbcUrl"
-                    >
-                        {getFieldDecorator('dataJson.jdbcUrl', {
-                            rules: [{
-                                required: true, message: 'jdbcUrl不可为空！',
-                            }],
-                            initialValue: config.jdbcUrl || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="用户名"
-                        hasFeedback
-                        key="username"
-                    >
-                        {getFieldDecorator('dataJson.username', {
-                            rules: [{
-                                required: true, message: '用户名不可为空！',
-                            }],
-                            initialValue: config.username || '',
-                        })(
-                            <Input autoComplete="off" />,
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        key="password"
-                        {...formItemLayout}
-                        label="密码"
-                        hasFeedback
-                    >
-                        {getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！',
-                            }],
-                            initialValue: '',
-                        })(
-                            <Input type="password"/>,
-                        )}
-                    </FormItem>
-                ]
-            }
+                        </Checkbox>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="高可用配置"
+                    key="hadoopConfig"
+                    style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                >
+                    {getFieldDecorator('dataJson.hadoopConfig', {
+                        rules: [],
+                        initialValue: config.hadoopConfig || ''
+                    })(
+                        <Input type="textarea" rows={5} placeholder={hdfsConf} />
+                    )}
+                    <HelpDoc doc="hdfsConfig" />
+                </FormItem>
+            ]
+        }
+        case DATA_SOURCE.HBASE: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="Zookeeper集群地址"
+                    key="hbase_quorum"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.hbase_quorum', {
+                        rules: [{
+                            required: true, message: 'Zookeeper配置不可为空！'
+                        }],
+                        initialValue: config.hbase_quorum || ''
+                    })(
+                        <Input
+                            type="textarea"
+                            rows={5}
+                            placeholder="Zookeeper集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
+                        />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="其他参数"
+                    key="hbase_other"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.hbase_other', {
+                        rules: [],
+                        initialValue: config.hbase_other || ''
+                    })(
+                        <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`}/>
+                    )}
+                </FormItem>
+            ]
+        }
+        case DATA_SOURCE.FTP: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="主机名/IP"
+                    hasFeedback
+                    key="host"
+                >
+                    {getFieldDecorator('dataJson.host', {
+                        rules: [{
+                            required: true, message: '主机名/IP不可为空！'
+                        }],
+                        initialValue: config.host || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="端口"
+                    hasFeedback
+                    key="port"
+                >
+                    {getFieldDecorator('dataJson.port', {
+                        rules: [{
+                            required: true, message: '端口不可为空！'
+                        }],
+                        initialValue: config.port || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="username"
+                    {...formItemLayout}
+                    label="用户名"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.username', {
+                        rules: [{
+                            required: true, message: '用户名不可为空！'
+                        }],
+                        initialValue: ''
+                    })(
+                        <Input/>
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="password"
+                    {...formItemLayout}
+                    label="密码"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.password', {
+                        rules: [{
+                            required: true, message: '密码不可为空！'
+                        }],
+                        initialValue: ''
+                    })(
+                        <Input type="password"/>
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="connectMode"
+                    {...formItemLayout}
+                    label="连接模式"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.connectMode', {
+                        rules: [{
+                            required: true, message: '连接模式不可为空！'
+                        }],
+                        initialValue: config.connectMode || ''
+                    })(
+                        <RadioGroup>
+                            <Radio value={1}>PORT (主动)</Radio>
+                            <Radio value={2}>PASV（被动）</Radio>
+                        </RadioGroup>
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="protocol"
+                    {...formItemLayout}
+                    label="协议"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.protocol', {
+                        rules: [{
+                            required: true, message: '协议不可为空！'
+                        }],
+                        initialValue: config.protocol || ''
+                    })(
+                        <RadioGroup>
+                            <Radio value={1}>Standard</Radio>
+                            <Radio value={2}>SFTP</Radio>
+                        </RadioGroup>
+                    )}
+                </FormItem>
+            ]
+        }
+        case DATA_SOURCE.MYSQL:
+        case DATA_SOURCE.ORACLE:
+        case DATA_SOURCE.SQLSERVER:
+        default: {
+            return [
+                <FormItem
+                    {...formItemLayout}
+                    label="JDBC URL"
+                    hasFeedback
+                    key="jdbcUrl"
+                >
+                    {getFieldDecorator('dataJson.jdbcUrl', {
+                        rules: [{
+                            required: true, message: 'jdbcUrl不可为空！'
+                        }],
+                        initialValue: config.jdbcUrl || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="用户名"
+                    hasFeedback
+                    key="username"
+                >
+                    {getFieldDecorator('dataJson.username', {
+                        rules: [{
+                            required: true, message: '用户名不可为空！'
+                        }],
+                        initialValue: config.username || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="password"
+                    {...formItemLayout}
+                    label="密码"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.password', {
+                        rules: [{
+                            required: true, message: '密码不可为空！'
+                        }],
+                        initialValue: ''
+                    })(
+                        <Input type="password"/>
+                    )}
+                </FormItem>
+            ]
+        }
         }
     }
 
-    render() {
+    render () {
         const { visible, form, title, sourceData, status } = this.props
-        const { hasHdfsConfig, types } = this.state
+        const { types } = this.state
         const { getFieldDecorator } = form;
         const sourceTypeList = types.map(
             item => (
@@ -514,7 +511,6 @@ class DataSourceForm extends Component {
             )
         )
         const sourceType = types[0] && types[0].value
-        const connectionConf = getConnectionConfig(sourceType)
         return (
             <Modal
                 title={title}
@@ -525,73 +521,73 @@ class DataSourceForm extends Component {
             >
                 <Form>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源名称"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源名称"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataName', {
                             rules: [{
-                                required: true, message: '数据源名称不可为空！',
+                                required: true, message: '数据源名称不可为空！'
                             }, {
                                 max: 128,
-                                message: '数据源名称不得超过128个字符！',
+                                message: '数据源名称不得超过128个字符！'
                             }, {
                                 pattern: /^[A-Za-z0-9_-]+$/,
-                                message: '名称只能由字母与数字、下划线组成',
+                                message: '名称只能由字母与数字、下划线组成'
                             }],
-                            initialValue: sourceData.dataName || '',
+                            initialValue: sourceData.dataName || ''
                         })(
-                            <Input autoComplete="off" disabled={status === 'edit'} />,
+                            <Input autoComplete="off" disabled={status === 'edit'} />
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源描述"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源描述"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataDesc', {
                             rules: [{
                                 max: 200,
-                                message: '描述请控制在200个字符以内！',
+                                message: '描述请控制在200个字符以内！'
                             }],
-                            initialValue: sourceData.dataDesc || '',
+                            initialValue: sourceData.dataDesc || ''
                         })(
-                            <Input type="textarea" rows={4} />,
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                     <FormItem
-                      {...formItemLayout}
-                      label="数据源类型"
-                      hasFeedback
+                        {...formItemLayout}
+                        label="数据源类型"
+                        hasFeedback
                     >
                         {getFieldDecorator('type', {
                             rules: [{
-                                required: true, message: '数据源类型不可为空！',
+                                required: true, message: '数据源类型不可为空！'
                             }],
-                            initialValue: sourceData.type || sourceType,
+                            initialValue: sourceData.type || sourceType
                         })(
-                            <Select 
-                                onChange={this.sourceChange} 
+                            <Select
+                                onChange={this.sourceChange}
                                 disabled={status === 'edit'}>
                                 { sourceTypeList }
-                            </Select>,
+                            </Select>
                         )}
                     </FormItem>
                     {this.renderDynamic()}
                     <FormItem
-                      {...tailFormItemLayout}
-                      label=""
+                        {...tailFormItemLayout}
+                        label=""
                     >
                         <Button
                             icon="sync"
                             type="primary"
                             data-target="test"
                             onClick={this.testConnection}
-                            style={{marginRight: '10px'}}>测试连通性
+                            style={{ marginRight: '10px' }}>测试连通性
                         </Button>
                         <Button
                             type="primary"
-                            style={{marginRight: '10px'}}
+                            style={{ marginRight: '10px' }}
                             onClick={this.submit}>确定
                         </Button>
                         <Button onClick={this.cancle}>取消</Button>
