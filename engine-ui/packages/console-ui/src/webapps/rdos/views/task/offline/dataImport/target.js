@@ -274,12 +274,12 @@ export default class ImportTarget extends Component {
                     <div
                         className="ellipsis"
                         title={item.columnName}
-                        style={{ width: '60px', display: 'inline-block', float: "left" }}
+                        style={{ maxWidth: '40px', display: 'inline-block', float: "left" }}
                     >
                         {item.columnName}
                     </div>
                     <Input
-                        style={{ width: '135px',marginLeft:"5px"}}
+                        style={{ width: '155px',marginLeft:"5px"}}
                         onChange={(e) => { this.tablePartitionChange(e, item, index) }}
                         placeholder="请输入分区名称" />
                     &nbsp;&nbsp;
