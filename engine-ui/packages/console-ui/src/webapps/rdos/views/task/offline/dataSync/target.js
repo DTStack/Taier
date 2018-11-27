@@ -298,7 +298,8 @@ class TargetForm extends React.Component {
 
                                 const disableSelect = src.type === DATA_SOURCE.ES ||
                                     src.type === DATA_SOURCE.REDIS ||
-                                    src.type === DATA_SOURCE.MONGODB;
+                                    src.type === DATA_SOURCE.MONGODB ||
+                                    src.type === DATA_SOURCE.CARBONDATA;
 
                                 return <Option
                                     key={src.id}
