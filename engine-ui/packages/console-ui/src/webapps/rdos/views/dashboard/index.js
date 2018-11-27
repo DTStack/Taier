@@ -127,7 +127,7 @@ class Index extends Component {
         } else if (type === "offline") {
             src = "/offline/task"
         } else {//realtime
-            src = "/realtime"
+            src = "/realtime/task"
         }
         dispatch(ProjectAction.getProject(v.id));
         hashHistory.push(src)
