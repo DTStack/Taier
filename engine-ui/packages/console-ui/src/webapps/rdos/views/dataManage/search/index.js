@@ -169,6 +169,7 @@ class SearchTable extends Component {
                 this.setState({
                     columnNames: res.data
                 })
+                console.log(columnNames)
             }
         })
         this.setState({

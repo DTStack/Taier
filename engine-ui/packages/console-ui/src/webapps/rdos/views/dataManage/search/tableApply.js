@@ -122,12 +122,6 @@ class TableApply extends Component {
             columnNames: checkedIdsList,
             fullColumn: checkIdsAll
         }
-        // if(!(checkedList&&checkedDmlList)) {
-        //     warning({
-        //         title: '提示',
-        //         content: '您没有选择任何DDL或者DML权限！',
-        //     })
-        // }
         const params = {...paramsApply, ...formData}
             form.validateFields((err) => {
                 const {checkedList, checkedDmlList, checkedIdsList} = this.state;
@@ -139,9 +133,11 @@ class TableApply extends Component {
                                 checkedDmlList: [], // // DML选中
                                 checkIdsAll: false,
                                 checkedIdsList: [],
+                                currentPage: 1
                             })
                             form.resetFields() 
                         }, 200)
+                        console.log(params)
                         onOk(params)
                 }
                 else if(err) {
@@ -164,7 +160,8 @@ class TableApply extends Component {
         form.resetFields()
         this.setState({
             checkedList: [],
-            checkedDmlList: []
+            checkedDmlList: [],
+            currentPage: 1,
         })
     }
 
