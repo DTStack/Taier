@@ -271,7 +271,7 @@ export default class TableViewer extends React.Component {
             }
         }];
 
-        return <div className="g-tableviewer box-1">
+        return <div className="box-1">
             <div className="box-card full-screen-table-40">
                 <main>
                     <div >

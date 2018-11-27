@@ -299,3 +299,9 @@ export function isProjectCouldEdit(project, user) {
     }
     return false;
 }
+/**
+ * 是不是kafka
+ */
+export function isKafka(type){
+    return type==DATA_SOURCE.KAFKA||type==DATA_SOURCE.KAFKA_09||type==DATA_SOURCE.KAFKA_10;
+}

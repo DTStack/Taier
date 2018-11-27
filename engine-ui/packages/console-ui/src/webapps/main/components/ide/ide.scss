@@ -9,12 +9,17 @@
         left: 0;
         width: 100%;
     }
-
-    .Pane2 {
+    
+    .SplitPane:not(.remove-default)>.Pane2{
         overflow: hidden;
         display: flex;
         background: #fff;
         border-top: 1px solid #ddd;
+    }
+    .SplitPane.border{
+        .Pane2{
+            border-left: 1px solid #e9e9e9;
+        }
     }
 
     .ide-header {
@@ -26,24 +31,14 @@
         // padding-bottom: 50px;
         top: 36px;
         bottom: 0;
-        .editor-pane-box{
-            width: 100%;
-            position: relative;
+
             .editor-view{
                 padding-right: 220px;
                 height: 100%;
             }
             .extra-view{
-               position: absolute;
-               top:0px;
-               bottom: 0px;
-               right:0px;
-               width: 220px;
-               border-left: 1px solid #ddd;
                overflow: auto;
             }
-        }
-
     }
 
     .ide-toolbar {

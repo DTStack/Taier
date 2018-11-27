@@ -45,18 +45,22 @@
                 .tablePane-table-column{
                     line-height: 17px;
                     padding: 4px 4px 4px 20px;
+                    display: flex;
                     .table-column-name{
-                        width:90px;
+                        flex-grow: 1;
                         padding-right: 5px;
-                        display: inline-block;
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        vertical-align: middle;
                     }
                     .table-column-type{
+                        flex-grow: 0;
+                        flex-shrink: 0;
+                        width:27%;
+                        max-width:80px;
+                        text-align: left;
                         color:#999;
-                        display: inline-block;
-                        vertical-align: middle;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                 }
             }

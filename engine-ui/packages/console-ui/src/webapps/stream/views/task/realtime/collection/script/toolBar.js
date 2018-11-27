@@ -10,7 +10,8 @@ import { getContainer } from 'funcs'
 
 import API from '../../../../../api'
 import { DatabaseType } from '../../../../../components/status';
-import { formItemLayout, DATA_SOURCE } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
+import { isKafka } from "../../../../../comm"
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 
 const FormItem = Form.Item;
@@ -139,7 +140,7 @@ class ImportTemplateForm extends Component {
         const targetTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (val != DATA_SOURCE.KAFKA) {
+                if (!isKafka(val)) {
                     return false
                 }
                 return true
@@ -147,7 +148,7 @@ class ImportTemplateForm extends Component {
             .map(
                 (key) => {
                     const val = DATA_SOURCE[key];
-                    return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>
+                    return <Option key={val} value={val.toString()}>{DATA_SOURCE_TEXT[val]}</Option>
                 }
             )
 

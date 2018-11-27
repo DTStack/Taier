@@ -36,11 +36,6 @@ class OutputOrigin extends Component {
     componentDidMount() {
         this.props.onRef(this);
     }
-    componentWillReceiveProps(nextProps) {
-        if (!this.props.isShow && nextProps.isShow) {
-            this.refreshEditor();
-        }
-    }
     refreshEditor() {
         if (this._editorRef) {
             console.log("refresh")
@@ -117,7 +112,8 @@ class OutputOrigin extends Component {
             originOptionType,
             tableOptionType,
             panelColumn,
-            tableColumnOptionType
+            tableColumnOptionType,
+            isShow
         } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption(
@@ -353,21 +349,27 @@ class OutputOrigin extends Component {
                                 span="18"
                                 style={{ marginBottom: 20, height: 200 }}
                             >
-                                <Editor
-                                    style={{
-                                        minHeight: 202,
-                                        border: "1px solid #ddd"
-                                    }}
-                                    key="params-editor"
-                                    sync={sync}
-                                    placeholder="字段 类型, 比如 id int 一行一个字段"
-                                    // options={jsonEditorOptions}
-                                    value={panelColumn[index].columnsText}
-                                    onChange={this.debounceEditorChange.bind(this)}
-                                    editorRef={(ref) => {
-                                        this._editorRef = ref;
-                                    }}
-                                />
+                                {isShow && (
+                                    <Editor
+                                        style={{
+                                            minHeight: 202,
+                                            border: "1px solid #ddd"
+                                        }}
+                                        key="params-editor"
+                                        sync={sync}
+                                        placeholder={
+                                            DATA_SOURCE.REDIS == panelColumn[index].type ?
+                                                "一行一个字段，无需字段类型，比如：\nid\nname"
+                                                :
+                                                "字段 类型, 比如 id int 一行一个字段"}
+                                        // options={jsonEditorOptions}
+                                        value={panelColumn[index].columnsText}
+                                        onChange={this.debounceEditorChange.bind(this)}
+                                        editorRef={(ref) => {
+                                            this._editorRef = ref;
+                                        }}
+                                    />
+                                )}
                             </Col>
                         )}
                 </Row>
