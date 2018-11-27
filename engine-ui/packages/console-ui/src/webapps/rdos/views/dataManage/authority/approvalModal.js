@@ -95,6 +95,7 @@ class ApprovelModal extends Component {
                     >
                         {getFieldDecorator('reply', {
                             rules: [{
+                                required: agreeApply ? false : true,
                                 max: 200,
                                 message: '请控制在200个字符以内！',
                             }],
