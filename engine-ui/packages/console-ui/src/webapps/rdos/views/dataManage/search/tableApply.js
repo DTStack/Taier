@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, InputNumber, Checkbox, Pagination } from 'antd'
+import { Form, Input, Modal, InputNumber, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 import ajax from '../../../api/dataManage';
@@ -37,15 +37,39 @@ class TableApply extends Component {
         currentPage: 1,
     }
 
+
     componentWillReceiveProps(nextProps) {
-        if(this.props.columnNames != nextProps.columnNames) {
-            this.setState({
-                columnNames: nextProps.columnNames,
-                arr: nextProps.columnNames.slice(0,pageSize)
-            })
+        // const table = nextProps.table;
+        if(this.props.table != nextProps.table) {
+            this.getSimpleColumns(nextProps.table)
         }
     }
 
+    // 修复初始时无法显示第一页数据
+    getFirstPagination = () => {
+        const {columnNames} = this.state;
+        const arr = columnNames.slice(0,pageSize)
+        this.setState({
+            arr
+        })
+    }
+    
+    getSimpleColumns = (record) => {
+        ajax.getSimpleColumns({
+            tableId: record.id,
+            tableName: record.tableName,
+            projectId: record.belongProjectId
+        }).then(res => {
+            if(res.code ===1 ) {
+                console.log(res.data);
+                this.setState({
+                    columnNames: res.data
+                },() => {
+                    this.getFirstPagination()
+                })
+            }
+        })
+    }
 
     // 复选框
     changeDdlGroup = (checkedList) => {
@@ -155,7 +179,6 @@ class TableApply extends Component {
 
     cancle = () => {
         const { onCancel, form } = this.props;
-        const {checkedList,checkedDmlList} = this.state;
         onCancel()
         form.resetFields()
         this.setState({
@@ -220,6 +243,16 @@ class TableApply extends Component {
                         style={{background: "#FAFAFA"}}
                     >
                         <Checkbox checked={checkIdsAll} onChange={this.onCheckIdsAll}>All(包括新增字段)</Checkbox>
+                        <Tooltip title= {(
+                            <div>
+                                <p>字段权限包括对字段进行select。</p>
+                                <p>若勾选了All，如果表中有增加的字段，则此用户自动拥有此字段的权限；</p>
+                                <p>若未勾选All，如果表中有增加的字段，则此用户不会拥有此字段的权限；</p>
+                                <p>表、字段的权限适用于所有分区；</p>
+                            </div>
+                        )}>
+                            <Icon className="formItem_inline_icon" type="question-circle-o" />
+                        </Tooltip>
                         <div className="content">
                             <CheckboxGroup options={arr} value={checkedIdsList} onChange={this.changeIdsGroup}></CheckboxGroup>
                         </div>
@@ -234,19 +267,6 @@ class TableApply extends Component {
                         /> : ""}
                     </FormItem>
 
-                    {/* 控制字段名分页 */}
-                    {/* <FormItem
-                        {...formItemLayout1}
-                        style={{marginLeft:"70%"}}
-                    >
-                        <Pagination
-                            // size="small"
-                            total={total}
-                            pageSize={pageSize}
-                            current={currentPage}
-                            onChange={this.onChangePage}
-                        />
-                    </FormItem> */}
 
                     <FormItem
                         {...formItemLayout1}

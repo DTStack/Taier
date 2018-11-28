@@ -179,7 +179,7 @@ export default class TableViewer extends React.Component {
             if (res.code === 1) {
                 message.success('申请成功！')
                 applyModal.visible = false;
-                applyModal.data = {};
+                // applyModal.data = {};
                 this.setState({ applyModal }, this.getTable)
             }
         })
@@ -197,7 +197,7 @@ export default class TableViewer extends React.Component {
     cancelApply = () => {
         const { applyModal } = this.state;
         applyModal.visible = false;
-        applyModal.data = {};
+        // applyModal.data = {};
         this.setState({
             applyModal
         })

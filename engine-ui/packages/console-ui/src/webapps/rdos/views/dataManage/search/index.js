@@ -43,7 +43,6 @@ class SearchTable extends Component {
             },
             ddlList: [],
             dmlList: [],
-            columnNames: [],
         }
     }
 
@@ -159,24 +158,10 @@ class SearchTable extends Component {
     }
 
     showModal = (record) => {
-        ajax.getSimpleColumns({
-            tableId: record.id,
-            tableName: record.tableName,
-            projectId: record.belongProjectId
-        }).then(res => {
-            if(res.code ===1 ) {
-                console.log(res.data);
-                this.setState({
-                    columnNames: res.data
-                })
-                console.log(columnNames)
-            }
-        })
         this.setState({
             visible: true,
             editRecord: record,
         });
-        // console.log(record);
     }
 
 
@@ -279,7 +264,6 @@ class SearchTable extends Component {
                         case 2:
                             return <span>等待授权</span>
                         default: return '-';
-                        // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
                     }
                 }
             }
@@ -289,7 +273,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList, columnNames } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList } = this.state;
         const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
         const projectOptions = allProjects.map(proj => <Option
@@ -379,11 +363,10 @@ class SearchTable extends Component {
                         <TableApplyModal 
                             visible={visible}
                             table={editRecord}
-                            columnNames={columnNames}
                             onOk={this.apply}
                             ddlList={ddlList}
                             dmlList={dmlList}
-                            onCancel={() => {this.setState({visible: false, editRecord: {} })}}
+                            onCancel={() => {this.setState({visible: false, })}}
                         />
                     </div>
                 </div>
