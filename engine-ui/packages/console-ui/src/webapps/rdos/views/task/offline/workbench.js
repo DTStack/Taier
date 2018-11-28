@@ -46,6 +46,7 @@ class Workbench extends React.Component {
         visible: false,
         showPublish: false,
         theReqIsEnd: true,
+        submitLoading:false
     }
 
     handleMenuClick = (e) => {
@@ -127,7 +128,7 @@ class Workbench extends React.Component {
 
     renderPublish = () => {
         const { user } = this.props;
-        const { publishDesc } = this.state;
+        const { publishDesc, submitLoading } = this.state;
         return (
             <Modal
                 wrapClassName="vertical-center-modal"
@@ -136,6 +137,7 @@ class Workbench extends React.Component {
                 visible={this.state.showPublish}
                 onCancel={this.closePublish}
                 onOk={this.submitTab.bind(this)}
+                confirmLoading={submitLoading}
                 cancelText="关闭"
             >
                 <Form>
@@ -333,7 +335,7 @@ class Workbench extends React.Component {
                         updateCatalogue={this.props.updateCatalogue}
                         loadTreeNode={this.props.loadTreeNode}
                         reloadWorkflowTabNode={this.props.reloadWorkflowTabNode}
-                        saveTab={this.saveTab.bind(this,true)}
+                        saveTab={this.saveTab.bind(this, true)}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
@@ -440,7 +442,13 @@ class Workbench extends React.Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.publishDesc = publishDesc;//发布信息
+        this.setState({
+            submitLoading: true
+        })
         ajax.publishOfflineTask(result).then(res => {
+            this.setState({
+                submitLoading: false
+            })
             if (res.code === 1) {
                 message.success('提交成功！');
                 publishTask(res);
@@ -530,13 +538,13 @@ class Workbench extends React.Component {
                 return index_a - index_b;
             }
         )
-        serverSource=tmp_target.map(
-            (item)=>{
+        serverSource = tmp_target.map(
+            (item) => {
                 return item.source;
             }
         )
         serverTarget = tmp_target.map(
-            (item)=>{
+            (item) => {
                 return item.target
             }
         )
