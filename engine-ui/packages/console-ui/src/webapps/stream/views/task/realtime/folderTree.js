@@ -45,7 +45,7 @@ class FolderTree extends Component {
             
             return tree && tree.map(item => {
                 
-                const key = item.id;
+                const key = item.id+':'+item.type;
                 const isLeaf = item.type === 'file';
                 const taskType = item.taskType;
 
@@ -160,7 +160,7 @@ class FolderTree extends Component {
                 loadData={loadData}
                 selectedKeys={selectedKeys}
                 expandedKeys={ expandedKeys }
-                onExpand={ onExpand }
+                onExpand={onExpand}
                 autoExpandParent={false}
             >
                 {this.renderTreeNodes()}

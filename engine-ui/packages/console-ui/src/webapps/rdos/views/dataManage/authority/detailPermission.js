@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, Button, Checkbox, Pagination } from 'antd'
+import { Form, Input, Modal, Button, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
 import ajax from '../../../api/dataManage';
 
 import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
+
+
 const FormItem = Form.Item;
 
 const CheckboxGroup = Checkbox.Group;
-const pageSize = 4;
+const pageSize = 20;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
@@ -253,6 +255,16 @@ class DetailPermission extends Component {
                         style={{background: "#FAFAFA"}}
                     >
                         <Checkbox disabled checked={permissionParams.idCheckIds}>All(包括新增字段)</Checkbox>
+                        <Tooltip title= {(
+                            <div>
+                                <p>字段权限包括对字段进行select。</p>
+                                <p>若勾选了All，如果表中有增加的字段，则此用户自动拥有此字段的权限；</p>
+                                <p>若未勾选All，如果表中有增加的字段，则此用户不会拥有此字段的权限；</p>
+                                <p>表、字段的权限适用于所有分区；</p>
+                            </div>
+                        )}>
+                            <Icon className="formItem_inline_icon" type="question-circle-o" />
+                        </Tooltip>
                         <div className="content">
                             <div>
                                 <CheckboxGroup options={arr} value={permissionParams.ids} disabled></CheckboxGroup>
