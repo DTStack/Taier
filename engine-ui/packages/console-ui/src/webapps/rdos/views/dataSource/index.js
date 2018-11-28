@@ -8,19 +8,18 @@ import {
     Dropdown
 } from 'antd';
 
-import utils from 'utils';
-
 import { Circle } from 'widgets/circle';
-import Api from '../../../api';
-import DataSourceForm from '../form';
-import DbSyncModal from '../syncModal';
-import { DataSourceTypeFilter, DATA_SOURCE, PROJECT_TYPE } from '../../../comm/const';
-import { isRDB } from '../../../comm';
-import { DatabaseType } from '../../../components/status';
-import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
-import DataSourceTaskListModal from '../dataSourceTaskListModal';
-import LinkModal from "../linkModal";
-import { ExtTableCell } from "../extDataSourceMsg"
+
+import Api from '../../api';
+import { PROJECT_TYPE } from '../../comm/const';
+import { isRDB } from '../../comm';
+import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes';
+
+import DataSourceTaskListModal from './dataSourceTaskListModal';
+import DataSourceForm from './form';
+import DbSyncModal from './syncModal';
+import LinkModal from "./linkModal";
+import { ExtTableCell } from "./extDataSourceMsg"
 
 const Search = Input.Search
 const MenuItem = Menu.Item;

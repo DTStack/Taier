@@ -1,10 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router'
-import { Button, Row } from 'antd'
-import { isArray } from 'lodash'
-
-import utils from 'utils'
-
+import { Row } from 'antd'
 
 import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'
@@ -19,7 +14,7 @@ const editorOptions = {
     smartIndent: true,
     scrollbarStyle: "simple"
 }
-const titleStyle = { height: '45px', color: '#333' }
+
 const editorStyle = { height: '300px' }
 
 function wrappTitle(title) {
