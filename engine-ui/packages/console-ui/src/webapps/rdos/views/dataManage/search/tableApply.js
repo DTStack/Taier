@@ -11,7 +11,7 @@ const CheckboxGroup = Checkbox.Group;
 
 const warning = Modal.warning
 
-const pageSize = 20;
+const pageSize = 2;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
@@ -37,15 +37,39 @@ class TableApply extends Component {
         currentPage: 1,
     }
 
+
     componentWillReceiveProps(nextProps) {
-        if(this.props.columnNames != nextProps.columnNames) {
-            this.setState({
-                columnNames: nextProps.columnNames,
-                arr: nextProps.columnNames.slice(0,pageSize)
-            })
+        // const table = nextProps.table;
+        if(this.props.table != nextProps.table) {
+            this.getSimpleColumns(nextProps.table)
         }
     }
 
+    // 修复初始时无法显示第一页数据
+    getFirstPagination = () => {
+        const {columnNames} = this.state;
+        const arr = columnNames.slice(0,pageSize)
+        this.setState({
+            arr
+        })
+    }
+    
+    getSimpleColumns = (record) => {
+        ajax.getSimpleColumns({
+            tableId: record.id,
+            tableName: record.tableName,
+            projectId: record.belongProjectId
+        }).then(res => {
+            if(res.code ===1 ) {
+                console.log(res.data);
+                this.setState({
+                    columnNames: res.data
+                },() => {
+                    this.getFirstPagination()
+                })
+            }
+        })
+    }
 
     // 复选框
     changeDdlGroup = (checkedList) => {
@@ -155,7 +179,6 @@ class TableApply extends Component {
 
     cancle = () => {
         const { onCancel, form } = this.props;
-        const {checkedList,checkedDmlList} = this.state;
         onCancel()
         form.resetFields()
         this.setState({
@@ -234,19 +257,6 @@ class TableApply extends Component {
                         /> : ""}
                     </FormItem>
 
-                    {/* 控制字段名分页 */}
-                    {/* <FormItem
-                        {...formItemLayout1}
-                        style={{marginLeft:"70%"}}
-                    >
-                        <Pagination
-                            // size="small"
-                            total={total}
-                            pageSize={pageSize}
-                            current={currentPage}
-                            onChange={this.onChangePage}
-                        />
-                    </FormItem> */}
 
                     <FormItem
                         {...formItemLayout1}
