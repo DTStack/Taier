@@ -704,19 +704,9 @@ public class FlinkClient extends AbsClient {
             retMap.put("jobInfo", jobInfo);
             retMap.put("accuInfo", accuInfo);
             return FlinkRestParseUtil.parseEngineLog(retMap);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("", e);
-            try {
-                return PublicUtil.objToString(retMap);
-            } catch (IOException e1) {
-                return "get engine message error," + e.getMessage();
-            }
-        } catch (RdosException e){
-            if(HTTP_CALL_ERROR.equals(e.getErrorCode())){
-                return ExceptionUtil.getTaskLogError();
-            }
-
-            throw e;
+            return ExceptionUtil.getTaskLogError();
         }
     }
 
