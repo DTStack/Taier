@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import { Form, Input, Modal, Button, Checkbox, Pagination } from 'antd'
 
+import ajax from '../../../api/dataManage';
+
 import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
 const FormItem = Form.Item;
 
 const CheckboxGroup = Checkbox.Group;
-const pageSize =20;
+const pageSize = 4;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
@@ -23,18 +25,124 @@ class DetailPermission extends Component {
     state = {
         currentPage: 1,
         arr: [],
-        // permissionParams: undefined,
+        permissionParams: {},
+        reply: undefined,
+        applyReason: undefined,
     }
 
+
     componentWillReceiveProps(nextProps) {
-        const firstArr = nextProps.permissionParams;
-        if(this.props.permissionParams != nextProps.permissionParams) {
+        const table = nextProps.table[0];
+        if(this.props.table != nextProps.table) {
+            console.log("--------------");
+            console.log(nextProps.table[0]);
             this.setState({
-                arr: firstArr.fullColumnsData.slice(0,pageSize)
+                reply: table.reply,
+                applyReason: table.applyReason,
             })
+            this.setState({
+                permissionParams: {},
+            })
+            this.getPermissionData(table);
+            
         }
-        
     }
+
+    // 请求数据
+    getPermissionData = (record) => {
+        ajax.getApplyDetail({
+            tableId: record.resourceId,
+            tableName: record.resourceName,
+            applyId: record.applyId,
+        }).then(res => {
+            if(res.code ===1 ) {
+                console.log(res.data);
+                const data = res.data;
+                const fullDdls = data.fullDdls;
+                const fullDmls = data.fullDmls;
+                const fullColumns = data.fullColumnList;
+                // ddl数据转化成checkboxGroup可用数据
+                const fullDdlsData = fullDdls.map(item => {
+                    return {
+                        label: item.name,
+                        value: item.value,
+                        status: item.status
+                    }
+                });
+                const ddlCheck = fullDdlsData.filter(item => {
+                    return item.status === true
+                })
+                const ddlCheckArray = ddlCheck.map(item => {
+                    return item.value
+                })
+                // dml数据转化成checkboxGroup可用数据
+                const fullDmlsData = fullDmls.map(item => {
+                    return {
+                        label: item.name,
+                        value: item.value,
+                        status: item.status
+                    }
+                });
+                const dmlCheck = fullDmlsData.filter(item => {
+                    return item.status === true
+                })
+                const dmlCheckArray = dmlCheck.map(item => {
+                    return item.value
+                })
+                // 字段名数据转化成checkboxGroup可用数据
+                const fullColumnsData = fullColumns.map(item => {
+                    return item.column
+                });
+                const fullColumnsCheckArray = fullColumns.filter(item => {
+                    return item.status === true
+                })
+                const ids = fullColumnsCheckArray.map(item => {
+                    return item.column
+                })
+                const total = fullColumnsData.length;
+                // 判断是否全选
+                const ischeckAll = (fullDdlsData.length + fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
+                const idCheckIds = (fullColumns.length == fullColumnsCheckArray.length);
+                const params = {
+                    fullDdlsData,
+                    ddlCheckArray,
+                    fullDmlsData,
+                    dmlCheckArray,
+                    fullColumnsData,
+                    fullColumns,
+                    ids,
+                    total,
+                    ischeckAll,
+                    idCheckIds,
+                }
+                this.setState({
+                    permissionParams: params
+                },() => {
+                    this.getFirstPagination()
+                })
+            }
+        })
+    }
+    // 修复初始时无法显示第一页数据
+    getFirstPagination = () => {
+        const {permissionParams} = this.state;
+        const fullColumnsCheck = permissionParams.fullColumnsData;
+        const arr = fullColumnsCheck.slice(0,pageSize)
+        this.setState({
+            arr
+        })
+    }
+    changePagination = (currentPage, pageSize) => {
+        const {permissionParams} = this.state;
+        const fullColumnsCheck = permissionParams.fullColumnsData;
+        const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
+        this.setState({
+            currentPage,
+            arr
+        })
+        console.log(currentPage)
+    }
+
     submit = (e) => {
         e.preventDefault()
         const { onOk, form } = this.props
@@ -80,39 +188,12 @@ class DetailPermission extends Component {
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { visible, agreeApply, table, permissionParams} = this.props;
-        // const title = agreeApply ? '通过申请' : '驳回申请';
+        const { visible, agreeApply,} = this.props;
         
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
-        // const {permissionParams} = this.state;
-        const { arr, currentPage} = this.state;
-        // const ddlCheck = permissionParams.fullDdlsData.filter(item => {
-        //     return item.status === true
-        // })
-        // console.log(this.props.permissionParams);
-        // const ddlCheckArray = ddlCheck.map(item => {
-        //     return item.value
-        // })
-        // const dmlCheck = permissionParams.fullDmlsData.filter(item => {
-        //     return item.status === true
-        // })
-        // const dmlCheckArray = dmlCheck.map(item => {
-        //     return item.value
-        // })
-
-        // const fullColumnsCheck = permissionParams.fullColumnsData;
-        // const fullColumnsCheckArray = permissionParams.fullColumns.filter(item => {
-        //     return item.status === true
-        // })
-        // const ids = fullColumnsCheckArray.map(item => {
-        //     return item.column
-        // })
-        // const total = fullColumnsCheck.length;
-        // // 判断是否全选
-        // const ischeckAll = (permissionParams.fullDdlsData.length + permissionParams.fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
-        // const idCheckIds = (permissionParams.fullColumns.length == fullColumnsCheckArray.length);
-        // console.log("++++++++++");
-
+        const { arr, currentPage, permissionParams={}, reply, applyReason} = this.state;
+        console.log("----------")
+        console.log(permissionParams)
         return (
             <Modal
                 title={title}
@@ -183,15 +264,7 @@ class DetailPermission extends Component {
                             total={permissionParams.total}
                             pageSize={pageSize}
                             current={currentPage}
-                            onChange={(currentPage,pageSize) => {
-                                const fullColumnsCheck = permissionParams.fullColumnsData;
-                                const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
-                                this.setState({
-                                    currentPage,
-                                    arr
-                                })
-                                console.log(currentPage)
-                            }}
+                            onChange={this.changePagination}
                             style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
                         /> : ""}
                     </FormItem>
@@ -226,7 +299,7 @@ class DetailPermission extends Component {
                         label={'申请理由'}
                         hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.applyReason} style={{width: "80%"}}/>,
+                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{width: "80%"}}/>,
                         </FormItem> : ""
                     }
                     {/* 已处理  权限回收*/}
@@ -236,7 +309,7 @@ class DetailPermission extends Component {
                         label={'审批意见'}
                         hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.reply} style={{width: "80%"}}/>,
+                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{width: "80%"}}/>,
                         </FormItem> : ""
                     }
 

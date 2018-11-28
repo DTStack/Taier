@@ -89,9 +89,6 @@ class AuthMana extends Component {
                 applyUserId,
                 status: status&&[status]||undefined,
             },
-            permissionParams: {},
-            applyReason: undefined, //申请意见传给子组件
-            reply: undefined, //审批意见
         }
     }
 
@@ -298,96 +295,18 @@ class AuthMana extends Component {
         }
     }
 
-
-    // 请求数据
-    getPermissionData = (record) => {
-        ajax.getApplyDetail({
-            tableId: record.resourceId,
-            tableName: record.resourceName,
-            applyId: record.applyId,
-        }).then(res => {
-            if(res.code ===1 ) {
-                console.log(res.data);
-                const data = res.data;
-                const fullDdls = data.fullDdls;
-                const fullDmls = data.fullDmls;
-                const fullColumns = data.fullColumnList;
-                // ddl数据转化成checkboxGroup可用数据
-                const fullDdlsData = fullDdls.map(item => {
-                    return {
-                        label: item.name,
-                        value: item.value,
-                        status: item.status
-                    }
-                });
-                const ddlCheck = fullDdlsData.filter(item => {
-                    return item.status === true
-                })
-                const ddlCheckArray = ddlCheck.map(item => {
-                    return item.value
-                })
-                // dml数据转化成checkboxGroup可用数据
-                const fullDmlsData = fullDmls.map(item => {
-                    return {
-                        label: item.name,
-                        value: item.value,
-                        status: item.status
-                    }
-                });
-                const dmlCheck = fullDmlsData.filter(item => {
-                    return item.status === true
-                })
-                const dmlCheckArray = dmlCheck.map(item => {
-                    return item.value
-                })
-                // 字段名数据转化成checkboxGroup可用数据
-                const fullColumnsData = fullColumns.map(item => {
-                    return item.column
-                });
-                const fullColumnsCheckArray = fullColumns.filter(item => {
-                    return item.status === true
-                })
-                const ids = fullColumnsCheckArray.map(item => {
-                    return item.column
-                })
-                const total = fullColumnsData.length;
-                // 判断是否全选
-                const ischeckAll = (fullDdlsData.length + fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
-                const idCheckIds = (fullColumns.length == fullColumnsCheckArray.length);
-                const params = {
-                    fullDdlsData,
-                    ddlCheckArray,
-                    fullDmlsData,
-                    dmlCheckArray,
-                    fullColumnsData,
-                    fullColumns,
-                    ids,
-                    total,
-                    ischeckAll,
-                    idCheckIds,
-                }
-                this.setState({
-                    permissionParams: params
-                })
-            }
-        })
-    }
    // 通过
     passClick = (record) => {
-        this.getPermissionData(record);
         const {queryParams} = this.state;
         console.log(queryParams.listType)
         this.setState({
             isShowPermission: true,
             agreeApply: queryParams.listType ==0 ? true : undefined,
             editRecord: [record],
-            applyReason:record.applyReason,
-            reply: record.reply,
         });
     }
     // 驳回
     rejectClick = (record) => {
-        this.getPermissionData(record);
         this.setState({
             isShowPermission: true,
             agreeApply: false,
@@ -486,11 +405,11 @@ class AuthMana extends Component {
                 key: 'resourceType',
                 dataIndex: 'resourceType',
                 render(text) {
-                    if (text === '0') {
+                    if (text === 0) {
                         return '表'
-                    } else if (text === '1') {
+                    } else if (text === 1) {
                         return '函数'
-                    } else if (text === '2') {
+                    } else if (text === 2) {
                         return '资源'
                     } else return '-'
                 }
@@ -862,7 +781,7 @@ class AuthMana extends Component {
     }
 
     render() {
-        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission, permissionParams, applyReason, reply} = this.state;
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission,} = this.state;
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -884,7 +803,6 @@ class AuthMana extends Component {
                                                             this.setState({
                                                                 visible: false,
                                                                 agreeApply: undefined,
-                                                                editRecord: [],
                                                             })
                                                         }}
                                                     />
@@ -892,16 +810,12 @@ class AuthMana extends Component {
                                                         visible={isShowPermission}
                                                         agreeApply={agreeApply}
                                                         table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
                                                         listType={queryParams.listType}
                                                         onOk={this.approveApplySingle}
                                                         onCancel={() => {
                                                             this.setState({
                                                                 isShowPermission: false,
                                                                 agreeApply: undefined,
-                                                                editRecord: [],
                                                             })
                                                         }}
                                                     >
@@ -915,16 +829,12 @@ class AuthMana extends Component {
                                                         visible={isShowPermission}
                                                         agreeApply={agreeApply}
                                                         table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
                                                         listType={queryParams.listType}
                                                         onOk={this.approveApplySingle}
                                                         onCancel={() => {
                                                             this.setState({
                                                                 isShowPermission: false,
                                                                 agreeApply: undefined,
-                                                                editRecord: [],
                                                             })
                                                         }}
                                                     >
@@ -939,16 +849,13 @@ class AuthMana extends Component {
                                                         visible={isShowPermission}
                                                         agreeApply={agreeApply}
                                                         table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
                                                         listType={queryParams.listType}
                                                         onOk={this.approveApplySingle}
                                                         onCancel={() => {
                                                             this.setState({
                                                                 isShowPermission: false,
                                                                 agreeApply: undefined,
-                                                                editRecord: [],
+                                                                // editRecord: [],
                                                             })
                                                         }}
                                                     >
@@ -962,16 +869,13 @@ class AuthMana extends Component {
                                                         visible={isShowPermission}
                                                         agreeApply={agreeApply}
                                                         table={editRecord}
-                                                        applyReason={applyReason}
-                                                        reply={reply}
-                                                        permissionParams={permissionParams}
                                                         listType={queryParams.listType}
                                                         onOk={this.approveApplySingle}
                                                         onCancel={() => {
                                                             this.setState({
                                                                 isShowPermission: false,
                                                                 agreeApply: undefined,
-                                                                editRecord: [],
+                                                                // editRecord: [],
                                                             })
                                                         }}
                                                     >
