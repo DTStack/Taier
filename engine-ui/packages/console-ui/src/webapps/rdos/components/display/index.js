@@ -46,7 +46,7 @@ export function taskStatusText(type) {
         case TASK_STATUS.RUNNING:
             return '运行中';
         case TASK_STATUS.FINISHED:
-            return '完成';
+            return '成功';
         case TASK_STATUS.STOPED:
             return '取消';
         case TASK_STATUS.STOPING:

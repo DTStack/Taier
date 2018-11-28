@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { DATA_SOURCE } from "../../../comm/const";
-import { havaTableList } from "./sidePanel/panelCommonUtil";
+import { haveTableList, haveCustomParams } from "./sidePanel/panelCommonUtil";
 import { generateAKey } from "utils";
 
 import Editor from 'widgets/code-editor'
@@ -141,7 +141,7 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
-                {havaTableList(panelColumn[index].type) ?
+                {haveTableList(panelColumn[index].type) ?
                     <FormItem
                         {...formItemLayout}
                         label="表"
@@ -356,7 +356,7 @@ class OutputOrigin extends Component {
                         <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism', index, value)} />
                     )}
                 </FormItem>
-                {panelColumn[index].type == DATA_SOURCE.REDIS && <CustomParams
+                {haveCustomParams(panelColumn[index].type) && <CustomParams
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
                     customParams={customParams}
@@ -448,7 +448,7 @@ export default class OutputPanel extends Component {
             initCustomParam(v);
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
-            if (havaTableList(v.type)) {
+            if (haveTableList(v.type)) {
                 this.getTableType(index, v.sourceId)
                 if (v.type == DATA_SOURCE.MYSQL) {
                     this.getTableColumns(index, v.sourceId, v.table)
@@ -493,7 +493,7 @@ export default class OutputPanel extends Component {
         }, () => {
             sink.map((v, index) => {
                 this.getTypeOriginData(index, v.type)
-                if (havaTableList(v.type)) {
+                if (haveTableList(v.type)) {
                     this.getTableType(index, v.sourceId)
                     if (v.type == DATA_SOURCE.MYSQL) {
                         this.getTableColumns(index, v.sourceId, v.table)
@@ -760,7 +760,7 @@ export default class OutputPanel extends Component {
 
                 }
             })
-            if (havaTableList(panelColumn[index].type)) {
+            if (haveTableList(panelColumn[index].type)) {
                 this.getTableType(index, value)
             }
         } else if (type === "table") {
