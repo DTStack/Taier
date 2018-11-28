@@ -2,14 +2,29 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Modal, Table, Button, Tooltip, Icon } from "antd";
 
+import Editor from "widgets/code-editor";
+
 import Api from "../../api";
 import { workbenchActions } from "../../store/modules/offlineTask/offlineAction";
+
+const editorOptions = {
+    mode: "text",
+    lineNumbers: true,
+    readOnly: true,
+    autofocus: false,
+    indentWithTabs: true,
+    lineWrapping: true,
+    smartIndent: true,
+    scrollbarStyle: "simple"
+};
 
 class dbSyncHistoryModal extends Component {
     state = {
         listData: {},
         showDetail: false,
-        syncDetail: {}
+        syncDetail: {},
+        showReport: false,
+        report: ""
     };
 
     componentWillReceiveProps(nextProps) {
@@ -36,6 +51,13 @@ class dbSyncHistoryModal extends Component {
         });
     };
 
+    showReport = record => {
+        this.setState({
+            showReport: true,
+            report: record.report
+        });
+    };
+
     // table设置
     initColumns = () => {
         return [
@@ -59,7 +81,7 @@ class dbSyncHistoryModal extends Component {
             },
             {
                 title: "操作",
-                width: "15%",
+                width: "10%",
                 render: (text, record) => {
                     return (
                         <a
@@ -89,11 +111,11 @@ class dbSyncHistoryModal extends Component {
                 title: "DTinsight.IDE",
                 dataIndex: "ideTableName",
                 key: "ideTableName",
-                width: "40%"
+                width: "30%"
             },
             {
                 title: "任务状态",
-                width: "20%",
+                width: "30%",
                 render: (text, record) => {
                     if (record.status) {
                         return record.status === 1 ? (
@@ -133,6 +155,12 @@ class dbSyncHistoryModal extends Component {
                                         失败
                                     </Tooltip>
                                 </span>
+                                <a
+                                    className="m-l-8"
+                                    onClick={this.showReport.bind(this, record)}
+                                >
+                                    查看报告
+                                </a>
                             </div>
                         );
                     }
@@ -235,25 +263,58 @@ class dbSyncHistoryModal extends Component {
         });
     };
 
+    hideReport = () => {
+        this.setState({ showReport: false, report: "" });
+    };
+
     render() {
         const { visible } = this.props;
-
         return (
-            <Modal
-                title="整库同步配置历史"
-                wrapClassName="sync-history-modal"
-                width={"50%"}
-                visible={visible}
-                maskClosable={false}
-                onCancel={this.closeModal}
-                footer={
-                    <Button key="back" type="primary" onClick={this.closeModal}>
-                        关闭
-                    </Button>
-                }
-            >
-                {this.renderContent()}
-            </Modal>
+            <div>
+                <Modal
+                    title="整库同步配置历史"
+                    wrapClassName="sync-history-modal"
+                    width={"50%"}
+                    visible={visible}
+                    maskClosable={false}
+                    onCancel={this.closeModal}
+                    footer={
+                        <Button
+                            key="back"
+                            type="primary"
+                            onClick={this.closeModal}
+                        >
+                            关闭
+                        </Button>
+                    }
+                >
+                    {this.renderContent()}
+                </Modal>
+                <Modal
+                    title="任务日志"
+                    wrapClassName="vertical-center-modal m-log-modal"
+                    width={800}
+                    visible={this.state.showReport}
+                    maskClosable={false}
+                    onCancel={this.hideReport}
+                    footer={
+                        <Button
+                            key="back"
+                            type="primary"
+                            onClick={this.hideReport}
+                        >
+                            关闭
+                        </Button>
+                    }
+                >
+                    <Editor
+                        sync
+                        style={{ height: "520px" }}
+                        value={this.state.report}
+                        options={editorOptions}
+                    />
+                </Modal>
+            </div>
         );
     }
 }
