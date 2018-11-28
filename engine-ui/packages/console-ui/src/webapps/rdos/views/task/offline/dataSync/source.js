@@ -41,9 +41,11 @@ class SourceForm extends React.Component {
             tableListMap: {},
             showPreview: false,
             dataSource: [],
-            columns: []
+            columns: [],
+            loading: false, // 请求
         };
     }
+
 
     componentDidMount() {
         const { sourceMap } = this.props;
@@ -102,11 +104,15 @@ class SourceForm extends React.Component {
         });
     }
 
-    getTableColumn(tableName, type) {
+    getTableColumn = (tableName, type) => {
         const { 
             form, sourceMap, handleTableColumnChange, 
             handleTableCopateChange 
         } = this.props;
+
+        this.setState({
+            loading: true,
+        })
 
         if (tableName instanceof Array) {
             tableName = tableName[0];
@@ -144,6 +150,9 @@ class SourceForm extends React.Component {
             } else {
                 handleTableColumnChange([]);
             }
+            this.setState({
+                loading: false,
+            })
         })
     }
     getCopate(sourceId, tableName) {
@@ -386,7 +395,13 @@ class SourceForm extends React.Component {
                 }
             </div>
             {!this.props.readonly && <div className="steps-action">
-                <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
+                <Button 
+                    loading={this.state.loading}
+                    type="primary" 
+                    onClick={() => this.next(navtoStep)}
+                >
+                    下一步
+                </Button>
             </div>}
         </div>
     }
@@ -521,7 +536,6 @@ class SourceForm extends React.Component {
                                     showSearch
                                     showArrow={true}
                                     onChange={this.debounceExtTableSearch.bind(this, source.key)}
-                                    // disabled={!isCurrentTabNew}
                                     optionFilterProp="value"
                                 >
                                     {(this.state.tableListMap[source.sourceId] || []).map(table => {
