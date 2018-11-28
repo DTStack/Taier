@@ -35,7 +35,7 @@ class DetailPermission extends Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        if (this.props.visible !== nextProps.visible&&nextProps.visible ) {
+        if (this.props.visible != nextProps.visible&&nextProps.visible ) {
             return false
         }
         return true
@@ -130,6 +130,8 @@ class DetailPermission extends Component {
                 },() => {
                     this.getFirstPagination()
                 })
+                num = 2;
+            }else {
                 num = 2;
             }
         })
