@@ -74,12 +74,12 @@ class CodeEditor extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options={} } = nextProps
-        if (options){
+        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options = {} } = nextProps
+        if (options) {
             this.self.setOption('readOnly', options.readOnly)
-        } 
-        if(placeholder!=this.props.placeholder){
-            this.self.setOption('placeholder',placeholder)
+        }
+        if (placeholder != this.props.placeholder) {
+            this.self.setOption('placeholder', placeholder)
         }
         if (this.props.value !== value) {
             if (cursor) this.self.doc.setCursor(cursor)
@@ -101,10 +101,17 @@ class CodeEditor extends Component {
                     this.self.doc.setCursor(line, null);
                 } else if (!isInBottom) {
                     /**
-                   * 在底部并且不设置自动滚到底部，则滚到原来位置
-                   */
-                    Promise.resolve().then(()=>{
+                    * 不在底部并且不设置自动滚到底部，则滚到原来位置
+                    */
+                    Promise.resolve().then(() => {
                         this.self.scrollTo(scrollInfo.left, scrollInfo.top)
+                    })
+                } else if (isInBottom) {
+                    /**
+                     * 在底部，则自动到底部
+                     */
+                    Promise.resolve().then(() => {
+                        this.self.scrollTo(scrollInfo.left, scrollInfo.height)
                     })
                 }
             }
