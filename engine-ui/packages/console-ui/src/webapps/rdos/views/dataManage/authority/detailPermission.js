@@ -22,6 +22,8 @@ const formItemLayout1 = { // ddl,dml表单布局
     },
 }
 
+let num = 1;  //解决切换tab栏后会多次发出请求
+
 class DetailPermission extends Component {
 
     state = {
@@ -32,12 +34,16 @@ class DetailPermission extends Component {
         applyReason: undefined,
     }
 
-
+    shouldComponentUpdate(nextProps) {
+        if (this.props.visible !== nextProps.visible&&nextProps.visible ) {
+            return false
+        }
+        return true
+    }
+    
     componentWillReceiveProps(nextProps) {
         const table = nextProps.table[0];
         if(this.props.table != nextProps.table) {
-            console.log("--------------");
-            console.log(nextProps.table[0]);
             this.setState({
                 reply: table.reply,
                 applyReason: table.applyReason,
@@ -45,8 +51,10 @@ class DetailPermission extends Component {
             this.setState({
                 permissionParams: {},
             })
-            this.getPermissionData(table);
-            
+            if(num <= 2) {
+                this.getPermissionData(table);
+                num++;
+            }
         }
     }
 
@@ -122,6 +130,7 @@ class DetailPermission extends Component {
                 },() => {
                     this.getFirstPagination()
                 })
+                num = 2;
             }
         })
     }

@@ -41,6 +41,9 @@ class TableApply extends Component {
     componentWillReceiveProps(nextProps) {
         // const table = nextProps.table;
         if(this.props.table != nextProps.table) {
+            this.setState({
+                columnNames: [],
+            })
             this.getSimpleColumns(nextProps.table)
         }
     }
@@ -185,6 +188,8 @@ class TableApply extends Component {
             checkedList: [],
             checkedDmlList: [],
             currentPage: 1,
+        },() => {
+            this.getFirstPagination()
         })
     }
 
