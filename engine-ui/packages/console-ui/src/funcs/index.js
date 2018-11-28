@@ -38,7 +38,7 @@ export function findTreeNode(treeNode, node) {
  */
 export function removeTreeNode(treeNodes, target) {
     for (let i = 0; i < treeNodes.length; i += 1) {
-        if (treeNodes[i].id === target.id) {
+        if (treeNodes[i].id === target.id && treeNodes[i].type == target.type) {
             treeNodes.splice(i, 1) // remove节点
             break;
         }
@@ -69,7 +69,7 @@ export function appendTreeNode(treeNode, append, target) {
 */
 export function replaceTreeNode(treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10)&&treeNode.type==replace.type
+        treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
     ) {
         treeNode = Object.assign(treeNode, replace);
         return;
@@ -327,10 +327,10 @@ export function replaceObjectArrayFiledName(data, targetField, replaceName) {
 /**
  * 初始化APP_CONF和COMMON_CONF
  */
-export function initConfig(){
-    const app_conf=window.APP_CONF||{};
-    const common_conf=window.COMMON_CONF||{};
-    window.APP_CONF={
+export function initConfig() {
+    const app_conf = window.APP_CONF || {};
+    const common_conf = window.COMMON_CONF || {};
+    window.APP_CONF = {
         ...common_conf,
         ...app_conf
     }
