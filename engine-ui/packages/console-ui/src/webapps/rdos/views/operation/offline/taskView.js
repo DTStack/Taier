@@ -222,11 +222,6 @@ export default class TaskView extends Component {
                             loop(nodeData, parent, level - 1, currentNodeGeo)
                         }
 
-                        // const isExist = relationTree.find(t => t.source.id === nodeData.id &&
-                        //     t.target && t.target.id === currentNodeData.id);
-
-                        // console.log('parentNodes isExist:', isExist);
-
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
@@ -277,12 +272,12 @@ export default class TaskView extends Component {
             if (!data) return null;
 
             let style = this.getStyles(data);
-            
+
             const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.flowId && data.flowId !== 0;
 
             if (isWorkflow) {
-         
+
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;';
 
                 if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
@@ -294,7 +289,6 @@ export default class TaskView extends Component {
                 style += 'rounded=1;arcSize=60;'
                 data.workflow = parentCell.value;
             }
-         
 
             const geo = data._geometry || {
                 x : 10, y : 10, 
@@ -312,7 +306,7 @@ export default class TaskView extends Component {
                 geo.width, geo.height, 
                 style,
             )
-            
+
             if (isWorkflow) {
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }

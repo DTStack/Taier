@@ -44,7 +44,7 @@ export function LogInfo(props) {
     const safeSpace = " ";
     const log = props.log ? JSON.parse(props.log.replace(/\n/g, "\\n").replace(/\r/g, "\\r")) : {};
     const syncJobInfo = props.syncJobInfo;
-    const logStyle = Object.assign(editorStyle, {
+    const logStyle = Object.assign({}, editorStyle, {
         height: props.height,
     });
 
