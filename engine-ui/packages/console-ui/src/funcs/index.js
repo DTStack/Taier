@@ -59,7 +59,7 @@ export function appendTreeNode(treeNode, append, target) {
             appendTreeNode(children[i], append, target)
         }
     }
-    if (treeNode.id === targetId && treeNode.children) {
+    if (treeNode.id === targetId && treeNode.children && treeNodes.type == target.type) {
         treeNode.children.push(append)
     }
 }
