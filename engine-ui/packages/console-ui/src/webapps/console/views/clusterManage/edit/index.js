@@ -60,11 +60,11 @@ class EditCluster extends React.Component {
         fileHaveChange: false,
         checked: false,
         // 以下字段为填补关闭复选框数据无法获取输入数据情况
-        firstIptValue: undefined,
-        secondIptValue: undefined,
-        thirdIptValue: undefined,
-        firstOption: "FALSE",
-        secondOption: "TRUE",
+        gatewayHostValue: undefined,
+        gatewayPortValue: undefined,
+        gatewayJobNameValue: undefined,
+        deleteOnShutdownOption: "FALSE",
+        randomJobNameSuffixOption: "TRUE",
         flinkPrometheus: undefined, //配置Prometheus参数
         flinkData: undefined, //获取Prometheus参数
     }
@@ -652,39 +652,32 @@ class EditCluster extends React.Component {
                 return <Option key={item} value={item}>{item}</Option>
             })
         }
-        // else {
-        //     return flinkYarnMode14.map((item,index) => {
-        //         return <Option value={item}>{item}</Option>
-        //     })
-        // }
     }
 
     // 获取每项Input的值
-    getFirstInputValue(e) {
+    getGatewayHostValue(e) {
         this.setState({
-            firstIptValue: e.target.value
+            gatewayHostValue: e.target.value
         })
     }
-    getSecondInputValue(e) {
+    getGatewayPortValue(e) {
         this.setState({
-            secondIptValue: e.target.value
+            gatewayPortValue: e.target.value
         })
     }
-    getThirdInputValue(e) {
+    getGatewayJobNameValue(e) {
         this.setState({
-            thirdIptValue: e.target.value
+            gatewayJobNameValue: e.target.value
         })
     }
-    changeFirstOption(value) {
-        // const { setFieldsValue } = this.props.form;
+    changeDeleteOnShutdownOption(value) {
         this.setState({
-            firstOption: value
+            deleteOnShutdownOption: value
         })
-        // console.log(this.state.firstOption)
     }
-    changeSecondOption(value) {
+    changeRandomJobNameSuffixOption(value) {
         this.setState({
-            secondOption: value
+            randomJobNameSuffixOption: value
         })
     }
 
@@ -697,7 +690,7 @@ class EditCluster extends React.Component {
         const columns = this.initColumns();
         // 获取flink版本
         const flinkVersion = getFieldValue("flinkConf.typeName") || "flink140";
-        const { firstIptValue, secondIptValue, thirdIptValue, firstOption, secondOption } = this.state;
+        const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
         // 获取flinkYarnMode
         const flinkYarnMode = getFieldValue("flinkConf.flinkYarnMode") || "PER_JOB"
         // const havedata = this.getFieldValue()
@@ -842,16 +835,16 @@ class EditCluster extends React.Component {
                             getFieldDecorator={getFieldDecorator}
                             checked={checked}
                             changeCheckbox={this.changeCheckbox.bind(this)}
-                            firstIptValue={firstIptValue}
-                            secondIptValue={secondIptValue}
-                            thirdIptValue={thirdIptValue}
-                            firstOption={firstOption}
-                            secondOption={secondOption}
-                            getFirstInputValue={this.getFirstInputValue.bind(this)}
-                            getSecondInputValue={this.getSecondInputValue.bind(this)}
-                            getThirdInputValue={this.getThirdInputValue.bind(this)}
-                            changeFirstOption={this.changeFirstOption.bind(this)}
-                            changeSecondOption={this.changeSecondOption.bind(this)}
+                            gatewayHostValue={gatewayHostValue}
+                            gatewayPortValue={gatewayPortValue}
+                            gatewayJobNameValue={gatewayJobNameValue}
+                            deleteOnShutdownOption={deleteOnShutdownOption}
+                            randomJobNameSuffixOption={randomJobNameSuffixOption}
+                            getGatewayHostValue={this.getGatewayHostValue.bind(this)}
+                            getGatewayPortValue={this.getGatewayPortValue.bind(this)}
+                            getGatewayJobNameValue={this.getGatewayJobNameValue.bind(this)}
+                            changeDeleteOnShutdownOption={this.changeDeleteOnShutdownOption.bind(this)}
+                            changeRandomJobNameSuffixOption={this.changeRandomJobNameSuffixOption.bind(this)}
                             customView={(
                                 <div>
                                     {this.renderExtraParam("flink")}

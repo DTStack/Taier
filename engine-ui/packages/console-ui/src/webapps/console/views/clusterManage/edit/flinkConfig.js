@@ -16,16 +16,16 @@ export default class FlinkConfig extends React.Component {
             getFieldDecorator,
             checked,
             changeCheckbox,
-            firstIptValue,
-            secondIptValue,
-            thirdIptValue,
-            firstOption,
-            secondOption,
-            getFirstInputValue,
-            getSecondInputValue,
-            getThirdInputValue,
-            changeFirstOption,
-            changeSecondOption
+            gatewayHostValue,
+            gatewayPortValue,
+            gatewayJobNameValue,
+            deleteOnShutdownOption,
+            randomJobNameSuffixOption,
+            getGatewayHostValue,
+            getGatewayPortValue,
+            getGatewayJobNameValue,
+            changeDeleteOnShutdownOption,
+            changeRandomJobNameSuffixOption
         } = this.props;
         return (
             <div className="config-content" style={{ width: "680px" }}>
@@ -100,9 +100,9 @@ export default class FlinkConfig extends React.Component {
                                 required: true,
                                 message: "请输入gatewayHost"
                             }],
-                            initialValue: firstIptValue
+                            initialValue: gatewayHostValue
                         })(
-                            <Input disabled={isView} onChange={getFirstInputValue} />
+                            <Input disabled={isView} onChange={getGatewayHostValue} />
                         )}
                     </FormItem>
                     <FormItem
@@ -114,9 +114,9 @@ export default class FlinkConfig extends React.Component {
                                 required: true,
                                 message: "请输入gatewayPort"
                             }],
-                            initialValue: secondIptValue
+                            initialValue: gatewayPortValue
                         })(
-                            <Input disabled={isView} onChange={getSecondInputValue} />
+                            <Input disabled={isView} onChange={getGatewayPortValue} />
                         )}
                     </FormItem>
                     <FormItem
@@ -128,9 +128,9 @@ export default class FlinkConfig extends React.Component {
                                 required: true,
                                 message: "请输入gatewayJobName"
                             }],
-                            initialValue: thirdIptValue
+                            initialValue: gatewayJobNameValue
                         })(
-                            <Input disabled={isView} onChange={getThirdInputValue} />
+                            <Input disabled={isView} onChange={getGatewayJobNameValue} />
                         )}
                     </FormItem>
                     <FormItem
@@ -142,9 +142,9 @@ export default class FlinkConfig extends React.Component {
                                 required: true,
                                 message: "deleteOnShutdown"
                             }],
-                            initialValue: firstOption
+                            initialValue: deleteOnShutdownOption
                         })(
-                            <Select disabled={isView} style={{ width: "100px" }} onChange={changeFirstOption} >
+                            <Select disabled={isView} style={{ width: "100px" }} onChange={changeDeleteOnShutdownOption} >
                                 <Option value="FALSE">FALSE</Option>
                                 <Option value="TRUE">TRUE</Option>
                             </Select>
@@ -159,9 +159,9 @@ export default class FlinkConfig extends React.Component {
                                 required: true,
                                 message: "randomJobNameSuffix"
                             }],
-                            initialValue: secondOption
+                            initialValue: randomJobNameSuffixOption
                         })(
-                            <Select disabled={isView} style={{ width: "100px" }} onChange={changeSecondOption}>
+                            <Select disabled={isView} style={{ width: "100px" }} onChange={changeRandomJobNameSuffixOption}>
                                 <Option value="FALSE">FALSE</Option>
                                 <Option value="TRUE">TRUE</Option>
                             </Select>

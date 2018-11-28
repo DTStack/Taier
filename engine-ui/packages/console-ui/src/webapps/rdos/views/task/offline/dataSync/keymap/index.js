@@ -45,10 +45,9 @@ function isFieldMatch(source, target) {
      * 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
      */
     if (isObject(source) && isObject(target)) {
-        // const sourceVal =  source.key || source.index;
-        // const tagetVal = target.key || target.index;
-        // return sourceVal === tagetVal;
-        return isEqual(source, target);
+        const sourceVal =  source.key || source.index;
+        const tagetVal = target.key || target.index;
+        return sourceVal === tagetVal;
     } else if(isObject(source) && !isObject(target) ) {
         const sourceVal = source.key || source.index
         return sourceVal === target
@@ -457,7 +456,7 @@ class Keymap extends React.Component{
                 {edit}
             </div>
 
-            const typeValue = col ? col.value ? `常量` : `${col.type.toUpperCase()}${col.format ? `(${col.format})` : ''}` : '';
+            const typeValue = col ? col.value ? `常量(${col.value})` : `${col.type.toUpperCase()}${col.format ? `(${col.format})` : ''}` : '';
             const type = col ? scrollText(typeValue) : '类型';
 
             switch(sourceType) {
