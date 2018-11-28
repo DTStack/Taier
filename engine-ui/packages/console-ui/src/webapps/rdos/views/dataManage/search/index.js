@@ -41,15 +41,11 @@ class SearchTable extends Component {
                 tableName,
                 pageSize: 20,
             },
-            ddlList: [],
-            dmlList: [],
         }
     }
 
     componentDidMount() {
         this.search();
-        this.getDdlList();
-        this.getDmlList();
     }
     
     search = () => {
@@ -76,44 +72,6 @@ class SearchTable extends Component {
             }
         })
     }
-
-    getDdlList = () => {
-        ajax.getDdlList().then(res => {
-            if(res.code === 1) {
-                const data = res.data;
-                const ddlData = data.map((item) => {
-                    return {
-                        label: item.name,
-                        value: item.value
-                    }
-                })
-                console.log(ddlData)
-                this.setState({
-                    ddlList: ddlData
-                })
-            }
-        })
-    }
-
-    getDmlList = () => {
-        ajax.getDmlList().then(res => {
-            if(res.code === 1) {
-                const data = res.data;
-                const dmlData = data.map((item) => {
-                    return {
-                        label: item.name,
-                        value: item.value
-                    }
-                })
-                console.log(dmlData)
-                this.setState({
-                    dmlList: dmlData
-                })
-            }
-        })
-    }
-
-    
 
     apply = (applyData) => {
         const { editRecord } = this.state;
@@ -264,6 +222,7 @@ class SearchTable extends Component {
                         case 2:
                             return <span>等待授权</span>
                         default: return '-';
+                        // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
                     }
                 }
             }
@@ -273,7 +232,7 @@ class SearchTable extends Component {
 
 
     render() {
-        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList } = this.state;
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
         const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
         const projectOptions = allProjects.map(proj => <Option
@@ -364,8 +323,6 @@ class SearchTable extends Component {
                             visible={visible}
                             table={editRecord}
                             onOk={this.apply}
-                            ddlList={ddlList}
-                            dmlList={dmlList}
                             onCancel={() => {this.setState({visible: false, })}}
                         />
                     </div>

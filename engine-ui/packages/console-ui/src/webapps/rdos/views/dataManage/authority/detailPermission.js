@@ -55,18 +55,19 @@ class DetailPermission extends Component {
                 this.getPermissionData(table);
                 num++;
             }
+        } else {
         }
     }
 
     // 请求数据
     getPermissionData = (record) => {
+        const { onCancel } = this.props
         ajax.getApplyDetail({
             tableId: record.resourceId,
             tableName: record.resourceName,
             applyId: record.applyId,
         }).then(res => {
             if(res.code ===1 ) {
-                console.log(res.data);
                 const data = res.data;
                 const fullDdls = data.fullDdls;
                 const fullDmls = data.fullDmls;
@@ -133,6 +134,7 @@ class DetailPermission extends Component {
                 num = 2;
             }else {
                 num = 2;
+                onCancel()
             }
         })
     }
@@ -153,7 +155,6 @@ class DetailPermission extends Component {
             currentPage,
             arr
         })
-        console.log(currentPage)
     }
 
     submit = (e) => {
@@ -205,8 +206,6 @@ class DetailPermission extends Component {
         
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
         const { arr, currentPage, permissionParams={}, reply, applyReason} = this.state;
-        console.log("----------")
-        console.log(permissionParams)
         return (
             <Modal
                 title={title}
