@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.common.util.MathUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
@@ -14,8 +15,10 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -30,8 +33,6 @@ public class FlinkResourceInfo extends EngineResourceInfo {
 
     public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
-    public static FlinkYarnMode flinkYarnMode;
-
     public static YarnClient yarnClient;
 
     public static String queue;
@@ -42,17 +43,23 @@ public class FlinkResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB == flinkYarnMode){
+
+        String flinkYarnMode = getJobFlinkYarnMode(jobClient.getPluginInfo());
+        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB.name().equalsIgnoreCase(flinkYarnMode)){
             return judgePerjobResource(jobClient);
         }
+
         int sqlEnvParallel = 1;
         int mrParallel = 1;
+
         if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
             sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
         }
+
         if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
             mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
         }
+
         return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
@@ -111,6 +118,17 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             }
         }
         return capacity;
+    }
+
+    private String getJobFlinkYarnMode(String pluginInfo) {
+        FlinkConfig flinkConfig;
+        try {
+            flinkConfig = PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
+        } catch (IOException e) {
+            return null;
+        }
+
+        return flinkConfig.getClusterMode();
     }
 
 }
