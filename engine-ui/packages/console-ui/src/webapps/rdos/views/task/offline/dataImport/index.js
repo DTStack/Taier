@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import { isEmpty } from 'lodash'
 import {
     Modal, Button, message
 } from 'antd';
@@ -75,7 +75,7 @@ export default class ImportLocalData extends Component {
             for (let i = 0; i < columnMap.length; i++) {
                 let item = columnMap[i];
 
-                if (item) {
+                if (!isEmpty(item)) {
                     isValueNull = false;
                     break;
                 }
@@ -200,6 +200,7 @@ export default class ImportLocalData extends Component {
 
     changeStatus = (items) => {
         const { file } = this.state
+        console.log('changeStatus', items)
         this.setState(items, () => {
             this.readFile(file)
         })

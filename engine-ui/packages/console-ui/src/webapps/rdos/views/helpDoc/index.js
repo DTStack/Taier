@@ -11,10 +11,10 @@ export const relativeStyle = {
 export default class HelpDoc extends React.Component {
     render () {
         const { doc, style } = this.props
-        return (
+        return doc ? (
             <Tooltip title={Doc[doc]}>
                 <Icon className="help-doc" style={style} type="question-circle-o" />
             </Tooltip>
-        )
+        ) : ''
     }
 }

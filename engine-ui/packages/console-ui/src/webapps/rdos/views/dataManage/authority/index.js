@@ -87,9 +87,12 @@ class AuthMana extends Component {
                 applyUserId,
                 status: status && [status] || undefined
             },
+<<<<<<< HEAD
             permissionParams: {},
             applyReason: undefined, // 申请意见传给子组件
             reply: undefined // 审批意见
+=======
+>>>>>>> feature_v3.1.0
         }
     }
 
@@ -294,6 +297,7 @@ class AuthMana extends Component {
         }
     }
 
+<<<<<<< HEAD
     // 请求数据
     getPermissionData = (record) => {
         ajax.getApplyDetail({
@@ -371,18 +375,25 @@ class AuthMana extends Component {
     passClick = (record) => {
         this.getPermissionData(record);
         const { queryParams } = this.state;
+=======
+   // 通过
+    passClick = (record) => {
+        const {queryParams} = this.state;
+>>>>>>> feature_v3.1.0
         console.log(queryParams.listType)
         this.setState({
             isShowPermission: true,
             agreeApply: queryParams.listType == 0 ? true : undefined,
             editRecord: [record],
+<<<<<<< HEAD
             applyReason: record.applyReason,
             reply: record.reply
+=======
+>>>>>>> feature_v3.1.0
         });
     }
     // 驳回
     rejectClick = (record) => {
-        this.getPermissionData(record);
         this.setState({
             isShowPermission: true,
             agreeApply: false,
@@ -477,12 +488,17 @@ class AuthMana extends Component {
                 title: '类型',
                 key: 'resourceType',
                 dataIndex: 'resourceType',
+<<<<<<< HEAD
                 render (text) {
                     if (text === '0') {
+=======
+                render(text) {
+                    if (text === 0) {
+>>>>>>> feature_v3.1.0
                         return '表'
-                    } else if (text === '1') {
+                    } else if (text === 1) {
                         return '函数'
-                    } else if (text === '2') {
+                    } else if (text === 2) {
                         return '资源'
                     } else return '-'
                 }
@@ -853,8 +869,13 @@ class AuthMana extends Component {
         </div>
     }
 
+<<<<<<< HEAD
     render () {
         const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission, permissionParams, applyReason, reply } = this.state;
+=======
+    render() {
+        const { editRecord, visible, agreeApply, queryParams, isAdminAbove, isShowPermission,} = this.state;
+>>>>>>> feature_v3.1.0
         return (
             <div className="box-1 m-tabs">
                 <Tabs
@@ -865,6 +886,7 @@ class AuthMana extends Component {
 
                 >
                     {
+<<<<<<< HEAD
                         isAdminAbove == 0 ? '' : <TabPane tab="待我审批" key={0}>
                             {this.renderPane(true)}
                             <ApprovalModal
@@ -969,6 +991,97 @@ class AuthMana extends Component {
                             >
                             </DetailPermission>
                         </TabPane>
+=======
+                        isAdminAbove == 0 ? "" : <TabPane tab="待我审批" key={0}>
+                                                    {this.renderPane(true)}
+                                                    <ApprovalModal 
+                                                        visible={visible}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        onOk={this.approveApply}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                visible: false,
+                                                                agreeApply: undefined,
+                                                            })
+                                                        }}
+                                                    />
+                                                    <DetailPermission
+                                                        visible={isShowPermission}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        listType={queryParams.listType}
+                                                        onOk={this.approveApplySingle}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                isShowPermission: false,
+                                                                agreeApply: undefined,
+                                                            })
+                                                        }}
+                                                    >
+                                                    </DetailPermission>
+                                                </TabPane> 
+                    }
+                    {    
+                       isAdminAbove == 2 ? "" : <TabPane tab="申请记录" key={1}>
+                                                    {this.renderPane()}
+                                                    <DetailPermission
+                                                        visible={isShowPermission}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        listType={queryParams.listType}
+                                                        onOk={this.approveApplySingle}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                isShowPermission: false,
+                                                                agreeApply: undefined,
+                                                            })
+                                                        }}
+                                                    >
+                                                    </DetailPermission>
+                                                </TabPane>
+
+                    }
+                    {
+                        isAdminAbove == 0 ? "" : <TabPane tab="已处理" key={2}>
+                                                    {this.renderPane()}
+                                                    <DetailPermission
+                                                        visible={isShowPermission}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        listType={queryParams.listType}
+                                                        onOk={this.approveApplySingle}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                isShowPermission: false,
+                                                                agreeApply: undefined,
+                                                                // editRecord: [],
+                                                            })
+                                                        }}
+                                                    >
+                                                    </DetailPermission>
+                                                </TabPane> 
+                    }
+                    {
+                        isAdminAbove == 0 ? "" : <TabPane tab="权限回收" key={3}>
+                                                    {this.renderPane(true)}
+                                                    <DetailPermission
+                                                        visible={isShowPermission}
+                                                        agreeApply={agreeApply}
+                                                        table={editRecord}
+                                                        listType={queryParams.listType}
+                                                        onOk={this.approveApplySingle}
+                                                        onCancel={() => {
+                                                            this.setState({
+                                                                isShowPermission: false,
+                                                                agreeApply: undefined,
+                                                                // editRecord: [],
+                                                            })
+                                                        }}
+                                                    >
+                                                    </DetailPermission>
+                                                </TabPane> 
+>>>>>>> feature_v3.1.0
                     }
                 </Tabs>
             </div>

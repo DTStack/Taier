@@ -20,7 +20,7 @@ import { debounce } from 'lodash';
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser';
 import { DATA_SOURCE } from '../../../comm/const';
-import { havaTableList } from './sidePanel/panelCommonUtil';
+import { haveTableList, haveCustomParams } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor';
 import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
@@ -571,7 +571,7 @@ class OutputOrigin extends Component {
                             )}
                         </FormItem>
                     ) : undefined}
-                {panelColumn[index].type == DATA_SOURCE.REDIS && <CustomParams
+                {haveCustomParams(panelColumn[index].type) && <CustomParams
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
                     customParams={customParams}
@@ -661,7 +661,7 @@ export default class OutputPanel extends Component {
             initCustomParam(v)
             panelColumn.push(v);
             this.getTypeOriginData(index, v.type);
-            if (havaTableList(v.type)) {
+            if (haveTableList(v.type)) {
                 this.getTableType(index, v.sourceId);
                 if (v.type == DATA_SOURCE.MYSQL) {
                     this.getTableColumns(index, v.sourceId, v.table);
@@ -729,7 +729,7 @@ export default class OutputPanel extends Component {
             () => {
                 side.map((v, index) => {
                     this.getTypeOriginData(index, v.type);
-                    if (havaTableList(v.type)) {
+                    if (haveTableList(v.type)) {
                         this.getTableType(index, v.sourceId);
                         if (v.type == DATA_SOURCE.MYSQL) {
                             this.getTableColumns(index, v.sourceId, v.table);
@@ -1038,7 +1038,7 @@ export default class OutputPanel extends Component {
                 }
             });
             // this.clearCurrentInfo(type,index,value)
-            if (havaTableList(panelColumn[index].type)) {
+            if (haveTableList(panelColumn[index].type)) {
                 this.getTableType(index, value, type);
             }
         } else if (type === 'table') {

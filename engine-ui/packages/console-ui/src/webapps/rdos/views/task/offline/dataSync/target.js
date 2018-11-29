@@ -36,7 +36,7 @@ class TargetForm extends React.Component {
             tableList: [],
             visible: false,
             modalLoading: false,
-            loading: false
+            loading: false // 请求
         };
     }
 
@@ -79,6 +79,9 @@ class TargetForm extends React.Component {
         const { form, handleTableColumnChange, targetMap } = this.props;
         const sourceId = form.getFieldValue('sourceId');
 
+        this.setState({
+            loading: true
+        })
         // 排除条件
         if (targetMap.type && targetMap.type.type === DATA_SOURCE.HBASE) {
             return true;
@@ -93,6 +96,9 @@ class TargetForm extends React.Component {
             } else {
                 handleTableColumnChange([]);
             }
+            this.setState({
+                loading: false
+            })
         })
     }
 
@@ -294,7 +300,7 @@ class TargetForm extends React.Component {
 
                                 const disableSelect = src.type === DATA_SOURCE.ES ||
                                     src.type === DATA_SOURCE.REDIS ||
-                                    src.type === DATA_SOURCE.MONGODB;
+                                    src.type === DATA_SOURCE.MONGODB
 
                                 return <Option
                                     key={src.id}
@@ -311,7 +317,13 @@ class TargetForm extends React.Component {
             </Form>
             {!this.props.readonly && <div className="steps-action">
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
-                <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
+                <Button
+                    type="primary"
+                    onClick={() => this.next(navtoStep)}
+                    loading={this.state.loading}
+                >
+                    下一步
+                </Button>
             </div>}
         </div>
     }
@@ -320,9 +332,9 @@ class TargetForm extends React.Component {
 
     renderDynamicForm () {
         const { getFieldDecorator } = this.props.form;
-        const { selectHack, loading } = this.state
+        const { selectHack, loading } = this.state;
 
-        const { targetMap, dataSourceList, isCurrentTabNew, project, sourceMap } = this.props;
+        const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;

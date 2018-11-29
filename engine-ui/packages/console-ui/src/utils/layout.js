@@ -55,13 +55,13 @@ export const getNodeHeight = (node) => {
 /**
  * 统计节点信息
  */
-export const getNodeLevelAndCount = (node) => {
+export const getNodeLevelAndCount = (node, childrenField) => {
     let count = 1;
     let maxLevel = 0;
     const getMaxLevel = (node) => {
         let max = 0;
 
-        const children = node.subTaskVOS;
+        const children = node[childrenField || 'subTaskVOS'];
         if (children && children.length > 0) {
             for (let j = 0; j < children.length; j++) {
                 const l = getMaxLevel(children[j]);

@@ -5,9 +5,11 @@ import {
 
 import utils from 'utils'
 import HelpDoc, { relativeStyle } from '../../../../helpDoc';
+import { disposeProvider } from 'widgets/editor/languages/dtsql/simpleComplete';
 export default class ConstModal extends React.Component {
     state = {
-        constValue: ''
+        constValue: '',
+        constName: ''
     }
 
     onChange = (e) => {
@@ -16,34 +18,47 @@ export default class ConstModal extends React.Component {
         })
     }
 
+    onNameChange = (e) => {
+        this.setState({
+            constName: e.target.value
+        })
+    }
+
     submit = () => {
         const { onOk } = this.props
         const constValue = utils.trim(this.state.constValue)
-        if (constValue !== '') {
-            const constObj = {
-                type: 'string',
-                key: constValue,
-                value: constValue
-            }
-            if (onOk) {
-                onOk(constObj);
-                this.close();
-            }
-        } else {
-            message.error('常量字段不可为空！')
+        const constName = utils.trim(this.state.constName)
+
+        if (constName === '') {
+            message.error('常量名称不可为空！');
+            return;
+        }
+
+        if (constValue === '') {
+            message.error('常量值不可为空！');
+            return;
+        }
+        const constObj = {
+            type: 'string',
+            key: constName,
+            value: constValue
+        }
+        if (onOk) {
+            onOk(constObj);
+            this.close();
         }
     }
 
     close = () => {
         const { onCancel } = this.props
-        this.setState({ constValue: '' }, () => {
+        this.setState({ constValue: '', constName: '' }, () => {
             if (onCancel) onCancel()
         })
     }
 
     render () {
-        const { constValue } = this.state
-        const { visible, onCancel } = this.props
+        const { constValue, constName } = this.state
+        const { visible } = this.props
 
         return (
             <Modal
@@ -52,6 +67,12 @@ export default class ConstModal extends React.Component {
                 onCancel={this.close}
                 visible={visible}>
                 <Input
+                    value={constName}
+                    onChange={this.onNameChange}
+                    placeholder="请输入常量名称"
+                />
+                <Input
+                    style={{ marginTop: '10px' }}
                     value={constValue}
                     onChange={this.onChange}
                     placeholder="请输入常量值"

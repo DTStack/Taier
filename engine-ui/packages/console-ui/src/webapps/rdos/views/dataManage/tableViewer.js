@@ -38,16 +38,17 @@ export default class TableViewer extends React.Component {
                 visible: false,
                 data: {}
             },
+<<<<<<< HEAD
             ddlList: [],
             dmlList: [],
             columnNames: []
+=======
+>>>>>>> feature_v3.1.0
         };
     }
 
     componentDidMount () {
         this.getTable();
-        this.getDdlList();
-        this.getDmlList();
     }
 
     changeMark () {
@@ -86,7 +87,10 @@ export default class TableViewer extends React.Component {
                     tableData: res.data,
                     isMark,
                     applyButton,
+<<<<<<< HEAD
                     columnNames: [...res.data.column, ...res.data.partition]
+=======
+>>>>>>> feature_v3.1.0
                 });
             }
         });
@@ -177,7 +181,7 @@ export default class TableViewer extends React.Component {
             if (res.code === 1) {
                 message.success('申请成功！')
                 applyModal.visible = false;
-                applyModal.data = {};
+                // applyModal.data = {};
                 this.setState({ applyModal }, this.getTable)
             }
         })
@@ -195,11 +199,12 @@ export default class TableViewer extends React.Component {
     cancelApply = () => {
         const { applyModal } = this.state;
         applyModal.visible = false;
-        applyModal.data = {};
+        // applyModal.data = {};
         this.setState({
             applyModal
         })
     }
+<<<<<<< HEAD
 
     getDdlList = () => {
         ajax.getDdlList().then(res => {
@@ -244,6 +249,11 @@ export default class TableViewer extends React.Component {
             return item.columnName
         })
         console.log(columnNameValue)
+=======
+    
+    render() {
+        const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
+>>>>>>> feature_v3.1.0
 
         const columns = [{
             title: '序号',
@@ -455,9 +465,6 @@ export default class TableViewer extends React.Component {
                 table={applyModal.data}
                 onOk={this.apply}
                 onCancel={this.cancelApply}
-                ddlList={ddlList}
-                dmlList={dmlList}
-                columnNames={columnNameValue}
             />
         </div>
     }

@@ -19,6 +19,7 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import { RDB_TYPE_ARRAY } from '../../../../comm/const';
+import { isRDB } from '../../../../comm';
 
 import {
     formItemLayout,
@@ -39,7 +40,8 @@ class SourceForm extends React.Component {
             tableListMap: {},
             showPreview: false,
             dataSource: [],
-            columns: []
+            columns: [],
+            loading: false // 请求
         };
     }
 
@@ -100,12 +102,20 @@ class SourceForm extends React.Component {
         });
     }
 
-    getTableColumn (tableName, type) {
-        const { form, handleTableColumnChange, handleTableCopateChange } = this.props;
+    getTableColumn = (tableName, type) => {
+        const {
+            form, sourceMap, handleTableColumnChange,
+            handleTableCopateChange
+        } = this.props;
+
+        this.setState({
+            loading: true
+        })
 
         if (tableName instanceof Array) {
             tableName = tableName[0];
         }
+
         if (!tableName) {
             handleTableCopateChange([]);
             // form.resetFields(['splitPK']) //resetFields指的是恢复上一个值
@@ -116,23 +126,21 @@ class SourceForm extends React.Component {
             })
             return;
         }
-        const { sourceMap } = this.props
 
         if (sourceMap.type &&
             (
-                sourceMap.type.type === DATA_SOURCE.HBASE ||
-                sourceMap.type.type === DATA_SOURCE.CARBONDATA
+                sourceMap.type.type === DATA_SOURCE.HBASE
             )
         ) {
             return;
         }
 
-        const sourceId = form.getFieldValue('sourceId');
-        if (type) {
-            this.getCopate(sourceId, tableName)
+        if (type && isRDB(type)) {
+            this.getCopate(sourceMap.sourceId, tableName)
         }
+
         ajax.getOfflineTableColumn({
-            sourceId,
+            sourceId: sourceMap.sourceId,
             tableName
         }).then(res => {
             if (res.code === 1) {
@@ -140,6 +148,9 @@ class SourceForm extends React.Component {
             } else {
                 handleTableColumnChange([]);
             }
+            this.setState({
+                loading: false
+            })
         })
     }
     getCopate (sourceId, tableName) {
@@ -171,9 +182,6 @@ class SourceForm extends React.Component {
     }
     changeSource (value, option) {
         const { handleSourceChange, sourceMap } = this.props;
-        const firstSource = sourceMap && sourceMap.sourceList && sourceMap.sourceList[0];
-        const type = option.props.dataType;
-        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(type) > -1;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
@@ -385,7 +393,13 @@ class SourceForm extends React.Component {
                 }
             </div>
             {!this.props.readonly && <div className="steps-action">
-                <Button type="primary" onClick={() => this.next(navtoStep)}>下一步</Button>
+                <Button
+                    loading={this.state.loading}
+                    type="primary"
+                    onClick={() => this.next(navtoStep)}
+                >
+                    下一步
+                </Button>
             </div>}
         </div>
     }
@@ -519,7 +533,6 @@ class SourceForm extends React.Component {
                                     showSearch
                                     showArrow={true}
                                     onChange={this.debounceExtTableSearch.bind(this, source.key)}
-                                    // disabled={!isCurrentTabNew}
                                     optionFilterProp="value"
                                 >
                                     {(this.state.tableListMap[source.sourceId] || []).map(table => {
@@ -656,31 +669,25 @@ class SourceForm extends React.Component {
                             required: true,
                             message: '数据源表为必选项！'
                         }],
-                        initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary ? sourceMap.sourceList[0].tables : sourceMap.type.table
+                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
                     })(
                         <Select
                             getPopupContainer={getPopupContainer}
-                            mode={supportSubLibrary ? 'tags' : 'combobox'}
+                            mode={'combobox'}
                             showSearch
                             showArrow={true}
                             onBlur={this.debounceTableSearch.bind(this, sourceMap.type.type)}
                             optionFilterProp="value"
                         >
                             {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
-                                return <Option key={`rdb-${table}`} value={table}>
+                                return <Option key={`carbondata-${table}`} value={table}>
                                     {table}
                                 </Option>
                             })}
                         </Select>
                     )}
-                    {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                        <Icon className="help-doc" type="question-circle-o" />
-                    </Tooltip>}
                 </FormItem> : null,
                 ...this.renderExtDataSource(),
-                supportSubLibrary && <Row className="form-item-follow-text">
-                    <Col style={{ textAlign: 'left' }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
-                </Row>,
                 <FormItem
                     {...formItemLayout}
                     label="数据过滤"

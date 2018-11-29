@@ -18,7 +18,7 @@ export function authBeforeFormate(response) {
         case 502:
         case 504:
             notification['error']({
-                message: title,
+                message: '服务器异常',
                 description: '服务器出现了点问题',
             });
         case 402:

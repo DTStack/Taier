@@ -218,11 +218,6 @@ export default class TaskView extends Component {
                             loop(nodeData, parent, level - 1, currentNodeGeo)
                         }
 
-                        // const isExist = relationTree.find(t => t.source.id === nodeData.id &&
-                        //     t.target && t.target.id === currentNodeData.id);
-
-                        // console.log('parentNodes isExist:', isExist);
-
                         relationTree.push({
                             parent: parent,
                             source: nodeData,

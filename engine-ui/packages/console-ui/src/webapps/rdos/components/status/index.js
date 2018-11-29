@@ -29,7 +29,7 @@ export function TaskStatus (props) {
     case TASK_STATUS.FINISHED:
         return <span>
             <Circle className="status_finished" />&nbsp;
-                已完成
+                成功
         </span>
     case TASK_STATUS.STOPED:
         return <span>

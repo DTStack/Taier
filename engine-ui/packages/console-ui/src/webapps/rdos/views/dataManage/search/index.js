@@ -40,16 +40,17 @@ class SearchTable extends Component {
                 tableName,
                 pageSize: 20
             },
+<<<<<<< HEAD
             ddlList: [],
             dmlList: [],
             columnNames: []
+=======
+>>>>>>> feature_v3.1.0
         }
     }
 
     componentDidMount () {
         this.search();
-        this.getDdlList();
-        this.getDmlList();
     }
 
     search = () => {
@@ -77,6 +78,7 @@ class SearchTable extends Component {
         })
     }
 
+<<<<<<< HEAD
     getDdlList = () => {
         ajax.getDdlList().then(res => {
             if (res.code === 1) {
@@ -113,6 +115,8 @@ class SearchTable extends Component {
         })
     }
 
+=======
+>>>>>>> feature_v3.1.0
     apply = (applyData) => {
         const { editRecord } = this.state;
         const params = { ...applyData };
@@ -156,6 +160,7 @@ class SearchTable extends Component {
     }
 
     showModal = (record) => {
+<<<<<<< HEAD
         ajax.getSimpleColumns({
             tableId: record.id,
             tableName: record.tableName,
@@ -169,11 +174,12 @@ class SearchTable extends Component {
                 console.log(columnNames)
             }
         })
+=======
+>>>>>>> feature_v3.1.0
         this.setState({
             visible: true,
             editRecord: record
         });
-        // console.log(record);
     }
 
     characterProcess = (text = '', maxWidth = '300px') => {
@@ -267,6 +273,7 @@ class SearchTable extends Component {
                 width: 100,
                 render (status, record) {
                     // 授权状态 0-未授权，1-已授权,2-待审批
+<<<<<<< HEAD
                     switch (status) {
                     case 0:
                         return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
@@ -276,14 +283,32 @@ class SearchTable extends Component {
                         return <span>等待授权</span>
                     default: return '-';
                         // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>;
+=======
+                    switch(status) {
+                        case 0:
+                            return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
+                        case 1:
+                            return <span>授权成功</span>
+                        case 2:
+                            return <span>等待授权</span>
+                        default: return '-';
+                        // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
+>>>>>>> feature_v3.1.0
                     }
                 }
             }
         ];
     }
 
+<<<<<<< HEAD
     render () {
         const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue, ddlList, dmlList, columnNames } = this.state;
+=======
+
+
+    render() {
+        const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
+>>>>>>> feature_v3.1.0
         const { allProjects } = this.props;
         const marginTop10 = { marginTop: '8px' };
         const projectOptions = allProjects.map(proj => <Option
@@ -355,6 +380,7 @@ class SearchTable extends Component {
             current: Number(queryParams.pageIndex)
         };
         return <div className="m-tablelist">
+<<<<<<< HEAD
             <div className="box-1 m-card card-tree-select">
                 <Spin tip="正在加载中..." spinning={cardLoading}>
                     <Card noHovering bordered={false} title={title} >
@@ -381,6 +407,31 @@ class SearchTable extends Component {
                 />
             </div>
         </div>
+=======
+                    <div className="box-1 m-card card-tree-select">
+                        <Spin tip="正在加载中..." spinning={cardLoading}>
+                            <Card noHovering bordered={false} title={title} >
+                                <div style={{ marginTop: '1px' }}>
+                                    <Table
+                                        rowKey="id"
+                                        className="m-table full-screen-table-90"
+                                        columns={this.initialColumns()}
+                                        dataSource={table.data}
+                                        pagination={pagination}
+                                        onChange={this.handleTableChange.bind(this)}
+                                    />
+                                </div>
+                            </Card>
+                        </Spin>
+                        <TableApplyModal 
+                            visible={visible}
+                            table={editRecord}
+                            onOk={this.apply}
+                            onCancel={() => {this.setState({visible: false, })}}
+                        />
+                    </div>
+                </div>
+>>>>>>> feature_v3.1.0
     }
 }
 

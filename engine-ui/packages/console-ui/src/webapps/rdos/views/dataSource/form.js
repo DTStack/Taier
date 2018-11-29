@@ -276,6 +276,116 @@ class BaseForm extends Component {
                     {...formItemLayout}
                     label="用户名"
                     key="username"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.username', {
+                        initialValue: config.username || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    key="password"
+                    label="密码"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.password', {
+                        initialValue: ''
+                    })(
+                        <Input type="password" autoComplete="off" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="defaultFS"
+                    key="defaultFS"
+                    hasFeedback
+                >
+                    {getFieldDecorator('dataJson.defaultFS', {
+                        rules: [{
+                            required: true, message: 'defaultFS不可为空！'
+                        }],
+                        initialValue: config.defaultFS || ''
+                    })(
+                        <Input placeholder="hdfs://host:port" />
+                    )}
+                </FormItem>,
+                <FormItem
+                    key="hasHdfsConfig"
+                    {...tailFormItemLayout}
+                >
+                    {getFieldDecorator('hasHdfsConfig', {
+                        initialValue: hasHdfsConfig
+                    })(
+                        <Checkbox
+                            checked={hasHdfsConfig}
+                            onChange={this.enableHdfsConfig}>
+                                高可用配置
+                        </Checkbox>
+                    )}
+                </FormItem>
+            ]
+            if (hasHdfsConfig) {
+                formItems.push(
+                    <FormItem
+                        {...formItemLayout}
+                        label="高可用配置"
+                        key="hadoopConfig"
+                        hasFeedback
+                        style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                    >
+                        {getFieldDecorator('dataJson.hadoopConfig', {
+                            rules: [{
+                                required: true, message: 'Hadoop配置不可为空！'
+                            }],
+                            initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                        })(
+                            <Input
+                                rows={5}
+                                className="no-scroll-bar"
+                                type="textarea"
+                                placeholder={hdfsConf}
+                            />
+                        )}
+                        <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={hdfsConf}
+                        />
+                    </FormItem>
+                )
+            }
+            return formItems;
+        }
+        case DATA_SOURCE.CARBONDATA:
+        case DATA_SOURCE.HIVE: {
+            const formItems = [
+                <FormItem
+                    {...formItemLayout}
+                    label="JDBC URL"
+                    hasFeedback
+                    key="jdbcUrl"
+                >
+                    {getFieldDecorator('dataJson.jdbcUrl', {
+                        rules: [{
+                            required: true, message: 'jdbcUrl不可为空！'
+                        },
+                        jdbcRulePattern
+                        ],
+                        initialValue: config.jdbcUrl || ''
+                    })(
+                        <Input autoComplete="off" />
+                    )}
+                    <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
+                        <Icon className="help-doc" type="question-circle-o" />
+                    </Tooltip>
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
+                    label="用户名"
+                    key="username"
                 >
                     {getFieldDecorator('dataJson.username', {
                         rules: [],
@@ -724,7 +834,6 @@ class BaseForm extends Component {
                     label="JDBC URL"
                     hasFeedback
                     key="jdbcUrl"
-
                 >
                     {getFieldDecorator('dataJson.jdbcUrl', {
                         rules: [{

@@ -56,12 +56,12 @@ export default class DataCheck extends Component {
             title: '左侧表',
             dataIndex: 'originTableName',
             key: 'originTableName',
-            width: '11%'
+            width: '10%'
         }, {
             title: '分区',
             dataIndex: 'originPartition',
             key: 'originPartition',
-            width: '11%',
+            width: '10%',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -69,12 +69,12 @@ export default class DataCheck extends Component {
             title: '右侧表',
             dataIndex: 'targetTableName',
             key: 'targetTableName',
-            width: '11%'
+            width: '10%'
         }, {
             title: '分区',
             dataIndex: 'targetPartition',
             key: 'targetPartition',
-            width: '11%',
+            width: '10%',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -82,7 +82,7 @@ export default class DataCheck extends Component {
             title: '类型',
             dataIndex: 'sourceTypeName',
             key: 'sourceTypeName',
-            width: '11%',
+            width: '90px',
             render: (text, record) => {
                 return text ? text : '--';
             }
@@ -105,7 +105,7 @@ export default class DataCheck extends Component {
             </span>,
             dataIndex: 'status',
             key: 'status',
-            width: '10%',
+            width: "125px",
             render: (text, record) => {
                 return (
                     text == 3 ?
@@ -136,7 +136,7 @@ export default class DataCheck extends Component {
             </div>,
             dataIndex: 'diverseNum',
             key: 'diverseNum',
-            width: '8%',
+            width: '100px',
             // sorter: true
         }, {
             title: <div>
@@ -151,25 +151,23 @@ export default class DataCheck extends Component {
             </div>,
             dataIndex: 'diverseRatio',
             key: 'diverseRatio',
-            width: '8%',
+            width: '100px',
             render: (text => text ? `${text} %` : text)
             // sorter: true
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
-            key: 'modifyUserName',
-            width: '11%'
+            key: 'modifyUserName'
         }, {
             title: '执行时间',
             dataIndex: 'executeTimeFormat',
             key: 'executeTimeFormat',
             render: (text, record) => {
                 return text ? text : '--';
-            },
-            width: '11%'
+            }
         }, {
             title: '操作',
-            width: '8%',
+            width: '100px',
             render: (text, record) => {
                 let menu = (
                     <Menu>

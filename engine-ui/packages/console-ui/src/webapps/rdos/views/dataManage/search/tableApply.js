@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal, InputNumber, Checkbox, Pagination } from 'antd'
+import { Form, Input, Modal, InputNumber, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 import ajax from '../../../api/dataManage';
@@ -25,7 +25,13 @@ const formItemLayout1 = { // ddl,dml表单布局
 class TableApply extends Component {
     state = {
         checkDdlAll: false,
+<<<<<<< HEAD
         checkedList: [], // DDL选中
+=======
+        ddlList: [],
+        dmlList: [],
+        checkedList: [],   // DDL选中
+>>>>>>> feature_v3.1.0
         checkedDmlList: [], // // DML选中
 
         arr: [],
@@ -36,19 +42,102 @@ class TableApply extends Component {
         currentPage: 1
     }
 
+<<<<<<< HEAD
     componentWillReceiveProps (nextProps) {
         if (this.props.columnNames != nextProps.columnNames) {
             this.setState({
                 columnNames: nextProps.columnNames,
                 arr: nextProps.columnNames.slice(0, pageSize)
+=======
+
+    componentWillReceiveProps(nextProps) {
+        // const table = nextProps.table;
+        if(this.props.table != nextProps.table&&nextProps.table) {
+            this.setState({
+                columnNames: [],
+>>>>>>> feature_v3.1.0
             })
+            this.getSimpleColumns(nextProps.table)
+            this.getDdlList(nextProps.table)
+            this.getDmlList()
         }
     }
 
+<<<<<<< HEAD
     // 复选框
     changeDdlGroup = (checkedList) => {
         const { ddlList, dmlList } = this.props;
         const { checkedDmlList } = this.state;
+=======
+    // 修复初始时无法显示第一页数据
+    getFirstPagination = () => {
+        const {columnNames} = this.state;
+        const arr = columnNames.slice(0,pageSize)
+        this.setState({
+            arr
+        })
+    }
+
+
+    getDdlList = (record) => {
+        ajax.getDdlList({
+            tableId: record.id,
+        }).then(res => {
+            if(res.code === 1) {
+                const data = res.data;
+                const ddlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                this.setState({
+                    ddlList: ddlData
+                })
+            }
+        })
+    }
+
+    getDmlList = () => {
+        ajax.getDmlList().then(res => {
+            if(res.code === 1) {
+                const data = res.data;
+                const dmlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                this.setState({
+                    dmlList: dmlData
+                })
+            }
+        })
+    }
+
+
+    // 获取id字段
+    getSimpleColumns = (record) => {
+        ajax.getSimpleColumns({
+            tableId: record.id,
+            tableName: record.tableName,
+            projectId: record.belongProjectId
+        }).then(res => {
+            if(res.code ===1 ) {
+                this.setState({
+                    columnNames: res.data
+                },() => {
+                    this.getFirstPagination()
+                })
+            }
+        })
+    }
+
+    // 复选框
+    changeDdlGroup = (checkedList) => {
+        const {ddlList, dmlList} = this.state;
+        const {checkedDmlList} = this.state;
+>>>>>>> feature_v3.1.0
         this.setState({
             checkedList,
             checkDdlAll: (checkedList.length + checkedDmlList.length) === (ddlList.length + dmlList.length)
@@ -56,8 +145,13 @@ class TableApply extends Component {
     }
 
     changeDmlGroup = (checkedDmlList) => {
+<<<<<<< HEAD
         const { ddlList, dmlList } = this.props;
         const { checkedList } = this.state;
+=======
+        const {ddlList, dmlList } = this.state;
+        const {checkedList} = this.state;
+>>>>>>> feature_v3.1.0
         this.setState({
             checkedDmlList,
             checkDdlAll: (checkedList.length + checkedDmlList.length) === (ddlList.length + dmlList.length)
@@ -74,7 +168,11 @@ class TableApply extends Component {
 
     // 全选
     onCheckDdlAll = (e) => {
+<<<<<<< HEAD
         const { ddlList, dmlList } = this.props;
+=======
+        const {ddlList, dmlList} = this.state;
+>>>>>>> feature_v3.1.0
         const ddlListData = ddlList.map(item => {
             return item.value
         })
@@ -104,7 +202,6 @@ class TableApply extends Component {
             currentPage,
             arr
         })
-        console.log(currentPage)
     }
 
     submit = (e) => {
@@ -119,6 +216,7 @@ class TableApply extends Component {
             columnNames: checkedIdsList,
             fullColumn: checkIdsAll
         }
+<<<<<<< HEAD
         const params = { ...paramsApply, ...formData }
         form.validateFields((err) => {
             const { checkedList, checkedDmlList, checkedIdsList } = this.state;
@@ -131,6 +229,32 @@ class TableApply extends Component {
                         checkIdsAll: false,
                         checkedIdsList: [],
                         currentPage: 1
+=======
+        const params = {...paramsApply, ...formData}
+            form.validateFields((err) => {
+                const {checkedList, checkedDmlList, checkedIdsList} = this.state;
+                if (!err && ((checkedList.length + checkedDmlList.length > 0)|| checkedIdsList.length > 0)) {
+                        setTimeout(() => { 
+                            this.setState({
+                                checkDdlAll: false,
+                                checkedList: [],   // DDL选中
+                                checkedDmlList: [], // // DML选中
+                                checkIdsAll: false,
+                                checkedIdsList: [],
+                                currentPage: 1
+                            })
+                            form.resetFields() 
+                        }, 200)
+                        onOk(params)
+                }
+                else if(err) {
+                    
+                }
+                else {
+                    warning({
+                        title: '提示',
+                        content: '操作权限或者字段权限未选择！',
+>>>>>>> feature_v3.1.0
                     })
                     form.resetFields()
                 }, 200)
@@ -149,25 +273,39 @@ class TableApply extends Component {
 
     cancle = () => {
         const { onCancel, form } = this.props;
+<<<<<<< HEAD
         const { checkedList, checkedDmlList } = this.state;
+=======
+>>>>>>> feature_v3.1.0
         onCancel()
         form.resetFields()
         this.setState({
             checkedList: [],
             checkedDmlList: [],
+<<<<<<< HEAD
             currentPage: 1
+=======
+            currentPage: 1,
+        },() => {
+            this.getFirstPagination()
+>>>>>>> feature_v3.1.0
         })
     }
 
     render () {
         const { getFieldDecorator } = this.props.form;
+<<<<<<< HEAD
         const { visible, table, ddlList, dmlList } = this.props;
         const { checkDdlAll, checkedList, checkedDmlList,
+=======
+        const { visible, table } = this.props;
+        const { ddlList, dmlList } = this.state
+        const {checkDdlAll, checkedList, checkedDmlList,
+>>>>>>> feature_v3.1.0
             checkIdsAll, checkedIdsList
         } = this.state;
         const { currentPage, arr, columnNames } = this.state;
         const total = columnNames.length;
-        console.log(total)
         return (
             <Modal
                 title="申请授权"
@@ -214,6 +352,16 @@ class TableApply extends Component {
                         style={{ background: '#FAFAFA' }}
                     >
                         <Checkbox checked={checkIdsAll} onChange={this.onCheckIdsAll}>All(包括新增字段)</Checkbox>
+                        <Tooltip title= {(
+                            <div>
+                                <p>字段权限包括对字段进行select。</p>
+                                <p>若勾选了All，如果表中有增加的字段，则此用户自动拥有此字段的权限；</p>
+                                <p>若未勾选All，如果表中有增加的字段，则此用户不会拥有此字段的权限；</p>
+                                <p>表、字段的权限适用于所有分区；</p>
+                            </div>
+                        )}>
+                            <Icon className="formItem_inline_icon" type="question-circle-o" />
+                        </Tooltip>
                         <div className="content">
                             <CheckboxGroup options={arr} value={checkedIdsList} onChange={this.changeIdsGroup}></CheckboxGroup>
                         </div>
@@ -228,19 +376,6 @@ class TableApply extends Component {
                         /> : ''}
                     </FormItem>
 
-                    {/* 控制字段名分页 */}
-                    {/* <FormItem
-                        {...formItemLayout1}
-                        style={{marginLeft:"70%"}}
-                    >
-                        <Pagination
-                            // size="small"
-                            total={total}
-                            pageSize={pageSize}
-                            current={currentPage}
-                            onChange={this.onChangePage}
-                        />
-                    </FormItem> */}
 
                     <FormItem
                         {...formItemLayout1}

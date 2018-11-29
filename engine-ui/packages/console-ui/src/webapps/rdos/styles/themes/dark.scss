@@ -225,7 +225,7 @@ $fontColor1: #2491F7;
     .ant-table, .ant-table-tbody > tr > td {
         border-color: #5A5A5A;
         color: $fontColor;
-        background: #2D2D2D;
+        background: #2D2D2D !important;
     }
     .ant-table-header,
     .ant-table-fixed-header > .ant-table-content > .ant-table-scroll > .ant-table-body {
@@ -413,7 +413,8 @@ $fontColor1: #2491F7;
         .horizontal:hover,
         .vertical,
         .vertical:hover {
-            border-color: transparent;
+            border-color: transparent !important;
+            background: transparent !important;
         }
     }
 

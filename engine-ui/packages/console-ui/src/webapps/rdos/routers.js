@@ -45,7 +45,7 @@ import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 import DirtyData from './views/operation/dirtyData/index';
 import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
-import DataSourceOffline from './views/dataSource/offline';
+import DataSourceOffline from './views/dataSource';
 import DataSourceMigrationOffline from './views/dataSource/dbSync';
 
 // ======= 数据管理 =======

@@ -22,11 +22,15 @@ function getUniqueKey (id) {
     return `${id}_${moment().valueOf()}`
 }
 
+<<<<<<< HEAD
 function getDataOver (dispatch, currentTab, res, jobId) {
+=======
+function getDataOver(dispatch, currentTab, res, jobId) {
+    dispatch(output(currentTab, '执行完成!'))
+>>>>>>> feature_v3.1.0
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
-    dispatch(output(currentTab, '执行成功!'))
     if (res.data && res.data.download) {
         dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
     }

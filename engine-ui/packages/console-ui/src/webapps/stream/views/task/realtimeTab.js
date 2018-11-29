@@ -184,8 +184,6 @@ class RealTimeTabPane extends Component {
     }
 
     rightClick = ({ node }) => {
-        console.log('rightClick-node', node);
-
         const activeNode = node.props.data;
         this.setState({ activeNode: activeNode })
     }
@@ -434,8 +432,6 @@ class RealTimeTabPane extends Component {
     }
 
     loadTreeData = (treeNode) => {
-        console.log('loadTreeData-treeNode', treeNode);
-
         const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
@@ -558,12 +554,11 @@ class RealTimeTabPane extends Component {
      * 没有内容的就不要展开了
      */
     safeExpandedKeys (expandedKeys = [], tree = []) {
-        console.log(expandedKeys, tree)
         let treeKeys = [];
         function loopTree (tree) {
             for (let i = 0; i < tree.length; i++) {
                 const item = tree[i];
-                treeKeys.push('' + item.id);
+                treeKeys.push(item.id + ':' + item.type);
                 if (item.children && item.children.length) {
                     loopTree(item.children)
                 }
