@@ -82,7 +82,6 @@ const getTaskBaseData = (task) => {
         catalogueType: task.catalogueType,
         notSynced: task.notSynced,
         nodePid: task.nodePid || task.parentId,
-        preSave: task.preSave,
         submitStatus: task.submitStatus,
         version: task.version,
         readWriteLockVO: task.readWriteLockVO,
