@@ -42,13 +42,13 @@ class TableApply extends Component {
 
     componentWillReceiveProps(nextProps) {
         // const table = nextProps.table;
-        if(this.props.table != nextProps.table) {
+        if(this.props.table != nextProps.table&&nextProps.table) {
             this.setState({
                 columnNames: [],
             })
             this.getSimpleColumns(nextProps.table)
             this.getDdlList(nextProps.table)
-            this.getDmlList(nextProps.table)
+            this.getDmlList()
         }
     }
 
@@ -64,7 +64,7 @@ class TableApply extends Component {
 
     getDdlList = (record) => {
         ajax.getDdlList({
-            tableId: record.id
+            tableId: record.id,
         }).then(res => {
             if(res.code === 1) {
                 const data = res.data;
@@ -81,10 +81,8 @@ class TableApply extends Component {
         })
     }
 
-    getDmlList = (record) => {
-        ajax.getDmlList({
-            tableId: record.id
-        }).then(res => {
+    getDmlList = () => {
+        ajax.getDmlList().then(res => {
             if(res.code === 1) {
                 const data = res.data;
                 const dmlData = data.map((item) => {
@@ -129,7 +127,7 @@ class TableApply extends Component {
     }
 
     changeDmlGroup = (checkedDmlList) => {
-        const {ddlList, dmlList } = this.props;
+        const {ddlList, dmlList } = this.state;
         const {checkedList} = this.state;
         this.setState({
             checkedDmlList,
