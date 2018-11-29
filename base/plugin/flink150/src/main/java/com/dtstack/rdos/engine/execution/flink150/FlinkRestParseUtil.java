@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.google.common.base.Strings;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,13 +71,14 @@ public class FlinkRestParseUtil {
      * @param message
      * @return
      */
-    public static FlinkResourceInfo getAvailSlots(String message){
+    public static FlinkResourceInfo getAvailSlots(String message, YarnClient yarnClient){
 
         if(Strings.isNullOrEmpty(message)){
             return null;
         }
 
         FlinkResourceInfo resourceInfo = new FlinkResourceInfo();
+        resourceInfo.setYarnClient(yarnClient);
 
         try{
             Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);

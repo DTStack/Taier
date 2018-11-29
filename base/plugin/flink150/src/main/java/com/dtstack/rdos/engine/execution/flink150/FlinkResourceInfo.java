@@ -33,20 +33,29 @@ public class FlinkResourceInfo extends EngineResourceInfo {
 
     public static final String FLINK_MR_PARALLELISM = "mr.job.parallelism";
 
-    public static YarnClient yarnClient;
+    public static final String DEFAULT_QUEUE = "default";
 
-    public static String queue;
+    //允许在yarn上处于accept的任务数量
+    public static int yarnAccepterTaskNumber = 1;
 
-    public static boolean elasticCapacity;
+    public YarnClient yarnClient;
 
-    public static int yarnAccepterTaskNumber;
+    //TODO 是否开启弹性容量-->暂时都是false
+    public  boolean elasticCapacity;
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
 
-        String flinkYarnMode = getJobFlinkYarnMode(jobClient.getPluginInfo());
+        FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
+        String flinkYarnMode = null;
+        String queue = DEFAULT_QUEUE;
+        if(flinkConfig != null){
+            flinkYarnMode = flinkConfig.getFlinkYarnMode();
+            queue = flinkConfig.getQueue();
+        }
+
         if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB.name().equalsIgnoreCase(flinkYarnMode)){
-            return judgePerjobResource(jobClient);
+            return judgePerjobResource(jobClient, queue);
         }
 
         int sqlEnvParallel = 1;
@@ -63,7 +72,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
-    private boolean judgePerjobResource(JobClient jobClient) {
+    private boolean judgePerjobResource(JobClient jobClient, String queue) {
         FlinkPerJobResourceInfo resourceInfo = new FlinkPerJobResourceInfo();
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
@@ -72,12 +81,14 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
                 return false;
             }
+
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             int containerLimit = 0;
             float capacity = 1;
             if (!elasticCapacity){
-                capacity = getQueueRemainCapacity(1,yarnClient.getRootQueueInfos());
+                capacity = getQueueRemainCapacity(1, queue, yarnClient.getRootQueueInfos());
             }
+
             resourceInfo.setCapacity(capacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
@@ -103,12 +114,12 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         return resourceInfo.judgeSlots(jobClient);
     }
 
-    private float getQueueRemainCapacity(float coefficient, List<QueueInfo> queueInfos){
+    private float getQueueRemainCapacity(float coefficient, String queue, List<QueueInfo> queueInfos){
         float capacity = 0;
         for (QueueInfo queueInfo : queueInfos){
             if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
                 float subCoefficient = queueInfo.getCapacity() * coefficient;
-                capacity = getQueueRemainCapacity(subCoefficient, queueInfo.getChildQueues());
+                capacity = getQueueRemainCapacity(subCoefficient, queue, queueInfo.getChildQueues());
             }
             if (queue.equals(queueInfo.getQueueName())){
                 capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
@@ -120,15 +131,19 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         return capacity;
     }
 
-    private String getJobFlinkYarnMode(String pluginInfo) {
-        FlinkConfig flinkConfig;
+    private FlinkConfig getJobFlinkConf(String pluginInfo) {
         try {
-            flinkConfig = PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
+            return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {
             return null;
         }
-
-        return flinkConfig.getFlinkYarnMode();
     }
 
+    public YarnClient getYarnClient() {
+        return yarnClient;
+    }
+
+    public void setYarnClient(YarnClient yarnClient) {
+        this.yarnClient = yarnClient;
+    }
 }
