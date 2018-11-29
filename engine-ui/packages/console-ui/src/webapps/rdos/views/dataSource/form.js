@@ -277,8 +277,8 @@ class BaseForm extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="用户名"
-                        hasFeedback
                         key="username"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
                             initialValue: config.username || '',
@@ -288,9 +288,9 @@ class BaseForm extends Component {
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        hasFeedback
                         key="password"
                         label="密码"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
                             initialValue: '',
