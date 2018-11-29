@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import {
     Tooltip, Spin,
-    Modal, message, Icon,
+    Modal, message, Icon
 } from 'antd'
 
 import utils from 'utils'
@@ -17,13 +17,12 @@ import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
 import { getGeoByRelativeNode, getNodeWidth, getNodeHeight, getNodeLevelAndCount } from 'utils/layout';
 
-
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
     mxImageBasePath: 'public/rdos/mxgraph/images',
     mxLanguage: 'none',
     mxLoadResources: false,
-    mxLoadStylesheets: false,
+    mxLoadStylesheets: false
 })
 
 const {
@@ -37,22 +36,21 @@ const {
     mxGraphView,
     mxGraphHandler,
     mxRectangle,
-    mxText,
+    mxText
 } = Mx
 
 const VertexSize = { // vertex大小
     width: 150,
-    height: 40,
+    height: 40
 }
 
 /**
  * 合并Tree数据
- * @param {*} origin 
- * @param {*} target 
+ * @param {*} origin
+ * @param {*} target
  */
 const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
     if (treeNodeData) {
-
         if (treeNodeData.id === mergeSource.id) {
             if (mergeSource.jobVOS) {
                 if (nodeType === 'children') {
@@ -76,7 +74,6 @@ const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
 }
 
 class TaskFlowView extends Component {
-
     state = {
         selectedJob: '', // 选中的Job
         data: {}, // 数据
@@ -86,26 +83,26 @@ class TaskFlowView extends Component {
         taskLog: {},
         logVisible: false,
         visible: false,
-        visibleRestart: false,
+        visibleRestart: false
     }
 
     _view = null; // 存储view信息
 
     initGraph = (id) => {
-        this.Container.innerHTML = ""; // 清理容器内的Dom元素
-        this.graph = "";
+        this.Container.innerHTML = ''; // 清理容器内的Dom元素
+        this.graph = '';
         this._vertexCells = {}; // 缓存创建的节点
-        this._originData = "";
+        this._originData = '';
 
         const editor = this.Container
         this.loadEditor(editor)
         this.hideMenu();
         this.loadTaskChidren({
-            jobId: id,
+            jobId: id
         })
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
@@ -141,9 +138,8 @@ class TaskFlowView extends Component {
     }
 
     loadEditor = (container) => {
-
         mxGraphView.prototype.optimizeVmlReflows = false;
-        mxText.prototype.ignoreStringSize = true; //to avoid calling getBBox
+        mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
         // Disable context menu
         mxEvent.disableContextMenu(container)
         const graph = new mxGraph(container)
@@ -174,7 +170,7 @@ class TaskFlowView extends Component {
          * Redirects start drag to parent.
         */
         const graphHandlerGetInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent;
-        mxGraphHandler.prototype.getInitialCellForEvent = function(me) {
+        mxGraphHandler.prototype.getInitialCellForEvent = function (me) {
             var cell = graphHandlerGetInitialCellForEvent.apply(this, arguments);
             if (cell.isPart) {
                 cell = graph.getModel().getParent(cell)
@@ -183,7 +179,7 @@ class TaskFlowView extends Component {
         };
 
         // Redirects selection to parent
-        graph.selectCellForEvent = function(cell) {
+        graph.selectCellForEvent = function (cell) {
             if (cell.isPart) {
                 cell = graph.getModel().getParent(cell)
                 return cell;
@@ -220,7 +216,7 @@ class TaskFlowView extends Component {
 
     formatTooltip = (cell) => {
         if (cell.vertex) {
-            const currentNode = cell.data; //this._vertexCells[cell.id].data;
+            const currentNode = cell.data; // this._vertexCells[cell.id].data;
             return currentNode.batchTask.name;
         }
     }
@@ -251,7 +247,6 @@ class TaskFlowView extends Component {
     }
 
     preHandGraphTree = (data) => {
-
         const relationTree = [];
         let level = 0;
         let defaultRoot = { // 层级，默认0;
@@ -262,11 +257,10 @@ class TaskFlowView extends Component {
             y: 10,
             width: VertexSize.width,
             height: VertexSize.height,
-            margin: 50,
+            margin: 50
         }
 
         const loop = (treeNodeData, parent, level, parentNode) => {
-
             if (treeNodeData) {
                 const childNodes = treeNodeData.jobVOS; // 子节点
                 const parentNodes = treeNodeData.parentNodes; // 父节点
@@ -295,7 +289,7 @@ class TaskFlowView extends Component {
                     currentNodeGeo.height = getNodeHeight(tempNode);
 
                     const workflowDefaultRoot = Object.assign({}, defaultRoot);
-                    workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) /2);
+                    workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) / 2);
                     workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
 
                     if (workflowData) {
@@ -308,7 +302,7 @@ class TaskFlowView extends Component {
 
                 relationTree.push({
                     parent: parent,
-                    source: treeNodeData,
+                    source: treeNodeData
                 });
 
                 // 处理父亲依赖节点
@@ -324,7 +318,7 @@ class TaskFlowView extends Component {
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
-                            target: treeNodeData,
+                            target: treeNodeData
                         });
 
                         if (nodeData.parentNodes) {
@@ -348,7 +342,7 @@ class TaskFlowView extends Component {
                         relationTree.push({
                             parent: parent,
                             source: treeNodeData,
-                            target: nodeData,
+                            target: nodeData
                         });
 
                         if (nodeData.jobVOS) {
@@ -386,7 +380,8 @@ class TaskFlowView extends Component {
             }
 
             const geo = data._geometry || {
-                x : 10, y : 10,
+                x: 10,
+                y: 10,
                 width: VertexSize.width,
                 height: VertexSize.height
             };
@@ -397,13 +392,13 @@ class TaskFlowView extends Component {
                 data,
                 geo.x, geo.y,
                 geo.width, geo.height,
-                style,
+                style
             )
 
             if (isWorkflow) {
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
-        
+
             cell.data = data;
             cell.isPart = isWorkflowNode;
 
@@ -448,9 +443,7 @@ class TaskFlowView extends Component {
         }
     }
 
-
     doInsertVertex = (data, nodeType) => {
-
         const graph = this.graph;
 
         // clean data;
@@ -467,7 +460,7 @@ class TaskFlowView extends Component {
         } else {
             this._originData = data;
         }
-  
+
         const arrayData = this.preHandGraphTree(this._originData);
         this.renderGraph(arrayData);
         this.initView();
@@ -475,7 +468,7 @@ class TaskFlowView extends Component {
 
     initContextMenu = (graph) => {
         const ctx = this;
-        const {isPro}=ctx.props;
+        const { isPro } = ctx.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -485,7 +478,6 @@ class TaskFlowView extends Component {
         };
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-
             if (!cell) return
             const currentNode = cell.data;
 
@@ -495,20 +487,20 @@ class TaskFlowView extends Component {
                 menu.addItem('展开上游（6层）', null, function () {
                     ctx.loadTaskParent({
                         jobId: currentNode.id,
-                        level: 6,
+                        level: 6
                     })
                 })
                 menu.addItem('展开下游（6层）', null, function () {
                     ctx.loadTaskChidren({
                         jobId: currentNode.id,
-                        level: 6,
+                        level: 6
                     })
                 })
             }
             menu.addItem('查看任务日志', null, function () {
                 ctx.showJobLog(currentNode.jobId)
             })
-            menu.addItem(`${isPro?'查看':'修改'}任务`, null, function () {
+            menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                 ctx.props.goToTaskDev(currentNode.taskId)
             })
             menu.addItem('查看任务属性', null, function () {
@@ -516,11 +508,11 @@ class TaskFlowView extends Component {
             })
             menu.addItem('终止', null, function () {
                 ctx.stopTask({
-                    jobId: currentNode.id,
+                    jobId: currentNode.id
                 })
             }, null, null,
-                // 显示终止操作
-                currentNode.status === TASK_STATUS.RUNNING || // 运行中
+            // 显示终止操作
+            currentNode.status === TASK_STATUS.RUNNING || // 运行中
                 currentNode.status === TASK_STATUS.RESTARTING || // 重启中
                 currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
                 currentNode.status === TASK_STATUS.WAIT_RUN
@@ -534,12 +526,11 @@ class TaskFlowView extends Component {
                 ctx.restartAndResume({
                     jobId: currentNode.id,
                     justRunChild: false, // 只跑子节点
-                    setSuccess: false, // 更新节点状态
+                    setSuccess: false // 更新节点状态
                 }, '重跑并恢复调度')
-
             }, null, null,
-                // 重跑并恢复调度
-                currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 未运行
+            // 重跑并恢复调度
+            currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 未运行
                 currentNode.status === TASK_STATUS.FINISHED || // 已完成
                 currentNode.status === TASK_STATUS.RUN_FAILED || // 运行失败
                 currentNode.status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
@@ -550,11 +541,11 @@ class TaskFlowView extends Component {
                 ctx.restartAndResume({
                     jobId: currentNode.id,
                     justRunChild: true, // 只跑子节点
-                    setSuccess: true,
+                    setSuccess: true
                 }, '置成功并恢复调度')
             }, null, null,
-                //（运行失败、提交失败）重跑并恢复调度
-                currentNode.status === TASK_STATUS.RUN_FAILED ||
+            // （运行失败、提交失败）重跑并恢复调度
+            currentNode.status === TASK_STATUS.RUN_FAILED ||
                 currentNode.status === TASK_STATUS.STOPED ||
                 currentNode.status === TASK_STATUS.SUBMIT_FAILED)
 
@@ -595,10 +586,9 @@ class TaskFlowView extends Component {
                 if (cell && cell.vertex) {
                     const currentNode = cell.data;
                     ctx.showJobLog(currentNode.jobId)
-    
                 }
             })
-    
+
             graph.addListener(mxEvent.CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell')
                 if (cell && cell.vertex) {
@@ -614,7 +604,7 @@ class TaskFlowView extends Component {
         if (taskJob) {
             this.loadTaskChidren({
                 jobId: taskJob.id,
-                level: 6,
+                level: 6
             })
         }
     }
@@ -623,7 +613,7 @@ class TaskFlowView extends Component {
         const view = this.graph.getView();
         this._view = {
             translate: view.getTranslate(),
-            scale: view.getScale(),
+            scale: view.getScale()
         };
     }
 
@@ -644,12 +634,12 @@ class TaskFlowView extends Component {
     showJobLog = (jobId) => {
         Api.getOfflineTaskLog({ jobId: jobId }).then((res) => {
             if (res.code === 1) {
-                this.setState({ taskLog: res.data, logVisible: true, taskLogId:jobId })
+                this.setState({ taskLog: res.data, logVisible: true, taskLogId: jobId })
             }
         })
     }
 
-    graphEnable() {
+    graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)
     }
@@ -677,14 +667,14 @@ class TaskFlowView extends Component {
     }
 
     /* eslint-enable */
-    render() {
+    render () {
         const { selectedJob, taskLog } = this.state;
         const { goToTaskDev, project, taskJob, isPro } = this.props;
 
         return (
             <div className="graph-editor"
                 style={{
-                    position: 'relative',
+                    position: 'relative'
                 }}
             >
                 <Spin
@@ -692,7 +682,7 @@ class TaskFlowView extends Component {
                     size="large"
                     spinning={this.state.loading === 'loading'}
                 >
-                   <div
+                    <div
                         className="editor pointer"
                         ref={(e) => { this.Container = e }}
                         style={{
@@ -700,14 +690,14 @@ class TaskFlowView extends Component {
                             overflow: 'hidden',
                             overflowX: 'auto',
                             paddingBottom: '20px',
-                            height: '95%',
+                            height: '95%'
                         }}
                     >
                     </div>
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} style={{color: '#333333'}}/>
+                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }}/>
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -723,8 +713,8 @@ class TaskFlowView extends Component {
                     }}
                 >
                     <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>
-                    <span style={{ marginLeft: "15px" }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
-                    {isPro?'发布':'提交'}于&nbsp;
+                    <span style={{ marginLeft: '15px' }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
+                    {isPro ? '发布' : '提交'}于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
                 </div>
@@ -744,7 +734,7 @@ class TaskFlowView extends Component {
                         <span>
                             任务日志
                             <Tooltip placement="right" title="刷新">
-                                <Icon style={{cursor:"pointer",marginLeft:"5px"}} onClick={()=>{this.showJobLog(this.state.taskLogId)}} type="reload" />
+                                <Icon style={{ cursor: 'pointer', marginLeft: '5px' }} onClick={() => { this.showJobLog(this.state.taskLogId) }} type="reload" />
                             </Tooltip>
                         </span>
                     )}
@@ -772,7 +762,7 @@ class TaskFlowView extends Component {
         )
     }
 
-    getDefaultVertexStyle() {
+    getDefaultVertexStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
         style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
@@ -789,7 +779,7 @@ class TaskFlowView extends Component {
         return style;
     }
 
-    getDefaultEdgeStyle() {
+    getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
         style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';

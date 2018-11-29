@@ -6,7 +6,6 @@ import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
 
-
 const FormItem = Form.Item;
 
 const CheckboxGroup = Checkbox.Group;
@@ -22,7 +21,7 @@ const formItemLayout1 = { // ddl,dml表单布局
     }
 }
 
-let num = 1;  //解决切换tab栏后会多次发出请求
+let num = 1; // 解决切换tab栏后会多次发出请求
 
 class DetailPermission extends Component {
     state = {
@@ -30,27 +29,27 @@ class DetailPermission extends Component {
         arr: [],
         permissionParams: {},
         reply: undefined,
-        applyReason: undefined,
+        applyReason: undefined
     }
 
-    shouldComponentUpdate(nextProps) {
-        if (this.props.visible != nextProps.visible&&nextProps.visible ) {
+    shouldComponentUpdate (nextProps) {
+        if (this.props.visible != nextProps.visible && nextProps.visible) {
             return false
         }
         return true
     }
-    
-    componentWillReceiveProps(nextProps) {
+
+    componentWillReceiveProps (nextProps) {
         const table = nextProps.table[0];
-        if(this.props.table != nextProps.table) {
+        if (this.props.table != nextProps.table) {
             this.setState({
                 reply: table.reply,
-                applyReason: table.applyReason,
+                applyReason: table.applyReason
             })
             this.setState({
-                permissionParams: {},
+                permissionParams: {}
             })
-            if(num <= 2) {
+            if (num <= 2) {
                 this.getPermissionData(table);
                 num++;
             }
@@ -64,9 +63,9 @@ class DetailPermission extends Component {
         ajax.getApplyDetail({
             tableId: record.resourceId,
             tableName: record.resourceName,
-            applyId: record.applyId,
+            applyId: record.applyId
         }).then(res => {
-            if(res.code ===1 ) {
+            if (res.code === 1) {
                 const data = res.data;
                 const fullDdls = data.fullDdls;
                 const fullDmls = data.fullDmls;
@@ -123,15 +122,15 @@ class DetailPermission extends Component {
                     ids,
                     total,
                     ischeckAll,
-                    idCheckIds,
+                    idCheckIds
                 }
                 this.setState({
                     permissionParams: params
-                },() => {
+                }, () => {
                     this.getFirstPagination()
                 })
                 num = 2;
-            }else {
+            } else {
                 num = 2;
                 onCancel()
             }
@@ -139,17 +138,17 @@ class DetailPermission extends Component {
     }
     // 修复初始时无法显示第一页数据
     getFirstPagination = () => {
-        const {permissionParams} = this.state;
+        const { permissionParams } = this.state;
         const fullColumnsCheck = permissionParams.fullColumnsData;
-        const arr = fullColumnsCheck.slice(0,pageSize)
+        const arr = fullColumnsCheck.slice(0, pageSize)
         this.setState({
             arr
         })
     }
     changePagination = (currentPage, pageSize) => {
-        const {permissionParams} = this.state;
+        const { permissionParams } = this.state;
         const fullColumnsCheck = permissionParams.fullColumnsData;
-        const arr = fullColumnsCheck.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
+        const arr = fullColumnsCheck.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + pageSize)
         this.setState({
             currentPage,
             arr
@@ -200,10 +199,10 @@ class DetailPermission extends Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { visible, agreeApply,} = this.props;
-        
+        const { visible, agreeApply } = this.props;
+
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
-        const { arr, currentPage, permissionParams={}, reply, applyReason} = this.state;
+        const { arr, currentPage, permissionParams = {}, reply, applyReason } = this.state;
         return (
             <Modal
                 title={title}
@@ -285,8 +284,8 @@ class DetailPermission extends Component {
                             pageSize={pageSize}
                             current={currentPage}
                             onChange={this.changePagination}
-                            style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
-                        /> : ""}
+                            style={{ marginLeft: '70%', marginTop: '10px', marginBottom: '20px' }}
+                        /> : ''}
                     </FormItem>
 
                     <FormItem
@@ -318,8 +317,8 @@ class DetailPermission extends Component {
                             label={'申请理由'}
                             hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{width: "80%"}}/>,
-                        </FormItem> : ""
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }}/>,
+                        </FormItem> : ''
                     }
                     {/* 已处理  权限回收 */}
                     {
@@ -328,8 +327,8 @@ class DetailPermission extends Component {
                             label={'审批意见'}
                             hasFeedback
                         >
-                        <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{width: "80%"}}/>,
-                        </FormItem> : ""
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }}/>,
+                        </FormItem> : ''
                     }
 
                     {/* 待我审批 */}

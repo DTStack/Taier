@@ -40,7 +40,7 @@ export function LogInfo (props) {
     const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
     const syncJobInfo = props.syncJobInfo;
     const logStyle = Object.assign({}, editorStyle, {
-        height: props.height,
+        height: props.height
     });
 
     const errors = log['all-exceptions'] || ''

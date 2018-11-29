@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Modal, Table, Button, Tooltip, Icon } from "antd";
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Modal, Table, Button, Tooltip, Icon } from 'antd';
 
-import Editor from "widgets/code-editor";
+import Editor from 'widgets/code-editor';
 
-import Api from "../../api";
-import { workbenchActions } from "../../store/modules/offlineTask/offlineAction";
+import Api from '../../api';
+import { workbenchActions } from '../../store/modules/offlineTask/offlineAction';
 
 const editorOptions = {
-    mode: "text",
+    mode: 'text',
     lineNumbers: true,
     readOnly: true,
     autofocus: false,
     indentWithTabs: true,
     lineWrapping: true,
     smartIndent: true,
-    scrollbarStyle: "simple"
+    scrollbarStyle: 'simple'
 };
 
 class dbSyncHistoryModal extends Component {
@@ -24,10 +24,10 @@ class dbSyncHistoryModal extends Component {
         showDetail: false,
         syncDetail: {},
         showReport: false,
-        report: ""
+        report: ''
     };
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (nextProps.source.id) {
             Api.getSyncHistoryList({
                 dataSourceId: nextProps.source.id,
@@ -62,26 +62,26 @@ class dbSyncHistoryModal extends Component {
     initColumns = () => {
         return [
             {
-                title: "配置时间",
-                dataIndex: "gmtCreateFormat",
-                key: "gmtCreateFormat",
-                width: "30%"
+                title: '配置时间',
+                dataIndex: 'gmtCreateFormat',
+                key: 'gmtCreateFormat',
+                width: '30%'
             },
             {
-                title: "配置表数量",
-                dataIndex: "taskCount",
-                key: "taskCount",
-                width: "25%"
+                title: '配置表数量',
+                dataIndex: 'taskCount',
+                key: 'taskCount',
+                width: '25%'
             },
             {
-                title: "配置人",
-                dataIndex: "createUserName",
-                key: "createUserName",
-                width: "30%"
+                title: '配置人',
+                dataIndex: 'createUserName',
+                key: 'createUserName',
+                width: '30%'
             },
             {
-                title: "操作",
-                width: "10%",
+                title: '操作',
+                width: '10%',
                 render: (text, record) => {
                     return (
                         <a
@@ -102,20 +102,20 @@ class dbSyncHistoryModal extends Component {
     initDbTableColumns = () => {
         return [
             {
-                title: "表名",
-                dataIndex: "tableName",
-                key: "tableName",
-                width: "40%"
+                title: '表名',
+                dataIndex: 'tableName',
+                key: 'tableName',
+                width: '40%'
             },
             {
-                title: "DTinsight.IDE",
-                dataIndex: "ideTableName",
-                key: "ideTableName",
-                width: "30%"
+                title: 'DTinsight.IDE',
+                dataIndex: 'ideTableName',
+                key: 'ideTableName',
+                width: '30%'
             },
             {
-                title: "任务状态",
-                width: "30%",
+                title: '任务状态',
+                width: '30%',
                 render: (text, record) => {
                     if (record.status) {
                         return record.status === 1 ? (
@@ -124,7 +124,7 @@ class dbSyncHistoryModal extends Component {
                                     <Icon
                                         type="check-circle"
                                         style={{
-                                            color: "green",
+                                            color: 'green',
                                             marginRight: 8
                                         }}
                                     />
@@ -145,7 +145,7 @@ class dbSyncHistoryModal extends Component {
                                 <span className="m-r-8">
                                     <Icon
                                         type="close-circle"
-                                        style={{ color: "red", marginRight: 8 }}
+                                        style={{ color: 'red', marginRight: 8 }}
                                     />
                                     <Tooltip
                                         overlayClassName="sync-tooltip"
@@ -208,9 +208,9 @@ class dbSyncHistoryModal extends Component {
                 <div className="sync-detail">
                     <Icon
                         type="left-circle"
-                        style={{ cursor: "pointer", fontSize: 14 }}
+                        style={{ cursor: 'pointer', fontSize: 14 }}
                         onClick={this.back}
-                    />{" "}
+                    />{' '}
                     返回
                     <Table
                         rowKey="id"
@@ -231,7 +231,7 @@ class dbSyncHistoryModal extends Component {
                             : `${scheduleConf.hour} : 00`}
                     </p>
                     <p>
-                        同步方式：{syncDetail.syncType === 1 ? "增量" : "全量"}
+                        同步方式：{syncDetail.syncType === 1 ? '增量' : '全量'}
                     </p>
                     {syncDetail.syncType === 1 && (
                         <p>根据日期字段：{syncDetail.timeFieldIdentifier}</p>
@@ -239,8 +239,8 @@ class dbSyncHistoryModal extends Component {
                     <p>
                         并发配置：
                         {syncDetail.parallelType === 1
-                            ? "分批上传"
-                            : "整批上传"}
+                            ? '分批上传'
+                            : '整批上传'}
                     </p>
                     {syncDetail.parallelType === 1 && (
                         <p>
@@ -264,17 +264,17 @@ class dbSyncHistoryModal extends Component {
     };
 
     hideReport = () => {
-        this.setState({ showReport: false, report: "" });
+        this.setState({ showReport: false, report: '' });
     };
 
-    render() {
+    render () {
         const { visible } = this.props;
         return (
             <div>
                 <Modal
                     title="整库同步配置历史"
                     wrapClassName="sync-history-modal"
-                    width={"50%"}
+                    width={'50%'}
                     visible={visible}
                     maskClosable={false}
                     onCancel={this.closeModal}
@@ -309,7 +309,7 @@ class dbSyncHistoryModal extends Component {
                 >
                     <Editor
                         sync
-                        style={{ height: "520px" }}
+                        style={{ height: '520px' }}
                         value={this.state.report}
                         options={editorOptions}
                     />

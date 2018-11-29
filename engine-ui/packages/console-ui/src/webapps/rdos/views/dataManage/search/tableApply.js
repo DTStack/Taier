@@ -15,20 +15,19 @@ const pageSize = 20;
 const formItemLayout1 = { // ddl,dml表单布局
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 4 },
+        sm: { span: 4 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 20 },
-    },
+        sm: { span: 20 }
+    }
 }
 class TableApply extends Component {
-
     state = {
         checkDdlAll: false,
         ddlList: [],
         dmlList: [],
-        checkedList: [],   // DDL选中
+        checkedList: [], // DDL选中
         checkedDmlList: [], // // DML选中
 
         arr: [],
@@ -36,15 +35,14 @@ class TableApply extends Component {
         checkedIdsList: [],
         // 字段名
         columnNames: [],
-        currentPage: 1,
+        currentPage: 1
     }
 
-
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         // const table = nextProps.table;
-        if(this.props.table != nextProps.table&&nextProps.table) {
+        if (this.props.table != nextProps.table && nextProps.table) {
             this.setState({
-                columnNames: [],
+                columnNames: []
             })
             this.getSimpleColumns(nextProps.table)
             this.getDdlList(nextProps.table)
@@ -54,19 +52,18 @@ class TableApply extends Component {
 
     // 修复初始时无法显示第一页数据
     getFirstPagination = () => {
-        const {columnNames} = this.state;
-        const arr = columnNames.slice(0,pageSize)
+        const { columnNames } = this.state;
+        const arr = columnNames.slice(0, pageSize)
         this.setState({
             arr
         })
     }
 
-
     getDdlList = (record) => {
         ajax.getDdlList({
-            tableId: record.id,
+            tableId: record.id
         }).then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const data = res.data;
                 const ddlData = data.map((item) => {
                     return {
@@ -83,7 +80,7 @@ class TableApply extends Component {
 
     getDmlList = () => {
         ajax.getDmlList().then(res => {
-            if(res.code === 1) {
+            if (res.code === 1) {
                 const data = res.data;
                 const dmlData = data.map((item) => {
                     return {
@@ -98,7 +95,6 @@ class TableApply extends Component {
         })
     }
 
-
     // 获取id字段
     getSimpleColumns = (record) => {
         ajax.getSimpleColumns({
@@ -106,10 +102,10 @@ class TableApply extends Component {
             tableName: record.tableName,
             projectId: record.belongProjectId
         }).then(res => {
-            if(res.code ===1 ) {
+            if (res.code === 1) {
                 this.setState({
                     columnNames: res.data
-                },() => {
+                }, () => {
                     this.getFirstPagination()
                 })
             }
@@ -118,35 +114,34 @@ class TableApply extends Component {
 
     // 复选框
     changeDdlGroup = (checkedList) => {
-        const {ddlList, dmlList} = this.state;
-        const {checkedDmlList} = this.state;
+        const { ddlList, dmlList } = this.state;
+        const { checkedDmlList } = this.state;
         this.setState({
             checkedList,
-            checkDdlAll: (checkedList.length+checkedDmlList.length) === (ddlList.length+dmlList.length)
+            checkDdlAll: (checkedList.length + checkedDmlList.length) === (ddlList.length + dmlList.length)
         })
     }
 
     changeDmlGroup = (checkedDmlList) => {
-        const {ddlList, dmlList } = this.state;
-        const {checkedList} = this.state;
+        const { ddlList, dmlList } = this.state;
+        const { checkedList } = this.state;
         this.setState({
             checkedDmlList,
-            checkDdlAll: (checkedList.length+checkedDmlList.length) === (ddlList.length+dmlList.length)
+            checkDdlAll: (checkedList.length + checkedDmlList.length) === (ddlList.length + dmlList.length)
         })
     }
 
     changeIdsGroup = (checkedIdsList) => {
-        const {columnNames} = this.state;
+        const { columnNames } = this.state;
         this.setState({
             checkedIdsList,
             checkIdsAll: checkedIdsList.length === columnNames.length
         })
     }
 
-
     // 全选
     onCheckDdlAll = (e) => {
-        const {ddlList, dmlList} = this.state;
+        const { ddlList, dmlList } = this.state;
         const ddlListData = ddlList.map(item => {
             return item.value
         })
@@ -155,13 +150,13 @@ class TableApply extends Component {
         })
         this.setState({
             checkedList: e.target.checked ? ddlListData : [],
-            checkedDmlList: e.target.checked ? dmlListData: [],
+            checkedDmlList: e.target.checked ? dmlListData : [],
             checkDdlAll: e.target.checked
         })
     }
 
     onCheckIdsAll = (e) => {
-        const {columnNames} = this.state;
+        const { columnNames } = this.state;
         this.setState({
             checkedIdsList: e.target.checked ? columnNames : [],
             checkIdsAll: e.target.checked
@@ -170,8 +165,8 @@ class TableApply extends Component {
 
     // 改变页码
     onChangePage = (currentPage, pageSize) => {
-        const {columnNames} = this.state;
-        const arr = columnNames.slice((currentPage-1)*pageSize,(currentPage-1)*pageSize+pageSize)
+        const { columnNames } = this.state;
+        const arr = columnNames.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + pageSize)
         this.setState({
             currentPage,
             arr
@@ -182,7 +177,7 @@ class TableApply extends Component {
         e.preventDefault()
         const { onOk, form } = this.props
         const formData = form.getFieldsValue()
-        const {checkedList, checkedDmlList, checkedIdsList, checkIdsAll} = this.state;
+        const { checkedList, checkedDmlList, checkedIdsList, checkIdsAll } = this.state;
         console.log(formData)
         const paramsApply = {
             ddl: checkedList,
@@ -190,34 +185,31 @@ class TableApply extends Component {
             columnNames: checkedIdsList,
             fullColumn: checkIdsAll
         }
-        const params = {...paramsApply, ...formData}
-            form.validateFields((err) => {
-                const {checkedList, checkedDmlList, checkedIdsList} = this.state;
-                if (!err && ((checkedList.length + checkedDmlList.length > 0)|| checkedIdsList.length > 0)) {
-                        setTimeout(() => { 
-                            this.setState({
-                                checkDdlAll: false,
-                                checkedList: [],   // DDL选中
-                                checkedDmlList: [], // // DML选中
-                                checkIdsAll: false,
-                                checkedIdsList: [],
-                                currentPage: 1
-                            })
-                            form.resetFields() 
-                        }, 200)
-                        onOk(params)
-                }
-                else if(err) {
-                    
-                }
-                else {
-                    warning({
-                        title: '提示',
-                        content: '操作权限或者字段权限未选择！',
+        const params = { ...paramsApply, ...formData }
+        form.validateFields((err) => {
+            const { checkedList, checkedDmlList, checkedIdsList } = this.state;
+            if (!err && ((checkedList.length + checkedDmlList.length > 0) || checkedIdsList.length > 0)) {
+                setTimeout(() => {
+                    this.setState({
+                        checkDdlAll: false,
+                        checkedList: [], // DDL选中
+                        checkedDmlList: [], // // DML选中
+                        checkIdsAll: false,
+                        checkedIdsList: [],
+                        currentPage: 1
                     })
-                }
-            });
-        
+                    form.resetFields()
+                }, 200)
+                onOk(params)
+            } else if (err) {
+
+            } else {
+                warning({
+                    title: '提示',
+                    content: '操作权限或者字段权限未选择！'
+                })
+            }
+        });
     }
 
     cancle = () => {
@@ -227,20 +219,20 @@ class TableApply extends Component {
         this.setState({
             checkedList: [],
             checkedDmlList: [],
-            currentPage: 1,
-        },() => {
+            currentPage: 1
+        }, () => {
             this.getFirstPagination()
         })
     }
 
-    render() {
+    render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, table } = this.props;
         const { ddlList, dmlList } = this.state
-        const {checkDdlAll, checkedList, checkedDmlList,
+        const { checkDdlAll, checkedList, checkedDmlList,
             checkIdsAll, checkedIdsList
         } = this.state;
-        const {currentPage, arr, columnNames} = this.state;
+        const { currentPage, arr, columnNames } = this.state;
         const total = columnNames.length;
         return (
             <Modal
@@ -256,7 +248,7 @@ class TableApply extends Component {
                         label="申请表名"
                         hasFeedback
                     >
-                        <span style={{marginRight: "10px"}}>{table.tableName}</span>
+                        <span style={{ marginRight: '10px' }}>{table.tableName}</span>
                         <Checkbox checked={checkDdlAll} onChange={this.onCheckDdlAll}>All</Checkbox>
                     </FormItem>
 
@@ -264,7 +256,7 @@ class TableApply extends Component {
                     <FormItem
                         {...formItemLayout1}
                         label="DDL"
-                        style={{marginTop:"-20px"}}
+                        style={{ marginTop: '-20px' }}
                     >
                         <div className="content">
                             <CheckboxGroup options={ddlList} value={checkedList} onChange={this.changeDdlGroup}></CheckboxGroup>
@@ -274,7 +266,7 @@ class TableApply extends Component {
                     <FormItem
                         {...formItemLayout1}
                         label="DML"
-                        style={{marginTop:"-20px"}}
+                        style={{ marginTop: '-20px' }}
                     >
                         <div className="content">
                             <CheckboxGroup options={dmlList} value={checkedDmlList} onChange={this.changeDmlGroup}></CheckboxGroup>
@@ -285,7 +277,7 @@ class TableApply extends Component {
                     <FormItem
                         {...formItemLayout1}
                         label="字段权限"
-                        style={{background: "#FAFAFA"}}
+                        style={{ background: '#FAFAFA' }}
                     >
                         <Checkbox checked={checkIdsAll} onChange={this.onCheckIdsAll}>All(包括新增字段)</Checkbox>
                         <Tooltip title= {(
@@ -308,10 +300,9 @@ class TableApply extends Component {
                             pageSize={pageSize}
                             current={currentPage}
                             onChange={this.onChangePage}
-                            style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
-                        /> : ""}
+                            style={{ marginLeft: '70%', marginTop: '10px', marginBottom: '20px' }}
+                        /> : ''}
                     </FormItem>
-
 
                     <FormItem
                         {...formItemLayout1}
@@ -321,11 +312,11 @@ class TableApply extends Component {
                         {getFieldDecorator('day', {
                             rules: [
                                 {
-                                    required: true, message: '请选择有效期时间',
+                                    required: true, message: '请选择有效期时间'
                                 }
-                            ],
+                            ]
                         })(
-                            <InputNumber min={1} placeholder="请输入申请时长（天）" style={{width: "80%"}}/>,
+                            <InputNumber min={1} placeholder="请输入申请时长（天）" style={{ width: '80%' }}/>
                         )}
                     </FormItem>
                     <FormItem
@@ -336,12 +327,12 @@ class TableApply extends Component {
                         {getFieldDecorator('applyReason', {
                             rules: [{
                                 max: 200,
-                                message: '申请理由请控制在200个字符以内！',
-                            },{
-                                required: true, message: '必须填写申请理由',
-                              }],
+                                message: '申请理由请控制在200个字符以内！'
+                            }, {
+                                required: true, message: '必须填写申请理由'
+                            }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="请输入申请理由" style={{width: "80%"}}/>,
+                            <Input type="textarea" rows={4} placeholder="请输入申请理由" style={{ width: '80%' }}/>
                         )}
                     </FormItem>
                 </Form>

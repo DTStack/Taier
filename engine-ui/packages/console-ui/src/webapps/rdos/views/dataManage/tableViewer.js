@@ -37,7 +37,7 @@ export default class TableViewer extends React.Component {
             applyModal: {
                 visible: false,
                 data: {}
-            },
+            }
         };
     }
 
@@ -80,7 +80,7 @@ export default class TableViewer extends React.Component {
                 this.setState({
                     tableData: res.data,
                     isMark,
-                    applyButton,
+                    applyButton
                 });
             }
         })
@@ -187,8 +187,8 @@ export default class TableViewer extends React.Component {
             applyModal
         })
     }
-    
-    render() {
+
+    render () {
         const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
 
         const columns = [{
