@@ -277,7 +277,8 @@ class BaseForm extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="用户名"
-                        key="username"
+                        key="hive-username"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
                             rules: [],
@@ -287,9 +288,10 @@ class BaseForm extends Component {
                         )}
                     </FormItem>,
                     <FormItem
-                        key="password"
+                        key="hive-password"
                         {...formItemLayout}
                         label="密码"
+                        hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
                             rules: [],
