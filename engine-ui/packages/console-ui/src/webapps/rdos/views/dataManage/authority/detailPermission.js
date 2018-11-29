@@ -22,6 +22,8 @@ const formItemLayout1 = { // ddl,dml表单布局
     },
 }
 
+let num = 1;  //解决切换tab栏后会多次发出请求
+
 class DetailPermission extends Component {
 
     state = {
@@ -32,12 +34,16 @@ class DetailPermission extends Component {
         applyReason: undefined,
     }
 
-
+    shouldComponentUpdate(nextProps) {
+        if (this.props.visible != nextProps.visible&&nextProps.visible ) {
+            return false
+        }
+        return true
+    }
+    
     componentWillReceiveProps(nextProps) {
         const table = nextProps.table[0];
         if(this.props.table != nextProps.table) {
-            console.log("--------------");
-            console.log(nextProps.table[0]);
             this.setState({
                 reply: table.reply,
                 applyReason: table.applyReason,
@@ -45,20 +51,23 @@ class DetailPermission extends Component {
             this.setState({
                 permissionParams: {},
             })
-            this.getPermissionData(table);
-            
+            if(num <= 2) {
+                this.getPermissionData(table);
+                num++;
+            }
+        } else {
         }
     }
 
     // 请求数据
     getPermissionData = (record) => {
+        const { onCancel } = this.props
         ajax.getApplyDetail({
             tableId: record.resourceId,
             tableName: record.resourceName,
             applyId: record.applyId,
         }).then(res => {
             if(res.code ===1 ) {
-                console.log(res.data);
                 const data = res.data;
                 const fullDdls = data.fullDdls;
                 const fullDmls = data.fullDmls;
@@ -122,6 +131,10 @@ class DetailPermission extends Component {
                 },() => {
                     this.getFirstPagination()
                 })
+                num = 2;
+            }else {
+                num = 2;
+                onCancel()
             }
         })
     }
@@ -142,7 +155,6 @@ class DetailPermission extends Component {
             currentPage,
             arr
         })
-        console.log(currentPage)
     }
 
     submit = (e) => {
@@ -194,8 +206,6 @@ class DetailPermission extends Component {
         
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
         const { arr, currentPage, permissionParams={}, reply, applyReason} = this.state;
-        console.log("----------")
-        console.log(permissionParams)
         return (
             <Modal
                 title={title}

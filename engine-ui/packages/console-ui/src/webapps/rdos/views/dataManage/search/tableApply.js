@@ -26,6 +26,8 @@ class TableApply extends Component {
 
     state = {
         checkDdlAll: false,
+        ddlList: [],
+        dmlList: [],
         checkedList: [],   // DDL选中
         checkedDmlList: [], // // DML选中
 
@@ -41,7 +43,12 @@ class TableApply extends Component {
     componentWillReceiveProps(nextProps) {
         // const table = nextProps.table;
         if(this.props.table != nextProps.table) {
+            this.setState({
+                columnNames: [],
+            })
             this.getSimpleColumns(nextProps.table)
+            this.getDdlList(nextProps.table)
+            this.getDmlList(nextProps.table)
         }
     }
 
@@ -53,7 +60,48 @@ class TableApply extends Component {
             arr
         })
     }
-    
+
+
+    getDdlList = (record) => {
+        ajax.getDdlList({
+            tableId: record.id
+        }).then(res => {
+            if(res.code === 1) {
+                const data = res.data;
+                const ddlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                this.setState({
+                    ddlList: ddlData
+                })
+            }
+        })
+    }
+
+    getDmlList = (record) => {
+        ajax.getDmlList({
+            tableId: record.id
+        }).then(res => {
+            if(res.code === 1) {
+                const data = res.data;
+                const dmlData = data.map((item) => {
+                    return {
+                        label: item.name,
+                        value: item.value
+                    }
+                })
+                this.setState({
+                    dmlList: dmlData
+                })
+            }
+        })
+    }
+
+
+    // 获取id字段
     getSimpleColumns = (record) => {
         ajax.getSimpleColumns({
             tableId: record.id,
@@ -61,7 +109,6 @@ class TableApply extends Component {
             projectId: record.belongProjectId
         }).then(res => {
             if(res.code ===1 ) {
-                console.log(res.data);
                 this.setState({
                     columnNames: res.data
                 },() => {
@@ -73,7 +120,7 @@ class TableApply extends Component {
 
     // 复选框
     changeDdlGroup = (checkedList) => {
-        const {ddlList, dmlList} = this.props;
+        const {ddlList, dmlList} = this.state;
         const {checkedDmlList} = this.state;
         this.setState({
             checkedList,
@@ -101,7 +148,7 @@ class TableApply extends Component {
 
     // 全选
     onCheckDdlAll = (e) => {
-        const {ddlList, dmlList} = this.props;
+        const {ddlList, dmlList} = this.state;
         const ddlListData = ddlList.map(item => {
             return item.value
         })
@@ -131,7 +178,6 @@ class TableApply extends Component {
             currentPage,
             arr
         })
-        console.log(currentPage)
     }
 
     submit = (e) => {
@@ -161,7 +207,6 @@ class TableApply extends Component {
                             })
                             form.resetFields() 
                         }, 200)
-                        console.log(params)
                         onOk(params)
                 }
                 else if(err) {
@@ -185,18 +230,20 @@ class TableApply extends Component {
             checkedList: [],
             checkedDmlList: [],
             currentPage: 1,
+        },() => {
+            this.getFirstPagination()
         })
     }
 
     render() {
         const { getFieldDecorator } = this.props.form;
-        const { visible, table, ddlList, dmlList } = this.props;
+        const { visible, table } = this.props;
+        const { ddlList, dmlList } = this.state
         const {checkDdlAll, checkedList, checkedDmlList,
             checkIdsAll, checkedIdsList
         } = this.state;
         const {currentPage, arr, columnNames} = this.state;
         const total = columnNames.length;
-        console.log(total)
         return (
             <Modal
                 title="申请授权"
