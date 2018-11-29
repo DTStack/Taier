@@ -129,7 +129,7 @@ class TableApply extends Component {
     }
 
     changeDmlGroup = (checkedDmlList) => {
-        const {ddlList, dmlList } = this.props;
+        const {ddlList, dmlList } = this.state;
         const {checkedList} = this.state;
         this.setState({
             checkedDmlList,
