@@ -51,8 +51,10 @@ class AlarmBaseGraphBox extends React.Component {
                                 title={desc}
                                 overlayClassName="big-tooltip"
                                 getPopupContainer={(triggerNode)=>{
-                                    console.log(triggerNode)
+                                    return triggerNode;
                                 }}
+                                placement="bottomLeft"
+                                arrowPointAtCenter={true}
                             >
                                 <Icon style={{ marginLeft: "8px" }} type="question-circle-o" />
                             </Tooltip>
