@@ -81,11 +81,12 @@ const getTaskBaseData = (task) => {
         parentId: task.parentId,
         catalogueType: task.catalogueType,
         notSynced: task.notSynced,
-        nodePid: task.nodePid,
+        nodePid: task.nodePid || task.parentId,
         preSave: task.preSave,
         submitStatus: task.submitStatus,
         version: task.version,
         readWriteLockVO: task.readWriteLockVO,
+        computeType: task.computeType,
     }
 }
 
@@ -316,7 +317,8 @@ class WorkflowEditor extends Component {
                     saveTask(taskData, true).then(res => {
                         const fileStatus = res.data && res.data.readWriteLockVO && res.data.readWriteLockVO.result;
                         if ( res.code === 1 && fileStatus === 0 ) {
-                            loadTreeNode(task.nodePid, MENU_TYPE.TASK_DEV);
+                            const pid = task.nodePid || task.parentId;
+                            loadTreeNode(pid, MENU_TYPE.TASK_DEV);
                             ctx.updateCellData(cell, taskData);
                             ctx.updateGraphData();
                         }
