@@ -277,24 +277,22 @@ class BaseForm extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="用户名"
-                        key="hive-username"
                         hasFeedback
+                        key="username"
                     >
                         {getFieldDecorator('dataJson.username', {
-                            rules: [],
                             initialValue: config.username || '',
                         })(
                             <Input autoComplete="off" />,
                         )}
                     </FormItem>,
                     <FormItem
-                        key="hive-password"
                         {...formItemLayout}
-                        label="密码"
                         hasFeedback
+                        key="password"
+                        label="密码"
                     >
                         {getFieldDecorator('dataJson.password', {
-                            rules: [],
                             initialValue: '',
                         })(
                             <Input type="password" autoComplete="off" />,
@@ -728,7 +726,6 @@ class BaseForm extends Component {
                         label="JDBC URL"
                         hasFeedback
                         key="jdbcUrl"
-
                     >
                     {getFieldDecorator('dataJson.jdbcUrl', {
                         rules: [{
