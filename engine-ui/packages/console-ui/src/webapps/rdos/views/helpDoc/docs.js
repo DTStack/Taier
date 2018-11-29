@@ -12,6 +12,14 @@ export const dataFilterDoc = (
     </div>
 )
 
+export const mrTaskHelp = (
+    <p>支持基于Spark API的Java、Scala处理程序</p>
+)
+
+export const mlTaskHelp = (
+    <p>支持基于Spark MLLib的机器学习任务</p>
+)
+
 export const switchKey = (
     <ul>
         <li>MySQL：支持数值型切分键</li>

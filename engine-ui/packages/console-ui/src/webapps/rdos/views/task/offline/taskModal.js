@@ -162,20 +162,7 @@ class TaskForm extends React.Component {
                             {taskOptions}
                         </Select>
                     )}
-                    {isMrTask && <Tooltip title={(
-                        <div>
-                            <p>支持基于Spark API的Java、Scala处理程序</p>
-                        </div>
-                    )}>
-                        <Icon className="formItem_inline_icon" type="question-circle-o" />
-                    </Tooltip>}
-                    {isMl&&<Tooltip title={(
-                        <div>
-                            <p>支持基于Spark MLLib的机器学习任务</p>
-                        </div>
-                    )}>
-                        <Icon className="formItem_inline_icon" type="question-circle-o" />
-                    </Tooltip>}
+                    <HelpDoc doc={isMrTask ? 'mrTaskHelp' : isMl ? 'mlTaskHelp' : ''} />
                 </FormItem>
                 {
                     isDeepLearning && (
