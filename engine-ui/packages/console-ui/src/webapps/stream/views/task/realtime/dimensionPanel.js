@@ -420,6 +420,26 @@ class OutputOrigin extends Component {
                                 </FormItem>
                             )
                         }
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey-input", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="结果表主键，多个字段用英文逗号隔开"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "primaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
                         case DATA_SOURCE.HBASE: {
                             return (
                                 <FormItem {...formItemLayout} label="主键">
@@ -572,7 +592,7 @@ class OutputOrigin extends Component {
                             )}
                         </FormItem>
                     ) : undefined}
-                {haveCustomParams(panelColumn[index].type)  && <CustomParams
+                {haveCustomParams(panelColumn[index].type) && <CustomParams
                     getFieldDecorator={getFieldDecorator}
                     formItemLayout={formItemLayout}
                     customParams={customParams}
@@ -801,6 +821,9 @@ export default class OutputPanel extends Component {
 
     getTableColumns = (index, sourceId, tableName) => {
         const { tableColumnOptionType } = this.state;
+        if (!sourceId || !tableName) {
+            return;
+        }
         Api.getStreamTableColumn({ sourceId, tableName }).then(v => {
             if (v.code === 1) {
                 tableColumnOptionType[index] = v.data;
