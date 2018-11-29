@@ -128,7 +128,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             return null;
         }
 
-        return flinkConfig.getClusterMode();
+        return flinkConfig.getFlinkYarnMode();
     }
 
 }
