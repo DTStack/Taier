@@ -9,18 +9,6 @@ import {
 } from 'antd';
 
 import { Circle } from 'widgets/circle';
-<<<<<<< HEAD:src/webapps/rdos/views/dataSource/offline/index.js
-import Api from '../../../api';
-import DataSourceForm from '../form';
-import DbSyncModal from '../syncModal';
-import { DataSourceTypeFilter, DATA_SOURCE, PROJECT_TYPE } from '../../../comm/const';
-import { isRDB } from '../../../comm';
-import { DatabaseType } from '../../../components/status';
-import { getSourceTypes } from '../../../store/modules/dataSource/sourceTypes';
-import DataSourceTaskListModal from '../dataSourceTaskListModal';
-import LinkModal from '../linkModal';
-import { ExtTableCell } from '../extDataSourceMsg'
-=======
 
 import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
@@ -32,7 +20,6 @@ import DataSourceForm from './form';
 import DbSyncModal from './syncModal';
 import LinkModal from "./linkModal";
 import { ExtTableCell } from "./extDataSourceMsg"
->>>>>>> feature_v3.1.0:src/webapps/rdos/views/dataSource/index.js
 
 const Search = Input.Search
 const MenuItem = Menu.Item;

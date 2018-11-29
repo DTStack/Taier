@@ -27,17 +27,6 @@ let num = 1;  //解决切换tab栏后会多次发出请求
 class DetailPermission extends Component {
     state = {
         currentPage: 1,
-<<<<<<< HEAD
-        arr: []
-        // permissionParams: undefined,
-    }
-
-    componentWillReceiveProps (nextProps) {
-        const firstArr = nextProps.permissionParams;
-        if (this.props.permissionParams != nextProps.permissionParams) {
-            this.setState({
-                arr: firstArr.fullColumnsData.slice(0, pageSize)
-=======
         arr: [],
         permissionParams: {},
         reply: undefined,
@@ -57,7 +46,6 @@ class DetailPermission extends Component {
             this.setState({
                 reply: table.reply,
                 applyReason: table.applyReason,
->>>>>>> feature_v3.1.0
             })
             this.setState({
                 permissionParams: {},
@@ -212,46 +200,10 @@ class DetailPermission extends Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-<<<<<<< HEAD
-        const { visible, agreeApply, table, permissionParams } = this.props;
-        // const title = agreeApply ? '通过申请' : '驳回申请';
-
-        const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
-        // const {permissionParams} = this.state;
-        const { arr, currentPage } = this.state;
-        // const ddlCheck = permissionParams.fullDdlsData.filter(item => {
-        //     return item.status === true
-        // })
-        // console.log(this.props.permissionParams);
-        // const ddlCheckArray = ddlCheck.map(item => {
-        //     return item.value
-        // })
-        // const dmlCheck = permissionParams.fullDmlsData.filter(item => {
-        //     return item.status === true
-        // })
-        // const dmlCheckArray = dmlCheck.map(item => {
-        //     return item.value
-        // })
-
-        // const fullColumnsCheck = permissionParams.fullColumnsData;
-        // const fullColumnsCheckArray = permissionParams.fullColumns.filter(item => {
-        //     return item.status === true
-        // })
-        // const ids = fullColumnsCheckArray.map(item => {
-        //     return item.column
-        // })
-        // const total = fullColumnsCheck.length;
-        // // 判断是否全选
-        // const ischeckAll = (permissionParams.fullDdlsData.length + permissionParams.fullDmlsData.length) == (ddlCheck.length + dmlCheck.length);
-        // const idCheckIds = (permissionParams.fullColumns.length == fullColumnsCheckArray.length);
-        // console.log("++++++++++");
-
-=======
         const { visible, agreeApply,} = this.props;
         
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
         const { arr, currentPage, permissionParams={}, reply, applyReason} = this.state;
->>>>>>> feature_v3.1.0
         return (
             <Modal
                 title={title}
@@ -332,23 +284,9 @@ class DetailPermission extends Component {
                             total={permissionParams.total}
                             pageSize={pageSize}
                             current={currentPage}
-<<<<<<< HEAD
-                            onChange={(currentPage, pageSize) => {
-                                const fullColumnsCheck = permissionParams.fullColumnsData;
-                                const arr = fullColumnsCheck.slice((currentPage - 1) * pageSize, (currentPage - 1) * pageSize + pageSize)
-                                this.setState({
-                                    currentPage,
-                                    arr
-                                })
-                                console.log(currentPage)
-                            }}
-                            style={{ marginLeft: '70%', marginTop: '10px', marginBottom: '20px' }}
-                        /> : ''}
-=======
                             onChange={this.changePagination}
                             style={{marginLeft:"70%",marginTop:"10px",marginBottom: "20px"}}
                         /> : ""}
->>>>>>> feature_v3.1.0
                     </FormItem>
 
                     <FormItem
@@ -380,13 +318,8 @@ class DetailPermission extends Component {
                             label={'申请理由'}
                             hasFeedback
                         >
-<<<<<<< HEAD
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.applyReason} style={{ width: '80%' }}/>,
-                        </FormItem> : ''
-=======
                         <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{width: "80%"}}/>,
                         </FormItem> : ""
->>>>>>> feature_v3.1.0
                     }
                     {/* 已处理  权限回收 */}
                     {
@@ -395,13 +328,8 @@ class DetailPermission extends Component {
                             label={'审批意见'}
                             hasFeedback
                         >
-<<<<<<< HEAD
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={this.props.reply} style={{ width: '80%' }}/>,
-                        </FormItem> : ''
-=======
                         <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{width: "80%"}}/>,
                         </FormItem> : ""
->>>>>>> feature_v3.1.0
                     }
 
                     {/* 待我审批 */}

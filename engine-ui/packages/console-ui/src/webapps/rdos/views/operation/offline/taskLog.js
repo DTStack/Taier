@@ -1,13 +1,5 @@
 import React from 'react'
-<<<<<<< HEAD
-import { Link } from 'react-router'
-import { Button, Row } from 'antd'
-import { isArray } from 'lodash'
-
-import utils from 'utils'
-=======
 import { Row } from 'antd'
->>>>>>> feature_v3.1.0
 
 import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'
@@ -47,13 +39,8 @@ export function LogInfo (props) {
     const safeSpace = ' ';
     const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
     const syncJobInfo = props.syncJobInfo;
-<<<<<<< HEAD
-    const logStyle = Object.assign(editorStyle, {
-        height: props.height
-=======
     const logStyle = Object.assign({}, editorStyle, {
         height: props.height,
->>>>>>> feature_v3.1.0
     });
 
     const errors = log['all-exceptions'] || ''

@@ -38,12 +38,6 @@ export default class TableViewer extends React.Component {
                 visible: false,
                 data: {}
             },
-<<<<<<< HEAD
-            ddlList: [],
-            dmlList: [],
-            columnNames: []
-=======
->>>>>>> feature_v3.1.0
         };
     }
 
@@ -87,20 +81,9 @@ export default class TableViewer extends React.Component {
                     tableData: res.data,
                     isMark,
                     applyButton,
-<<<<<<< HEAD
-                    columnNames: [...res.data.column, ...res.data.partition]
-=======
->>>>>>> feature_v3.1.0
                 });
             }
-        });
-    }
-
-    switchType (evt) {
-        const showType = evt.target.value;
-        this.setState({
-            showType
-        });
+        })
     }
 
     getPreview (key) {
@@ -204,56 +187,9 @@ export default class TableViewer extends React.Component {
             applyModal
         })
     }
-<<<<<<< HEAD
-
-    getDdlList = () => {
-        ajax.getDdlList().then(res => {
-            if (res.code === 1) {
-                const data = res.data;
-                const ddlData = data.map((item) => {
-                    return {
-                        label: item.name,
-                        value: item.value
-                    }
-                })
-                console.log(ddlData)
-                this.setState({
-                    ddlList: ddlData
-                })
-            }
-        })
-    }
-
-    getDmlList = () => {
-        ajax.getDmlList().then(res => {
-            if (res.code === 1) {
-                const data = res.data;
-                const dmlData = data.map((item) => {
-                    return {
-                        label: item.name,
-                        value: item.value
-                    }
-                })
-                console.log(dmlData)
-                this.setState({
-                    dmlList: dmlData
-                })
-            }
-        })
-    }
-
-    render () {
-        const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
-        const { ddlList, dmlList, columnNames } = this.state;
-        const columnNameValue = columnNames.map(item => {
-            return item.columnName
-        })
-        console.log(columnNameValue)
-=======
     
     render() {
         const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
->>>>>>> feature_v3.1.0
 
         const columns = [{
             title: '序号',

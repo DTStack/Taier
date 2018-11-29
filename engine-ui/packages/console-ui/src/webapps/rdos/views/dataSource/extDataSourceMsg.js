@@ -66,11 +66,7 @@ const showMapArr = {
     ]
 }
 
-<<<<<<< HEAD
-export function ExtTableCell (props) {
-=======
 export function ExtTableCell(props) {
->>>>>>> feature_v3.1.0
     const { sourceData, ...other } = props;
     const arr = showMapArr[sourceData.type];
     if (arr) {
