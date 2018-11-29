@@ -304,9 +304,8 @@ class TargetForm extends React.Component {
 
                                 const disableSelect = src.type === DATA_SOURCE.ES ||
                                     src.type === DATA_SOURCE.REDIS ||
-                                    src.type === DATA_SOURCE.MONGODB ||
-                                    src.type === DATA_SOURCE.CARBONDATA;
-
+                                    src.type === DATA_SOURCE.MONGODB
+                                    
                                 return <Option
                                     key={src.id}
                                     name={src.dataName}
@@ -337,9 +336,9 @@ class TargetForm extends React.Component {
 
     renderDynamicForm() {
         const { getFieldDecorator } = this.props.form;
-        const { selectHack, loading } = this.state
+        const { selectHack, loading } = this.state;
 
-        const { targetMap, dataSourceList, isCurrentTabNew, project, sourceMap } = this.props;
+        const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;

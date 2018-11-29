@@ -20,12 +20,21 @@ const showMapArr = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名'],
     ],
+    [DATA_SOURCE.DB2]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名'],
+    ],
     [DATA_SOURCE.HDFS]: [
         ['defaultFS', 'defaultFS']
     ],
     [DATA_SOURCE.HIVE]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['defaultFS', 'defaultFS'],
+    ],
+    [DATA_SOURCE.CARBONDATA]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['defaultFS', 'defaultFS'],
+        ['username', '用户名'],
     ],
     [DATA_SOURCE.HBASE]: [
         ['hbase_quorum', 'Zookeeper集群地址']
@@ -58,7 +67,7 @@ const showMapArr = {
 }
 
 export function ExtTableCell(props) {
-    const { sourceData,...other } = props;
+    const { sourceData, ...other } = props;
     const arr = showMapArr[sourceData.type];
     if (arr) {
         return <div {...other}>

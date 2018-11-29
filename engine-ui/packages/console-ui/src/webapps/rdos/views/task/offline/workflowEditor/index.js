@@ -519,12 +519,13 @@ class WorkflowEditor extends Component {
 
     initGraphLayout = () => {
         const graph = this.graph;
+        const edgeStyle = this.getDefaultEdgeStyle();
         const model = graph.getModel();
         const layout2 = new mxHierarchicalLayout(graph, 'north');
         layout2.disableEdgeStyle = false;
         layout2.interRankCellSpacing = 40;
         layout2.intraCellSpacing = 20;
-        layout2.edgeStyle = mxEdgeStyle.TopToBottom;
+        layout2.edgeStyle = edgeStyle;
 
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
@@ -662,7 +663,7 @@ class WorkflowEditor extends Component {
     }
 
     updateGraphData = () => {
-        const { 
+        const {
             updateTaskField,
          } = this.props;
 
@@ -687,7 +688,7 @@ class WorkflowEditor extends Component {
         let selectedCell = null;
         const { openTaskInDev, } = this.props;
         let highlightEdges = [];
-        
+
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const event = evt.getProperty('event');
 
