@@ -157,7 +157,7 @@ export function replaceStrFormIndexArr(str, replaceStr, indexArr) {
 export function filterComments(sql) {
     let tmpArr = [];
     const comments = [];
-    if(!sql){
+    if (!sql) {
         return '';
     }
     for (let i = 0; i < sql.length; i++) {
@@ -241,7 +241,7 @@ export function splitSql(sqlText) {
         if (char == "'" || char == '"') {
             if (tmpChar == char) {
                 tmpChar = null;
-            } else {
+            } else if (!tmpChar) {
                 tmpChar = char;
             }
         } else if (char == ';') {
@@ -280,8 +280,8 @@ export function scrollToView(id) {
  * @param {*} ms 
  */
 export function timeout(promise, ms) {
-    return new Promise(function(resolve, reject) {
-        setTimeout(function() {
+    return new Promise(function (resolve, reject) {
+        setTimeout(function () {
             reject(new Error("timeout"))
         }, ms)
         promise.then(resolve, reject);
