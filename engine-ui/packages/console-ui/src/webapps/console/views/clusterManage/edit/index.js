@@ -60,19 +60,11 @@ class EditCluster extends React.Component {
         fileHaveChange: false,
         checked: false,
         // 以下字段为填补关闭复选框数据无法获取输入数据情况
-<<<<<<< HEAD
         gatewayHostValue: undefined,
         gatewayPortValue: undefined,
         gatewayJobNameValue: undefined,
         deleteOnShutdownOption: "FALSE",
         randomJobNameSuffixOption: "TRUE",
-=======
-        firstIptValue: undefined,
-        secondIptValue: undefined,
-        thirdIptValue: undefined,
-        firstOption: "FALSE",
-        secondOption: "TRUE",
->>>>>>> master
         flinkPrometheus: undefined, //配置Prometheus参数
         flinkData: undefined, //获取Prometheus参数
     }
