@@ -2,11 +2,10 @@
 
 # 更新日志 | [部署文档](./Deploy.md) 
 
- > 版本：DTinsight v3.0.1 <br>
- > 日期：2018-11-22
+ > 版本：DTinsight v3.0.2 <br>
+ > 日期：2018-11-30
 
-- 【 控制台 】修复普罗米修斯配置参数错误Bug
-- 【 其他 】大量细节`优化`，Bug修复 [更多](http://redmine.prod.dtstack.cn/projects/dtinsight-v3_0_0)
+- 【 开发套件 】修复sql切分的问题
 
 
 
