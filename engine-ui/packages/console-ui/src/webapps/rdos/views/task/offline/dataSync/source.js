@@ -232,11 +232,10 @@ class SourceForm extends React.Component {
     }
 
     changeTable(type, value) {
-        this.setState({
-            loading: true
-        });
-
         if (value) {
+            this.setState({
+                loading: true
+            });
             this.getTableColumn(value, type);
         }
         this.submitForm();
