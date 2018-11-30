@@ -19,12 +19,14 @@ export default class FullScreenButton extends Component {
     /**
      * 在一定情况下chrome不会触发resize事件，所以手动触发一下resize。
      */
-    dispatchResizeEvent(){
-        const event=new Event("resize");
+    dispatchResizeEvent() {
+        const event = new Event("resize");
         window.dispatchEvent(event);
     }
     componentDidMount() {
-        const domEle = document.body;
+        const { target } = this.props;
+        const propsDom = document.getElementById(target)
+        const domEle = propsDom || document.body;
         let callBack = (event) => {
             let node;
             if (domEle.requestFullscreen) {
@@ -38,7 +40,7 @@ export default class FullScreenButton extends Component {
             }
             this.setState({
                 isFullScreen: node ? true : false
-            },this.dispatchResizeEvent)
+            }, this.dispatchResizeEvent)
         }
         if (domEle.requestFullscreen) {
             domEle.onfullscreenchange = callBack;
@@ -51,7 +53,9 @@ export default class FullScreenButton extends Component {
         }
     }
     componentWillUnmount() {
-        const domEle = document.body;
+        const { target } = this.props;
+        const propsDom = document.getElementById(target)
+        const domEle = propsDom || document.body;
         if (domEle.requestFullscreen) {
             document.onfullscreenchange = null;
         } else if (domEle.msRequestFullscreen) { // IE
@@ -81,7 +85,7 @@ export default class FullScreenButton extends Component {
                 document.msExitFullscreen();
             }
         } else {
-            const propsDom=document.getElementById(target)
+            const propsDom = document.getElementById(target)
             const domEle = propsDom || document.body;
             if (domEle.requestFullscreen) {
                 domEle.requestFullscreen();
@@ -93,11 +97,11 @@ export default class FullScreenButton extends Component {
                 domEle.webkitRequestFullscreen();
             }
         }
-        this.setState({ isFullScreen: !this.state.isFullScreen });
+        // this.setState({ isFullScreen: !this.state.isFullScreen });
     }
 
     render() {
-        const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
+        const { themeDark, fullIcon, exitFullIcon, target, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? "exit-fullscreen" : "fullscreen";
         const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
@@ -107,16 +111,16 @@ export default class FullScreenButton extends Component {
                 91: true,
                 16: true,
             }}>
-                {customIcon ?<span onClick={this.fullScreen}>{customIcon}</span> 
-                 : 
-                <Button {...other} onClick={this.fullScreen}>
-                    <MyIcon
-                        className="my-icon"
-                        type={iconType}
-                        themeDark={themeDark}
-                    />
-                    {title}
-                </Button>}
+                {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
+                    :
+                    <Button {...other} onClick={this.fullScreen}>
+                        <MyIcon
+                            className="my-icon"
+                            type={iconType}
+                            themeDark={themeDark}
+                        />
+                        {title}
+                    </Button>}
             </KeyCombiner>
         )
     }

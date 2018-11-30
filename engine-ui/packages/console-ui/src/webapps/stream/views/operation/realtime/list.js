@@ -56,7 +56,7 @@ class RealTimeTaskList extends Component {
             this.loadCount();
 
             this.setState({
-                filter: state && state.statusList ? {status:state.statusList} : {}
+                filter: state && state.statusList ? { status: state.statusList } : {}
             }, () => {
                 this.loadTaskList()
             })
@@ -295,9 +295,9 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    chooseTask = (index) => {
+    chooseTask = (record, index) => {
         this.setState({
-            selectTask: index,
+            selectTask: record.id,
             visibleSlidePane: true
         })
     }
@@ -327,7 +327,7 @@ class RealTimeTaskList extends Component {
             key: 'name',
             width: 150,
             render: (text, record, index) => {
-                return <a onClick={() => { this.chooseTask(index) }}>{text}</a>
+                return <a onClick={() => { this.chooseTask(record, index) }}>{text}</a>
             },
         }, {
             title: '状态',
@@ -356,13 +356,13 @@ class RealTimeTaskList extends Component {
             render: (text) => {
                 return taskTypesMap[text];
             },
-            filters:taskTypes.map((taskType)=>{
+            filters: taskTypes.map((taskType) => {
                 return {
-                    text:taskType.value,
-                    value:taskType.key
+                    text: taskType.value,
+                    value: taskType.key
                 }
             }),
-            filterMultiple:true
+            filterMultiple: true
         }, {
             title: '责任人',
             dataIndex: 'createUserName',
@@ -497,11 +497,13 @@ class RealTimeTaskList extends Component {
     render() {
         const { tasks, logInfo, selectTask, overview, current } = this.state
         const dataSource = tasks.data || [];
-        const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
+        const detailPaneData = dataSource.find((item) => {
+            return item.id == selectTask
+        }) || {};
         const pagination = {
             total: tasks.totalCount,
             pageSize: 20,
-            current:current
+            current: current
         };
         return (
             <div className="box-1 m-card">
