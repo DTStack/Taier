@@ -42,15 +42,15 @@ class AlarmBaseGraphBox extends React.Component {
         const { loading } = lineData;
         const haveLineData = haveData(lineData);
         return (
-            <div  className="basegraph-size">
-                <div id={key}  className="alarm-basegraph-box">
+            <div className="basegraph-size">
+                <div id={key} className="alarm-basegraph-box">
                     <header>
                         <span className="title">{title}</span>
                         {desc && (
                             <Tooltip
                                 title={desc}
                                 overlayClassName="big-tooltip"
-                                getPopupContainer={(triggerNode)=>{
+                                getPopupContainer={(triggerNode) => {
                                     return triggerNode;
                                 }}
                                 placement="bottomLeft"

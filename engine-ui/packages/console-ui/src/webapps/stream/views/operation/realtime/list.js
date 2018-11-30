@@ -326,7 +326,7 @@ class RealTimeTaskList extends Component {
             width: 150,
             render: (text, record, index) => {
                 return <a onClick={() => { this.chooseTask(record, index) }}>{text}</a>
-            },
+            }
         }, {
             title: '状态',
             dataIndex: 'status',

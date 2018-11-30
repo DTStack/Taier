@@ -310,10 +310,10 @@ class WorkflowEditor extends Component {
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
                     const taskData = Object.assign({}, task, {
-                        name: value,
+                        name: value
                     });
-                    API.renameTask({taskId: task.id , taskName: value }).then(res => {
-                        if ( res.code === 1 ) {
+                    API.renameTask({ taskId: task.id, taskName: value }).then(res => {
+                        if (res.code === 1) {
                             const pid = task.nodePid || task.parentId;
                             loadTreeNode(pid, MENU_TYPE.TASK_DEV);
                             ctx.updateCellData(cell, taskData);
@@ -321,7 +321,7 @@ class WorkflowEditor extends Component {
                         }
                     })
                     console.log('editTarget:', taskData);
-                } 
+                }
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);
             }
@@ -688,7 +688,7 @@ class WorkflowEditor extends Component {
             const event = evt.getProperty('event');
 
             if (
-                event.target && event.target.className && 
+                event.target && event.target.className &&
                 event.target.className.indexOf('vertex-input') > -1
             ) {
                 return;
