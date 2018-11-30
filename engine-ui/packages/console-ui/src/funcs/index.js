@@ -231,7 +231,7 @@ export function splitSql (sqlText) {
         if (char == "'" || char == '"') {
             if (tmpChar == char) {
                 tmpChar = null;
-            } else {
+            } else if (!tmpChar) {
                 tmpChar = char;
             }
         } else if (char == ';') {

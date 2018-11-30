@@ -374,74 +374,94 @@ class OutputOrigin extends Component {
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
-                    case DATA_SOURCE.MYSQL: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('primaryKey', {
-                                    rules: [{ required: true, message: '请选择主键' }]
-                                })(
-                                    <Select
-                                        className="right-select"
-                                        onChange={v => {
-                                            handleInputChange('primaryKey', index, v);
-                                        }}
-                                        mode="multiple"
-                                        showSearch
-                                        filterOption={(input, option) =>
-                                            option.props.children
-                                                .toLowerCase()
-                                                .indexOf(input.toLowerCase()) >= 0
-                                        }
-                                    >
-                                        {primaryKeyOptionTypes}
-                                    </Select>
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    case DATA_SOURCE.MONGODB: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('primaryKey-input', {
-                                    rules: [{ required: true, message: '请选择主键' }]
-                                })(
-                                    <Input
-                                        placeholder="请输入主键"
-                                        onChange={e =>
-                                            handleInputChange(
-                                                'primaryKey',
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    case DATA_SOURCE.HBASE: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('hbasePrimaryKey', {
-                                    rules: [{ required: true, message: '请输入主键' }]
-                                })(
-                                    <Input
-                                        placeholder="请输入主键"
-                                        onChange={e =>
-                                            handleInputChange(
-                                                'hbasePrimaryKey',
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    default: {
-                        return null;
-                    }
+                        case DATA_SOURCE.MYSQL: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange("primaryKey", index, v);
+                                            }}
+                                            mode="multiple"
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {primaryKeyOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.MONGODB: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey-input", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "primaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("primaryKey-input", {
+                                        rules: [{ required: true, message: "请选择主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="结果表主键，多个字段用英文逗号隔开"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "primaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.HBASE: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator("hbasePrimaryKey", {
+                                        rules: [{ required: true, message: "请输入主键" }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    "hbasePrimaryKey",
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return null;
+                        }
                     }
                 })()}
                 <FormItem {...formItemLayout} label="并行度">
@@ -800,6 +820,9 @@ export default class OutputPanel extends Component {
 
     getTableColumns = (index, sourceId, tableName) => {
         const { tableColumnOptionType } = this.state;
+        if (!sourceId || !tableName) {
+            return;
+        }
         Api.getStreamTableColumn({ sourceId, tableName }).then(v => {
             if (v.code === 1) {
                 tableColumnOptionType[index] = v.data;

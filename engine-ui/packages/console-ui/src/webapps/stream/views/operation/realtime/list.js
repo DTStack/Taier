@@ -293,9 +293,9 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    chooseTask = (index) => {
+    chooseTask = (record, index) => {
         this.setState({
-            selectTask: index,
+            selectTask: record.id,
             visibleSlidePane: true
         })
     }
@@ -325,8 +325,8 @@ class RealTimeTaskList extends Component {
             key: 'name',
             width: 150,
             render: (text, record, index) => {
-                return <a onClick={() => { this.chooseTask(index) }}>{text}</a>
-            }
+                return <a onClick={() => { this.chooseTask(record, index) }}>{text}</a>
+            },
         }, {
             title: '状态',
             dataIndex: 'status',
@@ -495,7 +495,9 @@ class RealTimeTaskList extends Component {
     render () {
         const { tasks, logInfo, selectTask, overview, current } = this.state
         const dataSource = tasks.data || [];
-        const detailPaneData = selectTask == null ? {} : dataSource[selectTask]
+        const detailPaneData = dataSource.find((item) => {
+            return item.id == selectTask
+        }) || {};
         const pagination = {
             total: tasks.totalCount,
             pageSize: 20,

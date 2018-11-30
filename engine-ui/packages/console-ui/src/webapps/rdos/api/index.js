@@ -291,6 +291,10 @@ export default {
         return http.post(offlineReq.SAVE_TASK, task)
     },
 
+    renameTask(task) {
+        return http.post(offlineReq.RENAME_TASK, task)
+    },
+
     forceUpdateOfflineTask(task) {
         return http.post(offlineReq.FORCE_UPDATE_TASK, task)
     },
