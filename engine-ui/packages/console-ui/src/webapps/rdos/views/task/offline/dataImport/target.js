@@ -311,23 +311,25 @@ export default class ImportTarget extends Component {
                     <div
                         className="ellipsis"
                         title={item.columnName}
-                        style={{ maxWidth: '40px', display: 'inline-block', float: "left" }}
+                        style={{ maxWidth: '30px', display: 'inline-block', float: "left" }}
                     >
                         {item.columnName}
                     </div>
-                    <Input
-                        style={{ width: '155px',marginLeft:"5px"}}
-                        onChange={(e) => { this.tablePartitionChange(e, item, index) }}
-                        placeholder="请输入分区名称" />
-                    &nbsp;&nbsp;
                     {
                         index === 0 ?
                             <Button
                                 type="primary"
+                                style={{float:"right",width:"68px"}}
                                 onClick={this.checkPartition}>检测
                         </Button>
                             : ''
                     }
+                    <Input
+                        style={{ width: '163px',marginRight:"17px", float:"right"}}
+                        onChange={(e) => { this.tablePartitionChange(e, item, index) }}
+                        placeholder="请输入分区名称" />
+                    &nbsp;&nbsp;
+                    
                     {
                         index === data.length - 1 ?
                             <span style={{ color: '#f60' }}>
@@ -383,6 +385,7 @@ export default class ImportTarget extends Component {
                                 &nbsp;&nbsp;
                                 <Button
                                     type="primary"
+                                    style={{float:"right"}}
                                     onClick={() => {
                                         this.setState({ visible: true })
                                     }}>新建表</Button>
