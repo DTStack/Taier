@@ -253,7 +253,6 @@ public class FlinkClient extends AbsClient {
                     programArgs, spSettings, hadoopConf);
         }catch (Throwable e){
             JobResult jobResult = JobResult.createErrorResult(e);
-            logger.error("", e);
             return jobResult;
         }
 
@@ -265,7 +264,6 @@ public class FlinkClient extends AbsClient {
             Pair<String, String> runResult = runJob(packagedProgram, runParallelism);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         }catch (Exception e){
-            logger.error("", e);
             return JobResult.createErrorResult(e);
         }finally {
             packagedProgram.deleteExtractedLibraries();
@@ -418,7 +416,6 @@ public class FlinkClient extends AbsClient {
 
             return submitJobWithJar(jobClient, Lists.newArrayList(), args);
         } catch (Exception e) {
-            logger.info("", e);
             return JobResult.createErrorResult(e);
         }
     }
