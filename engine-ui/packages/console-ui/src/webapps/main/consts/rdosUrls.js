@@ -1,4 +1,3 @@
-import mc from 'mirror-creator';
 import { RDOS_BASE_URL } from 'config/base';
 
 /**

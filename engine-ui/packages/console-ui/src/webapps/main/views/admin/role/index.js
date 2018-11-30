@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import {
-    Select, Table, Card, message,
-    Button, Tabs, Popconfirm
+    Select, Table, Card, message
 } from 'antd'
 import { Link } from 'react-router'
 
@@ -14,7 +12,6 @@ import AppTabs from '../../../components/app-tabs'
 import { MY_APPS } from '../../../consts'
 
 const Option = Select.Option
-const TabPane = Tabs.TabPane
 
 class AdminRole extends Component {
     state = {
@@ -76,10 +73,6 @@ class AdminRole extends Component {
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
             }
-
-            // else if(MY_APPS.ANALYTICS_ENGINE == active) {
-            //     params.databaseId = selecteDatabase;
-            // }
             this.loadRoles(app, params)
         }
     }
@@ -185,7 +178,6 @@ class AdminRole extends Component {
 
     initColums = () => {
         const { active } = this.state;
-        const removeRole = this.removeRole;
 
         return [{
             title: '角色名称',
@@ -316,11 +308,11 @@ class AdminRole extends Component {
             </span>
         )
 
-        const extra = (
-            <Button style={{ marginTop: '10px' }} type="primary">
-                <Link to={`/admin/role/add?app=${active}`}>新建角色</Link>
-            </Button>
-        )
+        // const extra = (
+        //     <Button style={{ marginTop: '10px' }} type="primary">
+        //         <Link to={`/admin/role/add?app=${active}`}>新建角色</Link>
+        //     </Button>
+        // )
 
         const pagination = {
             total: data && data.totalCount,

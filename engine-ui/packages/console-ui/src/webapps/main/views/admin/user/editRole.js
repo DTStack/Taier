@@ -1,15 +1,8 @@
 import React, { Component } from 'react'
 
 import {
-    Input, Button, Card,
-    Select, Form, Checkbox
+    Form, Checkbox
 } from 'antd'
-
-import {
-    RDOS_ROLE,
-    APP_ROLE,
-    MY_APPS
-} from 'main/consts'
 
 import { isDisabledRole } from './form'
 
@@ -32,11 +25,13 @@ class EditRoleForm extends Component {
         this.setFields(this.props.user)
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (this.props.user !== nextProps.user) {
             this.setFields(nextProps.user)
         }
     }
+    /* eslint-disable */
 
     setFields = (user) => {
         const selectedRoles = user && user.roles

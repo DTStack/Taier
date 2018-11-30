@@ -1,5 +1,3 @@
-import mc from 'mirror-creator';
-
 import {
     UIC_BASE_URL,
     DATA_API_BASE_URL,

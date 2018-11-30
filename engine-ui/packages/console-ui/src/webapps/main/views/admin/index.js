@@ -5,7 +5,7 @@ import { Icon } from 'antd'
 
 import NotFund from 'widgets/notFund'
 
-import { Navigator, Title, MyIcon } from '../../components/nav'
+import Navigator, { Title, MyIcon } from '../../components/nav'
 
 @connect(state => {
     return {
@@ -18,7 +18,7 @@ class SysAdmin extends Component {
     componentDidMount () {}
 
     render () {
-        const { user, apps, children } = this.props;
+        const { apps, children } = this.props;
         const logo = (<Link to="/admin/user">
             <MyIcon>
                 <Icon type="setting" />

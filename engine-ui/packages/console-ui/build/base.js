@@ -65,6 +65,7 @@ module.exports = function () {
                     enforce: "pre",
                     include: [
                         MY_PATH.MAIN_APP_PATH,
+                        // MY_PATH.RDOS_PATH,
                     ],
                     loader: "eslint-loader",
                 },

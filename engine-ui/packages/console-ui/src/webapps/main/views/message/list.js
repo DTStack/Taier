@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { assign } from 'lodash'
 import {
     Tabs, Menu, Table,
@@ -80,7 +79,7 @@ class MessageList extends Component {
     }
 
     markAsRead = () => {
-        const { selectedApp, selectedRowKeys } = this.state;
+        const { selectedApp } = this.state;
 
         const unReadRows = this.getUnreadRows()
 
@@ -97,7 +96,7 @@ class MessageList extends Component {
     }
 
     markAsAllRead = () => {
-        const { selectedApp, selectedRowKeys } = this.state;
+        const { selectedApp } = this.state;
 
         const unReadRows = this.getUnreadRows()
 

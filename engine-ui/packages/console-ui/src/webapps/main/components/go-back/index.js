@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Icon, Button } from 'antd'
+import { Icon } from 'antd'
 import { browserHistory, hashHistory } from 'react-router'
 
 export default class GoBack extends Component {
@@ -20,10 +20,8 @@ export default class GoBack extends Component {
     }
 
     getButtonView () {
-        const { type, style, size } = this.props;
-        let mStyle = {
-            cursor: 'pointer'
-        }
+        const { style } = this.props;
+
         let iconStyle = {
             cursor: 'pointer',
             fontFamily: 'anticon',
@@ -35,27 +33,9 @@ export default class GoBack extends Component {
         }
 
         if (style) {
-            mStyle = Object.assign(mStyle, style)
             iconStyle = Object.assign(iconStyle, style)
         }
 
-        // switch (type) {
-        //     case "textButton":
-        //         mStyle.marginRight = '5px';
-        //         return (
-        //             <Button style={mStyle} onClick={this.go} size={size||"small"}>
-        //                 <Icon type="left" />返回
-        //             </Button>
-        //         );
-        //     default:
-        //         return (
-        //             <Icon
-        //                 style={iconStyle}
-        //                 type={"left-circle-o"}
-        //                 onClick={this.go}
-        //             />
-        //         )
-        // }
         return (
             <Icon
                 style={iconStyle}

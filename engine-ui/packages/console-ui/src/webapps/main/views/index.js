@@ -2,10 +2,8 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
-import { initConfig } from 'funcs';
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import http from '../api';
@@ -30,6 +28,7 @@ class Main extends Component {
         this.props.dispatch(userAction);
         this.checkRoot(user);
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
 
@@ -37,6 +36,8 @@ class Main extends Component {
             this.checkRoot(user);
         }
     }
+    /* eslint-disable */
+
     checkRoot (user) {
         if (user && user.dtuicUserId) {
             http.checkRoot({ userId: user.dtuicUserId })
