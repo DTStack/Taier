@@ -69,7 +69,7 @@ export function appendTreeNode(treeNode, append, target) {
 */
 export function replaceTreeNode(treeNode, replace) {
     if (
-        treeNode.id === parseInt(replace.id, 10)&&treeNode.type==replace.type
+        treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
     ) {
         treeNode = Object.assign(treeNode, replace);
         return;
@@ -239,7 +239,7 @@ export function splitSql(sqlText) {
         if (char == "'" || char == '"') {
             if (tmpChar == char) {
                 tmpChar = null;
-            } else {
+            } else if (!tmpChar) {
                 tmpChar = char;
             }
         } else if (char == ';') {
