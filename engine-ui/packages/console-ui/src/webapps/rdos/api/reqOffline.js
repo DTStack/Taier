@@ -9,6 +9,7 @@ export default {
 
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`, // 添加或者更新任务
+    RENAME_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask/renameTask`, // 任务重命名
     FORCE_UPDATE_TASK: `${RDOS_BASE_URL}/batch/batchTask/forceUpdate`, // 强制更新
     GET_TASK: `${RDOS_BASE_URL}/batch/batchTask/getTaskById`, // 获取任务通过任务ID
     DELETE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`, // 删除任务

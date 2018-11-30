@@ -11,6 +11,7 @@ import utils from 'utils';
 import KeyEventListener from 'widgets/keyCombiner/listener';
 import KEY_CODE from 'widgets/keyCombiner/keyCode';
 
+import API from '../../../../api';
 import MyIcon from '../../../../components/icon';
 import { taskTypeText } from '../../../../components/display';
 import LockPanel from '../../../../components/lockPanel';
@@ -310,18 +311,18 @@ class WorkflowEditor extends Component {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
-                    const taskData = Object.assign({}, getTaskBaseData(task), {
+                    const taskData = Object.assign({}, task, {
                         name: value,
                     });
-                    saveTask(taskData, true).then(res => {
-                        const fileStatus = res.data && res.data.readWriteLockVO && res.data.readWriteLockVO.result;
-                        if ( res.code === 1 && fileStatus === 0 ) {
+                    API.renameTask({taskId: task.id , taskName: value }).then(res => {
+                        if ( res.code === 1 ) {
                             const pid = task.nodePid || task.parentId;
                             loadTreeNode(pid, MENU_TYPE.TASK_DEV);
                             ctx.updateCellData(cell, taskData);
                             ctx.updateGraphData();
                         }
-                    });
+                    })
+                    console.log('editTarget:', taskData);
                 } 
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);
@@ -693,7 +694,10 @@ class WorkflowEditor extends Component {
         graph.addListener(mxEvent.DOUBLE_CLICK, function(sender, evt) {
             const event = evt.getProperty('event');
 
-            if (event.target.className.indexOf('vertex-input') > -1) {
+            if (
+                event.target && event.target.className && 
+                event.target.className.indexOf('vertex-input') > -1
+            ) {
                 return;
             }
 
