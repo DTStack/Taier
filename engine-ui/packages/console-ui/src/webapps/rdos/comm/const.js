@@ -32,7 +32,7 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     19: 'DB2',
-    20: 'CarbonData'
+    20: 'DTinsightAnalytics'
 }
 
 // 锁类型
