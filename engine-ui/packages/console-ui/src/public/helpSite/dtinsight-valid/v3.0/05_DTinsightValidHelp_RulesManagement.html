@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>规则配置 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-valid/v3.0/05_DTinsightValidHelp_RulesManagement.html">
+    <link rel="stylesheet" href="../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-valid">
+    <meta name="dcterms.identifier" content="v3.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../../dtinsight-batch/v3.0/Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="01_DTinsightValidHelp_Summary.html"><span class="title">数据质量</span> <span class="version">v3.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="01_DTinsightValidHelp_Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="02_DTinsightValidHelp_Explain.html">名词解释</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="03_DTinsightValidHelp_QuickStart.html">快速开始</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="04_DTinsightValidHelp_Overview.html">概览</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">规则管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_mechanism">校验规则的组成原理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_createrule">新建规则</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_viewrule">查看/编辑已有规则</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_remote">远程触发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_run">规则的执行</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#rm_rulesdetail">计算规则</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">任务查询</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="06_DTinsightValidHelp_CheckResult.html#checkresult_singlereport">详细报告</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="06_DTinsightValidHelp_CheckResult.html#checkresult_tablereport">表级报告</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">逐行校验</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="07_DTinsightValidHelp_RowsComp.html#rowcomp_userCase">应用场景</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="07_DTinsightValidHelp_RowsComp.html#rowcomp_mechanism">组成原理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="07_DTinsightValidHelp_RowsComp.html#rowscomp_overview">概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="07_DTinsightValidHelp_RowsComp.html#rowscomp_create">新建逐行校验</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="07_DTinsightValidHelp_RowsComp.html#rowscomp_report">查看执行报告</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="08_DTinsightValidHelp_Datasource.html">数据源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="09_DTinsightValidHelp_QA.html">Q&amp;A</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="01_DTinsightValidHelp_Summary.html">数据质量</a></li>
+    <li class="crumb">规则管理</li>
+    <li class="crumb"><a href="#rm_mechanism">校验规则的组成原理</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">规则配置</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>DTinsightValid的所有数据校验都是针对数据表的</strong>，规则配置是其核心模块，用户在此选择检测目标、配置检测逻辑和调度周期。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_mechanism"><a class="anchor" href="#rm_mechanism"></a>校验规则的组成原理</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>在配置一条校验规则之前，有必要理解校验规则的组成原理，假设以下场景：</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="paragraph">
+<p>假设一张用户表，包含3个字段： <code>id、name、age</code> ，每个用户是表中的一行，其内部数据如下图所示：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement_demoData.png" alt="05 DTinsightValidHelp RulesManagement demoData" width="140">
+</div>
+</div>
+<div class="paragraph">
+<p>现需要每天定期检测其数据是否正常，需要检测的项目只有一个：</p>
+</div>
+<div class="paragraph">
+<p><strong>age&gt;10的这些用户，检测id字段为空的数据量占比不超过5%</strong></p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>以上需求可以分解为3个步骤来执行：</p>
+</div>
+<div class="paragraph">
+<p><strong>Step1：明确目标数据</strong></p>
+</div>
+<div class="paragraph">
+<p>需要对id字段做校验，且需要将age&gt;10的用户过滤掉，即圈定出目标数据：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-e1b3e.png" alt="05 DTinsightValidHelp RulesManagement e1b3e" width="500">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Step2：执行校验逻辑</strong></p>
+</div>
+<div class="paragraph">
+<p>对圈定完成的数据范围进行指标统计，本例中需要统计空值的数据量占比，即<strong>空值率</strong>：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-9c5b7.png" alt="05 DTinsightValidHelp RulesManagement 9c5b7" width="500">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Step3：阈值判断</strong></p>
+</div>
+<div class="paragraph">
+<p>第二步的校验逻辑执行完成后得出统计值，第三步就是对统计值是否符合要求进行判断：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-20fad.png" alt="05 DTinsightValidHelp RulesManagement 20fad" width="500">
+</div>
+</div>
+<div class="paragraph">
+<p>以上3个步骤就是一条校验规则的后台步骤分解，通过这3个步骤即可判断数据质量是否符合要求，若不符合要求系统可自动发送告警。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_createrule"><a class="anchor" href="#rm_createrule"></a>新建规则</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>在本版本中，数栈可支持MySQL、Oracle、SQLServer、PostgreSQL、MaxCompute类型的数据源，可配置针对这些数据源的表进行规则校验。</p>
+</div>
+<div class="paragraph">
+<p>新建规则的入口位于<strong>规则配置-新建校验规则</strong>，点击之后可进入新建校验规则的流程。但是配置一条规则之前，必须先</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>选择校验目标</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>新建规则的第一步是选择校验目标，可在下拉列表中选择需要校验的数据源、表，也可以直接输入表名进行搜索，对于存在分区的表，可配置系统变量或直接选择已有分区进行校验。DTinsightValid提供了多个系统参数，每个系统参数可随校验规则的运行时间动态变化，定义如下：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>${sys.recentPart}:最新分区，系统自动从表的元数据库中获取每个分区的创建时间，并对最新创建的分区进行校验。</p>
+</li>
+<li>
+<p>${bdp.system.cyctime}：一个实例的定时运行时间，默认格式为：yyyyMMddHHmmss。</p>
+</li>
+<li>
+<p>${bdp.system.bizdate}：一个实例计算时对应的业务日期，业务日期默认为定时运行日期的前一天，以yyyyMMdd的格式显示。</p>
+</li>
+<li>
+<p>${bdp.system.currmonth}：一个实例的定时运行时间所在的月份，默认以yyyyMM的格式显示。</p>
+</li>
+<li>
+<p>${bdp.system.premonth}：一个实例的定时运行时间的上一个月，以yyyyMM的格式显示。</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+DTinsightValid支持对不同的分区建立不同的校验规则
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+选择目标后，系统会自动检测此表是否已经存在配置的规则，若已存在，可直接前往此表的管理模块，继续添加规则即可。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+在DTinsightValid在规则管理模块，一张表或一个分区的校验规则只能是一条记录，若需要针对此表或分区建立新的规则，只需在已有规则后添加即可。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>校验规则的配置</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>校验规则分为表级规则、字段级规则、自定义SQL 3类，表级规则、字段级规则，而一条校验规则又由统计目标、统计函数、过滤条件、校验方法、阈值配置几部分组成：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>表级规则、字段级规则</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>表级规则、字段级规则都由以下5部分组成：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>统计目标：需要进行校验的字段或者全表。</p>
+</li>
+<li>
+<p>统计函数：可选择19种不同的统计函数，例如空值率、空值数等，对表内的字段数据进行统计，详细的统计规则计算原理请参考<a href="#rm_rulesdetail">计算规则</a>。</p>
+</li>
+<li>
+<p>过滤语句：只需要对表中一部分数据进行校验时，可通过过滤语句过滤掉一部分数据，类似SQL中的where过滤条件。需注意的是，过滤语句必须以<strong>and</strong>开头，不区分大小写。</p>
+</li>
+<li>
+<p>校验方法：可选择固定值、1天或7天波动检测、月度波动检测、7天平均值波动检测、月度平均值波动检测。在上述场景中选择 <code>固定值</code> 即可。校验方法的详细解释请参考<a href="#rm_rulesdetail">计算规则</a>。</p>
+</li>
+<li>
+<p>阈值配置：用户可任意输入固定值或波动率的合理范围。</p>
+</li>
+</ol>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>自定义SQL</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>如果现有的表级和字段级规则依然无法满足要求，DTinsightValid也支持添加自定义SQL。自定义SQL依然由5部分组成，但是其统计目标、统计函数、过滤语句都通过SQL代码实现，但这3部分的输出结果必须是唯一一个统计值，不能出现多个统计值。例如，其统计结果可以是： <code>select count(*) from &#8230;&#8203;&#8230;&#8203;</code> ，但不能是 <code>select * from &#8230;&#8203;&#8230;&#8203;</code></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-ed533.png" alt="05 DTinsightValidHelp RulesManagement ed533">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>校验规则的组成原理</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>校验规则的组成原理包括3部分：第一步是明确目标，第二步是执行校验逻辑，第三步是阈值判断：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>调度与告警配置</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>调度周期的配置比较简单，可选择天、周、月、小时的调度周期，也可以选择手动触发。</p>
+</div>
+<div class="paragraph">
+<p>告警配置可支持邮件、短信、钉钉群机器人。钉钉群机器人的配置在钉钉群的右侧面板，选择<strong>自定义</strong>即可，详细的配置方法请参考钉钉官方帮助文档：
+<a href="https://open-doc.dingtalk.com/docs/doc.htm?treeId=257&amp;articleId=105733&amp;docType=1">钉钉群机器人是什么</a></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+DTinsightValid的一条校验规则只能作用于一张表或一张表的一个分区，无法对多表或多分区进行校验。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_viewrule"><a class="anchor" href="#rm_viewrule"></a>查看/编辑已有规则</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>点击顶部导航的<strong>规则配置</strong>即可查看/编辑已有的校验规则。点击列表中的表名可查看此表的规则配置细节。</p>
+</div>
+<div class="paragraph">
+<p>在右侧面板中有多个修改入口，可添加/删除规则，修改调度周期，关闭检测等，同时也可以切换不同的分区配置不同的校验规则。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+无法直接删除一张表配置的所有规则，您可以通过在编辑页面逐条删除每条校验规则，若为分区表，则需要逐分区删除
+</td>
+</tr>
+</table>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement_edit.png" alt="05 DTinsightValidHelp RulesManagement edit">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_remote"><a class="anchor" href="#rm_remote"></a>远程触发</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>远程触发的概念</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>由第三方系统通过接口调用的形式来触发DTinsightValid校验任务执行</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>典型的场景</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在自建的大数据平台上对某张表进行ETL任务处理，需要在ETL任务处理前， 对此表的数据质量进行校验，校验通过后再启动后续的计算任务 （防止错误数据流入下一个计算环节，同时可以节约计算资源）。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>配置流程</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>在本平台配置表的数据质量检测任务，并在<strong>规则配置</strong>页面点击列表中的表名，在右侧面板中切换到<strong>远程触发</strong>标签。</p>
+</li>
+<li>
+<p>点击<strong>新增远程触发</strong>，选择已配置的分区并勾选所需的规则，并点击<strong>生产远程调用API</strong>。</p>
+</li>
+<li>
+<p>在远程触发列表中可查看<strong>触发接口</strong>和<strong>结果获取</strong>接口2个字段，即完成了远程触发接口的配置。</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p><strong>远程触发的使用</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>远程触发模块需要由外部系统触发，此处使用POSTMAN作为工具来调用并获取结果，在POSTMAN中需新建2个接口，一个接口触发规则的运行，另一个接口获取质量校验的结果：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>调用方式：POST</p>
+</li>
+<li>
+<p>将远程触发的URL从DTinsightValid中复制到POSTMAN</p>
+</li>
+<li>
+<p>请求Body中，配置为Raw，并选择JSON格式；</p>
+</li>
+<li>
+<p>触发规则接口、结果获取接口都做如上配置，并先后点击Send，即可在POSTMAN页面看到运行结果；</p>
+</li>
+<li>
+<p>规则触发运行后，可在DTinsightValid的<strong>任务查询</strong>页面看到新增一条记录，即刚刚触发运行的规则；</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement_postman.png" alt="05 DTinsightValidHelp RulesManagement postman">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_run"><a class="anchor" href="#rm_run"></a>规则的执行</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>本节主要内容包括：校验规则的触发时机、运行原理、运行过程、字段类型转换规则等；</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>校验规则的触发</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>校验规则的触发包括：由系统周期性的触发执行、用户手动触发执行、远程触发执行3种；触发规则运行后可在<strong>任务查询</strong>中查看本次运行的结果。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>校验规则的运行原理</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>DTinsightValid的本质是将用户的配置转换为一条或一组SQL代码，提交到各数据源运行并获取结果，因此DTinsightValid不需要从外部数据库中同步原始数据，仅需要JDBC连接即可，因此用户在配置调度周期时，需根据数据库的负载合理配置执行时间。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>校验规则的状态转换</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement_process.png" alt="05 DTinsightValidHelp RulesManagement process" width="400">
+</div>
+</div>
+<div class="paragraph">
+<p>如上图所示，校验规则的运行过程将会经过多个状态的转换，当发生运行失败时，系统会自动暴露失败日志，失败可能是由于JDBC无法连接、表名不存在、字段不存在等情况。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>字段类型转换</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>字段类型转换的应用场景：</p>
+</div>
+<div class="paragraph">
+<p>在某些情况下，数据表内的数据可能出现数据本身与其字段类型不匹配的情况，例如在Hadoop、MaxCompute等大数据存储场景下很多字段都会被存储为string类型，但其实际存储的却是数值、日期。</p>
+</div>
+<div class="paragraph">
+<p>DTinsight也可以支持对string、varchar等任意类型配置任意统计函数，因此就可能出现字段类型转换的情况，每个类型的隐式转换规则如下图：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement_typetrans.png" alt="05 DTinsightValidHelp RulesManagement typetrans">
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rm_rulesdetail"><a class="anchor" href="#rm_rulesdetail"></a>计算规则</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>一条校验规则由5部分组成，前3部分（统计目标、统计函数、过滤语句）是为了得到一个<strong>唯一的统计值</strong>，后2部分（校验方法、阈值配置）是为了将这个唯一的统计值与质量要求进行比较。本节主要说明<strong>统计函数</strong>和<strong>校验方法</strong>的详细计算逻辑。</p>
+</div>
+<div class="paragraph">
+<p><strong>计算规则如何发挥作用？</strong></p>
+</div>
+<div class="paragraph">
+<p>每个统计函数的计算规则如下：</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 12.5%;">
+<col style="width: 12.5%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">统计函数</th>
+<th class="tableblock halign-left valign-top">适用字段类型</th>
+<th class="tableblock halign-left valign-top">函数说明</th>
+<th class="tableblock halign-left valign-top">空值处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空值数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">选中字段为NULL的个数相加</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空值率</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">选中字段为NULL的个数相加/整表或分区的总记录数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空串数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空字符的个数相加</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空串率</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">空字符的个数相加/表总行数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重复数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字段的值有2条记录以上是一样的，则记为1次，最后对总次数相加</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重复率</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重复值个数/总行数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">非重复值个数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">非重复值占比</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">枚举值</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">in</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">如果用户未写入null值，则出现null时，计为枚举值匹配失败</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">枚举值个数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ALL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">count(distinct{fieldName})</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">负值比</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">值小于0的行数/总行数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">零值比</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">值大于0的行数/总行数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">正值比</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">值大于0的行数/总行数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串最大长度</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字段中字符最大长度</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串最小长度</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字符串</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">字段中字符最小长度</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不包括</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">avg</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">avg</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">数值类型</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">-</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>校验方法</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>固定值</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>根据校验规则中的阈值配置，计算 <code>s opt expect</code> ，返回布尔值；</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>s</code> 为表内数据的统计结果；</p>
+</li>
+<li>
+<p><code>opt</code> 为用户在阈值配置中选择的操作符，支持&gt;,&gt;=,&lt;,&gt;=,=,!=；</p>
+</li>
+<li>
+<p><code>expect</code> 为用户输入的阈值；</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>根据上式计算结果，如果为true，返回正常，否则返回校验不通过；</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-3a60d.png" alt="05 DTinsightValidHelp RulesManagement 3a60d">
+</div>
+</div>
+<div class="paragraph">
+<p>举例：</p>
+</div>
+<div class="paragraph">
+<p>配置项为：id字段，空值数；</p>
+</div>
+<div class="paragraph">
+<p>校验方法：固定值；</p>
+</div>
+<div class="paragraph">
+<p>阈值配置：&gt;=12</p>
+</div>
+<div class="paragraph">
+<p>系统会先统计id字段的空值数有多少，假设为s=13，再判断s、opt、expect的关系，13&gt;=12，返回false，得出校验不通过的结论。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>1天波动</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-87904.png" alt="05 DTinsightValidHelp RulesManagement 87904" width="600">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>取出1天前的该规则下的历史数据pre，没有算0；</p>
+</li>
+<li>
+<p>公式：如果pre=0，那么结果等于0，否则 <code>(s-pre) / abs(pre)</code> ，s为表内数据统计结果；</p>
+</li>
+</ol>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>7天波动</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-d57c8.png" alt="05 DTinsightValidHelp RulesManagement d57c8" width="800">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>取出7天前的该规则下的历史数据pre，没有算0；</p>
+</li>
+<li>
+<p>公式：如果pre=0，那么结果等于0，否则 <code>(s-pre) / abs(pre)</code> ，s为表内数据统计结果；</p>
+</li>
+</ol>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>月度波动</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-4d5c2.png" alt="05 DTinsightValidHelp RulesManagement 4d5c2" width="800">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>取出 <code>${bizdate}-1月</code> 的该规则下的历史数据pre，没有算0，如果这个月没有这么一天，也算0；</p>
+</li>
+<li>
+<p>公式：如果pre=0，那么结果等于0，否则 <code>(s-pre) / abs(pre)</code> ，s为表内数据统计结果；</p>
+</li>
+</ol>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>7天平均值波动</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-0b516.png" alt="05 DTinsightValidHelp RulesManagement 0b516" width="800">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>取出前7天的该规则下的历史数据，如果没有7天，有多少天算多少天，没有算0天；</p>
+</li>
+<li>
+<p>计算出这些历史数据的平均值avg，0天算0；</p>
+</li>
+<li>
+<p>公式：如果ave=0，那么结果等于0，否则 <code>(s-avg) / abs(avg)</code> ，s为表内数据统计结果；</p>
+</li>
+</ol>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>月度平均值波动</strong></p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/05_DTinsightValidHelp_RulesManagement-56af7.png" alt="05 DTinsightValidHelp RulesManagement 56af7" width="800">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>取出（${bizdate}-1月）的该规则下的历史数据，有多少天算多少天，没有算0天</p>
+</li>
+<li>
+<p>计算出这些历史数据的平均值avg，0天算0；</p>
+</li>
+<li>
+<p>公式：如果ave=0，那么结果等于0，否则 <code>(s-avg) / abs(avg)</code> ，s为表内数据统计结果；</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../_/js/site.js"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

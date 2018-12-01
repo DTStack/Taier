@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import { isEmpty } from 'lodash';
 
 import {
     Table, message,
@@ -150,7 +151,7 @@ class OfflineTaskMana extends Component {
         this.setState({
             checkAll: false,
             selectedRowKeys: [],
-            current: pagination.current,
+            current: current,
             taskType: filters.taskType,
             taskPeriodId: filters.taskPeriodId,
         }, this.search)
