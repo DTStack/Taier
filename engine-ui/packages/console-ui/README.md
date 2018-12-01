@@ -12,7 +12,7 @@
 - 【 数据地图 新增字段级权限
 - 【 流计算 】新增 MongoDB、Redis 2种数据源
 - 【 应用自定义 】新增资源平台首页
-- 【 其他 】大量的 Bugfix、细节优化, 详情请看[](http://redmine.prod.dtstack.cn/projects/dtinsight-v3-1-0/issues)
+- 【 其他 】大量的 Bugfix、细节优化, [详情请看](http://redmine.prod.dtstack.cn/projects/dtinsight-v3-1-0/issues)
 
 
 
