@@ -490,6 +490,7 @@ class TaskFlowView extends Component {
             const currentNode = cell.data;
 
             const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
+            const taskId = currentNode.batchTask && currentNode.batchTask.id;
 
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
@@ -509,7 +510,7 @@ class TaskFlowView extends Component {
                 ctx.showJobLog(currentNode.jobId)
             })
             menu.addItem(`${isPro?'查看':'修改'}任务`, null, function () {
-                ctx.props.goToTaskDev(currentNode.taskId)
+                ctx.props.goToTaskDev(taskId)
             })
             menu.addItem('查看任务属性', null, function () {
                 ctx.setState({ visible: true })
@@ -621,10 +622,14 @@ class TaskFlowView extends Component {
 
     saveViewInfo = () => {
         const view = this.graph.getView();
-        this._view = {
-            translate: view.getTranslate(),
-            scale: view.getScale(),
-        };
+        const translate = view.getTranslate();
+        if (translate.x > 0) {
+            this._view = {
+                translate: translate,
+                scale: view.getScale(),
+            };
+        }
+
     }
 
     initView = () => {
@@ -656,7 +661,9 @@ class TaskFlowView extends Component {
 
     refresh = () => {
         this.saveViewInfo();
-        this.initGraph(this.props.taskJob.id);
+        setTimeout(() => {
+            this.initGraph(this.props.taskJob.id);
+        }, 0);
     }
 
     zoomIn = () => {
