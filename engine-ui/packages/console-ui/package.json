@@ -1,7 +1,7 @@
 {
   "name": "data-stack-web",
-  "version": "3.1.0-beta",
-  "description": "Makes data valuable.",
+  "version": "3.1.0",
+  "description": "Making data valuable.",
   "main": "src/app.js",
   "dependencies": {
     "@types/lodash": "^4.14.118",
