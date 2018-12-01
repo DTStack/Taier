@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, isObject } from 'lodash';
 import { message } from 'antd';
 
 import utils from 'utils';
