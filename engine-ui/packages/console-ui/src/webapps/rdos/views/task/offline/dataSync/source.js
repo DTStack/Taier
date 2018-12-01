@@ -316,6 +316,7 @@ class SourceForm extends React.Component {
                 validateFields.push("encoding");
             }
         }
+        const formData = form.getFieldsValue();
 
         form.validateFieldsAndScroll(
             validateFields,
@@ -323,8 +324,7 @@ class SourceForm extends React.Component {
             (err, values) => {
                 if (!err) {
                     // 校验中文字符，如果有则发出警告
-                    console.log("values:", values);
-                    this.validateChineseCharacter(values);
+                    this.validateChineseCharacter(formData);
                     cb.call(null, 1);
                 }
             }
