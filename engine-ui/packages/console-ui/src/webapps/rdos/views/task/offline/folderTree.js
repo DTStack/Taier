@@ -278,7 +278,7 @@ class FolderTree extends React.Component {
 
     createFn(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateFn();
     }
@@ -376,7 +376,8 @@ class FolderTree extends React.Component {
      */
     createFolder(data, type) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
+            type: data.type,
         });
         this.props.toggleCreateFolder(type);
     }
@@ -462,7 +463,7 @@ class FolderTree extends React.Component {
 
     genetateTreeNode() {
 
-        const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
+        const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
         
         const loop = (data) => {
@@ -527,7 +528,7 @@ class FolderTree extends React.Component {
 
     render() {
         const {
-            type, placeholder, currentTab,
+            type, placeholder, currentTab, id,
             onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
 
@@ -538,7 +539,7 @@ class FolderTree extends React.Component {
                         <TreeSelect
                             disabled={typeof couldEdit=="boolean"&&!couldEdit}
                             size="large"
-                            key={type}
+                            key={id || type}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                             showSearch={!this.props.isFilepicker}
                             showIcon={true}
@@ -549,7 +550,7 @@ class FolderTree extends React.Component {
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
                             filterTreeNode={(inputValue, treeNode) =>{
-                                return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+                                return treeNode.props.name && treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
                             }}
                         >
                             {this.genetateTreeNode()}

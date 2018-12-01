@@ -15,9 +15,9 @@ export default class Offline extends React.Component {
     render() {
         return <div>
             <CloneTaskModal></CloneTaskModal>
+            <FolderModal />
             <TaskModal />
             <UploadModal />
-            <FolderModal />
             <FnModal />
             <FnMoveModal />
             <FnViewModal />
