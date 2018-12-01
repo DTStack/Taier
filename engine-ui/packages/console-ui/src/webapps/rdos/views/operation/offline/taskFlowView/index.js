@@ -629,7 +629,6 @@ class TaskFlowView extends Component {
                 scale: view.getScale(),
             };
         }
-
     }
 
     initView = () => {
@@ -692,6 +691,7 @@ class TaskFlowView extends Component {
             <div className="graph-editor"
                 style={{
                     position: 'relative',
+                    height: '100%',
                 }}
             >
                 <Spin
@@ -702,13 +702,6 @@ class TaskFlowView extends Component {
                    <div
                         className="editor pointer"
                         ref={(e) => { this.Container = e }}
-                        style={{
-                            position: 'relative',
-                            overflow: 'hidden',
-                            overflowX: 'auto',
-                            paddingBottom: '20px',
-                            height: '95%',
-                        }}
                     >
                     </div>
                 </Spin>

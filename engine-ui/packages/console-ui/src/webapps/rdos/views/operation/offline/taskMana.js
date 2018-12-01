@@ -151,7 +151,7 @@ class OfflineTaskMana extends Component {
         this.setState({
             checkAll: false,
             selectedRowKeys: [],
-            current: current,
+            current: pagination.current,
             taskType: filters.taskType,
             taskPeriodId: filters.taskPeriodId,
         }, this.search)

@@ -546,7 +546,7 @@ class FolderTree extends React.Component {
                             loadData={this.onLoadData.bind(this, type)}
                             onChange={onChange}
                             defaultValue={this.props.defaultNode}
-                            getPopupContainer={() => this.selEle}
+                            getContainer={() => this.selEle}
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
                             filterTreeNode={(inputValue, treeNode) =>{
