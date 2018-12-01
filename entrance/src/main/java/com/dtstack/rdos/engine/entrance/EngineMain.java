@@ -34,6 +34,7 @@ public class EngineMain {
 		try {
 			SystemPropertyUtil.setSystemUserDir();
 			LogbackComponent.setupLogger();
+			AgileUtil.triggerAgile();
 			// load config
 			Map<String,Object> nodeConfig = new YamlConfig().loadConf();
 			ConfigParse.setConfigs(nodeConfig);

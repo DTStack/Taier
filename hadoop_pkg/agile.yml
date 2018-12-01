@@ -1,0 +1,3 @@
+hadoop_ips: 172.16.10.26,172.16.10.12,172.16.10.47,172.16.10.11,172.16.10.100
+zk_ips: 172.16.10.26:2181,172.16.10.47:2181,172.16.10.100:2181
+hive_metastore: jdbc:mysql://172.16.8.104:3306/hive?charset=utf8&autoReconnect=true,dtstack,abc123
