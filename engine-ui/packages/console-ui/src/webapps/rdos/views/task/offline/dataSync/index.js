@@ -67,13 +67,13 @@ class DataSync extends React.Component {
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
 
         // Output test conditions
-        // console.log('old', oldSource, oldTarget);
-        // console.log('new', sourceMap, targetMap);
-        // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourceParitionChange', isSourceParitionChange);
-        // console.log('isTargetPartitionChange', isTargetPartitionChange);
-        // console.log('isSQLChange', isSQLChange);
-        // console.log('isSourceColumnChange', isSourceColumnChange);
+        console.log('old', oldSource, oldTarget);
+        console.log('new', sourceMap, targetMap);
+        console.log('isWhereChange', isWhereChange);
+        console.log('isSourceParitionChange', isSourceParitionChange);
+        console.log('isTargetPartitionChange', isTargetPartitionChange);
+        console.log('isSQLChange', isSQLChange);
+        console.log('isSourceColumnChange', isSourceColumnChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update

@@ -317,7 +317,7 @@ class Header extends Component {
                     apps={apps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/stream/helpSite/index.html"
+                    helpUrl="/public/helpSite/index.html"
                 />
             </div>
         );

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>调度属性配置 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-batch">
+    <meta name="dcterms.identifier" content="v3.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="../Summary.html"><span class="title">离线计算</span> <span class="version">v3.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Explain.html">名词解释</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Project/Project.html">项目管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据集成</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/DataSource.html">支持的数据源</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/DataSourceManage.html">数据源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/JobConfig.html">同步任务配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/WholeDatabase.html">整库迁移</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/VersionSupport.html">版本支持</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/BestPractice.html">最佳实践</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据开发</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="JobDevelop.html">任务开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="JobTypes.html">任务类型</a>
+    </span>
+  </li>
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="ScheduleConfig.html">调度属性配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="ScriptDevelop.html">脚本开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="ResourceManage.html">资源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="UDFManage.html">函数管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableLookup.html">表查询</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="ImportLocalData.html">导入本地数据</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">运维中心</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/MaintenanceOverview.html">运维概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/JobMaintenance.html">任务运维</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Alert.html">告警监控</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/DirtyDataManage.html">脏数据管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataOverview.html">全局概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/TableManage.html">表管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/OperationRecord.html">操作记录</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataCategory.html">数据类目</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../QA/QA.html">QA</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Appendix/Appendix.html">附录</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="../Summary.html">离线计算</a></li>
+    <li class="crumb">数据开发</li>
+    <li class="crumb"><a href="ScheduleConfig.html">调度属性配置</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">调度属性配置</h1>
+<div class="sect1">
+<h2 id="ScheduleCycle"><a class="anchor" href="#ScheduleCycle"></a>周期配置</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>任务的时间属性目前支持月、周、天、小时和分钟5种配置方式，本文将分别介绍配置方式和调度系统中的实例运行情况。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+一个周期运行的任务，它的依赖关系的优先级大于时间属性。在时间属性决定的某个时间点到达时，任务实例不会马上运行，而是先检查上游是否全部运行成功。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>上游依赖的实例没有全部运行成功<strong>并且</strong>定时运行时间已到，则实例不会运行。</p>
+</li>
+<li>
+<p>上游依赖的实例全部运行成功<strong>并且</strong>定时运行时间还未到，则实例不会运行。</p>
+</li>
+<li>
+<p>上游依赖的实例全部运行成功<strong>并且</strong>定时运行时间已到，则实例具备了运行的条件，待其获得集群的计算资源后即可以开始运行，集群资源的分配由Spark集群分配，用户不可干预。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>对于离线任务（包括SQL、MR、数据同步），可在“调度依赖”侧边栏，可配置此任务的调度周期等参数，具体包括如下内容：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>调度属性</strong><br>
+调度属性的配置包括如下内容：此任务接受调度还是停止调度？此任务在什么时间生效？多长时间间隔运行一次？具体什么时候运行？具体包括：<br></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>调度状态<br>
+选中“冻结”，表示此任务停止调度，不会进行实际的计算（通常此功能用于暂时不需要运行，但也不想删除的任务）；
+若勾选“冻结”，任务每天仍会产生实例，但调度时会直接返回失败状态，不会真正运行任务逻辑。</p>
+</li>
+<li>
+<p>生效日期：任务只在生效日期内执行；</p>
+</li>
+<li>
+<p>调度周期：分为{天；周；月；小时；分钟}，若选中“天”，则表示此任务每天执行一次；</p>
+</li>
+<li>
+<p>起调时间：用户设定调度周期后，还需要设定具体在哪个时刻点启动任务。根据用户选择的调度周期不同，起调时间需要配置不同的参数：</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 83.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">调度周期</th>
+<th class="tableblock halign-left valign-top">起调时间配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">日</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>天调度任务，即每天自动运行一次。新建周期任务时，默认的时间周期为每天0点运行一次，可根据需要自行指定运行时间点，配置“具体时间”：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>小时：单选下拉列表，00-23，默认选中00</p>
+</li>
+<li>
+<p>分钟：单选下拉列表，00-59，默认选中00</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">周</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>周调度任务，即每周的特定几天里每天在特定时间点自动运行一次，需配置“选择时间”和“具体时间”：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>选择时间：复选下拉列表{星期一；星期二；……星期日}，可复选，默认选中“星期一”；</p>
+</li>
+<li>
+<p>具体时间：同“调度周期-日”相同；</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">月</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>月调度任务，即每月指定的特定几天里每天在特定时间点自动运行一次，需配置“选择时间”和“具体时间”：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>选择时间：复选下拉列表{每月最后一天；每月1号；每月2号；……每月31号}，可复选，默认选中“星期一”；</p>
+</li>
+<li>
+<p>具体时间：同“调度周期-日”相同；</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">小时</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>小时调度任务，即每天指定的时间段内按N*1小时的时间间隔运行一次，比如每天1点到4点的时间段内，每1小时运行一次。当调度周期切换到非天级调度时，节点起调时间将不可选，需配置“开始时间”、“结束时间”和“间隔时间”：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>开始时间、结束时间：同“调度周期-日”类似，小时可选择00-23，分钟不可选，开始时间的分钟为0，结束时间的分钟为59；</p>
+</li>
+<li>
+<p>间隔时间：单选下拉列表{1小时；2小时……23小时}，默认选中1小时；</p>
+</li>
+<li>
+<p>开始时间，应早于结束时间，若不符合，需提示用户“开始时间应早于结束时间”；</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">分钟</p></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>分钟调度任务，即每天指定的时间段内按N*指定分钟的时间间隔运行一次，目前能支持的最短时间间隔为每5分钟运行一次，当调度周期切换到非天级调度，节点起调时间将不可选，需配置“开始时间”、“结束时间”和“间隔时间”：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>开始时间、结束时间：同“调度周期-小时”相同；</p>
+</li>
+<li>
+<p>间隔时间：单选下拉列表{5分钟；10分钟；……55分钟}，默认选中5分钟；</p>
+</li>
+<li>
+<p>开始时间，应早于结束时间，若不符合，需提示用户“开始时间应早于结束时间”；</p>
+</li>
+</ul>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+按照小时周期调度时，时间周期按<strong>左闭右闭</strong>原则计算，比如配置为从0点到2:59点的时间段内，每隔1个小时运行一次，表明时间区间为[00:00，02:59]，间隔为1小时，调度系统将会每天生成3个实例，分别在0:00／1:00／2:00运行。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>任务实例的生成</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>DTinsightBatch在每天22:00统一生成第二天所有需要的任务实例，基于以上设计，任务开发时需要注意任务的提交时间，这里以一个天周期调度任务A为例：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/调度周期示意图.png" alt="调度周期示意图">
+</div>
+</div>
+<div class="paragraph">
+<p>任务A基本信息：调度周期：1天；具体调度时间：8:00；<br>
+1）若您在1月1日21:00提交A任务（时间轴上侧），DTinsightBatch会在当天22:00产生A任务的实例，并会在1月2日8:00第一次运行；<br>
+2）若您在1月1日23:00提交A任务（时间轴下侧），由于DTinsightBatch已经在22:00产生了1月2日的所有实例，A任务在1月2日将不会运行。A任务的实例将会在1月2日22:00产生，并在1月3日第一次运行。</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<strong>任务被配置为冻结是否生成实例？</strong><br>
+处于冻结状态的任务，其周期实例依然会生成，但不会运行。<br>
+对于存在依赖关系的多个任务，如果将上游任务A冻结，则下游任务B也会进入“冻结”状态，B任务的实例也会产生，但不会运行，在B任务的执行日志中会打印出是由于A任务被冻结才没有运行的。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<strong>任务被删除是否会影响实例的运行？</strong><br>
+如果此任务被其他任务依赖（是其他任务的上游任务），则此任务不能被删除，您需要先解除依赖关系再进行删除<br>
+任务删除后，已生成的任务实例不会被删除，但会运行失败
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<strong>想在每月的最后一天计算当月数据怎么办？</strong><br>
+目前系统不支持配置 每月最后一天，因此如果时间周期选择每月31日，那么在有31日的月份会有一天调度，其他日期都是生成实例然后直接设为运行成功<br>
+需要统计每个月的数据时，建议选择每月的1日运行，计算上个月的数据
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ParamConfig"><a class="anchor" href="#ParamConfig"></a>参数配置</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>为使任务自动周期运行时能动态适配环境变化，DTinsightBatch提供了参数配置的功能。详细的参数配置如下表所示：</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 18.1818%;">
+<col style="width: 36.3636%;">
+<col style="width: 9.0909%;">
+<col style="width: 36.3637%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">参数类型</th>
+<th class="tableblock halign-left valign-top">设置方式</th>
+<th class="tableblock halign-left valign-top">适用类型</th>
+<th class="tableblock halign-left valign-top">参数编辑框示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">系统参数bdp.system.bizdate、bdp.system.cyctime、bdp.system.premonth、bdp.system.currmonth</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">在调度系统中运行时，无须在编辑框设置，可直接在代码中引用${bdp.system.bizdate}、${bdp.system.cyctime}、${bdp.system.premonth}、${bdp.system.currmonth}， <strong>系统将自动替换这些参数的取值</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">全部任务类型，不支持脚本</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">无</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">自定义参数</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">在代码中引用${key1},${key2}， 然后在“参数”编辑框以如下方式设置key1=value1 key2=value2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">全部任务类型，不支持脚本</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">常量参数：param1=”abc” param2=1234；变量参数：param1=$[yyyymmdd], 结果将基于bdp.system.cyctime的取值计算</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+应用场景举例：某任务为每天调度一次，需要统计昨天的历史数据，那么可以在SQL或MR任务中添加业务日期变量，此变量需要随着系统时间而变化，即实现“今天的任务处理昨天的数据”。
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="SystemParam"><a class="anchor" href="#SystemParam"></a>系统参数</h3>
+<div class="paragraph">
+<p>DTinsightBatch提供了4个系统参数，定义如下：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>${bdp.system.cyctime}：一个实例的定时运行时间，默认格式为：yyyyMMddHHmmss。</p>
+</li>
+<li>
+<p>${bdp.system.bizdate}：一个实例计算时对应的业务日期，业务日期默认为定时运行日期的前一天，以yyyyMMdd的格式显示。</p>
+</li>
+<li>
+<p>${bdp.system.currmonth}：一个实例的定时运行时间所在的月份，默认以yyyyMM的格式显示。</p>
+</li>
+<li>
+<p>${bdp.system.premonth}：一个实例的定时运行时间的上一个月，以yyyyMM的格式显示。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>从定义可知，运行时间和业务日期有如下计算公式：<strong>运行时间=（业务日期+1）+定时时间</strong>。</p>
+</div>
+<div class="paragraph">
+<p>若使用系统参数，无需在编辑框设置，直接在代码中引用${bdp.system.bizdate}和${bdp.system.cyctime}即可，系统将自动替换代码中对这两个参数的引用字段。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+一个周期任务的调度属性，配置的是运行时间的定时规律，因此可以根据实例的定时运行时间反推业务日期，从而得知每个实例中这两个参数的取值。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>入门示例</strong></p>
+</div>
+<div class="paragraph">
+<p>假设存在一张分区表，以ds作为分区字段，有数据同步任务每天向这张表的一个新的分区写入数据，其分区名由业务日期命名，例如20180412。现需要每天对此表的数据做处理，但只需要处理
+当前日期为2018年4月13日，查询此表在20180412分区的数据的SQL为：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">select * from big_table2 where ds=${bdp.system.bizdate};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>此任务运行的日期为2018年4月13日，系统在运行时会将系统参数替换，实际执行的SQL为：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">select * from big_table2 where ds=20180412;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+DTinsightBatch会将系统参数做简单替换，如果SQL中写为：ds='${bdp.system.bizdate}，则也会替换为ds='20180412'
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="CustParam"><a class="anchor" href="#CustParam"></a>自定义参数</h3>
+<div class="paragraph">
+<p>使用自定义参数的使用方式：需要先在代码中编辑${key1},${key2}，然后在<strong>任务参数</strong>面板中输入“key1=value1 key2=value2”方可生效。</p>
+</div>
+<div class="paragraph">
+<p>其中，value的计算分为两种类型：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>常量：直接替换的字符串或数字，例如“key1=1234 key2=abcdefg”。</p>
+</li>
+<li>
+<p>变量：基于 <code>bdp.system.cyctime</code> 取值计算出的取值，例如“key1=${yyyyMMdd+1}”表示按 <code>bdp.system.cyctime</code> 的日期加一天。关于 `bdp.system.cyctime的取值，请参见<a href="#SystemParam">系统参数</a>的说明。</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+变量进行参数替换时只支持固定格式，且暂时不支持指定cyctime中的部分参数提取，例如不支持yyyy的提取。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>变量的格式</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>变量的格式支持 <code>yyyyMMdd HHmmss</code> ，其中MM表示月份，mm表示分钟，HH表示24小时制的小时，<strong>变量对大小写敏感</strong></p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+默认情况下，自定义变量参数的计算单位为天。例如$[HHmmss-N/24/60]表示(yyyyMMddHHmmss-(N/24/60 * 1天))的计算结果，然后按HHmmss的格式取时分秒。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>SQL替换示例</strong>
+设置一个SQL类型的任务，若在代码中使用一个自定义常量参数tablename和一个自定义变量参数ct，则可按如下步骤进行操作：</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在代码中引用自定义变量名。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">select * from ${tablename} where ds=${ct};</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在右侧的<strong>任务参数</strong>面板中自动会出现tablename和ct的输入表单，您直接在表单中输入表名：big_table2和分区名yyyyMMdd，且此任务的定时时间为2018年4月13日，那么系统将其替换为：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">select * from big_table2 where ds=20180413;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>可供参考的变量参数配置方式如下：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>后N年：$[add_months(yyyyMMdd,12*N)]</p>
+</li>
+<li>
+<p>前N年：$[add_months(yyyyMMdd,-12*N)]</p>
+</li>
+<li>
+<p>后N月：$[add_months(yyyyMMdd,N)]</p>
+</li>
+<li>
+<p>前N月：$[add_months(yyyyMMdd,-N)]</p>
+</li>
+<li>
+<p>后N周：$[yyyyMMdd+7*N]</p>
+</li>
+<li>
+<p>前N周：$[yyyyMMdd-7*N]</p>
+</li>
+<li>
+<p>后N天：$[yyyyMMdd+N]</p>
+</li>
+<li>
+<p>前N天：$[yyyyMMdd-N]</p>
+</li>
+<li>
+<p>后N小时：$[hh24miss+N/24]</p>
+</li>
+<li>
+<p>前N小时：$[hh24miss-N/24]</p>
+</li>
+<li>
+<p>后N分钟：$[hh24miss+N/24/60]</p>
+</li>
+<li>
+<p>前N分钟：$[hh24miss-N/24/60]</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Rely"><a class="anchor" href="#Rely"></a>依赖关系</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>在调度配置中，会需要配置两个任务级别的依赖：任务间依赖和跨周期依赖。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>任务间依赖</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>若某任务B必须在任务A完成后运行，则A为B的上游任务，这种依赖关系可通过如下方式配置：在“上游任务”输入框，输入任务关键字，在列出的可选任务中选中某个任务，此任务被添加到上游任务列表中，即完成了A、B间的依赖关系配置。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+一个任务可以依赖多个上游任务，同样，一个任务可被多个任务依赖。依赖属性为非必填项，当下游任务需依赖上游任务产出数据，则可配置依赖关系。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+上游任务失败后，下游任务不会运行，但其状态会被置为失败状态。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>跨周期依赖</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>配置任务的跨周期依赖，如：天调度任务中，今天需要执行的数据依赖本任务昨天执行的数据，那么可以配置依赖昨天任务的周期，这样一来，昨天的实例必须先执行成功，今天的实例才可以调度起来，这种依赖主要是体现在任务调度实例的依赖。</p>
+</div>
+<div class="paragraph">
+<p>跨周期依赖配置有两类：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>自依赖，等待上一调度周期结束，才能继续运行。应用场景：假设设定A任务每天1:00运行，设定为自依赖后，A任务在3月1日未运行成功，则在3月2日不会运行。</p>
+</li>
+<li>
+<p>不依赖上一调度周期：所有任务默认选择该选项，即不依赖任何任务的上周期实例。若A任务在3月1日未运行成功，则在3月2日会产生新的实例并运行。</p>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+依赖属性配置的调度依赖是同周期依赖和跨周期依赖不冲突。任务A可以配置依赖属性依赖任务B，也可以配置跨周期依赖依赖B，如此任务A既依赖任务B，本周期也依赖任务B上周期。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

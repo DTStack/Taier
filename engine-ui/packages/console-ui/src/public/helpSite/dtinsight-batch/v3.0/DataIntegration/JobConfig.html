@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>同步任务的配置 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-batch/v3.0/DataIntegration/JobConfig.html">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-batch">
+    <meta name="dcterms.identifier" content="v3.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="../Summary.html"><span class="title">离线计算</span> <span class="version">v3.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Explain.html">名词解释</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Project/Project.html">项目管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据集成</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DataSource.html">支持的数据源</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DataSourceManage.html">数据源管理</a>
+    </span>
+  </li>
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="JobConfig.html">同步任务配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="WholeDatabase.html">整库迁移</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="VersionSupport.html">版本支持</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="BestPractice.html">最佳实践</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据开发</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobDevelop.html">任务开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobTypes.html">任务类型</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScheduleConfig.html">调度属性配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScriptDevelop.html">脚本开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ResourceManage.html">资源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/UDFManage.html">函数管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/TableLookup.html">表查询</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ImportLocalData.html">导入本地数据</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">运维中心</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/MaintenanceOverview.html">运维概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/JobMaintenance.html">任务运维</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Alert.html">告警监控</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/DirtyDataManage.html">脏数据管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataOverview.html">全局概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/TableManage.html">表管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/OperationRecord.html">操作记录</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataCategory.html">数据类目</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../QA/QA.html">QA</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Appendix/Appendix.html">附录</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="../Summary.html">离线计算</a></li>
+    <li class="crumb">数据集成</li>
+    <li class="crumb"><a href="JobConfig.html">同步任务配置</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">同步任务的配置</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>数据同步任务的配置共分为5个步骤：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>选择数据来源：选择已配置的数据源，系统会读取其中的数据；</p>
+</li>
+<li>
+<p>选择数据目标：选择已配置的数据源，系统会向其写入数据；</p>
+</li>
+<li>
+<p>字段映射：配置数据来源与数据目标之间的字段映射关系，不同的数据类型在这步有不同的配置方法；</p>
+</li>
+<li>
+<p>通道控制：控制数据同步的执行速度、错误数据的处理方式等；</p>
+</li>
+<li>
+<p>预览保存：再次确认已配置的规则并保存；</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ConfigPattern"><a class="anchor" href="#ConfigPattern"></a>配置模式的选择</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>DTinsightBatch支持以向导模式或脚本模式进行同步任务的配置，向导模式的特点是便捷、简单，可视化字段映射，快速完成同步任务配置，但对部分数据源（例如Redis、ElasticSearch）不支持，而脚本模式的特点是全能、高效，可深度调优，支持全部数据源。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>同步任务的创建</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>创建同步任务时，在<strong>数据开发</strong>页面点击<strong>新建任务</strong>，并选择<strong>数据同步</strong>的任务类型，并进行向导/脚本模式的选择，模式一旦选择之后即不可修改。</p>
+</div>
+<div class="paragraph">
+<p>如果选择了脚本模式，您可以在编辑区左上角点击<strong>导入模板</strong>，并选择数据源类型、数据库等信息，确定后即可导入模板，您只需编辑其中一部分信息。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+导入模板后，之前填写的信息会被清空并覆盖
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>脚本模式的详细介绍请参考：
+<a href="https://github.com/DTStack/flinkx" target="_blank" rel="noopener">FlinkX基本情况介绍</a></p>
+</div>
+<div class="paragraph">
+<p>脚本模式的编辑中可能需要填写数栈自身的表所在的Hadoop路径信息（Location），您可以通过在SQL脚本中输入 <code>DESC FORMATTED tableName</code> 命令来获取其路径，详情请参考<a href="../Appendix/Appendix.html#getTableLocation" class="page">获取表在Hadoop中的路径</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ConfigReader"><a class="anchor" href="#ConfigReader"></a>配置Reader插件</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/mysqlreader.md">MySQL读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/oraclereader.md">Oracle读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/sqlserverreader.md">SQLServer读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/hdfsreader.md">HDFS读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/hbasereader.md">HBase读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/esreader.md">ElasticSearch读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/ftpreader.md">FTP读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/odpsreader.md">ODPS读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/postgresqlreader.md">PostgreSQL读取插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/mongodbreader.md">MongoDB读取插件</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ConfigWriter"><a class="anchor" href="#ConfigWriter"></a>配置Writer插件</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/mysqlwriter.md">MySQL写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/oraclewriter.md">Oracle写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/sqlserverwriter.md">SQLServer写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/hdfswriter.md">HDFS写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/hbasewriter.md">HBase写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/eswriter.md">ElasticSearch写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/ftpwriter.md">FTP写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/odpswriter.md">ODPS写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/postgresqlwriter.md">PostgreSQL写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/mongodbwriter.md">MongoDB写入插件</a></p>
+</li>
+<li>
+<p><a href="https://github.com/DTStack/flinkx/blob/master/docs/rediswriter.md">Redis写入插件</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ConfigDemo"><a class="anchor" href="#ConfigDemo"></a>常用数据源配置详细介绍</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="RDBMS"><a class="anchor" href="#RDBMS"></a>关系型数据库</h3>
+<div class="paragraph">
+<p>DTinsightBatch支持MySQL、Oracle、SQLServer3种关系型数据库的数据同步，支持从从这几类数据库中读取/写入数据。</p>
+</div>
+<div class="sect3">
+<h4 id="RDBMSReader"><a class="anchor" href="#RDBMSReader"></a>作为数据源</h4>
+<div class="paragraph">
+<p>关系型数据库作为数据源，需配置以下信息：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据源；</p>
+</li>
+<li>
+<p>选择表；</p>
+</li>
+<li>
+<p>数据过滤条件：针对源头数据筛选条件，根据指定的column、table、where条件拼接SQL进行数据抽取，暂时不支持limit关键字过滤。利用where条件可进行增量同步，具体说明如下：</p>
+<div class="paragraph">
+<p>增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写where条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写 <code>create_time&gt;您需要的日期</code> ，如果需要日期动态变化，可以填写 <code>${bdp.system.bizdate}</code>  、<code>${bdp.system.cyctime}</code> 调度参数，关于调度参数的详细信息请参考<a href="../DataDevelop/ScheduleConfig.html#SystemParam" class="page">系统参数</a>。</p>
+</div>
+</li>
+<li>
+<p>切分键：DTinsightBatch在进行数据抽取时，如果指定切分键，系统可以使用切分键的字段进行数据分片，数据同步因此会启动并发任务进行数据同步，这样可以大大提供数据同步的效能。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>推荐将表的主键作为切分键，因为表主键通常情况下比较均匀，因此切分出来的分片也不容易出现数据热点。</p>
+</li>
+<li>
+<p>目前DTinsightBatch目前支持MySQL数据库数值型切分键，支持Oracle数据库数值型、字符串类型切分键，不支持字符串、浮点、日期等其他类型，也不支持其他数据库。如果指定了不支持的类型，则忽略切分键功能，使用单通道进行同步。</p>
+</li>
+<li>
+<p>如果不填写切分键，数据同步视作使用单通道同步该表数据 。</p>
+</li>
+<li>
+<p>切分键的配置需要与第四步的“通道控制”联合使用，下面是典型的应用场景：</p>
+<div class="paragraph">
+<p>假设MySQL的tableA表中，有一个INT类型的字段名为id的主键，那么可以在切分键输入框中输入id字段，并在第四步的“作业并发数”中配置为5，则系统会产生5个并发线程同时读取MySQL表，每个任务会根据id字段的值进行数据切分，保证5个并发线程读取的数据是不同的，通过以上机制即可以加速数据读取的速度。</p>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+关系型数据库设置作业速率上限和切分键才能根据作业速率上限将表进行切分，关系型数据库只支持数值型作为切分键，但Oracle数据库支持数值型和字符串类型作为切分键。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>映射配置：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>支持挑选部分字段进行导出。</p>
+</li>
+<li>
+<p>支持字段换序，即字段可以不按照表schema信息顺序进行导出。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="RDBMSWrite"><a class="anchor" href="#RDBMSWrite"></a>作为数据目标</h4>
+<div class="paragraph">
+<p>关系型数据库作为数据目标，需配置以下信息：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据同步目标；</p>
+</li>
+<li>
+<p>选择表；</p>
+</li>
+<li>
+<p>导入前、导入后准备语句：执行数据同步任务之前率先执行的SQL语句。目前向导模式只允许执行一条 SQL 语句，例如：清除旧数据。</p>
+</li>
+<li>
+<p>主键冲突的处理：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>replace into模式：<strong>目前只有MySQL数据库支持replace into模式</strong> 没有遇到主键/唯一性索引冲突时，与insert into行为一致，冲突时会用新行替换原有行所有字段；</p>
+</li>
+<li>
+<p>insert into模式：当主键/唯一性索引冲突时会写不进去冲突的行，以脏数据的形式体现，脏数据的配置与管理请参考<a href="../Maintenance/DirtyDataManage.html" class="page">脏数据管理</a>；</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>映射配置：支持挑选部分字段进行写入。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="Hive"><a class="anchor" href="#Hive"></a>Hive</h3>
+<div class="sect3">
+<h4 id="HiveRead"><a class="anchor" href="#HiveRead"></a>作为数据源</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据源；</p>
+</li>
+<li>
+<p>选择表；</p>
+</li>
+<li>
+<p>分区：读取数据所在的分区信息，支持直接填写分区名称，同时支持系统调度参数:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">${bdp.system.premonth}
+${bdp.system.cyctime}
+${bdp.system.bizdate}
+${bdp.system.currmonth}</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="HiveWrite"><a class="anchor" href="#HiveWrite"></a>作为数据目标</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据源；</p>
+</li>
+<li>
+<p>选择表；</p>
+</li>
+<li>
+<p>分区：需要写入数据表的分区信息，必须指定到最后一级分区。例如把数据写入一个2级分区表，可以通过 <code>pt=20180401/ds=abcdef</code> 。其中pt是一级分区字段，ds是二级分区字段。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>对于非分区表，该值务必不要填写，表示直接导入到目标表。</p>
+</li>
+<li>
+<p>DTinsightBatch不支持数据路由写入，对于分区表请务必保证写入数据到最末一级分区。</p>
+</li>
+<li>
+<p>分区的填写支持直接填写分区名称，同时支持系统调度参数:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">${bdp.system.premonth}
+${bdp.system.cyctime}
+${bdp.system.bizdate}
+${bdp.system.currmonth}</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>写入模式：
+insert overwrite：写入前将清理已存在的数据文件，之后执行写入；
+insert into：写入前已有的数据不会删除，系统会写入的新的文件；</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="HDFS"><a class="anchor" href="#HDFS"></a>HDFS</h3>
+<div class="sect3">
+<h4 id="HDFSRead"><a class="anchor" href="#HDFSRead"></a>作为数据源</h4>
+<div class="paragraph">
+<p>HDFS作为数据源，需配置以下信息：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据源；</p>
+</li>
+<li>
+<p>读取的HDFS文件路径：要读取的文件路径，多个路径可以用逗号隔开；</p>
+</li>
+<li>
+<p>读取的HDFS文件类型：目前只支持用户配置为"text"、"orc" ，text表示textfile文件格式，orc表示orcfile文件格式；</p>
+</li>
+<li>
+<p>编码格式：读取文件的编码配置，默认为UTF-8，还支持GBK；</p>
+</li>
+<li>
+<p>分隔符：读取的字段分隔符。需要注意的是，读取textfile数据时，需要指定字段分割符（默认值\001），但在读取orcfile时，用户无需指定字段分割符；</p>
+</li>
+<li>
+<p>映射配置：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>支持挑选部分字段进行导出。</p>
+</li>
+<li>
+<p>支持字段换序，即字段可以不按照表schema信息顺序进行导出。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="HDFSWrite"><a class="anchor" href="#HDFSWrite"></a>作为数据目标</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>选择数据源；</p>
+</li>
+<li>
+<p>输入HDFS文件路径：存储到Hadoop hdfs文件系统的路径信息，HdfsWriter会根据并发配置在此目录下写入多个文件。为与hive表关联，请填写hive表在hdfs上的存储路径。例：Hive上设置的数据仓库的存储路径为：/user/hive/warehouse/ ，已建立数据库：test，表：hello；则对应的存储路径为：/user/hive/warehouse/test.db/hello；</p>
+</li>
+<li>
+<p>分隔符：写入时的字段分隔符,需要用户保证与创建的Hive表的字段分隔符一致，否则无法在Hive表中查到数据；</p>
+</li>
+<li>
+<p>编码格式：默认为utf-8，请慎重修改；</p>
+</li>
+<li>
+<p>文件名：写入时的文件名；</p>
+</li>
+<li>
+<p>输入HDFS文件类型：目前只支持用户配置为"text"、"orc" ，text表示textfile文件格式，orc表示orcfile文件格式；</p>
+</li>
+<li>
+<p>写入模式：写入前数据清理处理模式：append，追加；overwrite，覆盖；</p>
+</li>
+<li>
+<p>映射配置：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>支持挑选部分字段进行写入。</p>
+</li>
+<li>
+<p>支持字段换序，即字段可以不按照表schema信息顺序进行写入。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Channel"><a class="anchor" href="#Channel"></a>通道控制</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="ChannelSpeed"><a class="anchor" href="#ChannelSpeed"></a>同步速率与作业并发</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>作业速率上限</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>设置作业速率上限，则数据同步作业的总速率将尽可能按照这个上限进行同步，此参数需根据实际硬件配置调整，默认为1，可支持1-20MB/s的同步速度。</p>
+</div>
+<div class="paragraph">
+<p>当数据量较大，且硬件配置较好时，可以提高作业速率上限，DTinsightBatch将会提高同步速度，使用较短的时间完成同步。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>作业并发数</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>作业速率上限=作业并发数*单作业的传输速率，当作业速率上限已定，选择的并发数越高则单并发的速率越低，同时所占用的内存会越高，这可以根据你的业务需求选择设定的值。</p>
+</div>
+<div class="paragraph">
+<p>作业并发数下拉框选择对象，取决作业速率上限。作业速率上限选择值nMB/s，作业并发数最大能选择n</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+流量度量值是数据集成本身的度量值，不代表实际网卡流量，实际流量膨胀看具体的数据存储系统传输序列化情况。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+关系型数据库设置作业速率上限和切分键才能根据作业速率上限将表进行切分，关系型数据库只支持数值型作为切分键，但Oracle数据库支持数值型和字符串类型作为切分键。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="DirtyData"><a class="anchor" href="#DirtyData"></a>错误数据处理</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>错误记录管理</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在数据同步任务中，可开启错误记录管理，开启后，任务会将数据同步过程中的错误数据写入指定的Hive表（可指定表名、生命周期）。</p>
+</div>
+<div class="paragraph">
+<p>在数据同步任务的周期执行过程中，每个实例都会将脏数据写入一个分区，每个实例一个分区。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>脏数据数量控制</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>支持对于脏数据的自定义监控和告警，包括对脏数据最大记录数阈值，当传输过程出现的脏数据大于指定的数量，则报错退出。</p>
+</div>
+<div class="paragraph">
+<p>支持对于脏数据占比的统计，当任务执行结束后系统统计脏数据占总的同步数据的占比，超过阈值时将任务置为失败。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+错误记录占比是数据同步实际执行结束后统计的，并不会在任务同步过程中统计。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
