@@ -127,12 +127,13 @@ class FolderTree extends React.Component {
                             txt: '编辑',
                             cb: this.editTask.bind(this, data)
                         }, {
-                            txt: '克隆',
-                            cb: this.cloneTask.bind(this, data)
-                        }, {
                             txt: '删除',
                             cb: this.deleteTask.bind(this, data)
                         }])
+                        // {
+                        //     txt: '克隆',
+                        //     cb: this.cloneTask.bind(this, data)
+                        // }
                     }
                 }
                 else {
@@ -277,7 +278,7 @@ class FolderTree extends React.Component {
 
     createFn(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateFn();
     }
@@ -375,7 +376,8 @@ class FolderTree extends React.Component {
      */
     createFolder(data, type) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
+            type: data.type,
         });
         this.props.toggleCreateFolder(type);
     }
@@ -461,7 +463,7 @@ class FolderTree extends React.Component {
 
     genetateTreeNode() {
 
-        const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
+        const { treeData, type, ispicker, isFilepicker, acceptRes } = this.props;
         const treeType = type;
         
         const loop = (data) => {
@@ -526,7 +528,7 @@ class FolderTree extends React.Component {
 
     render() {
         const {
-            type, placeholder, currentTab,
+            type, placeholder, currentTab, id,
             onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
 
@@ -537,18 +539,18 @@ class FolderTree extends React.Component {
                         <TreeSelect
                             disabled={typeof couldEdit=="boolean"&&!couldEdit}
                             size="large"
-                            key={type}
+                            key={id || type}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                             showSearch={!this.props.isFilepicker}
                             showIcon={true}
                             loadData={this.onLoadData.bind(this, type)}
                             onChange={onChange}
                             defaultValue={this.props.defaultNode}
-                            getPopupContainer={() => this.selEle}
+                            getContainer={() => this.selEle}
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
                             filterTreeNode={(inputValue, treeNode) =>{
-                                return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
+                                return treeNode.props.name && treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
                             }}
                         >
                             {this.genetateTreeNode()}

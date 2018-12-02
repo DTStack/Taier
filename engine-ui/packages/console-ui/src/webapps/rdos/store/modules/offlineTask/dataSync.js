@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep, isObject } from 'lodash';
 import { message } from 'antd';
 
 import utils from 'utils';
@@ -15,8 +15,22 @@ import {
 } from './actionType';
 
 import { RDB_TYPE_ARRAY } from '../../../comm/const';
-import { isRDB } from '../../../comm';
 
+function isFieldMatch(source, target) {
+    if (isObject(source) && isObject(target)) {
+        const sourceField =  source.key || source.index;
+        const tagetField = target.key || target.index;
+        return sourceField === tagetField;
+    } else if(isObject(source) && !isObject(target) ) {
+        const sourceVal = source.key || source.index
+        return sourceVal === target
+    } else if (!isObject(source) && isObject(target)) {
+        const targetVal = target.key || target.index
+        return source === targetVal
+    } else {
+        return source === target
+    }
+}
 
 // 缓存数据源列表
 const tabId = (state = {}, action) => {
@@ -441,7 +455,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
                 let bl = false;
 
                 for (let o of arr) {
-                    if (isEqual(o, item)) {
+                    if (isFieldMatch(o, item)) {
                         bl = true;
                         break;
                     }
@@ -470,8 +484,8 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const { source, target } = clone;
             const mapSource = map.source;
             const mapTarget = map.target;
-            const newSource = source.filter(key_obj => !isEqual(key_obj, mapSource));
-            const newTarget = target.filter(key_obj => !isEqual(key_obj, mapTarget));
+            const newSource = source.filter(key_obj => !isFieldMatch(key_obj, mapSource));
+            const newTarget = target.filter(key_obj => !isFieldMatch(key_obj, mapTarget));
 
             clone.source = newSource;
             clone.target = newTarget;
@@ -494,7 +508,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
         }
 
         case keyMapAction.SET_NAME_MAP: {
-            let { targetCol, sourceCol, sourceSrcType, targetSrcType } = action.payload;
+            let { targetCol, sourceCol } = action.payload;
             let source = [], target = [];
 
             let targetNameCol = targetCol.map(o => o.key);
@@ -504,8 +518,6 @@ const keymap = (state = { source: [], target: [] }, action) => {
                 let idx = targetNameCol.indexOf(name);
 
                 if (idx !== -1) {
-                    // const sourceName = isRDB(sourceSrcType) ? o.key : o;
-                    // const targetName = isRDB(targetSrcType) ? name : targetCol[idx]
                     source.push(o);
                     target.push(targetCol[idx]);
                 }
@@ -519,7 +531,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const { old, replace } = map
             const clone = cloneDeep(state);
             if (map) {
-                const index = clone.source.findIndex((item) => isEqual(item, old))
+                const index = clone.source.findIndex((item) => isFieldMatch(item, old))
                 if (index > 0) {
                     clone.source[index] = replace;
                     return clone;
@@ -533,7 +545,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const { old, replace } = map
             const clone = cloneDeep(state);
             if (map) {
-                const index = clone.target.findIndex((item) => isEqual(item, old))
+                const index = clone.target.findIndex((item) => isFieldMatch(item, old))
                 if (index > 0) {
                     clone.target[index] = replace;
                     return clone;
@@ -548,14 +560,14 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const { source, target } = map
             const clone = cloneDeep(state);
             if (source) {
-                const index = clone.source.findIndex((item) => isEqual(item, source))
+                const index = clone.source.findIndex((item) => isFieldMatch(item, source))
                 if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
                     return clone;
                 }
             } else if (target) {
-                const index = clone.target.findIndex((item) => isEqual(item, target))
+                const index = clone.target.findIndex((item) => isFieldMatch(item, target))
                 console.log('removeKeyMap:', target, index)
                 if (index > -1) {
                     clone.source.splice(index, 1)

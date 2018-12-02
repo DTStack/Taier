@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>DataMap | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-analytic/v1.0/DataMap.html">
+    <link rel="stylesheet" href="../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-analytic">
+    <meta name="dcterms.identifier" content="v1.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../../dtinsight-batch/v3.0/Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="Summary.html"><span class="title">分析引擎</span> <span class="version">v1.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Explain.html">名词解释</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Architecture.html">技术架构</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">快速开始</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="QuickStart.html#CreateDatabase">新建数据库</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="QuickStart.html#CreateTable">新建表</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="QuickStart.html#InsertData">插入数据并查询</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">表管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#BasicConfig">基础配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#CompressConfig">压缩配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#ColIndex">字段索引</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#PartitionConfig">分区模式</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#DDLCreateTable">DDL建表</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#TableBasic">表基本信息</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#EditTable">编辑表</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="TableManage.html#DropTable">删除表</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DataTypes.html">数据类型</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">分区配置</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="PartitionConfig.html#StandardPartition">标准分区</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="PartitionConfig.html#HashPartition">Hash分区</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="PartitionConfig.html#RangePartition">Range分区</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="PartitionConfig.html#ListPartition">List分区</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据库管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DatabaseManage.html#Create">新建数据库</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DatabaseManage.html#GrantManage">权限管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DatabaseManage.html#JDBCConnect">JDBC访问</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DatabaseManage.html#ResetPassword">重置密码</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DatabaseManage.html#Drop">删除数据库</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">DataMap管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#Introduc">简介</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#DataMapManage">DataMap管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#Preaggregate">预聚合</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#Timeseries">时间序列</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="#BloomFilter">布隆过滤器</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Grant.html">权限管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="Summary.html">分析引擎</a></li>
+    <li class="crumb">DataMap管理</li>
+    <li class="crumb"><a href="#Introduc">简介</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">DataMap</h1>
+<div class="sect1">
+<h2 id="Introduc"><a class="anchor" href="#Introduc"></a>简介</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>DataMap 是一种数据结构，可用于加速表的某些查询。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="DataMapManage"><a class="anchor" href="#DataMapManage"></a>DataMap管理</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>DataMap管理包括新建、查看和删除DataMap</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+DataMap只能新建和删除，已建立的DataMap不支持编辑
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="CreateDataMap"><a class="anchor" href="#CreateDataMap"></a>新建DataMap</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>页面操作</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在左侧的数据库-表导航内，右键点击某张表时，在右键菜单中点击<strong>新建DataMap</strong>按钮，打开新建DataMap页面：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DDL操作</strong></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">CREATE DATAMAP [IF NOT EXISTS] datamap_name
+ON TABLE main_table
+USING "datamap_provider"
+DMPROPERTIES ('key'='value', ...)
+AS
+  SELECT statement</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="ViewDataMap"><a class="anchor" href="#ViewDataMap"></a>查看DataMap</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>页面操作</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>在左侧的数据库-表导航内，点击某张表时，可展开此表下属的所有DataMap，鼠标hover在某个DataMap后，点击 <span class="image"><img src="_images/查看详情.png" alt="查看详情" width="15" height="15"></span> icon，显示此DataMap的配置信息</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DDL操作</strong></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SHOW DATAMAP
+ON TABLE main_table</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="DropDataMap"><a class="anchor" href="#DropDataMap"></a>删除DataMap</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>页面操作</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>参考<a href="#ViewDataMap">查看DataMap</a>一节，在DataMap详情页下部，点击<strong>删除</strong>按钮即可</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DDL操作</strong></p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">DROP DATAMAP [IF EXISTS] datamap_name
+ON TABLE main_table</code></pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Preaggregate"><a class="anchor" href="#Preaggregate"></a>预聚合</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>预聚合以DataMaps形式创建，在内部由CarbonData作为表进行管理。只要存储要求和加载速度可以接受，用户可以创建许多预聚合DataMap以提高查询性能。</p>
+</div>
+<div class="paragraph">
+<p>预聚合DataMap一旦被创建，CarbonData的SparkSQL优化器将选择最有效的预聚合DataMap，并重写SQL直接从已选定的DataMap查询而不查询主表。因为预聚合DataMap的数据大小比较小，所有用户的查询非常快。根据经验，生产线上的SQL速度提高了5倍到100倍</p>
+</div>
+<div class="paragraph">
+<p>比如，主表称为sales，它的定义如下：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">CREATE TABLE sales (
+  order_time timestamp,
+  user_id string,
+  sex string,
+  country string,
+  quantity int,
+  price bigint)
+STORED BY 'carbondata'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>可以创建预聚合表：</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">CREATE DATAMAP agg_sales
+ON TABLE sales
+USING "preaggregate"
+AS
+  SELECT country, sex, sum(quantity), avg(price)
+  FROM sales
+  GROUP BY country, sex</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在页面操作时，用户直接在WEB页面输入查询语句即可：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/预聚合DataMap.png" alt="预聚合DataMap" width="600">
+</div>
+</div>
+<div class="sect2">
+<h3 id="_预聚合表支持的函数"><a class="anchor" href="#_预聚合表支持的函数"></a>预聚合表支持的函数</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Function</th>
+<th class="tableblock halign-left valign-top">是否支持Rollup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SUM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">AVG</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MAX</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MIN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">COUNT</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_预聚合表是如何被选择的"><a class="anchor" href="#_预聚合表是如何被选择的"></a>预聚合表是如何被选择的</h3>
+<div class="paragraph">
+<p>当用户提交查询时，在查询计划阶段，CarbonData将根据关系代数（Relational Algebra）转换规则收集所有匹配的预聚合表作为候选者。然后，根据成本计算从候选表中选择用于此查询的最佳预聚合表。为了简单起见，当前成本估算是基于预聚合表数据大小（我们认为在小表上查询速度会更快）。</p>
+</div>
+<div class="paragraph">
+<p>对于上面创建的主表sales以及预聚合表agg_sales，下面查询</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT country, sex, sum(quantity), avg(price) from sales GROUP BY country, sex
+SELECT sex, sum(quantity) from sales GROUP BY sex
+SELECT avg(price), country from sales GROUP BY country</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>将会被CarbonData的查询计划转换成查询预聚合表agg_sales而不是主表sales</p>
+</div>
+<div class="paragraph">
+<p>然而下面的查询</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT user_id, country, sex, sum(quantity), avg(price) from sales GROUP BY user_id, country, sex
+SELECT sex, avg(quantity) from sales GROUP BY sex
+SELECT country, max(price) from sales GROUP BY country</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>将只能在主表sales上查询,因为它不满足预聚合表的查询逻辑。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_数据加载"><a class="anchor" href="#_数据加载"></a>数据加载</h3>
+<div class="paragraph">
+<p>对已经加载数据的现有表，当用户创建预聚合表时，将数据加载到预聚合表由 <code>CREATE DATAMAP</code> 语句触发。 对于预聚合表创建之后增量数据的加载，在主表加载数据完成之后，主表会触发将数据加载到预聚合表中。</p>
+</div>
+<div class="paragraph">
+<p>这些加载操作时事务性的，意味着只有所有表的数据加载成功，主表以及预聚合表的数据才对用户可见。如果其中一个加载出现失败，新的数据不会在所有的表中可见，就好像没有进行过加载操作一样。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_数据查询"><a class="anchor" href="#_数据查询"></a>数据查询</h3>
+<div class="paragraph">
+<p>作为查询加速技术，我们不能直接查询预聚合表，查询将在主表上进行。在执行查询计划时，CarbonData内部将检查与主表关联的预聚合表，并相应地执行查询计划转换。</p>
+</div>
+<div class="paragraph">
+<p>用户可以通过执行 <code>EXPLAIN</code> 命令来验证查询是否可以利用预聚合表，这将显示转换的逻辑计划，因此用户可以检查是否选择了预聚合表。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_压缩预聚合表"><a class="anchor" href="#_压缩预聚合表"></a>压缩预聚合表</h3>
+<div class="paragraph">
+<p>在主表上运行压缩命令（ <code>ALTER TABLE COMPACT</code> ）不会自动压缩在主表上创建的预聚合表。用户需要在每个预聚合表上分别运行压缩命令来压缩它们。</p>
+</div>
+<div class="paragraph">
+<p>预聚合表的压缩是可选的操作。如果在主表上执行压缩但未在预聚合表上执行压缩，所有的查询仍可受益于预聚合表。为了进一步提高查询性能，对预聚合表的压缩会触发预聚合表中的段和文件的合并。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_预聚合表的数据管理"><a class="anchor" href="#_预聚合表的数据管理"></a>预聚合表的数据管理</h3>
+<div class="paragraph">
+<p>在当前实现中，主表和预聚合表都需要维护数据的一致性。在主表创建预聚合表之后，不支持在主表上执行以下命令：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>数据管理命令</strong>: <code>UPDATE/DELETE/DELETE SEGMENT</code></p>
+</li>
+<li>
+<p><strong>模式管理命令</strong>: <code>ALTER TABLE DROP COLUMN, ALTER TABLE CHANGE DATATYPE, ALTER TABLE RENAME</code> 。注意，添加新列是支持的；而删除列或者更新列的数据类型，CarbonData将会检测其是否会影响预聚合表，如果不会，则操作允许进行；否则操作将会被拒绝，并且会抛出异常</p>
+</li>
+<li>
+<p><strong>分区管理命令</strong>: ` ALTER TABLE ADD/DROP PARTITION`</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>但是，仍然有办法在主表上执行这些操作，在当前 CarbonData 版本中，用户可以执行如下操作：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>通过 DROP DATAMAP 命令删除预聚合表。</p>
+</li>
+<li>
+<p>在主表上执行数据管理操作</p>
+</li>
+<li>
+<p>通过 CREATE DATAMAP 命令创建预聚合表。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>基本上，用户可以手动触发来重新构建datamap。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="Timeseries"><a class="anchor" href="#Timeseries"></a>时间序列</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Timeseries DataMap是基于预聚合DataMap实现的预聚合表。区别在于时间序列DataMap内置了对时间层次（time hierarchy）和级别的理解：年、月、日、时、分，以便它支持将查询中时间维度进行自动roll-up。</p>
+</div>
+<div class="paragraph">
+<p>数据加载、查询、压缩命令以及行为和预聚合DataMap一致，请参考<a href="#Preaggregate">预聚合DataMap</a>了解更多的信息。</p>
+</div>
+<div class="paragraph">
+<p>要使用这个datamap，用户可以在主表上创建多个时间序列datamap，其中主表上有一个event_time的列，一个datamap对应一个时间粒度。然后Carbondata可以为主表上的查询进行自动汇总（automatic roll-up）。</p>
+</div>
+<div class="sect2">
+<h3 id="_创建datamap"><a class="anchor" href="#_创建datamap"></a>创建DataMap</h3>
+<div class="paragraph">
+<p>时间序列的DataMap，需要用户指定每个字段的时间粒度：</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/时间序列DataMap.png" alt="时间序列DataMap" width="600">
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+只有Timestamp类型的字段才能作为TimeseriesDataMap的时间字段
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>为了查询时间序列数据，Carbondata内置支持时间相关的UDF，从而能够自动滚动到所需的聚合级别</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+除非查询需要，否则不必为每个粒度创建预聚合表。Carbondata可以汇总数据并获取它。
+</td>
+</tr>
+</table>
+</div>
+<div class="olist CAUTION">
+<ol class="CAUTION">
+<li>
+<p>仅支持层次级别为1。未来的CarbonData将支持其他层级</p>
+</li>
+<li>
+<p>需要一个接着一个地创建所需级别的时间序列datamap</p>
+</li>
+<li>
+<p>每个级别时间序列datamap需要分别进行删除</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_压缩时间序列datamp"><a class="anchor" href="#_压缩时间序列datamp"></a>压缩时间序列datamp</h3>
+<div class="paragraph">
+<p>请参见<a href="#Preaggregate">预聚合DataMap</a>的压缩章节。同样适用于时间序列datamap。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_时间序列datamap上的数据管理"><a class="anchor" href="#_时间序列datamap上的数据管理"></a>时间序列datamap上的数据管理</h3>
+<div class="paragraph">
+<p>请参见<a href="#Preaggregate">预聚合DataMap</a>的数据管理章节。同样适用于时间序列datamap。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="BloomFilter"><a class="anchor" href="#BloomFilter"></a>布隆过滤器</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>布隆过滤器是一种空间高效的概率数据结构，用于测试某个元素是否为集合的成员。Carbondata将BloomFilter作为索引datamap来提高查询的准确性。它非常适合在高基数列（如名称/ID）上进行精确匹配的查询。在内部，CarbonData为每个blocklet中的每个索引列维护BloomFilter，以指示该列的值是否在此块中。和其他datamaps一样，BloomFilter Datamap也是由CarbonData的主表管理。</p>
+</div>
+<div class="sect2">
+<h3 id="_创建datamap_2"><a class="anchor" href="#_创建datamap_2"></a>创建DataMap</h3>
+<div class="paragraph">
+<p>用户可以使用指定的BloomFilter配置（如大小和概率）在指定列上创建BloomFilter Datamap。</p>
+</div>
+<div class="paragraph">
+<p>比如，名为datamap_test的主表定义如下:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">CREATE TABLE datamap_test (
+  id string,
+  name string,
+  age int,
+  city string,
+  country string)
+STORED BY 'carbondata'
+TBLPROPERTIES('SORT_COLUMNS'='id')</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>在上面的例子中，id 和name都是高基数(high cardinality)列，我们总是以精确的值查询id和name。因为id在sort_columns里面配置了，所以其已经排序了，在其上进行查询就会很快，因为CarbonData可以跳过所有不相关的块（blocklets）。但是对name的查询可能不好，因为blocklet的minmax可能没有帮助，因为在每个blocklet中name值的范围可能是相同的&#8212;&#8203;全部来自A~z。在这种情况下，用户可以在name列上创建BloomFilter Datamap。此外，用户还可以在sort_columns上创建BloomFilter Datamap。如果我们有太多的段并且sort_columns的值范围几乎相同的情况下很有用。</p>
+</div>
+<div class="paragraph">
+<p>用户可以在web页面创建BloomFilter Datamap:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/布隆过滤器DataMap.png" alt="布隆过滤器DataMap" width="600">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_属性配置"><a class="anchor" href="#_属性配置"></a>属性配置</h3>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 22.2222%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 55.5556%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">属性</th>
+<th class="tableblock halign-left valign-top">是否必须</th>
+<th class="tableblock halign-left valign-top">默认值</th>
+<th class="tableblock halign-left valign-top">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">INDEX_COLUMNS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">YES</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Carbondata将在这些列上生成Bloom Filter索引。在这些列上的查询通常像 <code>COL=VAL</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BLOOM_SIZE</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">该值由Bloom Filter内部使用用于预期插入的数量，它将影响BloomFilter索引的大小。由于每个blocklet都有一个BloomFilter，所以该值是blocklet中记录近似的个数。换句话说，应该是 <code>32000*#noOfPagesInBlocklet</code> 。该值应该是一个整数</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BLOOM_FPP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.01</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">该值在BloomFilter内部被用作为假阳性概率（False-PositiveProbability），它将影响bloomfilter索引的大小以及BloomFilter的哈希函数的数量。该值的范围应该在(0,1)之间。</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BLOOM_COMPRESS</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NO</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">是否压缩BloomFilter索引文件</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_数据加载_2"><a class="anchor" href="#_数据加载_2"></a>数据加载</h3>
+<div class="paragraph">
+<p>将数据加载到主表时，将为DMProperties中所有index_columns生成BloomFilter文件，其中包含blockletId和每个索引列的BloomFilter。这些索引文件将被写入每个段文件夹内名为datamap名称的文件夹内。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_数据查询_2"><a class="anchor" href="#_数据查询_2"></a>数据查询</h3>
+<div class="paragraph">
+<p>可通过系统级配置carbon.query.datamap.bloom.cache.size为bloomfilter索引文件提供缓存来增强BloomFilter数据映射的查询性能。这个属性的默认值是512，单位是MB。在内部，缓存将在闲置2小时后过期。</p>
+</div>
+<div class="paragraph">
+<p>用户可以通过执行 <code>EXPLAIN</code> 命令来验证查询是否利用BloomFilter数据映射，该命令将显示已转换的逻辑计划，用户从而可以检查BloomFilter数据映射是否可以在扫描期间跳过数据块（blocklets）。如果数据映射不能很好地修剪小块，则可以尝试增加BLOOM_SIZE属性的值并减小BLOOM_FPP属性的值。</p>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../_/js/site.js"></script>
+<script async src="../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
