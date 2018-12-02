@@ -545,8 +545,9 @@ class TaskFlowView extends Component {
                 currentNode.status === TASK_STATUS.RUN_FAILED || // 运行失败
                 currentNode.status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 currentNode.status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
-                currentNode.status === TASK_STATUS.STOPED) || // 已停止
+                currentNode.status === TASK_STATUS.STOPED || // 已停止
                 currentNode.status === TASK_STATUS.PARENT_FAILD
+            )
 
 
             menu.addItem('置成功并恢复调度', null, function () {
