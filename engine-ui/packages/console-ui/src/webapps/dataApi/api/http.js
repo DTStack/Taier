@@ -83,5 +83,4 @@ class Http {
         }
     }
 }
-/* eslint-disable */
 export default new Http()
