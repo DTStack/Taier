@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Radio } from 'antd';
+import { Form, Input, Radio } from 'antd';
 import { connect } from 'react-redux';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../comm'

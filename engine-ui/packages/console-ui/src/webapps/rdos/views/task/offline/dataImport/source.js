@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 
 import {
-    Modal, Button, Form, Table, Checkbox,
-    Icon, Input, Select, Row, Radio
+    Form, Table, Checkbox,
+    Input, Select, Row, Radio
 } from 'antd';
 
 import TableCell from 'widgets/tableCell'
@@ -34,7 +34,6 @@ export default class ImportSource extends Component {
     }
 
     changeStartLine = (e) => {
-        const { formState } = this.props
         let value = parseInt(e.target.value, 10);
         value = value < 1 ? 1 : value;
         this.props.changeStatus({ startLine: value })

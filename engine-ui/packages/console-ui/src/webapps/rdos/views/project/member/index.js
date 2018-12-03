@@ -10,7 +10,6 @@ import Api from '../../../api'
 import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
-import * as UserAction from '../../../store/modules/user'
 import * as ProjectAction from '../../../store/modules/project'
 
 const Search = Input.Search
@@ -45,7 +44,6 @@ class ProjectMember extends Component {
     }
 
     initAddMember = () => {
-        const { dispatch, params } = this.props
         this.setState({ visible: true })
     }
 

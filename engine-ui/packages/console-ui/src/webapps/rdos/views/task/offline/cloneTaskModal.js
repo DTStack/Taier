@@ -6,15 +6,13 @@ import ajax from '../../../api';
 import { getContainer } from 'funcs';
 
 import {
-    modalAction,
-    taskTreeAction
+    modalAction
 } from '../../../store/modules/offlineTask/actionType';
-import HelpDoc from '../../helpDoc'
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import {
-    formItemLayout, MENU_TYPE, DEAL_MODEL_TYPE
+    formItemLayout, MENU_TYPE
 } from '../../../comm/const'
 
 import FolderPicker from './folderTree';
@@ -25,13 +23,6 @@ class CloneTaskForm extends React.Component {
     constructor (props) {
         super(props);
     }
-
-    // componentWillMount() {
-    //     const { defaultData } = this.props;
-    //     this.setState({
-    //         operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
-    //     })
-    // }
 
     handleSelectTreeChange (value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
@@ -159,8 +150,7 @@ class CloneTaskModal extends React.Component {
 
     handleSubmit () {
         const {
-            addOfflineTask, defaultData, workflow,
-            createWorkflowTask, confirmClone
+            defaultData, confirmClone
         } = this.props;
         const form = this.form;
 

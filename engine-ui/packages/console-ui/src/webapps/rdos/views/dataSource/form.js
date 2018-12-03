@@ -27,12 +27,6 @@ const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
 
-const defaultConf =
-    `{
-"jdbcUrl": "", 
-"username": "", 
-"password": ""
-}`
 const hdfsConf =
     `{
 "dfs.nameservices": "defaultDfs", 
@@ -40,13 +34,7 @@ const hdfsConf =
 "dfs.namenode.rpc-address.defaultDfs.namenode1": "", 
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
-const hBaseConf =
-    `{
-"zookeeper.cluster": "ip1:port,ip2:port/子目录",
-"hbase.rootdir": "hdfs: //ip:9000/hbase",
-"hbase.cluster.distributed": "true",
-"hbase.zookeeper.quorum": "***"
-}`
+
 
 class BaseForm extends Component {
     state = {
@@ -849,7 +837,7 @@ class BaseForm extends Component {
     }
 
     render () {
-        const { form, sourceData, status, types, isPro, isTest, showSync } = this.props;
+        const { form, sourceData, status, types, isTest, showSync } = this.props;
         const { getFieldDecorator } = form;
 
         const sourceTypeList = types.map(
@@ -862,7 +850,7 @@ class BaseForm extends Component {
                 </Option>
             )
         )
-        const sourceType = this.state.sourceType || types[0] && types[0].value
+        const sourceType = this.state.sourceType || (types[0] && types[0].value)
         const isEdit = status == 'edit';
 
         return (

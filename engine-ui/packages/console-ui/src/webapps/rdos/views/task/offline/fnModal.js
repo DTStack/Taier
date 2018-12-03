@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, Select } from 'antd';
+import { Modal, Button, Form, Input } from 'antd';
 
 import { getContainer } from 'funcs';
 

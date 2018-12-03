@@ -1,16 +1,13 @@
 import React, { Component } from 'react'
-import { debounce } from 'lodash'
 
 import {
-    Input, Button, Card, Radio,
-    Select, Form, Checkbox
+    Radio, Select, Form, Checkbox
 } from 'antd'
 
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
 
 const FormItem = Form.Item
 const Option = Select.Option
-const RadioGroup = Radio.Group
 const CheckboxGroup = Checkbox.Group;
 
 class MemberForm extends Component {

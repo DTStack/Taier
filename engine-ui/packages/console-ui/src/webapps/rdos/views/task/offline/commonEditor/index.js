@@ -11,7 +11,6 @@ import { commonFileEditDelegator } from 'widgets/editor/utils';
 import API from '../../../../api';
 import IDEEditor from 'main/components/ide';
 
-import { PROJECT_TYPE } from '../../../../comm/const';
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
 import {
@@ -124,13 +123,6 @@ class CommonEditorContainer extends Component {
 
     // 执行确认
     execConfirm = () => {
-        const { currentTabData, user, editor } = this.props;
-
-        let code =
-            editor.selection ||
-            currentTabData.sqlText ||
-            currentTabData.scriptText;
-
         this.execSQL();
     };
 

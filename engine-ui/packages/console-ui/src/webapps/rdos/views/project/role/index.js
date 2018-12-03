@@ -2,8 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
-    Card, Table, message,
-    Popconfirm, Button
+    Card, Table, message
 } from 'antd'
 
 import utils from 'utils'
@@ -55,7 +54,7 @@ class RoleManagement extends Component {
     }
 
     initColumns = () => {
-        const { user, location } = this.props
+        const { location } = this.props
         return [{
             title: '角色',
             dataIndex: 'roleName',
@@ -96,21 +95,13 @@ class RoleManagement extends Component {
     }
 
     render () {
-        const { visible, roles, loading } = this.state
-        const { project, notProjectUsers, location } = this.props
+        const { roles, loading } = this.state
+        const { project } = this.props
 
         const pagination = {
             total: roles.totalCount,
             defaultPageSize: 10
         };
-
-        const extra = (<Button
-            type="primary"
-            style={{ marginTop: '10px' }}
-            onClick={this.initAddMember}>
-            <Link to={`${location.pathname}/add`}>新建角色</Link>
-        </Button>
-        )
 
         return (
             <div>

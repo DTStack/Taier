@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { assign } from 'lodash'
 import {
-    Row, Col, Button,
-    Card, message, Spin
+    Row, Col, Button, message, Spin
 } from 'antd'
 
 import Api from '../../../api'

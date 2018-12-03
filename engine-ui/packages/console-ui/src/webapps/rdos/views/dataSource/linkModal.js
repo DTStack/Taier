@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Input, Select, Row, Col, message } from 'antd';
+import { Modal, Form, Input, Select, message } from 'antd';
 
 import Api from '../../api'
 import { formItemLayout } from '../../comm/const';

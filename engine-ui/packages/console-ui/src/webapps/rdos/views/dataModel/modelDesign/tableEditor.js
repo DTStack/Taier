@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link, browserHistory, hashHistory } from 'react-router';
-import SplitPane from 'react-split-pane';
+import { browserHistory, hashHistory } from 'react-router';
 import {
     Input, Button, message,
-    Modal, Form, Row, Col
+    Modal, Form, Row,
 } from 'antd';
 
 import { isEmpty } from 'lodash';

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { cloneDeep } from 'lodash';
 
 import {
-    Row, Col, Modal, Card, Tooltip,
+    Row, Col, Modal, Tooltip,
     Input, Form, message, Icon,
     Switch, Select
 } from 'antd'

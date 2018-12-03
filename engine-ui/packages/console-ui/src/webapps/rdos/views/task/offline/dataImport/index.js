@@ -146,7 +146,6 @@ export default class ImportLocalData extends Component {
         const { charset } = this.state
         if (file) {
             const reader = new FileReader();
-            const type = file.type.split('/')[1];
             reader.onload = ((data) => {
                 return (e) => {
                     this.setState({

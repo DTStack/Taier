@@ -5,7 +5,6 @@ import {
 
 import utils from 'utils'
 import HelpDoc, { relativeStyle } from '../../../../helpDoc';
-import { disposeProvider } from 'widgets/editor/languages/dtsql/simpleComplete';
 export default class ConstModal extends React.Component {
     state = {
         constValue: '',
