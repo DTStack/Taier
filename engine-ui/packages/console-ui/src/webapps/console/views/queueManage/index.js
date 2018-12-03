@@ -193,7 +193,6 @@ class QueueManage extends Component {
                 title: '头部等待时长',
                 dataIndex: 'headWait',
                 render (text, record) {
-                    // return new moment(record.generateTime).format("HH" +"小时" + "mm" + "分钟")
                     return record.waitTime
                 }
             },

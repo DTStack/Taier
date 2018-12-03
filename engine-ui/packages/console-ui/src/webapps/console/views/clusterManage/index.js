@@ -79,8 +79,7 @@ class ClusterManage extends React.Component {
                 dataIndex: 'gmtModified',
                 width: '200px',
                 render (text) {
-                    /* eslint-disable-next-line */
-                    return new moment(text).format('YYYY-MM-DD HH:mm:ss')
+                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {
