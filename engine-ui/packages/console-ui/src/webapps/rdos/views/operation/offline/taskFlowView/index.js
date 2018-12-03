@@ -65,11 +65,19 @@ const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
         }
 
         const childNodes = treeNodeData.jobVOS; // 子节点
+        const parentNodes = treeNodeData.parentNodes; // 父节点
+
+        // 处理依赖节点
+        if (parentNodes && parentNodes.length > 0) {
+            for (let i = 0; i < parentNodes.length; i++) {
+                mergeTreeNodes(parentNodes[i], mergeSource, nodeType);
+            }
+        }
 
         // 处理被依赖节点
         if (childNodes && childNodes.length > 0) {
             for (let i = 0; i < childNodes.length; i++) {
-                mergeTreeNodes(childNodes[i], mergeSource);
+                mergeTreeNodes(childNodes[i], mergeSource, nodeType);
             }
         }
     }
