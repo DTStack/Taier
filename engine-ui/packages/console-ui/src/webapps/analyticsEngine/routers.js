@@ -1,7 +1,6 @@
 import React from 'react'
 import { Route, IndexRoute } from 'react-router'
 
-import asyncComponent from 'utils/asyncLoad'
 import NotFund from 'widgets/notFund'
 
 // 继承主应用的的公共View组件

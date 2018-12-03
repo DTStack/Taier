@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import { Tabs, Table, Radio, Checkbox } from 'antd'
-
-const TabPane = Tabs.TabPane;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
+import { Table } from 'antd'
 
 export default class PaneBucket extends Component {
     constructor (props) {
@@ -26,7 +22,8 @@ export default class PaneBucket extends Component {
         this.initData(this.props.data);
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         console.log(this.state.paginationParams)
         this.initData(nextProps.data);
     }
@@ -40,7 +37,7 @@ export default class PaneBucket extends Component {
 
   handleTableChange = (pagination, filters, sorter) => {
       console.log(pagination)
-      let { dataList, columnData, partData, paginationParams } = this.state
+      let { dataList, paginationParams } = this.state
       let data = dataList
 
       paginationParams.current = pagination.current;
@@ -53,7 +50,7 @@ export default class PaneBucket extends Component {
       })
   }
   render () {
-      const { paginationParams, dataList, bucketNumber } = this.state;
+      const { dataList, bucketNumber } = this.state;
       const tableCOl = [{
           title: '字段名称',
           dataIndex: 'name'

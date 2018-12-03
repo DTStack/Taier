@@ -6,39 +6,6 @@ const Option = Select.Option;
 // const indexes = [];
 // const area_list = [];
 
-const field_type = [
-    {
-        name: 'SMALLINT',
-        value: 'SMALLINT'
-    }, {
-        name: 'INT/INTEGER',
-        value: 'INT/INTEGER'
-    }, {
-        name: 'BIGINT',
-        value: 'BIGINT'
-    }, {
-        name: 'DOUBLE',
-        value: 'DOUBLE'
-    }, {
-        name: 'TIMESTAMP',
-        value: 'TIMESTAMP'
-    }, {
-        name: 'DATE',
-        value: 'DATE'
-    }, {
-        name: 'STRING',
-        value: 'STRING'
-    }, {
-        name: 'CHAR',
-        value: 'CHAR'
-    }, {
-        name: 'VARCHAR',
-        value: 'VARCHAR'
-    }, {
-        name: 'BOOLEAN',
-        value: 'BOOLEAN'
-    }
-]
 
 export default class StepThree extends Component {
     constructor (props) {
@@ -68,7 +35,7 @@ export default class StepThree extends Component {
   }
 
   addNewLine = () => {
-      let { indexes, area_list } = this.state;
+      let { indexes } = this.state;
       let _fid = 0;
       indexes.map(o => {
           if (o._fid > _fid) { _fid = o._fid }

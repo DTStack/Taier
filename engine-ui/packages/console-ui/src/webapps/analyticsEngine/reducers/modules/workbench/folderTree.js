@@ -29,34 +29,34 @@ const replaceTreeNode = function (treeNode, replace) {
 export default function folderTree (state = folderTreeRoot, action) {
     const { type, payload } = action;
     switch (type) {
-    case workbenchAction.LOAD_CATALOGUE_DATA: {
-        if (Object.keys(state).length === 0) {
-            return payload
+        case workbenchAction.LOAD_CATALOGUE_DATA: {
+            if (Object.keys(state).length === 0) {
+                return payload
+            }
+            const updated = cloneDeep(state)
+            if (payload) {
+                replaceTreeNode(updated, payload)
+            }
+            return updated
         }
-        const updated = cloneDeep(state)
-        if (payload) {
+        case workbenchAction.REMOVE_CATALOGUE_TREE_NODE: {
+            const removed = [cloneDeep(state)]
+            if (payload) {
+                removeTreeNode(removed, action.data)
+            }
+            return removed[0]
+        }
+        case workbenchAction.UPDATE_CATALOGUE_TREE_NODE: {
+            const updated = cloneDeep(state)
             replaceTreeNode(updated, payload)
+            return updated
         }
-        return updated
-    }
-    case workbenchAction.REMOVE_CATALOGUE_TREE_NODE: {
-        const removed = [cloneDeep(state)]
-        if (payload) {
-            removeTreeNode(removed, action.data)
+        case workbenchAction.MERGE_CATALOGUE_TREE: {
+            const updated = cloneDeep(state)
+            mergeTreeNodes(updated, payload)
+            return updated
         }
-        return removed[0]
-    }
-    case workbenchAction.UPDATE_CATALOGUE_TREE_NODE: {
-        const updated = cloneDeep(state)
-        replaceTreeNode(updated, payload)
-        return updated
-    }
-    case workbenchAction.MERGE_CATALOGUE_TREE: {
-        const updated = cloneDeep(state)
-        mergeTreeNodes(updated, payload)
-        return updated
-    }
-    default:
-        return state;
+        default:
+            return state;
     }
 }

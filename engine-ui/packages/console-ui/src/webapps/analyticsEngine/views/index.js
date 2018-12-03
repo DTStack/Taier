@@ -2,15 +2,11 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import utils from 'utils'
 import { aeApp } from 'config/base'
 
 import Header from './layout/header'
 import Workbench from '../views/workbench'
 
-import { currentApp } from '../consts'
-import * as UserAction from '../actions/user'
-import { commonActions } from '../actions'
 import { updateApp } from 'main/actions/app'
 
 const propType = {

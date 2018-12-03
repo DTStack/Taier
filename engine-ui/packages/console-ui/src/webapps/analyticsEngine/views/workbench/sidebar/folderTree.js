@@ -8,29 +8,29 @@ const TreeNode = Tree.TreeNode;
 
 const getItemClassName = function (type) {
     switch (type) {
-    case CATALOGUE_TYPE.DATA_BASE:
-        return 's-database anchor-database';
-    case CATALOGUE_TYPE.DATA_MAP:
-        return 's-datamap anchor-datamap';
-    case CATALOGUE_TYPE.TABLE:
-        return 's-table anchor-table';
-    case CATALOGUE_TYPE.FOLDER:
-    default: return 's-tree-item anchor-tree-item';
+        case CATALOGUE_TYPE.DATA_BASE:
+            return 's-database anchor-database';
+        case CATALOGUE_TYPE.DATA_MAP:
+            return 's-datamap anchor-datamap';
+        case CATALOGUE_TYPE.TABLE:
+            return 's-table anchor-table';
+        case CATALOGUE_TYPE.FOLDER:
+        default: return 's-tree-item anchor-tree-item';
     }
 }
 
-const getContextMenuAnchorName = function (type) {
-    switch (type) {
-    case CATALOGUE_TYPE.DATA_BASE:
-        return 'anchor-database';
-    case CATALOGUE_TYPE.DATA_MAP:
-        return 'anchor-datamap';
-    case CATALOGUE_TYPE.TABLE:
-        return 'anchor-table';
-    case CATALOGUE_TYPE.FOLDER:
-    default: return 'anchor-tree-item';
-    }
-}
+// const getContextMenuAnchorName = function (type) {
+//     switch (type) {
+//     case CATALOGUE_TYPE.DATA_BASE:
+//         return 'anchor-database';
+//     case CATALOGUE_TYPE.DATA_MAP:
+//         return 'anchor-datamap';
+//     case CATALOGUE_TYPE.TABLE:
+//         return 'anchor-table';
+//     case CATALOGUE_TYPE.FOLDER:
+//     default: return 'anchor-tree-item';
+//     }
+// }
 
 class FolderTree extends React.PureComponent {
     constructor (props) {
@@ -40,59 +40,59 @@ class FolderTree extends React.PureComponent {
     renderNodeHoverButton = (item) => {
         const { onTableDetail, onGetDataMap, onSQLQuery, onGetDB } = this.props;
         switch (item.type) {
-        case CATALOGUE_TYPE.DATA_BASE:
-            return (
-                <span className="tree-node-hover-items">
-                    <MyIcon type="btn_sql_query" className="tree-node-hover-item"
-                        title="SQL查询"
-                        style={{ width: 15, height: 15 }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onSQLQuery(item);
-                        }}
-                    />
-                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onGetDB({ databaseId: item.id });
-                        }
-                        }
-                    />
-                </span>
-            )
-        case CATALOGUE_TYPE.DATA_MAP:
-            return (
-                <span className="tree-node-hover-items">
-                    <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onGetDataMap({ id: item.id });
-                        }}
-                    />
-                </span>
-            )
-        case CATALOGUE_TYPE.TABLE:
-            return (
-                <span className="tree-node-hover-items">
-                    <MyIcon type="btn_sql_query" className="tree-node-hover-item"
-                        style={{ width: 15, height: 15 }}
-                        title="SQL查询"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onSQLQuery(item);
-                        }}
-                    />
-                    <Icon
-                        className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onTableDetail(item);
-                        }}
-                    />
-                </span>
-            )
-        case CATALOGUE_TYPE.FOLDER:
-        default: return '';
+            case CATALOGUE_TYPE.DATA_BASE:
+                return (
+                    <span className="tree-node-hover-items">
+                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                            title="SQL查询"
+                            style={{ width: 15, height: 15 }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSQLQuery(item);
+                            }}
+                        />
+                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onGetDB({ databaseId: item.id });
+                            }
+                            }
+                        />
+                    </span>
+                )
+            case CATALOGUE_TYPE.DATA_MAP:
+                return (
+                    <span className="tree-node-hover-items">
+                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onGetDataMap({ id: item.id });
+                            }}
+                        />
+                    </span>
+                )
+            case CATALOGUE_TYPE.TABLE:
+                return (
+                    <span className="tree-node-hover-items">
+                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                            style={{ width: 15, height: 15 }}
+                            title="SQL查询"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSQLQuery(item);
+                            }}
+                        />
+                        <Icon
+                            className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onTableDetail(item);
+                            }}
+                        />
+                    </span>
+                )
+            case CATALOGUE_TYPE.FOLDER:
+            default: return '';
         }
     }
 

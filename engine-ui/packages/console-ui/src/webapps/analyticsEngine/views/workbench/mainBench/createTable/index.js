@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Steps, message } from 'antd';
+import { Steps } from 'antd';
 
 import StepOne from './stepOne'
 import StepTwo from './stepTwo'
-import StepThree from './stepThree'
 import StepFour from './stepFour'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -26,11 +25,6 @@ const Step = Steps.Step;
 class CreateTable extends Component {
     constructor () {
         super();
-    }
-
-    componentWillReceiveProps (nextProps) {
-        console.log('PPP')
-        console.log(nextProps)
     }
     render () {
         const { currentStep } = this.props.data;

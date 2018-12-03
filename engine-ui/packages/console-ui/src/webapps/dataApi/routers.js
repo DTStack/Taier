@@ -25,7 +25,7 @@ import APIManage from './views/management'
 import APIMarket from './views/market'
 import MyAPI from './views/myApi'
 
-import APIDetail from './views/market/detail'
+import APIDetail from './views/market'
 import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
 import NewApi from './views/management/createApi'

@@ -6,7 +6,7 @@ import CopyIcon from 'main/components/copy-icon';
 
 import Editor from 'widgets/editor';
 
-import { DDL_placeholder_anly } from '../../../../comm/DDLCommon'
+import { DdlPlaceholderAnly } from '../../../../comm/DDLCommon'
 import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 const FormItem = Form.Item;
@@ -61,7 +61,7 @@ const formItemLayout = {
     }
 }
 
-export default class StepOne extends Component {
+class StepOne extends Component {
     constructor () {
         super();
 
@@ -114,7 +114,9 @@ export default class StepOne extends Component {
 
   handleShortLiftCycleChange = (e) => {
       console.log(e)
-      this.state.customLifeCycle = e.target.value;
+      this.setState({
+          customLifeCycle: e.target.value
+      })
       this.props.saveNewTableData([{ key: 'shortLisyCycle', value: e.target.value }])
   }
 
@@ -264,7 +266,7 @@ export default class StepOne extends Component {
                           }
                           {
                               getFieldsValue().lifeCycle === -1 &&
-                  <Input style={{ width: 570, marginRight: 10 }} size="large" style={{ width: 340, height: 36, marginLeft: 10 }} defaultValue={this.state.customLifeCycle} onChange={(e) => { this.handleShortLiftCycleChange(e) }}/>
+                  <Input style={{ marginRight: 10, width: 340, height: 36, marginLeft: 10 }} size="large" defaultValue={ this.state.customLifeCycle } onChange={(e) => { this.handleShortLiftCycleChange(e) }}/>
                           }
                       </span>
                   </FormItem>
@@ -397,16 +399,15 @@ export default class StepOne extends Component {
                   onOk={this.handleDDLCreateTable}
                   onCancel={this.handleCancel}
                   title={(
-                      <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_placeholder_anly} /></span>
+                      <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DdlPlaceholderAnly} /></span>
                   )}
                   maskClosable={false}>
                   <Editor
                       style={{ height: '400px' }}
                       disabledSyntaxCheck={true}
-                      placeholder={DDL_placeholder_anly}
+                      placeholder={DdlPlaceholderAnly}
                       options={{ readOnly: false }}
                       language="dtsql"
-                      options={{ readOnly: false } }
                       onChange={this.handleDdlChange.bind(this)}
                       value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
                   />
@@ -415,7 +416,7 @@ export default class StepOne extends Component {
       )
   }
 }
-StepOne = Form.create({
+export default Form.create({
     onValuesChange (props, changedValues) {
         console.log(props)
         let p = [];

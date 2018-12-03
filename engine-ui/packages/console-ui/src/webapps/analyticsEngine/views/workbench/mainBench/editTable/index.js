@@ -28,7 +28,7 @@ const options = [{
     value: -1
 }]
 
-const field_types = [
+const fieldTypes = [
     {
         name: 'SMALLINT',
         value: 'SMALLINT'
@@ -62,7 +62,7 @@ const field_types = [
 const decimalPrecision = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
 const decimalScale = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-export default class EditTable extends Component {
+class EditTable extends Component {
     constructor (props) {
         super(props)
         this.state = {
@@ -79,7 +79,9 @@ export default class EditTable extends Component {
         console.log([3, 7, 30, 90, 365].indexOf(tableDetail.lifeDay))
         if ([3, 7, 30, 90, 365].indexOf(tableDetail.lifeDay) === -1) {
             tableDetail.shortLisyCycle = tableDetail.lifeDay
-            this.state.customLifeCycle = tableDetail.shortLisyCycle
+            this.setState({
+                customLifeCycle: tableDetail.shortLisyCycle
+            })
             tableDetail.lifeDay = -1;
             this.setState({
                 short: true
@@ -291,7 +293,7 @@ export default class EditTable extends Component {
   render () {
       const { tableDetail } = this.state;
       const { getFieldDecorator, getFieldsValue } = this.props.form;
-      const tableCol_field = [
+      const tableColField = [
           {
               title: '字段名称',
               dataIndex: 'name',
@@ -308,7 +310,7 @@ export default class EditTable extends Component {
                       if (record.type === 'DECIMAL') {
                           return <span>
                               <Select style={{ width: 90, marginRight: 5 }} defaultValue={text} onChange={(e) => this.handleFieldTypeChange(e, record)}>
-                                  {field_types.map(o => {
+                                  {fieldTypes.map(o => {
                                       return <Option key={o.value} value={o.value}>{o.name}</Option>
                                   })}
                               </Select>
@@ -332,7 +334,7 @@ export default class EditTable extends Component {
                           </span>
                       } else {
                           return <Select style={{ width: 159 }} defaultValue={text} onChange={(e) => this.handleFieldTypeChange(e, record)}>
-                              {field_types.map(o => {
+                              {fieldTypes.map(o => {
                                   return <Option key={o.value} value={o.value}>{o.name}</Option>
                               })}
                           </Select>
@@ -388,7 +390,7 @@ export default class EditTable extends Component {
           }
       ]
 
-      const tableCOl_partition = [
+      const tableCOlPartition = [
           {
               title: '字段名',
               dataIndex: 'name'
@@ -480,7 +482,7 @@ export default class EditTable extends Component {
                   <Table
                       size="small"
                       className="table-small"
-                      columns={tableCol_field}
+                      columns={tableColField}
                       rowKey="_fid"
                       dataSource={tableDetail.columns}
                       pagination={false}>
@@ -493,7 +495,7 @@ export default class EditTable extends Component {
                   <Table
                       size="small"
                       className="table-small"
-                      columns={tableCOl_partition}
+                      columns={tableCOlPartition}
                       rowKey="_fid"
                       dataSource={tableDetail.partitions}
                       pagination={false}>
@@ -505,7 +507,7 @@ export default class EditTable extends Component {
       )
   }
 }
-EditTable = Form.create({
+export default Form.create({
     onValuesChange (props, changedValues) {
         console.log(props)
         let p = [];

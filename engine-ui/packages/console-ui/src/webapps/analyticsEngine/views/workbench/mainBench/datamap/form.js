@@ -86,130 +86,130 @@ class DataMapForm extends Component {
         )
 
         switch (datamapType) {
-        case DATAMAP_TYPE.TIME_SEQUENCE: {
-            return ([
-                <FormItem key="timeColumn" {...formItemLayout} label="时间字段" hasFeedback>
-                    {getFieldDecorator('configJSON.timeColumn', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '时间字段不可为空！'
-                            }
-                        ],
-                        initialValue: config ? config.timeColumn : ''
-                    })(
-                        <Select placeholder="请选择时间字段" disabled={!isCreate}>
-                            {timeColumnsOptionsForSeq}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem key="timeType" {...formItemLayout} label="时间粒度">
-                    {getFieldDecorator('configJSON.timeType', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '时间字段不可为空！'
-                            }
-                        ],
-                        initialValue: config ? config.timeType : '1'
-                    })(
-                        <RadioGroup disabled={!isCreate}>
-                            <Radio value="4">年</Radio>
-                            <Radio value="3">月</Radio>
-                            <Radio value="2">日</Radio>
-                            <Radio value="1">小时</Radio>
-                            <Radio value="0">分钟</Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>,
-                <FormItem key="timeSeqSelectSql" {...formItemLayout} label={
-                    <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
-                }>
-                    {getFieldDecorator('configJSON.selectSql', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '主表查询不可为空！'
-                            }
-                        ],
-                        initialValue: config ? config.selectSql : undefined
-                    })(
-                        <Input type="hidden" />
-                    )}
-                    { editorInput }
-                </FormItem>
-            ])
-        }
-        case DATAMAP_TYPE.FILTER: {
-            return ([
-                <FormItem key="columns" {...formItemLayout} label="索引字段" hasFeedback>
-                    {getFieldDecorator('configJSON.columns', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '时间字段不可为空！'
-                            }
-                        ],
-                        initialValue: config ? config.columns.split(',') : tableColumns.length > 0 ? [tableColumns[0].name] : []
-                    })(
-                        <Select mode="multiple" placeholder="请选择时间字段" disabled={!isCreate}>
-                            {timeColumnsOptions}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem key="bloomSize" {...formItemLayout} label="Bloom Size" hasFeedback>
-                    {getFieldDecorator('configJSON.bloomSize', {
-                        rules: [],
-                        initialValue: config ? config.bloomSize : 32000
-                    })(
-                        <InputNumber min={32000} style={{ width: '100%' }} disabled={!isCreate}/>
-                    )}
-                    <HelpDoc doc="bloomSizeSummary" />
-                </FormItem>,
-                <FormItem key="bloomFPP" {...formItemLayout} label="Bloom FPP" hasFeedback>
-                    {getFieldDecorator('configJSON.bloomFP', {
-                        rules: [],
-                        initialValue: config ? config.bloomFP : 1
-                    })(
-                        <InputNumber min={0} max={100} style={{ width: '100%' }} disabled={!isCreate}/>
-                    )}
-                    <HelpDoc doc="bloomFPPSummary" />
-                </FormItem>,
-                <FormItem key="bloomConpress" {...formItemLayout} label="是否压缩索引文件">
-                    {getFieldDecorator('configJSON.bloomConpress', {
-                        rules: [],
-                        initialValue: config ? config.bloomConpress : true
-                    })(
-                        <RadioGroup disabled={!isCreate}>
-                            <Radio value={true}>是</Radio>
-                            <Radio value={false}>否</Radio>
-                        </RadioGroup>
-                    )}
-                    <HelpDoc style={relativeStyle} doc="isCompressIndex" />
-                </FormItem>
-            ])
-        }
-        case DATAMAP_TYPE.PRE_SUM:
-        default: {
-            return (
-                <FormItem key="selectSql" {...formItemLayout} label={
-                    <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
-                }>
-                    {getFieldDecorator('configJSON.selectSql', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '主表查询不可为空！'
-                            }
-                        ],
-                        initialValue: config ? config.selectSql : undefined
-                    })(
-                        <Input type="hidden" />
-                    )}
-                    {editorInput}
-                </FormItem>
-            )
-        }
+            case DATAMAP_TYPE.TIME_SEQUENCE: {
+                return ([
+                    <FormItem key="timeColumn" {...formItemLayout} label="时间字段" hasFeedback>
+                        {getFieldDecorator('configJSON.timeColumn', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '时间字段不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.timeColumn : ''
+                        })(
+                            <Select placeholder="请选择时间字段" disabled={!isCreate}>
+                                {timeColumnsOptionsForSeq}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem key="timeType" {...formItemLayout} label="时间粒度">
+                        {getFieldDecorator('configJSON.timeType', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '时间字段不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.timeType : '1'
+                        })(
+                            <RadioGroup disabled={!isCreate}>
+                                <Radio value="4">年</Radio>
+                                <Radio value="3">月</Radio>
+                                <Radio value="2">日</Radio>
+                                <Radio value="1">小时</Radio>
+                                <Radio value="0">分钟</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    <FormItem key="timeSeqSelectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
+                        {getFieldDecorator('configJSON.selectSql', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '主表查询不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.selectSql : undefined
+                        })(
+                            <Input type="hidden" />
+                        )}
+                        { editorInput }
+                    </FormItem>
+                ])
+            }
+            case DATAMAP_TYPE.FILTER: {
+                return ([
+                    <FormItem key="columns" {...formItemLayout} label="索引字段" hasFeedback>
+                        {getFieldDecorator('configJSON.columns', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '时间字段不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.columns.split(',') : tableColumns.length > 0 ? [tableColumns[0].name] : []
+                        })(
+                            <Select mode="multiple" placeholder="请选择时间字段" disabled={!isCreate}>
+                                {timeColumnsOptions}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem key="bloomSize" {...formItemLayout} label="Bloom Size" hasFeedback>
+                        {getFieldDecorator('configJSON.bloomSize', {
+                            rules: [],
+                            initialValue: config ? config.bloomSize : 32000
+                        })(
+                            <InputNumber min={32000} style={{ width: '100%' }} disabled={!isCreate}/>
+                        )}
+                        <HelpDoc doc="bloomSizeSummary" />
+                    </FormItem>,
+                    <FormItem key="bloomFPP" {...formItemLayout} label="Bloom FPP" hasFeedback>
+                        {getFieldDecorator('configJSON.bloomFP', {
+                            rules: [],
+                            initialValue: config ? config.bloomFP : 1
+                        })(
+                            <InputNumber min={0} max={100} style={{ width: '100%' }} disabled={!isCreate}/>
+                        )}
+                        <HelpDoc doc="bloomFPPSummary" />
+                    </FormItem>,
+                    <FormItem key="bloomConpress" {...formItemLayout} label="是否压缩索引文件">
+                        {getFieldDecorator('configJSON.bloomConpress', {
+                            rules: [],
+                            initialValue: config ? config.bloomConpress : true
+                        })(
+                            <RadioGroup disabled={!isCreate}>
+                                <Radio value={true}>是</Radio>
+                                <Radio value={false}>否</Radio>
+                            </RadioGroup>
+                        )}
+                        <HelpDoc style={relativeStyle} doc="isCompressIndex" />
+                    </FormItem>
+                ])
+            }
+            case DATAMAP_TYPE.PRE_SUM:
+            default: {
+                return (
+                    <FormItem key="selectSql" {...formItemLayout} label={
+                        <span>主表查询 <HelpDoc style={relativeStyle} doc="selectSQL"/></span>
+                    }>
+                        {getFieldDecorator('configJSON.selectSql', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '主表查询不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.selectSql : undefined
+                        })(
+                            <Input type="hidden" />
+                        )}
+                        {editorInput}
+                    </FormItem>
+                )
+            }
         }
     }
 

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { Input, Table, Select, Icon, Button, Row, Checkbox, notification } from 'antd'
-import API from '../../../../api';
+import { Input, Table, Select, Icon, Button, Row, Checkbox } from 'antd'
 import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
 
 const Option = Select.Option;
 
 // const columns = [];
 // const partitions = [];
-const field_type = [
+const fieldType = [
     {
         name: 'SMALLINT',
         value: 'SMALLINT'
@@ -37,7 +36,7 @@ const field_type = [
         value: 'DECIMAL'
     }
 ]
-const partition_mode = [
+const partitionMode = [
     {
         name: '标准',
         value: 0
@@ -80,12 +79,13 @@ export default class StepTwo extends Component {
             bucketInfo: bucketInfo
         })
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { columns = [],
             partitions,
             bucketInfo
         } = nextProps.tabData.tableItem;
-        bucketInfo.bucketNumber = bucketInfo.bucketNumber;
+        // bucketInfo.bucketNumber = bucketInfo.bucketNumber;
 
         this.setState({
             columns: columns,
@@ -93,7 +93,8 @@ export default class StepTwo extends Component {
             bucketInfo: bucketInfo
         })
     }
-    componentWillUpdate () {
+    // eslint-disable-next-line
+    UNSAFE_componentWillUpdate () {
         console.log(this.state.columns)
         console.log(this.state.partitions)
     }
@@ -151,13 +152,12 @@ export default class StepTwo extends Component {
   }
 
   handleNameChange = (e, record) => {
-      let { columns, partitions } = this.state;
+      let { columns } = this.state;
       record.name = e.target.value;
       console.log(columns)
       this.saveDataToStorage();
   }
   handleSelectChange = (e, record) => {
-      let { columns, partitions } = this.state;
       record.type = e;
       if (e === 'TIMESTAMP' || e === 'DATE') {
           this.handleDictionary({ target: { checked: false } }, record)
@@ -173,7 +173,6 @@ export default class StepTwo extends Component {
       this.saveDataToStorage();
   }
   handleCommentChange = (e, record) => {
-      let { columns, partitions } = this.state;
       record.comment = e.target.value;
       this.saveDataToStorage();
   }
@@ -341,7 +340,7 @@ export default class StepTwo extends Component {
               render: (text, record) => (
                   <Select style={{ width: 159 }} defaultValue={text || undefined} onChange={(e) => this.handleSelectChange(e, record)}>
                       {
-                          field_type.map(o => {
+                          fieldType.map(o => {
                               return (<Option key={o.value} value={o.value}>{o.name}</Option>)
                           })
                       }
@@ -368,7 +367,7 @@ export default class StepTwo extends Component {
           }
       ]
 
-      let col_noaction = [
+      let colNoaction = [
           {
               title: '字段名',
               dataIndex: 'name',
@@ -381,7 +380,7 @@ export default class StepTwo extends Component {
               render: (text, record) => (
                   <Select style={{ width: 159 }} defaultValue={text || undefined} onChange={(e) => this.handleSelectChange(e, record)}>
                       {
-                          field_type.map(o => {
+                          fieldType.map(o => {
                               return <Option key={o.value} value={o.value}>{o.name}</Option>
                           })
                       }
@@ -395,7 +394,7 @@ export default class StepTwo extends Component {
               )
           }
       ]
-      let col_bucket = [
+      let colBucket = [
           {
               title: '字段名',
               dataIndex: 'name',
@@ -437,7 +436,7 @@ export default class StepTwo extends Component {
           }
       ]
 
-      let col_field = [
+      let colField = [
           {
               title: '字段名',
               dataIndex: 'name',
@@ -451,7 +450,7 @@ export default class StepTwo extends Component {
                   <span>
                       <Select style={{ width: record.type === 'DECIMAL' ? 90 : 159, marginRight: 5 }} defaultValue={text || undefined} onChange={(e) => this.handleSelectChange(e, record)}>
                           {
-                              field_type.map(o => {
+                              fieldType.map(o => {
                                   return <Option key={o.value} value={o.value}>{o.name}</Option>
                               })
                           }
@@ -525,7 +524,7 @@ export default class StepTwo extends Component {
           }
       ]
 
-      return flag === 1 ? col_field : flag === 2 ? col : flag === 4 ? col_bucket : col_noaction;
+      return flag === 1 ? colField : flag === 2 ? col : flag === 4 ? colBucket : colNoaction;
   }
 
   render () {
@@ -553,7 +552,7 @@ export default class StepTwo extends Component {
                       <span>分区模式：</span>
                       <Select getPopupContainer={e => e.parentNode} style={{ width: 150 }} value={partitions.partitionType} onChange={this.handlePartitionModeChange}>
                           {
-                              partition_mode.map(o => {
+                              partitionMode.map(o => {
                                   return (<Option key={o.value} value={o.value}>{o.name}</Option>)
                               })
                           }

@@ -60,7 +60,8 @@ class EditorContainer extends Component {
         this.initEditorData(data, databaseList);
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const current = nextProps.data;
         const old = this.props.data;
         if (current && current.id !== old.id) {
@@ -223,16 +224,8 @@ class EditorContainer extends Component {
     completeProvider (
         completeItems,
         resolve,
-        customCompletionItemsCreater,
-        status = {}
+        customCompletionItemsCreater
     ) {
-        const {
-            autoComplete = {},
-            syntax = {},
-            context = {},
-            word = {}
-        } = status;
-
         const { tableCompleteItems, funcCompleteItems } = this.state;
 
         // 初始完成项：默认项+所有表+所有函数
@@ -271,17 +264,15 @@ class EditorContainer extends Component {
 
     onSyntaxChange (autoComplete, syntax) {
         const locations = autoComplete.locations;
-        let promiseList = [];
         let tables = [];
-        let columns = {};
-        let tmp_tables = {};
+        let tmpTables = {};
         for (let location of locations) {
             if (location.type == 'table') {
                 for (let identifierChain of location.identifierChain) {
-                    if (tmp_tables[identifierChain.name]) {
+                    if (tmpTables[identifierChain.name]) {
                         continue;
                     }
-                    tmp_tables[identifierChain.name] = true;
+                    tmpTables[identifierChain.name] = true;
                     tables.push(identifierChain.name);
                 }
             }
@@ -300,7 +291,7 @@ class EditorContainer extends Component {
     }
 
     customToolbar = () => {
-        const { databaseList, data } = this.props;
+        const { databaseList } = this.props;
         const dbOptions = databaseList && databaseList.map(opt => (
             <Option key={`${opt.id}`} value={`${opt.id}`}>{opt.name}</Option>
         ))
