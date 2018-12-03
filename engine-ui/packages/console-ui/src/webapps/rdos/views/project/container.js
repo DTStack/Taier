@@ -25,6 +25,7 @@ class Container extends Component {
 	UNSAFE_componentWillReceiveProps (nextProps) {
         const { params = {}, project = {} } = nextProps;
         if (params.pid != project.id) {
+            // eslint-disable-next-line
             hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i, `$1${project.id}$2`))
         }
     }

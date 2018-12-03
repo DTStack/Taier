@@ -1,8 +1,5 @@
 import moment from 'moment'
 import utils from 'utils'
-import {
-    message
-} from 'antd';
 
 import API from '../../../api';
 import { taskStatus, offlineTaskStatusFilter } from '../../../comm/const'
@@ -205,7 +202,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
             /**
              * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
              */
-            return;
+
         }
 
         if (utils.checkExist(currentTabData.taskType)) { // 任务执行

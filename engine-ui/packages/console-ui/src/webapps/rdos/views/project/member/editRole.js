@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Select, Form, Checkbox
+    Form, Checkbox
 } from 'antd'
 
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'

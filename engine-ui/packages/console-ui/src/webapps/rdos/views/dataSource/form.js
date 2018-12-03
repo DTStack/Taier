@@ -60,7 +60,6 @@ class BaseForm extends Component {
         const ctx = this
         const { handOk, form } = this.props
         const source = form.getFieldsValue()
-        const { sourceType } = this.state
 
         this.preHandFormValues(source);
 

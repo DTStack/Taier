@@ -27,7 +27,7 @@ const formItemLayout = {
     }
 }
 
-export default class DBSync extends Component {
+class DBSync extends Component {
     state = {
         percent: 0,
         loading: false,
@@ -505,4 +505,6 @@ export default class DBSync extends Component {
         )
     }
 }
-DBSync = Form.create()(DBSync);
+const DBSyncWrapper = Form.create()(DBSync);
+
+export default DBSyncWrapper;

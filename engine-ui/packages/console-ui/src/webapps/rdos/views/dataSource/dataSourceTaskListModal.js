@@ -89,9 +89,9 @@ class DataSourceTaskListModal extends React.Component {
             width: '100px',
             render (t, record) {
                 if (type == 'stream') {
-                    return <a target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
+                    return <a target="_blank" rel="noopener noreferrer" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
                 } else {
-                    return <a target="_blank" href={`${location.pathname}#/offline?taskId=${record.id}`}>编辑</a>
+                    return <a target="_blank" rel="noopener noreferrer" href={`${location.pathname}#/offline?taskId=${record.id}`}>编辑</a>
                 }
             }
         }]

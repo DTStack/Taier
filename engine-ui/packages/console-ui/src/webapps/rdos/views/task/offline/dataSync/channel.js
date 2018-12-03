@@ -34,7 +34,7 @@ class ChannelForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { setting, navtoStep, form } = this.props;
+        const { setting, navtoStep } = this.props;
 
         const formItemLayout = {
             labelCol: {

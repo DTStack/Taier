@@ -329,12 +329,13 @@ class ImportTarget extends Component {
                     &nbsp;&nbsp;
 
                     {
-                        // eslint-disable-next-line
+                        /* eslint-disable */
                         index === data.length - 1
                             ? <span style={{ color: '#f60' }}>
                                 <br />
                                 点击"检测"按钮，测试分区是否存在
                             </span> : ''
+                        /* eslint-disable */
                     }
                 </Row>
             )

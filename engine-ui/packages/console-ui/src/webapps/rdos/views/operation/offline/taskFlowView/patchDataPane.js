@@ -3,9 +3,9 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 
 import {
-    Row, Input, Select, Menu, message,
-    Col, Radio, Pagination, Checkbox, Form,
-    DatePicker, TimePicker, Table, Tree
+    Row, Input, Select, message,
+    Pagination, Checkbox, Form,
+    DatePicker, TimePicker, Tree
 } from 'antd'
 
 import utils from 'utils'
@@ -17,7 +17,6 @@ import { TaskBadgeStatus } from '../../../../components/status'
 import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Search = Input.Search
-const RadioGroup = Radio.Group
 const TreeNode = Tree.TreeNode
 const Option = Select.Option
 const FormItem = Form.Item
@@ -25,7 +24,6 @@ const FormItem = Form.Item
 function replaceTreeNode (treeNode, replace) {
     if (treeNode && treeNode.length > 0) {
         for (let i = 0; i < treeNode.length; i += 1) {
-            const node = treeNode[i]
             if (treeNode[i].data === replace.data) {
                 treeNode[i] = Object.assign(treeNode[i], replace);
                 return;
@@ -67,6 +65,7 @@ class PatchData extends Component {
         this.loadPatchData()
     }
 
+    // eslint-disable-next-line
     componentWillReceiveProps (nextProps) {
         const { project } = nextProps
         const oldProj = this.props.project
@@ -143,7 +142,6 @@ class PatchData extends Component {
 
     getReqParams = () => {
         const {
-            startTime, endTime,
             taskStatus, owner, jobType,
             runningDate, bussinessDate, taskName
         } = this.state
@@ -171,7 +169,6 @@ class PatchData extends Component {
 
     asyncTree = (treeNode) => {
         const ctx = this
-        const { dispatch } = this.props
         const { startTime, endTime, taskStatus, bussinessDate, taskName } = this.state
         const node = treeNode.props.data
         const parent = treeNode.props.parent

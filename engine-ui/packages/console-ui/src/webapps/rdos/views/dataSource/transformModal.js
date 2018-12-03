@@ -20,7 +20,7 @@ const formItemLayoutWithOutLabel = {
     wrapperCol: { span: 24 }
 };
 
-export default class TransformModal extends Component {
+class TransformModal extends Component {
     state = {
         nameRule: [{ id: 1 }],
         columnRule: [{ id: 1 }],
@@ -536,4 +536,6 @@ export default class TransformModal extends Component {
         );
     }
 }
-TransformModal = Form.create()(TransformModal);
+const TransformModalWrapper = Form.create()(TransformModal);
+
+export default TransformModalWrapper

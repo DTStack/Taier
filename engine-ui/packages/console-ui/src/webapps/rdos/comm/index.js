@@ -90,7 +90,7 @@ export function taskTypeIcon (type, task = {}) {
                 return 's-mlicon';
             }
             default:
-                '';
+                return '';
         }
     } else {
         switch (type) {
@@ -107,7 +107,7 @@ export function taskTypeIcon (type, task = {}) {
                 return 's-shell';
             }
             default:
-                '';
+                return '';
         }
     }
 }

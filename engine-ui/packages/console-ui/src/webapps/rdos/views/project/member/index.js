@@ -192,7 +192,6 @@ class ProjectMember extends Component {
     }
 
     initColumns = () => {
-        const user = this.props.user
         return [{
             title: '账号',
             dataIndex: 'user',
