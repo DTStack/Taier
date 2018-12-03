@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Table, Modal, Select, message, Row, Col, Form } from 'antd';
+import { Table, Modal, Select, message, Form } from 'antd';
 import { connect } from 'react-redux';
 import { cloneDeep, uniq } from 'lodash';
 
@@ -35,9 +35,10 @@ class ChangeResourceModal extends React.Component {
             selectUserMap: this.exchangeSelectMap(resource.tenants)
         })
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { resource: nextResource, visible: nextVisible } = nextProps;
-        const { resource, visible } = this.props;
+        const { visible } = this.props;
         if (visible != nextVisible && nextVisible) {
             this.setState({
                 selectUserMap: this.exchangeSelectMap(nextResource.tenants),

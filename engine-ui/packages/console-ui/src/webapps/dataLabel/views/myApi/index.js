@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu, Card, Table, Tabs } from 'antd'
+import { Tabs } from 'antd'
 import { connect } from 'react-redux';
 import { mineActions } from '../../actions/mine';
 import NoApprovedCard from './noApprovedCard'
@@ -86,9 +86,9 @@ class MyAPI extends Component {
             this.props.router.replace('/dl/mine')
         }
     }
+    /* eslint-disable-next-line */
     componentWillMount () {
         const view = this.props.router.params.view;
-
         if (view) {
             this.setState({
                 nowView: view
@@ -102,7 +102,6 @@ class MyAPI extends Component {
         return <ApprovedCard {...this.props}></ApprovedCard>
     }
     render () {
-        const { children } = this.props;
         return (
             <div style={{ height: '100%', overflowX: 'hidden' }}>
                 <div className="box-1 m-card shadow m-tabs">

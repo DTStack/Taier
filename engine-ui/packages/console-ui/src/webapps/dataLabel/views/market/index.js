@@ -1,18 +1,15 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Card, Input, Checkbox, Select, DatePicker, Table, Modal, Form } from 'antd';
+import { Card, Input, Select, Table, Modal } from 'antd';
 
 import { apiMarketActions } from '../../actions/apiMarket';
 import utils from 'utils';
 import ApplyBox from './applyBox';
 
-const FormItem = Form.Item;
-const TextArea = Input.TextArea
 const Option = Select.Option;
 const Search = Input.Search;
 let modal;
-
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
     return { apiMarket, user }
@@ -115,31 +112,30 @@ class APIMarket extends Component {
             if (!items) {
                 return null;
             }
-            let item_child;// 二级目录
+            let itemChild;// 二级目录
             // 查找二级目录
             for (let i = 0; i < items.length; i++) {
                 if (items[i].id == id) {
-                    item_child = items[i].childCatalogue;
+                    itemChild = items[i].childCatalogue;
                     break;
                 }
             }
             // 找不到，则返回null
-            if (!item_child) {
+            if (!itemChild) {
                 return null;
             }
 
-            for (let i = 0; i < item_child.length; i++) {
-                if (item_child[i].api) {
+            for (let i = 0; i < itemChild.length; i++) {
+                if (itemChild[i].api) {
                     continue;
                 }
                 arr.push({
-                    id: item_child[i].id,
-                    name: item_child[i].catalogueName
+                    id: itemChild[i].id,
+                    name: itemChild[i].catalogueName
                 })
             }
             return arrToOptions(arr);
         }
-        return null;
     }
     onSourceChange (key) {
         this.setState({
@@ -335,7 +331,7 @@ class APIMarket extends Component {
     }
 
     render () {
-        const { children, apiMarket } = this.props;
+        const { apiMarket } = this.props;
         return (
             <div className="api-market">
                 <ApplyBox show={this.state.applyBox}

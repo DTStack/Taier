@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message } from 'antd'
+import { Card, Input, Select, Table, Button, Modal, message } from 'antd'
 import { connect } from 'react-redux';
 import utils from 'utils';
 
@@ -7,10 +7,7 @@ import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
 
-import {
-    dataSourceTypes, TAG_TYPE, TAG_STATUS, API_OPEN_STATUS,
-    EXCHANGE_ADMIN_API_STATUS
-} from '../../consts';
+import { TAG_TYPE, API_OPEN_STATUS } from '../../consts';
 
 import { dataSourceText } from '../../components/display';
 
@@ -155,31 +152,30 @@ class APIMana extends Component {
             if (!items) {
                 return null;
             }
-            let item_child;// 二级目录
+            let itemChild;// 二级目录
             // 查找二级目录
             for (let i = 0; i < items.length; i++) {
                 if (items[i].id == id) {
-                    item_child = items[i].childCatalogue;
+                    itemChild = items[i].childCatalogue;
                     break;
                 }
             }
             // 找不到，则返回null
-            if (!item_child) {
+            if (!itemChild) {
                 return null;
             }
 
-            for (let i = 0; i < item_child.length; i++) {
-                if (item_child[i].api) {
+            for (let i = 0; i < itemChild.length; i++) {
+                if (itemChild[i].api) {
                     continue;
                 }
                 arr.push({
-                    id: item_child[i].id,
-                    name: item_child[i].catalogueName
+                    id: itemChild[i].id,
+                    name: itemChild[i].catalogueName
                 })
             }
             return arrToOptions(arr);
         }
-        return null;
     }
     onSourceChange = (key) => {
         this.setState({
@@ -357,7 +353,6 @@ class APIMana extends Component {
                 this.props.closeApi(apiId)
                     .then(
                         (res) => {
-                            if (true) {}
                             this.setState({
                                 loading: false
                             })
@@ -426,7 +421,7 @@ class APIMana extends Component {
     }
     // 获取类型视图
     getDataSourceTypeView () {
-        const { typeList, typeDic } = this.exchangeSourceType();
+        const { typeList } = this.exchangeSourceType();
 
         if (!typeList || typeList.length < 1) {
             return null;
@@ -476,8 +471,6 @@ class APIMana extends Component {
     }
 
     render () {
-        const { children } = this.props;
-
         const cardTitle = (
             <div className="flex font-12">
                 <Search

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
 import SlidePane from 'widgets/slidePane';
-const TextArea = Input.TextArea;
 class DisabledCardSlidePane extends Component {
     state = {
         phone: '',
@@ -12,6 +10,7 @@ class DisabledCardSlidePane extends Component {
     componentDidMount () {
         this.getApiCreatorInfo();
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)

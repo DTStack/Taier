@@ -20,21 +20,18 @@ export default function tagConfig (state = initialState, action) {
 
     case tagConfigActionType.GET_RULE_TAG_LIST: {
         const clone = cloneDeep(state);
-        const { ruleTagList } = clone;
         clone.ruleTagList = payload;
         return clone;
     }
 
     case tagConfigActionType.GET_REGISTERED_TAG_LIST: {
         const clone = cloneDeep(state);
-        const { registeredTagList } = clone;
         clone.registeredTagList = payload;
         return clone;
     }
 
     case tagConfigActionType.GET_ALL_IDENTIFY_COLUMN: {
         const clone = cloneDeep(state);
-        const { identifyColumn } = clone;
         clone.identifyColumn = payload;
         return clone;
     }

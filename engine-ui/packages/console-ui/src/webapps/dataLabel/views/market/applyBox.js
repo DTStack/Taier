@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, Spin, message, Button } from 'antd'
+import { Modal, Form, Input, message, Button } from 'antd'
 import { connect } from 'react-redux';
 
 import { apiMarketActions } from '../../actions/apiMarket';

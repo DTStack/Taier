@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Table } from 'antd';
+import { Col, Row } from 'antd';
 import Resize from 'widgets/resize';
 import { connect } from 'react-redux';
 import { doubleLineAreaChartOptions } from '../../../../consts';
@@ -65,6 +65,7 @@ class ApiManageCallState extends Component {
             this.getApiCallInfoList();
         })
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         console.log(nextProps, this.state)
         if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {

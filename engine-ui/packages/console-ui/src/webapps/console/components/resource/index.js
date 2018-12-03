@@ -145,7 +145,6 @@ class Resource extends Component {
         ]
     }
     render () {
-        const { selectHack } = this.state;
         const columnsYarn = this.initYarnColumns();
         const columnsFlink = this.initFlinkColumns();
         const { flinkListSource, yarnListSource } = this.state;

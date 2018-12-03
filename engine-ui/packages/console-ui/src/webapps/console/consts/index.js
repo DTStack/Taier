@@ -35,7 +35,6 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
     ADSMAXCOMPUTE: 11
 }
-
 export const API_MODE = {
     GUIDE: 0,
     SQL: 1
@@ -44,6 +43,7 @@ export const API_METHOD = {
     POST: 1
     // GET:2
 }
+/* eslint-disable-next-line */
 export const API_METHOD_key = {
     1: 'POST',
     2: 'GET'

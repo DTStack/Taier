@@ -1,6 +1,6 @@
 // 帮助文档
 import React from 'react'
-
+/* eslint-disable */
 export const dataFilterDoc = (
     <div>
         where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：<br/>

@@ -5,8 +5,7 @@
 * @Last Modified time: 2018-09-28 11:43:51
 */
 import React, { Component } from 'react';
-import { Modal, Table } from 'antd';
-import moment from 'moment';
+import { Modal } from 'antd';
 import CodeEditor from 'widgets/editor';
 class ViewDetail extends Component {
     state = {
@@ -17,7 +16,6 @@ class ViewDetail extends Component {
         }
     }
     render () {
-        const { editor } = this.state;
         return (
             <Modal
                 title="任务详情"

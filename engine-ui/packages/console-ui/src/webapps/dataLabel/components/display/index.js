@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { Circle } from 'widgets/circle';
+import React from 'react';
 
 import {
     DATA_SOURCE
