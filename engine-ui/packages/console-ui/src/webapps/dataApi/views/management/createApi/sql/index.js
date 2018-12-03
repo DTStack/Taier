@@ -10,7 +10,8 @@ class ApiSqlEditor extends React.Component {
         loading: false,
         visible: false
     }
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
         if (this.props.disAbleTip) {
             this.setState({
                 visible: false

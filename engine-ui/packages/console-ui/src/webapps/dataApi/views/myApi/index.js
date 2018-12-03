@@ -88,7 +88,8 @@ class MyAPI extends Component {
             this.props.router.replace('/api/mine/notApproved')
         }
     }
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
         const view = this.props.router.params.view;
 
         if (view) {

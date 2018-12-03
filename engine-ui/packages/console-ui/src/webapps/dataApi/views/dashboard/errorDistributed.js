@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
+import { Card } from 'antd';
 import { pieOption } from '../../consts';
 import { cloneDeep } from 'lodash'
 import Resize from 'widgets/resize';
@@ -55,7 +55,8 @@ class ErrorDistributed extends Component {
     resize = () => {
         if (this.state.pieChart) this.state.pieChart.resize()
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.intPie(nextProps.chartData)
         }

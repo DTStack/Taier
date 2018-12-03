@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Icon, Button, Checkbox, Select, Form, Table, message, Card } from 'antd';
-import { cloneDeep } from 'lodash';
+import { Input, Button, Select, Form, Table, message } from 'antd';
 
 import ColumnsConfig from './params/columnsConfig'
 import ColumnsModel from '../../../model/columnsModel'
@@ -32,6 +31,7 @@ class ManageParamsConfig extends Component {
 
     }
 
+    // eslint-disable-next-line
     componentWillMount () {
         const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql,
             InputIsEdit, OutputIsEdit, dataSourceType } = this.props;
@@ -101,41 +101,41 @@ class ManageParamsConfig extends Component {
     }
     updateColumns (columns, type) {
         switch (type) {
-        case 'in': {
-            this.setState({
-                InputColumns: columns
-            })
-            return;
-        }
-        case 'out': {
-            this.setState({
-                OutputColums: columns
-            })
-        }
+            case 'in': {
+                this.setState({
+                    InputColumns: columns
+                })
+                return;
+            }
+            case 'out': {
+                this.setState({
+                    OutputColums: columns
+                })
+            }
         }
     }
     addColumns (type) {
         const { selectedRows } = this.state;
         switch (type) {
-        case 'in': {
-            this.setState({
-                InputColumns: [...this.state.InputColumns, ...selectedRows.map(
-                    (data) => {
-                        return new ColumnsModel(data);
-                    }
-                )]
-            })
-            return;
-        }
-        case 'out': {
-            this.setState({
-                OutputColums: [...this.state.OutputColums, ...selectedRows.map(
-                    (data) => {
-                        return new ColumnsModel(data);
-                    }
-                )]
-            })
-        }
+            case 'in': {
+                this.setState({
+                    InputColumns: [...this.state.InputColumns, ...selectedRows.map(
+                        (data) => {
+                            return new ColumnsModel(data);
+                        }
+                    )]
+                })
+                return;
+            }
+            case 'out': {
+                this.setState({
+                    OutputColums: [...this.state.OutputColums, ...selectedRows.map(
+                        (data) => {
+                            return new ColumnsModel(data);
+                        }
+                    )]
+                })
+            }
         }
     }
 
@@ -156,17 +156,17 @@ class ManageParamsConfig extends Component {
         );
 
         switch (type) {
-        case 'in': {
-            this.setState({
-                InputColumns: filterArr(InputColumns)
-            })
-            return;
-        }
-        case 'out': {
-            this.setState({
-                OutputColums: filterArr(OutputColums)
-            })
-        }
+            case 'in': {
+                this.setState({
+                    InputColumns: filterArr(InputColumns)
+                })
+                return;
+            }
+            case 'out': {
+                this.setState({
+                    OutputColums: filterArr(OutputColums)
+                })
+            }
         }
     }
 

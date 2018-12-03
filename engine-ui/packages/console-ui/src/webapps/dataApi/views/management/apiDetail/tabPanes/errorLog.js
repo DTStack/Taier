@@ -64,7 +64,8 @@ class ManageErrorLog extends Component {
         const { apiId, dateType } = this.props;
         this.getErrorInfo(apiId, dateType);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { apiId, dateType } = this.props;
         const { apiId: nextApiId, dateType: nextDateType } = nextProps;
         if (apiId != nextApiId || dateType != nextDateType) {

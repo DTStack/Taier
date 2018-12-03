@@ -55,6 +55,7 @@ class APIApproval extends Component {
         total: 0,
         searchType: '用户名称'
     }
+    // eslint-disable-next-line
     componentWillMount () {
 
     }
@@ -110,8 +111,7 @@ class APIApproval extends Component {
             filter: filter,
             sorter: sorter
 
-        },
-        () => {
+        }, () => {
             this.getApprovalList();
         });
     }
@@ -179,24 +179,24 @@ class APIApproval extends Component {
         let dealView = [];
 
         switch (type) {
-        case API_USER_STATUS.IN_HAND:
-            dealView.push(approvalButton);
-            break;
-        case API_USER_STATUS.PASS:
-        case API_USER_STATUS.STOPPED:
-            dealView.push(detailButton);
-            dealView.push(<span className="ant-divider" ></span>);
-            dealView.push(cancelButton);
-            break;
-        case API_USER_STATUS.DISABLE:
-            dealView.push(detailButton);
-            dealView.push(<span className="ant-divider" ></span>);
-            dealView.push(redoButton);
-            break;
-        case API_USER_STATUS.EXPIRED:
-        case API_USER_STATUS.REJECT:
-            dealView.push(detailButton);
-            break;
+            case API_USER_STATUS.IN_HAND:
+                dealView.push(approvalButton);
+                break;
+            case API_USER_STATUS.PASS:
+            case API_USER_STATUS.STOPPED:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(cancelButton);
+                break;
+            case API_USER_STATUS.DISABLE:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(redoButton);
+                break;
+            case API_USER_STATUS.EXPIRED:
+            case API_USER_STATUS.REJECT:
+                dealView.push(detailButton);
+                break;
         }
         return <span>{dealView}</span>;
     }
@@ -303,7 +303,6 @@ class APIApproval extends Component {
         })
     }
     getCardTitle () {
-        const sourceType = ''; const sourceList = ''; const userList = '';
         return (
             <div className="flex font-12">
                 <InputGroup compact style={{ width: 500, margin: '10px 0px' }} >
@@ -425,7 +424,7 @@ class APIApproval extends Component {
                             {...formItemLayout}
                             label="调用周期"
                         >
-                            {spApplyMsg.beginTime ? `${new moment(spApplyMsg.beginTime).format('YYYY-MM-DD')} ~ ${new moment(spApplyMsg.endTime).format('YYYY-MM-DD')}` : '无限制'}
+                            {spApplyMsg.beginTime ? `${moment(spApplyMsg.beginTime).format('YYYY-MM-DD')} ~ ${moment(spApplyMsg.endTime).format('YYYY-MM-DD')}` : '无限制'}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

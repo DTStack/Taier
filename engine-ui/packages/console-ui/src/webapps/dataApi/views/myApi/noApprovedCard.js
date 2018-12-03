@@ -45,7 +45,8 @@ class NoApprovedCard extends Component {
             }
         );
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'notApproved') {
             this.getApplyingList();
         }

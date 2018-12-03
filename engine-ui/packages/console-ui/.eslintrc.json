@@ -21,7 +21,7 @@
     "rules": {
         "semi": 0,
         "strict": 0,
-        "indent": [2, 4],
+        "indent": [2, 4, { "SwitchCase": 1 }],
         "arrow-body-style": 0,
         "no-return-assign": 0,
         "no-useless-constructor": 0,

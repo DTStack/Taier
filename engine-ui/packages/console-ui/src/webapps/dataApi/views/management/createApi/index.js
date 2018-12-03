@@ -3,7 +3,6 @@ import { Card, Steps, message, Spin } from 'antd';
 import { connect } from 'react-redux'
 
 import GoBack from 'main/components/go-back'
-import { API_MODE } from '../../../consts';
 
 import BasicProperties from './basicProperties'
 import ParamsConfig from './paramsConfig'

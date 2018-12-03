@@ -49,7 +49,8 @@ class BuyManageState extends Component {
             total: 0
         })
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.apiId != nextProps.apiId || this.props.disAble != nextProps.disAble) {
             this.initState();
             this.tableChange({

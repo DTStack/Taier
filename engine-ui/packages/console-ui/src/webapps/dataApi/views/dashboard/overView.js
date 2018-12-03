@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
+import { Card, Col, Row } from 'antd';
 import { cloneDeep } from 'lodash'
 import Resize from 'widgets/resize';
 import { doubleLineAreaChartOptions } from '../../consts';
@@ -27,7 +27,8 @@ class TopCall extends Component {
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.initLineChart(nextProps.chartData)
         }

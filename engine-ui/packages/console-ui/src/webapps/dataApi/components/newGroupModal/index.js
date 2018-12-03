@@ -120,7 +120,8 @@ class NewGroupModal extends React.Component {
         }
     }
 
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
         this.props.getCatalogue(0);
     }
 
@@ -137,7 +138,8 @@ class NewGroupModal extends React.Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible: nextVisible } = nextProps;
         const { visible } = this.props;
         if (nextVisible != visible && nextVisible) {

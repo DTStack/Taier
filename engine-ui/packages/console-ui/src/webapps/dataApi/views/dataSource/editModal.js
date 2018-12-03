@@ -36,7 +36,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesType(params) {
+    getDataSourcesType (params) {
         dispatch(dataSourceActions.getDataSourcesType(params));
     },
 })
@@ -51,12 +51,13 @@ export default class DataSourceModal extends Component {
 
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getDataSourcesType();
-        
+
     }
 
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const oldData = this.props.sourceData;
         const newData = nextProps.sourceData;
 
@@ -139,13 +140,13 @@ export default class DataSourceModal extends Component {
         });
     }
 
-    renderDynamic() {
+    renderDynamic () {
         const { hasHdfsConfig, sourceType, detailConfig } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
         console.log(sourceType);
-        
+
         switch (sourceType) {
             case DATA_SOURCE.HIVE: {
                 return [
@@ -289,9 +290,9 @@ export default class DataSourceModal extends Component {
                         }
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
-                                <span style={{wordBreak:" break-all"}}> 
-                                    SID示例：{ jdbcUrlExample[sourceType][0]}
-                                    <br/>  
+                                <span style={{ wordBreak: " break-all" }}>
+                                    SID示例：{jdbcUrlExample[sourceType][0]}
+                                    <br />
                                     ServiceName示例：{jdbcUrlExample[sourceType][1]}
                                 </span>
                             )
@@ -407,12 +408,12 @@ export default class DataSourceModal extends Component {
         );
     }
 
-    render() {
+    render () {
         const { visible, form, title, sourceData, status, dataSource } = this.props
-        const { hasHdfsConfig, sourceType} = this.state
+        const { hasHdfsConfig, sourceType } = this.state
         const { getFieldDecorator } = form;
         //const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
-        
+
         return (
             <Modal
                 title={title}

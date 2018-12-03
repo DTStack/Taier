@@ -66,7 +66,8 @@ class ApiManageCallState extends Component {
             this.getApiCallInfoList();
         })
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {
             this.setState({
                 apiId: nextProps.apiId,
