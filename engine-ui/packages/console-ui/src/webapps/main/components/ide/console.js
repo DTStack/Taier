@@ -76,7 +76,8 @@ class Console extends Component {
         activeKey: defaultConsoleTab
     };
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
 

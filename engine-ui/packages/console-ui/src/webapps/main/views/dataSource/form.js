@@ -71,7 +71,8 @@ class DataSourceForm extends Component {
         this.loadSourceTypes()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const newData = nextProps.sourceData
 
         if (newData && newData.id !== this.props.sourceData.id) {

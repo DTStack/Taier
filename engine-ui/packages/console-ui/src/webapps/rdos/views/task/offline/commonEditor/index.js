@@ -33,7 +33,8 @@ class CommonEditorContainer extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         if (current && current.id !== old.id) {

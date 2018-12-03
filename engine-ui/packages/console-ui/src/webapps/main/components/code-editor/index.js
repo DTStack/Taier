@@ -72,7 +72,8 @@ class CodeEditor extends Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { value, sync, cursor, cursorAlwaysInEnd, options } = nextProps
 
         if (options) this.self.setOption('readOnly', options.readOnly)

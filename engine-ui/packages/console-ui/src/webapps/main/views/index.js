@@ -29,7 +29,8 @@ class Main extends Component {
         this.checkRoot(user);
     }
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
 
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {

@@ -30,7 +30,8 @@ export default class TableInfoPane extends React.Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const tbId = nextProps.tableId
         if (tbId && tbId !== this.props.tableId) {
             this.getTable(tbId)

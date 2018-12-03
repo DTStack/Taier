@@ -28,11 +28,13 @@ class RoleForm extends Component {
         })
     }
 
-    componentWillMount () {
+    // eslint-disable-next-line
+	UNSAFE_componentWillMount () {
         this.props.form.resetFields()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && (nextProps.roleInfo.permissionIds || [])
             ids = ids && ids.map(id => `${id}`)

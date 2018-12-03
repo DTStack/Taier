@@ -144,7 +144,8 @@ class WorkflowEditor extends Component {
         return false;
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const old = this.props.workflow;
         const next = nextProps.workflow;
 

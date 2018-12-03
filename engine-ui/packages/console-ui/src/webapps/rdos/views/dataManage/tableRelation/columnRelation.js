@@ -174,7 +174,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
-                const layout = new mxHierarchicalLayout(graph, false);
+                const layout = new mxHierarchicalLayout(graph, false);// eslint-disable-line
                 layout.orientation = 'west';
                 layout.disableEdgeStyle = false;
 
@@ -200,7 +200,7 @@ export default class TableRelation extends React.Component {
         // Disables the context menu
         mxEvent.disableContextMenu(container);
 
-        const graph = new mxGraph(container);
+        const graph = new mxGraph(container);// eslint-disable-line
         this.graph = graph;
 
         // Disables global features
@@ -241,7 +241,7 @@ export default class TableRelation extends React.Component {
         mxConstants.VERTEX_SELECTION_COLOR = '#2491F7';
 
         // enables rubberband
-        new mxRubberband(graph);
+        new mxRubberband(graph);// eslint-disable-line
 
         // 定义lable渲染
         graph.getLabel = function (cell) {

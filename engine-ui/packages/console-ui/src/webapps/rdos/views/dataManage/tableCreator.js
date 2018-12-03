@@ -1,11 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import {
     Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber
 } from 'antd';
 import assign from 'object-assign';
-import { isEqual, throttle, range, isObject } from 'lodash';
+import { range, isObject } from 'lodash';
 import { browserHistory, hashHistory } from 'react-router'
 
 import ajax from '../../api/dataManage';
@@ -197,14 +196,16 @@ class BaseForm extends React.Component {
 
     validateDelim (rule, value, callback) {
         value = value.trim();
-
+        let error;
         if (value[0] === '\\') {
             if (value.length > 2) {
-                callback('分隔符长度只能为1（不包括转义字符"\\"）')
+                error = '分隔符长度只能为1（不包括转义字符"\\"）'
+                callback(error)
             }
         } else {
             if (value.length > 1) {
-                callback('分隔符长度只能为1')
+                error = '分隔符长度只能为1'
+                callback(error)
             }
         }
         callback();
@@ -218,7 +219,10 @@ class BaseForm extends React.Component {
             if (res.code === 1) {
                 // 转换为小写
                 ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
-                if (res.data) callback('该表已经存在！');
+                if (res.data) {
+                    const error = '该表已经存在！'
+                    callback(error);
+                }
             }
         })
             .then(callback) : callback();
@@ -229,7 +233,10 @@ class BaseForm extends React.Component {
             hdfsUri: 'hdfs://' + value
         }).then(res => {
             if (res.code === 1) {
-                if (!res.data) callback('此目录不存在');
+                if (!res.data) {
+                    const error = '此目录不存在'
+                    callback(error);
+                }
             }
         })
             .then(callback) : callback();
@@ -315,8 +322,7 @@ export class RowItem extends React.Component {
 
     render () {
         const { data } = this.props;
-        const { editMode } = this.state;
-        const { isSaved, isPartition, precision, scale, columnType, columnName, comment } = data;
+        const { isSaved, isPartition, columnType, columnName, comment } = data;
 
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         // const needExtra = true;
@@ -478,7 +484,11 @@ export class ColumnsPartition extends React.Component {
     }
 
     render () {
-        const { columns, partition_keys, isEdit } = this.props;
+        const {
+            columns,
+            partition_keys,// eslint-disable-line
+            isEdit
+        } = this.props;
 
         return <div className="m-columnspartition">
             <div className="columns box">
@@ -553,10 +563,12 @@ class TableCreator extends React.Component {
         };
 
         // move up/down
+        /* eslint-disable */
         Array.prototype.__move = function (from, to) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
+        /* eslint-enable */
     }
 
     shouldComponentUpdate (nextProps, nextState) {
@@ -574,7 +586,10 @@ class TableCreator extends React.Component {
 
     next () {
         const { current, table } = this.state;
-        const { partition_keys, columns } = table;
+        const {
+            partition_keys,// eslint-disable-line
+            columns
+        } = table;
 
         if (current === 0) {
             this.baseForm.validateFields((err, values) => {
@@ -599,10 +614,13 @@ class TableCreator extends React.Component {
 
     doCreate () {
         const { table, current } = this.state;
-        let { columns, partition_keys } = table;
+        let {
+            columns,
+            partition_keys// eslint-disable-line
+        } = table;
 
         columns = this.reduceRowData(columns);
-        partition_keys = this.reduceRowData(partition_keys);
+        partition_keys = this.reduceRowData(partition_keys);// eslint-disable-line
 
         if (partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
@@ -645,14 +663,17 @@ class TableCreator extends React.Component {
      */
     addRow (data, type) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let {
+            columns,
+            partition_keys// eslint-disable-line
+        } = table;
 
         if (type === 1) {
             columns.push(data);
             table.columns = columns;
         } else if (type === 2) {
             partition_keys.push(data);
-            table.partition_keys = partition_keys;
+            table.partition_keys = partition_keys;// eslint-disable-line
         }
 
         this.setState({
@@ -668,7 +689,10 @@ class TableCreator extends React.Component {
      */
     delRow (uuid, type) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let {
+            columns,
+            partition_keys// eslint-disable-line
+        } = table;
 
         if (type === 1) {
             columns = columns.filter(col => {
@@ -676,10 +700,12 @@ class TableCreator extends React.Component {
             });
             table.columns = columns;
         } else if (type === 2) {
+            /* eslint-disable */
             partition_keys = partition_keys.filter(col => {
                 return col.uuid !== uuid
             });
             table.partition_keys = partition_keys;
+            /* eslint-enable */
         }
 
         this.setState({
@@ -694,6 +720,7 @@ class TableCreator extends React.Component {
      * @memberof TableCreator
      */
     replaceRow (newCol, type) {
+        /* eslint-disable */
         let { table } = this.state;
         let { columns, partition_keys } = table;
         const { uuid } = newCol;
@@ -711,7 +738,7 @@ class TableCreator extends React.Component {
             });
             table.partition_keys = partition_keys;
         }
-
+        /* eslint-enable */
         this.setState({
             table
         });
@@ -726,6 +753,7 @@ class TableCreator extends React.Component {
      */
     moveRow (uuid, type, isUp) {
         let { table } = this.state;
+        /* eslint-disable */
         let { columns, partition_keys } = table;
         let from;
 
@@ -740,7 +768,7 @@ class TableCreator extends React.Component {
             });
             table.partition_keys = partition_keys.__move(from, isUp ? from - 1 : from + 1);
         }
-
+        /* eslint-enable */
         this.setState({
             table
         })

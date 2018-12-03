@@ -153,7 +153,8 @@ class Navigator extends Component {
         this.updateSelected()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();

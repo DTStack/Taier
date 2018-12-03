@@ -181,7 +181,7 @@ class DataSourceModal extends Component {
                                 initialValue: false
                             })(
                                 <Checkbox checked={hasHdfsConfig} onChange={this.enableHdfsConfig}>
-                                    高可用配置
+                                        高可用配置
                                 </Checkbox>
                             )
                         }
@@ -295,7 +295,6 @@ class DataSourceModal extends Component {
                     </FormItem>
                 </div>
             }
-
             default:
                 break;
         }

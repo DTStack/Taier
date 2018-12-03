@@ -1,39 +1,35 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Table, Form, Card,
+    Input, Button, Popconfirm,
     Tooltip
 } from 'antd';
 
 import utils from 'utils';
 
-import BasePane from './basePane';
 import { AtomIndexDefine } from './paneSix';
 import DeriveIndexModal from './paneSevenModal';
-import Api from '../../../api/dataModel';
 
-const Option = Select.Option;
 const FormItem = Form.Item;
-
 
 @connect((state) => {
     return {
         project: state.project
     }
 })
-export default class DeriveIndexDefine extends AtomIndexDefine {
-
-    componentDidMount() {
+class DeriveIndexDefine extends AtomIndexDefine {
+    componentDidMount () {
         this.setState({
-            params: Object.assign(this.state.params, { 
-                type: 2, // 原子指标
-            }),
+            params: Object.assign(this.state.params, {
+                type: 2 // 原子指标
+            })
         }, this.loadData)
     }
 
-    componentWillReceiveProps(nextProps){
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -41,17 +37,19 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
         }
     }
 
-    characterProcess = (text="",maxWidth="300px") => {
-        const style ={overflow: "hidden",
+    characterProcess = (text = '', maxWidth = '300px') => {
+        const style = {
+            overflow: 'hidden',
             maxWidth,
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap"}
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+        }
         const content = (
-        <Tooltip title={text} >
-            <div style ={style}>{text}</div>
-        </Tooltip>
+            <Tooltip title={text} >
+                <div style={style}>{text}</div>
+            </Tooltip>
         )
-       
+
         return content
     }
 
@@ -59,30 +57,30 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
         return [{
             title: '衍生指标名称',
             dataIndex: 'columnNameZh',
-            key: 'columnNameZh',
+            key: 'columnNameZh'
         }, {
             title: '指标命名',
             dataIndex: 'columnName',
-            key: 'columnName',
+            key: 'columnName'
         }, {
             title: '数据类型',
             dataIndex: 'dataType',
-            key: 'dataType',
+            key: 'dataType'
         }, {
             title: '指标口径',
             width: '400px',
             dataIndex: 'modelDesc',
             key: 'modelDesc',
-            render : text => this.characterProcess(text),
+            render: text => this.characterProcess(text)
         }, {
             title: '最后修改人',
             dataIndex: 'userName',
-            key: 'userName',
+            key: 'userName'
         }, {
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '操作',
             key: 'operation',
@@ -91,8 +89,8 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>修改</a>
                         <span className="ant-divider" />
-                        <Popconfirm 
-                            title="确定删除此条记录吗?" 
+                        <Popconfirm
+                            title="确定删除此条记录吗?"
                             onConfirm={() => { this.delete(record) }}
                             okText="是" cancelText="否"
                         >
@@ -100,17 +98,16 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
                         </Popconfirm>
                     </div>
                 )
-            },
+            }
         }]
     }
 
-    render() {
-
-        const { loading, table={}, modalVisible, modalData } = this.state;
+    render () {
+        const { loading, table = {}, modalVisible, modalData } = this.state;
 
         const pagination = {
             total: table.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
 
         return (
@@ -120,8 +117,8 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
                     bordered={false}
                     loading={false}
                     title={
-                        <Form 
-                            className="m-form-inline" 
+                        <Form
+                            className="m-form-inline"
                             layout="inline"
                             style={{ marginTop: '10px' }}
                         >
@@ -130,9 +127,9 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
                                     placeholder="按指标名称搜索"
                                     style={{ width: 200 }}
                                     size="default"
-                                    onChange={ this.changeSearchName }
-                                    onSearch={ this.loadData }
-                                    ref={ el => this.searchInput = el }
+                                    onChange={this.changeSearchName}
+                                    onSearch={this.loadData}
+                                    ref={el => this.searchInput = el}
                                 />
                             </FormItem>
                         </Form>
@@ -148,24 +145,24 @@ export default class DeriveIndexDefine extends AtomIndexDefine {
                         </Button>
                     }
                 >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={(pagination) => this.changeParams('currentPage', pagination.current )}
-                            dataSource={table.data || []}
-                        />
+                    <Table
+                        rowKey="id"
+                        className="m-table"
+                        pagination={pagination}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        onChange={(pagination) => this.changeParams('currentPage', pagination.current)}
+                        dataSource={table.data || []}
+                    />
                 </Card>
-                <DeriveIndexModal 
-                    data={ modalData }
-                    handOk={ this.update }
-                    handCancel={ () => this.setState({ modalVisible: false })}
-                    visible={ modalVisible }
+                <DeriveIndexModal
+                    data={modalData}
+                    handOk={this.update}
+                    handCancel={() => this.setState({ modalVisible: false })}
+                    visible={modalVisible}
                 />
             </div>
         )
     }
-
 }
+export default DeriveIndexDefine;

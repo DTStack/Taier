@@ -263,7 +263,6 @@ class TableEditor extends Component {
 
     saveTable () {
         const { tableData, form } = this.props;
-        const ctx = this;
         // 组装参数
         const queryParams = {};
         queryParams.tableId = tableData.id;

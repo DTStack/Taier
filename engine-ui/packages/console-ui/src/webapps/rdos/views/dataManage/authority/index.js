@@ -7,6 +7,7 @@ import {
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
+// eslint-disable-next-line
 import { parse } from 'qs';
 import moment from 'moment';
 
@@ -61,7 +62,7 @@ const selectStatusList = [
 class AuthMana extends Component {
     constructor (props) {
         super(props);
-        const isAdminAbove = this.props.user && this.props.user.isAdminAbove || 0;
+        const isAdminAbove = (this.props.user && this.props.user.isAdminAbove) || 0;
         const isPermission = isAdminAbove == 0 ? '1' : '0';
         const { listType, pageIndex, resourceName, startTime, endTime, belongProjectId, applyUserId, status } = this.props.location.query;
         this.state = {
@@ -74,7 +75,7 @@ class AuthMana extends Component {
             visible: false,
             isShowPermission: false,
             loading: false,
-            rangeTime: startTime && endTime && [moment(Number(startTime)), moment(Number(endTime))] || [],
+            rangeTime: (startTime && endTime && [moment(Number(startTime)), moment(Number(endTime))]) || [],
             userList: [],
             queryParams: {
                 listType: listType || isPermission,
@@ -85,7 +86,7 @@ class AuthMana extends Component {
                 endTime,
                 belongProjectId,
                 applyUserId,
-                status: status && [status] || undefined
+                status: (status && [status]) || undefined
             }
         }
     }
@@ -107,7 +108,8 @@ class AuthMana extends Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.user != this.props.user) {
             this.judgmentAauthority(nextProps)
         }
@@ -117,7 +119,7 @@ class AuthMana extends Component {
         let { queryParams, isAdminAbove } = this.state;
         isAdminAbove = nextProps.user && nextProps.user.isAdminAbove;
         const isPermission = isAdminAbove == 0 ? '1' : '0';
-        const { listType } = this.props.location.search && parse(this.props.location.search.substr(1)) || { listType: isPermission }
+        const { listType } = (this.props.location.search && parse(this.props.location.search.substr(1))) || { listType: isPermission }
         queryParams.listType = listType;
         this.setState({ queryParams, isAdminAbove })
     }
@@ -141,6 +143,7 @@ class AuthMana extends Component {
         })
     }
 
+    /* eslint-disable */
     cancleMark = (applyData) => {
         ajax.cancleMark(params).then(res => {
             if (res.code === 1) {
@@ -149,11 +152,11 @@ class AuthMana extends Component {
             }
         })
     }
+    /* eslint-enable */
 
     // 批量通过
     approveApply = (params) => {
         delete params.tableName;
-        const { visible } = this.state;
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
@@ -166,7 +169,6 @@ class AuthMana extends Component {
     // 单个审批通过
     approveApplySingle = (params) => {
         delete params.tableName;
-        const { isShowPermission } = this.state;
         ajax.applyReply(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功！')
@@ -182,7 +184,7 @@ class AuthMana extends Component {
         if (ids.length > 0) {
             params = { ids };
         } else {
-            const { selectedRowKeys, table } = this.state;
+            const { selectedRowKeys } = this.state;
             params = { ids: selectedRowKeys }
         }
         if (params.ids.length > 0) {
@@ -209,7 +211,6 @@ class AuthMana extends Component {
 
     changeParams = (field, value) => {
         let queryParams = Object.assign(this.state.queryParams);
-        const pathname = this.props.location.pathname;
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
@@ -313,7 +314,6 @@ class AuthMana extends Component {
     tableFooter = (currentPageData) => {
         const { queryParams } = this.state;
 
-        let operation = '';
         switch (queryParams.listType) {
             case '0': { // 待审批
                 return (
@@ -628,8 +628,8 @@ class AuthMana extends Component {
 
     onChangeTime = (date, dateString) => {
         const { queryParams } = this.state;
-        const startTime = dateString && Date.parse(dateString[0]) || undefined;
-        const endTime = dateString && Date.parse(dateString[1]) || undefined;
+        const startTime = (dateString && Date.parse(dateString[0])) || undefined;
+        const endTime = (dateString && Date.parse(dateString[1])) || undefined;
         queryParams.startTime = startTime;
         queryParams.endTime = endTime;
         this.setState({

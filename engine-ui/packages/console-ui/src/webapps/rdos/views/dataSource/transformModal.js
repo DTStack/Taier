@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import { Modal, Row, Form, Input, Select, Button, Icon } from "antd";
+import React, { Component } from 'react';
+import { Modal, Row, Form, Input, Select, Button, Icon } from 'antd';
 
 import {
     originTypeTransformRule,
     targetTypeTransformRule
-} from "../../comm/const";
-import Api from "../../api";
+} from '../../comm/const';
+import Api from '../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -27,7 +27,8 @@ export default class TransformModal extends Component {
         typeRule: [{ id: 1 }]
     };
 
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.visible && !this.props.visible) {
             let nameRule = [...this.state.nameRule];
 
@@ -128,7 +129,7 @@ export default class TransformModal extends Component {
 
     // 取得id
     getRuleId = str => {
-        return parseInt(str.replace(/[^0-9]/gi, ""));
+        return parseInt(str.replace(/[^0-9]/gi, ''));
     };
 
     // 保存配置，先检查，通过了再保存
@@ -145,7 +146,7 @@ export default class TransformModal extends Component {
 
                 // 拿到所有左侧的值
                 for (let [key, value] of Object.entries(values)) {
-                    if (value && key.indexOf("left") > 0) {
+                    if (value && key.indexOf('left') > 0) {
                         leftKeys.push(key);
                     }
                 }
@@ -153,11 +154,11 @@ export default class TransformModal extends Component {
                 fields = leftKeys.map(key => {
                     let type;
 
-                    let rightKey = key.replace(/left/, "right");
+                    let rightKey = key.replace(/left/, 'right');
 
-                    if (key.indexOf("nameRule") > -1) {
+                    if (key.indexOf('nameRule') > -1) {
                         type = 1;
-                    } else if (key.indexOf("columnRule") > -1) {
+                    } else if (key.indexOf('columnRule') > -1) {
                         type = 2;
                     } else {
                         type = 3;
@@ -228,14 +229,14 @@ export default class TransformModal extends Component {
                 let label;
 
                 switch (type) {
-                    case "nameRule":
-                        label = "表名转换规则";
+                    case 'nameRule':
+                        label = '表名转换规则';
                         break;
-                    case "columnRule":
-                        label = "字段名转换规则";
+                    case 'columnRule':
+                        label = '字段名转换规则';
                         break;
-                    case "typeRule":
-                        label = "字段类型转换规则";
+                    case 'typeRule':
+                        label = '字段类型转换规则';
                         break;
                     default:
                         break;
@@ -249,7 +250,7 @@ export default class TransformModal extends Component {
                         <FormItem
                             label={label}
                             {...formItemLayout}
-                            style={{ flexBasis: "40%" }}
+                            style={{ flexBasis: '40%' }}
                             className="cell-center"
                         >
                             {getFieldDecorator(`${type}-${item.id}-left`, {
@@ -258,12 +259,12 @@ export default class TransformModal extends Component {
                                         required: form.getFieldValue(
                                             `${type}-${item.id}-right`
                                         ),
-                                        message: "需要填充相应规则"
+                                        message: '需要填充相应规则'
                                     }
                                 ],
                                 initialValue: item.left
                             })(
-                                type === "typeRule" ? (
+                                type === 'typeRule' ? (
                                     <Select
                                         allowClear
                                         size="large"
@@ -292,12 +293,12 @@ export default class TransformModal extends Component {
                         </FormItem>
                         <div
                             className="txt-center font-16"
-                            style={{ flexBasis: "5%" }}
+                            style={{ flexBasis: '5%' }}
                         >
                             <Icon type="right" />
                         </div>
                         <FormItem
-                            style={{ flexBasis: "40%" }}
+                            style={{ flexBasis: '40%' }}
                             {...formItemLayoutWithOutLabel}
                             className="cell-center"
                         >
@@ -308,12 +309,12 @@ export default class TransformModal extends Component {
                                             required: form.getFieldValue(
                                                 `${type}-${item.id}-left`
                                             ),
-                                            message: "需要填充相应规则"
+                                            message: '需要填充相应规则'
                                         }
                                     ],
                                     initialValue: item.right
                                 })(
-                                    type === "typeRule" ? (
+                                    type === 'typeRule' ? (
                                         <Select
                                             allowClear
                                             size="large"
@@ -362,7 +363,7 @@ export default class TransformModal extends Component {
                         <FormItem
                             className="left-item cell-center"
                             {...formItemLayoutWithOutLabel}
-                            style={{ flexBasis: "40%" }}
+                            style={{ flexBasis: '40%' }}
                         >
                             <div className="flex flex-right">
                                 {getFieldDecorator(`${type}-${item.id}-left`, {
@@ -371,12 +372,12 @@ export default class TransformModal extends Component {
                                             required: form.getFieldValue(
                                                 `${type}-${item.id}-right`
                                             ),
-                                            message: "需要填充相应规则"
+                                            message: '需要填充相应规则'
                                         }
                                     ],
                                     initialValue: item.left
                                 })(
-                                    type === "typeRule" ? (
+                                    type === 'typeRule' ? (
                                         <Select
                                             allowClear
                                             size="large"
@@ -411,12 +412,12 @@ export default class TransformModal extends Component {
                         </FormItem>
                         <div
                             className="txt-center font-16"
-                            style={{ flexBasis: "5%" }}
+                            style={{ flexBasis: '5%' }}
                         >
                             <Icon type="right" />
                         </div>
                         <FormItem
-                            style={{ flexBasis: "40%" }}
+                            style={{ flexBasis: '40%' }}
                             {...formItemLayoutWithOutLabel}
                             className="cell-center"
                         >
@@ -427,12 +428,12 @@ export default class TransformModal extends Component {
                                             required: form.getFieldValue(
                                                 `${type}-${item.id}-left`
                                             ),
-                                            message: "需要填充相应规则"
+                                            message: '需要填充相应规则'
                                         }
                                     ],
                                     initialValue: item.right
                                 })(
-                                    type === "typeRule" ? (
+                                    type === 'typeRule' ? (
                                         <Select
                                             size="large"
                                             allowClear
@@ -498,14 +499,14 @@ export default class TransformModal extends Component {
         });
     };
 
-    render() {
+    render () {
         const { visible } = this.props;
         const { nameRule, columnRule, typeRule } = this.state;
 
         return (
             <Modal
                 title="高级设置"
-                width={"70%"}
+                width={'70%'}
                 visible={visible}
                 maskClosable={false}
                 onCancel={this.cancel}
@@ -527,9 +528,9 @@ export default class TransformModal extends Component {
                 ]}
             >
                 <Form layout="inline" className="config-form">
-                    {this.renderFormItem(nameRule, "nameRule")}
-                    {this.renderFormItem(columnRule, "columnRule")}
-                    {this.renderFormItem(typeRule, "typeRule")}
+                    {this.renderFormItem(nameRule, 'nameRule')}
+                    {this.renderFormItem(columnRule, 'columnRule')}
+                    {this.renderFormItem(typeRule, 'typeRule')}
                 </Form>
             </Modal>
         );

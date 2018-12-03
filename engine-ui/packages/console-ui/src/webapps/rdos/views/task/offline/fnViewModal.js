@@ -20,7 +20,8 @@ class FnViewModal extends React.Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.fnId !== this.props.fnId) {
             this.getFnDetail(nextProps.fnId);
         }

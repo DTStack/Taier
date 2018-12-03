@@ -41,7 +41,8 @@ class DataSync extends React.Component {
         this.props.getDataSource();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         // 如果列发生变化，则检测更新系统变量
         if (this.onVariablesChange(this.props, nextProps)) {
             this.props.updateDataSyncVariables(

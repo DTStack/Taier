@@ -11,13 +11,6 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
 
-const titleStyle = {
-    height: '28px',
-    display: 'block',
-    lineHeight: '28px',
-    textIndent: '5px'
-}
-
 function renderLevel (level) {
     if (level === -1) {
         return <span style={{ color: 'rgb(236, 105, 65);' }}>环形血缘</span>
@@ -116,9 +109,6 @@ class RelationDetail extends React.Component {
     render () {
         const { data, relationTasks } = this.props
         const { recordInfo, visibleRecord } = this.state
-        const tdStyle = {
-            width: '100px'
-        }
         return (
             <div className="task-floating-window rel-table-info ant-table" style={{ top: '600px' }}>
                 <div>

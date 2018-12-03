@@ -22,7 +22,8 @@ class ResViewModal extends React.Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.resId !== this.props.resId) {
             this.getResDetail(nextProps.resId);
         }

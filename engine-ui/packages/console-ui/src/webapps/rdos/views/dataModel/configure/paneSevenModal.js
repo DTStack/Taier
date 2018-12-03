@@ -1,19 +1,16 @@
 import React, { Component } from 'react'
-import { isArray, isNumber, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
-    Form, Input, Icon, Select,
-    Radio, Modal, Button
+    Form, Input, Select,
+    Modal, Button, message
 } from 'antd'
 
 import Api from '../../../api/dataModel';
 import {
-    formItemLayout,
-    TABLE_MODEL_RULE
+    formItemLayout
 } from '../../../comm/const';
-import LifeCycle from '../../dataManage/lifeCycle';
 
 const FormItem = Form.Item
-const RadioGroup = Radio.Group
 const Option = Select.Option;
 
 class DeriveIndexModal extends Component {
@@ -29,7 +26,8 @@ class DeriveIndexModal extends Component {
         this.getColumnType();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (!this.props.visible && nextProps.visible) {
             const isEdit = nextProps.data && !isEmpty(nextProps.data);
             this.loadAtomIndex(isEdit);

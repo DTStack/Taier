@@ -27,7 +27,8 @@ class dbSyncHistoryModal extends Component {
         report: ''
     };
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.source.id) {
             Api.getSyncHistoryList({
                 dataSourceId: nextProps.source.id,

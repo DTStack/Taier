@@ -48,7 +48,8 @@ class Container extends Component {
         this.unloadIDETheme();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.editor.options.theme !== this.props.editor.options.theme) {
             this.loadIDETheme(nextProps.editor.options.theme);
         }

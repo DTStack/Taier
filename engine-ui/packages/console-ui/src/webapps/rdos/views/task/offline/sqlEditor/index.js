@@ -82,7 +82,8 @@ class EditorContainer extends Component {
             )
     }
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         const project = nextProps.project

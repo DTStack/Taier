@@ -22,7 +22,8 @@ class Abstract extends Component {
         this.loadTaskList()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {
             this.loadTaskList()

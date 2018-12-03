@@ -36,7 +36,8 @@ class LinkModal extends React.Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible, sourceData } = nextProps
         const { visible: oldVisible } = this.props;
         if (oldVisible != visible && visible) {

@@ -42,7 +42,8 @@ class ImportTarget extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible } = this.props;
         const { visible: visibleNext } = nextProps;
         if (visible != visibleNext && !visibleNext) {
@@ -330,7 +331,7 @@ class ImportTarget extends Component {
                     {
                         // eslint-disable-next-line
                         index === data.length - 1
-                        ? <span style={{ color: '#f60' }}>
+                            ? <span style={{ color: '#f60' }}>
                                 <br />
                                 点击"检测"按钮，测试分区是否存在
                             </span> : ''

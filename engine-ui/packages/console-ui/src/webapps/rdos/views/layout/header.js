@@ -40,7 +40,8 @@ class Header extends Component {
     }
 
     // 控制项目下拉菜单的显示
-    componentWillReceiveProps() {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps() {
         this.updateSelected();
     }
 

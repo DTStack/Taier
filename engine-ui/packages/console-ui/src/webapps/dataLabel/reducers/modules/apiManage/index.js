@@ -15,7 +15,6 @@ export default function apiManage (state = initialState, action) {
             clone.apiList = payload
             return clone;
         }
-
         default:
             return state;
     }

@@ -20,7 +20,8 @@ class TaskInfo extends React.Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps != this.props) {
             this.getvalue(nextProps)
         }
@@ -161,7 +162,8 @@ class DiffParams extends React.Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (!this.props.taskType && nextProps.diffParams.id != this.props.diffParams.id) {
             if (nextProps.diffParams.id) {
                 this.getData(nextProps.diffParams.id);

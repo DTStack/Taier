@@ -1,23 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import SplitPane from 'react-split-pane';
 import {
-    Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs, Spin
+    Input, Button, Table, Pagination,
+    Form, DatePicker, Select, Card
 } from 'antd';
-import { isEmpty } from 'lodash';
 import moment from 'moment';
-
-import SlidePane from 'widgets/slidePane';
 
 import ajax from '../../api/dataManage';
 import * as UserAction from '../../store/modules/user'
 
-const Search = Input.Search;
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 const Option = Select.Option;
-const TabPane = Tabs.TabPane;
 
 class LogSearchForm extends React.Component {
     render () {

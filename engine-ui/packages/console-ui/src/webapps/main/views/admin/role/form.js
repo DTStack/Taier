@@ -33,7 +33,8 @@ class RoleForm extends Component {
     }
 
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && (nextProps.roleInfo.permissionIds || []);
             ids = ids && ids.map(id => `${id}`)

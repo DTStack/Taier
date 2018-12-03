@@ -35,7 +35,8 @@ class TableTree extends React.Component {
         searchName: ''
     }
     /* eslint-disable */
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.project.id != nextProps.project.id) {
             this.setState({
                 projectId: 'all',

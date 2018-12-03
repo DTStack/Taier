@@ -36,7 +36,8 @@ class DataSource extends Component {
         // this.props.getSourceTypes();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
 

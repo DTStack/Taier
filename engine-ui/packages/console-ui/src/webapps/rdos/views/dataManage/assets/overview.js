@@ -40,7 +40,7 @@ export default class ProjectList extends Component {
         chart2: '',
         chart3: '',
         selectedDate: '',
-        selectedProject: this.props.projects[0] && this.props.projects[0].id || '',
+        selectedProject: (this.props.projects[0] && this.props.projects[0].id) || '',
         topStyle: {
             width: '50%',
             height: '100%',
@@ -58,7 +58,8 @@ export default class ProjectList extends Component {
         this.loadDataOverview(selectedProject)
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const nextProjects = nextProps.projects
         const old = this.props.projects
         if (old.length !== nextProjects.length) {
@@ -83,7 +84,6 @@ export default class ProjectList extends Component {
 
         params.total = total;
 
-        const userId = utils.getCookie('dt_user_id')
         Api.getProjectInfo(params).then((res) => {
             ctx.setState({
                 project: res.data

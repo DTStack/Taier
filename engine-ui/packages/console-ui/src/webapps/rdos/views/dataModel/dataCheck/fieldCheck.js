@@ -4,7 +4,7 @@ import { Link, hashHistory } from 'react-router';
 import { isProjectCouldEdit } from '../../../comm';
 import {
     Table, Select, Form,
-    Card, message, Checkbox,
+    message, Checkbox,
     DatePicker, Input
 } from 'antd';
 import moment from 'moment'
@@ -29,7 +29,7 @@ export default class FieldCheck extends Component {
                 tableName: '',
                 ignore: 0, // 1 忽略，0 不忽略
                 type: '2',
-                triggerType: triggerType2 && triggerType2.split(',') || [],
+                triggerType: (triggerType2 && triggerType2.split(',')) || [],
                 startTime: startTime2,
                 endTime: endTime2
             }
@@ -40,7 +40,8 @@ export default class FieldCheck extends Component {
         this.loadData();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -214,7 +215,7 @@ export default class FieldCheck extends Component {
                     <FormItem label="最后修改时间">
                         <RangePicker
                             size="default"
-                            value={params.startTime && params.endTime && [moment(Number(params.startTime)), moment(Number(params.endTime))] || []}
+                            value={(params.startTime && params.endTime && [moment(Number(params.startTime)), moment(Number(params.endTime))]) || []}
                             showTime={{ format: 'HH:mm:ss' }}
                             format="YYYY-MM-DD HH:mm:ss"
                             placeholder={['开始时间', '结束时间']}

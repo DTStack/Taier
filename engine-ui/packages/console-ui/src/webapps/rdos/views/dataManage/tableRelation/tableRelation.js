@@ -257,7 +257,7 @@ export default class TableRelation extends React.Component {
         this.executeLayout = function (change, post) {
             model.beginUpdate();
             try {
-                const layout = new mxHierarchicalLayout(graph, false);
+                const layout = new mxHierarchicalLayout(graph, false);// eslint-disable-line
                 layout.orientation = 'west';
                 layout.disableEdgeStyle = false;
                 layout.interRankCellSpacing = 40;
@@ -278,7 +278,6 @@ export default class TableRelation extends React.Component {
     }
 
     renderPagination = () => {
-        const data = [];
         const graph = this.graph;
         const { currentChild, currentParent } = this.state;
         const rootCell = graph.getDefaultParent();
@@ -429,9 +428,6 @@ export default class TableRelation extends React.Component {
 
     loopTree = (currentNode, treeNodeData) => {
         if (treeNodeData) {
-            const graph = this.graph;
-
-            const rootCell = graph.getDefaultParent();
             const parentNodes = treeNodeData.parentResult && treeNodeData.parentResult.data;
             const childNodes = treeNodeData.childResult && treeNodeData.childResult.data;
 
@@ -661,7 +657,7 @@ export default class TableRelation extends React.Component {
     loadEditor = (container) => {
         // // Disable context menu
         mxEvent.disableContextMenu(container)
-        const graph = new mxGraph(container)
+        const graph = new mxGraph(container)// eslint-disable-line
 
         this.graph = graph
         // 启用绘制
@@ -709,7 +705,7 @@ export default class TableRelation extends React.Component {
         graph.getTooltipForCell = this.formatTooltip
 
         // enables rubberband
-        new mxRubberband(graph)
+        new mxRubberband(graph)// eslint-disable-line
         // 启用菜单
         this.initContextMenu(graph)
         this.hideMenu();
@@ -743,7 +739,6 @@ export default class TableRelation extends React.Component {
     hideMenu = () => {
         document.addEventListener('click', (e) => {
             const graph = this.graph
-            const menu = graph.popupMenuHandler
             if (graph.popupMenuHandler.isMenuShowing()) {
                 graph.popupMenuHandler.hideMenu()
             }
@@ -765,7 +760,7 @@ export default class TableRelation extends React.Component {
     }
 
     initPaginationStyles () {
-        let PrevStyle = new Object();
+        let PrevStyle = {};
         PrevStyle[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
         PrevStyle[mxConstants.STYLE_STROKECOLOR] = 'none';
         PrevStyle[mxConstants.STYLE_FILLCOLOR] = 'none';
