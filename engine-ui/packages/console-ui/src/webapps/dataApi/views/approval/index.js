@@ -56,7 +56,7 @@ class APIApproval extends Component {
         searchType: '用户名称'
     }
     // eslint-disable-next-line
-	componentWillMount () {
+    componentWillMount () {
 
     }
     componentDidMount () {
@@ -111,8 +111,7 @@ class APIApproval extends Component {
             filter: filter,
             sorter: sorter
 
-        },
-        () => {
+        }, () => {
             this.getApprovalList();
         });
     }
@@ -180,24 +179,24 @@ class APIApproval extends Component {
         let dealView = [];
 
         switch (type) {
-        case API_USER_STATUS.IN_HAND:
-            dealView.push(approvalButton);
-            break;
-        case API_USER_STATUS.PASS:
-        case API_USER_STATUS.STOPPED:
-            dealView.push(detailButton);
-            dealView.push(<span className="ant-divider" ></span>);
-            dealView.push(cancelButton);
-            break;
-        case API_USER_STATUS.DISABLE:
-            dealView.push(detailButton);
-            dealView.push(<span className="ant-divider" ></span>);
-            dealView.push(redoButton);
-            break;
-        case API_USER_STATUS.EXPIRED:
-        case API_USER_STATUS.REJECT:
-            dealView.push(detailButton);
-            break;
+            case API_USER_STATUS.IN_HAND:
+                dealView.push(approvalButton);
+                break;
+            case API_USER_STATUS.PASS:
+            case API_USER_STATUS.STOPPED:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(cancelButton);
+                break;
+            case API_USER_STATUS.DISABLE:
+                dealView.push(detailButton);
+                dealView.push(<span className="ant-divider" ></span>);
+                dealView.push(redoButton);
+                break;
+            case API_USER_STATUS.EXPIRED:
+            case API_USER_STATUS.REJECT:
+                dealView.push(detailButton);
+                break;
         }
         return <span>{dealView}</span>;
     }
