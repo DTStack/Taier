@@ -98,6 +98,7 @@ class OfflineTaskList extends Component {
         }
         if (jobName) {
             reqParams.taskName = jobName
+            reqParams.currentPage = 1;
         }
         if (person) {
             reqParams.ownerId = person

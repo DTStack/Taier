@@ -24,7 +24,7 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
-    mxCompactTreeLayout
+    mxHierarchicalLayout,
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -210,22 +210,22 @@ export default class TaskView extends Component {
 
         const model = graph.getModel();
 
-        const layout = new mxCompactTreeLayout(graph);
-        layout.horizontal = false;
-        layout.useBoundingBox = false;
-        layout.edgeRouting = false;
-        layout.levelDistance = 30;
-        layout.nodeDistance = 10;
-        layout.resizeParent = true;
+        this.executeLayout = function(layoutTarget, change, post) {
+            const layout = new mxHierarchicalLayout(graph, 'north');
+            layout.disableEdgeStyle = false;
+            layout.interRankCellSpacing = 40;
+            layout.intraCellSpacing = 20;
+            layout.edgeStyle = mxEdgeStyle.TopToBottom;
 
-        this.executeLayout = function (layoutTarget, change, post) {
+            const parent = layoutTarget || graph.getDefaultParent();
+
             model.beginUpdate();
 
             try {
                 if (change != null) {
                     change();
                 }
-                layout.execute(layoutTarget);
+                layout.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
@@ -236,6 +236,7 @@ export default class TaskView extends Component {
 
         const arrayData = this.preHandGraphTree(data);
         this.renderGraph(arrayData);
+        this.executeLayout();
         graph.center();
     }
 
@@ -411,7 +412,7 @@ export default class TaskView extends Component {
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
         style[mxConstants.STYLE_FONTSIZE] = '10';
-        style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_ROUNDED] = false;
         return style
     }
 }

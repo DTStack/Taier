@@ -71,9 +71,13 @@ $fontColor1: #2491F7;
             height: 12px;
             background-color: transparent;
         }
-    
+
         &::-webkit-scrollbar-thumb {
             background-color: #4d4d4d;
+        }
+
+        &::-webkit-scrollbar-corner {
+            background-color: #252525;
         }
     }
 
@@ -391,7 +395,7 @@ $fontColor1: #2491F7;
     .task-tab-menu > .ant-tabs-bar {
         background: #252525;
         border: 1px solid #1E1E1E;
-
+        border-top: 0;
         .ant-tabs-tab {
             background: #252525;
         }

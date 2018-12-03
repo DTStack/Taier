@@ -32,7 +32,7 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     19: 'DB2',
-    20: 'CarbonData'
+    20: 'DTinsightAnalytics'
 }
 
 // 锁类型
@@ -181,9 +181,9 @@ export const TASK_TYPE_ARRAY = [ //
 ]
 
 export const HELP_DOC_URL = {
-    DATA_SOURCE: '/public/rdos/helpSite/index.html#integration_datasource',
-    DATA_SYNC: '/public/rdos/helpSite/index.html#Integration',
-    TASKPARAMS: '/public/rdos/helpSite/index.html#deve_batch_schedule_param'
+    DATA_SOURCE: "/public/helpSite/dtinsight-batch/v3.0/DataIntegration/Overview.html",
+    DATA_SYNC: "/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html",
+    TASKPARAMS: "/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig"
 }
 
 export const TASK_STATUS = { // 任务状态

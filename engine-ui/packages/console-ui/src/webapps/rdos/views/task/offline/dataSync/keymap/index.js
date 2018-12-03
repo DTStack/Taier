@@ -22,7 +22,7 @@ import {
     DATA_SOURCE
 } from '../../../../../comm/const';
 
-import { isHdfsType, isFtpType, isRDB } from '../../../../../comm';
+import { isHdfsType, isFtpType } from '../../../../../comm';
 
 import KeyMapModal from './keymapModal'
 import BatchModal from './batchModal'
@@ -1451,7 +1451,7 @@ class Keymap extends React.Component {
             editKeyMapSource
         } = this.props;
         const { keyModal } = this.state;
-        const { isReader, position, source, editField } = keyModal;
+        const { isReader, position, editField } = keyModal;
         if (formData) {
             if (isReader) {
                 editSourceKeyRow({

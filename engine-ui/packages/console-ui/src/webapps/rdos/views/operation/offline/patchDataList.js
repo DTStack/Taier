@@ -83,6 +83,7 @@ class PatchDataList extends Component {
 
         if (jobName) {
             reqParams.jobName = jobName
+            
         }
         if (bizDay) {
             reqParams.bizDay = moment(bizDay).unix()

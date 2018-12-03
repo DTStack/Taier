@@ -50,10 +50,15 @@ export function TaskStatus (props) {
         return <span>
             <Circle className="status_submit_failed" />&nbsp;
                 提交失败
-        </span>
+            </span>
+    case TASK_STATUS.PARENT_FAILD:
+            return <span>
+                <Circle className="status_submit_failed" />&nbsp;
+                上游失败
+            </span>
     case TASK_STATUS.WAIT_RUN:
-        return <span>
-            <Circle className="status_wait_run" />&nbsp;
+            return <span>
+                <Circle className="status_wait_run" />&nbsp;
                 等待运行
         </span>
     case TASK_STATUS.FROZEN:

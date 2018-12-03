@@ -59,20 +59,20 @@ class DataSync extends React.Component {
         const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
         const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
 
-        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where && oldSource.type.where && oldSource.type.where !== sourceMap.type.where;
-        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && oldSource.type.partition && sourceMap.type.partition && oldSource.type.partition !== sourceMap.type.partition;
-        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && oldTarget.type.partition && targetMap.type.partition && oldTarget.type.partition !== targetMap.type.partition;
-        const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
+        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where !== undefined && oldSource.type.where !== undefined && oldSource.type.where !== sourceMap.type.where;
+        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && (oldSource.type.partition !== undefined || sourceMap.type.partition !== undefined) && oldSource.type.partition !== sourceMap.type.partition;
+        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.partition !== undefined || targetMap.type.partition !== undefined)  && oldTarget.type.partition !== targetMap.type.partition;
+        const isSQLChange = oldSQL !== undefined && newSQL!== undefined && oldSQL !== newSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
 
         // Output test conditions
-        // console.log('old', oldSource, oldTarget);
-        // console.log('new', sourceMap, targetMap);
-        // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourceParitionChange', isSourceParitionChange);
-        // console.log('isTargetPartitionChange', isTargetPartitionChange);
-        // console.log('isSQLChange', isSQLChange);
-        // console.log('isSourceColumnChange', isSourceColumnChange);
+        console.log('old', oldSource, oldTarget);
+        console.log('new', sourceMap, targetMap);
+        console.log('isWhereChange', isWhereChange);
+        console.log('isSourceParitionChange', isSourceParitionChange);
+        console.log('isTargetPartitionChange', isTargetPartitionChange);
+        console.log('isSQLChange', isSQLChange);
+        console.log('isSourceColumnChange', isSourceColumnChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update

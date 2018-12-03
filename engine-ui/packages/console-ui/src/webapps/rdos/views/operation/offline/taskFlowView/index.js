@@ -63,11 +63,19 @@ const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
         }
 
         const childNodes = treeNodeData.jobVOS; // 子节点
+        const parentNodes = treeNodeData.parentNodes; // 父节点
+
+        // 处理依赖节点
+        if (parentNodes && parentNodes.length > 0) {
+            for (let i = 0; i < parentNodes.length; i++) {
+                mergeTreeNodes(parentNodes[i], mergeSource, nodeType);
+            }
+        }
 
         // 处理被依赖节点
         if (childNodes && childNodes.length > 0) {
             for (let i = 0; i < childNodes.length; i++) {
-                mergeTreeNodes(childNodes[i], mergeSource);
+                mergeTreeNodes(childNodes[i], mergeSource, nodeType);
             }
         }
     }
@@ -482,6 +490,7 @@ class TaskFlowView extends Component {
             const currentNode = cell.data;
 
             const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
+            const taskId = currentNode.batchTask && currentNode.batchTask.id;
 
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
@@ -500,8 +509,8 @@ class TaskFlowView extends Component {
             menu.addItem('查看任务日志', null, function () {
                 ctx.showJobLog(currentNode.jobId)
             })
-            menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                ctx.props.goToTaskDev(currentNode.taskId)
+            menu.addItem(`${isPro?'查看':'修改'}任务`, null, function () {
+                ctx.props.goToTaskDev(taskId)
             })
             menu.addItem('查看任务属性', null, function () {
                 ctx.setState({ visible: true })
@@ -535,7 +544,10 @@ class TaskFlowView extends Component {
                 currentNode.status === TASK_STATUS.RUN_FAILED || // 运行失败
                 currentNode.status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 currentNode.status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
-                currentNode.status === TASK_STATUS.STOPED) // 已停止
+                currentNode.status === TASK_STATUS.STOPED || // 已停止
+                currentNode.status === TASK_STATUS.PARENT_FAILD
+            )
+
 
             menu.addItem('置成功并恢复调度', null, function () {
                 ctx.restartAndResume({
@@ -611,10 +623,13 @@ class TaskFlowView extends Component {
 
     saveViewInfo = () => {
         const view = this.graph.getView();
-        this._view = {
-            translate: view.getTranslate(),
-            scale: view.getScale()
-        };
+        const translate = view.getTranslate();
+        if (translate.x > 0) {
+            this._view = {
+                translate: translate,
+                scale: view.getScale(),
+            };
+        }
     }
 
     initView = () => {
@@ -646,7 +661,9 @@ class TaskFlowView extends Component {
 
     refresh = () => {
         this.saveViewInfo();
-        this.initGraph(this.props.taskJob.id);
+        setTimeout(() => {
+            this.initGraph(this.props.taskJob.id);
+        }, 0);
     }
 
     zoomIn = () => {
@@ -674,7 +691,8 @@ class TaskFlowView extends Component {
         return (
             <div className="graph-editor"
                 style={{
-                    position: 'relative'
+                    position: 'relative',
+                    height: '100%',
                 }}
             >
                 <Spin
@@ -685,13 +703,6 @@ class TaskFlowView extends Component {
                     <div
                         className="editor pointer"
                         ref={(e) => { this.Container = e }}
-                        style={{
-                            position: 'relative',
-                            overflow: 'hidden',
-                            overflowX: 'auto',
-                            paddingBottom: '20px',
-                            height: '95%'
-                        }}
                     >
                     </div>
                 </Spin>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
+import { uniqBy } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
@@ -348,12 +349,13 @@ export const workbenchActions = (dispatch) => {
                     taskVariables = taskVariables.concat(vbs);
                 }
             }
-
+            // 去重复参数
+            const uniqArr = uniqBy(taskVariables, (o) => o.paramName);
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: {
-                    taskVariables
-                }
+                    taskVariables: uniqArr
+                },
             });
         },
 
