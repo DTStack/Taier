@@ -30,7 +30,8 @@ class errorLog extends Component {
         const { apiId } = showRecord;
         this.getErrorInfo(apiId, dateType);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { Card, Input, Select, DatePicker, Table, Button, Checkbox, Modal, message, Cascader } from 'antd'
+import { Card, Input, Select, Table, Button, Checkbox, Modal, message, Cascader } from 'antd'
 import { connect } from 'react-redux';
-import utils from 'utils'
 
 import ApiSlidePane from './apiDetail/apiSlide';
 import { apiMarketActions } from '../../actions/apiMarket';
@@ -361,7 +360,7 @@ class APIMana extends Component {
     }
     // 获取类型视图
     getDataSourceTypeView () {
-        const { typeList, typeDic } = this.exchangeSourceType();
+        const { typeList } = this.exchangeSourceType();
 
         if (!typeList || typeList.length < 1) {
             return null;

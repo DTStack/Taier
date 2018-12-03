@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Tree, Tooltip, Icon, Popconfirm, message, Spin } from 'antd';
+import { Tree, Tooltip, Icon, Popconfirm, message, Spin } from 'antd';
 import { cloneDeep } from 'lodash';
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends Component {
@@ -17,10 +17,14 @@ class ApiTypeTree extends Component {
     }
     componentDidMount () {
         if (this.props.maxDeepLength) {
-            this.state.maxDeepLength = this.props.maxDeepLength;
+            this.setState({
+                maxDeepLength: this.props.maxDeepLength
+            })
         }
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.maxDeepLength && this.props.maxDeepLength != nextProps.maxDeepLength) {
             this.setState({
                 maxDeepLength: nextProps.maxDeepLength
@@ -48,7 +52,7 @@ class ApiTypeTree extends Component {
                 expandedKeys.push(item.id.toString());
                 arr.push(
                     (
-                        <TreeNode title={this.getTreeNodeTitle.call(this, item.id, item.catalogueName, false, isLeaf, deepLength, item.isTmp)} key={item.id}>
+                        <TreeNode title={this.getTreeNodeTitle(item.id, item.catalogueName, false, isLeaf, deepLength, item.isTmp)} key={item.id}>
                             {renderTree.call(this, item.childCatalogue, deepLength + 1)}
                         </TreeNode>
                     )
@@ -105,9 +109,8 @@ class ApiTypeTree extends Component {
                     </Tooltip>
                 </span>
             );
-        }
-        // 非叶子节点
-        else if (!isLeaf) {
+        } else if (!isLeaf) {
+            // 非叶子节点
             if (deepLength < maxDeepLength) {
                 item = (
                     <span className="tree-hover-show-item tree-item" style={{ marginLeft: '3px' }}>
@@ -128,9 +131,8 @@ class ApiTypeTree extends Component {
                     </span>
                 )
             }
-        }
-        // 叶子节点，且达到deepLength
-        else if (deepLength >= maxDeepLength) {
+        } else if (deepLength >= maxDeepLength) {
+            // 叶子节点，且达到deepLength
             item = (
                 <span className="tree-hover-show-item tree-item" style={{ marginLeft: '3px' }}>
                     <Tooltip title="编辑">
@@ -176,9 +178,7 @@ class ApiTypeTree extends Component {
 
                 {this.state.editNode == id ? (
                     <input ref={this.setRange.bind(this)} autoFocus={true} defaultValue={text} onBlur={this.editOver.bind(this, id, text)} />
-                ) : (
-                    text
-                )}
+                ) : (text)}
                 {item}
 
             </span>
@@ -204,8 +204,7 @@ class ApiTypeTree extends Component {
         }
         this.setState({
             editNode: null
-        },
-        () => {
+        }, () => {
             if (this.state.mode == 'add') {
                 this.props.addCatalogue(this.state.addPid, nodeName)
                 return;
@@ -281,7 +280,7 @@ class ApiTypeTree extends Component {
                 onExpand={this.onExpands}
                 autoExpandParent={this.state.autoExpandParent}
             >
-                <TreeNode title={this.getTreeNodeTitle.call(this, 0, 'API管理', true, false, 0)} key={0}>
+                <TreeNode title={this.getTreeNodeTitle(0, 'API管理', true, false, 0)} key={0}>
                     {view}
                 </TreeNode>
 

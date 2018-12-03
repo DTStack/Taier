@@ -58,7 +58,8 @@ class ApiCallMethod extends Component {
 
         this.updateData(apiId, status, mode);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { showRecord = {} } = this.props;
         let { apiId, status, id } = showRecord;
         const { showRecord: nextShowRecord = {}, slidePaneShow, mode } = nextProps;

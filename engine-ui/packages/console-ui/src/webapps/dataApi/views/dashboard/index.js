@@ -1,22 +1,16 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 
-import { Alert, Menu } from 'antd';
-import { isEmpty, cloneDeep } from 'lodash';
+import { Menu } from 'antd';
+import { isEmpty } from 'lodash';
 
-import Resize from 'widgets/resize';
-import TopCall from './topCall';
-import TopFail from './topFail';
-import ErrorDistributed from './errorDistributed';
-
-import { lineAreaChartOptions } from '../../consts';
 import { dashBoardActionType } from '../../consts/dashBoardActionType'
 import { dashBoardActions } from '../../actions/dashBoard';
 import AdminDashboard from './adminDashboard';
 import UserDashboard from './userDashboard';
 
 // 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
+require('echarts/lib/echarts');
 // 引入柱状图
 require('echarts/lib/chart/line');
 // 引入提示框和标题组件
@@ -70,7 +64,8 @@ class Dashboard extends Component {
         dashBoardView: ''
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         let oldData = this.props.dashBoard.alarmTrend;
 
         let newData = nextProps.dashBoard.alarmTrend;
@@ -134,12 +129,10 @@ class Dashboard extends Component {
     }
 
     render () {
-        const { children } = this.props
         return (
             <div className="dashboard nobackground">
                 {this.getMenuView()}
                 {this.getDashBoardView()}
-
             </div>
         )
     }

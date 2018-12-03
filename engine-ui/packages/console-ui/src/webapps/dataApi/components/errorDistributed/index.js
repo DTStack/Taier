@@ -55,7 +55,8 @@ class ErrorDistributed extends Component {
     resize = () => {
         if (this.state.pieChart) this.state.pieChart.resize()
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.intPie(nextProps.chartData)
         }

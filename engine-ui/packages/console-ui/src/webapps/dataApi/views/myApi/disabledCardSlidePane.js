@@ -12,7 +12,8 @@ class DisabledCardSlidePane extends Component {
     componentDidMount () {
         this.getApiCreatorInfo();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
         ) {

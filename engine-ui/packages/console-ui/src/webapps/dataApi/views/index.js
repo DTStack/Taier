@@ -27,7 +27,8 @@ const mapStateToProps = state => {
     mapStateToProps
 )
 class Main extends Component {
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
         const { dispatch } = this.props;
         dispatch(commonActions.getMenuList())
     }

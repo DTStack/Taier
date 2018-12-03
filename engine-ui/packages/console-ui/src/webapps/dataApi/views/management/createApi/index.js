@@ -84,7 +84,8 @@ class NewApi extends Component {
         OutputIsEdit: true
 
     }
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
         const apiId = utils.getParameterByName('apiId');
         if (apiId) {
             this.setState({

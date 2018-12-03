@@ -55,7 +55,8 @@ class APIApproval extends Component {
         total: 0,
         searchType: '用户名称'
     }
-    componentWillMount () {
+    // eslint-disable-next-line
+	componentWillMount () {
 
     }
     componentDidMount () {
@@ -303,7 +304,6 @@ class APIApproval extends Component {
         })
     }
     getCardTitle () {
-        const sourceType = ''; const sourceList = ''; const userList = '';
         return (
             <div className="flex font-12">
                 <InputGroup compact style={{ width: 500, margin: '10px 0px' }} >
@@ -425,7 +425,7 @@ class APIApproval extends Component {
                             {...formItemLayout}
                             label="调用周期"
                         >
-                            {spApplyMsg.beginTime ? `${new moment(spApplyMsg.beginTime).format('YYYY-MM-DD')} ~ ${new moment(spApplyMsg.endTime).format('YYYY-MM-DD')}` : '无限制'}
+                            {spApplyMsg.beginTime ? `${moment(spApplyMsg.beginTime).format('YYYY-MM-DD')} ~ ${moment(spApplyMsg.endTime).format('YYYY-MM-DD')}` : '无限制'}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

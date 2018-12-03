@@ -56,7 +56,8 @@ export default class DataSourceModal extends Component {
         
     }
 
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps(nextProps) {
         const oldData = this.props.sourceData;
         const newData = nextProps.sourceData;
 

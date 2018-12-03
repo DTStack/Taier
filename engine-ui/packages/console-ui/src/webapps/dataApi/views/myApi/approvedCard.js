@@ -80,7 +80,8 @@ class ApprovedCard extends Component {
                 }
             );
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'approved') {
             this.getAppliedList();
         }
