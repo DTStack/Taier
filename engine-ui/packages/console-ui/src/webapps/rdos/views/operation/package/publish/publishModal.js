@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, Modal, Form, Input, Table, Button, message } from 'antd';
+import { Modal, Form, Input, Table, Button, message } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux'
 
@@ -9,7 +9,6 @@ import Api from '../../../../api'
 import { publishType, TASK_TYPE } from '../../../../comm/const';
 import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 
-const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
@@ -51,6 +50,7 @@ class PublishModal extends React.Component {
                 }
             )
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const { visible } = nextProps;
         const { visible: old_visible } = this.props;
@@ -59,6 +59,7 @@ class PublishModal extends React.Component {
             this.getPackageName();
         }
     }
+    /* eslint-ensable */
     reset () {
         this.props.form.resetFields();
         this.setState({

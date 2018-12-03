@@ -15,7 +15,7 @@ class AlarmForm extends Component {
     state = {
         senderTypes: []
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { alarmInfo, visible } = nextProps;
         if (visible && this.props.visible != visible) {

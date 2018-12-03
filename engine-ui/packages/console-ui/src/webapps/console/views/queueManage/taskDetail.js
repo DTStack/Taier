@@ -19,7 +19,6 @@ const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-/* eslint-disable */
 class TaskDetail extends Component {
     state = {
         dataSource: [],
@@ -417,6 +416,7 @@ class TaskDetail extends Component {
     }
 
     // 请求置顶调整接口
+    /* eslint-disable */
     changeJobPriority (record) {
         // 获取集群
         const arr = (record.groupName || '').split('_');
@@ -442,6 +442,7 @@ class TaskDetail extends Component {
             }
         })
     }
+    /* eslint-enable */
     // 获取分页信息
     getPagination () {
         const { pageIndex, total } = this.state.table;
@@ -491,50 +492,50 @@ class TaskDetail extends Component {
                 dataIndex: 'status',
                 render (text, record) {
                     switch (text) {
-                    case TASK_STATE.UNSUBMIT:
-                        return 'UNSUBMIT';
-                    case TASK_STATE.CREATED:
-                        return 'CREATED';
-                    case TASK_STATE.SCHEDULED:
-                        return 'SCHEDULED';
-                    case TASK_STATE.DEPLOYING:
-                        return 'DEPLOYING';
-                    case TASK_STATE.RUNNING:
-                        return 'RUNNING';
-                    case TASK_STATE.FINISHED:
-                        return 'FINISHED';
-                    case TASK_STATE.CANCELLING:
-                        return 'CANCELLING';
-                    case TASK_STATE.CANCELED:
-                        return 'CANCELED';
-                    case TASK_STATE.FAILED:
-                        return 'FAILED';
-                    case TASK_STATE.SUBMITFAILD:
-                        return 'SUBMITFAILD';
-                    case TASK_STATE.SUBMITTING:
-                        return 'SUBMITTING';
-                    case TASK_STATE.RESTARTING:
-                        return 'RESTARTING';
-                    case TASK_STATE.MANUALSUCCESS:
-                        return 'MANUALSUCCESS';
-                    case TASK_STATE.KILLED:
-                        return 'KILLED';
-                    case TASK_STATE.SUBMITTED:
-                        return 'SUBMITTED';
-                    case TASK_STATE.NOTFOUND:
-                        return 'NOTFOUND';
-                    case TASK_STATE.WAITENGINE:
-                        return 'WAITENGINE';
-                    case TASK_STATE.WAITCOMPUTE:
-                        return 'WAITCOMPUTE';
-                    case TASK_STATE.FROZEN:
-                        return 'FROZEN';
-                    case TASK_STATE.ENGINEACCEPTED:
-                        return 'ENGINEACCEPTED';
-                    case TASK_STATE.ENGINEDISTRIBUTE:
-                        return 'ENGINEDISTRIBUTE';
-                    default:
-                        return null;
+                        case TASK_STATE.UNSUBMIT:
+                            return 'UNSUBMIT';
+                        case TASK_STATE.CREATED:
+                            return 'CREATED';
+                        case TASK_STATE.SCHEDULED:
+                            return 'SCHEDULED';
+                        case TASK_STATE.DEPLOYING:
+                            return 'DEPLOYING';
+                        case TASK_STATE.RUNNING:
+                            return 'RUNNING';
+                        case TASK_STATE.FINISHED:
+                            return 'FINISHED';
+                        case TASK_STATE.CANCELLING:
+                            return 'CANCELLING';
+                        case TASK_STATE.CANCELED:
+                            return 'CANCELED';
+                        case TASK_STATE.FAILED:
+                            return 'FAILED';
+                        case TASK_STATE.SUBMITFAILD:
+                            return 'SUBMITFAILD';
+                        case TASK_STATE.SUBMITTING:
+                            return 'SUBMITTING';
+                        case TASK_STATE.RESTARTING:
+                            return 'RESTARTING';
+                        case TASK_STATE.MANUALSUCCESS:
+                            return 'MANUALSUCCESS';
+                        case TASK_STATE.KILLED:
+                            return 'KILLED';
+                        case TASK_STATE.SUBMITTED:
+                            return 'SUBMITTED';
+                        case TASK_STATE.NOTFOUND:
+                            return 'NOTFOUND';
+                        case TASK_STATE.WAITENGINE:
+                            return 'WAITENGINE';
+                        case TASK_STATE.WAITCOMPUTE:
+                            return 'WAITCOMPUTE';
+                        case TASK_STATE.FROZEN:
+                            return 'FROZEN';
+                        case TASK_STATE.ENGINEACCEPTED:
+                            return 'ENGINEACCEPTED';
+                        case TASK_STATE.ENGINEDISTRIBUTE:
+                            return 'ENGINEDISTRIBUTE';
+                        default:
+                            return null;
                     }
                 }
             },
@@ -549,7 +550,7 @@ class TaskDetail extends Component {
                 title: '提交时间',
                 dataIndex: 'generateTime',
                 render (text) {
-                    return new moment(text).format('YYYY-MM-DD HH:mm:ss')
+                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {

@@ -18,6 +18,7 @@ const Search = Input.Search;
         project: state.project
     }
 })
+/* eslint-disable */
 class PackagePublish extends React.Component {
     state = {
         users: [],
@@ -27,8 +28,8 @@ class PackagePublish extends React.Component {
         packageName: null,
         publishUserId: null,
         applyUserId: null,
-        publishTime: [moment().subtract(30, 'days'), new moment()],
-        applyTime: [moment().subtract(30, 'days'), new moment()],
+        publishTime: [moment().subtract(30, 'days'), moment()],
+        applyTime: [moment().subtract(30, 'days'), moment()],
         tableParams: {
             filters: {},
             sorter: {},
@@ -264,7 +265,7 @@ class PackagePublish extends React.Component {
         }, this.getPackageList)
     }
     disabledDate (currentDate) {
-        const now = new moment();
+        const now = moment();
         if (currentDate > now) {
             return true
         }
@@ -277,7 +278,7 @@ class PackagePublish extends React.Component {
     }
     getTableTitle = () => {
         const { users } = this.state;
-        const bussinessDate = [moment().subtract(30, 'days'), new moment()]
+        const bussinessDate = [moment().subtract(30, 'days'), moment()]
         return (
             <Form
                 style={{ marginTop: '10px' }}

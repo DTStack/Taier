@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
 import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
-import moment from 'moment'
 
 import {
     Card, Button, Row, Tooltip,
-    Col, Table, DatePicker, Icon
+    Col, Icon
 } from 'antd'
 
 import { taskStatus, PROJECT_TYPE } from '../../../comm/const'
@@ -19,7 +18,7 @@ class OfflineCount extends Component {
     componentDidMount () {
         this.loadOfflineData()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -29,7 +28,6 @@ class OfflineCount extends Component {
     }
 
     loadOfflineData = () => {
-        const ctx = this
         Api.getJobStatistics().then((res) => {
             if (res.code === 1) {
                 this.setState({
@@ -53,10 +51,10 @@ class OfflineCount extends Component {
         const { data } = this.state
         const { project } = this.props;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
-        const flex = {
-            flexGrow: 1,
-            flex: 1
-        }
+        // const flex = {
+        //     flexGrow: 1,
+        //     flex: 1
+        // }
         const colSpan = 5;
         const notRunCount = (data.UNSUBMIT || 0) + (data.SUBMITTING || 0) + (data.WAITENGINE || 0)
 

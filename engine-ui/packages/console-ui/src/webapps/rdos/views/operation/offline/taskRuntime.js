@@ -34,7 +34,7 @@ export default class TaskLog extends Component {
             })
         }
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentTask = this.props.tabData
         const { tabData, visibleSlidePane } = nextProps
@@ -64,9 +64,8 @@ export default class TaskLog extends Component {
             count: e.target.value
         })
     }
-
+    /* eslint-disable */
     handData = (data) => {
-        let arr = []; let xAxis = []; let series = [];
         const legend = ['执行时长', '读取数据', '脏数据'];
         const stayTiming = []; const readData = []; const dirtyData = [];
 
@@ -111,7 +110,7 @@ export default class TaskLog extends Component {
             ]
         }
     }
-
+    /* eslint-enable */
     handNullData = (data) => {
         const xAxis = [moment(new Date()).format('YYYY-MM-DD HH:mm:ss')];
         const legend = ['无数据'];

@@ -40,7 +40,7 @@ class OfflineStatistics extends Component {
         this.getTopTaskTime()
         this.getTopJobError()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -203,7 +203,7 @@ class OfflineStatistics extends Component {
     }
 
     render () {
-        const { offline, topTiming, topError, handleTiming } = this.state
+        const { topTiming, topError, handleTiming } = this.state
         return (
             <div className="box-card" style={{ marginTop: '20px' }}>
                 <Card

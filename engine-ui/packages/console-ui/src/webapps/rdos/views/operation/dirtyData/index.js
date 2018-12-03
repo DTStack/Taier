@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { cloneDeep } from 'lodash';
-import { Link, hashHistory } from 'react-router';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
 
 import {
@@ -116,7 +116,7 @@ class DirtyData extends Component {
         this.loadProduceData();
         this.loadSyncTasks();
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project;
         const oldProj = this.props.project;
@@ -138,7 +138,6 @@ class DirtyData extends Component {
     };
 
     loadProduceTrendData = params => {
-        const ctx = this;
         const time = params.recent;
         params.interval = TIME_OBJ[time].interval;
         params.field = TIME_OBJ[time].field;

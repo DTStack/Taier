@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import moment from 'moment'
-
 import {
     Table, Row, Col, Select, Card,
     Input, Button, DatePicker, Form
@@ -36,7 +34,7 @@ class OfflinePanel extends Component {
         this.loadAlarms({ pageIndex: 1 })
         this.loadAlarmStatistics()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project

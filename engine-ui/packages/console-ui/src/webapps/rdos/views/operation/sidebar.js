@@ -15,7 +15,7 @@ export default class Sidebar extends Component {
     componentDidMount () {
         this.updateSelected()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps () {
         this.updateSelected()
     }

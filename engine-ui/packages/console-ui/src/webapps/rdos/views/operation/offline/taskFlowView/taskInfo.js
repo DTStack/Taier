@@ -1,6 +1,5 @@
 import React from 'react'
 
-import utils from 'utils'
 import { OfflineTaskStatus, TaskTimeType, TaskType } from '../../../../components/status'
 
 export function TaskInfo (props) {

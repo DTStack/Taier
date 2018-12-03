@@ -3,8 +3,7 @@ import React, { Component } from 'react'
 import { hashHistory } from 'react-router'
 
 import {
-    Input, Modal, Row, message, Form,
-    Table, DatePicker, Col, Tree
+    Input, Modal, Row, Form, DatePicker, Col, Tree
 } from 'antd'
 
 import Api from '../../../api'
@@ -12,7 +11,6 @@ import { formItemLayout } from '../../../comm/const'
 import { TaskType } from '../../../components/status'
 
 const confirm = Modal.confirm
-const Search = Input.Search
 const TreeNode = Tree.TreeNode
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
@@ -38,7 +36,7 @@ class PatchData extends Component {
         checkedKeys: ['0'],
         confirmLoading: false
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const task = nextProps.task
         if (this.props.visible != nextProps.visible && nextProps.visible && task) {
@@ -57,7 +55,7 @@ class PatchData extends Component {
     }
 
     addData = () => {
-        const { handCancel, router, form } = this.props
+        const { form } = this.props
         const taskJson = this.getSelectedTasks()
         const reqParams = form.getFieldsValue()
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
@@ -211,7 +209,6 @@ class PatchData extends Component {
 
     asyncTree = (treeNode) => {
         const ctx = this
-        const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
             Api.getTaskChildren({
@@ -277,11 +274,11 @@ class PatchData extends Component {
     }
 
     render () {
-        const { visible, handCancel, task } = this.props;
+        const { visible, task } = this.props;
         const { getFieldDecorator } = this.props.form;
         const { treeData, confirmLoading } = this.state;
         const treeNodes = this.getTreeNodes(treeData);
-        const randomNumber = Math.floor(Math.random() * (100 - 1) + 1);
+        // const randomNumber = Math.floor(Math.random() * (100 - 1) + 1);
         const pacthName = `P_${task && task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
 
         return (

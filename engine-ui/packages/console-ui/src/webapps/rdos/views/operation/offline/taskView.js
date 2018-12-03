@@ -99,7 +99,7 @@ export default class TaskView extends Component {
             taskId: id
         });
     }
-
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const currentTask = this.props.tabData;
         const { tabData, visibleSlidePane, tabKey } = nextProps;

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import {
-    Table, Row, Col, Select, Form, Card,
+    Table, Select, Form, Card,
     Input, Button, message, Popconfirm
 } from 'antd'
 
@@ -38,7 +38,7 @@ class OfflineConfig extends Component {
         this.loadAlarmRules()
         this.loadTaskList()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -194,7 +194,7 @@ class OfflineConfig extends Component {
             render: (text, record) => {
                 const recivers = record.receiveUsers
                 if (recivers.length > 0) {
-                    return recivers.map(item => <span>{item.userName};</span>)
+                    return recivers.map((item, index) => <span key={index}>{item.userName};</span>)
                 }
                 return ''
             }
