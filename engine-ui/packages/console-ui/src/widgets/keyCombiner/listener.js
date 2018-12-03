@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default class KeyEventListener extends React.Component {
-
     componentDidMount () {
         addEventListener('keydown', this.bindEvent, false)
         addEventListener('keyup', this.bindEvent, false)

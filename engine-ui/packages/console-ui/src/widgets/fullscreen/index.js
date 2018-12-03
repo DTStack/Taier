@@ -11,11 +11,11 @@ export default class FullScreenButton extends Component {
     /**
      * 在一定情况下chrome不会触发resize事件，所以手动触发一下resize。
      */
-    dispatchResizeEvent() {
-        const event = new Event("resize");
+    dispatchResizeEvent () {
+        const event = new Event('resize');
         window.dispatchEvent(event);
     }
-    componentDidMount() {
+    componentDidMount () {
         const { target } = this.props;
         const propsDom = document.getElementById(target)
         const domEle = propsDom || document.body;
@@ -31,7 +31,7 @@ export default class FullScreenButton extends Component {
                 node = document.webkitFullscreenElement;
             }
             this.setState({
-                isFullScreen: node ? true : false
+                isFullScreen: !!node
             }, this.dispatchResizeEvent)
         }
         if (domEle.requestFullscreen) {
@@ -44,7 +44,7 @@ export default class FullScreenButton extends Component {
             domEle.onwebkitfullscreenchange = callBack;
         }
     }
-    componentWillUnmount() {
+    componentWillUnmount () {
         const { target } = this.props;
         const propsDom = document.getElementById(target)
         const domEle = propsDom || document.body;
@@ -92,8 +92,8 @@ export default class FullScreenButton extends Component {
         // this.setState({ isFullScreen: !this.state.isFullScreen });
     }
 
-    render() {
-        const { themeDark, fullIcon, exitFullIcon, target, ...other } = this.props;
+    render () {
+        const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
         const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
@@ -104,8 +104,7 @@ export default class FullScreenButton extends Component {
                 16: true
             }}>
                 {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
-                    :
-                    <Button {...other} onClick={this.fullScreen}>
+                    : <Button {...other} onClick={this.fullScreen}>
                         <MyIcon
                             className="my-icon"
                             type={iconType}

@@ -386,6 +386,46 @@ class DataSourceModal extends Component {
                         label="数据源类型"
                         hasFeedback
                     >
+                        {getFieldDecorator('type', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源类型不可为空！'
+                                }
+                            ],
+                            initialValue: sourceData.type
+                                ? sourceData.type.toString()
+                                : '1'
+                        })(
+                            <Select
+                                onChange={this.sourceChange}
+                                disabled={status === 'edit'}
+                            >
+                                {this.renderSourceType(dataSource.sourceType)}
+                            </Select>
+                        )}
+                    </FormItem>
+
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据源名称"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataName', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源名称不可为空！'
+                                },
+                                {
+                                    max: 128,
+                                    message: '数据源名称不得超过128个字符！'
+                                },
+                                {
+                                    pattern: /^[A-Za-z0-9_]+$/,
+                                    message: '名称只能由字母与数字、下划线组成'
+                                }
+                            ],
                             initialValue: sourceData.dataName || ''
                         })(
                             <Input

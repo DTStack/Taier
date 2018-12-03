@@ -8,10 +8,9 @@ import workbenchAction from '../../../../consts/workbenchActionType';
 
 class DDLModal extends Component {
     handleOk = () => {
-        message.info('复制成功，代码窗口即将关闭');
-        setTimeout(() => {
+        message.info('复制成功，代码窗口即将关闭', 1.5, () => {
             this.props.resetModal();
-        }, 1000)
+        });
     }
 
     render () {

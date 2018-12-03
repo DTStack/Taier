@@ -59,7 +59,7 @@ export function appendTreeNode (treeNode, append, target) {
             appendTreeNode(children[i], append, target)
         }
     }
-    if (treeNode.id === targetId && treeNode.children && treeNodes.type == target.type) {
+    if (treeNode.id === targetId && treeNode.children && treeNode.type == target.type) {
         treeNode.children.push(append)
     }
 }
@@ -318,11 +318,11 @@ export function replaceObjectArrayFiledName (data, targetField, replaceName) {
 /**
  * 初始化APP_CONF和COMMON_CONF
  */
-export function initConfig() {
-    const app_conf = window.APP_CONF || {};
-    const common_conf = window.COMMON_CONF || {};
+export function initConfig () {
+    const appConf = window.APP_CONF || {};
+    const commonConf = window.COMMON_CONF || {};
     window.APP_CONF = {
-        ...common_conf,
-        ...app_conf
+        ...commonConf,
+        ...appConf
     }
 }

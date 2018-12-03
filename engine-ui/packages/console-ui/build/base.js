@@ -62,16 +62,6 @@ module.exports = function () {
             rules: [
                 {
                     test: /\.js$/,
-                    enforce: "pre",
-                    include: [
-                        // MY_PATH.MAIN_APP_PATH,
-                        MY_PATH.CONSOLE_PATH,
-                        MY_PATH.DATA_LABEL_PATH
-                    ],
-                    loader: "eslint-loader",
-                },
-                {
-                    test: /\.js$/,
                     include: MY_PATH.APP_PATH,
                     exclude: [
                         path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
@@ -82,6 +72,7 @@ module.exports = function () {
                     loader: [
                         "react-hot-loader/webpack",
                         "happypack/loader?id=happy-babel-js",
+                        "eslint-loader",
                     ]
                 },
                 {
