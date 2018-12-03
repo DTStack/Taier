@@ -22,7 +22,7 @@ class KeyForm extends React.Component {
     }
 
     columnFamily = data => {
-        return data && data.map(item => <Option value={item}>{item}</Option>)
+        return data && data.map(item => <Option key={item} value={item}>{item}</Option>)
     }
 
     renderFormItems = () => {
@@ -31,7 +31,7 @@ class KeyForm extends React.Component {
             sourceColumnFamily, targetColumnFamily
         } = this.props;
 
-        const { isReader, fileType, editField } = keyModal;
+        const { isReader, editField } = keyModal;
         const { getFieldDecorator } = this.props.form;
 
         if (isReader) { // 数据源

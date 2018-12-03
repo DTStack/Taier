@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, isEqual, isObject, isNaN } from 'lodash'
+import { isNumber, isObject, isNaN } from 'lodash'
 import {
     Button, Row, Col,
     Input, Tooltip,
@@ -205,24 +205,24 @@ class Keymap extends React.Component {
          * @param {*} keymapItem
          * @return {boolean} isMatch
          */
-        const matchKeymapToColumn_s = (columnItem, keymapItem) => {
+        const matchKeymapToSourceColumn = (columnItem, keymapItem) => {
             return isFieldMatch(columnItem, keymapItem);
         };
 
-        const matchKeymapToColumn_t = (columnItem, keymapItem) => {
+        const matchKeymapToTargetColumn = (columnItem, keymapItem) => {
             return isFieldMatch(columnItem, keymapItem);
         }
 
         /**
-         * source中的元素 key_obj 类型：
+         * source中的元素 keyObj 类型：
          * if(sourceSrcType === 1, 2, 3) string
          * if( === 6) { index, type }
          */
-        source.forEach((key_obj, ii) => {
+        source.forEach((keyObj, ii) => {
             $dagL.each((dl, i) => {
                 let sx, sy, ex, ey;
 
-                if (matchKeymapToColumn_s(dl, key_obj)) {
+                if (matchKeymapToSourceColumn(dl, keyObj)) {
                     sx = padding;
                     sy = (i + 1.5) * h;
 
@@ -232,14 +232,14 @@ class Keymap extends React.Component {
                          * if(targetSrcType === 1, 2, 3) string
                          * if( === 6)  obj{ key, type }
                          */
-                        if (matchKeymapToColumn_t(dr, target[ii])) {
+                        if (matchKeymapToTargetColumn(dr, target[ii])) {
                             ex = W - w * 2 - padding;
                             ey = (j + 1.5) * h;
 
                             posArr.push({
                                 s: { x: sx, y: sy },
                                 e: { x: ex, y: ey },
-                                dl: key_obj,
+                                dl: keyObj,
                                 dr: target[ii]
                             });
                         }
@@ -280,11 +280,11 @@ class Keymap extends React.Component {
         /**
          *阿珍
          */
-        let sourceKey_obj;
+        let sourceKeyObj;
         /**
          * 阿强
          */
-        let targetKey_obj;
+        let targetKeyObj;
 
         $dagL.on('mousedown', (d, i, nodes) => {
             let sx = padding; let sy = (i + 1.5) * h;
@@ -293,7 +293,7 @@ class Keymap extends React.Component {
                 .attr('x2', sx)
                 .attr('y2', sy);
 
-            sourceKey_obj = d;
+            sourceKeyObj = d;
             isMouseDown = true;
         });
 
@@ -315,7 +315,7 @@ class Keymap extends React.Component {
 
                     $dagR.each((d, i) => {
                         if (i === tidx) {
-                            targetKey_obj = d;
+                            targetKeyObj = d;
                         }
                     });
                 }
@@ -323,13 +323,13 @@ class Keymap extends React.Component {
             /**
              * 阿珍爱上了阿强
              */
-            if (sourceKey_obj && targetKey_obj) {
+            if (sourceKeyObj && targetKeyObj) {
                 /**
                  * 存储连线
                  */
                 addLinkedKeys({
-                    source: sourceKey_obj,
-                    target: targetKey_obj
+                    source: sourceKeyObj,
+                    target: targetKeyObj
                 });
                 this.resetActiveLine();
             }
@@ -425,7 +425,7 @@ class Keymap extends React.Component {
     }
 
     renderSource () {
-        const { w, h, W, H, padding } = this.state;
+        const { w, h, padding } = this.state;
 
         const {
             sourceCol,
@@ -1142,7 +1142,6 @@ class Keymap extends React.Component {
     }
 
     batchTextChange = (e) => {
-        const { batchModal } = this.state
         this.setState({
             batchModal: {
                 visible: true,
@@ -1152,7 +1151,6 @@ class Keymap extends React.Component {
     }
 
     batchSourceTextChange = (e) => {
-        const { batchSourceModal } = this.state
         this.setState({
             batchSourceModal: {
                 visible: true,
@@ -1336,23 +1334,8 @@ class Keymap extends React.Component {
     setRowMap () {
         const { rowMap, nameMap } = this.state;
         const {
-            targetCol, sourceCol, sourceSrcType,
-            targetSrcType
+            targetCol, sourceCol
         } = this.props;
-
-        // const convertColumn2Keymap_s = (column) => {
-        //     if (isRDB(sourceSrcType)) {
-        //         column = column.map(o => o.key);
-        //     }
-        //     return column;
-        // }
-
-        // const convertColumn2Keymap_t = (column) => {
-        //     if (isRDB(targetSrcType)) {
-        //         column = column.map(o => o.key);
-        //     }
-        //     return column;
-        // }
 
         if (!rowMap) {
             this.props.setRowMap({

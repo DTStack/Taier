@@ -73,7 +73,10 @@ export default class Save extends React.Component {
     }
 
     prev (cb) {
+        /* eslint-disable */
         cb.call(null, 3);
+        /* eslint-disable */
+
     }
 
     save (cb) {

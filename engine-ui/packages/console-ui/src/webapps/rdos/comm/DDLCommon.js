@@ -1,4 +1,4 @@
-export const DDL_placeholder =
+export const DDL_PLACEHOLDER =
 `CREATE TABLE IF NOT EXISTS table_name(
     col_name data_type COMMENT 'col_comment'
 ) COMMENT 'table_comment'
@@ -6,7 +6,7 @@ export const DDL_placeholder =
 col_name data_type COMMENT 'col_comment'
     ) lifecycle 90;`
 
-export const DDL_ide_placeholder =
+export const DDL_IDE_PLACEHOLDER =
 `CREATE TABLE employee ( 
     eid int, 
     name String,

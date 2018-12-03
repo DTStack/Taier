@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, Select } from 'antd';
+import { Modal, Button, Form, Input } from 'antd';
 
 import { getContainer } from 'funcs';
 import ajax from '../../../api';
@@ -14,7 +14,6 @@ import {
 } from '../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class FnMoveForm extends React.Component {
     constructor (props) {
@@ -28,7 +27,7 @@ class FnMoveForm extends React.Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { originFn, isVisible } = this.props;
-        const { parentId, name, functionId } = originFn;
+        const { parentId, name } = originFn;
 
         return !isVisible ? null : (
             <Form>

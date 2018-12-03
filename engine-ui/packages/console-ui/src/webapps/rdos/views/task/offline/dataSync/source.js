@@ -25,14 +25,14 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
-import { RDB_TYPE_ARRAY } from '../../../../comm/const';
 import { isRDB } from '../../../../comm';
 
 import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT,
-    SUPPROT_SUB_LIBRARY_DB_ARRAY
+    SUPPROT_SUB_LIBRARY_DB_ARRAY,
+    RDB_TYPE_ARRAY
 } from '../../../../comm/const';
 
 const FormItem = Form.Item;
@@ -192,7 +192,7 @@ class SourceForm extends React.Component {
     }
 
     changeSource (value, option) {
-        const { handleSourceChange, sourceMap } = this.props;
+        const { handleSourceChange } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
@@ -247,6 +247,7 @@ class SourceForm extends React.Component {
         this.submitForm(null, key);
     }
 
+    /* eslint-disable */
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
         const { getFieldValue } = form;
@@ -266,6 +267,7 @@ class SourceForm extends React.Component {
             callback();
         }
     };
+    /* eslint-disable */
 
     validateChineseCharacter = data => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
@@ -325,7 +327,9 @@ class SourceForm extends React.Component {
                 if (!err) {
                     // 校验中文字符，如果有则发出警告
                     this.validateChineseCharacter(formData);
+                    /* eslint-disable */
                     cb.call(null, 1);
+                    /* eslint-disable */
                 }
             }
         );
@@ -339,7 +343,6 @@ class SourceForm extends React.Component {
             sourceMap,
             dataSourceList,
             navtoStep,
-            isCurrentTabNew
         } = this.props;
 
         const disablePreview =
@@ -370,7 +373,6 @@ class SourceForm extends React.Component {
                                 showSearch
                                 onSelect={this.changeSource.bind(this)}
                                 optionFilterProp="name"
-                                // disabled={!isCurrentTabNew}
                             >
                                 {dataSourceList.map(src => {
                                     let title = `${src.dataName}（${
@@ -524,7 +526,7 @@ class SourceForm extends React.Component {
             })
             .map(source => {
                 return (
-                    <div>
+                    <div key={source.key}>
                         <FormItem {...formItemLayout} label="数据源">
                             {getFieldDecorator(`extSourceId.${source.key}`, {
                                 rules: [
@@ -545,7 +547,6 @@ class SourceForm extends React.Component {
                                         source.key
                                     )}
                                     optionFilterProp="name"
-                                    // disabled={!isCurrentTabNew}
                                 >
                                     {dataSourceList
                                         .filter(dataSource => {
@@ -615,9 +616,7 @@ class SourceForm extends React.Component {
                                         optionFilterProp="value"
                                     >
                                         {(
-                                            this.state.tableListMap[
-                                                source.sourceId
-                                            ] || []
+                                            this.state.tableListMap[source.sourceId] || []
                                         ).map(table => {
                                             return (
                                                 <Option
@@ -646,7 +645,7 @@ class SourceForm extends React.Component {
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
-        const { sourceMap, isCurrentTabNew } = this.props;
+        const { sourceMap } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
         const supportSubLibrary =
             SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(
@@ -694,13 +693,10 @@ class SourceForm extends React.Component {
                                     this,
                                     sourceMap.type.type
                                 )}
-                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {(
-                                    this.state.tableListMap[
-                                        sourceMap.sourceId
-                                    ] || []
+                                    this.state.tableListMap[sourceMap.sourceId] || []
                                 ).map(table => {
                                     return (
                                         <Option
@@ -836,9 +832,7 @@ class SourceForm extends React.Component {
                                 optionFilterProp="value"
                             >
                                 {(
-                                    this.state.tableListMap[
-                                        sourceMap.sourceId
-                                    ] || []
+                                    this.state.tableListMap[sourceMap.sourceId] || []
                                 ).map(table => {
                                     return (
                                         <Option
@@ -918,9 +912,7 @@ class SourceForm extends React.Component {
                                 optionFilterProp="value"
                             >
                                 {(
-                                    this.state.tableListMap[
-                                        sourceMap.sourceId
-                                    ] || []
+                                    this.state.tableListMap[sourceMap.sourceId] || []
                                 ).map(table => {
                                     return (
                                         <Option
@@ -956,7 +948,11 @@ class SourceForm extends React.Component {
         case DATA_SOURCE.HDFS: {
             // HDFS
             formItem = [
-                <FormItem {...formItemLayout} label="路径" key="path">
+                <FormItem 
+                    {...formItemLayout}
+                    label="路径"
+                    key="path"
+                >
                     {getFieldDecorator('path', {
                         rules: [
                             {
@@ -1024,7 +1020,9 @@ class SourceForm extends React.Component {
                             : sourceMap.type.fieldDelimiter
                     })(
                         <Input
+                            /* eslint-disable */
                             placeholder="若不填写，则默认为\001"
+                            /* eslint-disable */
                             onChange={this.submitForm.bind(this)}
                         />
                     )}
@@ -1084,13 +1082,10 @@ class SourceForm extends React.Component {
                                     this,
                                     null
                                 )}
-                                // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
                             >
                                 {(
-                                    this.state.tableListMap[
-                                        sourceMap.sourceId
-                                    ] || []
+                                    this.state.tableListMap[sourceMap.sourceId] || []
                                 ).map(table => {
                                     return (
                                         <Option

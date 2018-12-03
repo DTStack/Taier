@@ -3,14 +3,12 @@ import { Form, Input, Select, Radio } from 'antd';
 import { connect } from 'react-redux';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../comm'
-import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, PROJECT_TYPE } from '../../../comm/const';
+import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
-import ajax from '../../../api';
 
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Tree, TreeSelect,
-    Modal, Badge, Tooltip
+    Modal, Badge,
 } from 'antd';
 
 import utils from 'utils';

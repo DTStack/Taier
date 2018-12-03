@@ -34,6 +34,7 @@ class TableTree extends React.Component {
         expandedKeys: [],
         searchName: ''
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (this.props.project.id != nextProps.project.id) {
             this.setState({
@@ -44,6 +45,8 @@ class TableTree extends React.Component {
             })
         }
     }
+    /* eslint-disable */
+
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
         if (expanded) {

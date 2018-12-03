@@ -8,11 +8,9 @@ import {
 
 import {
     settingAction,
-    dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
 
-import ajax from '../../../../api';
 import HelpDoc from '../../../helpDoc';
 import LifeCycle from '../../../dataManage/lifeCycle';
 
@@ -36,7 +34,7 @@ class ChannelForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { setting, changeChannelSetting, navtoStep, form } = this.props;
+        const { setting, navtoStep, form } = this.props;
 
         const formItemLayout = {
             labelCol: {

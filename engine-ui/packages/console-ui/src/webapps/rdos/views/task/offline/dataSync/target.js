@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio, Modal, Icon } from 'antd';
+import { Form, Input, Select, Button, Radio, Modal, Icon, message } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
@@ -22,7 +22,7 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 
-import { DDL_ide_placeholder } from '../../../../comm/DDLCommon';
+import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -41,7 +41,7 @@ class TargetForm extends React.Component {
     }
 
     componentDidMount () {
-        const { targetMap, isCurrentTabNew } = this.props;
+        const { targetMap } = this.props;
         const { sourceId } = targetMap;
 
         sourceId && this.getTableList(sourceId);
@@ -185,9 +185,11 @@ class TargetForm extends React.Component {
             singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
         }
     }
-
+    
     prev (cb) {
+        /* eslint-disable */
         cb.call(null, 0);
+        /* eslint-disable */
     }
 
     next (cb) {
@@ -196,7 +198,9 @@ class TargetForm extends React.Component {
         form.validateFields((err, values) => {
             if (!err) {
                 this.validateChineseCharacter(values);
+                /* eslint-disable */
                 cb.call(null, 2);
+                /* eslint-disable */
             }
         })
     }
@@ -278,7 +282,7 @@ class TargetForm extends React.Component {
                 onCancel={this.handleCancel.bind(this)}
                 onOk={this.createTable.bind(this)}
             >
-                <Editor language="dtsql" value={this.state.textSql} sync={this.state.sync} placeholder={DDL_ide_placeholder} onChange={this.ddlChange} />
+                <Editor language="dtsql" value={this.state.textSql} sync={this.state.sync} placeholder={DDL_IDE_PLACEHOLDER} onChange={this.ddlChange} />
             </Modal>
             <Form>
                 <FormItem
@@ -547,7 +551,9 @@ class TargetForm extends React.Component {
                     })(
                         <Input
                             onChange={this.submitForm.bind(this)}
+                            /* eslint-disable */
                             placeholder="pt=${bdp.system.bizdate}"
+                            /* eslint-disable */
                         ></Input>
                     )}
                     <HelpDoc doc="partitionDesc" />
@@ -639,7 +645,9 @@ class TargetForm extends React.Component {
                         initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
                     })(
                         <Input
+                            /* eslint-disable */
                             placeholder="例如: 目标为hive则 分隔符为\001"
+                            /* eslint-disable */
                             onChange={this.submitForm.bind(this)} />
                     )}
                     <HelpDoc doc="splitCharacter" />

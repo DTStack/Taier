@@ -182,351 +182,352 @@ class ScheduleForm extends React.Component {
             {(function (type, ctx) {
                 let dom;
                 switch (type) {
-                case 0: { // 分钟
-                    dom = <span key={type}>
-                        <FormItem
-                            {...formItemLayout}
-                            label="开始时间"
-                        >
-                            <Col span="6">
+                    case 0: { // 分钟
+                        dom = <span key={type}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="开始时间"
+                            >
+                                <Col span="6">
 
-                                {getFieldDecorator('beginHour', {
-                                    rules: [{
-                                        required: true
-                                    }, {
-                                        validator: ctx.checkTimeS.bind(ctx)
-                                    }
-                                    ],
-                                    initialValue: `${scheduleConf.beginHour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('beginHour', {
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeS.bind(ctx)
+                                        }
+                                        ],
+                                        initialValue: `${scheduleConf.beginHour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('beginMin', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: '0'
-                                })(
-                                    <Select disabled>
-                                        <Option value="0">0</Option>
-                                    </Select>
-                                )}
-                            </Col>
+                                    {getFieldDecorator('beginMin', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: '0'
+                                    })(
+                                        <Select disabled>
+                                            <Option value="0">0</Option>
+                                        </Select>
+                                    )}
+                                </Col>
 
-                            <span className="split-text">分</span>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="间隔时间"
-                        >
-                            <Col span="6">
-                                {getFieldDecorator('gapMin', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.gapMin}`
-                                })(
-                                    <Select
-                                        onChange={ ctx.changeScheduleConf.bind(ctx) }
-                                    >
-                                        {(function () {
-                                            let options = [];
-                                            for (let i = 5; i <= 55; i += 5) {
-                                                options.push(<Option key={i} value={`${i}`}>{i}分钟</Option>)
-                                            }
-                                            return options;
-                                        })()}
-                                    </Select>
-                                )}
-                            </Col>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="结束时间"
-                        >
-                            <Col span="6">
+                                <span className="split-text">分</span>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="间隔时间"
+                            >
+                                <Col span="6">
+                                    {getFieldDecorator('gapMin', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.gapMin}`
+                                    })(
+                                        <Select
+                                            onChange={ ctx.changeScheduleConf.bind(ctx) }
+                                        >
+                                            {(function () {
+                                                let options = [];
+                                                for (let i = 5; i <= 55; i += 5) {
+                                                    options.push(<Option key={i} value={`${i}`}>{i}分钟</Option>)
+                                                }
+                                                return options;
+                                            })()}
+                                        </Select>
+                                    )}
+                                </Col>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="结束时间"
+                            >
+                                <Col span="6">
 
-                                {getFieldDecorator('endHour', {
-                                    rules: [{
-                                        required: true
-                                    }, {
-                                        validator: ctx.checkTimeE.bind(ctx)
-                                    }],
-                                    initialValue: `${scheduleConf.endHour}`
-                                })(
-                                    generateHours()
-                                )}
+                                    {getFieldDecorator('endHour', {
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeE.bind(ctx)
+                                        }],
+                                        initialValue: `${scheduleConf.endHour}`
+                                    })(
+                                        generateHours()
+                                    )}
 
-                            </Col>
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                </Col>
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('endMin', {
-                                    initialValue: '59'
-                                })(
-                                    <Select disabled>
-                                        <Option value="59">59</Option>
-                                    </Select>
-                                )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
-                }
-                    break;
+                                    {getFieldDecorator('endMin', {
+                                        initialValue: '59'
+                                    })(
+                                        <Select disabled>
+                                            <Option value="59">59</Option>
+                                        </Select>
+                                    )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
+                        break;
 
-                case 1: { // 小时
-                    dom = <span key={type}>
-                        <FormItem
-                            {...formItemLayout}
-                            label="开始时间"
-                        >
-                            <Col span="6">
+                    case 1: { // 小时
+                        dom = <span key={type}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="开始时间"
+                            >
+                                <Col span="6">
 
-                                {getFieldDecorator('beginHour', {
-                                    rules: [{
-                                        required: true
-                                    }, {
-                                        validator: ctx.checkTimeS1.bind(ctx)
-                                    }],
-                                    initialValue: `${scheduleConf.beginHour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('beginHour', {
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeS1.bind(ctx)
+                                        }],
+                                        initialValue: `${scheduleConf.beginHour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('beginMin', {
-                                    rules: [{
-                                        required: true
-                                    }, {
-                                        validator: ctx.checkTimeS1.bind(ctx)
-                                    }],
-                                    initialValue: `${scheduleConf.beginMin}`
-                                })(
-                                    generateMins()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('beginMin', {
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeS1.bind(ctx)
+                                        }],
+                                        initialValue: `${scheduleConf.beginMin}`
+                                    })(
+                                        generateMins()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">分</span>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="间隔时间"
-                        >
-                            <Col span="6">
+                                <span className="split-text">分</span>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="间隔时间"
+                            >
+                                <Col span="6">
 
-                                {getFieldDecorator('gapHour', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.gapHour}`
-                                })(
-                                    <Select
-                                        onChange={ ctx.changeScheduleConf.bind(ctx) }
-                                    >
-                                        {(function () {
-                                            let options = [];
-                                            for (let i = 1, l = 23; i <= l; i++) {
-                                                options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
-                                            }
-                                            return options;
-                                        })()}
-                                    </Select>
-                                )}
-                            </Col>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="结束时间"
-                        >
-                            <Col span="6">
-                                {getFieldDecorator('endHour', {
-                                    rules: [{
-                                        required: true
-                                    }, {
-                                        validator: ctx.checkTimeE1.bind(ctx)
-                                    }],
-                                    initialValue: `${scheduleConf.endHour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
-                            <span className="split-text">时</span>
-                            <Col span="6">
-                                {getFieldDecorator('endMin', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: '59'
-                                })(
-                                    <Select disabled>
-                                        <Option value="59">59</Option>
-                                    </Select>
-                                )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
-                }
-                    break;
+                                    {getFieldDecorator('gapHour', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.gapHour}`
+                                    })(
+                                        <Select
+                                            onChange={ ctx.changeScheduleConf.bind(ctx) }
+                                        >
+                                            {(function () {
+                                                let options = [];
+                                                for (let i = 1, l = 23; i <= l; i++) {
+                                                    options.push(<Option key={i} value={`${i}`}>{i}小时</Option>)
+                                                }
+                                                return options;
+                                            })()}
+                                        </Select>
+                                    )}
+                                </Col>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="结束时间"
+                            >
+                                <Col span="6">
+                                    {getFieldDecorator('endHour', {
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeE1.bind(ctx)
+                                        }],
+                                        initialValue: `${scheduleConf.endHour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
+                                <span className="split-text">时</span>
+                                <Col span="6">
+                                    {getFieldDecorator('endMin', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: '59'
+                                    })(
+                                        <Select disabled>
+                                            <Option value="59">59</Option>
+                                        </Select>
+                                    )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
+                        break;
 
-                case 2: { // 天
-                    const prefix = isWorkflowNode ? '起调' : '具体';
-                    dom = <span key={type}>
-                        <FormItem
-                            {...formItemLayout}
-                            label={`${prefix}时间`}
-                        >
-                            <Col span="6">
-                                {getFieldDecorator('hour', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.hour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
+                    case 2: { // 天
+                        const prefix = isWorkflowNode ? '起调' : '具体';
+                        dom = <span key={type}>
+                            <FormItem
+                                {...formItemLayout}
+                                label={`${prefix}时间`}
+                            >
+                                <Col span="6">
+                                    {getFieldDecorator('hour', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.hour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('min', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.min}`
+                                    {getFieldDecorator('min', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.min}`
 
-                                })(
-                                    generateMins()
-                                )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
-                }
-                    break;
+                                    })(
+                                        generateMins()
+                                    )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
+                        break;
 
-                case 3: { // 周
-                    dom = <span key={type}>
-                        <FormItem
-                            {...formItemLayout}
-                            label="选择时间"
-                        >
-                            <Col span="13">
-                                {getFieldDecorator('weekDay', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.weekDay}`.split(',')
-                                })(
-                                    generateDays()
-                                )}
-                            </Col>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="具体时间"
-                        >
-                            <Col span="6">
-                                {getFieldDecorator('hour', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.hour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
+                    case 3: { // 周
+                        dom = <span key={type}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="选择时间"
+                            >
+                                <Col span="13">
+                                    {getFieldDecorator('weekDay', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.weekDay}`.split(',')
+                                    })(
+                                        generateDays()
+                                    )}
+                                </Col>
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="具体时间"
+                            >
+                                <Col span="6">
+                                    {getFieldDecorator('hour', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.hour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('min', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.min}`
-                                })(
-                                    generateMins()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('min', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.min}`
+                                    })(
+                                        generateMins()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
-                }
-                    break;
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
+                        break;
 
-                case 4: { // 月
-                    dom = <span key={type}>
-                        <FormItem
-                            {...formItemLayout}
-                            label="选择时间"
-                        >
-                            <Col span="13">
+                    case 4: { // 月
+                        dom = <span key={type}>
+                            <FormItem
+                                {...formItemLayout}
+                                label="选择时间"
+                            >
+                                <Col span="13">
 
-                                {getFieldDecorator('day', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.day}`.split(',')
-                                })(
-                                    generateDate()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('day', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.day}`.split(',')
+                                    })(
+                                        generateDate()
+                                    )}
+                                </Col>
 
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="具体时间"
-                        >
-                            <Col span="6">
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="具体时间"
+                            >
+                                <Col span="6">
 
-                                {getFieldDecorator('hour', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.hour}`
-                                })(
-                                    generateHours()
-                                )}
-                            </Col>
+                                    {getFieldDecorator('hour', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.hour}`
+                                    })(
+                                        generateHours()
+                                    )}
+                                </Col>
 
-                            <span className="split-text">时</span>
-                            <Col span="6">
+                                <span className="split-text">时</span>
+                                <Col span="6">
 
-                                {getFieldDecorator('min', {
-                                    rules: [{
-                                        required: true
-                                    }],
-                                    initialValue: `${scheduleConf.min}`
-                                })(
-                                    generateMins()
-                                )}
-                            </Col>
-                            <span className="split-text">分</span>
-                        </FormItem>
-                    </span>;
-                }
-                    break;
+                                    {getFieldDecorator('min', {
+                                        rules: [{
+                                            required: true
+                                        }],
+                                        initialValue: `${scheduleConf.min}`
+                                    })(
+                                        generateMins()
+                                    )}
+                                </Col>
+                                <span className="split-text">分</span>
+                            </FormItem>
+                        </span>;
+                    }
+                        break;
 
-                default: dom = <span>something wrong</span>;
+                    default: dom = <span>something wrong</span>;
                 }
 
                 return dom;
             })(+periodType, this)}
         </Form>
     }
-
+    
+    /* eslint-disable */
     checkTimeS (rule, value, callback) {
         const { form } = this.props;
         const endHour = form.getFieldValue('endHour');
@@ -536,6 +537,7 @@ class ScheduleForm extends React.Component {
         }
         callback();
     }
+
     checkTimeE (rule, value, callback) {
         const { form } = this.props;
         const beginHour = form.getFieldValue('beginHour');
@@ -567,6 +569,8 @@ class ScheduleForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
+
 };
 
 const FormWrap = Form.create()(ScheduleForm);

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'antd';
+import { Icon, message } from 'antd';
 
 import utils from 'utils';
 
-import { HELP_DOC_URL, PROJECT_TYPE } from '../../../../../comm/const';
+import { HELP_DOC_URL } from '../../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../../comm'
 import CommonEditor from '../../commonEditor'
 import Toolbar from './toolbar.js';

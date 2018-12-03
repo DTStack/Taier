@@ -21,11 +21,13 @@ class ResViewModal extends React.Component {
         };
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (nextProps.resId !== this.props.resId) {
             this.getResDetail(nextProps.resId);
         }
     }
+    /* eslint-disable */
 
     getResDetail (resId) {
         if (!resId) return;

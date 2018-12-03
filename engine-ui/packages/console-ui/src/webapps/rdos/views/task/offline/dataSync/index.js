@@ -16,7 +16,7 @@ import {
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
 import {
-    workbenchActions
+    workbenchActions as WBenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 
 import { isProjectCouldEdit } from '../../../../comm'
@@ -87,9 +87,9 @@ class DataSync extends React.Component {
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {
                 if (res.data) {
-                    const { sourceMap } = res.data
+                    const { sourceMap } = res.data;
                     sourceMap.sourceList ? (sourceMap.sourceList = sourceMap.sourceList.map(
-                        (source, index) => {
+                        function(source, index) {
                             return {
                                 ...source,
                                 key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)
@@ -301,7 +301,7 @@ const mapState = (state) => {
 };
 
 const mapDispatch = (dispatch, ownProps) => {
-    const wbActions = new workbenchActions(dispatch, ownProps);
+    const wbActions = new WBenchActions(dispatch, ownProps);
 
     return {
         getDataSource: () => {
