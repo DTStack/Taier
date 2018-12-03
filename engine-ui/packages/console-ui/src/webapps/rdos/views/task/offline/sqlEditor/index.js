@@ -85,8 +85,8 @@ class EditorContainer extends Component {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         const project = nextProps.project
-        const old_project = this.props.project
-        if (project.id != old_project.id) {
+        const oldProject = this.props.project
+        if (project.id != oldProject.id) {
             this.initTableList(project.id);
         }
         if (current && current.id !== old.id) {
