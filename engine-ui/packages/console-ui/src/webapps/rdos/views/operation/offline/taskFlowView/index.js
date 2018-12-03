@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { cloneDeep } from 'lodash'
 
 import {
     Tooltip, Spin,
@@ -6,9 +7,12 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { replaceObjectArrayFiledName } from 'funcs'
+
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
+
 
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
@@ -44,20 +48,31 @@ const VertexSize = { // vertex大小
     height: 40
 }
 
+const replacTreeNodeField = (treeNode, sourceField, targetField) => {
+    const children = treeNode.jobVOS;
+    if (children) {
+        for (let i = 0; i < children.length; i++) {
+            replacTreeNodeField(children[i], sourceField, targetField);
+        }
+    }
+    if (treeNode) {
+        treeNode[targetField] = cloneDeep(treeNode[sourceField]);
+        treeNode[sourceField] = undefined;
+    }
+}
+
 /**
  * 合并Tree数据
  * @param {*} origin
  * @param {*} target
  */
-const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
+const mergeTreeNodes = (treeNodeData, mergeSource) => {
     if (treeNodeData) {
         if (treeNodeData.id === mergeSource.id) {
             if (mergeSource.jobVOS) {
-                if (nodeType === 'children') {
-                    treeNodeData.jobVOS = Object.assign(mergeSource.jobVOS);
-                } else if (nodeType === 'parent') {
-                    treeNodeData.parentNodes = Object.assign(mergeSource.jobVOS);
-                }
+                treeNodeData.jobVOS = cloneDeep(mergeSource.jobVOS);
+            } else if (mergeSource.parentNodes) {
+                treeNodeData.parentNodes = cloneDeep(mergeSource.parentNodes);
             }
             return;
         }
@@ -68,14 +83,14 @@ const mergeTreeNodes = (treeNodeData, mergeSource, nodeType) => {
         // 处理依赖节点
         if (parentNodes && parentNodes.length > 0) {
             for (let i = 0; i < parentNodes.length; i++) {
-                mergeTreeNodes(parentNodes[i], mergeSource, nodeType);
+                mergeTreeNodes(parentNodes[i], mergeSource);
             }
         }
 
         // 处理被依赖节点
         if (childNodes && childNodes.length > 0) {
             for (let i = 0; i < childNodes.length; i++) {
-                mergeTreeNodes(childNodes[i], mergeSource, nodeType);
+                mergeTreeNodes(childNodes[i], mergeSource);
             }
         }
     }
@@ -87,7 +102,6 @@ class TaskFlowView extends Component {
         data: {}, // 数据
         loading: 'success',
         lastVertex: '',
-        sort: 'children',
         taskLog: {},
         logVisible: false,
         visible: false,
@@ -125,8 +139,8 @@ class TaskFlowView extends Component {
         Api.getJobChildren(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                ctx.setState({ selectedJob: data, data, sort: 'children' })
-                ctx.doInsertVertex(res.data, 'children')
+                ctx.setState({ selectedJob: data, data })
+                ctx.doInsertVertex(res.data)
             }
             ctx.setState({ loading: 'success' })
         })
@@ -138,8 +152,10 @@ class TaskFlowView extends Component {
         Api.getJobParents(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                ctx.setState({ data, selectedJob: data, sort: 'parent' })
-                ctx.doInsertVertex(res.data, 'parent')
+                ctx.setState({ data, selectedJob: data })
+                // 替换jobVos字段为 parentNodes
+                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes')
+                ctx.doInsertVertex(res.data)
             }
             ctx.setState({ loading: 'success' })
         })
@@ -451,7 +467,9 @@ class TaskFlowView extends Component {
         }
     }
 
-    doInsertVertex = (data, nodeType) => {
+
+    doInsertVertex = (data) => {
+
         const graph = this.graph;
 
         // clean data;
@@ -463,12 +481,11 @@ class TaskFlowView extends Component {
         // handData
         let originData = this._originData;
         if (originData) {
-            mergeTreeNodes(originData, data, nodeType);
+            mergeTreeNodes(originData, data);
             this._originData = originData;
         } else {
             this._originData = data;
         }
-
         const arrayData = this.preHandGraphTree(this._originData);
         this.renderGraph(arrayData);
         this.initView();
