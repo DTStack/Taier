@@ -1,18 +1,12 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router'
-import { Button, Row, Col, Card, Radio } from 'antd'
+import { Row, Col, Card, Radio } from 'antd'
 import moment from 'moment'
 import { cloneDeep } from 'lodash'
 
-import GoBack from 'widgets/go-back'
 import Resize from 'widgets/resize'
 
 import Api from '../../../api'
 import { lineAreaChartOptions } from '../../../comm/const'
-
-import { 
-    OfflineTaskStatus, TaskTimeType, TaskType 
-} from '../../../components/status'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');

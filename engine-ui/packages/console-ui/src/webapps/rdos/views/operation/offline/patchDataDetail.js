@@ -103,6 +103,7 @@ class PatchDataDetail extends Component {
         }
         if (taskName) {
             reqParams.taskName = taskName
+            reqParams.currentPage = 1
         }
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
@@ -313,10 +314,6 @@ class PatchDataDetail extends Component {
         })
     }
 
-    changeTaskName = (e) => {
-        this.setState({ fillJobName: e.target.value })
-    }
-
     changePerson = (target) => {
         this.setState({ dutyUserId: target, current: 1 }, () => {
             this.search()
@@ -345,6 +342,7 @@ class PatchDataDetail extends Component {
     }
 
     changeTaskName = (e) => {// 任务名变更
+        console.log('taskName:', e)
         this.setState({ taskName: e.target.value })
     }
 
@@ -459,6 +457,7 @@ class PatchDataDetail extends Component {
             </tr>
         )
     }
+
     getSelectRowsStatus() {
         let haveFail, haveNotRun, haveSuccess, haveRunning;
         const { selectedRows } = this.state;
