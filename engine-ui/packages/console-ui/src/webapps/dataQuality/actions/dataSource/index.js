@@ -7,7 +7,7 @@ export const dataSourceActions = {
             dispatch({
                 type: dataSourceActionType.CHANGE_LOADING
             });
-            API.getDataSources(params).then((res) => {
+            API.getDataSources(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES,
@@ -18,11 +18,11 @@ export const dataSourceActions = {
                     type: dataSourceActionType.CHANGE_LOADING
                 });
             });
-        }
+        };
     },
     getDataSourcesType (params) {
         return dispatch => {
-            API.getDataSourcesType(params).then((res) => {
+            API.getDataSourcesType(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_TYPE,
@@ -30,11 +30,11 @@ export const dataSourceActions = {
                     });
                 }
             });
-        }
+        };
     },
     getDataSourcesList (params) {
         return dispatch => {
-            API.getDataSourcesList(params).then((res) => {
+            API.getDataSourcesList(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_LIST,
@@ -42,14 +42,14 @@ export const dataSourceActions = {
                     });
                 }
             });
-        }
+        };
     },
     getDataSourcesTable (params) {
         return dispatch => {
             dispatch({
                 type: dataSourceActionType.CHANGE_GETTABLE_LOADING
             });
-            API.getDataSourcesTable(params).then((res) => {
+            API.getDataSourcesTable(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_TABLE,
@@ -65,18 +65,18 @@ export const dataSourceActions = {
                     type: dataSourceActionType.CHANGE_GETTABLE_LOADING
                 });
             });
-        }
+        };
     },
     resetDataSourcesTable () {
         return dispatch => {
             dispatch({
                 type: dataSourceActionType.RESET_DATA_SOURCES_TABLE
             });
-        }
+        };
     },
     getDataSourcesColumn (params) {
         return dispatch => {
-            API.getDataSourcesColumn(params).then((res) => {
+            API.getDataSourcesColumn(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_COLUMN,
@@ -84,11 +84,11 @@ export const dataSourceActions = {
                     });
                 }
             });
-        }
+        };
     },
     getDataSourcesPart (params) {
         return dispatch => {
-            API.getDataSourcesPart(params).then((res) => {
+            API.getDataSourcesPart(params).then(res => {
                 if (res.code === 1) {
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_PART,
@@ -96,28 +96,28 @@ export const dataSourceActions = {
                     });
                 }
             });
-        }
+        };
     },
     resetDataSourcesPart () {
         return dispatch => {
             dispatch({
                 type: dataSourceActionType.RESET_DATA_SOURCES_PART
             });
-        }
+        };
     },
     getDataSourcesPreview (params) {
         return dispatch => {
-            API.getDataSourcesPreview(params).then((res) => {
+            API.getDataSourcesPreview(params).then(res => {
                 if (res.code === 1) {
                     let { columnList, dataList } = res.data;
 
                     res.data.dataList = dataList.map((arr, i) => {
-                    	let o = {};
-                    	arr.forEach((item, j) => {
-                    		o.key = i;
-                    		o[columnList[j]] = item;
-                    	})
-                		return o;
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        });
+                        return o;
                     });
 
                     dispatch({
@@ -126,6 +126,6 @@ export const dataSourceActions = {
                     });
                 }
             });
-        }
+        };
     }
-}
+};

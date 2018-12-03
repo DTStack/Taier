@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash';
 const initialState = {
     source: [],
     target: []
-}
+};
 
 export default function keymap (state = initialState, action) {
     switch (action.type) {
@@ -15,7 +15,7 @@ export default function keymap (state = initialState, action) {
 
             const checkExist = (arr, item) => {
                 return arr.indexOf(item) > -1;
-            }
+            };
 
             if (checkExist(source, map.source)) {
                 return state;
@@ -55,7 +55,8 @@ export default function keymap (state = initialState, action) {
 
         case keyMapActionType.SET_ROW_MAP: {
             const { sourceKeyCol, targetKeyCol } = action.payload;
-            let source = []; let target = [];
+            let source = [];
+            let target = [];
 
             sourceKeyCol.forEach((key, i) => {
                 if (targetKeyCol[i]) {
@@ -69,7 +70,8 @@ export default function keymap (state = initialState, action) {
 
         case keyMapActionType.SET_NAME_MAP: {
             const { sourceKeyCol, targetKeyCol } = action.payload;
-            let source = []; let target = [];
+            let source = [];
+            let target = [];
 
             sourceKeyCol.forEach((key, i) => {
                 if (targetKeyCol.indexOf(key) > -1) {
@@ -84,6 +86,7 @@ export default function keymap (state = initialState, action) {
         case keyMapActionType.RESET_LINKED_KEYS:
             return { source: [], target: [] };
 
-        default: return state;
+        default:
+            return state;
     }
-};
+}

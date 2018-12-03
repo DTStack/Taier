@@ -71,7 +71,7 @@ class CreateDatabaseModal extends Component {
     }
 
     render () {
-        const { databaseData, requesting } = this.state;
+        const { databaseData } = this.state;
         const { modal } = this.props;
         const visible = !!(modal && modal.visibleModal === workbenchAction.OPEN_CREATE_DATABASE);
 

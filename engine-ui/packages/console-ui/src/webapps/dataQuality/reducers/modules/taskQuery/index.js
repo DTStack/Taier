@@ -7,7 +7,7 @@ const initialState = {
     taskDetail: [],
     tableReport: {},
     alarmNum: []
-}
+};
 
 export default function taskQuery (state = initialState, action) {
     const { type, payload } = action;
@@ -21,28 +21,28 @@ export default function taskQuery (state = initialState, action) {
 
         case taskQueryActionType.GET_TASK_LIST: {
             const clone = cloneDeep(state);
-            const { taskList } = clone;
+            // const { taskList } = clone;
             clone.taskList = payload;
             return clone;
         }
 
         case taskQueryActionType.GET_TASK_DETAIL: {
             const clone = cloneDeep(state);
-            const { taskDetail } = clone;
+            // const { taskDetail } = clone;
             clone.taskDetail = payload;
             return clone;
         }
 
         case taskQueryActionType.GET_TASK_TABLE_REPORT: {
             const clone = cloneDeep(state);
-            const { tableReport } = clone;
+            // const { tableReport } = clone;
             clone.tableReport = payload;
             return clone;
         }
 
         case taskQueryActionType.GET_TASK_ALARM_NUM: {
             const clone = cloneDeep(state);
-            const { alarmNum } = clone;
+            // const { alarmNum } = clone;
             clone.alarmNum = payload;
             return clone;
         }

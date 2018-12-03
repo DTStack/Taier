@@ -9,7 +9,7 @@ const initialState = {
     monitorRules: [],
     monitorDetail: {},
     triggerList: []
-}
+};
 
 export default function ruleConfig (state = initialState, action) {
     const { type, payload } = action;
@@ -24,42 +24,42 @@ export default function ruleConfig (state = initialState, action) {
 
         case ruleConfigActionType.GET_MONITOR_LIST: {
             const clone = cloneDeep(state);
-            const { monitorList } = clone;
+            // const { monitorList } = clone;
             clone.monitorList = payload;
             return clone;
         }
 
         case ruleConfigActionType.GET_MONITOR_TABLE_COLUMN: {
             const clone = cloneDeep(state);
-            const { tableColumn } = clone;
+            // const { tableColumn } = clone;
             clone.tableColumn = payload;
             return clone;
         }
 
         case ruleConfigActionType.GET_RULE_FUNCTION: {
             const clone = cloneDeep(state);
-            const { monitorFunction } = clone;
+            // const { monitorFunction } = clone;
             clone.monitorFunction = payload;
             return clone;
         }
 
         case ruleConfigActionType.GET_MONITOR_RULE: {
             const clone = cloneDeep(state);
-            const { monitorRules } = clone;
+            // const { monitorRules } = clone;
             clone.monitorRules = payload;
             return clone;
         }
 
         case ruleConfigActionType.GET_MONITOR_DETAIL: {
             const clone = cloneDeep(state);
-            const { monitorDetail } = clone;
+            // const { monitorDetail } = clone;
             clone.monitorDetail = payload;
             return clone;
         }
 
         case ruleConfigActionType.GET_REMOTE_TRIGGER: {
             const clone = cloneDeep(state);
-            const { triggerList } = clone;
+            // const { triggerList } = clone;
             clone.triggerList = payload;
             return clone;
         }

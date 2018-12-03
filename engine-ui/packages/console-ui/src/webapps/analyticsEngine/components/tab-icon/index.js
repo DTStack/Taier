@@ -29,7 +29,6 @@ export default class TabIcon extends Component {
             }
             default:
                 iconName = 'file.svg';
-                break;
         }
 
         return <img

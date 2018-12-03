@@ -1,5 +1,4 @@
 import moment from 'moment'
-import utils from 'utils'
 import {
     message
 } from 'antd';
@@ -7,10 +6,10 @@ import {
 import { createLinkMark } from 'widgets/code-editor/utils'
 
 import API from '../api';
-import { sqlExecStatus } from '../consts';
+// import { sqlExecStatus } from '../consts';
 import editorAction from '../consts/editorActionType';
 
-const INTERVALS = 1500;
+// const INTERVALS = 1500;
 
 // 储存各个tab的定时器id，用来stop任务时候清楚定时任务
 const intervalsStore = {}
@@ -23,60 +22,52 @@ function getUniqueKey (id) {
     return `${id}_${moment().valueOf()}`
 }
 
-async function doSelect (resolve, dispatch, jobId, currentTab) {
-    const res = await API.getSQLResultData({ jobId: jobId });
-    if (res && res.code) {
-        // 获取到返回值
-        if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
-        if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
-    }
-    // 状态正常
-    if (res && res.code === 1) {
-        switch (res.data.status) {
-            case sqlExecStatus.FINISHED: {
-            // 成功
-                getDataOver(dispatch, currentTab, res, jobId)
-                resolve(true);
-                return;
-            }
-            case sqlExecStatus.FAILED:
-            case sqlExecStatus.CANCELED: {
-                if (res.data && res.data.download) {
-                    dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                }
-                dispatch(removeLoadingTab(currentTab))
-                resolve(false)
-                return;
-            }
-            default: {
-            // 正常运行，则再次请求,并记录定时器id
-                intervalsStore[currentTab] = setTimeout(
-                    () => {
-                        if (stopSign[currentTab]) {
-                            console.log('find stop sign in doSelect')
-                            stopSign[currentTab] = false;
-                            return;
-                        }
-                        doSelect(resolve, dispatch, jobId, currentTab)
-                    }, INTERVALS
-                )
-            }
-        }
-    } else {
-        dispatch(output(currentTab, `请求异常！`))
-        dispatch(removeLoadingTab(currentTab))
-        // 不正常，则直接终止执行
-        resolve(false)
-    }
-}
-
-function selectData (dispatch, jobId, currentTab) {
-    return new Promise(
-        (resolve, reject) => {
-            doSelect(resolve, dispatch, jobId, currentTab)
-        }
-    )
-}
+// async function doSelect (resolve, dispatch, jobId, currentTab) {
+//     const res = await API.getSQLResultData({ jobId: jobId });
+//     if (res && res.code) {
+//         // 获取到返回值
+//         if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+//         if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+//     }
+//     // 状态正常
+//     if (res && res.code === 1) {
+//         switch (res.data.status) {
+//         case sqlExecStatus.FINISHED: {
+//             // 成功
+//             getDataOver(dispatch, currentTab, res, jobId)
+//             resolve(true);
+//             return;
+//         }
+//         case sqlExecStatus.FAILED:
+//         case sqlExecStatus.CANCELED: {
+//             if (res.data && res.data.download) {
+//                 dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+//             }
+//             dispatch(removeLoadingTab(currentTab))
+//             resolve(false)
+//             return;
+//         }
+//         default: {
+//             // 正常运行，则再次请求,并记录定时器id
+//             intervalsStore[currentTab] = setTimeout(
+//                 () => {
+//                     if (stopSign[currentTab]) {
+//                         console.log('find stop sign in doSelect')
+//                         stopSign[currentTab] = false;
+//                         return;
+//                     }
+//                     doSelect(resolve, dispatch, jobId, currentTab)
+//                 }, INTERVALS
+//             )
+//         }
+//         }
+//     } else {
+//         dispatch(output(currentTab, `请求异常！`))
+//         dispatch(removeLoadingTab(currentTab))
+//         // 不正常，则直接终止执行
+//         resolve(false)
+//     }
+// }
 
 /**
  * 输出SQL执行结果

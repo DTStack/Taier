@@ -44,6 +44,7 @@ export default function mainBench (state = getInitialCachedData(), action) {
                 localDb.set(workbenchStoreKey, newStore);
                 return newStore;
             }
+            break;
         }
 
         case workbenchAction.CLOSE_TAB: {
@@ -62,6 +63,7 @@ export default function mainBench (state = getInitialCachedData(), action) {
                 localDb.set(workbenchStoreKey, clone);
                 return clone;
             }
+            break;
         }
 
         case workbenchAction.NEW_TABLE_INFO_CHANGE: {
@@ -129,7 +131,7 @@ export default function mainBench (state = getInitialCachedData(), action) {
             return newState;
         }
         case workbenchAction.TABLE_INFO_MOTIFIED: {
-        // 保存完成
+            // 保存完成
             console.log('新的表信息已保存')
             console.log(payload)
 
@@ -174,6 +176,7 @@ export default function mainBench (state = getInitialCachedData(), action) {
                 localDb.set(workbenchStoreKey, newStore);
                 return newStore;
             }
+            break;
         }
         default:
             return state;

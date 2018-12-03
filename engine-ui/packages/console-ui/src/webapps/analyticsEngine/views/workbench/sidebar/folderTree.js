@@ -19,18 +19,18 @@ const getItemClassName = function (type) {
     }
 }
 
-const getContextMenuAnchorName = function (type) {
-    switch (type) {
-        case CATALOGUE_TYPE.DATA_BASE:
-            return 'anchor-database';
-        case CATALOGUE_TYPE.DATA_MAP:
-            return 'anchor-datamap';
-        case CATALOGUE_TYPE.TABLE:
-            return 'anchor-table';
-        case CATALOGUE_TYPE.FOLDER:
-        default: return 'anchor-tree-item';
-    }
-}
+// const getContextMenuAnchorName = function (type) {
+//     switch (type) {
+//     case CATALOGUE_TYPE.DATA_BASE:
+//         return 'anchor-database';
+//     case CATALOGUE_TYPE.DATA_MAP:
+//         return 'anchor-datamap';
+//     case CATALOGUE_TYPE.TABLE:
+//         return 'anchor-table';
+//     case CATALOGUE_TYPE.FOLDER:
+//     default: return 'anchor-tree-item';
+//     }
+// }
 
 class FolderTree extends React.PureComponent {
     constructor (props) {

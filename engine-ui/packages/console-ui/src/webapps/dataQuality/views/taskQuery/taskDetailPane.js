@@ -26,7 +26,8 @@ export default class TaskDetailPane extends Component {
         };
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         let oldData = this.props.data;
 
         let newData = nextProps.data;

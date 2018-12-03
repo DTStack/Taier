@@ -1,8 +1,8 @@
-import database from '../api/database';
-import datamap from '../api/datamap';
-import user from '../api/database';
-import table from '../api/table';
+import database from './database';
+import datamap from './datamap';
+import table from './table';
 import comm from './comm';
+import user from './user';
 
 const Apis = Object.assign(
     comm,

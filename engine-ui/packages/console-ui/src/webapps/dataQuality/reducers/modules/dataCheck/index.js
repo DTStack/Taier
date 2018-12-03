@@ -8,7 +8,7 @@ const initialState = {
     originPart: [],
     targetPart: [],
     reportTable: {}
-}
+};
 
 export default function dataCheck (state = initialState, action) {
     const { type, payload } = action;
@@ -22,14 +22,14 @@ export default function dataCheck (state = initialState, action) {
 
         case dataCheckActionType.GET_LIST: {
             const clone = cloneDeep(state);
-            const { lists } = clone;
+            // const { lists } = clone;
             clone.lists = payload;
             return clone;
         }
 
         case dataCheckActionType.GET_SOURCE_PART: {
             const clone = cloneDeep(state);
-            const { originPart, targetPart } = clone;
+            // const { originPart, targetPart } = clone;
             if (payload.type === 'origin') {
                 clone.originPart = payload.data;
             } else {
@@ -41,7 +41,7 @@ export default function dataCheck (state = initialState, action) {
 
         case dataCheckActionType.RESET_SOURCE_PART: {
             const clone = cloneDeep(state);
-            const { originPart, targetPart } = clone;
+            // const { originPart, targetPart } = clone;
             if (payload === 'origin') {
                 clone.originPart = [];
             } else {

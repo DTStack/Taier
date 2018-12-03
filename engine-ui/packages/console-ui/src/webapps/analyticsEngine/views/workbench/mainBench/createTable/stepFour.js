@@ -11,7 +11,7 @@ export default class StepFour extends Component {
     }
     componentDidMount () {
         console.log('MOunt')
-        this.state.siv = setInterval(() => {
+        this.siv = setInterval(() => {
             console.log(this.state.num)
             this.setState((preState) => ({
                 num: preState.num - 1
@@ -25,12 +25,12 @@ export default class StepFour extends Component {
         }, 1000)
     }
     componentWillUnMount () {
-        this.state.siv && clearInterval(this.state.siv)
+        this.siv && clearInterval(this.siv)
     }
     render () {
         return (
             <div className="step-four-container step-container">
-                <Icon className="icon-finished" style={{ color: '#00A755' }} type="check-circle" className="status-icon"/>
+                <Icon className="icon-finished status-icon" style={{ color: '#00A755' }} type="check-circle"/>
                 <p className="result">创建成功</p>
                 <p className="inter"><span>{this.state.num}秒后自动返回</span></p>
             </div>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, notification } from 'antd'
+import { Table } from 'antd'
 
 export default class PaneData extends Component {
     constructor (props) {
@@ -18,15 +18,20 @@ export default class PaneData extends Component {
     componentDidMount () {
     // this.initData(this.props)
     // this.getData();
-        this.state.tableCol = [];
-        this.state.dataList = [];
+        this.setState({
+            tableCol: [],
+            dataList: []
+        })
 
         this.processData(this.props.data);
     }
 
-    componentWillReceiveProps (nextProps) {
-        this.state.tableCol = [];
-        this.state.dataList = [];
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
+        this.setState({
+            tableCol: [],
+            dataList: []
+        })
         this.processData(nextProps.data);
     // this.initData(nextProps)
     }

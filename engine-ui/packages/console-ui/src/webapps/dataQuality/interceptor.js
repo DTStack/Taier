@@ -1,4 +1,4 @@
-import { browserHistory } from 'react-router'
+// import { browserHistory } from 'react-router'
 import { message, notification } from 'antd'
 import utils from 'utils'
 import localDb from 'utils/localDb'

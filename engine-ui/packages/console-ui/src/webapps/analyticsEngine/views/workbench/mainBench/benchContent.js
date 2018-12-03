@@ -9,7 +9,7 @@ import SQLEditor from './sqlEditor';
 import EditTable from './editTable'
 
 class BenchContent extends Component {
-    renderContent = () => {
+    renderContent () {
         const props = this.props;
         const { tabData } = props;
         const { editTableInfoList = {}, currentTab } = props.workbench.mainBench
@@ -57,9 +57,11 @@ class BenchContent extends Component {
                     data={tabData}
                 />
             }
-            default: <p>
-                未知类型
-            </p>
+            default: {
+                return <p>
+                    未知类型
+                </p>
+            }
         }
     }
 

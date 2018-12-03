@@ -1,5 +1,4 @@
 import utils from 'utils'
-import http from './http'
 import localDb from 'utils/localDb'
 
 /* eslint-disable */

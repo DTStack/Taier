@@ -24,7 +24,8 @@ export default class PanePartition extends Component {
 
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
     // this.initData(nextProps)
     // this.getData();
         if (nextProps.tableDetail.partitionType !== 0) {
@@ -77,19 +78,14 @@ export default class PanePartition extends Component {
   }
 
   handleTableChange = (pagination, sorter, filter) => {
-      //     let {paginationParams, dataList} = this.state;
-      //     let data = this.props.partitions;
-
-      //     paginationParams.current = pagination.current;
-      //     console.log((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize)
-      //     dataList = data.slice((paginationParams.current-1)*paginationParams.pageSize,paginationParams.current * paginationParams.pageSize);
-      // console.log(dataList)
-      //     this.setState({
-      //       dataList: dataList,
-      //       paginationParams: paginationParams
-      //     })
-      this.state.paginationParams.current = pagination.current;
-      this.getData();
+      this.setState({
+          paginationParams: {
+              ...this.state.paginationParams,
+              current: pagination.current
+          }
+      }, () => {
+          this.getData();
+      })
   }
 
   render () {
@@ -122,13 +118,13 @@ export default class PanePartition extends Component {
       return (
           <div className="partition-container">
               {
-                  !this.state.notStard && <Table
+                  (!this.state.notStard && <Table
                       size="small"
                       columns={tableCol}
                       dataSource={dataList}
                       rowKey="partId"
                       pagination={paginationParams}
-                      onChange={this.handleTableChange}></Table> ||
+                      onChange={this.handleTableChange}></Table>) ||
             <Table
                 size="small"
                 columns={notStardCol}

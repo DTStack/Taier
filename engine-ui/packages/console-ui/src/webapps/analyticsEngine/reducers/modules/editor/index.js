@@ -9,7 +9,7 @@ const KEY_EDITOR_OPTIONS = 'editor_options';
 const console = (state = {}, action) => {
     switch (action.type) {
         case editorAction.GET_TAB: {
-        // 初始化console
+            // 初始化console
             const origin = cloneDeep(state);
             if (action.key) {
                 const tab = origin[action.key];
@@ -20,13 +20,13 @@ const console = (state = {}, action) => {
             return origin;
         }
         case editorAction.RESET_CONSOLE: {
-        // reset console
+            // reset console
             const origin = cloneDeep(state);
             origin[action.key] = { log: '', results: [] };
             return origin;
         }
         case editorAction.SET_TAB: {
-        // 设置Tab
+            // 设置Tab
             const obj = cloneDeep(state);
             const map = action.data;
             if (map) {
@@ -35,7 +35,7 @@ const console = (state = {}, action) => {
             return obj;
         }
         case editorAction.APPEND_CONSOLE_LOG: {
-        // 追加日志
+            // 追加日志
             const { key, data } = action;
             const newLog = cloneDeep(state);
             newLog[key].log = newLog[key]
@@ -44,28 +44,28 @@ const console = (state = {}, action) => {
             return newLog;
         }
         case editorAction.SET_CONSOLE_LOG: {
-            const { key, data } = action;
+            const { key } = action;
             const newLog = cloneDeep(state);
             newLog[key].log = action.data;
             newLog[key].showRes = false;
             return newLog;
         }
         case editorAction.UPDATE_RESULTS: {
-        // 更新结果
+            // 更新结果
             const updatedKey = action.key;
             let updated = cloneDeep(state);
-            const update_arr = [...updated[updatedKey].results];
+            const updateArr = [...updated[updatedKey].results];
             if (updated[updatedKey] && action.data) {
-                const lastResult = update_arr[update_arr.length - 1];
+                const lastResult = updateArr[updateArr.length - 1];
                 let index = 1;
                 // 根据最后一个结果的id序号来递增序号
                 if (lastResult) {
                     index = lastResult.id
                         ? lastResult.id + 1
-                        : update_arr.length + 1;
+                        : updateArr.length + 1;
                 }
-                update_arr.push({ ...action.data, id: index });
-                updated[updatedKey].results = update_arr;
+                updateArr.push({ ...action.data, id: index });
+                updated[updatedKey].results = updateArr;
                 updated[updatedKey].showRes = true;
             } else {
                 updated[updatedKey].showRes = false;
@@ -74,7 +74,7 @@ const console = (state = {}, action) => {
             return updated;
         }
         case editorAction.DELETE_RESULT: {
-        // 删除结果
+            // 删除结果
             const key = action.key;
             let index = action.data;
             const origin = cloneDeep(state);
@@ -99,6 +99,7 @@ export const selection = (state = '', action) => {
             } else if (state !== '') {
                 return '';
             }
+            break;
         }
         default:
             return state;
@@ -108,24 +109,29 @@ export const selection = (state = '', action) => {
 /** running**/
 // 运行中的任务
 export const running = (state = [], action) => {
+    let result = [];
     switch (action.type) {
         case editorAction.ADD_LOADING_TAB: {
             const list = cloneDeep(state);
             list.push(action.data.id);
-            return list;
+            result = list;
+            break;
         }
         case editorAction.REMOVE_LOADING_TAB: {
             let list = state.filter(function (value) {
                 return value != action.data.id;
             });
-            return list;
+            result = list;
+            break;
         }
         case editorAction.REMOVE_ALL_LOAING_TAB: {
-            return [];
+            result = [];
+            break;
         }
         default:
             return state;
     }
+    return result;
 };
 /** running**/
 

@@ -5,7 +5,6 @@ import API from '../../api';
 import { CATALOGUE_TYPE } from '../../consts';
 import workbenchAction from '../../consts/workbenchActionType';
 
-import gloablActions from '../index';
 import { resetModal, openTab, updateModal, closeTab, loadCatalogue } from './comm';
 
 /**
@@ -79,8 +78,7 @@ export function onCreateTable (params) {
                     bucketNumber: undefined,
                     infos: []
                 }
-            },
-            currentStep: 0
+            }
         }
         console.log(newCreateTableTabData)
 
@@ -167,8 +165,8 @@ export function handleNextStep () {
 
 export function handleLastStep () {
     return (dispatch, getStore) => {
-        const { workbench } = getStore();
-        const { currentStep } = workbench.mainBench;
+        // const { workbench } = getStore();
+        // const { currentStep } = workbench.mainBench;
 
         return dispatch({
             type: workbenchAction.LAST_STEP
@@ -274,9 +272,9 @@ export function handleSave () {
         if (stopFlag) return;
         else stopFlag = false;
 
-        if (params.type === 1) {
-            params.location = params.location
-        }
+        // if (params.type === 1) {
+        //     params.location = params.location
+        // }
 
         if (params.lifeCycle === -1) {
             params.lifeCycle = params.shortLisyCycle;

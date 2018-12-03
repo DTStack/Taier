@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Icon } from 'antd';
+import { Table, Icon } from 'antd';
 import GoBack from 'main/components/go-back';
 import TableCell from 'widgets/tableCell';
 import DCApi from '../../../api/dataCheck';

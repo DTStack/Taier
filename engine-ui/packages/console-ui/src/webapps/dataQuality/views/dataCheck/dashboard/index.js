@@ -1,7 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Table, Button, Icon, Input, DatePicker, Menu, Dropdown, Select, message, Card, Tooltip } from 'antd';
+import {
+    Table,
+    Button,
+    Icon,
+    Input,
+    DatePicker,
+    Menu,
+    Dropdown,
+    Select,
+    message,
+    Card,
+    Tooltip
+} from 'antd';
 
 import { dataCheckActions } from '../../../actions/dataCheck';
 import { dataSourceActions } from '../../../actions/dataSource';
@@ -17,21 +29,23 @@ const Option = Select.Option;
 
 const mapStateToProps = state => {
     const { dataCheck, dataSource, common } = state;
-    return { dataCheck, dataSource, common }
+    return { dataCheck, dataSource, common };
 };
 
 const mapDispatchToProps = dispatch => ({
-    getLists(params) {
+    getLists (params) {
         dispatch(dataCheckActions.getLists(params));
     },
-    getDataSourcesList(params) {
+    getDataSourcesList (params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
-    },
+    }
 });
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class DataCheck extends Component {
-
+@connect(
+    mapStateToProps,
+    mapDispatchToProps
+)
+class DataCheck extends Component {
     state = {
         params: {
             currentPage: 1,
@@ -41,157 +55,203 @@ export default class DataCheck extends Component {
             executeTime: undefined,
 
             visibleEnvModal: false,
-            selectedRecord: '',
+            selectedRecord: ''
         }
-    }
+    };
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getDataSourcesList();
         this.props.getLists(this.state.params);
     }
 
     // table设置
     initColumns = () => {
-        return [{
-            title: '左侧表',
-            dataIndex: 'originTableName',
-            key: 'originTableName',
-            width: '10%'
-        }, {
-            title: '分区',
-            dataIndex: 'originPartition',
-            key: 'originPartition',
-            width: '10%',
-            render: (text, record) => {
-                return text ? text : '--';
-            }
-        }, {
-            title: '右侧表',
-            dataIndex: 'targetTableName',
-            key: 'targetTableName',
-            width: '10%'
-        }, {
-            title: '分区',
-            dataIndex: 'targetPartition',
-            key: 'targetPartition',
-            width: '10%',
-            render: (text, record) => {
-                return text ? text : '--';
-            }
-        }, {
-            title: '类型',
-            dataIndex: 'sourceTypeName',
-            key: 'sourceTypeName',
-            width: '90px',
-            render: (text, record) => {
-                return text ? text : '--';
-            }
-        }, {
-            title: <span>
-                校验结果
-                <Tooltip
-                    placement="bottom"
-                    overlayClassName="m-tooltip"
-                    title={
-                        <div>
-                            <p>以下条件同时满足计为校验通过：</p>
-                            <p>1、逻辑主键匹配，但数据不匹配=0</p>
-                            <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
-                        </div>
-                    }
-                >
-                    <Icon className="font-12 m-l-8" type="question-circle-o" />
-                </Tooltip>
-            </span>,
-            dataIndex: 'status',
-            key: 'status',
-            width: "125px",
-            render: (text, record) => {
-                return (
-                    text == 3 ?
-                        <span>
-                            <DataCheckStatus style={{ flexBasis: '60%' }} value={text} />
-                            &nbsp;
+        return [
+            {
+                title: '左侧表',
+                dataIndex: 'originTableName',
+                key: 'originTableName',
+                width: '10%'
+            },
+            {
+                title: '分区',
+                dataIndex: 'originPartition',
+                key: 'originPartition',
+                width: '10%',
+                render: (text, record) => {
+                    return text || '--';
+                }
+            },
+            {
+                title: '右侧表',
+                dataIndex: 'targetTableName',
+                key: 'targetTableName',
+                width: '10%'
+            },
+            {
+                title: '分区',
+                dataIndex: 'targetPartition',
+                key: 'targetPartition',
+                width: '10%',
+                render: (text, record) => {
+                    return text || '--';
+                }
+            },
+            {
+                title: '类型',
+                dataIndex: 'sourceTypeName',
+                key: 'sourceTypeName',
+                width: '90px',
+                render: (text, record) => {
+                    return text || '--';
+                }
+            },
+            {
+                title: (
+                    <span>
+                        校验结果
                         <Tooltip
+                            placement="bottom"
+                            overlayClassName="m-tooltip"
+                            title={
+                                <div>
+                                    <p>以下条件同时满足计为校验通过：</p>
+                                    <p>1、逻辑主键匹配，但数据不匹配=0</p>
+                                    <p>{`2、max（左表数据在右表未找到，右表数据在左表未找到）<（右表记录数*记录数差异比例配置）`}</p>
+                                </div>
+                            }
+                        >
+                            <Icon
+                                className="font-12 m-l-8"
+                                type="question-circle-o"
+                            />
+                        </Tooltip>
+                    </span>
+                ),
+                dataIndex: 'status',
+                key: 'status',
+                width: '125px',
+                render: (text, record) => {
+                    return text == 3 ? (
+                        <span>
+                            <DataCheckStatus
+                                style={{ flexBasis: '60%' }}
+                                value={text}
+                            />
+                            &nbsp;
+                            <Tooltip
                                 placement="right"
                                 title={record.report}
-                                overlayClassName="m-tooltip">
-                                <Icon className="font-14" type="info-circle-o" />
+                                overlayClassName="m-tooltip"
+                            >
+                                <Icon
+                                    className="font-14"
+                                    type="info-circle-o"
+                                />
                             </Tooltip>
                         </span>
-                        :
+                    ) : (
                         <DataCheckStatus value={text} />
-                )
-            }
-        }, {
-            title: <div>
-                差异总数
-                <Tooltip
-                    placement="bottom"
-                    overlayClassName="m-tooltip"
-                    title={'差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'}
-                >
-                    <Icon className="font-12 m-l-8" type="question-circle-o" />
-                </Tooltip>
-            </div>,
-            dataIndex: 'diverseNum',
-            key: 'diverseNum',
-            width: '100px',
-            // sorter: true
-        }, {
-            title: <div>
-                差异比例
-                    <Tooltip
-                    placement="bottom"
-                    overlayClassName="m-tooltip"
-                    title={'统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'}
-                >
-                    <Icon className="font-12 m-l-8" type="question-circle-o" />
-                </Tooltip>
-            </div>,
-            dataIndex: 'diverseRatio',
-            key: 'diverseRatio',
-            width: '100px',
-            render: (text => text ? `${text} %` : text)
-            // sorter: true
-        }, {
-            title: '最近修改人',
-            dataIndex: 'modifyUserName',
-            key: 'modifyUserName'
-        }, {
-            title: '执行时间',
-            dataIndex: 'executeTimeFormat',
-            key: 'executeTimeFormat',
-            render: (text, record) => {
-                return text ? text : '--';
-            }
-        }, {
-            title: '操作',
-            width: '100px',
-            render: (text, record) => {
-                let menu = (
-                    <Menu>
-                        {
-                            this.enableCheckReport(record.status) &&
+                    );
+                }
+            },
+            {
+                title: (
+                    <div>
+                        差异总数
+                        <Tooltip
+                            placement="bottom"
+                            overlayClassName="m-tooltip"
+                            title={
+                                '差异总数 = 逻辑主键匹配但数据不匹配 + 左表数据在右表未找到 + 右表数据在左表未找到'
+                            }
+                        >
+                            <Icon
+                                className="font-12 m-l-8"
+                                type="question-circle-o"
+                            />
+                        </Tooltip>
+                    </div>
+                ),
+                dataIndex: 'diverseNum',
+                key: 'diverseNum',
+                width: '100px'
+                // sorter: true
+            },
+            {
+                title: (
+                    <div>
+                        差异比例
+                        <Tooltip
+                            placement="bottom"
+                            overlayClassName="m-tooltip"
+                            title={
+                                '统计左右2表的记录数最大值，统计整体匹配条数，整体匹配条数/记录数最大值为匹配率，差异比例=1-匹配率'
+                            }
+                        >
+                            <Icon
+                                className="font-12 m-l-8"
+                                type="question-circle-o"
+                            />
+                        </Tooltip>
+                    </div>
+                ),
+                dataIndex: 'diverseRatio',
+                key: 'diverseRatio',
+                width: '100px',
+                render: text => (text ? `${text} %` : text)
+                // sorter: true
+            },
+            {
+                title: '最近修改人',
+                dataIndex: 'modifyUserName',
+                key: 'modifyUserName'
+            },
+            {
+                title: '执行时间',
+                dataIndex: 'executeTimeFormat',
+                key: 'executeTimeFormat',
+                render: (text, record) => {
+                    return text || '--';
+                }
+            },
+            {
+                title: '操作',
+                width: '100px',
+                render: (text, record) => {
+                    let menu = (
+                        <Menu>
+                            {this.enableCheckReport(record.status) && (
+                                <Menu.Item>
+                                    <Link
+                                        to={`dq/dataCheck/report/${record.id}`}
+                                    >
+                                        查看报告
+                                    </Link>
+                                </Menu.Item>
+                            )}
                             <Menu.Item>
-                                <Link to={`dq/dataCheck/report/${record.id}`}>查看报告</Link>
+                                <Link
+                                    to={`dq/dataCheck/edit/${record.verifyId}`}
+                                >
+                                    再次运行
+                                </Link>
                             </Menu.Item>
-                        }
-                        <Menu.Item>
-                            <Link to={`dq/dataCheck/edit/${record.verifyId}`}>再次运行</Link>
-                        </Menu.Item>
-                        {
-                            record.dataSourceType === DATA_SOURCE.HIVE &&
-                            <Menu.Item>
-                                <a onClick={() => {
-                                    this.setState({
-                                        selectedRecord: record,
-                                        visibleEnvModal: true,
-                                    })
-                                }}>环境参数</a>
-                            </Menu.Item>
-                        }
-                        {/* <Menu.Item>
+                            {record.dataSourceType === DATA_SOURCE.HIVE && (
+                                <Menu.Item>
+                                    <a
+                                        onClick={() => {
+                                            this.setState({
+                                                selectedRecord: record,
+                                                visibleEnvModal: true
+                                            });
+                                        }}
+                                    >
+                                        环境参数
+                                    </a>
+                                </Menu.Item>
+                            )}
+                            {/* <Menu.Item>
                             <Popconfirm
                                 title="确定删除此校验？"
                                 okText="确定" cancelText="取消"
@@ -200,140 +260,154 @@ export default class DataCheck extends Component {
                                 <a type="danger">删除</a>
                             </Popconfirm>
                         </Menu.Item> */}
-                    </Menu>
-                );
-                return (
-                    <Dropdown overlay={menu} trigger={['click']}>
-                        <Button>操作<Icon type="down" /></Button>
-                    </Dropdown>
-                )
+                        </Menu>
+                    );
+                    return (
+                        <Dropdown overlay={menu} trigger={['click']}>
+                            <Button>
+                                操作
+                                <Icon type="down" />
+                            </Button>
+                        </Dropdown>
+                    );
+                }
             }
-        }];
-    }
+        ];
+    };
 
     // 是否能查看报告
-    enableCheckReport = (status) => {
-        return status === CHECK_STATUS.SUCCESS ||
+    enableCheckReport = status => {
+        return (
+            status === CHECK_STATUS.SUCCESS ||
             status === CHECK_STATUS.PASS ||
             status === CHECK_STATUS.UNPASS ||
-            status === CHECK_STATUS.EXPIRED;
-    }
+            status === CHECK_STATUS.EXPIRED
+        );
+    };
 
     // 删除逐行校验
-    deleteDataCheck = (id) => {
-        DCApi.deleteCheck({ verifyRecordId: id }).then((res) => {
+    deleteDataCheck = id => {
+        DCApi.deleteCheck({ verifyRecordId: id }).then(res => {
             if (res.code === 1) {
-                message.success("删除成功！");
+                message.success('删除成功！');
                 this.props.getLists(this.state.params);
             }
-        })
-    }
+        });
+    };
 
     // 修改任务参数
-    updateEnvParams = (value) => {
+    updateEnvParams = value => {
         if (!value) {
             message.error('环境参数为空！');
             return;
         }
         const { selectedRecord } = this.state;
 
-        DCApi.updateTaskParams({ verifyId: selectedRecord.verifyId, taskParams: value, }).then((res) => {
+        DCApi.updateTaskParams({
+            verifyId: selectedRecord.verifyId,
+            taskParams: value
+        }).then(res => {
             if (res.code === 1) {
                 message.success('修改环境参数成功');
                 this.setState({
                     visibleEnvModal: false,
-                    selectedRecord: '',
+                    selectedRecord: ''
                 });
                 this.props.getLists(this.state.params);
             }
         });
-    }
+    };
 
     // 表格回调
     onTableChange = (page, filter, sorter) => {
         let params = {
             ...this.state.params,
-            currentPage: page.current,
+            currentPage: page.current
             // sortBy: sorter.columnKey ? sorter.columnKey : '',
             // orderBy: sorter.columnKey ? (sorter.order == 'ascend' ? '01' : '02') : ''
-        }
+        };
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // 数据源下拉框
-    renderUserSource = (data) => {
-        return data.map((source) => {
+    renderUserSource = data => {
+        return data.map(source => {
             let title = `${source.dataName}（${source.sourceTypeValue}）`;
 
-            return <Option
-                key={source.id}
-                value={source.id.toString()}
-                title={title}>
-                {title}
-            </Option>
+            return (
+                <Option
+                    key={source.id}
+                    value={source.id.toString()}
+                    title={title}
+                >
+                    {title}
+                </Option>
+            );
         });
-    }
+    };
 
     // 数据源筛选
-    onUserSourceChange = (id) => {
+    onUserSourceChange = id => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            dataSourceId: id ? id : undefined
+            dataSourceId: id || undefined
         };
 
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // 校验状态下拉框
-    renderCheckStatus = (data) => {
-        return data.map((item) => {
-            return <Option
-                key={item.value}
-                value={item.value}
-                title={item.text}>
-                {item.text}
-            </Option>
+    renderCheckStatus = data => {
+        return data.map(item => {
+            return (
+                <Option key={item.value} value={item.value} title={item.text}>
+                    {item.text}
+                </Option>
+            );
         });
-    }
+    };
 
     // 校验状态筛选
-    onCheckStatusChange = (status) => {
+    onCheckStatusChange = status => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            status: status ? status : undefined
+            status: status || undefined
         };
 
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // user的select选项
-    renderUserList = (data) => {
-        return data.map((item) => {
-            return <Option
-                key={item.id}
-                value={item.id.toString()}
-                name={item.userName}>
-                {item.userName}
-            </Option>
+    renderUserList = data => {
+        return data.map(item => {
+            return (
+                <Option
+                    key={item.id}
+                    value={item.id.toString()}
+                    name={item.userName}
+                >
+                    {item.userName}
+                </Option>
+            );
         });
-    }
+    };
 
     // 监听userList的select
-    onUserChange = (value) => {
+    onUserChange = value => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            lastModifyUserId: value ? value : undefined
+            lastModifyUserId: value || undefined
         };
 
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // 执行时间改变
     onDateChange = (date, dateString) => {
@@ -345,26 +419,26 @@ export default class DataCheck extends Component {
 
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // table搜索
-    onTableSearch = (name) => {
+    onTableSearch = name => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            tableName: name ? name : undefined
+            tableName: name || undefined
         };
 
         this.props.getLists(params);
         this.setState({ params });
-    }
+    };
 
     // 时间不能超过当天
-    disabledDate = (current) => {
+    disabledDate = current => {
         return current && current.valueOf() > Date.now();
-    }
+    };
 
-    render() {
+    render () {
         const { dataCheck, dataSource, common } = this.props;
         const { userList } = common;
         const { sourceList } = dataSource;
@@ -375,7 +449,7 @@ export default class DataCheck extends Component {
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: lists.totalCount,
+            total: lists.totalCount
         };
 
         const cardTitle = (
@@ -394,10 +468,9 @@ export default class DataCheck extends Component {
                         style={{ width: 150 }}
                         optionFilterProp="title"
                         placeholder="选择数据源类型"
-                        onChange={this.onUserSourceChange}>
-                        {
-                            this.renderUserSource(sourceList)
-                        }
+                        onChange={this.onUserSourceChange}
+                    >
+                        {this.renderUserSource(sourceList)}
                     </Select>
                 </div>
 
@@ -407,10 +480,9 @@ export default class DataCheck extends Component {
                         allowClear
                         style={{ width: 150 }}
                         placeholder="选择校验结果"
-                        onChange={this.onCheckStatusChange}>
-                        {
-                            this.renderCheckStatus(CHECK_STATUS_CN)
-                        }
+                        onChange={this.onCheckStatusChange}
+                    >
+                        {this.renderCheckStatus(CHECK_STATUS_CN)}
                     </Select>
                 </div>
 
@@ -422,10 +494,9 @@ export default class DataCheck extends Component {
                         style={{ width: 150 }}
                         optionFilterProp="name"
                         placeholder="选择最近修改人"
-                        onChange={this.onUserChange}>
-                        {
-                            this.renderUserList(userList)
-                        }
+                        onChange={this.onUserChange}
+                    >
+                        {this.renderUserList(userList)}
                     </Select>
                 </div>
 
@@ -441,7 +512,11 @@ export default class DataCheck extends Component {
                 </div>
                 <div className="m-l-8">
                     <Tooltip title="刷新数据">
-                        <Icon type="sync" onClick={() => { this.props.getLists(params); }}
+                        <Icon
+                            type="sync"
+                            onClick={() => {
+                                this.props.getLists(params);
+                            }}
                             style={{
                                 cursor: 'pointer',
                                 marginTop: '18px',
@@ -451,21 +526,17 @@ export default class DataCheck extends Component {
                     </Tooltip>
                 </div>
             </div>
-        )
+        );
 
         const cardExtra = (
             <Button type="primary" style={{ margin: '10px 0' }}>
-                <Link to="/dq/dataCheck/add">
-                    新建逐行校验
-                </Link>
+                <Link to="/dq/dataCheck/add">新建逐行校验</Link>
             </Button>
-        )
+        );
 
         return (
             <div className="check-dashboard">
-                <h1 className="box-title">
-                    逐行校验
-                </h1>
+                <h1 className="box-title">逐行校验</h1>
 
                 <div className="box-2 m-card shadow">
                     <Card
@@ -489,17 +560,16 @@ export default class DataCheck extends Component {
                     key="ruleConfigEnvModal"
                     title="配置环境参数"
                     visible={visibleEnvModal}
-                    onCancel={
-                        () => this.setState({
-                            visibleEnvModal: false,
+                    onCancel={() =>
+                        this.setState({
+                            visibleEnvModal: false
                         })
                     }
                     value={selectedRecord && selectedRecord.taskParams}
                     onOk={this.updateEnvParams}
                 />
             </div>
-        )
+        );
     }
 }
-
-
+export default DataCheck;

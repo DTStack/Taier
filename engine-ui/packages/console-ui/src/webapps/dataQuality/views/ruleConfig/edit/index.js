@@ -14,7 +14,7 @@ export default class RuleConfigEdit extends Component {
         editParams: {
             dataSourceId: undefined,
             tableName: undefined,
-            partition: 'column=${sys.recentPart}',
+            partition: 'column=${' + 'sys.recentPart}',
             isSubscribe: 1,
             scheduleConf: '',
             sendTypes: [],

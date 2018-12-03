@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import utils from 'utils'
+// import utils from 'utils'
 import { dqApp } from 'config/base'
 
 import Header from './layout/header'
 import Dashboard from '../views/dashboard'
 
-import { currentApp } from '../consts'
+// import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
 import { dataSourceActions } from '../actions/dataSource'
 import { commonActions } from '../actions/common'
