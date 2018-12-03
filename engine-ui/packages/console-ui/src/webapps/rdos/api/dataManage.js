@@ -1,5 +1,6 @@
 import http from './http'
 import dataManageReq from './reqDataManage';
+import req from './req';
 
 export default {
 

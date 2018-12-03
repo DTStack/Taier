@@ -1,5 +1,3 @@
-import { combineReducers } from 'redux';
-
 import { modalAction } from './actionTypes'
 
 export const updateModal = (value) => {

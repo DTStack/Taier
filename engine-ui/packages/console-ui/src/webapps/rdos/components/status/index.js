@@ -321,9 +321,11 @@ export function AlarmTypes (props) {
                     arr.push('短信')
                     break;
                 case 3:
-                    arr.push('微信')
+                    arr.push('微信');
+                    break;
                 case 4:
-                    arr.push('钉钉')
+                    arr.push('钉钉');
+                    break;
                 default:
                     break;
             }

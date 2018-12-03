@@ -1,4 +1,3 @@
-import localDb from 'utils/localDb'
 import { taskFlowAction, graphAction } from './actionTypes'
 
 // Actions

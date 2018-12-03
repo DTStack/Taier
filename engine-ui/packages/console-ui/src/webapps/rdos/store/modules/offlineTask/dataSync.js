@@ -316,9 +316,7 @@ const targetMap = (state = {}, action) => {
 
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
-                sourceId, preSql, src,
-                table, postSql, writeMode,
-                rowkey
+                sourceId, src, rowkey
             } = action.payload;
             const clone = cloneDeep(state);
 
@@ -477,8 +475,8 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const { source, target } = clone;
             const mapSource = map.source;
             const mapTarget = map.target;
-            const newSource = source.filter(key_obj => !isFieldMatch(key_obj, mapSource));
-            const newTarget = target.filter(key_obj => !isFieldMatch(key_obj, mapTarget));
+            const newSource = source.filter(keyObj => !isFieldMatch(keyObj, mapSource));
+            const newTarget = target.filter(keyObj => !isFieldMatch(keyObj, mapTarget));
 
             clone.source = newSource;
             clone.target = newTarget;

@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
-import assign from 'object-assign';
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { tableAction, logAction, cataloguesAction } from './actionType';
 
 // move up/down
+/* eslint-disable */
 Array.prototype.__move = function (from, to) {
     this.splice(to, 0, this.splice(from, 1)[0]);
     return this;
@@ -189,3 +189,4 @@ const dataCatalogues = (state = {
 export const dataManageReducer = combineReducers({
     tableManage, log, dataCatalogues
 });
+/* eslint-disable */

@@ -163,11 +163,11 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         }
     }
     if (utils.checkExist(task.taskType)) { // 任务执行
-        params.taskId = task.id,
-        API.execSQLImmediately(params).then(succCall)
+        params.taskId = task.id;
+        API.execSQLImmediately(params).then(succCall);
     } else if (utils.checkExist(task.type)) { // 脚本执行
-        params.scriptId = task.id,
-        API.execScript(params).then(succCall)
+        params.scriptId = task.id;
+        API.execScript(params).then(succCall);
     }
 }
 
@@ -206,19 +206,6 @@ export function stopSql (currentTab, currentTabData, isSilent) {
              * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
              */
             return;
-            if (res.code === 1) {
-                dispatch(output(currentTab, '执行停止'))
-                // 消除轮询定时器
-                if (intervalsStore[currentTab]) {
-                    clearTimeout(intervalsStore[currentTab])
-                    intervalsStore[currentTab] = null;
-                }
-                stopSign[currentTab] = true;
-                dispatch(removeLoadingTab(currentTab))
-                message.success('停止执行成功！')
-            } else {
-                message.success('停止执行失败！')
-            }
         }
 
         if (utils.checkExist(currentTabData.taskType)) { // 任务执行

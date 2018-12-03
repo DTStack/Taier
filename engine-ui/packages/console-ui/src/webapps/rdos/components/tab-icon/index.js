@@ -72,7 +72,7 @@ export default class TabIcon extends Component {
                     break;
                 }
                 default:
-                    '';
+                    return '';
             }
         } else {
             switch (type) {
@@ -93,7 +93,7 @@ export default class TabIcon extends Component {
                     break;
                 }
                 default:
-                    '';
+                    return '';
             }
         }
 

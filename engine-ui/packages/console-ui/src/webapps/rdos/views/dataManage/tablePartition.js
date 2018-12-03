@@ -19,12 +19,12 @@ export default class TablePartition extends React.Component {
 
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
-        const { table: old_table } = this.props;
+        const { table: oldTable } = this.props;
         const { table } = nextProps;
         if (
             table &&
             table.id &&
-            (!old_table || old_table.id != table.id)
+            (!oldTable || oldTable.id != table.id)
         ) {
             this.loadPartition();
         }

@@ -458,7 +458,7 @@ export const workbenchActions = (dispatch) => {
                             okType: 'danger',
                             cancelText: '取消',
                             onOk () {
-                                ajax.forceUpdateOfflineTask(params).then(updateTabData)
+                                ajax.forceUpdateOfflineTask(task).then(updateTabData)
                             }
                         });
                         // 如果同步状态，则提示会覆盖代码，
@@ -602,7 +602,7 @@ export const workbenchActions = (dispatch) => {
         },
 
         openTab: function (data) {
-            const { id, tabs, currentTab, treeType, lockInfo } = data
+            const { id, tabs, currentTab, treeType } = data
             const isExist = tabs && tabs.find(tab => tab.id === id);
             if (!isExist) {
                 const succCallBack = (res) => {

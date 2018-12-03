@@ -4,8 +4,6 @@ import ProgressBar from 'widgets/progress-bar';
 import { singletonNotification } from 'funcs';
 import { authAfterFormated, authBeforeFormate } from '../interceptor';
 
-const FETCH_TIME_OUT = 5000;
-
 class Http {
 /* eslint-disable */
     get(url, params) { // GET请求

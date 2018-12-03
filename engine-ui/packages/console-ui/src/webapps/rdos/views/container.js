@@ -44,6 +44,7 @@ class Container extends Component {
         }
     }
 
+    // eslint-disable-next-line
     componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {

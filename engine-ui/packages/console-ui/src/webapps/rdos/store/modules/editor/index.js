@@ -38,7 +38,7 @@ const console = (state = {}, action) => {
             return newLog
         }
         case editorAction.SET_CONSOLE_LOG: {
-            const { key, data } = action
+            const { key } = action
             const newLog = cloneDeep(state)
             newLog[key].log = action.data
             newLog[key].showRes = false
@@ -46,18 +46,17 @@ const console = (state = {}, action) => {
         }
         case editorAction.UPDATE_RESULTS: { // 更新结果
             const updatedKey = action.key
-            const jobId = action.jobId;
             let updated = cloneDeep(state);
-            const update_arr = [...updated[updatedKey].results]
+            const updateArr = [...updated[updatedKey].results]
             if (updated[updatedKey] && action.data) {
-                const lastResult = update_arr[update_arr.length - 1];
+                const lastResult = updateArr[updateArr.length - 1];
                 let index = 1;
                 // 根据最后一个结果的id序号来递增序号
                 if (lastResult) {
-                    index = lastResult.id ? (lastResult.id + 1) : (update_arr.length + 1)
+                    index = lastResult.id ? (lastResult.id + 1) : (updateArr.length + 1)
                 }
-                update_arr.push({ ...action.data, id: index })
-                updated[updatedKey].results = update_arr
+                updateArr.push({ ...action.data, id: index })
+                updated[updatedKey].results = updateArr
                 updated[updatedKey].showRes = true
             } else {
                 updated[updatedKey].showRes = false
@@ -90,6 +89,7 @@ export const selection = (state = '', action) => {
             } else if (state !== '') {
                 return '';
             }
+            break;
         }
         default:
             return state

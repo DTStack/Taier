@@ -89,14 +89,13 @@ class DataSync extends React.Component {
             if (!dataSyncSaved) {
                 if (res.data) {
                     const { sourceMap } = res.data;
-                    sourceMap.sourceList ? (sourceMap.sourceList = sourceMap.sourceList.map(
-                        function (source, index) {
-                            return {
-                                ...source,
-                                key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)
-                            }
+                    const loop = (source, index) => {
+                        return {
+                            ...source,
+                            key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)
                         }
-                    )) : null;
+                    }
+                    sourceMap.sourceList ? (sourceMap.sourceList = sourceMap.sourceList.map(loop)) : null;
                 }
                 this.props.initJobData(res.data);
             } else {

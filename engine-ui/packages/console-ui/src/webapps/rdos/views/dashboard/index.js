@@ -89,8 +89,8 @@ class Index extends Component {
                     }
                 }
                 this.setState({
-                    projectListInfo: res.data && res.data.data || [],
-                    totalSize: res.data && res.data.totalCount || 0,
+                    projectListInfo: res.data && (res.data.data || []),
+                    totalSize: res.data && (res.data.totalCount || 0),
                     projectListParams: queryParsms,
                     loading: false
                 })
@@ -104,7 +104,6 @@ class Index extends Component {
 
     // 选择测试或生产项目搜索
     changeProjectType (value) {
-        const { projectListParams } = this.state;
         this.setState({
             projectListParams: {
                 projectType: value,
@@ -256,7 +255,7 @@ class Index extends Component {
     }
 
     render () {
-        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading, offlineSrc, realtimeSrc } = this.state;
+        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>

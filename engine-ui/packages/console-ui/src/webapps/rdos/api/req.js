@@ -110,8 +110,6 @@ export default {
     GET_REALTIME_FUNCTION: `${RDOS_BASE_URL}/stream/streamFunction/pageQuery`,
     GET_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batch/batchResource/pageQuery`, // 资源分页
     GET_REALTIME_RESOURCE: `${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
-    GET_OFFLINE_RESOURCE: `${RDOS_BASE_URL}/batch/batchResource/pageQuery`, // 资源分页
-    GET_REALTIME_RESOURCE: `${RDOS_BASE_URL}/stream/streamResource/pageQuery`,
     GET_OFFLINE_TASKS: `${RDOS_BASE_URL}/batch/batchTaskShade/pageQuery`, // 已提交任务分页查询
     GET_REALTIME_TASKS: `${RDOS_BASE_URL}/stream/streamTaskShade/pageQuery`,
     GET_OFFLINE_LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getDataSourceInBingProject`, // 获取当前项目关联的项目下的数据源列表

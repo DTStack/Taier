@@ -1,9 +1,8 @@
-import { combineReducers } from 'redux';
 import { cloneDeep } from 'lodash';
 
 import { store } from '../../index';
 import { setCurrentPage } from './browser';
-import { collect_type, CAT_TYPE } from '../../../comm/const'
+import { COLLECT_TYPE, CAT_TYPE } from '../../../comm/const'
 import ajax from '../../../api'
 
 export const dataKey = 'ide_collection'
@@ -13,7 +12,7 @@ const initState = {
     sourceMap: {
         table: [],
         sourceId: undefined,
-        collectType: collect_type.ALL,
+        collectType: COLLECT_TYPE.ALL,
         cat: [CAT_TYPE.INSERT, CAT_TYPE.UPDATE, CAT_TYPE.DELETE]
     },
     targetMap: {
@@ -83,11 +82,11 @@ export const actions = {
             }).then((res) => {
                 if (res.data) {
                     if (res.data.sourceMap.journalName) {
-                        res.data.sourceMap.collectType = collect_type.FILE;
+                        res.data.sourceMap.collectType = COLLECT_TYPE.FILE;
                     } else if (res.data.sourceMap.timestamp) {
-                        res.data.sourceMap.collectType = collect_type.TIME;
+                        res.data.sourceMap.collectType = COLLECT_TYPE.TIME;
                     } else {
-                        res.data.sourceMap.collectType = collect_type.ALL;
+                        res.data.sourceMap.collectType = COLLECT_TYPE.ALL;
                     }
                     dispatch(actions.updateSourceMap(res.data.sourceMap, false, true));
                     dispatch(actions.updateTargetMap(res.data.targetMap, false, true));

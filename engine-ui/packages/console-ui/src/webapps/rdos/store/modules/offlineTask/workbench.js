@@ -1,5 +1,5 @@
 import assign from 'object-assign';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import localDb from 'utils/localDb';
 import { message } from 'antd';
 
@@ -105,10 +105,10 @@ export const workbenchReducer = (state = getCachedData(), action) => {
             newConf.endDate = newConf.endDate && newConf.endDate.format
                 ? newConf.endDate.format('YYYY-MM-DD') : newConf.endDate;
 
-            if (newConf.weekDay && _.isArray(newConf.weekDay)) {
+            if (newConf.weekDay && isArray(newConf.weekDay)) {
                 newConf.weekDay = newConf.weekDay.join(',');
             }
-            if (newConf.day && _.isArray(newConf.day)) {
+            if (newConf.day && isArray(newConf.day)) {
                 newConf.day = newConf.day.join(',');
             }
 

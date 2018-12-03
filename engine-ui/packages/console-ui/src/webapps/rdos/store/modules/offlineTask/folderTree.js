@@ -10,7 +10,7 @@ import {
     tableTreeAction
 } from './actionType';
 
-import { replaceTreeNode, mergeTreeNodes } from 'funcs'
+import { replaceTreeNode } from 'funcs'
 
 /**
  * @description 加载文件夹内容
@@ -148,6 +148,7 @@ export const taskTreeReducer = (state = {}, action) => {
         case taskTreeAction.MERGE_FOLDER_CONTENT: {
             const origin = action.payload;
             if (origin) return origin;
+            break;
         }
         default:
             return state;
@@ -272,6 +273,7 @@ export const scriptTreeReducer = (state = {}, action) => {
         case scriptTreeAction.MERGE_FOLDER_CONTENT: {
             const origin = action.payload;
             if (origin) return origin;
+            break;
         }
 
         default:

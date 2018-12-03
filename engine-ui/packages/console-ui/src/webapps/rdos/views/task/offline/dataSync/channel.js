@@ -191,6 +191,7 @@ class ChannelForm extends React.Component {
     }
 
     prev (cb) {
+        // eslint-disable-next-line
         cb.call(null, 2);
     }
 
@@ -198,6 +199,7 @@ class ChannelForm extends React.Component {
         const { form } = this.props;
         form.validateFields((err, values) => {
             if (!err) {
+                // eslint-disable-next-line
                 cb.call(null, 4);
             }
         });

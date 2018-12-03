@@ -1,6 +1,4 @@
 import { combineReducers } from 'redux';
-import assign from 'object-assign';
-import { cloneDeep, isEqual } from 'lodash';
 import { dataModelActions } from './actionTypes';
 
 const subjectFields = function (state = [], action) {
