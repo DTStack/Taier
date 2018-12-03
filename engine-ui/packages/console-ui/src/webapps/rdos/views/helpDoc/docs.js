@@ -1,6 +1,7 @@
 // 帮助文档
 import React from 'react'
 import { HELP_DOC_URL } from '../../comm/const'
+/* eslint-disable */
 
 export const dataFilterDoc = (
     <div>
@@ -212,3 +213,5 @@ export const dateTimeFormat = (
         修改Date类型的格式
     </span>
 )
+/* eslint-disable */
+
