@@ -1,16 +1,13 @@
 import React, { Component } from 'react'
-import { isArray, isNumber, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
-    Form, Input, Icon, Select,
-    Radio, Modal
+    Form, Input,
+    Modal
 } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
-import LifeCycle from '../../dataManage/lifeCycle'
 
 const FormItem = Form.Item
-const RadioGroup = Radio.Group
-const Option = Select.Option;
 
 class IncrementDefineModal extends Component {
     state = { }

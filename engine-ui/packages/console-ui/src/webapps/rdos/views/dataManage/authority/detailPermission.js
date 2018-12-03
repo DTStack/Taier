@@ -3,7 +3,6 @@ import { Form, Input, Modal, Button, Checkbox, Pagination, Icon, Tooltip } from 
 
 import ajax from '../../../api/dataManage';
 
-import { formItemLayout } from '../../../comm/const'
 import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item;
@@ -39,7 +38,8 @@ class DetailPermission extends Component {
         return true
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const table = nextProps.table[0];
         if (this.props.table != nextProps.table) {
             this.setState({
@@ -213,10 +213,8 @@ class DetailPermission extends Component {
                 width="750px"
                 footer={
                     this.props.listType == 0 ? [
-                        <Button size="large" onClick={this.cancle}>取消</Button>,
-                        <Button type="primary" size="large" onClick={this.submit}>
-                          确定
-                        </Button>
+                        <Button key="permissionCancel" size="large" onClick={this.cancle}>取消</Button>,
+                        <Button key="permissionSubmit" type="primary" size="large" onClick={this.submit}>确定</Button>
                     ] : <Button type="primary" size="large" onClick={this.cancle}>关闭</Button>
                 }
             >
@@ -229,7 +227,7 @@ class DetailPermission extends Component {
                         {getFieldDecorator('tableName', {
                             rules: []
                         })(
-                            <span style={{ marginRight: '10px' }}>{ this.handleResource('resourceName') }</span>
+                            <span style={{ marginRight: '10px' }}>{this.handleResource('resourceName')}</span>
 
                         )}
                         <Checkbox disabled checked={permissionParams.ischeckAll}>All</Checkbox>
@@ -262,7 +260,7 @@ class DetailPermission extends Component {
                         style={{ background: '#FAFAFA' }}
                     >
                         <Checkbox disabled checked={permissionParams.idCheckIds}>All(包括新增字段)</Checkbox>
-                        <Tooltip title= {(
+                        <Tooltip title={(
                             <div>
                                 <p>字段权限包括对字段进行select。</p>
                                 <p>若勾选了All，如果表中有增加的字段，则此用户自动拥有此字段的权限；</p>
@@ -317,7 +315,7 @@ class DetailPermission extends Component {
                             label={'申请理由'}
                             hasFeedback
                         >
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }}/>,
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />,
                         </FormItem> : ''
                     }
                     {/* 已处理  权限回收 */}
@@ -327,12 +325,12 @@ class DetailPermission extends Component {
                             label={'审批意见'}
                             hasFeedback
                         >
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }}/>,
+                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }} />,
                         </FormItem> : ''
                     }
 
                     {/* 待我审批 */}
-                    { this.props.listType == 0 ? <FormItem
+                    {this.props.listType == 0 ? <FormItem
                         {...formItemLayout1}
                         label={agreeApply ? '请输入审批意见' : '请输入驳回原因'}
                         hasFeedback

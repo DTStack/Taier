@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { hashHistory } from 'react-router';
 
-import moment from 'moment';
 import { cloneDeep } from 'lodash';
 import {
     Row, Col, Card
@@ -14,8 +13,7 @@ import Resize from 'widgets/resize';
 import Api from '../../api/dataModel';
 import {
     lineAreaChartOptions,
-    pieChartOptions,
-    defaultBarOption
+    pieChartOptions
 } from '../../comm/const';
 
 // 引入 ECharts 主模块
@@ -44,7 +42,8 @@ class Overview extends Component {
         this.statisticColumnTrend();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {

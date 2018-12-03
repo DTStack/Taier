@@ -17,7 +17,8 @@ const defaultPro = {
 }
 
 class Container extends Component {
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.project && nextProps.project !== this.props.project) {
             // if(window.location.pathname !== '/data-manage/table') {
             //     this.props.router.push('/data-manage/table')

@@ -8,10 +8,6 @@ import {
 import api from '../../../api/dataManage';
 import ajax from '../../../api/dataModel';
 
-import {
-    tableModelRules
-} from '../../../comm/const';
-
 import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
 
@@ -49,10 +45,12 @@ class TableCreator extends React.Component {
         };
 
         // move up/down
+        /* eslint-disable */
         Array.prototype.__move = function (from, to) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
+        /* eslint-enable */
     }
 
     componentDidMount () {
@@ -143,7 +141,7 @@ class TableCreator extends React.Component {
 
     next () {
         const { current, table } = this.state;
-        const { partition_keys, columns } = table;
+        const { partition_keys, columns } = table;// eslint-disable-line
 
         if (current === 0) {
             this.baseForm.validateFields((err, values) => {
@@ -167,10 +165,10 @@ class TableCreator extends React.Component {
     }
 
     doCreate () {
-        const { table, current, tableNameRules } = this.state;
-        let { columns, partition_keys } = table;
+        const { table, current } = this.state;
+        let { columns, partition_keys } = table;// eslint-disable-line camelcase
         columns = this.reduceRowData(columns);
-        partition_keys = this.reduceRowData(partition_keys);
+        partition_keys = this.reduceRowData(partition_keys);// eslint-disable-line camelcase
 
         if (partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
@@ -208,14 +206,14 @@ class TableCreator extends React.Component {
      */
     addRow (data, type) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let { columns, partition_keys } = table; // eslint-disable-line camelcase
 
         if (type === 1) {
             columns.push(data);
             table.columns = columns;
         } else if (type === 2) {
             partition_keys.push(data);
-            table.partition_keys = partition_keys;
+            table.partition_keys = partition_keys; // eslint-disable-line camelcase
         }
 
         this.setState({
@@ -231,7 +229,7 @@ class TableCreator extends React.Component {
      */
     delRow (uuid, type) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let { columns, partition_keys } = table; // eslint-disable-line camelcase
 
         if (type === 1) {
             columns = columns.filter(col => {
@@ -239,10 +237,11 @@ class TableCreator extends React.Component {
             });
             table.columns = columns;
         } else if (type === 2) {
+            // eslint-disable-next-line camelcase
             partition_keys = partition_keys.filter(col => {
                 return col.uuid !== uuid
             });
-            table.partition_keys = partition_keys;
+            table.partition_keys = partition_keys; // eslint-disable-line camelcase
         }
 
         this.setState({
@@ -258,7 +257,7 @@ class TableCreator extends React.Component {
      */
     replaceRow (newCol, type) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let { columns, partition_keys } = table; // eslint-disable-line camelcase
         const { uuid } = newCol;
 
         if (type === 1) {
@@ -268,11 +267,12 @@ class TableCreator extends React.Component {
             });
             table.columns = columns;
         } else if (type === 2) {
+            // eslint-disable-next-line camelcase
             partition_keys = partition_keys.map(col => {
                 if (col.uuid === uuid) return newCol;
                 else return col;
             });
-            table.partition_keys = partition_keys;
+            table.partition_keys = partition_keys; // eslint-disable-line camelcase
         }
 
         this.setState({
@@ -289,7 +289,7 @@ class TableCreator extends React.Component {
      */
     moveRow (uuid, type, isUp) {
         let { table } = this.state;
-        let { columns, partition_keys } = table;
+        let { columns, partition_keys } = table; // eslint-disable-line camelcase
         let from;
 
         if (type === 1) {

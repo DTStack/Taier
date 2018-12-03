@@ -1,6 +1,6 @@
 import React from 'react';
 import { cloneDeep } from 'lodash';
-import { Card, message } from 'antd';
+import { message } from 'antd';
 import { hashHistory } from 'react-router'
 
 import API from '../../api/dataManage';

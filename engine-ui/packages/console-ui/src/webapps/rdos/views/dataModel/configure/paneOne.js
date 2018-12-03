@@ -1,40 +1,36 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm,
+    Table, Card,
+    Button, Popconfirm
 } from 'antd';
 
 import utils from 'utils';
 
-import Api from '../../../api/dataModel';
 import ModelLevelModal from './paneOneModal';
 import BasePane from './basePane';
-
-const Option = Select.Option;
-const FormItem = Form.Item;
 
 @connect((state) => {
     return {
         project: state.project
     }
 })
-export default class ModelLevel extends BasePane {
-
-    constructor(props) {
+class ModelLevel extends BasePane {
+    constructor (props) {
         super(props);
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.setState({
-            params: Object.assign(this.state.params, { 
-                type: 1, // 模型层级
-            }),
+            params: Object.assign(this.state.params, {
+                type: 1 // 模型层级
+            })
         }, this.loadData)
     }
-    
-    componentWillReceiveProps(nextProps){
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -46,37 +42,37 @@ export default class ModelLevel extends BasePane {
         return [{
             title: '层级编号',
             dataIndex: 'id',
-            key: 'id',
+            key: 'id'
         }, {
             title: '层级名称',
             dataIndex: 'name',
-            key: 'name',
+            key: 'name'
         }, {
             title: '层级说明',
             dataIndex: 'modelDesc',
-            key: 'modelDesc',
+            key: 'modelDesc'
         }, {
             title: '层级前缀',
             dataIndex: 'prefix',
-            key: 'prefix',
+            key: 'prefix'
         }, {
             title: '生命周期',
             dataIndex: 'lifeDay',
-            key: 'lifeDay',
+            key: 'lifeDay'
         }, {
             title: '是否记入层级依赖',
             dataIndex: 'depend',
             key: 'depend',
-            render: depend => depend === 1 ? '是' : '否',
+            render: depend => depend === 1 ? '是' : '否'
         }, {
             title: '最近修改人',
             dataIndex: 'userName',
-            key: 'userName',
+            key: 'userName'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => utils.formatDateTime(text),
+            render: text => utils.formatDateTime(text)
         }, {
             title: '操作',
             key: 'operation',
@@ -85,8 +81,8 @@ export default class ModelLevel extends BasePane {
                     <div key={record.id}>
                         <a onClick={() => { this.initEdit(record) }}>编辑</a>
                         <span className="ant-divider" />
-                        <Popconfirm 
-                            title="确定删除此条记录吗?" 
+                        <Popconfirm
+                            title="确定删除此条记录吗?"
                             onConfirm={() => { this.delete(record) }}
                             okText="是" cancelText="否"
                         >
@@ -94,17 +90,16 @@ export default class ModelLevel extends BasePane {
                         </Popconfirm>
                     </div>
                 )
-            },
+            }
         }]
     }
 
-    render() {
-
+    render () {
         const { loading, table, modalVisible, modalData } = this.state
 
         const pagination = {
             total: table.totalCount,
-            defaultPageSize: 10,
+            defaultPageSize: 10
         };
 
         return (
@@ -124,26 +119,27 @@ export default class ModelLevel extends BasePane {
                         </Button>
                     }
                 >
-                        <Table
-                            rowKey="id"
-                            className="m-table"
-                            style={{marginTop: '1px'}}
-                            pagination={pagination}
-                            loading={loading}
-                            columns={this.initColumns()}
-                            onChange={this.handleTableChange}
-                            dataSource={table.data || []}
-                        />
+                    <Table
+                        rowKey="id"
+                        className="m-table"
+                        style={{ marginTop: '1px' }}
+                        pagination={pagination}
+                        loading={loading}
+                        columns={this.initColumns()}
+                        onChange={this.handleTableChange}
+                        dataSource={table.data || []}
+                    />
                 </Card>
-                <ModelLevelModal 
+                <ModelLevelModal
                     key={`modelLevel-${modalData.id}`}
-                    data={ modalData }
-                    handOk={ this.update }
-                    handCancel={ () => this.setState({ modalVisible: false })}
-                    visible={ modalVisible }
+                    data={modalData}
+                    handOk={this.update}
+                    handCancel={() => this.setState({ modalVisible: false })}
+                    visible={modalVisible}
                 />
             </div>
         )
     }
-
 }
+
+export default ModelLevel;

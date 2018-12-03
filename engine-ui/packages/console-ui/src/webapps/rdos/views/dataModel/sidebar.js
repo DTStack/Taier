@@ -15,9 +15,10 @@ export default class Sidebar extends Component {
         this.updateSelected()
     }
 
-    componentWillReceiveProps (nextProps) {
-        const { project_obj = {}, user } = nextProps;
-        const { project_obj_old = {}, user_old } = this.props;
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
+        const { project_obj = {}, user } = nextProps; // eslint-disable-line camelcase
+        const { project_obj_old = {} } = this.props; // eslint-disable-line camelcase
         if (project_obj_old.id != project_obj.id) {
             const couldEdit = isProjectCouldEdit(project_obj, user);
             if (!couldEdit) {
@@ -61,7 +62,7 @@ export default class Sidebar extends Component {
 
     render () {
         const props = this.props
-        const { project_obj, user } = props;
+        const { project_obj, user } = props; // eslint-disable-line camelcase
         const couldEdit = isProjectCouldEdit(project_obj, user);
         const base = `/data-model`
         return (

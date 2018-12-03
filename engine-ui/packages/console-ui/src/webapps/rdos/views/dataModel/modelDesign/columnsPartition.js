@@ -36,7 +36,7 @@ export default class ColumnsPartition extends React.Component {
     }
 
     render () {
-        const { columns, partition_keys, isEdit, columnFileds } = this.props;
+        const { columns, partition_keys, isEdit, columnFileds } = this.props;// eslint-disable-line
 
         return <div className="m-columnspartition">
             <div className="columns box">

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Form, Input, Modal, InputNumber, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
-import { formItemLayout } from '../../../comm/const'
 import ajax from '../../../api/dataManage';
 
 import '../../../styles/pages/dataManage.scss';
@@ -38,7 +37,8 @@ class TableApply extends Component {
         currentPage: 1
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         // const table = nextProps.table;
         if (this.props.table != nextProps.table && nextProps.table) {
             this.setState({

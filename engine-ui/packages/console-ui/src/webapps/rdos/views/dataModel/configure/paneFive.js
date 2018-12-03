@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Icon
+    Select, Form, Card,
+    Button, message
 } from 'antd';
-
-import utils from 'utils';
 
 import {
     formItemLayout,
@@ -38,7 +36,8 @@ class ModelDefineRule extends Component {
         this.loadTbNameRules();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -118,7 +117,6 @@ class ModelDefineRule extends Component {
 
     renderTableNameRules = () => {
         const { tbNameRules } = this.state;
-        const length = tbNameRules.length;
 
         const options = tableModelRules.map((rule, index) => <Option
             key={rule.value}

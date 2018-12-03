@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
-import SplitPane from 'react-split-pane';
 import { browserHistory, hashHistory } from 'react-router'
 import {
     Input, Button, message,
-    Modal, Form, Row, Col
+    Modal, Form, Row
 } from 'antd';
 
 import { isEmpty } from 'lodash';
@@ -42,7 +40,8 @@ class TableEditor extends Component {
         this.loadCatalogue();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.isSaved) {
             this.goBack()
         }
