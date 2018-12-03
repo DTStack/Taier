@@ -98,7 +98,7 @@ class ManageErrorLog extends Component {
                 }
             )
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (
             (this.props.apiId !== nextProps.apiId)
@@ -186,10 +186,10 @@ class ManageErrorLog extends Component {
         });
     }
     getErrorPercent (key) {
-        return this.state.error[key] && this.state.error[key].percent || 0;
+        return (this.state.error[key] && this.state.error[key].percent) || 0;
     }
     getErrorCount (key) {
-        return this.state.error[key] && this.state.error[key].count || 0;
+        return (this.state.error[key] && this.state.error[key].count) || 0;
     }
     render () {
         const data = this.getSource();

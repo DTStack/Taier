@@ -45,7 +45,7 @@ class DataSourceModal extends Component {
     componentDidMount () {
         // this.props.getDataSourcesType();
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const oldData = this.props.sourceData;
         const newData = nextProps.sourceData;
@@ -58,7 +58,6 @@ class DataSourceModal extends Component {
             }
         }
     }
-
     onOk = (e) => {
         const { editDataSource, form } = this.props;
 
@@ -316,7 +315,6 @@ class DataSourceModal extends Component {
 
     render () {
         const { visible, form, title, sourceData, status, dataSource } = this.props;
-        const { hasHdfsConfig } = this.state;
         const { getFieldDecorator } = form;
 
         return (

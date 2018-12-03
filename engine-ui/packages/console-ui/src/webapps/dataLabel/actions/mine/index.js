@@ -1,5 +1,4 @@
 import { mineActionType as ACTION_TYPE } from '../../consts/mineActionType';
-import { message } from 'antd';
 import API from '../../api/mine';
 
 export const mineActions = {

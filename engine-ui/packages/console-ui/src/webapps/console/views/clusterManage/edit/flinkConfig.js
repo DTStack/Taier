@@ -1,5 +1,5 @@
 import React from 'react';
-import utils from 'utils';
+
 import { Input, Select, Form, Tooltip, Checkbox } from 'antd';
 
 import { formItemLayout } from '../../../consts'

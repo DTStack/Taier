@@ -25,7 +25,8 @@ class CheckPoint extends React.Component {
             overview: {}
         })
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -84,7 +85,7 @@ class CheckPoint extends React.Component {
             render (text) {
                 return `${text}ms`
             }
-        } ]
+        }]
     }
     changeDate (dates) {
         this.setState({
@@ -92,7 +93,7 @@ class CheckPoint extends React.Component {
         }, this.getList.bind(this))
     }
     disabledDate = (current) => {
-        const now = new moment()
+        const now = moment()
         return current > now && current != now;
     }
     /**
@@ -103,7 +104,7 @@ class CheckPoint extends React.Component {
             return;
         }
 
-        const now = new moment();
+        const now = moment();
 
         if (type == 'start') {
             current = current.length > 1 ? current[0] : current
@@ -147,7 +148,7 @@ class CheckPoint extends React.Component {
                     format="YYYY-MM-DD HH:mm"
                     value={dates}
                     disabledDate={this.disabledDate}
-                    // disabledTime={this.disabledTime}
+                // disabledTime={this.disabledTime}
                 />
                 <span className="checkpoint-overview">
                     <span>checkpoint总数：{overview.totalCount}个</span>

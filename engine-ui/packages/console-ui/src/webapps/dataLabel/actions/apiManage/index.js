@@ -1,5 +1,4 @@
 import { apiManageActionType as ACTION_TYPE } from '../../consts/apiManageActionType';
-import { message } from 'antd';
 import API from '../../api/apiManage';
 
 export const apiManageActions = {

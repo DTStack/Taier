@@ -5,8 +5,7 @@
 * @Last Modified time: 2018-09-30 16:36:23
 */
 import React, { Component } from 'react';
-import { Table, Tabs, Select, Card, Tooltip, Icon, Button } from 'antd';
-import moment from 'moment';
+import { Table, Tabs, Select, Card, Button } from 'antd';
 import utils from 'utils'
 
 import Api from '../../api/console';
@@ -28,7 +27,6 @@ class QueueManage extends Component {
         clusterId: undefined,
         nodeList: [],
         // 节点值
-        // node:"localhost:8080",
         node: undefined,
         // 会重新渲染detail组件
         resetKey: Math.random()
@@ -119,7 +117,6 @@ class QueueManage extends Component {
     // 获取节点下拉数据
     getNodeAddressSelect () {
         return Api.getNodeAddressSelect().then((res) => {
-            const { nodeList, node } = this.state;
             if (res.code == 1) {
                 const data = res.data;
                 this.setState({
@@ -176,7 +173,6 @@ class QueueManage extends Component {
             this.getClusterDetail();
         })
     }
-
     initTableColumns () {
         return [
             {
@@ -223,7 +219,6 @@ class QueueManage extends Component {
     }
     // 查看明细(需要传入参数 集群,引擎,group) detailInfo
     viewDetails (record) {
-        const { node } = this.state;
         this.props.router.push({
             pathname: '/console/queueManage',
             query: {
@@ -293,7 +288,7 @@ class QueueManage extends Component {
                         <Tabs.TabPane tab="概览" key="overview">
                             <div style={{ margin: '20px' }}>
                                 集群：
-		                   		<Select style={{ width: 150, marginRight: '10px' }}
+                                <Select style={{ width: 150, marginRight: '10px' }}
                                     placeholder="选择集群"
                                     allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
@@ -305,7 +300,7 @@ class QueueManage extends Component {
                                 </Select>
 
                                  节点：
-		                   		<Select style={{ width: 150 }}
+                                <Select style={{ width: 150 }}
                                     placeholder="选择节点"
                                     allowClear={true}
                                     // defaultValue="1"

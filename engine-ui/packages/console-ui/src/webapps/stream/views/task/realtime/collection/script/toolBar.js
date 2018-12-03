@@ -115,7 +115,7 @@ class ImportTemplateForm extends Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { dataSourceList, execConfirmVisible } = this.props;
+        const { execConfirmVisible } = this.props;
         const { sourceType } = this.state;
         const isBeats = sourceType == DATA_SOURCE.BEATS;
 
@@ -268,7 +268,6 @@ class CollectionToolbar extends Component {
     }
 
     onSuccess = (template) => {
-        const { dispatch } = this.props;
         const data = {
             merged: true
         }

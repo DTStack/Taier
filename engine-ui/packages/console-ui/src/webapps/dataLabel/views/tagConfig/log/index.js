@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Table, Card, Modal, Select, DatePicker, Tooltip } from 'antd';
-import moment from 'moment';
 
 import GoBack from 'main/components/go-back';
 import { TAG_STATUS } from '../../../consts';

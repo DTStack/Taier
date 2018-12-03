@@ -1,10 +1,8 @@
 import React from 'react';
-import utils from 'utils';
-import { Input, Select, Form } from 'antd';
+import { Input, Form } from 'antd';
 
 import { formItemLayout } from '../../../consts'
 
-const Option = Select.Option;
 const FormItem = Form.Item;
 
 export class HiveConfig extends React.Component {

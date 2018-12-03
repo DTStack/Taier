@@ -3,7 +3,7 @@ import moment from 'moment'
 
 import {
     message, Modal,
-    DatePicker, TimePicker,
+    DatePicker,
     Select, Alert, Button
 } from 'antd'
 
@@ -24,13 +24,13 @@ class GoOnTask extends Component {
         rangeValue: []
     }
 
-    componentWillReceiveProps (nextProps, nextState) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps, nextState) {
         const taskId = nextProps.taskId
         const visible = nextProps.visible;
-        const old = this.props.taskId;
-        const old_visible = this.props.visible;
+        const oldVisible = this.props.visible;
 
-        if (visible && old_visible !== visible) {
+        if (visible && oldVisible !== visible) {
             this.setState({
                 checkPoints: [],
                 dateRange: null,

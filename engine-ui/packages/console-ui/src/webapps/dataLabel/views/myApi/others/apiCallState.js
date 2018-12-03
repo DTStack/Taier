@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Table } from 'antd';
+import { Col, Row } from 'antd';
 import Resize from 'widgets/resize';
 import { cloneDeep } from 'lodash'
 import { doubleLineAreaChartOptions } from '../../../consts';
@@ -43,6 +43,7 @@ class ApiCallState extends Component {
         })
         this.getInfo();
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (
             (nextProps.showRecord && this.state.apiId !== nextProps.showRecord.apiId) ||
@@ -149,19 +150,19 @@ class ApiCallState extends Component {
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">最近{this.getDateText()}累计调用</span>
-                            <span className="m-count-content font-black text-left">{this.state.data && this.state.data.callCount || 0}<span style={{ fontSize: 12 }}>次</span></span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.callCount) || 0}<span style={{ fontSize: 12 }}>次</span></span>
                         </section>
                     </Col>
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
                             <span className="m-count-title text-left">最近{this.getDateText()}失败率</span>
-                            <span className="m-count-content font-red text-left">{this.state.data && this.state.data.failRate || 0}<span style={{ fontSize: 12 }}>%</span></span>
+                            <span className="m-count-content font-red text-left">{(this.state.data && this.state.data.failRate) || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">累计调用</span>
-                            <span className="m-count-content font-black text-left">{this.state.data && this.state.data.totalCount || '---'}</span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.totalCount) || '---'}</span>
                         </section>
                     </Col>
                 </Row>

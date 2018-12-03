@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
-import { isArray, isNumber } from 'lodash';
 import {
-    Form, Input, Select,
-    Radio, Modal
+    Form, Input,
+    Modal
 } from 'antd'
 
 import { getContainer } from 'funcs';
 import FolderPicker from './folderTree'
-import HelpDoc from '../../helpDoc';
-import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
+import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
 
@@ -16,7 +14,7 @@ class CloneTaskForm extends Component {
     submit = (e) => {
         e.preventDefault()
 
-        const { handOk, form, taskInfo } = this.props
+        const { handOk, form } = this.props
         const task = this.props.form.getFieldsValue()
         console.log(task)
         const fileds = ['taskName', 'nodePid']

@@ -11,13 +11,12 @@ import { Modal, Input, Form, message } from 'antd';
 import { formItemLayout } from '../../consts';
 import Api from '../../api/console';
 class Reorder extends Component {
+    /* eslint-disable */
     // 请求顺序调整接口
     changeJobPriority () {
         const { priorityResource } = this.props;
         const jobIndex = this.props.form.getFieldValue('jobIndex');
-        const { form } = this.props;
         // 获取集群
-        var groupName, clusterName, computeTypeInt;
         const arr = (priorityResource.groupName || '').split('_');
         if (arr.length == 1) {
             clusterName = priorityResource.groupName

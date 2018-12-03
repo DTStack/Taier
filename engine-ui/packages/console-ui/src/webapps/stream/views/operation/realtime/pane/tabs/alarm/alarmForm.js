@@ -3,7 +3,6 @@ import {
     Form, Input, InputNumber,
     Select, Modal, Checkbox
 } from 'antd'
-import { isEmpty } from 'lodash';
 
 import { formItemLayout, TASK_TYPE, alarmTriggerType } from '../../../../../../comm/const'
 import HelpDoc from '../../../../../helpDoc';
@@ -18,7 +17,8 @@ class AlarmForm extends Component {
         myTrigger: alarmTriggerType.TASK_FAIL
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { alarmInfo = {}, visible } = nextProps;
         if (visible && this.props.visible != visible) {
             this.props.form.resetFields();

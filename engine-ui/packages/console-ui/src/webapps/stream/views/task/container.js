@@ -50,7 +50,8 @@ class Container extends Component {
         this.unloadIDETheme();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.editor.options.theme !== this.props.editor.options.theme) {
             this.loadIDETheme(nextProps.editor.options.theme);
         }
@@ -61,29 +62,29 @@ class Container extends Component {
         const confirmationMessage = "\o/";
         (e || window.event).returnValue = confirmationMessage; // Gecko + IE
         return confirmationMessage; // Webkit, Safari, Chrome
-        /* eslint-disable */
+        /* eslint-enable */
     };
 
     showLoading = () => {
         const self = this;
-        this.setState({ loading: "loading" });
+        this.setState({ loading: 'loading' });
         setTimeout(() => {
-            self.setState({ loading: "success" });
+            self.setState({ loading: 'success' });
         }, 200);
     };
 
     loadIDETheme = (theme) => {
-        console.log("componentDidMount 开发套件：", this.props.editor)
-        const claName = getEditorThemeClassName(theme); 
+        console.log('componentDidMount 开发套件：', this.props.editor)
+        const claName = getEditorThemeClassName(theme);
         document.body.className = claName;
     }
 
     unloadIDETheme = () => {
-        console.log("componentWillUnmount 开发套件：", this.props.editor);
-        document.body.className = "";
+        console.log('componentWillUnmount 开发套件：', this.props.editor);
+        document.body.className = '';
     }
 
-    render() {
+    render () {
         const { pages } = this.props;
         return (
             <Layout className="dt-dev-task">
@@ -96,21 +97,20 @@ class Container extends Component {
                 >
                     <div
                         className="ant-layout-sider"
-                        style={{ width: "inherit", height: '100%' }}
+                        style={{ width: 'inherit', height: '100%' }}
                     >
                         <Sidebar />
                         <SearchTaskModal />
                     </div>
-                    <Content style={{height: '100%'}}>
+                    <Content style={{ height: '100%' }}>
                         <Spin
                             tip="Loading..."
                             size="large"
-                            spinning={this.state.loading === "loading"}
+                            spinning={this.state.loading === 'loading'}
                         >
-                            <div style={{ width: "100%", height: "100%" }}>
-                                { 
-                                    pages && pages.length > 0 ? 
-                                    <TaskIndex /> : <Default />
+                            <div style={{ width: '100%', height: '100%' }}>
+                                {
+                                    pages && pages.length > 0 ? <TaskIndex /> : <Default />
                                 }
                             </div>
                         </Spin>

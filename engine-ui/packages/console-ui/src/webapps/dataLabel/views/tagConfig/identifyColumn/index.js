@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { Table, Card, Modal, Form, Button, Input, Popconfirm, message } from 'antd';
 
 import GoBack from 'main/components/go-back';
@@ -10,7 +8,7 @@ import TCApi from '../../../api/tagConfig';
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
-export default class IdentifyColumn extends Component {
+class IdentifyColumn extends Component {
     state = {
         visible: false,
         loading: false,
@@ -254,4 +252,4 @@ export default class IdentifyColumn extends Component {
         )
     }
 }
-IdentifyColumn = Form.create()(IdentifyColumn);
+export default (Form.create()(IdentifyColumn));

@@ -3,7 +3,7 @@ import { cloneDeep, assign } from 'lodash'
 import Api from '../../../api'
 import { replaceTreeNode, removeTreeNode, mergeTreeNodes } from 'funcs'
 
-import { treeAction, browserAction } from './actionTypes'
+import { treeAction } from './actionTypes'
 
 /* eslint-disable */
 const defaultReqParams = { isGetFile: true, nodePid: 0 }

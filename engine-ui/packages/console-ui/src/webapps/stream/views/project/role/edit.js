@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { assign } from 'lodash'
 import {
     Row, Col, Button,
-    Card, message, Spin
+    message, Spin
 } from 'antd'
 
 import Api from '../../../api'

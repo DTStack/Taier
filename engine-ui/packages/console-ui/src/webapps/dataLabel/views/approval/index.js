@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Input, Table, Select, Modal, Form, Button, message } from 'antd';
+import { Card, Input, Table, Modal, Form, Button, message } from 'antd';
 import { connect } from 'react-redux';
 import utils from 'utils';
 import { formItemLayout, EXCHANGE_APPLY_STATUS } from '../../consts'
@@ -46,10 +46,6 @@ class APIApproval extends Component {
         spApplyMsg: {},
         total: 0
     }
-
-    componentWillMount () {
-    }
-
     componentDidMount () {
         const status = this.props.router.location.query && this.props.router.location.query.status
         let arr = [];
@@ -248,7 +244,6 @@ class APIApproval extends Component {
         return null;
     }
     getCardTitle () {
-        const sourceType = ''; const sourceList = ''; const userList = '';
         return (
             <div className="flex font-12">
                 <Search

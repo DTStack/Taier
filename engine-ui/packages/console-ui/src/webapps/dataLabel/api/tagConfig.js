@@ -1,4 +1,4 @@
-import utils from 'utils'
+
 import http from './http'
 import req from '../consts/reqUrls'
 
@@ -23,19 +23,19 @@ export default {
         return http.post(req.UPDATE_TAG_SQL_INFO, params);
     },
     getTagCondition (params) {
-    	return http.post(req.GET_TAG_CONDITION, params);
+        return http.post(req.GET_TAG_CONDITION, params);
     },
     editTagCondition (params) {
-    	return http.post(req.EDIT_TAG_CONDITION, params);
+        return http.post(req.EDIT_TAG_CONDITION, params);
     },
     deleteTagCondition (params) {
-    	return http.post(req.DELETE_TAG_CONDITION, params);
+        return http.post(req.DELETE_TAG_CONDITION, params);
     },
     getComputeSource (params) {
-    	return http.post(req.GET_COMPUTE_SOURCE, params);
+        return http.post(req.GET_COMPUTE_SOURCE, params);
     },
     queryTagLogInfo (params) {
-    	return http.post(req.QUERY_TAG_LOG, params);
+        return http.post(req.QUERY_TAG_LOG, params);
     },
 
     // 共用
@@ -49,7 +49,7 @@ export default {
         return http.post(req.PUBLISH_CHECK, params);
     },
     publishTag (params) {
-    	return http.post(req.PUBLISH_TAG, params);
+        return http.post(req.PUBLISH_TAG, params);
     },
     getRuleTagDetail (params) {
         return http.post(req.GET_RULE_TAG_RETAIL, params);

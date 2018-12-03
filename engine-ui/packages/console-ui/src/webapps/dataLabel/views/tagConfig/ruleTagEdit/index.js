@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, hashHistory } from 'react-router';
 import { isEmpty } from 'lodash';
-import { 
-    Table, Card, Form, 
-    Button, Input, Select, 
-    Popconfirm, DatePicker, 
-    Checkbox, message 
+import {
+    Table, Card, Form,
+    Button, Input, Select,
+    Popconfirm, DatePicker,
+    Checkbox, message
 } from 'antd';
 import moment from 'moment';
 
@@ -18,7 +18,6 @@ import TCApi from '../../../api/tagConfig';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
-
 const initialSchedule = {
     beginDate: moment().format('YYYY-MM-DD'),
     endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
@@ -37,12 +36,12 @@ const initialSchedule = {
 const formItemLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 9 },
+        sm: { span: 9 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 10 },
-    },
+        sm: { span: 10 }
+    }
 }
 
 const mapStateToProps = state => {
@@ -51,20 +50,19 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesList(params) {
+    getDataSourcesList (params) {
         dispatch(dataSourceActions.getDataSourcesList(params));
     },
-    getDataSourcesTable(params) {
+    getDataSourcesTable (params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
-    resetDataSourcesTable() {
+    resetDataSourcesTable () {
         dispatch(dataSourceActions.resetDataSourcesTable());
-    },
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class RuleTagEdit extends Component {
-
+class RuleTagEdit extends Component {
     state = {
         tagId: this.props.routeParams.id,
         currentData: {},
@@ -78,7 +76,7 @@ export default class RuleTagEdit extends Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getTagDetailInfo();
         this.getComputeSourceData();
         this.props.getDataSourcesList();
@@ -118,7 +116,7 @@ export default class RuleTagEdit extends Component {
             }
         });
     }
-
+    /* eslint-disable */
     // table设置
     initColumns = () => {
         return [{
@@ -147,82 +145,77 @@ export default class RuleTagEdit extends Component {
                     <div>
                         {
                             record.editable ?
-                            <span>
-                                <a className="m-r-8" onClick={this.saveCondition.bind(this, record.id)}>
-                                    保存
-                                </a>
-                                <a onClick={this.cancelEdit.bind(this, record.id)}>
-                                    取消
-                                </a>
-                            </span>
-                            : 
-                            <span>
-                                <a className="m-r-8" onClick={this.editCondition.bind(this, record.id)}>
-                                    编辑
-                                </a>
-                                <Popconfirm title="确定要删除吗？" onConfirm={this.deleteCondition.bind(this, record.id)}>
-                                    <a>删除</a>
-                                </Popconfirm>
-                            </span>
+                                <span>
+                                    <a className="m-r-8" onClick={this.saveCondition.bind(this, record.id)}>
+                                        保存
+                                    </a>
+                                    <a onClick={this.cancelEdit.bind(this, record.id)}>
+                                        取消
+                                    </a>
+                                </span>
+                                :
+                                <span>
+                                    <a className="m-r-8" onClick={this.editCondition.bind(this, record.id)}>
+                                        编辑
+                                    </a>
+                                    <Popconfirm title="确定要删除吗？" onConfirm={this.deleteCondition.bind(this, record.id)}>
+                                        <a>删除</a>
+                                    </Popconfirm>
+                                </span>
                         }
                     </div>
                 );
-            },
+            }
         }]
     }
 
-    renderColumns(text, record, type) {
+    renderColumns (text, record, type) {
         let obj = {
             children: <Form layout="inline">
                 {
-                    record.editable ?
-                    this.renderEditTD(text, record, type)
-                    :
-                    this.renderTD(text, record, type)
+                    record.editable ? this.renderEditTD(text, record, type) : this.renderTD(text, record, type)
                 }
             </Form>,
-            props: {},
+            props: {}
         };
 
         return obj;
     }
-
     // 编辑状态的TD
     renderEditTD = (text, record, type) => {
         const { form, dataSource } = this.props;
         const { getFieldDecorator } = form;
         const { sourceList, sourceTable } = dataSource;
-
-        switch(type) {
+        switch (type) {
             case 'dataSourceId': {
                 return <FormItem {...rowFormItemLayout} className="edit-td">
-                    {
-                        getFieldDecorator('dataSourceId', {
-                            rules: [{
-                                required: true, 
-                                message: '数据源不可为空'
-                            }],
-                            initialValue: record.dataSourceId.toString()
-                        })(
-                            <Select 
-                                showSearch 
-                                optionFilterProp="title"
-                                onChange={this.onDataSourceChange}>
-                                {
-                                    sourceList.map(source => {
-                                        let title = `${source.dataName}（${source.sourceTypeValue}）`;
-                                        return <Option 
-                                            key={source.id} 
-                                            value={source.id.toString()}
-                                            title={title}>
-                                            {title}
-                                        </Option>
-                                    })
-                                }
-                            </Select>
-                        )
-                    }
-                </FormItem>
+                            {
+                                getFieldDecorator('dataSourceId', {
+                                    rules: [{
+                                        required: true,
+                                        message: '数据源不可为空'
+                                    }],
+                                    initialValue: record.dataSourceId.toString()
+                                })(
+                                    <Select
+                                        showSearch
+                                        optionFilterProp="title"
+                                        onChange={this.onDataSourceChange}>
+                                        {
+                                            sourceList.map(source => {
+                                                let title = `${source.dataName}（${source.sourceTypeValue}）`;
+                                                return <Option
+                                                    key={source.id}
+                                                    value={source.id.toString()}
+                                                    title={title}>
+                                                    {title}
+                                                </Option>
+                                            })
+                                        }
+                                    </Select>
+                                )
+                            }
+                        </FormItem>
             }
 
             case 'tableName': {
@@ -230,7 +223,7 @@ export default class RuleTagEdit extends Component {
                     {
                         getFieldDecorator('tableName', {
                             rules: [{
-                                required: true, 
+                                required: true,
                                 message: '数据表不可为空'
                             }],
                             initialValue: record.tableName
@@ -238,8 +231,8 @@ export default class RuleTagEdit extends Component {
                             <Select showSearch>
                                 {
                                     sourceTable.map(tableName => {
-                                        return <Option 
-                                            key={tableName} 
+                                        return <Option
+                                            key={tableName}
                                             value={tableName}>
                                             {tableName}
                                         </Option>
@@ -293,7 +286,7 @@ export default class RuleTagEdit extends Component {
         const { curCondition, conditionList } = this.state;
 
         let newData = [...conditionList],
-            target  = newData.filter(item => id === item.id)[0];
+            target = newData.filter(item => id === item.id)[0];
 
         if (!isEmpty(curCondition)) {
             if (curCondition.editStatus === 'edit') {
@@ -310,7 +303,7 @@ export default class RuleTagEdit extends Component {
             this.props.resetDataSourcesTable();
             this.props.getDataSourcesTable({ sourceId: target.dataSourceId });
 
-            this.setState({ 
+            this.setState({
                 curCondition: target,
                 conditionList: newData
             });
@@ -322,7 +315,7 @@ export default class RuleTagEdit extends Component {
         const { conditionList } = this.state;
 
         let newData = [...conditionList],
-            target  = newData.filter(item => id === item.id)[0];
+            target = newData.filter(item => id === item.id)[0];
 
         if (target.editStatus === 'edit') {
             delete target.editable;
@@ -331,7 +324,7 @@ export default class RuleTagEdit extends Component {
             newData.splice(newData.indexOf(target), 1);
         }
 
-        this.setState({ 
+        this.setState({
             curCondition: {},
             conditionList: newData
         });
@@ -360,7 +353,7 @@ export default class RuleTagEdit extends Component {
             index = newData.indexOf(target);
 
         form.validateFields(['dataSourceId', 'tableName', 'sqlCondition'], (err, values) => {
-            if(!err) {
+            if (!err) {
                 delete curCondition.editable;
 
                 let source = [...sourceList].filter(item => item.id == values.dataSourceId)[0];
@@ -372,7 +365,7 @@ export default class RuleTagEdit extends Component {
                     sourceTypeValue: source.sourceTypeValue
                 };
 
-                this.setState({ 
+                this.setState({
                     curCondition: {},
                     conditionList: newData
                 });
@@ -408,7 +401,7 @@ export default class RuleTagEdit extends Component {
         };
 
         newData.unshift(target);
-        this.setState({ 
+        this.setState({
             curCondition: target,
             conditionList: newData
         });
@@ -416,7 +409,7 @@ export default class RuleTagEdit extends Component {
 
     // 调度周期回调
     onPeriodTypeChange = (type) => {
-        let scheduleConfObj = {...initialSchedule, periodType: type};
+        let scheduleConfObj = { ...initialSchedule, periodType: type };
 
         this.setState({ scheduleConfObj });
     }
@@ -432,7 +425,7 @@ export default class RuleTagEdit extends Component {
             form.setFieldsValue({ receivers: [] });
         }
 
-        this.setState({ notifyVO: {...notifyVO, sendTypes: value} });
+        this.setState({ notifyVO: { ...notifyVO, sendTypes: value } });
     }
 
     // 通知人回调
@@ -446,7 +439,7 @@ export default class RuleTagEdit extends Component {
             form.setFieldsValue({ sendTypes: [] });
         }
 
-        this.setState({ notifyVO: {...notifyVO, receivers: value} });
+        this.setState({ notifyVO: { ...notifyVO, receivers: value } });
     }
 
     // 调度日期回调
@@ -456,7 +449,7 @@ export default class RuleTagEdit extends Component {
         let newValue = {};
         newValue[type] = value;
 
-        this.setState({ scheduleConfObj: {...scheduleConfObj, ...newValue} });
+        this.setState({ scheduleConfObj: { ...scheduleConfObj, ...newValue } });
     }
 
     onBeginDateChange = (date, dateString) => {
@@ -480,16 +473,16 @@ export default class RuleTagEdit extends Component {
 
             for (let i = 0; i <= 23; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
-                        {i < 10 ? `0${i}`: i}
+                        {i < 10 ? `0${i}` : i}
                     </Option>
                 );
             }
 
-            return <Select 
-                style={{ width: 150 }} 
+            return <Select
+                style={{ width: 150 }}
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
                 {options}
             </Select>;
@@ -501,16 +494,16 @@ export default class RuleTagEdit extends Component {
 
             for (let i = 0; i <= 59; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
-                        {i < 10 ? `0${i}`: i}
+                        {i < 10 ? `0${i}` : i}
                     </Option>
                 );
             }
 
-            return <Select 
-                style={{ width: 150 }} 
+            return <Select
+                style={{ width: 150 }}
                 onChange={this.changeScheduleConfTime.bind(this, type)}>
                 {options}
             </Select>;
@@ -522,14 +515,14 @@ export default class RuleTagEdit extends Component {
 
             for (let i = 1; i <= 23; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
                         {i}小时
                     </Option>
                 );
             }
-            
+
             return <Select
                 style={{ width: 150 }}
                 onChange={this.changeScheduleConfTime.bind(this, 'gapHour')}>
@@ -543,8 +536,8 @@ export default class RuleTagEdit extends Component {
 
             for (let i = 1; i <= 31; i++) {
                 options.push(
-                    <Option 
-                        key={i} 
+                    <Option
+                        key={i}
                         value={`${i}`}>
                         {`每月${i}号`}
                     </Option>
@@ -582,7 +575,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('beginHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -598,7 +591,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('beginMin', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '开始时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -617,7 +610,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('gapHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '间隔时间不能为空'
                                 }],
                                 initialValue: scheduleConfObj.gapHour ? scheduleConfObj.gapHour : undefined
@@ -631,7 +624,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('endHour', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -647,7 +640,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('endMin', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '结束时间不能为空'
                                 }, {
                                     validator: this.checkTime.bind(this)
@@ -701,7 +694,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('weekDay', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '周内天数不能为空'
                                 }],
                                 initialValue: scheduleConfObj.weekDay ? scheduleConfObj.weekDay : []
@@ -749,7 +742,7 @@ export default class RuleTagEdit extends Component {
                         {
                             getFieldDecorator('day', {
                                 rules: [{
-                                    required: true, 
+                                    required: true,
                                     message: '月内天数不能为空'
                                 }],
                                 initialValue: scheduleConfObj.day ? scheduleConfObj.day : []
@@ -791,7 +784,7 @@ export default class RuleTagEdit extends Component {
                 </div>
             }
 
-            case '5': 
+            case '5':
             default: {
                 break;
             }
@@ -802,11 +795,11 @@ export default class RuleTagEdit extends Component {
     checkTime = (rule, value, callback) => {
         const { form } = this.props;
         let beginHour = form.getFieldValue('beginHour'),
-            beginMin  = form.getFieldValue('beginMin'),
-            endHour   = form.getFieldValue('endHour'),
-            endMin    = form.getFieldValue('endMin'),
+            beginMin = form.getFieldValue('beginMin'),
+            endHour = form.getFieldValue('endHour'),
+            endMin = form.getFieldValue('endMin'),
             beginTime = parseInt(beginHour) * 60 + parseInt(beginMin),
-            endTime   = parseInt(endHour) * 60 + parseInt(endMin);
+            endTime = parseInt(endHour) * 60 + parseInt(endMin);
 
         if (beginTime >= endTime) {
             callback('开始时间不能晚于结束时间');
@@ -859,11 +852,11 @@ export default class RuleTagEdit extends Component {
         }
 
         form.validateFields((err, values) => {
-            console.log(err,values)
+            console.log(err, values)
             if (err && err.endDate) {
                 message.error(err.endDate.errors[0].message)
             }
-            
+
             if (!err) {
                 // 新增的condition不需要id
                 conditionList.forEach((element, index) => {
@@ -904,28 +897,28 @@ export default class RuleTagEdit extends Component {
 
         return (
             <div className="box-1 m-card shadow">
-                <Card 
+                <Card
                     title={cardTitle}
                     extra={false}
-                    noHovering 
+                    noHovering
                     bordered={false}
                 >
                     <div className="tag-edit-step">
                         <h2>
                             <div className="rank-number m-r-8">1</div>
                             基本信息
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 className="right"
                                 onClick={this.addNewCondition}>
                                 添加
                             </Button>
                         </h2>
 
-                        <Table 
+                        <Table
                             rowKey="id"
                             className="m-table"
-                            columns={this.initColumns()} 
+                            columns={this.initColumns()}
                             pagination={false}
                             dataSource={conditionList}
                         />
@@ -940,9 +933,9 @@ export default class RuleTagEdit extends Component {
                             {
                                 getFieldDecorator('computeSourceId', {
                                     rules: [{
-                                        required: true, 
+                                        required: true,
                                         message: '不可为空'
-                                    }], 
+                                    }],
                                     initialValue: currentData.computeSourceId ? currentData.computeSourceId.toString() : undefined
                                 })(
                                     <Select
@@ -951,8 +944,8 @@ export default class RuleTagEdit extends Component {
                                         {
                                             computeList.map(source => {
                                                 let title = `${source.dataName}（${source.sourceTypeValue}）`;
-                                                return <Option 
-                                                    key={source.id} 
+                                                return <Option
+                                                    key={source.id}
                                                     value={source.id.toString()}
                                                     title={title}>
                                                     {title}
@@ -974,13 +967,13 @@ export default class RuleTagEdit extends Component {
                             {
                                 getFieldDecorator('sqlText', {
                                     rules: [{
-                                        required: true, 
+                                        required: true,
                                         message: 'SQL不可为空'
-                                    }], 
+                                    }],
                                     initialValue: currentData.sqlText
                                 })(
-                                    <TextArea 
-                                        placeholder="在此输入指标计算sql" 
+                                    <TextArea
+                                        placeholder="在此输入指标计算sql"
                                         autosize={{ minRows: 6 }}
                                     />
                                 )
@@ -996,19 +989,19 @@ export default class RuleTagEdit extends Component {
                         <FormItem {...formItemLayout} label="调度周期">
                             {
                                 getFieldDecorator('periodType', {
-                                    rules: [{ 
-                                        required: true, 
-                                        message: '执行周期不能为空' 
-                                    }], 
+                                    rules: [{
+                                        required: true,
+                                        message: '执行周期不能为空'
+                                    }],
                                     initialValue: `${scheduleConfObj.periodType}`
                                 })(
-                                    <Select 
+                                    <Select
                                         style={{ width: 328 }}
                                         onChange={this.onPeriodTypeChange}>
                                         {
                                             periodType.map(item => {
-                                                return <Option 
-                                                    key={item.value} 
+                                                return <Option
+                                                    key={item.value}
                                                     value={item.value.toString()}>
                                                     {item.name}
                                                 </Option>
@@ -1026,7 +1019,7 @@ export default class RuleTagEdit extends Component {
                                 {
                                     getFieldDecorator('beginDate', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
@@ -1047,7 +1040,7 @@ export default class RuleTagEdit extends Component {
                                 {
                                     getFieldDecorator('endDate', {
                                         rules: [{
-                                            required: true, 
+                                            required: true,
                                             message: '生效日期不能为空'
                                         }, {
                                             validator: this.checkDate.bind(this)
@@ -1068,21 +1061,21 @@ export default class RuleTagEdit extends Component {
                         {
                             this.renderDynamic()
                         }
-                        
+
                         <FormItem {...formItemLayout} label="通知方式">
                             {
                                 getFieldDecorator('sendTypes', {
                                     rules: [{
                                         required: receivers.length,
                                         message: '选择通知方式',
-                                    }], 
+                                    }],
                                     initialValue: sendTypes.map(item => item.toString())
                                 })(
                                     <Checkbox.Group onChange={this.onSendTypesChange}>
                                         {
                                             notifyType.map(item => {
-                                                return <Checkbox 
-                                                    key={item.value} 
+                                                return <Checkbox
+                                                    key={item.value}
                                                     value={item.value.toString()}>
                                                     {item.name}
                                                 </Checkbox>
@@ -1092,7 +1085,7 @@ export default class RuleTagEdit extends Component {
                                 )
                             }
                         </FormItem>
-                        
+
                         <FormItem {...formItemLayout} label="通知接收人">
                             {
                                 getFieldDecorator('receivers', {
@@ -1102,15 +1095,15 @@ export default class RuleTagEdit extends Component {
                                     }],
                                     initialValue: receivers.map(item => item.toString())
                                 })(
-                                    <Select 
-                                        allowClear 
-                                        mode="multiple" 
+                                    <Select
+                                        allowClear
+                                        mode="multiple"
                                         style={{ width: 328 }}
                                         onChange={this.onReceiversChange}>
                                         {
                                             userList.map(item => {
-                                                return <Option 
-                                                    key={item.id} 
+                                                return <Option
+                                                    key={item.id}
                                                     value={item.id.toString()}>
                                                     {item.userName}
                                                 </Option>
@@ -1124,14 +1117,14 @@ export default class RuleTagEdit extends Component {
 
                     <div className="tag-edit-step txt-right">
                         <Link to="/dl/tagConfig">
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 className="m-r-8">
                                 取消
                             </Button>
                         </Link>
-                        <Button 
-                            type="primary" 
+                        <Button
+                            type="primary"
                             onClick={this.saveRuleTag}>
                             保存
                         </Button>
@@ -1141,4 +1134,4 @@ export default class RuleTagEdit extends Component {
         )
     }
 }
-RuleTagEdit = Form.create()(RuleTagEdit);
+export default (Form.create()(RuleTagEdit));

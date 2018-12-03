@@ -30,7 +30,8 @@ class DataDelay extends React.Component {
             }
         })
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id
@@ -117,7 +118,7 @@ class DataDelay extends React.Component {
         })
     }
     onTableChange (page, filters, tableSorter) {
-        const { pagination, sorter } = this.state;
+        const { pagination } = this.state;
         this.setState({
             pagination: {
                 ...pagination,

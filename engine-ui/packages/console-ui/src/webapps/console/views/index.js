@@ -2,11 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import utils from 'utils'
-
 import Header from './layout/header'
-
-import * as UserAction from '../actions/user'
 
 import { updateApp } from 'main/actions/app'
 import { consoleApp } from 'config/base'
@@ -24,13 +20,13 @@ const mapStateToProps = state => {
 @connect(
     mapStateToProps
 )
+/* eslint-disable */
 class Main extends Component {
     componentWillMount () {
         const { dispatch } = this.props;
     }
     componentDidMount () {
         const { dispatch } = this.props;
-        // dispatch(UserAction.getUser())
         dispatch(updateApp(consoleApp));
     }
 

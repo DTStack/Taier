@@ -1,28 +1,26 @@
 import React from 'react';
-import { Table, Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Checkbox, Collapse } from 'antd';
+import { Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card } from 'antd';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
 
 import { getUser } from '../../../actions/console'
 import Api from '../../../api/console'
-import { longLabelFormLayout, formItemLayout } from '../../../consts'
+import { formItemLayout } from '../../../consts'
 import GoBack from 'main/components/go-back';
 import ZipConfig from './zipConfig';
 import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
 import { HiveConfig, CarbonDataConfig } from './hiveAndCarbonData'
-import utils from 'utils';
 
 const FormItem = Form.Item;
-const TextArea = Input.TextArea;
 const Option = Select.Option;
-const Panel = Collapse.Panel;
 const TEST_STATUS = {
     NOTHING: 0,
     SUCCESS: 1,
     FAIL: 2
 }
+/* eslint-disable */
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
@@ -684,7 +682,7 @@ class EditCluster extends React.Component {
     }
 
     render () {
-        const { selectUser, file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
+        const { file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';

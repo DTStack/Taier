@@ -6,7 +6,7 @@
 */
 
 import React, { Component } from 'react';
-import { Input, Select, Card, Table, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Radio } from 'antd'
+import { Select, Table, Button, message, Radio } from 'antd'
 import moment from 'moment';
 import '../../styles/main.scss'
 import ViewDetail from '../../components/viewDetail';
@@ -15,11 +15,11 @@ import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
 import { TASK_STATE } from '../../consts/index.js';
-import utils from 'utils';
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+/* eslint-disable */
 class TaskDetail extends Component {
     state = {
         dataSource: [],
@@ -64,21 +64,6 @@ class TaskDetail extends Component {
         // 更多任务列表记录值
         isClickGroup: false
     }
-
-    // componentWillReceiveProps(nextProps) {
-    //     const { query = {} } = this.props;
-    //     const { query: next_query = {} } = nextProps;
-    //     if (query.engineType != next_query.engineType ||
-    //         query.groupName != next_query.groupName) {
-    //         this.setState({
-    //             engineType: next_query.engineType,
-    //             groupName: next_query.groupName
-    //         }, () => {
-    //             this.getDetailTaskList();
-    //         })
-    //     }
-    // }
-
     componentDidMount () {
         const { query = {} } = this.props;
         this.searchTaskFuzzy();
@@ -165,13 +150,13 @@ class TaskDetail extends Component {
         console.log(singleTaskInfo[0].groupName);
         console.log(singleTaskInfo[0].node);
         // 获取集群
-        var clusterName1;
+        let clusterNameTran;
         const arr = (singleTaskInfo[0].groupName || '').split('_');
         if (arr.length == 1) {
-            clusterName1 = singleTaskInfo[0].groupName
+            clusterNameTran = singleTaskInfo[0].groupName
         } else {
             for (var i = 0; i <= arr.length; i++) {
-                clusterName1 = arr[0];
+                clusterNameTran = arr[0];
             }
         }
 
@@ -185,7 +170,7 @@ class TaskDetail extends Component {
             radioValue: 1,
             engineType: singleTaskInfo[0].engineType,
             groupName: singleTaskInfo[0].groupName,
-            clusterName: clusterName1,
+            clusterName: clusterNameTran,
             node: setNode
         }, this.getDetailTaskList.bind(this))
     }
@@ -195,15 +180,6 @@ class TaskDetail extends Component {
         const jobName = this.state.jobName;
         const { table } = this.state;
         const { pageIndex } = table;
-        const { isClickGroup } = this.state;
-        const { dataSource } = this.state;
-        // this.setState({
-        //     dataSource: [],
-        //     table: {
-        //         ...table,
-        //         total: 0
-        //     }
-        // })
         this.setState({
             dataSource: []
         })
@@ -315,7 +291,6 @@ class TaskDetail extends Component {
     }
     // 改变引擎option值
     changeEngineValue (value) {
-        const engineType = this.state.engineType;
         const { node } = this.state;
         const { table } = this.state;
         if (!value) {
@@ -401,7 +376,6 @@ class TaskDetail extends Component {
     getDetailTaskList () {
         const { engineType, groupName, node } = this.state;
         const { table } = this.state;
-        const { loading } = table;
         const { pageIndex } = table;
         this.setState({
             dataSource: []
@@ -419,7 +393,6 @@ class TaskDetail extends Component {
                 node: node,
                 pageSize: PAGE_SIZE,
                 currentPage: pageIndex
-                // clusterName:
             }).then((res) => {
                 if (res.code == 1) {
                     this.setState({
@@ -446,7 +419,6 @@ class TaskDetail extends Component {
     // 请求置顶调整接口
     changeJobPriority (record) {
         // 获取集群
-        var groupName, clusterName, computeTypeInt;
         const arr = (record.groupName || '').split('_');
         if (arr.length == 1) {
             clusterName = record.groupName
@@ -493,9 +465,8 @@ class TaskDetail extends Component {
 
     initTableColumns () {
         const { queueNum } = this.state;
-        const { pageIndex, total } = this.state.table;
+        const { pageIndex } = this.state.table;
         const { radioValue } = this.state;
-        const { isClickGroup } = this.state;
         return [
             {
                 title: '执行顺序',
@@ -661,7 +632,6 @@ class TaskDetail extends Component {
         // 刷新根据引擎,group搜索出的任务
         // 刷新根据任务搜索
         const { radioValue } = this.state;
-        const { isClickGroup } = this.state;
         if (radioValue == 1) {
             this.getDetailTaskList();
         } else {
@@ -732,12 +702,6 @@ class TaskDetail extends Component {
             }
         });
     }
-    // input方法
-    // searchTask() {
-    //     this.setState({
-    //         isShowAll: true
-    //     })
-    // }
     // 集群筛选
     onClusterChange () {
 
@@ -760,7 +724,7 @@ class TaskDetail extends Component {
         })
     }
     render () {
-        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, isShowStick } = this.state;
+        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder } = this.state;
         const columns = this.initTableColumns();
         const { dataSource, table } = this.state;
         const { loading } = table;
@@ -774,9 +738,7 @@ class TaskDetail extends Component {
         const { clusterList } = this.props;
         const { node } = this.state;
         const { radioValue } = this.state;
-        const { isClickGroup } = this.state;
         const { singleTaskInfo } = this.state;
-        // const {moreTaskNum} = this.state;
         return (
             <div>
                 <div style={{ margin: '20px' }}>

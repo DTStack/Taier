@@ -23,7 +23,6 @@ require('codemirror/addon/edit/matchbrackets')
 @pureRender
 class CodeEditor extends Component {
     componentDidMount () {
-        const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
         const instance = this.getCodeMirrorIns()
@@ -62,8 +61,9 @@ class CodeEditor extends Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
-        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options } = nextProps
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
+        const { value, sync, cursor, cursorAlwaysInEnd, options } = nextProps
         if (options) this.self.setOption('readOnly', options.readOnly)
 
         if (this.props.value !== value) {

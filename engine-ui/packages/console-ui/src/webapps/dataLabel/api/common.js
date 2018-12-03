@@ -1,4 +1,4 @@
-import utils from 'utils'
+
 import http from './http'
 import req from '../consts/reqUrls'
 
@@ -11,10 +11,10 @@ export default {
         return http.post(req.GET_ALL_MENU_LIST)
     },
     getPeriodType () {
-    	return http.post(req.GET_PERIOD_TYPE);
+        return http.post(req.GET_PERIOD_TYPE);
     },
     getNotifyType () {
-    	return http.post(req.GET_NOTIFY_TYPE);
+        return http.post(req.GET_NOTIFY_TYPE);
     }
 
 }

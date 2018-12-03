@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Icon, Button } from 'antd';
-import { Link, browserHistory, hashHistory } from 'react-router';
+import { hashHistory } from 'react-router';
 
 let timeClock;
 class ManageComplete extends Component {

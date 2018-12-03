@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
     Row, Col, Icon, Tooltip, Table, Input,
-    message, Select, Collapse, Button, Radio, Popover,
+    Select, Collapse, Button, Popover,
     Form, InputNumber
 } from 'antd'
 import { debounce } from 'lodash';
@@ -10,15 +10,13 @@ import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { DATA_SOURCE } from '../../../comm/const';
 import { haveTableList, haveCustomParams } from './sidePanel/panelCommonUtil';
-import { generateAKey } from 'utils';
 
 import Editor from 'widgets/code-editor'
-import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
+import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
-const RadioGroup = Radio.Group;
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends Component {
@@ -33,8 +31,6 @@ class OutputOrigin extends Component {
     }
     checkParams = (v) => {
         // 手动检测table参数
-        const { index, panelColumn } = this.props;
-        const tableColumns = panelColumn[index].columns;
 
         let result = {};
         this.props.form.validateFields((err, values) => {
@@ -49,24 +45,24 @@ class OutputOrigin extends Component {
 
     originOption = (type, arrData) => {
         switch (type) {
-        case 'originType':
-            return arrData.map(v => {
-                return <Option key={v} value={`${v.id}`}>{v.name}</Option>
-            })
-        case 'currencyType':
-            return arrData.map(v => {
-                return <Option key={v} value={`${v}`}>{v}</Option>
-            })
-        case 'columnType':
-            return arrData.map((v, index) => {
-                return <Option key={index} value={`${v.key}`}>{v.key}</Option>
-            })
-        case 'primaryType':
-            return arrData.map((v, index) => {
-                return <Option key={index} value={`${v.column}`}>{v.column}</Option>
-            })
-        default:
-            return null;
+            case 'originType':
+                return arrData.map(v => {
+                    return <Option key={v} value={`${v.id}`}>{v.name}</Option>
+                })
+            case 'currencyType':
+                return arrData.map(v => {
+                    return <Option key={v} value={`${v}`}>{v}</Option>
+                })
+            case 'columnType':
+                return arrData.map((v, index) => {
+                    return <Option key={index} value={`${v.key}`}>{v.key}</Option>
+                })
+            case 'primaryType':
+                return arrData.map((v, index) => {
+                    return <Option key={index} value={`${v.column}`}>{v.column}</Option>
+                })
+            default:
+                return null;
         }
     }
 
@@ -397,7 +393,6 @@ const OutputForm = Form.create({
 })(OutputOrigin);
 
 const initialData = {
-    popoverVisible: false,
     tabTemplate: [], // 模版存储,所有输出源(记录个数)
     panelActiveKey: [], // 输出源是打开或关闭状态
     popoverVisible: [], // 删除显示按钮状态
@@ -413,7 +408,6 @@ export default class OutputPanel extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            popoverVisible: false,
             tabTemplate: [], // 模版存储,所有输出源(记录个数)
             panelActiveKey: [], // 输出源是打开或关闭状态
             popoverVisible: [], // 删除显示按钮状态
@@ -582,7 +576,8 @@ export default class OutputPanel extends Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {

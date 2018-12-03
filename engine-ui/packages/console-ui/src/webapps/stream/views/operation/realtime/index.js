@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { connect } from 'react-redux'
 
 import {
-    Card, Button, Row, Col
+    Button, Row, Col
 } from 'antd'
 
 import Api from '../../../api'
@@ -17,7 +17,8 @@ class RealtimeStatistics extends Component {
         this.loadRealtimeData()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {

@@ -1,5 +1,5 @@
 // 从config文件全局读取
-import { CONSOLE_BASE_URL, DQ_BASE_URL, CONSOLE_BASE_UPLOAD_URL } from 'config/base';
+import { CONSOLE_BASE_URL, CONSOLE_BASE_UPLOAD_URL } from 'config/base';
 
 export default {
 

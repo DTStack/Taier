@@ -8,7 +8,6 @@ import {
     Select,
     Collapse,
     Button,
-    Radio,
     Popover,
     Form,
     Switch,
@@ -23,13 +22,12 @@ import { DATA_SOURCE } from '../../../comm/const';
 import { haveTableList, haveCustomParams } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor';
-import { default as CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
+import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 import { switchPartition } from '../../../views/helpDoc/docs';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
-const RadioGroup = Radio.Group;
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends Component {
@@ -44,8 +42,6 @@ class OutputOrigin extends Component {
     }
     checkParams = v => {
         // 手动检测table参数
-        const { index, panelColumn } = this.props;
-        const tableColumns = panelColumn[index].columns;
 
         let result = {};
         this.props.form.validateFields((err, values) => {
@@ -60,40 +56,40 @@ class OutputOrigin extends Component {
 
     originOption = (type, arrData) => {
         switch (type) {
-        case 'originType':
-            return arrData.map(v => {
-                return (
-                    <Option key={v} value={`${v.id}`}>
-                        {v.name}
-                    </Option>
-                );
-            });
-        case 'currencyType':
-            return arrData.map(v => {
-                return (
-                    <Option key={v} value={`${v}`}>
-                        {v}
-                    </Option>
-                );
-            });
-        case 'columnType':
-            return arrData.map((v, index) => {
-                return (
-                    <Option key={index} value={`${v.key}`}>
-                        {v.key}
-                    </Option>
-                );
-            });
-        case 'primaryType':
-            return arrData.map((v, index) => {
-                return (
-                    <Option key={index} value={`${v.column}`}>
-                        {v.column}
-                    </Option>
-                );
-            });
-        default:
-            return null;
+            case 'originType':
+                return arrData.map(v => {
+                    return (
+                        <Option key={v} value={`${v.id}`}>
+                            {v.name}
+                        </Option>
+                    );
+                });
+            case 'currencyType':
+                return arrData.map(v => {
+                    return (
+                        <Option key={v} value={`${v}`}>
+                            {v}
+                        </Option>
+                    );
+                });
+            case 'columnType':
+                return arrData.map((v, index) => {
+                    return (
+                        <Option key={index} value={`${v.key}`}>
+                            {v.key}
+                        </Option>
+                    );
+                });
+            case 'primaryType':
+                return arrData.map((v, index) => {
+                    return (
+                        <Option key={index} value={`${v.column}`}>
+                            {v.column}
+                        </Option>
+                    );
+                });
+            default:
+                return null;
         }
     }
 
@@ -192,47 +188,47 @@ class OutputOrigin extends Component {
                 </FormItem>
                 {(() => {
                     switch (panelColumn[index].type) {
-                    case DATA_SOURCE.REDIS: {
-                        return (
-                            <FormItem
-                                {...formItemLayout}
-                                label="表"
-                            >
-                                {getFieldDecorator('table-input', {
-                                    initialValue: 'disabled',
-                                    rules: [
-                                        { required: true, message: '请输入表名' }
-                                    ]
-                                })(
-                                    <Input onChange={(v) => { handleInputChange('table', index, v.target.value) }} />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    default: {
-                        return (
-                            <FormItem {...formItemLayout} label="表">
-                                {getFieldDecorator('table', {
-                                    rules: [{ required: true, message: '请选择表' }]
-                                })(
-                                    <Select
-                                        className="right-select"
-                                        onChange={v => {
-                                            handleInputChange('table', index, v);
-                                        }}
-                                        showSearch
-                                        filterOption={(input, option) =>
-                                            option.props.children
-                                                .toLowerCase()
-                                                .indexOf(input.toLowerCase()) >= 0
-                                        }
-                                    >
-                                        {tableOptionTypes}
-                                    </Select>
-                                )}
-                            </FormItem>
-                        )
-                    }
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="表"
+                                >
+                                    {getFieldDecorator('table-input', {
+                                        initialValue: 'disabled',
+                                        rules: [
+                                            { required: true, message: '请输入表名' }
+                                        ]
+                                    })(
+                                        <Input onChange={(v) => { handleInputChange('table', index, v.target.value) }} />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return (
+                                <FormItem {...formItemLayout} label="表">
+                                    {getFieldDecorator('table', {
+                                        rules: [{ required: true, message: '请选择表' }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange('table', index, v);
+                                            }}
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {tableOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
                     }
                 })()}
                 <FormItem {...formItemLayout} label="映射表">
@@ -344,124 +340,122 @@ class OutputOrigin extends Component {
                                 </Button>
                             </div>
                         </Col>
-                    ) : (
-                        <Col
-                            span="18"
-                            style={{ marginBottom: 20, height: 200 }}
-                        >
-                            {isShow && (
-                                <Editor
-                                    style={{
-                                        minHeight: 202,
-                                        border: '1px solid #ddd'
-                                    }}
-                                    key="params-editor"
-                                    sync={sync}
-                                    placeholder={
-                                        DATA_SOURCE.REDIS == panelColumn[index].type
-                                            ? '一行一个字段，无需字段类型，比如：\nid\nname'
-                                            : '字段 类型, 比如 id int 一行一个字段'}
-                                    // options={jsonEditorOptions}
-                                    value={panelColumn[index].columnsText}
-                                    onChange={this.debounceEditorChange.bind(this)}
-                                    editorRef={(ref) => {
-                                        this._editorRef = ref;
-                                    }}
-                                />
-                            )}
-                        </Col>
-                    )}
+                    ) : (<Col
+                        span="18"
+                        style={{ marginBottom: 20, height: 200 }}
+                    >
+                        {isShow && (
+                            <Editor
+                                style={{
+                                    minHeight: 202,
+                                    border: '1px solid #ddd'
+                                }}
+                                key="params-editor"
+                                sync={sync}
+                                placeholder={
+                                    DATA_SOURCE.REDIS == panelColumn[index].type
+                                        ? '一行一个字段，无需字段类型，比如：\nid\nname'
+                                        : '字段 类型, 比如 id int 一行一个字段'}
+                                // options={jsonEditorOptions}
+                                value={panelColumn[index].columnsText}
+                                onChange={this.debounceEditorChange.bind(this)}
+                                editorRef={(ref) => {
+                                    this._editorRef = ref;
+                                }}
+                            />
+                        )}
+                    </Col>)}
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
-                    case DATA_SOURCE.MYSQL: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('primaryKey', {
-                                    rules: [{ required: true, message: '请选择主键' }]
-                                })(
-                                    <Select
-                                        className="right-select"
-                                        onChange={v => {
-                                            handleInputChange('primaryKey', index, v);
-                                        }}
-                                        mode="multiple"
-                                        showSearch
-                                        filterOption={(input, option) =>
-                                            option.props.children
-                                                .toLowerCase()
-                                                .indexOf(input.toLowerCase()) >= 0
-                                        }
-                                    >
-                                        {primaryKeyOptionTypes}
-                                    </Select>
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    case DATA_SOURCE.MONGODB: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('primaryKey-input', {
-                                    rules: [{ required: true, message: '请选择主键' }]
-                                })(
-                                    <Input
-                                        placeholder="请输入主键"
-                                        onChange={e =>
-                                            handleInputChange(
-                                                'primaryKey',
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    case DATA_SOURCE.REDIS: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('primaryKey-input', {
-                                    rules: [{ required: true, message: '请选择主键' }]
-                                })(
-                                    <Input
-                                        placeholder="结果表主键，多个字段用英文逗号隔开"
-                                        onChange={e =>
-                                            handleInputChange(
-                                                'primaryKey',
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    case DATA_SOURCE.HBASE: {
-                        return (
-                            <FormItem {...formItemLayout} label="主键">
-                                {getFieldDecorator('hbasePrimaryKey', {
-                                    rules: [{ required: true, message: '请输入主键' }]
-                                })(
-                                    <Input
-                                        placeholder="请输入主键"
-                                        onChange={e =>
-                                            handleInputChange(
-                                                'hbasePrimaryKey',
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                )}
-                            </FormItem>
-                        )
-                    }
-                    default: {
-                        return null;
-                    }
+                        case DATA_SOURCE.MYSQL: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator('primaryKey', {
+                                        rules: [{ required: true, message: '请选择主键' }]
+                                    })(
+                                        <Select
+                                            className="right-select"
+                                            onChange={v => {
+                                                handleInputChange('primaryKey', index, v);
+                                            }}
+                                            mode="multiple"
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.props.children
+                                                    .toLowerCase()
+                                                    .indexOf(input.toLowerCase()) >= 0
+                                            }
+                                        >
+                                            {primaryKeyOptionTypes}
+                                        </Select>
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.MONGODB: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator('primaryKey-input', {
+                                        rules: [{ required: true, message: '请选择主键' }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    'primaryKey',
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.REDIS: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator('primaryKey-input', {
+                                        rules: [{ required: true, message: '请选择主键' }]
+                                    })(
+                                        <Input
+                                            placeholder="结果表主键，多个字段用英文逗号隔开"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    'primaryKey',
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        case DATA_SOURCE.HBASE: {
+                            return (
+                                <FormItem {...formItemLayout} label="主键">
+                                    {getFieldDecorator('hbasePrimaryKey', {
+                                        rules: [{ required: true, message: '请输入主键' }]
+                                    })(
+                                        <Input
+                                            placeholder="请输入主键"
+                                            onChange={e =>
+                                                handleInputChange(
+                                                    'hbasePrimaryKey',
+                                                    index,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </FormItem>
+                            )
+                        }
+                        default: {
+                            return null;
+                        }
                     }
                 })()}
                 <FormItem {...formItemLayout} label="并行度">
@@ -504,6 +498,7 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
+                {/* eslint-disable */}
                 {panelColumn[index].cache === 'LRU' ? ([
                     <FormItem {...formItemLayout} label="缓存大小(行)">
                         {getFieldDecorator('cacheSize', {
@@ -563,8 +558,10 @@ class OutputOrigin extends Component {
                         )}
                     </FormItem>
                 ]) : (
-                    undefined
-                )}
+                        undefined
+                    )}
+
+                {/* eslint-enable */}
                 {panelColumn[index].cache === 'ALL'
                     ? (
                         <FormItem {...formItemLayout} label="缓存超时时间(ms)">
@@ -640,7 +637,6 @@ const OutputForm = Form.create({
 })(OutputOrigin);
 
 const initialData = {
-    popoverVisible: false,
     tabTemplate: [], // 模版存储,所有输出源(记录个数)
     panelActiveKey: [], // 输出源是打开或关闭状态
     popoverVisible: [], // 删除显示按钮状态
@@ -655,7 +651,6 @@ export default class OutputPanel extends Component {
     constructor (props) {
         super(props);
         this.state = {
-            popoverVisible: false,
             tabTemplate: [], // 模版存储,所有输出源(记录个数)
             panelActiveKey: [], // 输出源是打开或关闭状态
             popoverVisible: [], // 删除显示按钮状态
@@ -806,7 +801,7 @@ export default class OutputPanel extends Component {
                 });
             });
         } else {
-            if ((index = 'add')) {
+            if ((index == 'add')) {
                 tableOptionType.push([]);
             } else {
                 tableOptionType[index] = [];
@@ -836,7 +831,8 @@ export default class OutputPanel extends Component {
         });
     };
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage;
         const oldPage = this.props.currentPage;
         if (currentPage.id !== oldPage.id) {

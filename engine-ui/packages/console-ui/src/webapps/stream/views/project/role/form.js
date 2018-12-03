@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
 
 import {
-    Table, Input, Button, Card,
-    Select, Form, message,
-    Radio, Modal, Tree
+    Input,
+    Form,
+    Tree
 } from 'antd'
 
 import Api from '../../../api'
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Option = Select.Option
 const TreeNode = Tree.TreeNode
 
 class RoleForm extends Component {
@@ -31,13 +30,15 @@ class RoleForm extends Component {
         })
     }
 
-    componentWillMount () {
+    // eslint-disable-next-line
+	UNSAFE_componentWillMount () {
         this.props.form.resetFields()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
-            let ids = nextProps.roleInfo && nextProps.roleInfo.permissionIds || []
+            let ids = (nextProps.roleInfo && nextProps.roleInfo.permissionIds) || []
             ids = ids && ids.map(id => `${id}`)
             this.onCheck(ids)
         }
@@ -111,7 +112,7 @@ class RoleForm extends Component {
                         rules: [{
                             required: true, message: '角色名称不可为空！'
                         }],
-                        initialValue: roleInfo && roleInfo.roleName || ''
+                        initialValue: (roleInfo && roleInfo.roleName) || ''
                     })(
                         <Input />
                     )}
@@ -122,7 +123,7 @@ class RoleForm extends Component {
                 >
                     {getFieldDecorator('roleDesc', {
                         rules: [],
-                        initialValue: roleInfo && roleInfo.roleDesc || ''
+                        initialValue: (roleInfo && roleInfo.roleDesc) || ''
                     })(
                         <Input type="textarea" />
                     )}
@@ -137,7 +138,7 @@ class RoleForm extends Component {
                             required: true,
                             message: '请选择相应的角色权限！'
                         }],
-                        initialValue: roleInfo && roleInfo.permissionIds || ''
+                        initialValue: (roleInfo && roleInfo.permissionIds) || ''
                     })(
                         <Tree
                             style={{ marginTop: '-10px' }}

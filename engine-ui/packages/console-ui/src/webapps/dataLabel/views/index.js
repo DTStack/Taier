@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-
-import utils from 'utils'
 import { dlApp } from 'config/base'
 
 import Header from './layout/header'
 import TagMarket from '../views/market'
 
-import { currentApp } from '../consts'
 import * as UserAction from '../actions/user'
 import { dataSourceActions } from '../actions/dataSource'
 import { commonActions } from '../actions/common'

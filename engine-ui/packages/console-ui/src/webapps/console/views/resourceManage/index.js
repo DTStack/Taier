@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Table, Modal, Select } from 'antd';
+import { Card, Table, Select } from 'antd';
 import moment from 'moment';
 
 import Api from '../../api/console';
@@ -7,7 +7,6 @@ import ChangeResourceModal from '../../components/changeResource';
 
 const PAGE_SIZE = 10;
 const Option = Select.Option;
-
 class ResourceManage extends React.Component {
     state = {
         resource: {},
@@ -153,6 +152,7 @@ class ResourceManage extends React.Component {
                 dataIndex: 'gmtModified',
                 width: '200px',
                 render (text) {
+                    /* eslint-disable-next-line */
                     return new moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },

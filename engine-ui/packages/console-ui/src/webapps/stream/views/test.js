@@ -1,9 +1,6 @@
+/* eslint-disable */
 import React, { Component } from 'react'
-import SplitPane from 'react-split-pane'
 
-import {
-    Form, Input, TreeSelect, Modal, Tree, Row
-} from 'antd'
 
 import GraphEditor from '../components/graph-editor'
 import Editor from 'widgets/editor';
