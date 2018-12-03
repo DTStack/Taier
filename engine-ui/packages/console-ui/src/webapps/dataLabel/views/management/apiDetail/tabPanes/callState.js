@@ -134,18 +134,18 @@ class ApiManageCallState extends Component {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
             switch (this.props.dateType) {
-            case '1':
-                times.push(utils.formatHours(chartData[i].time));
-                break;
-            case '7':
-                times.push(utils.formatDateHours(chartData[i].time));
-                break;
-            case '30':
-                times.push(utils.formatDate(chartData[i].time));
-                break;
-            case '-1':
-                times.push(utils.formatDate(chartData[i].time));
-                break;
+                case '1':
+                    times.push(utils.formatHours(chartData[i].time));
+                    break;
+                case '7':
+                    times.push(utils.formatDateHours(chartData[i].time));
+                    break;
+                case '30':
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
+                case '-1':
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
             }
         }
         let myChart = echarts.init(document.getElementById('manageApiDetail'));
@@ -194,16 +194,16 @@ class ApiManageCallState extends Component {
     }
     getDateText () {
         switch (this.props.dateType) {
-        case '1':
-            return '24小时';
-        case '7':
-            return '7天';
-        case '30':
-            return '30天';
-        case '-1':
-            return '历史以来';
-        default:
-            return '';
+            case '1':
+                return '24小时';
+            case '7':
+                return '7天';
+            case '30':
+                return '30天';
+            case '-1':
+                return '历史以来';
+            default:
+                return '';
         }
     }
     render () {
