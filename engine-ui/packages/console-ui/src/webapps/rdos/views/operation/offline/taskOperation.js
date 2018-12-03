@@ -53,7 +53,7 @@ class OfflineTaskList extends Component {
         person: '',
         jobName: utils.getParameterByName('job') ? utils.getParameterByName('job') : '',
         taskStatus: isEmpty(utils.getParameterByName('status')) ? [] : utils.getParameterByName('status').split(','),
-        bussinessDate: [new moment(yesterDay).subtract(utils.getParameterByName('date') || 0, 'days'), yesterDay],
+        bussinessDate: [moment(yesterDay).subtract(utils.getParameterByName('date') || 0, 'days'), yesterDay],
         cycDate: undefined,
         selectedRowKeys: [],
         checkAll: false,
@@ -74,7 +74,7 @@ class OfflineTaskList extends Component {
     componentDidMount () {
         this.search()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
@@ -284,7 +284,7 @@ class OfflineTaskList extends Component {
         const params = {
             current: pagination.current,
             taskStatus: filters.status,
-            jobType: filters.type ? ilters.type[0] : '',
+            jobType: filters.type ? filters.type[0] : '',
             selectedRowKeys: [],
             taskType: filters.taskType,
             taskPeriodId: filters.taskPeriodId,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import { isEmpty } from 'lodash'
 import {
     Form, Input, Checkbox, InputNumber,
     Select, Modal, TimePicker
@@ -23,7 +22,7 @@ class AlarmForm extends Component {
         runMin: '',
         senderTypes: []
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { alarmInfo, visible } = nextProps;
         if (visible && this.props.visible != visible) {
@@ -102,7 +101,7 @@ class AlarmForm extends Component {
     render () {
         const {
             form, title, projectUsers,
-            visible, alarmInfo, taskList, user
+            visible, alarmInfo, taskList
         } = this.props
 
         const { getFieldDecorator } = form
@@ -124,8 +123,7 @@ class AlarmForm extends Component {
         const receivers = alarmInfo.receiveUsers
             ? alarmInfo.receiveUsers.map(item => item.userId) : []
 
-        const { myTrigger, triggerTimeType, senderTypes } = this.state;
-        const display = myTrigger === 2 ? 'block' : 'none'
+        const { myTrigger, senderTypes } = this.state;
 
         let showDD = false;
         if (senderTypes.indexOf(4) > -1) {

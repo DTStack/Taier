@@ -1,21 +1,14 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import moment from 'moment';
-import SplitPane from 'react-split-pane';
 import {
     Row,
     Col,
     Table,
-    Button,
     Tabs,
     Radio,
-    Icon,
-    Modal,
     message,
     Card
 } from 'antd';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import '../../../../styles/pages/dataManage.scss';
 
 import utils from 'utils';
@@ -76,7 +69,7 @@ export default class TableDetail extends React.Component {
     }
 
     render () {
-        const { showType, tableData, previewData } = this.state;
+        const { showType, tableData } = this.state;
         const columns = [
             {
                 title: '序号',

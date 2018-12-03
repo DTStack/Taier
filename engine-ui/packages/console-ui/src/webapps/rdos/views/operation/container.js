@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout, Button } from 'antd'
+import { Layout } from 'antd'
 import { connect } from 'react-redux'
 
 import Sidebar from './sidebar'
@@ -26,6 +26,7 @@ class Container extends Component {
         this.initUsers(this.props.project);
         this.props.dispatch(getTaskTypes());
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { project = {} } = nextProps;
         const { project: old_project = {} } = this.props;
@@ -49,7 +50,6 @@ class Container extends Component {
 
     render () {
         const { children } = this.props
-        const collapsed = this.state.collapsed
         return (
             <Layout className="dt-operation">
                 <Sider className="bg-w">

@@ -69,12 +69,12 @@ export function LogInfo (props) {
     }
 
     if (log.msg_info) {
-        let log_sql = log['sql'];
-        if (log_sql && typeof log_sql == 'object') {
-            log_sql = JSON.stringify(log_sql, null, 2);
+        let logSql = log['sql'];
+        if (logSql && typeof logSql == 'object') {
+            logSql = JSON.stringify(logSql, null, 2);
         }
-        if (log_sql) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${log_sql} \n`
+        if (logSql) {
+            logText = `${logText}${wrappTitle('任务信息')}\n${logSql} \n`
         }
     }
     return (

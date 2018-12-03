@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Card, Table, Form, Select,
+    Table, Select,
     DatePicker, Input, Radio, Pagination,
     Button, Icon, Checkbox
 } from 'antd';
@@ -18,7 +18,6 @@ import AddLinkModal from './addLinkModal'
 import PublishModal from '../publish/publishModal'
 
 const { RangePicker } = DatePicker;
-const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const Search = Input.Search;
@@ -57,7 +56,7 @@ class PackageCreate extends React.Component {
         listType: publishType.TASK,
         modifyUser: undefined,
         publishName: undefined,
-        modifyDate: [moment().subtract(30, 'days'), new moment()],
+        modifyDate: [moment().subtract(30, 'days'), moment()],
         packageList: [],
         selectedRowKeys: [],
         selectedRows: [],
@@ -78,6 +77,7 @@ class PackageCreate extends React.Component {
         this.getTaskList();
         this.getUsers();
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { project = {} } = nextProps;
         const { project: old_project = {} } = this.props;
@@ -427,7 +427,7 @@ class PackageCreate extends React.Component {
     }
 
     disabledDate (currentDate) {
-        const now = new moment();
+        const now = moment();
         if (currentDate > now) {
             return true
         }
@@ -600,7 +600,7 @@ class PackageCreate extends React.Component {
         }
     }
     renderRightItem () {
-        const { selectedRows, listType, pagination } = this.state;
+        const { selectedRows, pagination } = this.state;
         const { current, pageSize } = pagination;
         const { taskTypes } = this.props;
         const offlineTaskTypes = taskTypes.offline;

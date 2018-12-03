@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 
@@ -22,7 +22,7 @@ class PackageContainer extends React.Component {
         createKey: 1024,
         publishKey: 2048
     }
-
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const { project } = nextProps;
         const { project: old_project } = this.props;
@@ -37,7 +37,7 @@ class PackageContainer extends React.Component {
             }
         }
     }
-
+    /* eslint-enable */
     onChange (key) {
         const { location } = this.props;
         if (key == 'create') {
@@ -52,7 +52,6 @@ class PackageContainer extends React.Component {
         hashHistory.push({ pathname: `/package/${key}`, query: location.query })
     }
     render () {
-        const { createKey, publishKey } = this.state;
         const { params } = this.props;
         const mode = utils.getParameterByName('type')
         const title = '任务发布'

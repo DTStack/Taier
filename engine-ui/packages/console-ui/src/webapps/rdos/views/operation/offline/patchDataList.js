@@ -4,25 +4,15 @@ import moment from 'moment'
 import { Link } from 'react-router'
 
 import {
-    Row, Input, Select, Menu, message,
-    Col, Radio, Pagination, Checkbox, Form,
-    DatePicker, TimePicker, Table, Card
+    Input, Select, message,
+    Checkbox, Form,
+    DatePicker, Table, Card
 } from 'antd'
 
-import utils from 'utils'
-
 import Api from '../../../api'
-import { TaskBadgeStatus } from '../../../components/status'
-import * as FlowAction from '../../../store/modules/operation/taskflow'
-
 const Search = Input.Search
-const RadioGroup = Radio.Group
 const Option = Select.Option
 const FormItem = Form.Item
-
-function getTimeString (date) {
-    return date ? date.format('HH:mm') : ''
-}
 
 class PatchDataList extends Component {
     state = {
@@ -41,7 +31,7 @@ class PatchDataList extends Component {
     componentDidMount () {
         this.loadPatchData()
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { project } = nextProps
         const oldProj = this.props.project

@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { isEmpty } from 'lodash';
-
 import {
     Table, message,
     Row, Col, Card, Input,
@@ -66,7 +64,7 @@ class OfflineTaskMana extends Component {
             this.search()
         }
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project

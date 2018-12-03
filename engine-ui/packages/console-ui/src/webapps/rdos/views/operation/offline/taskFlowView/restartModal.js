@@ -18,7 +18,7 @@ class RestartModal extends Component {
         currentNode: '',
         checkedKeys: []
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const node = nextProps.restartNode
         const visible = nextProps.visible

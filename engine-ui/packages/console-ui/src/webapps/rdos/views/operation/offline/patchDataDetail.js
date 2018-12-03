@@ -68,6 +68,7 @@ class PatchDataDetail extends Component {
         this._isUnmounted = true;
         clearTimeout(this._timeClock);
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project

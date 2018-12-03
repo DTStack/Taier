@@ -121,7 +121,7 @@ class TaskFlowView extends Component {
             jobId: id
         })
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
@@ -158,7 +158,7 @@ class TaskFlowView extends Component {
             ctx.setState({ loading: 'success' })
         })
     }
-
+    /* eslint-disable */
     loadEditor = (container) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
@@ -735,7 +735,7 @@ class TaskFlowView extends Component {
                         bottom: 0
                     }}
                 >
-                    <span>{taskJob && taskJob.batchTask && taskJob.batchTask.name || '-'}</span>
+                    <span>{(taskJob && taskJob.batchTask && taskJob.batchTask.name) || '-'}</span>
                     <span style={{ marginLeft: '15px' }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
                     {isPro ? '发布' : '提交'}于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tabs, Modal, Checkbox, Row, Col } from 'antd';
+import { Tabs, Modal, Checkbox, Row, Col } from 'antd';
 import utils from 'utils';
 
 import Api from '../../../../api'
@@ -40,6 +40,7 @@ class AddLinkModal extends React.Component {
                 }
             )
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const { visible, data, selectedRows } = nextProps;
         const { visible: old_visible } = this.props;
@@ -49,6 +50,7 @@ class AddLinkModal extends React.Component {
             this.initSelect(selectedRows, data);
         }
     }
+    /* eslint-enable */
     onOk () {
         const { selectList, dataList, checkTask } = this.state;
         const { data } = this.props;
@@ -139,7 +141,6 @@ class AddLinkModal extends React.Component {
     }
     renderList (key) {
         const { dataList, selectList } = this.state;
-        const { selectedRows } = this.props;
         const selectCount = this.getCount(key);
         if (!dataList[key].length) {
             return <p style={{ textAlign: 'center', color: '#999' }}>无</p>;
@@ -204,7 +205,7 @@ class AddLinkModal extends React.Component {
      *
      */
     getCount (type) {
-        const { tabKey, dataList, selectList, checkTask } = this.state;
+        const { dataList, selectList } = this.state;
         const list = dataList[type];
         const selectListKeys = selectList[type];
         const listKeys = list.map((item) => { return item.id });
@@ -219,7 +220,7 @@ class AddLinkModal extends React.Component {
         return count;
     }
     render () {
-        const { tabKey, dataList, selectList, checkTask } = this.state;
+        const { tabKey, checkTask } = this.state;
         const { visible, mode, data } = this.props;
         const resourceCount = this.getCount(publishType.RESOURCE);
         const funcCount = this.getCount(publishType.FUNCTION);

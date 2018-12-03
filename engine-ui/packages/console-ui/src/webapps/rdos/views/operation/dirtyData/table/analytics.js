@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Tabs, Table, Radio, Select, Card
+    Row, Tabs, Table, Select, Card
 } from 'antd'
 import moment from 'moment';
 
 import ajax from '../../../../api/dataManage';
 
 const TabPane = Tabs.TabPane;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
 const Option = Select.Option
 
 export default class TableAnalytics extends Component {
@@ -119,7 +117,7 @@ export default class TableAnalytics extends Component {
 
     changePage = (pagination) => {
         let { errorType, currentPage } = this.state;
-        currentPage[ errorType || 'npe'] = pagination.current;
+        currentPage[errorType || 'npe'] = pagination.current;
         this.setState({
             currentPage
         })
@@ -127,22 +125,20 @@ export default class TableAnalytics extends Component {
 
     render () {
         console.log(this.state.errorType);
-
-        const { tableData } = this.props;
         const { data, tablePartitions, tableCountInfo } = this.state
 
-        const partitionsOptions = tablePartitions && tablePartitions.map(p =>
-            <Option id={p.partId} value={`${p.partId}`} title={p.name}>
+        const partitionsOptions = tablePartitions && tablePartitions.map((p, index) =>
+            <Option key={index} id={p.partId} value={`${p.partId}`} title={p.name}>
                 {p.name}
             </Option>
         )
 
         const cols = this.generateCols(data[0])
         const showData = data.slice(1, data.length)
-        const dirtyDataCount = tableCountInfo && (
-            tableCountInfo.conversion + tableCountInfo.duplicate +
-            tableCountInfo.npe + tableCountInfo.other
-        )
+        // const dirtyDataCount = tableCountInfo && (
+        //     tableCountInfo.conversion + tableCountInfo.duplicate +
+        //     tableCountInfo.npe + tableCountInfo.other
+        // )
 
         const tablePane = <Table
             columns={cols}
