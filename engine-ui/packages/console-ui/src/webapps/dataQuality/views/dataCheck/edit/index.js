@@ -26,7 +26,8 @@ export default class DataCheckEdit extends Component {
         havePart: false
     }
 
-    componentWillMount () {
+    // eslint-disable-next-line
+    UNSAFE_componentWillMount () {
         const { verifyId } = this.props.routeParams;
         const { editParams } = this.state;
 

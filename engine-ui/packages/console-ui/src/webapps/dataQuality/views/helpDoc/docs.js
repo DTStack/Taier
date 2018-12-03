@@ -6,7 +6,7 @@ export const dataFilterDoc = (
         where 条件即针对源头数据筛选条件，根据指定的 column、table、where 条件拼接 SQL 进行数据抽取，暂时不支持limit关键字过滤。利用 where 条件可进行全量同步和增量同步，具体说明如下：<br/>
         <ul>
             <li>1）全量同步：第一次做数据导入时通常为全量导入，可不用设置 where 条件。</li>
-            <li>2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写create_time > 您需要的日期，如果需要日期动态变化，请参考帮助文档。</li>
+            <li>2）增量同步：增量导入在实际业务场景中，往往会选择当天的数据进行同步，通常需要编写 where 条件语句，请先确认表中描述增量字段（时间戳）为哪一个。如tableA增量的字段为create_time，则填写create_time &gt; 您需要的日期，如果需要日期动态变化，请参考帮助文档。</li>
         </ul>
     </div>
 )
@@ -58,14 +58,14 @@ export const hdfsConfig = ( // hdfs config
                 namenode名称（多个以逗号分隔）、proxy.provider参数；</li>
             <li>2、所有参数以JSON格式填写；</li>
             <li>3、格式为：<br/>
-                "dfs.nameservices": "nameservice名称",
-                "dfs.ha.namenodes.nameservice名称": "namenode名称，以逗号分隔",
-                "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.namenode.rpc-address.nameservice名称.namenode名称": "",
-                "dfs.client.failover.proxy.provider.<br/>
-                nameservice名称": "org.apache.hadoop.<br/>
+                &quot;dfs.nameservices&quot;: &quot;nameservice名称&quot;,
+                &quot;dfs.ha.namenodes.nameservice名称&quot;: &quot;namenode名称，以逗号分隔&quot;,
+                &quot;dfs.namenode.rpc-address.nameservice名称.namenode名称&quot;: &quot;&quot;,
+                &quot;dfs.namenode.rpc-address.nameservice名称.namenode名称&quot;: &quot;&quot;,
+                &quot;dfs.client.failover.proxy.provider.<br/>
+                nameservice名称&quot;: &quot;org.apache.hadoop.<br/>
                 hdfs.server.namenode.ha.<br/>
-                ConfiguredFailoverProxyProvider"
+                ConfiguredFailoverProxyProvider&quot;
             </li>
             <li>
                 4、详细参数含义请参考《帮助文档》或
@@ -91,7 +91,7 @@ export const hBaseConfig = ( // HBase configuration
     <div>
         HBase配置说明：
         <ul>
-            <li>1、Zookeeper 集群的地址，多个地址间用逗号分割。例 如：" IP1:Port, IP2:Port, IP3:Port/子目录".默认是 localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。如果在hbase-env.sh设置了HBASEMANAGESZK， 这些ZooKeeper节点就会和HBase一起启动</li>
+            <li>1、Zookeeper 集群的地址，多个地址间用逗号分割。例 如：&quot; IP1:Port, IP2:Port, IP3:Port/子目录&quot;.默认是 localhost,是给伪分布式用的。要修改才能在完全分布式的情况下使用。如果在hbase-env.sh设置了HBASEMANAGESZK， 这些ZooKeeper节点就会和HBase一起启动</li>
             <li>2、Port: ZooKeeper的zoo.conf中的配置。客户端连接的端口， 默认2181</li>
             <li>3、子目录：HBase在ZooKeeper中配置的子目录</li>
         </ul>

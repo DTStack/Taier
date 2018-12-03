@@ -1,5 +1,5 @@
 import { dashBoardActionType } from '../../consts/dashBoardActionType';
-import { message } from 'antd';
+// import { message } from 'antd';
 import API from '../../api/dashBoard';
 
 export const dashBoardActions = {

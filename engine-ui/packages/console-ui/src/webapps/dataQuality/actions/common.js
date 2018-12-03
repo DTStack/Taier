@@ -1,5 +1,5 @@
 import commonActionType from '../consts/commonActionType';
-import { message } from 'antd';
+// import { message } from 'antd';
 import API from '../api/common';
 
 export const commonActions = {
