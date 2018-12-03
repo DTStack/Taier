@@ -296,8 +296,6 @@ export default class TaskView extends Component {
                 height: VertexSize.height
             };
 
-            console.log('geo:', data.name, geo);
-
             const cell = graph.insertVertex(
                 isWorkflow ? null : parentCell,
                 data.id, 
