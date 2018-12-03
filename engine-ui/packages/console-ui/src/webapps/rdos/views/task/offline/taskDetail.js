@@ -11,11 +11,8 @@ import LockPanel from '../../../components/lockPanel'
 import TaskVersion from './taskVersion';
 import Api from '../../../api';
 
-import {
-    workbenchAction
-} from '../../../store/modules/offlineTask/actionType';
-import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
+import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
 import { PROJECT_TYPE } from '../../../comm/const';
 import SchedulingConfig from './schedulingConfig';
@@ -24,7 +21,6 @@ const Panel = Collapse.Panel;
 
 function TaskInfo (props) {
     const taskInfo = props.taskInfo
-    const isPro = props.isPro;
     const couldEdit = props.couldEdit;
     const labelPrefix = props.labelPrefix || '任务';
     return (
@@ -136,7 +132,6 @@ class TaskDetail extends React.Component {
         const isPro = project.projectType == PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
-        const pre = isPro ? '发布' : '提交'
         return <div className="m-taksdetail">
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header={`${labelPrefix}属性`}>

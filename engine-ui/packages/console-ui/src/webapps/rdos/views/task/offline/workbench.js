@@ -423,10 +423,9 @@ class Workbench extends React.Component {
     submitTab () {
         const {
             publishTask, dataSync,
-            currentTab, reloadTaskTab, project
+            currentTab, reloadTaskTab
         } = this.props;
 
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
         const { publishDesc = '' } = this.state
         const result = this.generateRqtBody(dataSync)
 
@@ -513,11 +512,11 @@ class Workbench extends React.Component {
          */
         const { column: targetColumn = [] } = targetMap;
         let indexMap = {};// 顺序记录表
-        let tmp_target = [];// 含有映射关系的target数组
+        let tmpTarget = [];// 含有映射关系的target数组
         for (let i = 0; i < target.length; i++) {
             const targetItem = target[i];
             const sourceItem = source[i];
-            tmp_target[i] = {
+            tmpTarget[i] = {
                 target: targetItem,
                 source: sourceItem
             }
@@ -526,19 +525,19 @@ class Workbench extends React.Component {
             indexMap[getKey(item)] = index;
         })
 
-        tmp_target.sort(
+        tmpTarget.sort(
             (a, b) => {
-                const index_a = indexMap[getKey(a.target)];
-                const index_b = indexMap[getKey(b.target)];
-                return index_a - index_b;
+                const indexA = indexMap[getKey(a.target)];
+                const indexB = indexMap[getKey(b.target)];
+                return indexA - indexB;
             }
         )
-        serverSource = tmp_target.map(
+        serverSource = tmpTarget.map(
             (item) => {
                 return item.source;
             }
         )
-        serverTarget = tmp_target.map(
+        serverTarget = tmpTarget.map(
             (item) => {
                 return item.target
             }

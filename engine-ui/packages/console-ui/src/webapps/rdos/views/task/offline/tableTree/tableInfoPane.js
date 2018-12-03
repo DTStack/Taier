@@ -2,7 +2,7 @@ import React from 'react';
 import { cloneDeep } from 'lodash';
 
 import {
-    Table, Tabs, Radio, Icon, Input
+    Table, Tabs, Icon, Input
 } from 'antd';
 
 import ajax from '../../../../api/dataManage';
@@ -29,6 +29,7 @@ export default class TableInfoPane extends React.Component {
         }
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const tbId = nextProps.tableId
         if (tbId && tbId !== this.props.tableId) {
@@ -36,6 +37,7 @@ export default class TableInfoPane extends React.Component {
             this.getPreview(this.state.tabKey, tbId)
         }
     }
+    /* eslint-disable */
 
     reset = () => {
         this.getTable(this.props.tableId)

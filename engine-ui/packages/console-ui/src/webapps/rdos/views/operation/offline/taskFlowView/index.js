@@ -509,7 +509,7 @@ class TaskFlowView extends Component {
             menu.addItem('查看任务日志', null, function () {
                 ctx.showJobLog(currentNode.jobId)
             })
-            menu.addItem(`${isPro?'查看':'修改'}任务`, null, function () {
+            menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                 ctx.props.goToTaskDev(taskId)
             })
             menu.addItem('查看任务属性', null, function () {
@@ -547,7 +547,6 @@ class TaskFlowView extends Component {
                 currentNode.status === TASK_STATUS.STOPED || // 已停止
                 currentNode.status === TASK_STATUS.PARENT_FAILD
             )
-
 
             menu.addItem('置成功并恢复调度', null, function () {
                 ctx.restartAndResume({
@@ -627,7 +626,7 @@ class TaskFlowView extends Component {
         if (translate.x > 0) {
             this._view = {
                 translate: translate,
-                scale: view.getScale(),
+                scale: view.getScale()
             };
         }
     }
@@ -692,7 +691,7 @@ class TaskFlowView extends Component {
             <div className="graph-editor"
                 style={{
                     position: 'relative',
-                    height: '100%',
+                    height: '100%'
                 }}
             >
                 <Spin

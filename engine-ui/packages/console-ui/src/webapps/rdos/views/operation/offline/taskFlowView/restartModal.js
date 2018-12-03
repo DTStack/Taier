@@ -2,7 +2,7 @@ import moment from 'moment'
 import React, { Component } from 'react'
 
 import {
-    Modal, Row, message, Col, Tree,
+    Modal, Row, message, Col, Tree
 } from 'antd'
 
 import Api from '../../../../api'
@@ -26,7 +26,7 @@ class RestartModal extends Component {
         if (visible && node) {
             this.setState({
                 currentNode: node,
-                treeData: [node],
+                treeData: [node]
             }, () => {
                 this.loadTaskTree({
                     taskId: node.batchTask.id,

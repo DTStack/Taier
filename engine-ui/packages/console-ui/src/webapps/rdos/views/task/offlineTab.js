@@ -67,7 +67,7 @@ class OfflineTabPane extends Component {
         this.props.loadTaskParams();
         this.getCatelogue();
     }
-
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const old = this.props.project;
         const newData = nextProps.project;
@@ -93,6 +93,7 @@ class OfflineTabPane extends Component {
             })
         }
     }
+    /* eslint-disable */
 
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
@@ -269,7 +270,6 @@ class OfflineTabPane extends Component {
             toggleCoverUpload,
             toggleCreateFn,
             toggleCreateScript,
-            dispatch
         } = this.props;
 
         switch (key) {
@@ -551,9 +551,6 @@ class OfflineTabPane extends Component {
     }
 
     render () {
-        const {
-            taskTreeData
-        } = this.props;
 
         return (
             <div className="g-taskOfflineSidebar task-sidebar m-tabs">

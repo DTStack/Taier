@@ -355,7 +355,7 @@ export const workbenchActions = (dispatch) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: {
                     taskVariables: uniqArr
-                },
+                }
             });
         },
 

@@ -24,7 +24,7 @@ const {
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
-    mxHierarchicalLayout,
+    mxHierarchicalLayout
 } = Mx
 
 const VertexSize = { // vertex大小
@@ -36,6 +36,7 @@ const getVertexNode = (obj) => {
     return obj;
 }
 
+/* eslint-disable */
 export default class TaskView extends Component {
     state = {
         selectedTask: '', // 选中的Task
@@ -210,7 +211,7 @@ export default class TaskView extends Component {
 
         const model = graph.getModel();
 
-        this.executeLayout = function(layoutTarget, change, post) {
+        this.executeLayout = function (layoutTarget, change, post) {
             const layout = new mxHierarchicalLayout(graph, 'north');
             layout.disableEdgeStyle = false;
             layout.interRankCellSpacing = 40;
@@ -416,3 +417,4 @@ export default class TaskView extends Component {
         return style
     }
 }
+/* eslint-disable */

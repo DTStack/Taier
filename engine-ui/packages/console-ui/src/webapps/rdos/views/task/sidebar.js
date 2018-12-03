@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Row, Tabs, Icon,
-    Popover, Tooltip
+    Row, Tabs,
 } from 'antd';
 
 import { hashHistory } from 'react-router';
@@ -18,8 +17,6 @@ class Sidebar extends Component {
 
     render () {
         const { pathname } = this.props.routing.locationBeforeTransitions;
-        const activeKey = /^\/*(\w+)(\/*.*)$/.exec(pathname)[1];
-
         return (
             <div className="sidebar">
                 <Row>

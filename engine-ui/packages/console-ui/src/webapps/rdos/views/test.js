@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 
@@ -68,3 +69,4 @@ export default class Test extends Component {
         )
     }
 }
+/* eslint-disable */

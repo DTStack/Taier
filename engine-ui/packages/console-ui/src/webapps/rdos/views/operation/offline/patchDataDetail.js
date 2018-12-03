@@ -339,7 +339,7 @@ class PatchDataDetail extends Component {
         })
     }
 
-    changeTaskName = (e) => {// 任务名变更
+    changeTaskName = (e) => { // 任务名变更
         console.log('taskName:', e)
         this.setState({ taskName: e.target.value })
     }
@@ -456,7 +456,7 @@ class PatchDataDetail extends Component {
         )
     }
 
-    getSelectRowsStatus() {
+    getSelectRowsStatus () {
         let haveFail, haveNotRun, haveSuccess, haveRunning;
         const { selectedRows } = this.state;
         for (let i = 0; i < selectedRows.length; i++) {

@@ -124,7 +124,7 @@ class SearchTaskModal extends React.Component {
 
     render () {
         const { data } = this.state;
-        const { visibleSearchTask, editor } = this.props;
+        const { visibleSearchTask } = this.props;
         const options = data && data.map(item =>
             <Option key={item.id} data={item} value={item.name}>
                 {item.name}

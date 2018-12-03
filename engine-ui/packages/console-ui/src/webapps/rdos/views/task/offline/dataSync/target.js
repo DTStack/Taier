@@ -85,7 +85,7 @@ class TargetForm extends React.Component {
         // 排除条件
         if (targetMap.type && targetMap.type.type === DATA_SOURCE.HBASE) {
             this.setState({
-                loading: false,
+                loading: false
             })
             return true;
         }
@@ -95,7 +95,7 @@ class TargetForm extends React.Component {
             tableName
         }).then(res => {
             this.setState({
-                loading: false,
+                loading: false
             })
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
@@ -116,7 +116,7 @@ class TargetForm extends React.Component {
         })[0];
     }
 
-    changeSource(value) {
+    changeSource (value) {
         const { handleSourceChange } = this.props;
         setTimeout(() => {
             this.getTableList(value);
@@ -263,7 +263,7 @@ class TargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { modalLoading } = this.state;
         const {
-            targetMap, dataSourceList, navtoStep,
+            targetMap, dataSourceList, navtoStep
         } = this.props;
         const getPopupContainer = this.props.getPopupContainer;
         return <div className="g-step2">

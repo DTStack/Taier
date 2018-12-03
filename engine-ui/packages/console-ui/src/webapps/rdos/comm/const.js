@@ -181,9 +181,9 @@ export const TASK_TYPE_ARRAY = [ //
 ]
 
 export const HELP_DOC_URL = {
-    DATA_SOURCE: "/public/helpSite/dtinsight-batch/v3.0/DataIntegration/Overview.html",
-    DATA_SYNC: "/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html",
-    TASKPARAMS: "/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig"
+    DATA_SOURCE: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/Overview.html',
+    DATA_SYNC: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html',
+    TASKPARAMS: '/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
 
 export const TASK_STATUS = { // 任务状态

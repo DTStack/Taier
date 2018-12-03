@@ -77,9 +77,9 @@ class FolderForm extends React.Component {
                         id="Task_CREATE_FOLDER"
                         treeData={ this.props.treeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
-                        defaultNode={ isCreateNormal ?
-                            this.props.treeData.name :
-                            this.getFolderName(defaultData)
+                        defaultNode={ isCreateNormal
+                            ? this.props.treeData.name
+                            : this.getFolderName(defaultData)
                         }
                     />
                 </FormItem>
@@ -92,13 +92,13 @@ class FolderForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(data) {
+    getFolderName (data) {
         const { treeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if(node.id === data.parentId && node.type === data.type) {
+                if (node.id === data.parentId && node.type === data.type) {
                     name = node.name;
                 } else {
                     loop(node.children || []);
@@ -241,7 +241,7 @@ dispatch => {
         addOfflineCatalogue: function (params, cateType) {
             return ajax.addOfflineCatalogue(params)
                 .then(res => {
-                    if(res.code === 1) {
+                    if (res.code === 1) {
                         benchActions.loadTreeNode(params.nodePid, cateType)
                         return true;
                     }
@@ -253,7 +253,7 @@ dispatch => {
                 .then(res => {
                     if (res.code === 1) {
                         let newData = defaultData;
-                        
+
                         newData.name = params.nodeName;
                         newData.originPid = defaultData.parentId;
                         newData.parentId = params.nodePid;

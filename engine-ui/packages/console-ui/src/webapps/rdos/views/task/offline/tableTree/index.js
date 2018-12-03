@@ -9,9 +9,6 @@ import {
 import { debounceEventHander } from 'funcs'
 
 import {
-    tableTreeAction
-} from '../../../../store/modules/offlineTask/actionType';
-import {
     workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction'
 
@@ -217,15 +214,6 @@ class TreeContent extends React.PureComponent {
             const isFolder = data.type === 'folder'
             const name = data.name || data.tableName
 
-            const title = <span
-                title={name}
-                className={isFolder ? 'folder-item' : 'file-item'}
-            >
-                {name}
-                <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                    {data.chargeUser || data.userName}
-                </i>
-            </span>
             const nodeTitle = isFolder ? name : (
                 <Tooltip overlayClassName="table-detail-card" title={(
                     <div className="detail-content">
