@@ -129,175 +129,175 @@ class DataSourceModal extends Component {
         const config = sourceData.dataJson || {};
 
         switch (sourceType) {
-        case DATA_SOURCE.HIVE: {
-            return <div>
-                <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.jdbcUrl', {
-                            rules: [{
-                                required: true, message: 'jdbcUrl不可为空！'
-                            }],
-                            initialValue: config.jdbcUrl || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="用户名">
-                    {
-                        getFieldDecorator('dataJson.username', {
-                            rules: [],
-                            initialValue: config.username || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="密码">
-                    {
-                        getFieldDecorator('dataJson.password', {
-                            rules: [],
-                            initialValue: ''
-                        })(
-                            <Input type="password"/>
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="defaultFS" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.defaultFS', {
-                            rules: [{
-                                required: true, message: 'defaultFS不可为空！'
-                            }],
-                            initialValue: config.defaultFS || ''
-                        })(
-                            <Input placeholder="hdfs://host:port"/>
-                        )
-                    }
-                </FormItem>
-                <FormItem {...tailFormItemLayout}>
-                    {
-                        getFieldDecorator('hasHdfsConfig', {
-                            initialValue: false
-                        })(
-                            <Checkbox checked={hasHdfsConfig} onChange={this.enableHdfsConfig}>
+            case DATA_SOURCE.HIVE: {
+                return <div>
+                    <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.jdbcUrl', {
+                                rules: [{
+                                    required: true, message: 'jdbcUrl不可为空！'
+                                }],
+                                initialValue: config.jdbcUrl || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="用户名">
+                        {
+                            getFieldDecorator('dataJson.username', {
+                                rules: [],
+                                initialValue: config.username || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="密码">
+                        {
+                            getFieldDecorator('dataJson.password', {
+                                rules: [],
+                                initialValue: ''
+                            })(
+                                <Input type="password"/>
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="defaultFS" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.defaultFS', {
+                                rules: [{
+                                    required: true, message: 'defaultFS不可为空！'
+                                }],
+                                initialValue: config.defaultFS || ''
+                            })(
+                                <Input placeholder="hdfs://host:port"/>
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...tailFormItemLayout}>
+                        {
+                            getFieldDecorator('hasHdfsConfig', {
+                                initialValue: false
+                            })(
+                                <Checkbox checked={hasHdfsConfig} onChange={this.enableHdfsConfig}>
                                     高可用配置
-                            </Checkbox>
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="高可用配置" style={{ display: hasHdfsConfig ? 'block' : 'none' }}>
-                    {
-                        getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [],
-                            initialValue: config.hadoopConfig || ''
-                        })(
-                            <Input type="textarea" rows={5} placeholder={hdfsConf} />
-                        )
-                    }
-                    <HelpDoc doc="hdfsConfig" />
-                </FormItem>
-            </div>
-        }
+                                </Checkbox>
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="高可用配置" style={{ display: hasHdfsConfig ? 'block' : 'none' }}>
+                        {
+                            getFieldDecorator('dataJson.hadoopConfig', {
+                                rules: [],
+                                initialValue: config.hadoopConfig || ''
+                            })(
+                                <Input type="textarea" rows={5} placeholder={hdfsConf} />
+                            )
+                        }
+                        <HelpDoc doc="hdfsConfig" />
+                    </FormItem>
+                </div>
+            }
 
-        case DATA_SOURCE.MAXCOMPUTE: {
-            return <div>
-                <FormItem {...formItemLayout} label="AccessId" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.accessId', {
-                            rules: [{
-                                required: true, message: 'access ID不可为空！'
-                            }],
-                            initialValue: config.accessId || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="AccessKey" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.accessKey', {
-                            rules: [{
-                                required: true, message: 'access Key不可为空！'
-                            }],
-                            initialValue: config.accessKey || ''
-                        })(
-                            <Input type="password" autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="Project Name" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.project', {
-                            rules: [{
-                                required: true, message: 'Project Name不可为空！'
-                            }],
-                            initialValue: config.project || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="End Point" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.endPoint', {
-                            rules: [{
-                                required: true, message: 'End Point不可为空！'
-                            }],
-                            initialValue: config.endPoint || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-            </div>
-        }
+            case DATA_SOURCE.MAXCOMPUTE: {
+                return <div>
+                    <FormItem {...formItemLayout} label="AccessId" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.accessId', {
+                                rules: [{
+                                    required: true, message: 'access ID不可为空！'
+                                }],
+                                initialValue: config.accessId || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="AccessKey" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.accessKey', {
+                                rules: [{
+                                    required: true, message: 'access Key不可为空！'
+                                }],
+                                initialValue: config.accessKey || ''
+                            })(
+                                <Input type="password" autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="Project Name" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.project', {
+                                rules: [{
+                                    required: true, message: 'Project Name不可为空！'
+                                }],
+                                initialValue: config.project || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="End Point" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.endPoint', {
+                                rules: [{
+                                    required: true, message: 'End Point不可为空！'
+                                }],
+                                initialValue: config.endPoint || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                </div>
+            }
 
-        case DATA_SOURCE.MYSQL:
-        case DATA_SOURCE.ORACLE:
-        case DATA_SOURCE.SQLSERVER: {
-            return <div>
-                <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.jdbcUrl', {
-                            rules: [{
-                                required: true, message: 'jdbcUrl不可为空！'
-                            }],
-                            initialValue: config.jdbcUrl || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="用户名" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.username', {
-                            rules: [{
-                                required: true, message: '用户名不可为空！'
-                            }],
-                            initialValue: config.username || ''
-                        })(
-                            <Input autoComplete="off" />
-                        )
-                    }
-                </FormItem>
-                <FormItem {...formItemLayout} label="密码" hasFeedback>
-                    {
-                        getFieldDecorator('dataJson.password', {
-                            rules: [{
-                                required: true, message: '密码不可为空！'
-                            }],
-                            initialValue: ''
-                        })(
-                            <Input type="password"/>
-                        )
-                    }
-                </FormItem>
-            </div>
-        }
+            case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.SQLSERVER: {
+                return <div>
+                    <FormItem {...formItemLayout} label="JDBC URL" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.jdbcUrl', {
+                                rules: [{
+                                    required: true, message: 'jdbcUrl不可为空！'
+                                }],
+                                initialValue: config.jdbcUrl || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="用户名" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.username', {
+                                rules: [{
+                                    required: true, message: '用户名不可为空！'
+                                }],
+                                initialValue: config.username || ''
+                            })(
+                                <Input autoComplete="off" />
+                            )
+                        }
+                    </FormItem>
+                    <FormItem {...formItemLayout} label="密码" hasFeedback>
+                        {
+                            getFieldDecorator('dataJson.password', {
+                                rules: [{
+                                    required: true, message: '密码不可为空！'
+                                }],
+                                initialValue: ''
+                            })(
+                                <Input type="password"/>
+                            )
+                        }
+                    </FormItem>
+                </div>
+            }
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 

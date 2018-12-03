@@ -9,14 +9,14 @@ const initalMsg = {
 
 export function msgList (state = initalMsg, action) {
     switch (action.type) {
-    case msgActions.UPDATE_MSG: {
-        if (action.data !== null) {
-            return assign({}, state, action.data)
-        }
+        case msgActions.UPDATE_MSG: {
+            if (action.data !== null) {
+                return assign({}, state, action.data)
+            }
 
-        return state;
-    }
-    default:
-        return state
+            return state;
+        }
+        default:
+            return state
     }
 }

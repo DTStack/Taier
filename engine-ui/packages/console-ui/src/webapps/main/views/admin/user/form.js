@@ -19,34 +19,34 @@ const CheckboxGroup = Checkbox.Group;
 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
 export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
     switch (app) {
-    case MY_APPS.RDOS:
-    case MY_APPS.STREAM: {
-        if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
-            return (value === RDOS_ROLE.PROJECT_OWNER ||
+        case MY_APPS.RDOS:
+        case MY_APPS.STREAM: {
+            if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
+                return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER)
-        } else if (myRoles.isProjectAdmin) { // 项目管理员
-            return value === RDOS_ROLE.PROJECT_OWNER ||
+            } else if (myRoles.isProjectAdmin) { // 项目管理员
+                return value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER ||
                 value === RDOS_ROLE.PROJECT_ADMIN
-        } else {
-            return true;
+            } else {
+                return true;
+            }
         }
-    }
-    case MY_APPS.API:
-    case MY_APPS.LABEL:
-    case MY_APPS.ANALYTICS_ENGINE:
-    case MY_APPS.DATA_QUALITY: {
-        if (loginUser.isTenantAdmin) { // 租户管理员
-            return value === APP_ROLE.TENANT_OWVER
-        } else if (myRoles.isProjectAdmin) { // 产品管理员
-            return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
-        } else {
-            return true;
+        case MY_APPS.API:
+        case MY_APPS.LABEL:
+        case MY_APPS.ANALYTICS_ENGINE:
+        case MY_APPS.DATA_QUALITY: {
+            if (loginUser.isTenantAdmin) { // 租户管理员
+                return value === APP_ROLE.TENANT_OWVER
+            } else if (myRoles.isProjectAdmin) { // 产品管理员
+                return (value === APP_ROLE.TENANT_OWVER || value === APP_ROLE.ADMIN)
+            } else {
+                return true;
+            }
         }
-    }
-    default: {
-        return false;
-    }
+        default: {
+            return false;
+        }
     }
 }
 

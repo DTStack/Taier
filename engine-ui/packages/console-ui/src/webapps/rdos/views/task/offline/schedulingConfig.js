@@ -277,9 +277,8 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
-                    }
                         break;
-
+                    }
                     case 1: { // 小时
                         dom = <span key={type}>
                             <FormItem
@@ -375,9 +374,8 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
-                    }
                         break;
-
+                    }
                     case 2: { // 天
                         const prefix = isWorkflowNode ? '起调' : '具体';
                         dom = <span key={type}>
@@ -412,9 +410,8 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
-                    }
                         break;
-
+                    }
                     case 3: { // 周
                         dom = <span key={type}>
                             <FormItem
@@ -463,9 +460,8 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
-                    }
                         break;
-
+                    }
                     case 4: { // 月
                         dom = <span key={type}>
                             <FormItem
@@ -516,8 +512,8 @@ class ScheduleForm extends React.Component {
                                 <span className="split-text">分</span>
                             </FormItem>
                         </span>;
-                    }
                         break;
+                    }
 
                     default: dom = <span>something wrong</span>;
                 }

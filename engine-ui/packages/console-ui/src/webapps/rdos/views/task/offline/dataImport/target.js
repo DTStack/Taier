@@ -328,8 +328,9 @@ class ImportTarget extends Component {
                     &nbsp;&nbsp;
 
                     {
+                        // eslint-disable-next-line
                         index === data.length - 1
-                            ? <span style={{ color: '#f60' }}>
+                        ? <span style={{ color: '#f60' }}>
                                 <br />
                                 点击"检测"按钮，测试分区是否存在
                             </span> : ''
@@ -340,7 +341,7 @@ class ImportTarget extends Component {
     }
 
     render () {
-        const { data, file, display, formState } = this.props
+        const { data, display, formState } = this.props
         const { tableList, tableData, queryTable, asTitle } = formState
         const { pagination } = this.state;
 

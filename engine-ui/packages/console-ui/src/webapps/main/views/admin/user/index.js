@@ -140,28 +140,28 @@ class AdminUser extends Component {
                 const roleValue = role.roleValue;
 
                 switch (app) {
-                case MY_APPS.RDOS:
-                case MY_APPS.STREAM: {
-                    if (roleValue == RDOS_ROLE.VISITOR) {
-                        isVisitor = true
-                    } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
-                        isProjectAdmin = true;
-                    } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
-                        isProjectOwner = true;
+                    case MY_APPS.RDOS:
+                    case MY_APPS.STREAM: {
+                        if (roleValue == RDOS_ROLE.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
+                            isProjectAdmin = true;
+                        } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
+                            isProjectOwner = true;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case MY_APPS.API:
-                case MY_APPS.LABEL:
-                case MY_APPS.ANALYTICS_ENGINE:
-                case MY_APPS.DATA_QUALITY: {
-                    if (roleValue == APP_ROLE.VISITOR) {
-                        isVisitor = true
-                    } else if (roleValue == APP_ROLE.ADMIN) {
-                        isProjectAdmin = true;
+                    case MY_APPS.API:
+                    case MY_APPS.LABEL:
+                    case MY_APPS.ANALYTICS_ENGINE:
+                    case MY_APPS.DATA_QUALITY: {
+                        if (roleValue == APP_ROLE.VISITOR) {
+                            isVisitor = true
+                        } else if (roleValue == APP_ROLE.ADMIN) {
+                            isProjectAdmin = true;
+                        }
+                        break;
                     }
-                    break;
-                }
                 }
             }
 

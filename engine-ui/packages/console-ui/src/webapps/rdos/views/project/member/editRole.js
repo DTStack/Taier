@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 
 import {
-    Input, Button, Card,
     Select, Form, Checkbox
 } from 'antd'
 
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 class EditRoleForm extends Component {

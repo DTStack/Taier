@@ -35,7 +35,6 @@ const hdfsConf =
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 
-
 class BaseForm extends Component {
     state = {
         sourceType: 1,

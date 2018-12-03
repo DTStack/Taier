@@ -15,51 +15,51 @@ class BenchContent extends Component {
         const { editTableInfoList = {}, currentTab } = props.workbench.mainBench
 
         switch (tabData.actionType) {
-        case workbenchAction.OPEN_SQL_QUERY: {
-            return <SQLEditor data={tabData} />
-        }
-        case workbenchAction.CREATE_TABLE: {
-            return <CreateTable data={tabData} />
-        }
-        case workbenchAction.OPEN_TABLE_EDITOR: {
-            return <EditTable data={tabData}
-                tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
-                saveEditTableInfo={props.saveEditTableInfo}
-                saveTableInfo={props.saveTableInfo}
-                closeTab={() => this.props.closeTab(tabData.id)}
-                loadCatalogue = {this.props.loadCatalogue}
-            />
-        }
-        case workbenchAction.OPEN_TABLE: {
-            return <TableDetail
-                data={tabData}
-                closeTab={() => this.props.closeTab(tabData.id)}
-                loadCatalogue = {this.props.loadCatalogue}
-                onGenerateCreateSQL={props.onGenerateCreateSQL}
-            />
-        }
-        case workbenchAction.OPEN_DATABASE: {
-            return <DatabaseDetail data={tabData} {...props} />
-        }
-        case workbenchAction.OPEN_DATA_MAP: {
-            return <DataMap
-                onRemoveDataMap={props.onRemoveDataMap}
-                onGenerateCreateSQL={props.onGenerateCreateSQL}
-                data={tabData}
-            />
-        }
-        case workbenchAction.CREATE_DATA_MAP: {
-            return <DataMap
-                isCreate={true}
-                loadCatalogue={props.loadCatalogue}
-                onGetDataMap={props.onGetDataMap}
-                onGenerateCreateSQL={props.onGenerateCreateSQL}
-                data={tabData}
-            />
-        }
-        default: <p>
+            case workbenchAction.OPEN_SQL_QUERY: {
+                return <SQLEditor data={tabData} />
+            }
+            case workbenchAction.CREATE_TABLE: {
+                return <CreateTable data={tabData} />
+            }
+            case workbenchAction.OPEN_TABLE_EDITOR: {
+                return <EditTable data={tabData}
+                    tableDetail={editTableInfoList[`tableInfo${currentTab}`] || {}}
+                    saveEditTableInfo={props.saveEditTableInfo}
+                    saveTableInfo={props.saveTableInfo}
+                    closeTab={() => this.props.closeTab(tabData.id)}
+                    loadCatalogue = {this.props.loadCatalogue}
+                />
+            }
+            case workbenchAction.OPEN_TABLE: {
+                return <TableDetail
+                    data={tabData}
+                    closeTab={() => this.props.closeTab(tabData.id)}
+                    loadCatalogue = {this.props.loadCatalogue}
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                />
+            }
+            case workbenchAction.OPEN_DATABASE: {
+                return <DatabaseDetail data={tabData} {...props} />
+            }
+            case workbenchAction.OPEN_DATA_MAP: {
+                return <DataMap
+                    onRemoveDataMap={props.onRemoveDataMap}
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData}
+                />
+            }
+            case workbenchAction.CREATE_DATA_MAP: {
+                return <DataMap
+                    isCreate={true}
+                    loadCatalogue={props.loadCatalogue}
+                    onGetDataMap={props.onGetDataMap}
+                    onGenerateCreateSQL={props.onGenerateCreateSQL}
+                    data={tabData}
+                />
+            }
+            default: <p>
                 未知类型
-        </p>
+            </p>
         }
     }
 

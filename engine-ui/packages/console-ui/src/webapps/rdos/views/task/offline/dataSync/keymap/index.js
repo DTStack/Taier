@@ -997,6 +997,7 @@ class Keymap extends React.Component {
     }
 
     prev (cb) {
+        // eslint-disable-next-line
         cb.call(null, 1);
     }
 
@@ -1030,7 +1031,7 @@ class Keymap extends React.Component {
                 return;
             }
         }
-
+        // eslint-disable-next-line
         cb.call(null, 3);
     }
 

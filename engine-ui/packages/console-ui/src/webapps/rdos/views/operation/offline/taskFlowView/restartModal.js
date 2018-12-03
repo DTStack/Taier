@@ -49,8 +49,7 @@ class RestartModal extends Component {
         const reqParams = {
             jobId: restartNode.id,
             subJobIds: checked,
-            justRunChild: true,
-            setSuccess: true
+            justRunChild: true
         }
 
         Api.restartAndResume(reqParams).then((res) => {

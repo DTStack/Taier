@@ -37,7 +37,7 @@ class Abstract extends Component {
             render: (text, record) => {
                 const data = record.adminUsers || []
                 return data && data.length > 0
-                    ? data.map(item => <span>{item.userName}; </span>) : '无'
+                    ? data.map(item => <span key={item.id}>{item.userName}; </span>) : '无'
             }
         }, {
             title: '项目成员',
@@ -46,7 +46,7 @@ class Abstract extends Component {
             render: (text, record) => {
                 const data = record.memberUsers || []
                 return data && data.length > 0
-                    ? data.map(item => <span>{item.userName}</span>) : '无'
+                    ? data.map(item => <span key={item.id}>{item.userName}</span>) : '无'
             }
         }, {
             title: '项目描述',

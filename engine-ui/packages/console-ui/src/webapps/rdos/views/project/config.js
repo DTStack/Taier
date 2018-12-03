@@ -90,7 +90,7 @@ class ProjectConfig extends Component {
     }
 
     changeScheduleStatus (checked) {
-        const { params, project, dispatch } = this.props
+        const { project, dispatch } = this.props
         this.setState({
             scheduleStatusLoading: true
         })
@@ -227,7 +227,7 @@ class ProjectConfig extends Component {
     }
     render () {
         const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading, projectBindList } = this.state
-        const { params, project = {}, projects = [] } = this.props
+        const { params, project = {}, } = this.props
         const scheduleStatus = project && project.scheduleStatus;
         const isScheduleEnAbled = scheduleStatus == 0;
         const adminLength = project && project.adminUsers && project.adminUsers.length;

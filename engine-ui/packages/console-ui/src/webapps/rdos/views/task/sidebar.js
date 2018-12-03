@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import {
-    Row, Tabs
+    Row
 } from 'antd';
 
 import { hashHistory } from 'react-router';

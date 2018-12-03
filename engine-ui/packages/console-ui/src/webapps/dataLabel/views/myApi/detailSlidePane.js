@@ -36,46 +36,46 @@ class detailSlidePane extends Component {
 
     getDateTypeView () {
         switch (this.state.nowView) {
-        case 'callState':
-            return (
-                <div
-                    className="m-radio-group"
-                    key="callStateDate"
-                    style={{ marginTop: 4, marginRight: 28 }}
-                >
-                    <RadioGroup
-
-                        name="callStateDate"
-                        defaultValue={this.state.callStateDate}
-                        className="no-bd nobackground"
-                        onChange={this.chooseCallStateDate.bind(this)}
+            case 'callState':
+                return (
+                    <div
+                        className="m-radio-group"
+                        key="callStateDate"
+                        style={{ marginTop: 4, marginRight: 28 }}
                     >
-                        <RadioButton value='1'>最近24小时</RadioButton>
-                        <RadioButton value='7'>最近7天</RadioButton>
-                        <RadioButton value='30'>最近30天</RadioButton>
-                    </RadioGroup>
-                </div>
-            );
-        case 'errorLog':
-            return (
-                <div
-                    className="m-radio-group"
-                    key="errorLogDate"
-                    style={{ marginTop: 4, marginRight: 28 }}
-                >
-                    <RadioGroup
+                        <RadioGroup
 
-                        name="errorLogDate"
-                        defaultValue={this.state.errorLogDate}
-                        className="no-bd nobackground"
-                        onChange={this.chooseErrorLogDate.bind(this)}
+                            name="callStateDate"
+                            defaultValue={this.state.callStateDate}
+                            className="no-bd nobackground"
+                            onChange={this.chooseCallStateDate.bind(this)}
+                        >
+                            <RadioButton value='1'>最近24小时</RadioButton>
+                            <RadioButton value='7'>最近7天</RadioButton>
+                            <RadioButton value='30'>最近30天</RadioButton>
+                        </RadioGroup>
+                    </div>
+                );
+            case 'errorLog':
+                return (
+                    <div
+                        className="m-radio-group"
+                        key="errorLogDate"
+                        style={{ marginTop: 4, marginRight: 28 }}
                     >
-                        <RadioButton value='7'>最近7天</RadioButton>
-                    </RadioGroup>
-                </div>
-            );
-        default:
-            return null;
+                        <RadioGroup
+
+                            name="errorLogDate"
+                            defaultValue={this.state.errorLogDate}
+                            className="no-bd nobackground"
+                            onChange={this.chooseErrorLogDate.bind(this)}
+                        >
+                            <RadioButton value='7'>最近7天</RadioButton>
+                        </RadioGroup>
+                    </div>
+                );
+            default:
+                return null;
         }
     }
 

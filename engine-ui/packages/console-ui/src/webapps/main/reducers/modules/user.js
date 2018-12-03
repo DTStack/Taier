@@ -9,16 +9,16 @@ const initalUser = {
 
 export function user (state = initalUser, action) {
     switch (action.type) {
-    case userActions.GET_USER:
-        return action.data
-    case userActions.UPDATE_USER: {
-        if (action.data !== null) {
-            return { ...state, ...action.data }
-        }
+        case userActions.GET_USER:
+            return action.data
+        case userActions.UPDATE_USER: {
+            if (action.data !== null) {
+                return { ...state, ...action.data }
+            }
 
-        return state;
-    }
-    default:
-        return state
+            return state;
+        }
+        default:
+            return state
     }
 }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { browserHistory, hashHistory } from 'react-router';
 import {
     Input, Button, message,
-    Modal, Form, Row,
+    Modal, Form, Row
 } from 'antd';
 
 import { isEmpty } from 'lodash';

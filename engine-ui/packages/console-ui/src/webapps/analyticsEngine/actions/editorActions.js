@@ -33,34 +33,34 @@ async function doSelect (resolve, dispatch, jobId, currentTab) {
     // 状态正常
     if (res && res.code === 1) {
         switch (res.data.status) {
-        case sqlExecStatus.FINISHED: {
+            case sqlExecStatus.FINISHED: {
             // 成功
-            getDataOver(dispatch, currentTab, res, jobId)
-            resolve(true);
-            return;
-        }
-        case sqlExecStatus.FAILED:
-        case sqlExecStatus.CANCELED: {
-            if (res.data && res.data.download) {
-                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                getDataOver(dispatch, currentTab, res, jobId)
+                resolve(true);
+                return;
             }
-            dispatch(removeLoadingTab(currentTab))
-            resolve(false)
-            return;
-        }
-        default: {
+            case sqlExecStatus.FAILED:
+            case sqlExecStatus.CANCELED: {
+                if (res.data && res.data.download) {
+                    dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                }
+                dispatch(removeLoadingTab(currentTab))
+                resolve(false)
+                return;
+            }
+            default: {
             // 正常运行，则再次请求,并记录定时器id
-            intervalsStore[currentTab] = setTimeout(
-                () => {
-                    if (stopSign[currentTab]) {
-                        console.log('find stop sign in doSelect')
-                        stopSign[currentTab] = false;
-                        return;
-                    }
-                    doSelect(resolve, dispatch, jobId, currentTab)
-                }, INTERVALS
-            )
-        }
+                intervalsStore[currentTab] = setTimeout(
+                    () => {
+                        if (stopSign[currentTab]) {
+                            console.log('find stop sign in doSelect')
+                            stopSign[currentTab] = false;
+                            return;
+                        }
+                        doSelect(resolve, dispatch, jobId, currentTab)
+                    }, INTERVALS
+                )
+            }
         }
     } else {
         dispatch(output(currentTab, `请求异常！`))
