@@ -239,19 +239,19 @@ class APIMarket extends Component {
             width: '15%',
             render: (status, record) => {
                 switch (status) {
-                case 0: {
-                    return <Link to={`/dl/mine?apiId=${record.id}`}>查看审批进度</Link>;
-                }
-                case 1:
-                case 3:
-                case 4: {
-                    return <Link to={`/dl/mine/approved?apiId=${record.id}`}>查看使用情况</Link>;
-                }
-                case -1:
-                case 2: {
-                    return <a onClick={this.doApply.bind(this, record)}>申请</a>;
-                }
-                default: return '';
+                    case 0: {
+                        return <Link to={`/dl/mine?apiId=${record.id}`}>查看审批进度</Link>;
+                    }
+                    case 1:
+                    case 3:
+                    case 4: {
+                        return <Link to={`/dl/mine/approved?apiId=${record.id}`}>查看使用情况</Link>;
+                    }
+                    case -1:
+                    case 2: {
+                        return <a onClick={this.doApply.bind(this, record)}>申请</a>;
+                    }
+                    default: return '';
                 }
             }
         }]
